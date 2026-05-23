@@ -760,13 +760,23 @@ body {
       <h3>Versões disponíveis do Office</h3>
       <div class="ver-row">
         <div class="ver-left">
-          <span class="ver-tag current">v2.1</span>
+          <span class="ver-tag current">v2.2</span>
+          <div>
+            <span class="ver-name">Optimizer integrado ao Voices + agenda dinâmica</span>
+            <span class="ver-meta">  ·  23/mai/2026  ·  Optimizer dentro da área Voices + eventos ordenados por data</span>
+          </div>
+        </div>
+        <a class="ver-link" href="/">Abrir →</a>
+      </div>
+      <div class="ver-row">
+        <div class="ver-left">
+          <span class="ver-tag">v2.1</span>
           <div>
             <span class="ver-name">Game Engine 2D + Dashboard duplo</span>
             <span class="ver-meta">  ·  23/mai/2026  ·  spawn com escolha + calendário rico</span>
           </div>
         </div>
-        <a class="ver-link" href="/">Abrir →</a>
+        <a class="ver-link" href="/_versoes-office/v2.1-game-engine.html">Ver →</a>
       </div>
       <div class="ver-row">
         <div class="ver-left">
@@ -848,16 +858,28 @@ const MES_NOMES = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','
     HCM:'#60a5fa', ERP:'#34d399', Cross:'#c084fc', BTP:'#fb923c', Cloud:'#22d3ee',
     Branding:'#f472b6', Institucional:'#f87171', WFS:'#fbbf24', SN:'#818cf8', BTM:'#2dd4bf'
   };
-  let html = '';
-  for (let m = 1; m <= 12; m++) {
+
+  function monthCard(m, mode) {
     const evs = EVENTS_2026.filter(e => e.m === m);
-    const opacity = evs.length === 0 ? '0.45' : '1';
-    html += `<div style="background:rgba(255,255,255,.025);border:1px solid var(--border-light);border-radius:10px;padding:12px 14px;opacity:${opacity}">
+    const isEmpty = evs.length === 0;
+    const isCur = mode === 'current';
+    const isPast = mode === 'passou';
+
+    let extraStyle = '';
+    if (isPast)    extraStyle = 'opacity:.42;filter:grayscale(.4)';
+    else if (isCur) extraStyle = 'border-color:rgba(16,185,129,.4)!important;background:rgba(16,185,129,.05)!important;box-shadow:0 0 0 1px rgba(16,185,129,.18)';
+    else if (isEmpty) extraStyle = 'opacity:.45';
+
+    const monthColor = isPast ? '#64748b' : (isCur ? '#34d399' : 'var(--primary-light)');
+    const curBadge = isCur ? '<span style="font-family:\'Press Start 2P\',monospace;font-size:7px;color:#34d399;background:rgba(16,185,129,.18);padding:3px 5px;border-radius:4px;margin-left:6px;letter-spacing:.1em">AGORA</span>' : '';
+    const countOrPast = isPast ? '<span style="font-size:10px;color:#64748b;font-style:italic">passou</span>' : `<span style="font-size:10px;color:var(--text-muted)">${evs.length} ${evs.length === 1 ? 'evento' : 'eventos'}</span>`;
+
+    let html = `<div style="background:rgba(255,255,255,.025);border:1px solid var(--border-light);border-radius:10px;padding:12px 14px;${extraStyle}">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,.06)">
-        <span style="font-family:'Press Start 2P',monospace;font-size:9px;color:var(--primary-light);letter-spacing:.18em">${MES_NOMES[m-1]}</span>
-        <span style="font-size:10px;color:var(--text-muted)">${evs.length} ${evs.length === 1 ? 'evento' : 'eventos'}</span>
+        <span style="font-family:'Press Start 2P',monospace;font-size:9px;color:${monthColor};letter-spacing:.18em">${MES_NOMES[m-1]}${curBadge}</span>
+        ${countOrPast}
       </div>`;
-    if (evs.length === 0) {
+    if (isEmpty) {
       html += `<div style="font-size:12px;color:#475569;font-style:italic;padding:6px 0">— sem eventos —</div>`;
     } else {
       for (const e of evs) {
@@ -871,7 +893,25 @@ const MES_NOMES = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','
         </div>`;
       }
     }
-    html += '</div>';
+    return html + '</div>';
+  }
+
+  const today = new Date();
+  const cur = today.getMonth() + 1;
+  const start = Math.max(1, cur - 1);
+  let html = '';
+  for (let m = start; m <= 12; m++) {
+    html += monthCard(m, m === cur ? 'current' : 'future');
+  }
+  if (start > 1) {
+    html += `<div style="grid-column:1 / -1;display:flex;align-items:center;gap:10px;margin:14px 0 4px;color:#475569;font-size:11px;letter-spacing:.14em;text-transform:uppercase">
+      <span style="flex:1;height:1px;background:rgba(255,255,255,.06)"></span>
+      ↓ Já passou neste ano ↓
+      <span style="flex:1;height:1px;background:rgba(255,255,255,.06)"></span>
+    </div>`;
+    for (let m = 1; m < start; m++) {
+      html += monthCard(m, 'passou');
+    }
   }
   grid.innerHTML = html;
 })();

@@ -87,6 +87,14 @@ body { background: #060e1a; overflow: hidden; font-family: 'Inter', sans-serif; 
 .em-m-name { font-family: 'Press Start 2P', monospace; font-size: 9px; color: #60a5fa; letter-spacing: .18em; }
 .em-m-count { font-size: 10px; color: #475569; }
 .em-month.empty { opacity: .45; }
+.em-month.passou { opacity: .42; filter: grayscale(.4); }
+.em-month.passou .em-m-name { color: #64748b; }
+.em-month.current { border-color: rgba(16,185,129,.4); background: rgba(16,185,129,.04); box-shadow: 0 0 0 1px rgba(16,185,129,.2); }
+.em-month.current .em-m-name { color: #34d399; }
+.em-passou-divider { grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; margin: 14px 0 4px; color: #475569; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; }
+.em-passou-divider::before, .em-passou-divider::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,.06); }
+.em-current-badge { font-family: 'Press Start 2P', monospace; font-size: 7px; color: #34d399; background: rgba(16,185,129,.15); padding: 3px 5px; border-radius: 4px; margin-left: 6px; letter-spacing: .1em; }
+.em-passou-badge { font-size: 9px; color: #64748b; font-style: italic; }
 .em-event { display: flex; gap: 8px; padding: 6px 0; align-items: flex-start; border-bottom: 1px dashed rgba(255,255,255,.04); font-size: 12px; }
 .em-event:last-child { border-bottom: none; }
 .em-date { font-family: 'Press Start 2P', monospace; font-size: 8px; color: #fbbf24; background: rgba(251,191,36,.08); padding: 4px 5px; border-radius: 4px; white-space: nowrap; min-width: 42px; text-align: center; margin-top: 1px; }
@@ -129,7 +137,7 @@ body { background: #060e1a; overflow: hidden; font-family: 'Inter', sans-serif; 
     </div>
   </div>
   <div class="sg-note">WASD ou ↑↓←→ · E para interagir · ESC para fechar modal</div>
-  <div class="sg-ver">v2.1 · 23 MAI 2026</div>
+  <div class="sg-ver">v2.2 · 23 MAI 2026</div>
 </div>
 
 <!-- Game Canvas -->
@@ -234,24 +242,24 @@ function fillArea(c, r, w, h, tile, solid) {
   // ── Carpet zones ──────────────────────────────────────────────────
   fillArea(7,  1,  8,  5,  T.COFFEE);    // Coffee corner
   fillArea(21, 1, 10,  4,  T.HUB);       // Marketing Hub board
-  fillArea(8,  5, 18, 10,  T.VOICES);    // Voices cowork area
+  fillArea(8,  5, 16, 10,  T.VOICES);    // Voices cowork area (cols 8-23)
+  fillArea(24, 5,  8, 10,  T.OPTIM);     // Profile Optimizer ADJACENT to Voices (cols 24-31)
   fillArea(41, 8,  7,  9,  T.SAP);       // SAP Lab
-  fillArea(14, 15, 7,  7,  T.ERONGO);    // ERP.ngo memorial
-  fillArea(31, 15, 8,  7,  T.OPTIM);     // Profile Optimizer booth
-  fillArea(21, 19,11,  8,  T.DUDA);      // Duda's office
-  fillArea(36, 20, 9,  7,  T.EVENTS);    // Events board
+  fillArea(14, 17, 7,  7,  T.ERONGO);    // ERP.ngo memorial (shifted south)
+  fillArea(22, 19,10,  8,  T.DUDA);      // Duda's office (shifted left, narrower)
+  fillArea(34, 19,10,  8,  T.EVENTS);    // Events board (shifted left, wider)
 
-  // ── Duda's office inner walls (entrance gap bottom row 26, cols 25-26) ──
+  // ── Duda's office inner walls (cols 22-31, entrance gap bottom row 26, cols 26-27) ──
   // Top wall (solid — north boundary)
-  for (let c = 21; c <= 31; c++) { mapTiles[19*COLS+c] = T.WALL; mapSolid[19*COLS+c] = 1; }
+  for (let c = 22; c <= 31; c++) { mapTiles[19*COLS+c] = T.WALL; mapSolid[19*COLS+c] = 1; }
   // Side walls
   for (let r = 19; r <= 26; r++) {
-    mapTiles[r*COLS+21] = T.WALL; mapSolid[r*COLS+21] = 1;
+    mapTiles[r*COLS+22] = T.WALL; mapSolid[r*COLS+22] = 1;
     mapTiles[r*COLS+31] = T.WALL; mapSolid[r*COLS+31] = 1;
   }
-  // Bottom wall with entrance gap at cols 25-26 (player enters from south)
-  for (let c = 22; c <= 30; c++) {
-    if (c < 25 || c > 26) { mapTiles[26*COLS+c] = T.WALL; mapSolid[26*COLS+c] = 1; }
+  // Bottom wall with entrance gap at cols 26-27 (player enters from south)
+  for (let c = 23; c <= 30; c++) {
+    if (c < 26 || c > 27) { mapTiles[26*COLS+c] = T.WALL; mapSolid[26*COLS+c] = 1; }
   }
 
   // Corridor between SAP Lab and main area (leave cols 38-40 open)
@@ -285,17 +293,17 @@ const OBJECTS = [
   // ── SAP Lab ───────────────────────────────────────────────────────
   { x:42*TS, y:9*TS, w:5*TS-4, h:7*TS-4, color:'#180832', bc:'#6d28d9', label:'⚗️ SAP Competitor Lab' },
 
-  // ── ERP.ngo memorial ──────────────────────────────────────────────
-  { x:15*TS, y:16*TS, w:5*TS-4, h:5*TS-4, color:'#071608', bc:'#166534', label:'🐘 ERP.ngo Memorial' },
+  // ── ERP.ngo memorial (shifted south to row 17) ────────────────────
+  { x:15*TS, y:18*TS, w:5*TS-4, h:5*TS-4, color:'#071608', bc:'#166534', label:'🐘 ERP.ngo Memorial' },
 
-  // ── Profile Optimizer ─────────────────────────────────────────────
-  { x:32*TS, y:16*TS, w:6*TS-4, h:5*TS-4, color:'#081a0e', bc:'#059669', label:'🪪 Profile Optimizer' },
+  // ── Profile Optimizer (NOW ADJACENT TO VOICES AREA) ───────────────
+  { x:25*TS, y:7*TS, w:6*TS, h:6*TS-4, color:'#081a0e', bc:'#10b981', label:'🪪 Profile Optimizer', monitor:'#34d399' },
 
-  // ── Duda's office ─────────────────────────────────────────────────
-  { x:23*TS, y:21.5*TS, w:3*TS, h:2*TS, color:'#180c00', bc:'#d97706', label:"📊 Mesa da Duda" },
+  // ── Duda's office (shifted left, cols 23-30) ──────────────────────
+  { x:24*TS, y:21.5*TS, w:3*TS, h:2*TS, color:'#180c00', bc:'#d97706', label:"📊 Mesa da Duda" },
 
-  // ── Events board ──────────────────────────────────────────────────
-  { x:37*TS, y:21*TS, w:7*TS-4, h:4.5*TS-4, color:'#041818', bc:'#0d9488', label:'📅 Eventos & Calendário' },
+  // ── Events board (shifted left, cols 35-43) ───────────────────────
+  { x:35*TS, y:21*TS, w:8*TS-4, h:4.5*TS-4, color:'#041818', bc:'#0d9488', label:'📅 Eventos & Calendário' },
 
   // ── Decorative plants (corners) ───────────────────────────────────
   { x:2*TS, y:2*TS, w:TS-4, h:TS-4, color:'#042008', bc:'#14532d', label:'🪴' },
@@ -370,13 +378,13 @@ const ZONES = [
     action:{ type:'toast', msg:'🪑 Vaga ⑦ reservada. Em breve uma nova Voice aqui!' }
   },
   {
-    id:'optimizer', px:35*TS, py:18*TS, r:68,
+    id:'optimizer', px:28*TS, py:10*TS, r:68,
     name:'🪪 Profile Optimizer',
-    tip:'Otimizar perfil LinkedIn com IA — Módulo A',
+    tip:'Otimizar perfil LinkedIn com IA — Módulo A do programa Voices',
     action:{ type:'iframe', url:'/optimizer' }
   },
   {
-    id:'erp-ngo', px:17*TS, py:18*TS, r:62,
+    id:'erp-ngo', px:17*TS, py:20*TS, r:62,
     name:'🐘 ERP.ngo Memorial',
     tip:'1% da receita global para conservação de elefantes',
     action:{ type:'external', url:'https://erp.ngo' }
@@ -388,7 +396,7 @@ const ZONES = [
     action:{ type:'toast', msg:'📊 Painel da Duda (Módulo C) — em construção! Em breve aqui.' }
   },
   {
-    id:'events', px:40*TS, py:23*TS, r:58,
+    id:'events', px:39*TS, py:23*TS, r:58,
     name:'📅 Agenda de Eventos',
     tip:'Calendário SAP / EPI-USE 2026 — 30 eventos',
     action:{ type:'events' }
@@ -557,13 +565,13 @@ function renderObjects() {
 
 // ── RENDER: AREA LABELS ────────────────────────────────────────────
 const AREA_LABELS = [
-  { px:17*TS, py:5.5*TS, text:'VOICES AREA', color:'rgba(96,165,250,0.30)' },
+  { px:16*TS, py:5.5*TS, text:'VOICES AREA', color:'rgba(96,165,250,0.34)' },
+  { px:28*TS, py:5.5*TS, text:'⟵ OPTIMIZER (Módulo A)', color:'rgba(52,211,153,0.34)' },
   { px:44*TS, py:8.5*TS, text:'SAP LAB', color:'rgba(167,139,250,0.30)' },
-  { px:35*TS, py:15.5*TS, text:'OPTIMIZER', color:'rgba(52,211,153,0.28)' },
-  { px:26*TS, py:22.5*TS, text:"DUDA'S OFFICE", color:'rgba(251,146,60,0.28)' },
-  { px:40*TS, py:20.5*TS, text:'EVENTS', color:'rgba(45,212,191,0.28)' },
+  { px:27*TS, py:22.5*TS, text:"DUDA'S OFFICE", color:'rgba(251,146,60,0.28)' },
+  { px:39*TS, py:20.5*TS, text:'EVENTS', color:'rgba(45,212,191,0.28)' },
   { px:11*TS, py:1.5*TS, text:'COFFEE CORNER', color:'rgba(251,191,36,0.28)' },
-  { px:17*TS, py:15.5*TS, text:'ERP.NGO', color:'rgba(74,222,128,0.26)' },
+  { px:17*TS, py:17.5*TS, text:'ERP.NGO', color:'rgba(74,222,128,0.26)' },
   { px:26*TS, py:1.5*TS, text:'MARKETING HUB', color:'rgba(192,132,252,0.28)' },
 ];
 
@@ -869,7 +877,7 @@ const MES_NOMES = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','
 
 let eventsRendered = false;
 function openEvents() {
-  if (!eventsRendered) renderEvents();
+  renderEvents();   // sempre re-renderiza (cobre mudança de mês)
   document.getElementById('events-modal').classList.add('open');
   infoIsOpen = true;
 }
@@ -877,32 +885,49 @@ function closeEvents() {
   document.getElementById('events-modal').classList.remove('open');
   infoIsOpen = false;
 }
+function renderMonthCard(m, classes) {
+  const evs = EVENTS_2026.filter(e => e.m === m);
+  const isEmpty = evs.length === 0;
+  const cls = [isEmpty ? 'empty' : '', classes].filter(Boolean).join(' ');
+  const isCurrent = classes && classes.includes('current');
+  const isPast = classes && classes.includes('passou');
+  let html = `<div class="em-month ${cls}">
+    <div class="em-month-h">
+      <span class="em-m-name">${MES_NOMES[m-1]}${isCurrent ? '<span class="em-current-badge">AGORA</span>' : ''}</span>
+      <span class="em-m-count">${isPast ? '<span class="em-passou-badge">passou</span>' : (evs.length + ' ' + (evs.length === 1 ? 'evento' : 'eventos'))}</span>
+    </div>`;
+  if (isEmpty) {
+    html += `<div class="em-event"><div class="em-info" style="color:#475569;font-style:italic">— sem eventos —</div></div>`;
+  } else {
+    for (const e of evs) {
+      const lobCls = `lob-${e.lob.replace(/[^A-Za-z]/g, '')}`;
+      html += `<div class="em-event">
+        <div class="em-date">${e.d}</div>
+        <div class="em-info">
+          <div class="em-name">${e.n}<span class="em-lob ${lobCls}">${e.lob}</span></div>
+          <div class="em-who">${e.who}</div>
+        </div>
+      </div>`;
+    }
+  }
+  return html + '</div>';
+}
 function renderEvents() {
   const grid = document.getElementById('em-grid');
+  const today = new Date();
+  const cur = today.getMonth() + 1;          // mês atual 1-12
+  const start = Math.max(1, cur - 1);        // começa do mês passado
   let html = '';
-  for (let m = 1; m <= 12; m++) {
-    const evs = EVENTS_2026.filter(e => e.m === m);
-    const empty = evs.length === 0;
-    html += `<div class="em-month${empty ? ' empty' : ''}">
-      <div class="em-month-h">
-        <span class="em-m-name">${MES_NOMES[m-1]}</span>
-        <span class="em-m-count">${evs.length} ${evs.length === 1 ? 'evento' : 'eventos'}</span>
-      </div>`;
-    if (empty) {
-      html += `<div class="em-event"><div class="em-info" style="color:#475569;font-style:italic">— sem eventos —</div></div>`;
-    } else {
-      for (const e of evs) {
-        const lobCls = `lob-${e.lob.replace(/[^A-Za-z]/g, '')}`;
-        html += `<div class="em-event">
-          <div class="em-date">${e.d}</div>
-          <div class="em-info">
-            <div class="em-name">${e.n}<span class="em-lob ${lobCls}">${e.lob}</span></div>
-            <div class="em-who">${e.who}</div>
-          </div>
-        </div>`;
-      }
+  // 1) Meses primários: do mês passado em diante
+  for (let m = start; m <= 12; m++) {
+    html += renderMonthCard(m, m === cur ? 'current' : '');
+  }
+  // 2) Meses já passados (antes do mês passado) ao final
+  if (start > 1) {
+    html += `<div class="em-passou-divider">↓ Já passou neste ano ↓</div>`;
+    for (let m = 1; m < start; m++) {
+      html += renderMonthCard(m, 'passou');
     }
-    html += '</div>';
   }
   grid.innerHTML = html;
   eventsRendered = true;
