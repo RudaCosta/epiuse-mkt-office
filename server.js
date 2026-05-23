@@ -34,15 +34,25 @@ const OPTIMIZER_PATH = path.join(__dirname, 'public/optimizer.html');
 app.get('/optimizer', (req, res) => res.sendFile(OPTIMIZER_PATH));
 
 if (IS_LOCAL_DEV) {
-  // Local: / = Office Engine War Room | /hub = Marketing Hub
-  const OFFICE_HOME_PATH = path.resolve('G:/Meu Drive/Claude MKT EUBR/dashboard-escritorio.html');
+  // Local: / = Office Engine Game | /dashboard = War Room clássico | /hub = Marketing Hub
+  const OFFICE_GAME_PATH = path.resolve('G:/Meu Drive/Claude MKT EUBR/dashboard-escritorio.html');
+  const DASHBOARD_PATH   = path.resolve('G:/Meu Drive/Claude MKT EUBR/dashboard-classic.html');
   const MKT_HUB_PATH     = path.resolve('G:/Meu Drive/Claude MKT EUBR/Estudos/portal-mkt-hub-FINAL.html');
-  app.get('/',    (req, res) => res.sendFile(OFFICE_HOME_PATH));
-  app.get('/hub', (req, res) => res.sendFile(MKT_HUB_PATH));
+  const VERSIONS_DIR     = path.resolve('G:/Meu Drive/Claude MKT EUBR/_versoes-office');
+  app.get('/',          (req, res) => res.sendFile(OFFICE_GAME_PATH));
+  app.get('/game',      (req, res) => res.sendFile(OFFICE_GAME_PATH));
+  app.get('/dashboard', (req, res) => res.sendFile(DASHBOARD_PATH));
+  app.get('/hub',       (req, res) => res.sendFile(MKT_HUB_PATH));
+  app.use('/_versoes-office', express.static(VERSIONS_DIR));
 } else {
-  // Railway: / e /hub redirecionam para o Profile Optimizer
-  app.get('/',    (req, res) => res.redirect('/optimizer'));
-  app.get('/hub', (req, res) => res.redirect('/optimizer'));
+  // Railway: servimos os HTMLs do Office direto do public/
+  const OFFICE_PROD    = path.join(__dirname, 'public/office.html');
+  const DASHBOARD_PROD = path.join(__dirname, 'public/dashboard.html');
+  const HUB_PROD       = path.join(__dirname, 'public/hub.html');
+  app.get('/',          (req, res) => res.sendFile(OFFICE_PROD));
+  app.get('/game',      (req, res) => res.sendFile(OFFICE_PROD));
+  app.get('/dashboard', (req, res) => res.sendFile(DASHBOARD_PROD));
+  app.get('/hub',       (req, res) => res.sendFile(HUB_PROD));
 }
 
 function buildPrompt(fields) {
