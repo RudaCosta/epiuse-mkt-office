@@ -1,0 +1,2578 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="page-title">Profile Optimizer — EPI-USE Voices</title>
+  <meta name="author" content="EPI-USE Brasil Marketing">
+  <meta id="meta-subject" name="subject" content="Profile Optimizer — EPI-USE Voices 2026">
+  <meta id="meta-description" name="description" content="Kit de otimização de perfil LinkedIn — EPI-USE Voices 2026">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── TOKENS ── */
+    :root {
+      --radius: 14px;
+      --radius-sm: 8px;
+      --font-body: 'Inter', sans-serif;
+      --font-pixel: 'Press Start 2P', monospace;
+      --accent: #2563EB;
+      --accent-light: #3b82f6;
+      --success: #059669;
+      --warning: #D97706;
+      --danger: #DC2626;
+    }
+
+    /* ── DARK THEME (default) ── */
+    [data-theme="dark"] {
+      --bg: #0d1b2e;
+      --bg-2: #0f2034;
+      --surface: rgba(255,255,255,0.04);
+      --surface-2: rgba(255,255,255,0.07);
+      --border: rgba(255,255,255,0.08);
+      --border-bright: rgba(96,165,250,0.3);
+      --text: #e2e8f0;
+      --text-muted: #64748b;
+      --text-dim: #94a3b8;
+      --input-bg: rgba(255,255,255,0.05);
+      --input-border: rgba(255,255,255,0.12);
+      --success-bg: rgba(5,150,105,0.15);
+      --warning-bg: rgba(217,119,6,0.15);
+      --danger-bg: rgba(220,38,38,0.15);
+      --shadow: 0 1px 3px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.3);
+      --header-bg: rgba(10,35,66,0.85);
+    }
+
+    /* ── LIGHT THEME ── */
+    [data-theme="light"] {
+      --bg: #F0F4F8;
+      --bg-2: #ffffff;
+      --surface: #ffffff;
+      --surface-2: #f8fafc;
+      --border: #e2e8f0;
+      --border-bright: #93c5fd;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --text-dim: #94a3b8;
+      --input-bg: #f8fafc;
+      --input-border: #e2e8f0;
+      --success-bg: #d1fae5;
+      --warning-bg: #fef3c7;
+      --danger-bg: #fee2e2;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
+      --header-bg: #0A2342;
+    }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: rgba(37,99,235,0.4); border-radius: 99px; }
+
+    /* ── BASE ── */
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+      transition: background .3s, color .3s;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      background: var(--header-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .header-brand { display: flex; align-items: center; gap: 14px; }
+
+    .header-logo {
+      font-family: var(--font-pixel);
+      font-size: 11px;
+      color: #60a5fa;
+      letter-spacing: .5px;
+    }
+
+    .header-sub {
+      font-size: 12px;
+      color: #93c5fd;
+      margin-top: 4px;
+      font-weight: 400;
+    }
+
+    .header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+    .erp-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #93c5fd;
+      background: rgba(255,255,255,0.06);
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    /* ── THEME TOGGLE ── */
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 999px;
+      padding: 6px 14px;
+      cursor: pointer;
+      font-size: 12px;
+      color: #93c5fd;
+      font-family: var(--font-body);
+      transition: background .2s;
+    }
+    .theme-toggle:hover { background: rgba(255,255,255,0.12); }
+
+    .btn-back-office {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-size: 12px;
+      color: #93c5fd;
+      font-family: var(--font-body);
+      cursor: pointer;
+      text-decoration: none;
+      transition: background .2s;
+    }
+    .btn-back-office:hover { background: rgba(255,255,255,0.12); }
+
+    /* ── LAYOUT ── */
+    .container {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 32px 20px 80px;
+    }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      margin-bottom: 16px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      box-shadow: var(--shadow);
+      transition: background .3s, border-color .3s;
+    }
+
+    [data-theme="dark"] .card {
+      background: rgba(255,255,255,0.04);
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .step-num {
+      width: 26px;
+      height: 26px;
+      background: var(--accent);
+      color: white;
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 0 12px rgba(37,99,235,0.4);
+    }
+
+    /* ── VOICE SELECTOR ── */
+    .voice-selector-card {
+      background: linear-gradient(135deg, rgba(37,99,235,0.12), rgba(10,35,66,0.4));
+      border: 1px solid rgba(96,165,250,0.25);
+    }
+
+    [data-theme="light"] .voice-selector-card {
+      background: linear-gradient(135deg, #eff6ff, #dbeafe);
+      border: 1px solid #93c5fd;
+    }
+
+    .voice-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .voice-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+      padding: 14px 16px;
+      background: var(--input-bg);
+      border: 1.5px solid var(--input-border);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all .2s;
+      text-align: left;
+      font-family: var(--font-body);
+      color: var(--text);
+    }
+
+    .voice-btn:hover {
+      border-color: var(--accent-light);
+      background: rgba(37,99,235,0.08);
+    }
+
+    .voice-btn.selected {
+      border-color: var(--accent);
+      background: rgba(37,99,235,0.12);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+    }
+
+    .voice-btn-name {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .voice-btn-role {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .voice-filled-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--success);
+      background: var(--success-bg);
+      padding: 2px 7px;
+      border-radius: 999px;
+      margin-top: 4px;
+    }
+
+    /* ── FORM ── */
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    input[type="url"],
+    input[type="text"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid var(--input-border);
+      border-radius: 8px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      color: var(--text);
+      background: var(--input-bg);
+      outline: none;
+      transition: border-color .2s, box-shadow .2s, background .3s, color .3s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+    }
+
+    select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 36px;
+    }
+
+    textarea { resize: vertical; min-height: 72px; line-height: 1.6; }
+
+    .input-hint {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 5px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .form-group { margin-bottom: 16px; }
+    .form-group:last-child { margin-bottom: 0; }
+
+    .optional-badge {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+      background: var(--surface-2);
+      padding: 1px 7px;
+      border-radius: 999px;
+      margin-left: 6px;
+    }
+
+    .section-divider {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--text-muted);
+      margin: 22px 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* context section collapse */
+    .context-section {
+      overflow: hidden;
+      transition: max-height .4s ease, opacity .3s;
+    }
+    .context-section.collapsed {
+      max-height: 0;
+      opacity: 0;
+    }
+    .context-section.expanded {
+      max-height: 3000px;
+      opacity: 1;
+    }
+
+    .context-toggle-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 14px;
+      font-size: 12px;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-family: var(--font-body);
+      margin-top: 4px;
+      transition: all .2s;
+    }
+    .context-toggle-btn:hover {
+      border-color: var(--accent-light);
+      color: var(--accent-light);
+    }
+
+    .prefilled-summary {
+      background: var(--success-bg);
+      border: 1px solid rgba(5,150,105,0.3);
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: var(--text);
+      margin-bottom: 12px;
+      display: none;
+    }
+    .prefilled-summary.visible { display: flex; align-items: center; gap: 10px; }
+    .prefilled-summary strong { color: var(--success); }
+
+    /* ── UPLOAD ── */
+    .upload-area {
+      border: 2px dashed var(--border);
+      border-radius: 10px;
+      padding: 30px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+      position: relative;
+    }
+    .upload-area:hover, .upload-area.drag-over {
+      border-color: var(--accent);
+      background: rgba(37,99,235,0.06);
+    }
+    .upload-area input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+    .upload-icon { font-size: 32px; margin-bottom: 8px; display: block; }
+    .upload-label { font-size: 14px; font-weight: 500; color: var(--text); display: block; margin-bottom: 4px; }
+    .upload-hint { font-size: 12px; color: var(--text-muted); }
+
+    .optional-uploads-note {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      background: var(--warning-bg);
+      border: 1px solid rgba(217,119,6,0.25);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 12px;
+      color: var(--warning);
+      margin-top: 12px;
+    }
+
+    .preview-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+    .preview-item {
+      position: relative;
+      width: 76px;
+      height: 76px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 2px solid var(--border);
+    }
+    .preview-item img { width: 100%; height: 100%; object-fit: cover; }
+    .preview-remove {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      width: 20px;
+      height: 20px;
+      background: rgba(220,38,38,0.85);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      font-size: 11px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+
+    /* ── BUTTON ── */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 14px 28px;
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s, transform .15s, box-shadow .2s;
+      width: 100%;
+      justify-content: center;
+      margin-top: 8px;
+      box-shadow: 0 0 20px rgba(37,99,235,0.3);
+    }
+    .btn-primary:hover:not(:disabled) {
+      background: #1d4ed8;
+      box-shadow: 0 4px 24px rgba(37,99,235,0.5);
+      transform: translateY(-1px);
+    }
+    .btn-primary:disabled { opacity: .4; cursor: not-allowed; box-shadow: none; }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: transparent;
+      color: var(--accent-light);
+      border: 1.5px solid var(--accent);
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .btn-secondary:hover { background: rgba(37,99,235,0.1); }
+
+    /* ── DUO BUTTONS ── */
+    .btn-duo {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .btn-duo-prompt {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      color: var(--accent-light);
+      border: 1.5px solid rgba(37,99,235,0.5);
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s, border-color .2s;
+      text-align: center;
+      line-height: 1.3;
+    }
+    .btn-duo-prompt:hover:not(:disabled) {
+      background: rgba(37,99,235,0.08);
+      border-color: var(--accent);
+    }
+    .btn-duo-prompt:disabled { opacity: .4; cursor: not-allowed; }
+    .btn-duo-local {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-top: 0;
+      padding: 14px 16px;
+      line-height: 1.3;
+    }
+    .btn-sub {
+      font-size: 11px;
+      font-weight: 400;
+      opacity: 0.72;
+      display: block;
+      margin-top: 4px;
+    }
+    @media (max-width: 500px) {
+      .btn-duo { grid-template-columns: 1fr; }
+    }
+
+    /* ── PROMPT MODAL ── */
+    .prompt-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 300;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .prompt-modal.open { display: flex; }
+    .prompt-modal-inner {
+      background: #0f2034;
+      border: 1px solid rgba(96,165,250,0.2);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 700px;
+      max-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+    }
+    .prompt-modal-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 22px 24px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      flex-shrink: 0;
+    }
+    .prompt-modal-title { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+    .prompt-modal-sub { font-size: 12px; color: var(--text-dim); }
+    .prompt-modal-close {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--text-dim);
+      border-radius: 8px;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background .2s;
+    }
+    .prompt-modal-close:hover { background: rgba(255,255,255,0.12); color: #fff; }
+    .prompt-modal-steps {
+      display: flex;
+      gap: 8px;
+      padding: 12px 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      flex-wrap: wrap;
+      flex-shrink: 0;
+    }
+    .step-pill {
+      background: rgba(37,99,235,0.15);
+      border: 1px solid rgba(37,99,235,0.25);
+      color: #93c5fd;
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .prompt-modal-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 24px;
+    }
+    .prompt-text {
+      font-family: 'Courier New', monospace;
+      font-size: 12.5px;
+      line-height: 1.7;
+      color: #cbd5e1;
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin: 0;
+    }
+    .prompt-modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      flex-shrink: 0;
+    }
+    .btn-copy-big {
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 13px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: var(--font-body);
+      transition: background .2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-copy-big:hover { background: #1d4ed8; }
+    .btn-copy-big.copied { background: var(--success); }
+
+    .btn-copy {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .15s;
+      color: var(--text);
+      font-family: var(--font-body);
+    }
+    .btn-copy:hover { background: var(--surface-2); border-color: var(--accent-light); }
+    .btn-copy.copied { background: var(--success-bg); border-color: var(--success); color: var(--success); }
+
+    /* ── LOADING ── */
+    #loading-state {
+      display: none;
+      text-align: center;
+      padding: 48px 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+    }
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+      margin: 0 auto 18px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { font-size: 15px; color: var(--text); font-weight: 500; }
+    .loading-sub { font-size: 13px; color: var(--text-muted); margin-top: 6px; }
+
+    /* ── RESULT ── */
+    #resultado { display: none; }
+
+    .result-header {
+      background: linear-gradient(135deg, #0A2342, #1e40af);
+      color: white;
+      border-radius: var(--radius);
+      padding: 28px;
+      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(96,165,250,0.2);
+    }
+    .result-header::before {
+      content: '';
+      position: absolute;
+      top: -50px; right: -50px;
+      width: 180px; height: 180px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 50%;
+    }
+    .result-name { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+    .result-role { font-size: 14px; color: #93c5fd; margin-bottom: 20px; }
+    .result-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .btn-print, .btn-reset {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.1);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      padding: 9px 18px;
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .btn-print:hover, .btn-reset:hover { background: rgba(255,255,255,0.18); }
+    .btn-reset { color: #93c5fd; }
+
+    /* ── RESULT SECTIONS ── */
+    .section-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    /* positivos */
+    .positivos-list { list-style: none; }
+    .positivos-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 7px 0;
+      font-size: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .positivos-list li:last-child { border-bottom: none; }
+    .positivos-list li::before { content: '✓'; color: var(--success); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+
+    /* problems table */
+    .problems-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .problems-table th {
+      background: var(--surface-2);
+      padding: 10px 12px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .3px;
+      border-bottom: 1px solid var(--border);
+    }
+    .problems-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .problems-table tr:last-child td { border-bottom: none; }
+
+    .urgency-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .urgency-alta { background: var(--danger-bg); color: var(--danger); }
+    .urgency-media { background: var(--warning-bg); color: var(--warning); }
+    .urgency-baixa { background: rgba(37,99,235,0.15); color: var(--accent-light); }
+
+    /* headline */
+    .headline-box {
+      background: rgba(37,99,235,0.08);
+      border: 1.5px solid rgba(37,99,235,0.25);
+      border-radius: 10px;
+      padding: 18px 20px;
+    }
+    .headline-text { font-size: 16px; font-weight: 600; color: var(--text); line-height: 1.5; margin-bottom: 12px; }
+    .headline-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+    .char-count { font-size: 12px; color: var(--text-muted); }
+    .char-count.over { color: var(--danger); font-weight: 600; }
+
+    /* url */
+    .url-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+    }
+    .url-prefix { font-size: 13px; color: var(--text-muted); white-space: nowrap; }
+    .url-value { font-size: 14px; font-weight: 600; color: var(--accent-light); flex: 1; }
+
+    /* sobre */
+    .sobre-box {
+      background: rgba(217,119,6,0.06);
+      border: 1.5px dashed rgba(217,119,6,0.4);
+      border-radius: 10px;
+      padding: 20px;
+    }
+    .sobre-text { font-size: 14px; line-height: 1.75; color: var(--text); white-space: pre-wrap; margin-bottom: 14px; }
+    .sobre-text .placeholder {
+      background: var(--warning-bg);
+      color: var(--warning);
+      border-radius: 4px;
+      padding: 1px 4px;
+      font-weight: 600;
+    }
+    .sobre-note { font-size: 12px; color: var(--warning); display: flex; align-items: center; gap: 5px; margin-bottom: 10px; }
+
+    /* competências */
+    .comp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
+    .comp-col-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 10px; }
+    .comp-add .comp-col-title { color: var(--success); }
+    .comp-remove .comp-col-title { color: var(--danger); }
+    .comp-keep .comp-col-title { color: var(--text-muted); }
+    .chip-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 500; }
+    .chip-add { background: var(--success-bg); color: #34d399; }
+    .chip-remove { background: var(--danger-bg); color: #f87171; text-decoration: line-through; }
+    .chip-keep { background: var(--surface-2); color: var(--text-muted); }
+
+    /* destaques */
+    .destaques-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+    .destaque-card {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      position: relative;
+      background: var(--surface-2);
+      transition: border-color .2s;
+    }
+    .destaque-card:hover { border-color: var(--border-bright); }
+    .destaque-num { font-size: 28px; font-weight: 800; color: var(--border); line-height: 1; margin-bottom: 8px; }
+    .destaque-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+    .destaque-desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+    .destaque-star { position: absolute; top: 12px; right: 14px; font-size: 16px; }
+
+    /* checklist */
+    .checklist { list-style: none; }
+    .checklist-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: opacity .2s;
+    }
+    .checklist-item:last-child { border-bottom: none; }
+    .checklist-item.done { opacity: .5; }
+    .checklist-item.done .checklist-text { text-decoration: line-through; }
+    .check-box {
+      width: 22px;
+      height: 22px;
+      border: 2px solid var(--border);
+      border-radius: 6px;
+      flex-shrink: 0;
+      margin-top: 1px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .2s;
+    }
+    .checklist-item.done .check-box { background: var(--success); border-color: var(--success); color: white; }
+    .checklist-content { flex: 1; }
+    .checklist-header { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+    .checklist-text { font-size: 14px; font-weight: 500; }
+    .priority-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .3px;
+    }
+    .priority-urgente { background: var(--danger-bg); color: var(--danger); }
+    .priority-normal { background: rgba(37,99,235,0.15); color: var(--accent-light); }
+    .priority-bonus { background: var(--success-bg); color: #34d399; }
+    .checklist-passo {
+      font-size: 12px;
+      color: var(--text-muted);
+      padding: 6px 10px;
+      background: var(--surface-2);
+      border-radius: 6px;
+      border-left: 3px solid var(--border);
+      margin-top: 6px;
+    }
+
+    /* proximos */
+    .proximos-list { list-style: none; counter-reset: passos; }
+    .proximos-list li {
+      counter-increment: passos;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 0;
+      font-size: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .proximos-list li:last-child { border-bottom: none; }
+    .proximos-list li::before {
+      content: counter(passos);
+      min-width: 26px;
+      height: 26px;
+      background: rgba(37,99,235,0.15);
+      color: var(--accent-light);
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* error */
+    .error-box {
+      background: var(--danger-bg);
+      border: 1px solid rgba(220,38,38,0.3);
+      border-radius: 8px;
+      padding: 14px 16px;
+      color: var(--danger);
+      font-size: 14px;
+      display: none;
+      margin-top: 12px;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      .container { padding: 20px 14px 60px; }
+      .card { padding: 20px; }
+      .form-row { grid-template-columns: 1fr; }
+      .comp-grid { grid-template-columns: 1fr; }
+      .destaques-grid { grid-template-columns: 1fr; }
+      .voice-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* ── RESULT KIT ── */
+    .rk-print-bar {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 200;
+      background: rgba(10,35,66,0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(96,165,250,0.25);
+      padding: 10px 24px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .rk-print-bar-label { font-size: 12px; color: #94a3b8; letter-spacing: .04em; }
+    .rk-print-bar-actions { display: flex; gap: 10px; }
+    .btn-pdf {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: var(--font-body);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      transition: background .2s;
+    }
+    .btn-pdf:hover { background: #1d4ed8; }
+    .btn-reset-bar {
+      background: rgba(255,255,255,0.06);
+      color: #94a3b8;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: var(--font-body);
+      transition: background .2s;
+    }
+    .btn-reset-bar:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+
+    /* cover */
+    .rk-cover { padding: 48px 0 36px; border-bottom: 1px solid var(--border); margin-bottom: 32px; }
+    .rk-cover-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(37,99,235,0.15);
+      border: 1px solid rgba(37,99,235,0.3);
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #93c5fd;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .rk-cover-title { font-size: 30px; font-weight: 800; color: #fff; line-height: 1.2; margin-bottom: 8px; letter-spacing: -.02em; }
+    .rk-cover-name { font-size: 17px; font-weight: 500; color: #93c5fd; margin-bottom: 4px; }
+    .rk-cover-role { font-size: 13px; color: var(--text-dim); margin-bottom: 28px; }
+    .rk-cover-meta { display: flex; gap: 10px; flex-wrap: wrap; }
+    .rk-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 5px 12px;
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+    .rk-pill strong { color: var(--text); }
+
+    /* progress */
+    .rk-progress {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 22px;
+      margin-bottom: 28px;
+    }
+    .rk-progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .rk-progress-header span { font-size: 13px; color: var(--text-dim); }
+    .rk-progress-header strong { font-size: 13px; color: var(--text); }
+    .rk-progress-bg { background: rgba(255,255,255,0.08); border-radius: 99px; height: 8px; overflow: hidden; }
+    .rk-progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #60a5fa); border-radius: 99px; transition: width .4s ease; }
+
+    /* copy block */
+    .rk-copy-block {
+      background: rgba(37,99,235,0.07);
+      border: 1px solid rgba(37,99,235,0.22);
+      border-radius: 10px;
+      padding: 18px 20px;
+      margin: 14px 0;
+      position: relative;
+    }
+    .rk-copy-inner { font-size: 14px; color: var(--text); line-height: 1.75; white-space: pre-wrap; }
+    .rk-copy-inner strong { color: #93c5fd; }
+    .rk-copy-inner .placeholder {
+      background: var(--warning-bg);
+      color: var(--warning);
+      border-radius: 4px;
+      padding: 1px 4px;
+      font-weight: 600;
+    }
+    .btn-copy {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(37,99,235,0.18);
+      border: 1px solid rgba(37,99,235,0.3);
+      color: #93c5fd;
+      border-radius: 6px;
+      padding: 5px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: var(--font-body);
+      transition: background .2s;
+      white-space: nowrap;
+    }
+    .btn-copy:hover { background: rgba(37,99,235,0.32); }
+    .btn-copy.copied { background: rgba(5,150,105,0.2); border-color: rgba(5,150,105,0.3); color: #34d399; }
+
+    /* url */
+    .rk-url-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(37,99,235,0.07);
+      border: 1px solid rgba(37,99,235,0.22);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin: 14px 0;
+      font-family: 'Courier New', monospace;
+    }
+    .rk-url-box .url-prefix { font-size: 13px; color: var(--text-muted); }
+    .rk-url-box .url-value { font-size: 15px; font-weight: 700; color: #93c5fd; flex: 1; }
+    .rk-url-box .btn-copy { position: static; }
+
+    .rk-body { font-size: 13.5px; color: var(--text-dim); line-height: 1.65; margin-bottom: 4px; }
+    .rk-sub-label { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 10px; }
+    .rk-char-count { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+    .rk-char-count.over { color: var(--danger); font-weight: 600; }
+    .rk-footer { border-top: 1px solid var(--border); margin-top: 48px; padding-top: 20px; text-align: center; font-size: 12px; color: var(--text-muted); line-height: 2; }
+
+    /* banner download */
+    .rk-banner-box {
+      background: linear-gradient(135deg, rgba(37,99,235,0.1), rgba(10,35,66,0.3));
+      border: 1px solid rgba(96,165,250,0.25);
+      border-radius: 12px;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .rk-banner-info { flex: 1; }
+    .rk-banner-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+    .rk-banner-sub { font-size: 12px; color: var(--text-muted); }
+    .btn-download-banner {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      font-family: var(--font-body);
+      cursor: pointer;
+      transition: background .2s;
+      white-space: nowrap;
+    }
+    .btn-download-banner:hover { background: #1d4ed8; }
+
+    /* SSI diagnostic */
+    .ssi-level {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 99px;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+    .ssi-baixo { background: var(--danger-bg); color: var(--danger); }
+    .ssi-medio { background: var(--warning-bg); color: var(--warning); }
+    .ssi-bom { background: rgba(37,99,235,0.15); color: var(--accent-light); }
+    .ssi-excelente { background: var(--success-bg); color: #34d399; }
+    .ssi-dicas { list-style: none; margin-top: 12px; }
+    .ssi-dicas li {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 6px 0;
+      font-size: 13px;
+      color: var(--text);
+      border-bottom: 1px solid var(--border);
+    }
+    .ssi-dicas li:last-child { border-bottom: none; }
+    .ssi-dicas li::before { content: '→'; color: var(--accent-light); flex-shrink: 0; }
+
+    /* ERP.ngo causas sociais */
+    .erp-ngo-card {
+      background: linear-gradient(135deg, rgba(5,150,105,0.08), rgba(10,35,66,0.2));
+      border: 1px solid rgba(5,150,105,0.25);
+      border-radius: 12px;
+      padding: 18px 20px;
+    }
+    .erp-ngo-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .erp-ngo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(5,150,105,0.15);
+      border: 1px solid rgba(5,150,105,0.3);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #34d399;
+      letter-spacing: .04em;
+    }
+    .erp-ngo-text { font-size: 13.5px; color: var(--text); line-height: 1.7; margin-bottom: 12px; }
+    .erp-steps { list-style: none; counter-reset: erp-count; }
+    .erp-steps li {
+      counter-increment: erp-count;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 6px 0;
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+    .erp-steps li::before {
+      content: counter(erp-count);
+      min-width: 22px;
+      height: 22px;
+      background: rgba(5,150,105,0.2);
+      color: #34d399;
+      border-radius: 50%;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* tipo badge para destaques */
+    .destaque-tipo {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 20px;
+      margin-bottom: 8px;
+      background: rgba(37,99,235,0.15);
+      color: var(--accent-light);
+    }
+    .destaque-tipo-artigo { background: rgba(37,99,235,0.15); color: var(--accent-light); }
+    .destaque-tipo-projeto { background: rgba(217,119,6,0.15); color: var(--warning); }
+    .destaque-tipo-conquista { background: var(--success-bg); color: #34d399; }
+    .destaque-tipo-curso { background: rgba(167,139,250,0.15); color: #a78bfa; }
+    .destaque-tipo-evento { background: rgba(220,38,38,0.15); color: #f87171; }
+
+    /* fotos section */
+    .fotos-lista { list-style: none; margin-top: 10px; }
+    .fotos-lista li {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 7px 0;
+      font-size: 13px;
+      color: var(--text);
+      border-bottom: 1px solid var(--border);
+    }
+    .fotos-lista li:last-child { border-bottom: none; }
+    .fotos-lista li::before { content: '📸'; flex-shrink: 0; }
+
+    /* ── PRINT — DARK THEME ── */
+    /* ── ESTRATÉGIA DE IDIOMA ── */
+    .idioma-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    .idioma-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+    .idioma-flag { font-size: 22px; margin-bottom: 6px; }
+    .idioma-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; }
+    .idioma-title { font-size: 14px; font-weight: 600; color: var(--text); margin: 4px 0 2px; }
+    .idioma-sub { font-size: 12px; color: var(--text-dim); }
+    @media (max-width: 600px) { .idioma-grid { grid-template-columns: 1fr; } }
+
+    /* ── LINHA EDITORIAL ── */
+    .pilares-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
+    .pilar-card { background: var(--surface-2); border-radius: 10px; padding: 12px; text-align: center; border: 1px solid var(--border); }
+    .pilar-pct { font-size: 20px; font-weight: 700; margin-bottom: 3px; }
+    .pilar-nome { font-size: 10px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; }
+    .pilar-ex { font-size: 11px; color: var(--text-dim); line-height: 1.5; text-align: left; }
+    .pilar-card:nth-child(1) .pilar-pct { color: #60a5fa; }
+    .pilar-card:nth-child(2) .pilar-pct { color: #34d399; }
+    .pilar-card:nth-child(3) .pilar-pct { color: #f59e0b; }
+    .pilar-card:nth-child(4) .pilar-pct { color: #a78bfa; }
+    @media (max-width: 600px) { .pilares-grid { grid-template-columns: 1fr 1fr; } }
+    .cal-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .cal-table th { background: var(--surface-2); padding: 8px 12px; text-align: left; font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; }
+    .cal-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .cal-table tr:last-child td { border-bottom: none; }
+    .cal-semana { font-weight: 700; color: var(--accent-light); white-space: nowrap; }
+    .cal-nota { display: flex; align-items: flex-start; gap: 10px; background: rgba(217,119,6,0.1); border: 1px solid rgba(217,119,6,0.25); border-radius: 8px; padding: 10px 14px; margin-top: 14px; font-size: 12px; color: #fcd34d; line-height: 1.6; }
+
+    /* ── SOCIAL SELLING ── */
+    .ss-perfis-list { list-style: none; display: flex; flex-wrap: wrap; gap: 7px; margin: 10px 0 16px; }
+    .ss-perfil-chip { background: rgba(37,99,235,0.12); border: 1px solid rgba(96,165,250,0.25); border-radius: 20px; padding: 4px 12px; font-size: 12px; color: var(--accent-light); }
+    .ss-comentario-box { background: rgba(255,255,255,0.03); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; padding: 12px 16px; font-size: 13px; color: var(--text-dim); line-height: 1.7; font-style: italic; margin-bottom: 14px; }
+
+    /* ── RECOMENDAÇÕES ── */
+    .rec-template { background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; font-size: 13px; line-height: 1.7; color: var(--text); position: relative; margin-top: 12px; }
+    .rec-template-label { font-size: 10px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+
+    /* ── KPIs ── */
+    .kpi-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .kpi-table th { background: var(--surface-2); padding: 8px 12px; text-align: left; font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; }
+    .kpi-table td { padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .kpi-table tr:last-child td { border-bottom: none; }
+    .kpi-meta { font-weight: 600; color: var(--success); }
+    .kpi-baseline { color: var(--text-muted); font-size: 12px; }
+    .kpi-instrucao { background: rgba(5,150,105,0.1); border: 1px solid rgba(5,150,105,0.25); border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #6ee7b7; line-height: 1.6; margin-bottom: 14px; }
+
+    @media print {
+      @page { size: A4; margin: 15mm 14mm 18mm; }
+
+      /* Forçar impressão de todas as cores e backgrounds */
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+
+      /* Ocultar elementos de interface */
+      .header, #form-section, #loading-state,
+      .rk-print-bar, .prompt-modal, .no-print,
+      .btn-copy, .btn-reset-bar, .btn-pdf { display: none !important; }
+
+      /* Ocultar progresso — vai direto ao diagnóstico */
+      .rk-progress { display: none !important; }
+
+      #resultado { display: block !important; }
+      .container { padding: 0 !important; }
+
+      /* Compactar cover — evita página em branco */
+      .rk-cover { padding: 20px 0 14px !important; margin-bottom: 16px !important; }
+      .rk-cover-title { font-size: 24px !important; }
+      .rk-cover-meta { gap: 8px !important; }
+
+      /* Cards sem sombra mas mantém background escuro */
+      .card { box-shadow: none !important; break-inside: avoid; page-break-inside: avoid; margin-bottom: 12px; }
+
+      /* Seções não quebram do título */
+      .section-title { page-break-after: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- RESULT PRINT BAR (aparece só quando kit está visível) -->
+<div class="rk-print-bar" id="rk-print-bar">
+  <span class="rk-print-bar-label" id="rk-bar-label">🪪 Kit LinkedIn · EPI-USE Voices 2026</span>
+  <div class="rk-print-bar-actions">
+    <button class="btn-reset-bar" onclick="resetarAnalise()">↩ Nova análise</button>
+    <button class="btn-pdf" onclick="window.print()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
+      Salvar como PDF
+    </button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-brand">
+    <div>
+      <div class="header-logo">EPI-USE VOICES</div>
+      <div class="header-sub">🪪 Profile Optimizer — by Ruds</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <a class="btn-back-office" href="/">← Office Engine</a>
+    <div class="erp-badge">🐘 <strong>ERP.ngo</strong> — 1% para conservação na África</div>
+    <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">
+      🌙 Modo escuro
+    </button>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- FORMULÁRIO -->
+  <div id="form-section">
+
+    <!-- 0. VOICE SELECTOR -->
+    <div class="card voice-selector-card">
+      <div class="card-title" style="margin-bottom:14px;">
+        🎙️ Qual Voice vai ser analisado?
+      </div>
+      <div class="voice-grid" id="voice-grid">
+
+        <button class="voice-btn" data-voice="anderson" onclick="selectVoice('anderson', this)">
+          <span class="voice-btn-name">Anderson Costa</span>
+          <span class="voice-btn-role">Delivery Strategic Account<br>SAP HCM · SuccessFactors</span>
+          <span class="voice-filled-badge">✓ Perfil salvo</span>
+        </button>
+
+        <button class="voice-btn" data-voice="carlos" onclick="selectVoice('carlos', this)">
+          <span class="voice-btn-name">Carlos Furigo</span>
+          <span class="voice-btn-role">Head of Products &amp; Innovation<br>SAP BTP · Clean Core · AWS</span>
+          <span class="voice-filled-badge">✓ Perfil salvo</span>
+        </button>
+
+        <button class="voice-btn" data-voice="novo" onclick="selectVoice('novo', this)">
+          <span class="voice-btn-name">+ Novo participante</span>
+          <span class="voice-btn-role">Preencher contexto<br>manualmente</span>
+        </button>
+
+      </div>
+    </div>
+
+    <!-- 1. URL -->
+    <div class="card">
+      <div class="card-title">
+        <div class="step-num">1</div>
+        URL do perfil LinkedIn
+      </div>
+      <label for="linkedin-url">Cole aqui o endereço completo do perfil</label>
+      <input type="url" id="linkedin-url" placeholder="https://www.linkedin.com/in/seu-usuario" autocomplete="off">
+      <div class="input-hint">Ex: https://linkedin.com/in/carlosfurigo</div>
+    </div>
+
+    <!-- 2. SCREENSHOTS -->
+    <div class="card">
+      <div class="card-title">
+        <div class="step-num">2</div>
+        Screenshots do perfil
+        <span class="optional-badge">recomendado</span>
+      </div>
+      <label>Faça screenshots da página do LinkedIn e envie aqui para uma análise completa</label>
+      <div class="upload-area" id="upload-area">
+        <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp" multiple>
+        <span class="upload-icon">📸</span>
+        <span class="upload-label">Arraste as imagens ou clique para selecionar</span>
+        <span class="upload-hint">JPG, PNG, WebP — até 5 imagens — máx. 10 MB cada</span>
+      </div>
+      <div class="optional-uploads-note">
+        ⚡ <span>Sem screenshots, o kit é gerado a partir do contexto do formulário — sem diagnóstico do estado atual do perfil.</span>
+      </div>
+      <div class="preview-grid" id="preview-grid"></div>
+      <div class="error-box" id="error-box"></div>
+    </div>
+
+    <!-- 3. CONTEXTO -->
+    <div class="card">
+      <div class="card-title">
+        <div class="step-num">3</div>
+        Contexto do Voice
+      </div>
+
+      <!-- Pre-filled summary (visible when a known Voice is selected) -->
+      <div class="prefilled-summary" id="prefilled-summary">
+        ✓ <span id="prefilled-text">Dados de <strong></strong> carregados automaticamente.</span>
+        <button class="context-toggle-btn" onclick="toggleContext()" id="context-toggle-btn" style="margin-top:0;margin-left:auto;">
+          ✏️ Editar dados
+        </button>
+      </div>
+
+      <div class="context-section collapsed" id="context-section">
+
+        <div class="section-divider">Identificação</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="f-nome">Nome completo</label>
+            <input type="text" id="f-nome" placeholder="Ex: Anderson Costa">
+          </div>
+          <div class="form-group">
+            <label for="f-area">Área principal de atuação</label>
+            <select id="f-area">
+              <option value="">Selecione…</option>
+              <option value="SAP HCM / SuccessFactors">SAP HCM / SuccessFactors</option>
+              <option value="SAP BTP / Clean Core">SAP BTP / Clean Core</option>
+              <option value="SAP ERP / S/4HANA">SAP ERP / S/4HANA</option>
+              <option value="SAP Signavio">SAP Signavio</option>
+              <option value="Analytics / Stratview">Analytics / Stratview</option>
+              <option value="ServiceNow HRSD / ITSM">ServiceNow HRSD / ITSM</option>
+              <option value="Múltiplas áreas">Múltiplas áreas</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="f-anos">Anos de experiência na área</label>
+            <input type="number" id="f-anos" placeholder="Ex: 12" min="1" max="50">
+          </div>
+          <div class="form-group">
+            <label for="f-tom">Tom de voz preferido</label>
+            <select id="f-tom">
+              <option value="equilibrado">Equilibrado (técnico + humano)</option>
+              <option value="técnico">Técnico (foco em expertise)</option>
+              <option value="executivo">Executivo (foco em resultados)</option>
+              <option value="inspirador">Inspirador (foco em propósito)</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="f-cargo-oficial">Cargo oficial na EPI-USE Brasil</label>
+            <input type="text" id="f-cargo-oficial" placeholder="Ex: Delivery Strategic Account">
+          </div>
+          <div class="form-group">
+            <label for="f-data-entrada">Data de entrada na EPI-USE Brasil</label>
+            <input type="text" id="f-data-entrada" placeholder="Ex: Março de 2019">
+          </div>
+        </div>
+        <div class="form-group" style="display:flex;align-items:center;gap:10px;padding:10px 0">
+          <input type="checkbox" id="f-foto-oficial" style="width:auto;accent-color:var(--accent);width:16px;height:16px;cursor:pointer;">
+          <label for="f-foto-oficial" style="margin:0;cursor:pointer;">Foto oficial EPI-USE Brasil disponível <span class="optional-badge">ajuda a IA a sugerir melhor</span></label>
+        </div>
+
+        <div class="section-divider">Resultados reais — esses viram o Sobre</div>
+        <div class="form-group">
+          <label for="f-r1">Resultado 1 <span style="color:var(--danger)">*</span></label>
+          <input type="text" id="f-r1" placeholder="Ex: Liderei migração de 8 mil colaboradores para SuccessFactors em 6 meses">
+          <div class="input-hint">Inclua números reais quando possível</div>
+        </div>
+        <div class="form-group">
+          <label for="f-r2">Resultado 2 <span style="color:var(--danger)">*</span></label>
+          <input type="text" id="f-r2" placeholder="Ex: Reduzi erros de folha de pagamento em 40% com automação SAP">
+        </div>
+        <div class="form-group">
+          <label for="f-r3">Resultado 3 <span class="optional-badge">opcional</span></label>
+          <input type="text" id="f-r3" placeholder="Ex: Formei 30+ profissionais SAP HCM nos últimos 3 anos">
+        </div>
+
+        <div class="section-divider">Contexto humano — humaniza o Sobre</div>
+        <div class="form-group">
+          <label for="f-humano">Lado humano (família, paixões, causas)</label>
+          <textarea id="f-humano" placeholder="Ex: pai de 2 filhos, corredor de maratona, mentor de jovens profissionais SAP, apaixonado por conservação ambiental" rows="2"></textarea>
+          <div class="input-hint">Quanto mais contexto, mais autêntico fica o Sobre.</div>
+        </div>
+        <div class="form-group">
+          <label for="f-publico">Público que quer atingir no LinkedIn</label>
+          <input type="text" id="f-publico" placeholder="Ex: CHROs e Diretores de RH de empresas com SAP">
+        </div>
+
+        <div class="section-divider">Métricas LinkedIn <span class="optional-badge">opcional</span></div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="f-ssi">SSI Score atual</label>
+            <input type="number" id="f-ssi" placeholder="Ex: 67" min="0" max="100">
+            <div class="input-hint">Ver em: linkedin.com/sales/ssi</div>
+          </div>
+          <div class="form-group">
+            <label for="f-seguidores">Seguidores atuais</label>
+            <input type="number" id="f-seguidores" placeholder="Ex: 2300" min="0">
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Manual expand trigger for "novo voice" -->
+      <button class="context-toggle-btn" id="manual-expand-btn" onclick="toggleContext()" style="display:none;">
+        ✏️ Preencher contexto
+      </button>
+
+    </div>
+
+    <div class="btn-duo">
+      <button class="btn-duo-prompt" id="btn-prompt" disabled onclick="abrirModalPrompt()">
+        📋 Gerar Prompt
+        <span class="btn-sub">Usar no Claude.ai — grátis</span>
+      </button>
+      <button class="btn-primary btn-duo-local" id="btn-analisar" disabled>
+        🤖 Analisar aqui
+        <span class="btn-sub">Relatório completo local</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div id="loading-state">
+    <div class="spinner"></div>
+    <div class="loading-text">Analisando com IA…</div>
+    <div class="loading-sub">Gerando kit completo — cerca de 20 segundos ☕</div>
+  </div>
+
+  <!-- RESULTADO -->
+  <div id="resultado"></div>
+
+</div>
+
+<!-- PROMPT MODAL -->
+<div class="prompt-modal" id="prompt-modal">
+  <div class="prompt-modal-inner">
+    <div class="prompt-modal-header">
+      <div>
+        <div class="prompt-modal-title">📋 Prompt pronto para Claude.ai</div>
+        <div class="prompt-modal-sub">Cole este prompt em qualquer chat do Claude — e anexe os prints do LinkedIn junto</div>
+      </div>
+      <button class="prompt-modal-close" onclick="fecharModalPrompt()">✕</button>
+    </div>
+    <div class="prompt-modal-steps">
+      <span class="step-pill">1 · Copie o prompt</span>
+      <span class="step-pill">2 · Abra claude.ai</span>
+      <span class="step-pill">3 · Cole + anexe os prints do LinkedIn</span>
+      <span class="step-pill">4 · Envie e aguarde</span>
+    </div>
+    <div class="prompt-modal-body">
+      <pre id="prompt-output" class="prompt-text"></pre>
+    </div>
+    <div class="prompt-modal-footer">
+      <button class="btn-copy-big" id="btn-copy-prompt" onclick="copiarPromptModal()">
+        📋 Copiar Prompt Completo
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── VOICES DATA ──────────────────────────────────────────
+const VOICES = {
+  anderson: {
+    nome: 'Anderson Costa',
+    area_principal: 'SAP HCM / SuccessFactors',
+    anos_experiencia: '',
+    tom_voz: 'equilibrado',
+    resultado_1: '',
+    resultado_2: '',
+    resultado_3: '',
+    diferencial_humano: '',
+    publico_alvo: 'CHROs, Diretores de RH, Líderes de Folha de Pagamento',
+    ssi_score: '',
+    seguidores: '',
+    cargo_oficial: 'Delivery Strategic Account',
+    data_entrada_epiuse: '',
+    foto_oficial: false
+  },
+  carlos: {
+    nome: 'Carlos Furigo Cardoso',
+    area_principal: 'SAP BTP / Clean Core',
+    anos_experiencia: '',
+    tom_voz: 'técnico',
+    resultado_1: '',
+    resultado_2: '',
+    resultado_3: '',
+    diferencial_humano: '',
+    publico_alvo: 'CTOs, Diretores de TI, Arquitetos SAP',
+    ssi_score: '',
+    seguidores: '',
+    cargo_oficial: 'Head of Products & Innovation',
+    data_entrada_epiuse: '',
+    foto_oficial: false
+  }
+};
+
+// ── STATE ────────────────────────────────────────────────
+const selectedFiles = [];
+let currentVoice = null;
+let contextExpanded = false;
+
+// ── REFS ─────────────────────────────────────────────────
+const urlInput      = document.getElementById('linkedin-url');
+const uploadArea    = document.getElementById('upload-area');
+const fileInput     = document.getElementById('file-input');
+const previewGrid   = document.getElementById('preview-grid');
+const btnAnalisar   = document.getElementById('btn-analisar');
+const formSection   = document.getElementById('form-section');
+const loadingState  = document.getElementById('loading-state');
+const resultadoEl   = document.getElementById('resultado');
+const errorBox      = document.getElementById('error-box');
+const prefilledSum  = document.getElementById('prefilled-summary');
+const prefilledTxt  = document.getElementById('prefilled-text');
+const contextSec    = document.getElementById('context-section');
+const manualBtn     = document.getElementById('manual-expand-btn');
+
+const fNome         = document.getElementById('f-nome');
+const fArea         = document.getElementById('f-area');
+const fAnos         = document.getElementById('f-anos');
+const fTom          = document.getElementById('f-tom');
+const fR1           = document.getElementById('f-r1');
+const fR2           = document.getElementById('f-r2');
+const fR3           = document.getElementById('f-r3');
+const fHumano       = document.getElementById('f-humano');
+const fPublico      = document.getElementById('f-publico');
+const fSsi          = document.getElementById('f-ssi');
+const fSeguidores   = document.getElementById('f-seguidores');
+const fCargoOficial = document.getElementById('f-cargo-oficial');
+const fDataEntrada  = document.getElementById('f-data-entrada');
+const fFotoOficial  = document.getElementById('f-foto-oficial');
+
+// ── THEME ────────────────────────────────────────────────
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('theme-btn').textContent = isDark ? '🌙 Modo escuro' : '☀️ Modo claro';
+  localStorage.setItem('epiuse_theme', isDark ? 'light' : 'dark');
+}
+
+(function() {
+  const saved = localStorage.getItem('epiuse_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('theme-btn').textContent = saved === 'dark' ? '🌙 Modo escuro' : '☀️ Modo claro';
+})();
+
+// ── VOICE SELECTOR ───────────────────────────────────────
+function selectVoice(voiceId, btn) {
+  document.querySelectorAll('.voice-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  currentVoice = voiceId;
+
+  if (voiceId === 'novo') {
+    prefilledSum.classList.remove('visible');
+    manualBtn.style.display = 'inline-flex';
+    contextSec.className = 'context-section expanded';
+    contextExpanded = true;
+    clearContext();
+  } else {
+    const data = VOICES[voiceId];
+    fillContext(data);
+    prefilledTxt.innerHTML = `Dados de <strong>${data.nome}</strong> carregados automaticamente.`;
+    prefilledSum.classList.add('visible');
+    manualBtn.style.display = 'none';
+    contextSec.className = 'context-section collapsed';
+    contextExpanded = false;
+  }
+  updateBtn();
+}
+
+function fillContext(data) {
+  fNome.value         = data.nome || '';
+  fArea.value         = data.area_principal || '';
+  fAnos.value         = data.anos_experiencia || '';
+  fTom.value          = data.tom_voz || 'equilibrado';
+  fR1.value           = data.resultado_1 || '';
+  fR2.value           = data.resultado_2 || '';
+  fR3.value           = data.resultado_3 || '';
+  fHumano.value       = data.diferencial_humano || '';
+  fPublico.value      = data.publico_alvo || '';
+  fSsi.value          = data.ssi_score || '';
+  fSeguidores.value   = data.seguidores || '';
+  fCargoOficial.value = data.cargo_oficial || '';
+  fDataEntrada.value  = data.data_entrada_epiuse || '';
+  fFotoOficial.checked = data.foto_oficial || false;
+}
+
+function clearContext() {
+  [fNome, fArea, fAnos, fR1, fR2, fR3, fHumano, fPublico, fSsi, fSeguidores, fCargoOficial, fDataEntrada].forEach(el => el.value = '');
+  fTom.value = 'equilibrado';
+  fFotoOficial.checked = false;
+}
+
+function toggleContext() {
+  contextExpanded = !contextExpanded;
+  contextSec.className = 'context-section ' + (contextExpanded ? 'expanded' : 'collapsed');
+  const btn = document.getElementById('context-toggle-btn');
+  if (btn) btn.textContent = contextExpanded ? '✕ Fechar' : '✏️ Editar dados';
+}
+
+// ── VALIDATION ───────────────────────────────────────────
+function updateBtn() {
+  const hasUrl    = urlInput.value.trim().length > 5;
+  const hasVoice  = currentVoice !== null;
+  const hasR1     = fR1.value.trim().length > 3;
+  const hasR2     = fR2.value.trim().length > 3;
+  const ready = hasVoice && hasUrl && (currentVoice !== 'novo' || (hasR1 && hasR2));
+  btnAnalisar.disabled = !ready;
+  document.getElementById('btn-prompt').disabled = !ready;
+}
+
+urlInput.addEventListener('input', updateBtn);
+fR1.addEventListener('input', updateBtn);
+fR2.addEventListener('input', updateBtn);
+
+// ── UPLOAD ───────────────────────────────────────────────
+uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
+uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
+uploadArea.addEventListener('drop', e => { e.preventDefault(); uploadArea.classList.remove('drag-over'); addFiles(Array.from(e.dataTransfer.files)); });
+fileInput.addEventListener('change', () => { addFiles(Array.from(fileInput.files)); fileInput.value = ''; });
+
+function addFiles(files) {
+  showError('');
+  for (const f of files) {
+    if (selectedFiles.length >= 5) { showError('Máximo de 5 imagens.'); break; }
+    if (!['image/jpeg','image/png','image/webp'].includes(f.type)) { showError(`Formato inválido: ${f.name}`); continue; }
+    if (f.size > 10 * 1024 * 1024) { showError(`${f.name} excede 10 MB.`); continue; }
+    selectedFiles.push(f);
+  }
+  renderPreviews();
+  updateBtn();
+}
+
+function renderPreviews() {
+  previewGrid.innerHTML = '';
+  selectedFiles.forEach((f, i) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const item = document.createElement('div');
+      item.className = 'preview-item';
+      item.innerHTML = `<img src="${e.target.result}" alt="Preview ${i+1}"><button class="preview-remove" data-idx="${i}">✕</button>`;
+      previewGrid.appendChild(item);
+    };
+    reader.readAsDataURL(f);
+  });
+}
+
+previewGrid.addEventListener('click', e => {
+  const btn = e.target.closest('.preview-remove');
+  if (!btn) return;
+  selectedFiles.splice(parseInt(btn.dataset.idx), 1);
+  renderPreviews();
+  updateBtn();
+});
+
+function showError(msg) {
+  errorBox.textContent = msg;
+  errorBox.style.display = msg ? 'block' : 'none';
+}
+
+// ── SUBMIT ───────────────────────────────────────────────
+btnAnalisar.addEventListener('click', analisarPerfil);
+
+// ── MODAL DO PROMPT ──────────────────────────────────────
+function abrirModalPrompt() {
+  const promptText = gerarPromptTexto();
+  document.getElementById('prompt-output').textContent = promptText;
+  document.getElementById('prompt-modal').classList.add('open');
+  document.getElementById('btn-copy-prompt').textContent = '📋 Copiar Prompt Completo';
+  document.getElementById('btn-copy-prompt').classList.remove('copied');
+}
+
+function fecharModalPrompt() {
+  document.getElementById('prompt-modal').classList.remove('open');
+}
+
+// Fechar modal ao clicar fora
+document.getElementById('prompt-modal').addEventListener('click', function(e) {
+  if (e.target === this) fecharModalPrompt();
+});
+
+function copiarPromptModal() {
+  const txt = document.getElementById('prompt-output').textContent;
+  navigator.clipboard.writeText(txt).then(() => {
+    const btn = document.getElementById('btn-copy-prompt');
+    btn.textContent = '✓ Copiado! Agora cole no Claude.ai';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = '📋 Copiar Prompt Completo';
+      btn.classList.remove('copied');
+    }, 3000);
+  });
+}
+
+// ── GERADOR DE PROMPT (browser, zero tokens de API) ──────
+function gerarPromptTexto() {
+  const linkedin_url       = urlInput.value.trim();
+  const nome               = fNome.value.trim();
+  const area_principal     = fArea.value;
+  const anos_experiencia   = fAnos.value.trim();
+  const resultado_1        = fR1.value.trim();
+  const resultado_2        = fR2.value.trim();
+  const resultado_3        = fR3.value.trim();
+  const diferencial_humano = fHumano.value.trim();
+  const publico_alvo       = fPublico.value.trim();
+  const tom_voz            = fTom.value || 'equilibrado';
+  const ssi_score          = fSsi.value.trim();
+  const seguidores         = fSeguidores.value.trim();
+  const cargo_oficial      = fCargoOficial.value.trim();
+  const data_entrada       = fDataEntrada.value.trim();
+  const foto_oficial       = fFotoOficial.checked;
+
+  const resultados = [resultado_1, resultado_2, resultado_3]
+    .filter(Boolean)
+    .map((r, i) => `  ${i + 1}. ${r}`)
+    .join('\n');
+
+  return `Você é um especialista em personal branding executivo para o ecossistema SAP.
+
+════════════════════════════════════════
+CONTEXTO DO PROGRAMA EPI-USE VOICES
+════════════════════════════════════════
+- EPI-USE Brasil (Razão social: EPI USE BRASIL SERVIÇOS EM SISTEMAS LTDA): maior consultoria SAP especializada em HCM/Payroll do Brasil; em evolução para EPI-USE 5.0 (Transformação Empresarial)
+- Grupo: EPI-USE / groupelephant.com | 42+ anos de atuação | 10 grupos de marcas | 4.500+ profissionais | 40+ países | 2.000+ clientes empresariais | 1.800+ organizações com software licenciado | SAP Gold Partner
+- Braços do grupo no Brasil: EPI-USE Brasil (consultoria SAP), EPI-USE Labs (P&D de IPs), Stratview (Analytics), Valcann (Cloud & Infra)
+- LOBs: SAP HCM/SuccessFactors, SAP ERP/S4HANA (Clean Core + Reforma Tributária), SAP BTP, SAP Signavio, ServiceNow HRSD/ITSM, Analytics/Stratview
+- IPs proprietários: TalenTools (acelerador de RH), PRISM (analytics/reporting)
+- ERP.ngo: 1% da receita global destinada à conservação de elefantes e combate à pobreza rural na África (erp.ngo)
+- EPI-USE Voices: programa interno de influência executiva — líderes que compartilham conhecimento no LinkedIn com autenticidade
+- IMPORTANTE: Use SEMPRE "EPI-USE Brasil" por extenso — nunca apenas "EPI-USE"
+
+BANNER OFICIAL EPI-USE BRASIL PARA LINKEDIN:
+- Download direto: https://epiusebr-my.sharepoint.com/:i:/g/personal/ti_brasil_epiuse_com_br/IQBWQpKomSTBRZ1VHGjafYUVAXA1AFQuNVFVdmaakKYPKRE?e=ntPEIx
+- Pasta de assets: https://epiusebr-my.sharepoint.com/:f:/g/personal/ti_brasil_epiuse_com_br/IgCzGSd6PzslRICvk26vZY_fAaJ50os-DQG516n4lhIPBy0?e=P2DJQH
+
+════════════════════════════════════════
+DADOS DO PROFISSIONAL
+════════════════════════════════════════
+- Nome: ${nome || '(ver screenshots)'}
+- LinkedIn: ${linkedin_url}
+- Área de atuação: ${area_principal || '(ver screenshots)'}
+- Anos de experiência: ${anos_experiencia || '(ver screenshots)'}
+- Cargo oficial na EPI-USE Brasil: ${cargo_oficial || '(ver screenshots)'}
+- Data de entrada na EPI-USE Brasil: ${data_entrada || '(não informada)'}
+- Tom de voz preferido: ${tom_voz}
+- Foto oficial EPI-USE disponível: ${foto_oficial ? 'Sim' : 'Não confirmado'}
+${publico_alvo ? `- Público-alvo desejado: ${publico_alvo}` : ''}
+${ssi_score ? `- SSI Score atual: ${ssi_score} / 100 (ver diagnóstico detalhado em linkedin.com/sales/ssi)` : '- SSI Score: não informado — solicitar que o profissional verifique em linkedin.com/sales/ssi'}
+${seguidores ? `- Seguidores: ${seguidores}` : ''}
+${diferencial_humano ? `- Lado humano (família, paixões, causas): ${diferencial_humano}` : ''}
+
+Resultados reais (usar estes números — nunca inventar):
+${resultados || '  (não informados — usar dados das screenshots ou deixar [preencher: ex. X% de resultado])'}
+
+════════════════════════════════════════
+MISSÃO
+════════════════════════════════════════
+Analise as screenshots do perfil LinkedIn anexadas + os dados acima e gere um Kit de Atualização de Perfil LinkedIn completo e personalizado.
+
+════════════════════════════════════════
+REGRAS OBRIGATÓRIAS
+════════════════════════════════════════
+- Tudo em Português do Brasil
+- Seção "Sobre" SEMPRE em 1ª pessoa
+- Mencionar EPI-USE Voices E ERP.ngo na seção Sobre
+- Usar SEMPRE "EPI-USE Brasil" por extenso — NUNCA apenas "EPI-USE"
+- Cargo no LinkedIn deve incluir "EPI-USE Brasil" (ex: "Consultor SAP HCM | EPI-USE Brasil")
+- Usar os resultados reais fornecidos — jamais inventar números
+- Onde não há número real, usar placeholder: [preencher: ex. X% de redução]
+- Headline: máx 220 caracteres | área de expertise + empresa + diferencial
+- Competências: priorizar atuais (SAP BTP, Clean Core, S/4HANA, SuccessFactors) — remover legadas (R/3, ABAP puro)
+- Tom deve seguir a preferência: ${tom_voz}
+- Seção Sobre: máx 2.600 caracteres (limite do LinkedIn)
+- Parágrafos curtos — mobile first
+- ERP.ngo DEVE ser sugerido como "Causas Sociais" no LinkedIn
+- Gerar exatamente 5 Destaques Estratégicos (seção Featured)
+
+════════════════════════════════════════
+ESTRUTURA DO KIT (entregar tudo isso)
+════════════════════════════════════════
+
+1. DIAGNÓSTICO — SITUAÇÃO ATUAL
+   Tabela com: Elemento | Como está hoje | O que precisa mudar | Urgência
+   Itens: Cargo/Empresa, Seção Sobre, Foto de Perfil, Capa/Banner, URL, Competências, Publicações, SSI Score
+
+2. HEADLINE SUGERIDA
+   Texto pronto para colar (máx 220 caracteres)
+   Formato sugerido: [Área de expertise] | [Empresa: EPI-USE Brasil] | [Diferencial/Resultado]
+
+3. URL PERSONALIZADA
+   Sugestão principal + 2 alternativas (caso esteja ocupada)
+
+4. SEÇÃO "SOBRE" — PRONTO PARA COLAR
+   Texto completo em 1ª pessoa (máx 2.600 chars)
+   Estrutura: gancho forte + experiência + resultados reais + diferencial humano + EPI-USE Voices + ERP.ngo + CTA final
+
+5. COMPETÊNCIAS — O QUE MUDAR
+   Tabela: Remover/Despriorizar | Adicionar/Destacar
+
+6. DESTAQUES ESTRATÉGICOS (5 sugestões para a seção Featured)
+   Para cada um: tipo (artigo/projeto/conquista/curso/evento), título sugerido, descrição do que criar/usar
+
+7. SSI SCORE — DIAGNÓSTICO
+   Nível atual, pontos fracos nos 4 pilares (Identidade, Relacionamentos, Conhecimento, Oportunidades), dicas práticas
+
+8. BANNER E FOTO
+   Orientações para foto de perfil profissional + link para download do banner oficial da EPI-USE Brasil
+   Banner: https://epiusebr-my.sharepoint.com/:i:/g/personal/ti_brasil_epiuse_com_br/IQBWQpKomSTBRZ1VHGjafYUVAXA1AFQuNVFVdmaakKYPKRE?e=ntPEIx
+
+9. ERP.NGO — CAUSAS SOCIAIS E EMBAIXADOR
+   Passo a passo para adicionar ERP.ngo como Causa Social no LinkedIn
+   Como se posicionar como embaixador ERP.ngo nas publicações
+
+10. ESTRATÉGIA DE IDIOMA
+    Perfil principal em PT-BR + instruções para criar perfil secundário em inglês via "Adicionar perfil em outro idioma"
+    Regra: nunca misturar PT-BR e EN na mesma seção — prejudica indexação do algoritmo
+
+11. LINHA EDITORIAL — 90 DIAS
+    4 pilares de conteúdo com percentuais: 40% Thought Leadership | 30% Cases | 20% Pessoas | 10% Propósito
+    Calendário semana a semana com temas personalizados para este profissional
+    Dica: primeiras 4 semanas sem links externos no corpo do post (algoritmo LinkedIn penaliza)
+
+12. SOCIAL SELLING — GATILHO DOS 30 MINUTOS
+    Lista de perfis LinkedIn para ativar alertas (líderes SAP, CTOs de empresas-alvo)
+    Modelo de comentário de alto impacto personalizado para a área deste profissional
+    Instrução sobre a tática: comentar nos primeiros 30 min após publicação de um líder do nicho
+
+13. RECOMENDAÇÕES
+    Meta: 8 a 12 recomendações ativas
+    Perfis prioritários para solicitar (clientes, parceiros SAP, gestores internos)
+    Template personalizado de mensagem para solicitar recomendação — pronto para copiar e enviar
+
+14. KPIs DE SUCESSO — BASELINE + METAS 90 DIAS
+    Instrução para registrar o baseline ANTES de começar (link: https://www.linkedin.com/sales/ssi para SSI)
+    Tabela: SSI Score | Visualizações/semana | Seguidores | Convites | Posts publicados | Impressões
+
+15. CHECKLIST FINAL
+    Priorizado: [ ] Urgente → [ ] Normal → [ ] Bônus
+    Categorias: FOTO | BANNER | CARGO | HEADLINE | URL | SOBRE | COMPETÊNCIAS | DESTAQUES | IDIOMA | EDITORIAL | ERP.NGO
+
+Entregue o kit completo, organizado e pronto para o profissional aplicar diretamente no LinkedIn.`;
+}
+
+async function analisarPerfil() {
+  showError('');
+  formSection.style.display = 'none';
+  loadingState.style.display = 'block';
+  resultadoEl.style.display = 'none';
+  resultadoEl.innerHTML = '';
+
+  const formData = new FormData();
+  formData.append('linkedin_url',         urlInput.value.trim());
+  formData.append('nome',                 fNome.value.trim());
+  formData.append('area_principal',       fArea.value);
+  formData.append('anos_experiencia',     fAnos.value.trim());
+  formData.append('tom_voz',              fTom.value);
+  formData.append('resultado_1',          fR1.value.trim());
+  formData.append('resultado_2',          fR2.value.trim());
+  formData.append('resultado_3',          fR3.value.trim());
+  formData.append('diferencial_humano',   fHumano.value.trim());
+  formData.append('publico_alvo',         fPublico.value.trim());
+  formData.append('ssi_score',            fSsi.value.trim());
+  formData.append('seguidores',           fSeguidores.value.trim());
+  formData.append('cargo_oficial',        fCargoOficial.value.trim());
+  formData.append('data_entrada_epiuse',  fDataEntrada.value.trim());
+  formData.append('foto_oficial',         fFotoOficial.checked ? 'true' : 'false');
+  selectedFiles.forEach(f => formData.append('screenshots', f));
+
+  try {
+    const res = await fetch('/api/analisar-perfil', { method: 'POST', body: formData });
+    const data = await res.json();
+    loadingState.style.display = 'none';
+    if (!data.success) throw new Error(data.error || 'Erro desconhecido.');
+    renderKit(data.kit);
+    resultadoEl.style.display = 'block';
+    resultadoEl.scrollIntoView({ behavior: 'smooth' });
+  } catch (err) {
+    loadingState.style.display = 'none';
+    formSection.style.display = 'block';
+    showError('Erro: ' + err.message);
+  }
+}
+
+// ── RENDER KIT ───────────────────────────────────────────
+function renderKit(k) {
+  const nome      = esc(k.nome || '');
+  const cargo     = esc(k.cargo_atual || '');
+  const empresa   = esc(k.empresa_atual || 'EPI-USE Brasil');
+  const checks    = k.checklist || [];
+  const total     = checks.length;
+  const mesAno    = new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+
+  // Atualizar document.title para PDF filename sugerido pelo browser
+  const nomeSlug = (k.nome || 'Voice').replace(/\s+/g, '_');
+  document.title = `Kit_LinkedIn_${nomeSlug}_EPI-USE_Brasil_Voices_2026`;
+
+  // Atualizar meta tags para propriedades do PDF
+  document.getElementById('meta-subject').setAttribute('content', `Kit LinkedIn — ${k.nome || ''} · EPI-USE Brasil Voices 2026`);
+  document.getElementById('meta-description').setAttribute('content', `Relatório de otimização de perfil LinkedIn gerado pelo EPI-USE Voices Profile Optimizer — ${k.nome || ''} — EPI-USE Brasil Marketing — ${mesAno}`);
+
+  // Mostra a barra fixa de PDF
+  const bar = document.getElementById('rk-print-bar');
+  bar.style.display = 'flex';
+  document.getElementById('rk-bar-label').textContent = `🪪 ${k.nome || 'Kit'} · EPI-USE Brasil Voices 2026`;
+
+  resultadoEl.innerHTML = `
+
+    <!-- COVER -->
+    <div class="rk-cover">
+      <div class="rk-cover-badge">🎙️ EPI-USE Voices &nbsp;·&nbsp; 2026</div>
+      <div class="rk-cover-title">Kit de Atualização<br>de Perfil LinkedIn</div>
+      <div class="rk-cover-name">${nome}</div>
+      <div class="rk-cover-role">${cargo}${cargo && empresa ? ' · ' : ''}${empresa}</div>
+      <div class="rk-cover-meta">
+        <div class="rk-pill">📅 <strong>Gerado em:</strong>&nbsp;${mesAno}</div>
+        <div class="rk-pill">📋 <strong>Seções:</strong>&nbsp;12</div>
+        <div class="rk-pill">✅ <strong>Checklist:</strong>&nbsp;${total} itens</div>
+        <div class="rk-pill">🐘 ERP.ngo</div>
+      </div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="rk-progress">
+      <div class="rk-progress-header">
+        <span>Progresso do kit</span>
+        <strong id="rk-progress-label">0 / ${total} concluídos</strong>
+      </div>
+      <div class="rk-progress-bg">
+        <div class="rk-progress-fill" id="rk-progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- 1. DIAGNÓSTICO -->
+    <div class="card">
+      <div class="section-title">
+        <div class="section-icon" style="background:rgba(37,99,235,0.18)">⚑</div>
+        Diagnóstico — Situação Atual
+      </div>
+      ${(k.diagnostico.pontos_positivos||[]).length ? `
+        <div style="margin-bottom:18px">
+          <div class="rk-sub-label" style="color:var(--success)">✓ O que já está bom</div>
+          <ul class="positivos-list">${k.diagnostico.pontos_positivos.map(p=>`<li>${esc(p)}</li>`).join('')}</ul>
+        </div>` : ''}
+      ${(k.diagnostico.problemas_encontrados||[]).length ? `
+        <div class="rk-sub-label" style="color:var(--danger)">● O que precisa mudar</div>
+        <div style="overflow-x:auto;margin-top:10px">
+          <table class="problems-table">
+            <thead><tr><th>Elemento</th><th>Situação atual</th><th>Meta</th><th>Urgência</th></tr></thead>
+            <tbody>${k.diagnostico.problemas_encontrados.map(p=>`
+              <tr>
+                <td><strong>${esc(p.elemento)}</strong></td>
+                <td>${esc(p.situacao_atual)}</td>
+                <td>${esc(p.meta)}</td>
+                <td><span class="urgency-badge urgency-${esc(p.urgencia)}">${urgencyLabel(p.urgencia)}</span></td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>` : ''}
+    </div>
+
+    <!-- 2. HEADLINE -->
+    <div class="card">
+      <div class="section-title">
+        <div class="step-num">2</div>
+        Headline — Título do Perfil
+      </div>
+      <p class="rk-body">Cole este texto no campo "Título" do LinkedIn. Aparece nos resultados de busca, notificações e comentários:</p>
+      <div class="rk-copy-block">
+        <button class="btn-copy" onclick="copiar('hl-inner',this)">Copiar</button>
+        <div id="hl-inner" class="rk-copy-inner"><strong>${esc(k.headline_sugerida)}</strong></div>
+      </div>
+      <div class="rk-char-count ${k.headline_sugerida.length > 220 ? 'over' : ''}">${k.headline_sugerida.length}/220 caracteres</div>
+    </div>
+
+    <!-- 3. URL -->
+    <div class="card">
+      <div class="section-title">
+        <div class="step-num">3</div>
+        URL Personalizada do Perfil
+      </div>
+      <p class="rk-body">URL personalizada = mais profissional, fácil de compartilhar e melhora posicionamento no Google.</p>
+      <div class="rk-url-box">
+        <span class="url-prefix">linkedin.com/in/</span>
+        <span class="url-value">${esc(k.url_sugerida)}</span>
+        <button class="btn-copy" onclick="copiarTexto('linkedin.com/in/${esc(k.url_sugerida)}',this)">Copiar</button>
+      </div>
+    </div>
+
+    <!-- 4. SOBRE -->
+    <div class="card">
+      <div class="section-title">
+        <div class="step-num">4</div>
+        Seção "Sobre" — Pronto para colar
+      </div>
+      <p class="rk-body">Cole exatamente como está no campo "Sobre" do LinkedIn. Campos <span style="background:rgba(217,119,6,0.2);color:var(--warning);padding:1px 5px;border-radius:4px;font-size:12px">[ ]</span> precisam de dados reais seus:</p>
+      <div class="rk-copy-block">
+        <button class="btn-copy" onclick="copiar('sobre-inner',this)">Copiar tudo</button>
+        <div id="sobre-inner" class="rk-copy-inner">${formatarSobre(k.sobre_texto)}</div>
+      </div>
+    </div>
+
+    <!-- 5. COMPETÊNCIAS -->
+    <div class="card">
+      <div class="section-title">
+        <div class="step-num">5</div>
+        Competências
+      </div>
+      <div class="comp-grid">
+        ${(k.competencias.adicionar||[]).length ? `
+        <div class="comp-col comp-add">
+          <div class="comp-col-title">+ Adicionar</div>
+          <div class="chip-list">${k.competencias.adicionar.map(c=>`<span class="chip chip-add">${esc(c)}</span>`).join('')}</div>
+        </div>` : ''}
+        ${(k.competencias.remover||[]).length ? `
+        <div class="comp-col comp-remove">
+          <div class="comp-col-title">− Remover</div>
+          <div class="chip-list">${k.competencias.remover.map(c=>`<span class="chip chip-remove">${esc(c)}</span>`).join('')}</div>
+        </div>` : ''}
+        ${(k.competencias.manter||[]).length ? `
+        <div class="comp-col comp-keep">
+          <div class="comp-col-title">✓ Manter</div>
+          <div class="chip-list">${k.competencias.manter.map(c=>`<span class="chip chip-keep">${esc(c)}</span>`).join('')}</div>
+        </div>` : ''}
+      </div>
+    </div>
+
+    <!-- 6. DESTAQUES -->
+    ${(k.destaques||[]).length ? `
+    <div class="card">
+      <div class="section-title">
+        <div class="step-num">6</div>
+        5 Destaques Estratégicos — Seção Featured
+      </div>
+      <p class="rk-body" style="margin-bottom:16px">A seção "Destaques" (Featured) do LinkedIn é o primeiro lugar que recrutadores e clientes olham. Pins estratégicos = autoridade imediata:</p>
+      <div class="destaques-grid">
+        ${k.destaques.map(d=>`
+          <div class="destaque-card">
+            <div class="destaque-num">0${d.numero}</div>
+            <div class="destaque-star">⭐</div>
+            ${d.tipo ? `<div class="destaque-tipo destaque-tipo-${esc(d.tipo)}">${esc(d.tipo)}</div>` : ''}
+            <div class="destaque-title">${esc(d.titulo)}</div>
+            <div class="destaque-desc">${esc(d.descricao)}</div>
+          </div>`).join('')}
+      </div>
+    </div>` : ''}
+
+    <!-- ESTRATÉGIA DE IDIOMA -->
+    ${k.estrategia_idioma ? `
+    <div class="card">
+      <div class="section-title">
+        <div class="section-icon" style="background:rgba(96,165,250,0.15)">🌐</div>
+        Estratégia de Idioma
+      </div>
+      <p class="rk-body" style="margin-bottom:14px">LinkedIn penaliza perfis que misturam idiomas. Use a funcionalidade nativa de "Perfil em outro idioma" para ter versões separadas.</p>
+      <div class="idioma-grid">
+        <div class="idioma-card">
+          <div class="idioma-flag">🇧🇷</div>
+          <div class="idioma-label">Perfil Principal</div>
+          <div class="idioma-title">Português do Brasil</div>
+          <div class="idioma-sub">CTOs, Diretores, CHROs — mercado BR e LATAM</div>
+        </div>
+        <div class="idioma-card">
+          <div class="idioma-flag">🇺🇸</div>
+          <div class="idioma-label">Perfil Secundário</div>
+          <div class="idioma-title">English</div>
+          <div class="idioma-sub">Ecossistema global EPI-USE + SAP internacional</div>
+        </div>
+      </div>
+      ${(k.estrategia_idioma.orientacoes||[]).length ? `
+      <div class="rk-sub-label" style="margin-bottom:8px">Orientações</div>
+      <ul class="ssi-dicas">${k.estrategia_idioma.orientacoes.map(o=>`<li>${esc(o)}</li>`).join('')}</ul>` : ''}
+      ${k.estrategia_idioma.instrucao_perfil_en ? `
+      <div class="rk-sub-label" style="color:var(--accent-light);margin-top:14px;margin-bottom:8px">Como criar o perfil em inglês</div>
+      <div class="rk-copy-block">
+        <div class="rk-copy-inner" style="font-size:13px">${esc(k.estrategia_idioma.instrucao_perfil_en)}</div>
+      </div>` : ''}
+    </div>` : ''}
+
+    <!-- LINHA EDITORIAL 90 DIAS -->
+    ${k.linha_editorial ? `
+    <div class="card">
+      <div class="section-title">
+        <div class="section-icon" style="background:rgba(96,165,250,0.15)">📅</div>
+        Linha Editorial — 90 Dias
+      </div>
+      <p class="rk-body" style="margin-bottom:16px">Frequência mínima: <strong>2 posts/semana</strong> · Meta: parecer especialista, não vendedor.</p>
+      ${(k.linha_editorial.pilares||[]).length ? `
+      <div class="pilares-grid">
+        ${k.linha_editorial.pilares.map(p=>`
+          <div class="pilar-card">
+            <div class="pilar-pct">${esc(p.percentual)}</div>
+            <div class="pilar-nome">${esc(p.nome)}</div>
+            <div class="pilar-ex">${(p.exemplos||[]).map(e=>`· ${esc(e)}`).join('<br>')}</div>
+          </div>`).join('')}
+      </div>` : ''}
+      ${(k.linha_editorial.calendario_4_semanas||[]).length ? `
+      <div class="rk-sub-label" style="margin-bottom:10px">Calendário — Semanas 1 a 4</div>
+      <div style="overflow-x:auto">
+        <table class="cal-table">
+          <thead><tr><th>Semana</th><th>Post 1</th><th>Post 2</th></tr></thead>
+          <tbody>${k.linha_editorial.calendario_4_semanas.map(s=>`
+            <tr>
+              <td><span class="cal-semana">Sem ${s.semana}</span></td>
+              <td>${esc(s.post_1)}</td>
+              <td>${esc(s.post_2)}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>` : ''}
+      ${k.linha_editorial.nota_algoritmo ? `
+      <div class="cal-nota">⚠️ ${esc(k.linha_editorial.nota_algoritmo)}</div>` : ''}
+    </div>` : ''}
+
+    <!-- SOCIAL SELLING -->
+    ${k.social_selling ? `
+    <div class="card">
+      <div class="section-title">
+        <div class="section-icon" style="background:rgba(168,85,247,0.15)">⚡</div>
+        Social Selling — Gatilho dos 30 Minutos
+      </div>
+      <p class="rk-body" style="margin-bottom:12px">Visibilidade passiva que aumenta o SSI e atrai atenção do ecossistema SAP.</p>
+      ${(k.social_selling.perfis_para_alertas||[]).length ? `
+      <div class="rk-sub-label" style="margin-bottom:8px">Ativar alertas (🔔) nestes perfis</div>
+      <ul class="ss-perfis-list">${k.social_selling.perfis_para_alertas.map(p=>`<li class="ss-perfil-chip">${esc(p)}</li>`).join('')}</ul>` : ''}
+      ${k.social_selling.dica_30_min ? `<p class="rk-body" style="margin-bottom:12px">${esc(k.social_selling.dica_30_min)}</p>` : ''}
+      ${k.social_selling.exemplo_comentario ? `
+      <div class="rk-sub-label" style="color:var(--accent-light);margin-bottom:8px">Modelo de comentário de alto impacto</div>
+      <div class="rk-copy-block">
+        <button class="btn-copy" onclick="copiarTexto(${JSON.stringify(k.social_selling.exemplo_comentario)},this)">Copiar</button>
+        <div class="ss-comentario-box">"${esc(k.social_selling.exemplo_comentario)}"</div>
+      </div>` : ''}
+    </div>` : ''}
+
+    <!-- RECOMENDAÇÕES -->
+    ${k.recomendacoes ? `
+    <div class="card">
+      <div class="section-title">
+        <div class="section-icon" style="background:rgba(16,185,129,0.15)">⭐</div>
+        Recomendações — Meta: 8 a 12 Ativas
+      </div>
+      <p class="rk-body" style="margin-bottom:12px">Recomendações de clientes e parceiros têm peso enorme na credibilidade. Solicite ativamente.</p>
+      ${(k.recomendacoes.perfis_prioritarios||[]).length ? `
+      <div class="rk-sub-label" style="margin-bottom:8px">Prioridade para solicitar</div>
+      <ul class="ss-perfis-list">${k.recomendacoes.perfis_prioritarios.map(p=>`<li class="ss-perfil-chip" style="background:rgba(16,185,129,0.1);border-color:rgba(52,211,153,0.3);color:#6ee7b7">${esc(p)}</li>`).join('')}</ul>` : ''}
+      ${k.recomendacoes.template_mensagem ? `
+      <div class="rec-template-label">Mensagem pronta para enviar</div>
+      <div class="rk-copy-block">
+        <button class="btn-copy" onclick="copiarTexto(${JSON.stringify(k.recomendacoes.template_mensagem)},this)">Copiar</button>
+        <div class="rec-template">${esc(k.recomendacoes.template_mensagem)}</div>
+      </div>` : ''}
+    </div>` : ''}
+
+    <!-- KPIs DE SUCESSO -->
+    ${k.kpis ? `
+    <div class="card">
+      <div class="section-title">
+        <div class="section-icon" style="background:rgba(5,150,105,0.15)">📊</div>
+        KPIs de Sucesso — Baseline + Metas 90 Dias
+      </div>
+      ${k.kpis.instrucoes_baseline ? `
+      <div class="kpi-instrucao">📌 ${esc(k.kpis.instrucoes_baseline)}</div>` : ''}
+      ${(k.kpis.metas_90_dias||[]).length ? `
+      <div style="overflow-x:auto">
+        <table class="kpi-table">
+          <thead><tr><th>KPI</th><th>Baseline (registrar agora)</th><th>Meta 90 dias</th></tr></thead>
+          <tbody>${k.kpis.metas_90_dias.map(m=>`
+            <tr>
+              <td><strong>${esc(m.kpi)}</strong></td>
+              <td><span class="kpi-baseline">— anotar aqui</span></td>
+              <td><span class="kpi-meta">${esc(m.meta)}</span></td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>` : ''}
+      <p style="font-size:11px;color:var(--text-muted);margin-top:12px">SSI disponível em: <a href="https://www.linkedin.com/sales/ssi" target="_blank" style="color:var(--accent-light)">linkedin.com/sales/ssi</a></p>
+    </div>` : ''}
+
+    <!-- SSI DIAGNÓSTICO -->
+    ${k.ssi_diagnostico ? `
+    <div class="card">
+      <div class="section-title">
+        <div class="section-icon" style="background:rgba(37,99,235,0.18)">📊</div>
+        SSI Score — Diagnóstico de Influência
+      </div>
+      <p class="rk-body" style="margin-bottom:12px">O SSI (Social Selling Index) mede sua presença e influência no LinkedIn em 4 pilares. Veja o seu em <strong>linkedin.com/sales/ssi</strong>.</p>
+      <div class="ssi-level ssi-${esc(k.ssi_diagnostico.nivel)}">
+        ${{ baixo: '🔴 Nível Baixo', medio: '🟡 Nível Médio', bom: '🔵 Bom', excelente: '🟢 Excelente' }[k.ssi_diagnostico.nivel] || k.ssi_diagnostico.nivel}
+      </div>
+      ${k.ssi_diagnostico.observacoes ? `<p class="rk-body" style="margin-bottom:12px">${esc(k.ssi_diagnostico.observacoes)}</p>` : ''}
+      ${(k.ssi_diagnostico.dicas||[]).length ? `
+      <div class="rk-sub-label" style="color:var(--accent-light);margin-bottom:6px">Dicas para subir o SSI</div>
+      <ul class="ssi-dicas">
+        ${k.ssi_diagnostico.dicas.map(d=>`<li>${esc(d)}</li>`).join('')}
+      </ul>` : ''}
+    </div>` : ''}
+
+    <!-- BANNER E FOTO -->
+    ${k.secao_fotos ? `
+    <div class="card">
+      <div class="section-title">
+        <div class="section-icon" style="background:rgba(217,119,6,0.18)">📸</div>
+        Foto de Perfil &amp; Banner Oficial
+      </div>
+      <p class="rk-body" style="margin-bottom:14px">Foto profissional + banner da EPI-USE Brasil = identidade visual que transmite credibilidade imediatamente.</p>
+
+      ${k.secao_fotos.foto_sugestao ? `
+      <div class="rk-sub-label" style="margin-bottom:8px">📷 Orientações para a foto</div>
+      <div class="rk-copy-block" style="margin-bottom:18px">
+        <div class="rk-copy-inner">${esc(k.secao_fotos.foto_sugestao)}</div>
+      </div>` : ''}
+
+      <div class="rk-sub-label" style="margin-bottom:10px">🖼️ Banner oficial — EPI-USE Brasil</div>
+      <div class="rk-banner-box">
+        <div class="rk-banner-info">
+          <div class="rk-banner-title">Banner LinkedIn · EPI-USE Brasil</div>
+          <div class="rk-banner-sub">Capa oficial padronizada — identidade visual do grupo · Hosted no OneDrive da EPI-USE Brasil</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <a class="btn-download-banner" href="https://epiusebr-my.sharepoint.com/:i:/g/personal/ti_brasil_epiuse_com_br/IQBWQpKomSTBRZ1VHGjafYUVAXA1AFQuNVFVdmaakKYPKRE?e=ntPEIx" target="_blank" rel="noopener">
+            ↓ Baixar Banner
+          </a>
+          <a href="https://epiusebr-my.sharepoint.com/:f:/g/personal/ti_brasil_epiuse_com_br/IgCzGSd6PzslRICvk26vZY_fAaJ50os-DQG516n4lhIPBy0?e=P2DJQH" target="_blank" rel="noopener" style="font-size:11px;color:var(--text-muted);text-align:center;text-decoration:none;">↗ Ver pasta completa</a>
+        </div>
+      </div>
+
+      ${(k.secao_fotos.imagens_perfil||[]).length ? `
+      <div class="rk-sub-label" style="margin-top:18px;margin-bottom:8px">📁 Imagens sugeridas para o perfil</div>
+      <ul class="fotos-lista">
+        ${k.secao_fotos.imagens_perfil.map(img=>`<li>${esc(img)}</li>`).join('')}
+      </ul>` : ''}
+    </div>` : `
+    <div class="card">
+      <div class="section-title">
+        <div class="section-icon" style="background:rgba(217,119,6,0.18)">🖼️</div>
+        Banner Oficial — EPI-USE Brasil
+      </div>
+      <div class="rk-banner-box">
+        <div class="rk-banner-info">
+          <div class="rk-banner-title">Banner LinkedIn · EPI-USE Brasil</div>
+          <div class="rk-banner-sub">Capa oficial padronizada — identidade visual do grupo · Hosted no OneDrive da EPI-USE Brasil</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <a class="btn-download-banner" href="https://epiusebr-my.sharepoint.com/:i:/g/personal/ti_brasil_epiuse_com_br/IQBWQpKomSTBRZ1VHGjafYUVAXA1AFQuNVFVdmaakKYPKRE?e=ntPEIx" target="_blank" rel="noopener">
+            ↓ Baixar Banner
+          </a>
+          <a href="https://epiusebr-my.sharepoint.com/:f:/g/personal/ti_brasil_epiuse_com_br/IgCzGSd6PzslRICvk26vZY_fAaJ50os-DQG516n4lhIPBy0?e=P2DJQH" target="_blank" rel="noopener" style="font-size:11px;color:var(--text-muted);text-align:center;text-decoration:none;">↗ Ver pasta completa</a>
+        </div>
+      </div>
+    </div>`}
+
+    <!-- ERP.NGO — CAUSAS SOCIAIS -->
+    ${k.erp_ngo ? `
+    <div class="card">
+      <div class="section-title">
+        <div class="section-icon" style="background:rgba(5,150,105,0.18)">🐘</div>
+        ERP.ngo — Causas Sociais &amp; Embaixador
+      </div>
+      <div class="erp-ngo-card">
+        <div class="erp-ngo-header">
+          <div class="erp-ngo-badge">🐘 ERP.ngo</div>
+          <span style="font-size:12px;color:var(--text-muted)">1% da receita global para conservação na África</span>
+        </div>
+        ${k.erp_ngo.passo_causas_sociais ? `
+        <div class="rk-sub-label" style="color:var(--success);margin-bottom:8px">Adicionar ERP.ngo como Causa Social no LinkedIn</div>
+        <div class="erp-ngo-text">${esc(k.erp_ngo.passo_causas_sociais)}</div>` : ''}
+        ${k.erp_ngo.como_virar_embaixador ? `
+        <div class="rk-sub-label" style="color:var(--success);margin-top:14px;margin-bottom:8px">Como se posicionar como embaixador</div>
+        <div class="erp-ngo-text">${esc(k.erp_ngo.como_virar_embaixador)}</div>` : ''}
+      </div>
+    </div>` : `
+    <div class="card">
+      <div class="section-title">
+        <div class="section-icon" style="background:rgba(5,150,105,0.18)">🐘</div>
+        ERP.ngo — Causas Sociais
+      </div>
+      <div class="erp-ngo-card">
+        <div class="erp-ngo-header">
+          <div class="erp-ngo-badge">🐘 ERP.ngo</div>
+          <span style="font-size:12px;color:var(--text-muted)">1% da receita global para conservação na África</span>
+        </div>
+        <div class="erp-ngo-text">Como participante do EPI-USE Voices, adicione o ERP.ngo como Causa Social no seu LinkedIn:
+LinkedIn → Editar perfil → Role até "Causas Sociais" → Pesquise "ERP.ngo" → Selecione e salve.
+Isso reforça seu vínculo com propósito além do negócio.</div>
+      </div>
+    </div>`}
+
+    <!-- 7. CHECKLIST -->
+    <div class="card">
+      <div class="section-title">
+        <div class="step-num">7</div>
+        Checklist de Ação — Antes de Concluir
+      </div>
+      <p class="rk-body" style="margin-bottom:16px">Marque cada item após concluir. Só considere o perfil pronto quando todos estiverem marcados:</p>
+      <ul class="checklist">
+        ${checks.map(item=>`
+          <li class="checklist-item" onclick="rkToggle(this)">
+            <div class="check-box"><span class="check-mark" style="display:none">✓</span></div>
+            <div class="checklist-content">
+              <div class="checklist-header">
+                <span class="checklist-text">${esc(item.item)}</span>
+                <span class="priority-badge priority-${esc(item.prioridade)}">${priorityLabel(item.prioridade)}</span>
+              </div>
+              ${item.passo ? `<div class="checklist-passo">Como fazer: ${esc(item.passo)}</div>` : ''}
+            </div>
+          </li>`).join('')}
+      </ul>
+    </div>
+
+    <!-- PRÓXIMOS PASSOS -->
+    ${(k.proximos_passos||[]).length ? `
+    <div class="card">
+      <div class="section-title">
+        <div class="section-icon" style="background:rgba(5,150,105,0.18)">🚀</div>
+        Próximos Passos
+      </div>
+      <ol class="proximos-list">
+        ${k.proximos_passos.map(p=>`<li>${esc(p)}</li>`).join('')}
+      </ol>
+    </div>` : ''}
+
+    <!-- FOOTER -->
+    <div class="rk-footer">
+      EPI-USE Brasil · EPI-USE Voices 2026 · Programa de Influência Executiva<br>
+      Dúvidas? Fale com o time de Marketing &nbsp;·&nbsp; 🐘 <a href="https://erp.ngo" target="_blank" rel="noopener" style="color:var(--text-muted);text-decoration:none">ERP.ngo</a>
+    </div>
+  `;
+
+  rkUpdateProgress();
+}
+
+// ── CHECKLIST PROGRESS ────────────────────────────────────
+function rkToggle(el) {
+  el.classList.toggle('done');
+  el.querySelector('.check-mark').style.display = el.classList.contains('done') ? 'block' : 'none';
+  rkUpdateProgress();
+}
+
+function rkUpdateProgress() {
+  const items = document.querySelectorAll('#resultado .checklist-item');
+  const done  = document.querySelectorAll('#resultado .checklist-item.done');
+  const total = items.length;
+  const pct   = total ? Math.round((done.length / total) * 100) : 0;
+  const fill  = document.getElementById('rk-progress-fill');
+  const label = document.getElementById('rk-progress-label');
+  if (fill)  fill.style.width = pct + '%';
+  if (label) label.textContent = done.length + ' / ' + total + ' concluídos';
+}
+
+// ── HELPERS ──────────────────────────────────────────────
+function esc(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function formatarSobre(texto) {
+  if (!texto) return '';
+  return esc(texto).replace(/\[preencher:[^\]]*\]/gi, m => `<span class="placeholder">${m}</span>`);
+}
+
+function urgencyLabel(u) { return {alta:'Alta',media:'Média',baixa:'Baixa'}[u]||u; }
+function priorityLabel(p) { return {urgente:'Urgente',normal:'Normal',bonus:'Bônus'}[p]||p; }
+
+function toggleCheck(el) {
+  el.classList.toggle('done');
+  el.querySelector('.check-mark').style.display = el.classList.contains('done') ? 'block' : 'none';
+}
+
+function copiar(id, btn) {
+  const el = document.getElementById(id);
+  if (el) copiarTexto(el.innerText || el.textContent, btn);
+}
+
+function copiarTexto(texto, btn) {
+  navigator.clipboard.writeText(texto).then(() => {
+    const orig = btn.innerHTML;
+    btn.innerHTML = '✓ Copiado!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.innerHTML = orig; btn.classList.remove('copied'); }, 2000);
+  }).catch(() => alert('Não foi possível copiar. Selecione manualmente.'));
+}
+
+function resetarAnalise() {
+  document.getElementById('rk-print-bar').style.display = 'none';
+  resultadoEl.style.display = 'none';
+  resultadoEl.innerHTML = '';
+  formSection.style.display = 'block';
+  urlInput.value = '';
+  selectedFiles.length = 0;
+  renderPreviews();
+  showError('');
+  document.querySelectorAll('.voice-btn').forEach(b => b.classList.remove('selected'));
+  currentVoice = null;
+  prefilledSum.classList.remove('visible');
+  contextSec.className = 'context-section collapsed';
+  manualBtn.style.display = 'none';
+  clearContext();
+  updateBtn();
+  // Restaurar título original
+  document.title = 'Profile Optimizer — EPI-USE Voices';
+  document.getElementById('meta-subject').setAttribute('content', 'Profile Optimizer — EPI-USE Voices 2026');
+  document.getElementById('meta-description').setAttribute('content', 'Kit de otimização de perfil LinkedIn — EPI-USE Voices 2026');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
