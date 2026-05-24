@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>EPI-USE Office · War Room</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+<script defer data-domain="epiuse-voices-optimizer.up.railway.app" src="https://plausible.io/js/script.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: #060e1a; overflow: hidden; font-family: 'Inter', sans-serif; color: #fff; user-select: none; }
@@ -137,7 +138,7 @@ body { background: #060e1a; overflow: hidden; font-family: 'Inter', sans-serif; 
     </div>
   </div>
   <div class="sg-note">WASD ou ↑↓←→ · E para interagir · ESC para fechar modal</div>
-  <div class="sg-ver">v2.2 · 23 MAI 2026</div>
+  <div class="sg-ver">v3.0 · 23 MAI 2026 · MAXIMALIST</div>
 </div>
 
 <!-- Game Canvas -->
@@ -336,46 +337,44 @@ const ZONES = [
   {
     id:'baia-01', px:10*TS+24, py:8*TS, r:38,
     name:'Anderson Costa 🎙️',
-    tip:'Voice ativo — Consultor SAP HCM',
-    action:{ type:'info', title:'🎙️ Anderson Costa — Voice Ativo',
-      body:`Cargo: Consultor SAP HCM / SuccessFactors\nEmpresa: EPI-USE Brasil\n\nAnderson é um dos primeiros Voices do programa. Especialista em HCM e payroll com forte atuação em implementações S/4HANA.\n\nSSI Score: em evolução\nSeguidores: em crescimento\n\n📌 Use o Profile Optimizer (baia ao centro-direito) para gerar o kit completo deste Voice.\n\n💡 Módulo B — Voice Agents está a caminho!` }
+    tip:'Voice Agent — Anderson Costa (Módulo B)',
+    action:{ type:'iframe', url:'/voices?v=anderson-costa' }
   },
   {
     id:'baia-02', px:12*TS+24, py:8*TS, r:38,
     name:'Carlos Furigo 🎙️',
-    tip:'Voice ativo — Especialista SAP',
-    action:{ type:'info', title:'🎙️ Carlos Furigo — Voice Ativo',
-      body:`Cargo: Especialista SAP | EPI-USE Brasil\n\nCarlos integra o time inaugural do EPI-USE Voices, trazendo experiência sólida em projetos SAP para clientes de grande porte no Brasil.\n\nSSI Score: em evolução\nSeguidores: em crescimento\n\n📌 Use o Profile Optimizer para gerar o kit completo.\n\n💡 Módulo B — Voice Agents em breve!` }
+    tip:'Voice Agent — Carlos Furigo (Módulo B)',
+    action:{ type:'iframe', url:'/voices?v=carlos-furigo' }
   },
   {
     id:'baia-03', px:14*TS+24, py:8*TS, r:36,
-    name:'Vaga ③',
-    tip:'Vaga reservada — em onboarding',
-    action:{ type:'toast', msg:'🪑 Vaga ③ reservada. Em breve uma nova Voice aqui!' }
+    name:'Vaga ③ — Signavio',
+    tip:'Recrutar Voice para Signavio / Process Mining',
+    action:{ type:'iframe', url:'/seja-voice?utm_source=office&utm_medium=baia&utm_campaign=voices-mvp&utm_voice=vaga-03' }
   },
   {
     id:'baia-04', px:16*TS+24, py:8*TS, r:36,
-    name:'Vaga ④',
-    tip:'Vaga reservada',
-    action:{ type:'toast', msg:'🪑 Vaga ④ reservada. Em breve uma nova Voice aqui!' }
+    name:'Vaga ④ — Analytics',
+    tip:'Recrutar Voice para Analytics / BI / Data',
+    action:{ type:'iframe', url:'/seja-voice?utm_source=office&utm_medium=baia&utm_campaign=voices-mvp&utm_voice=vaga-04' }
   },
   {
     id:'baia-05', px:3*TS, py:8*TS, r:48,
-    name:'Vaga ⑤',
-    tip:'Vaga reservada',
-    action:{ type:'toast', msg:'🪑 Vaga ⑤ reservada. Em breve uma nova Voice aqui!' }
+    name:'Vaga ⑤ — Indústria',
+    tip:'Recrutar Voice para Indústria / Manufacturing',
+    action:{ type:'iframe', url:'/seja-voice?utm_source=office&utm_medium=baia&utm_campaign=voices-mvp&utm_voice=vaga-05' }
   },
   {
     id:'baia-06', px:48*TS, py:8*TS, r:48,
-    name:'Vaga ⑥',
-    tip:'Vaga reservada',
-    action:{ type:'toast', msg:'🪑 Vaga ⑥ reservada. Em breve uma nova Voice aqui!' }
+    name:'Vaga ⑥ — Aberta',
+    tip:'Recrutar próximo Voice',
+    action:{ type:'iframe', url:'/seja-voice?utm_source=office&utm_medium=baia&utm_campaign=voices-mvp&utm_voice=vaga-06' }
   },
   {
     id:'baia-07', px:3*TS, py:13*TS, r:48,
-    name:'Vaga ⑦',
-    tip:'Vaga reservada',
-    action:{ type:'toast', msg:'🪑 Vaga ⑦ reservada. Em breve uma nova Voice aqui!' }
+    name:'Vaga ⑦ — Aberta',
+    tip:'Recrutar próximo Voice',
+    action:{ type:'iframe', url:'/seja-voice?utm_source=office&utm_medium=baia&utm_campaign=voices-mvp&utm_voice=vaga-07' }
   },
   {
     id:'optimizer', px:28*TS, py:10*TS, r:68,
@@ -391,9 +390,9 @@ const ZONES = [
   },
   {
     id:'duda', px:26*TS, py:23*TS, r:58,
-    name:"📊 Duda's Office",
-    tip:'Painel operacional — Módulo C',
-    action:{ type:'toast', msg:'📊 Painel da Duda (Módulo C) — em construção! Em breve aqui.' }
+    name:"📊 Painel da Duda",
+    tip:'Painel operacional — Módulo C (KPIs · Voices · Alertas)',
+    action:{ type:'iframe', url:'/painel' }
   },
   {
     id:'events', px:39*TS, py:23*TS, r:58,
@@ -840,43 +839,28 @@ function triggerAction(action) {
   }
 }
 
-// ── EVENTS CALENDAR (2026 SAP / EPI-USE) ───────────────────────────
-const EVENTS_2026 = [
-  { m:1,  d:'10-12', n:'NRF Retail',                                     lob:'Cloud',        who:'NRF / Valcann' },
-  { m:1,  d:'21',    n:'SAP Kickoff Partner Driven 2026',                lob:'Branding',     who:'SAP' },
-  { m:3,  d:'3-5',   n:'SAP BTP Experience',                             lob:'BTP',          who:'SAP' },
-  { m:3,  d:'12',    n:'CIO Cerrado · Reforma Tributária',               lob:'ERP',          who:'CIO Cerrado' },
-  { m:3,  d:'13',    n:'SAP Partner Kickoff (PKOM)',                     lob:'Branding',     who:'SAP' },
-  { m:3,  d:'16-18', n:'SAP Partner Summit',                             lob:'Cross',        who:'SAP' },
-  { m:3,  d:'17',    n:'HR Connect',                                     lob:'HCM',          who:'SAP' },
-  { m:4,  d:'9-11',  n:'CIO Meeting',                                    lob:'Cross',        who:'GGTIC / Valcann' },
-  { m:4,  d:'22-23', n:'EUBR Kick-Off FY27',                             lob:'Institucional',who:'EUBR' },
-  { m:4,  d:'23-24', n:'EUBR Sales Kick-Off FY27',                       lob:'Institucional',who:'EUBR' },
-  { m:5,  d:'11-14', n:'Vision WFS',                                     lob:'WFS',          who:'WFS / EUAM' },
-  { m:5,  d:'11-13', n:'SAP Sapphire',                                   lob:'Cross',        who:'SAP' },
-  { m:5,  d:'16',    n:'SAP Inside Track Goiânia',                       lob:'Cross',        who:'SAP / CIO Cerrado' },
-  { m:5,  d:'20',    n:'Almoço GGTIC (COM-MKT Synchro)',                 lob:'ERP',          who:'GGTIC / Synchro' },
-  { m:6,  d:'TBC',   n:'Mercado & Opinião — Jantar',                     lob:'Branding',     who:'SAP' },
-  { m:6,  d:'10',    n:'ASUG SIG · SAP S/4HANA',                         lob:'ERP',          who:'ASUG Brasil' },
-  { m:6,  d:'30',    n:'ASUG SIG · SuccessFactors',                      lob:'HCM',          who:'ASUG Brasil' },
-  { m:8,  d:'TBC',   n:'ServiceNow Summit',                              lob:'SN',           who:'ServiceNow' },
-  { m:8,  d:'12-16', n:'CIO Cerrado Experience',                         lob:'ERP',          who:'CIO Cerrado' },
-  { m:8,  d:'25',    n:'ASUG SIG · SuccessFactors',                      lob:'ERP',          who:'ASUG Brasil' },
-  { m:9,  d:'2-3',   n:'AWS Summit',                                     lob:'Cloud',        who:'Valcann' },
-  { m:9,  d:'3',     n:'ASUG SIG · SAP S/4HANA',                         lob:'HCM',          who:'ASUG Brasil' },
-  { m:9,  d:'9-10',  n:'SAP NOW',                                        lob:'Cross',        who:'SAP' },
-  { m:9,  d:'22-24', n:'SAP Transformation Excellence Summit (STES)',    lob:'BTM',          who:'SAP / EPI-USE Labs' },
-  { m:9,  d:'TBC',   n:'CIO Cerrado · Jantar de Negócio',                lob:'ERP',          who:'CIO Cerrado' },
-  { m:10, d:'TBC',   n:'Galáticos Open',                                 lob:'Branding',     who:'Fund. Fenômenos' },
-  { m:11, d:'1',     n:'Premiação CIO Cerrado Experience',               lob:'Cross',        who:'CIO Cerrado' },
-  { m:11, d:'TBC',   n:'Safari Tech 2026',                               lob:'Cross',        who:'EPI-USE / Valcann' },
-  { m:11, d:'25',    n:'ASUG SIG · SuccessFactors',                      lob:'HCM',          who:'ASUG Brasil' },
-  { m:12, d:'3',     n:'ASUG SIG · SAP S/4HANA',                         lob:'ERP',          who:'ASUG Brasil' },
-];
-const MES_NOMES = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
-
+// ── EVENTS CALENDAR (lê de /api/events.json — single source of truth) ─
+let EVENTS_2026 = [];
+let MES_NOMES = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
+let eventsLoaded = false;
+async function loadEventsData() {
+  if (eventsLoaded) return true;
+  try {
+    const res = await fetch('/api/events.json');
+    const data = await res.json();
+    EVENTS_2026 = data.eventos || [];
+    if (Array.isArray(data.meses) && data.meses.length === 12) MES_NOMES = data.meses;
+    eventsLoaded = true;
+    return true;
+  } catch (e) {
+    console.error('[events] falha ao carregar /api/events.json', e);
+    return false;
+  }
+}
 let eventsRendered = false;
-function openEvents() {
+async function openEvents() {
+  const ok = await loadEventsData();
+  if (!ok) { showToast('⚠️ Não foi possível carregar a agenda. Tente novamente.'); return; }
   renderEvents();   // sempre re-renderiza (cobre mudança de mês)
   document.getElementById('events-modal').classList.add('open');
   infoIsOpen = true;

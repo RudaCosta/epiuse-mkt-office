@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+<script defer data-domain="epiuse-voices-optimizer.up.railway.app" src="https://plausible.io/js/script.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -509,21 +510,31 @@ body {
       <div class="card">
         <div class="card-head">
           <div class="card-icon">📊</div>
-          <div class="card-status status-pri-2">○ Prioridade 2</div>
+          <div class="card-status status-ok">✓ Em produção</div>
         </div>
         <div class="card-title">Painel da Duda</div>
-        <div class="card-sub">Módulo C</div>
-        <a class="card-action" href="#roadmap">Construir ↓</a>
+        <div class="card-sub">Módulo C · v1.0 lançada</div>
+        <a class="card-action" href="/painel">Abrir →</a>
       </div>
 
       <div class="card">
         <div class="card-head">
           <div class="card-icon">🤖</div>
-          <div class="card-status status-pri-3">○ Prioridade 3</div>
+          <div class="card-status status-ok">✓ Em produção</div>
         </div>
         <div class="card-title">Voice Agents</div>
-        <div class="card-sub">Módulo B</div>
-        <a class="card-action" href="#roadmap">Construir ↓</a>
+        <div class="card-sub">Módulo B · v1.0 lançada</div>
+        <a class="card-action" href="/voices">Abrir →</a>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div class="card-icon">📨</div>
+          <div class="card-status status-ok">✓ Em produção</div>
+        </div>
+        <div class="card-title">LP "Seja um Voice"</div>
+        <div class="card-sub">Recrutamento · v1.0</div>
+        <a class="card-action" href="/seja-voice">Abrir →</a>
       </div>
 
       <div class="card">
@@ -562,7 +573,7 @@ body {
 
     <div class="voices-grid">
 
-      <div class="voice-card">
+      <a class="voice-card" href="/voices?v=anderson-costa" style="text-decoration:none;color:inherit;cursor:pointer;display:block;transition:transform .2s,border-color .2s" onmouseover="this.style.transform='translateY(-2px)';this.style.borderColor='var(--border-active)'" onmouseout="this.style.transform='';this.style.borderColor=''">
         <div class="vc-head">
           <div class="vc-avatar">👤</div>
           <div class="vc-name-wrap">
@@ -577,9 +588,10 @@ body {
         </div>
         <div class="vc-status">Piloto</div>
         <div class="vc-pending"><b>Pendente:</b> Ajustes finais no kit</div>
-      </div>
+        <div style="font-size:12px;color:var(--primary-light);margin-top:10px">Abrir Voice Agent →</div>
+      </a>
 
-      <div class="voice-card">
+      <a class="voice-card" href="/voices?v=carlos-furigo" style="text-decoration:none;color:inherit;cursor:pointer;display:block;transition:transform .2s,border-color .2s" onmouseover="this.style.transform='translateY(-2px)';this.style.borderColor='var(--border-active)'" onmouseout="this.style.transform='';this.style.borderColor=''">
         <div class="vc-head">
           <div class="vc-avatar" style="background:linear-gradient(135deg,#a855f7,#ec4899)">👤</div>
           <div class="vc-name-wrap">
@@ -595,7 +607,8 @@ body {
         </div>
         <div class="vc-status">Onboarding</div>
         <div class="vc-pending"><b>Pendente:</b> Campos em laranja para preencher</div>
-      </div>
+        <div style="font-size:12px;color:var(--primary-light);margin-top:10px">Abrir Voice Agent →</div>
+      </a>
 
       <div class="voice-card">
         <div class="vc-head">
@@ -760,13 +773,23 @@ body {
       <h3>Versões disponíveis do Office</h3>
       <div class="ver-row">
         <div class="ver-left">
-          <span class="ver-tag current">v2.2</span>
+          <span class="ver-tag current">v3.0</span>
+          <div>
+            <span class="ver-name">Sprint Maximalist — Painel + Voice Agents + LP Recrutamento</span>
+            <span class="ver-meta">  ·  24/mai/2026  ·  3 módulos novos + data layer único + rate limit + Plausible + UTM tracking</span>
+          </div>
+        </div>
+        <a class="ver-link" href="/">Abrir →</a>
+      </div>
+      <div class="ver-row">
+        <div class="ver-left">
+          <span class="ver-tag">v2.2</span>
           <div>
             <span class="ver-name">Optimizer integrado ao Voices + agenda dinâmica</span>
             <span class="ver-meta">  ·  23/mai/2026  ·  Optimizer dentro da área Voices + eventos ordenados por data</span>
           </div>
         </div>
-        <a class="ver-link" href="/">Abrir →</a>
+        <a class="ver-link" href="/_versoes-office/v2.2-game-engine.html">Ver →</a>
       </div>
       <div class="ver-row">
         <div class="ver-left">
@@ -817,42 +840,11 @@ body {
   document.getElementById('today').textContent = `${d.getDate()} ${meses[d.getMonth()]} ${d.getFullYear()}`;
 })();
 
-// Events 2026 — single source of truth (também replicado no game)
-const EVENTS_2026 = [
-  { m:1,  d:'10-12', n:'NRF Retail',                                  lob:'Cloud',         who:'NRF / Valcann' },
-  { m:1,  d:'21',    n:'SAP Kickoff Partner Driven 2026',             lob:'Branding',      who:'SAP' },
-  { m:3,  d:'3-5',   n:'SAP BTP Experience',                          lob:'BTP',           who:'SAP' },
-  { m:3,  d:'12',    n:'CIO Cerrado · Reforma Tributária',            lob:'ERP',           who:'CIO Cerrado' },
-  { m:3,  d:'13',    n:'SAP Partner Kickoff (PKOM)',                  lob:'Branding',      who:'SAP' },
-  { m:3,  d:'16-18', n:'SAP Partner Summit',                          lob:'Cross',         who:'SAP' },
-  { m:3,  d:'17',    n:'HR Connect',                                  lob:'HCM',           who:'SAP' },
-  { m:4,  d:'9-11',  n:'CIO Meeting',                                 lob:'Cross',         who:'GGTIC / Valcann' },
-  { m:4,  d:'22-23', n:'EUBR Kick-Off FY27',                          lob:'Institucional', who:'EUBR' },
-  { m:4,  d:'23-24', n:'EUBR Sales Kick-Off FY27',                    lob:'Institucional', who:'EUBR' },
-  { m:5,  d:'11-14', n:'Vision WFS',                                  lob:'WFS',           who:'WFS / EUAM' },
-  { m:5,  d:'11-13', n:'SAP Sapphire',                                lob:'Cross',         who:'SAP' },
-  { m:5,  d:'16',    n:'SAP Inside Track Goiânia',                    lob:'Cross',         who:'SAP / CIO Cerrado' },
-  { m:5,  d:'20',    n:'Almoço GGTIC (COM-MKT Synchro)',              lob:'ERP',           who:'GGTIC / Synchro' },
-  { m:6,  d:'TBC',   n:'Mercado & Opinião — Jantar',                  lob:'Branding',      who:'SAP' },
-  { m:6,  d:'10',    n:'ASUG SIG · SAP S/4HANA',                      lob:'ERP',           who:'ASUG Brasil' },
-  { m:6,  d:'30',    n:'ASUG SIG · SuccessFactors',                   lob:'HCM',           who:'ASUG Brasil' },
-  { m:8,  d:'TBC',   n:'ServiceNow Summit',                           lob:'SN',            who:'ServiceNow' },
-  { m:8,  d:'12-16', n:'CIO Cerrado Experience',                      lob:'ERP',           who:'CIO Cerrado' },
-  { m:8,  d:'25',    n:'ASUG SIG · SuccessFactors',                   lob:'ERP',           who:'ASUG Brasil' },
-  { m:9,  d:'2-3',   n:'AWS Summit',                                  lob:'Cloud',         who:'Valcann' },
-  { m:9,  d:'3',     n:'ASUG SIG · SAP S/4HANA',                      lob:'HCM',           who:'ASUG Brasil' },
-  { m:9,  d:'9-10',  n:'SAP NOW',                                     lob:'Cross',         who:'SAP' },
-  { m:9,  d:'22-24', n:'SAP Transformation Excellence Summit (STES)', lob:'BTM',           who:'SAP / EPI-USE Labs' },
-  { m:9,  d:'TBC',   n:'CIO Cerrado · Jantar de Negócio',             lob:'ERP',           who:'CIO Cerrado' },
-  { m:10, d:'TBC',   n:'Galáticos Open',                              lob:'Branding',      who:'Fund. Fenômenos' },
-  { m:11, d:'1',     n:'Premiação CIO Cerrado Experience',            lob:'Cross',         who:'CIO Cerrado' },
-  { m:11, d:'TBC',   n:'Safari Tech 2026',                            lob:'Cross',         who:'EPI-USE / Valcann' },
-  { m:11, d:'25',    n:'ASUG SIG · SuccessFactors',                   lob:'HCM',           who:'ASUG Brasil' },
-  { m:12, d:'3',     n:'ASUG SIG · SAP S/4HANA',                      lob:'ERP',           who:'ASUG Brasil' },
-];
-const MES_NOMES = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
+// Events 2026 — agora vem do /api/events.json (single source of truth)
+let EVENTS_2026 = [];
+let MES_NOMES = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
 
-(function renderEvents() {
+async function renderEvents() {
   const grid = document.getElementById('events-grid');
   const lobColors = {
     HCM:'#60a5fa', ERP:'#34d399', Cross:'#c084fc', BTP:'#fb923c', Cloud:'#22d3ee',
@@ -914,6 +906,21 @@ const MES_NOMES = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','
     }
   }
   grid.innerHTML = html;
+}
+
+// Carregar events.json e renderizar
+(async function initEvents() {
+  try {
+    const res = await fetch('/api/events.json');
+    const data = await res.json();
+    EVENTS_2026 = data.eventos || [];
+    if (Array.isArray(data.meses) && data.meses.length === 12) MES_NOMES = data.meses;
+    await renderEvents();
+  } catch (e) {
+    console.error('[events] falha carregando /api/events.json', e);
+    const grid = document.getElementById('events-grid');
+    if (grid) grid.innerHTML = '<div style="color:var(--text-muted);font-size:13px;padding:20px;text-align:center;grid-column:1/-1">Não foi possível carregar a agenda. <a href="/api/events.json" style="color:#60a5fa">Ver JSON</a></div>';
+  }
 })();
 
 // Countdown to 26/jun/2026

@@ -15,6 +15,7 @@ if (IS_LOCAL_DEV) {
 const express   = IS_LOCAL_DEV ? require(localModules + '/express')            : require('express');
 const multer    = IS_LOCAL_DEV ? require(localModules + '/multer')             : require('multer');
 const Anthropic = IS_LOCAL_DEV ? require(localModules + '/@anthropic-ai/sdk')  : require('@anthropic-ai/sdk');
+const rateLimit = IS_LOCAL_DEV ? require(localModules + '/express-rate-limit') : require('express-rate-limit');
 const fs = require('fs');
 const path = require('path');
 
@@ -26,12 +27,42 @@ const upload = multer({
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
+// Trust proxy 1 hop pra Railway (rate limit reconhece IP real)
+app.set('trust proxy', 1);
+
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
+
+// ── RATE LIMITERS ─────────────────────────────────────────────────────────────
+// Optimizer é caro (Claude Vision tokens): 10 análises por hora por IP
+const optimizerLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, error: 'Limite de 10 análises/hora atingido. Tente novamente em uma hora.' }
+});
+
+// Form da LP de recrutamento: 5 inscrições por hora por IP (anti-spam)
+const recruitmentLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, error: 'Limite de 5 inscrições/hora atingido.' }
+});
 
 // ── ROTAS DO OFFICE ENGINE ────────────────────────────────────────────────────
 const OPTIMIZER_PATH = path.join(__dirname, 'public/optimizer.html');
 app.get('/optimizer', (req, res) => res.sendFile(OPTIMIZER_PATH));
+
+// Páginas v3.0 — servem do public/ em qualquer ambiente
+const PAINEL_PATH     = path.join(__dirname, 'public/painel.html');
+const VOICES_PATH     = path.join(__dirname, 'public/voices.html');
+const SEJA_VOICE_PATH = path.join(__dirname, 'public/seja-voice.html');
+app.get('/painel',     (req, res) => res.sendFile(PAINEL_PATH));
+app.get('/voices',     (req, res) => res.sendFile(VOICES_PATH));
+app.get('/seja-voice', (req, res) => res.sendFile(SEJA_VOICE_PATH));
 
 if (IS_LOCAL_DEV) {
   // Local: / = Office Engine Game | /dashboard = War Room clássico | /hub = Marketing Hub
@@ -54,6 +85,50 @@ if (IS_LOCAL_DEV) {
   app.get('/dashboard', (req, res) => res.sendFile(DASHBOARD_PROD));
   app.get('/hub',       (req, res) => res.sendFile(HUB_PROD));
 }
+
+// ── UTM REDIRECT: /v/:slug ────────────────────────────────────────────────────
+// Bio link de cada Voice. Adiciona UTMs e redireciona pra /seja-voice.
+// Loga clique pra futura análise.
+app.get('/v/:slug', (req, res) => {
+  const slug = req.params.slug.replace(/[^a-z0-9-]/g, '').slice(0, 50);
+  const referer = req.get('referer') || 'direct';
+  const ua = (req.get('user-agent') || 'unknown').slice(0, 120);
+  console.log(`[BIO-CLICK] voice=${slug} ref=${referer} ua="${ua}"`);
+  const dest = `/seja-voice?utm_source=linkedin&utm_medium=bio&utm_campaign=voices-mvp&utm_voice=${slug}`;
+  res.redirect(302, dest);
+});
+
+// ── FORM SUBMIT: /api/seja-voice (LP recrutamento) ────────────────────────────
+app.post('/api/seja-voice', recruitmentLimiter, (req, res) => {
+  const data = req.body || {};
+  // Sanitização básica
+  const clean = {
+    nome:        String(data.nome || '').slice(0, 100),
+    email:       String(data.email || '').slice(0, 100),
+    linkedin:    String(data.linkedin || '').slice(0, 200),
+    area:        String(data.area || '').slice(0, 50),
+    motivo:      String(data.motivo || '').slice(0, 800),
+    utm_source:  String(data.utm_source || '').slice(0, 50),
+    utm_medium:  String(data.utm_medium || '').slice(0, 50),
+    utm_campaign: String(data.utm_campaign || '').slice(0, 50),
+    utm_voice:   String(data.utm_voice || '').slice(0, 50),
+    timestamp:   data.timestamp || new Date().toISOString(),
+    ip:          req.ip || 'unknown'
+  };
+  if (!clean.nome || !clean.email || !clean.linkedin || !clean.area || !clean.motivo) {
+    return res.status(400).json({ success: false, error: 'Campos obrigatórios não preenchidos.' });
+  }
+  // Append JSONL local (1 linha por inscrição) — em prod isso vai pra Railway logs
+  const line = JSON.stringify(clean) + '\n';
+  const logPath = path.join(__dirname, 'recruitment-applications.jsonl');
+  try {
+    fs.appendFileSync(logPath, line);
+  } catch (e) {
+    console.error('[RECRUITMENT-WRITE-FAIL]', e.message);
+  }
+  console.log(`[RECRUITMENT] ${clean.nome} (${clean.email}) → vaga ${clean.area} | utm_source=${clean.utm_source}`);
+  res.json({ success: true, message: 'Inscrição recebida. Você será contactado em até 5 dias úteis.' });
+});
 
 function buildPrompt(fields) {
   const {
@@ -217,7 +292,7 @@ Retorne a análise em JSON estruturado. Retorne APENAS o JSON, sem texto antes o
 }`;
 }
 
-app.post('/api/analisar-perfil', upload.array('screenshots', 5), async (req, res) => {
+app.post('/api/analisar-perfil', optimizerLimiter, upload.array('screenshots', 5), async (req, res) => {
   const files = req.files || [];
 
   try {

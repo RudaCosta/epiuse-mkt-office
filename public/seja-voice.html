@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seja um Voice · EPI-USE Brasil</title>
+<meta name="description" content="Programa de influência executiva da EPI-USE Brasil. 3 vagas abertas no MVP — Signavio, Analytics e Indústria.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+<script defer data-domain="epiuse-voices-optimizer.up.railway.app" src="https://plausible.io/js/script.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0a1628; --bg-2: #0d1e36;
+  --bg-card: rgba(15, 30, 53, 0.6); --bg-elev: #112540;
+  --border: rgba(37,99,235,0.18); --border-light: rgba(255,255,255,0.06); --border-active: rgba(37,99,235,0.5);
+  --text: #e2e8f0; --text-dim: #94a3b8; --text-muted: #64748b;
+  --primary: #2563EB; --primary-light: #60a5fa; --primary-dark: #1d4ed8;
+  --success: #10b981; --warning: #f59e0b; --purple: #a855f7; --pink: #ec4899;
+}
+html, body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
+body {
+  background:
+    radial-gradient(ellipse 90% 60% at 50% 0%, rgba(37,99,235,0.16), transparent 70%),
+    radial-gradient(ellipse 60% 50% at 100% 50%, rgba(168,85,247,0.08), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 0% 100%, rgba(16,185,129,0.06), transparent 60%),
+    var(--bg);
+  background-attachment: fixed;
+}
+.wrap { max-width: 1100px; margin: 0 auto; padding: 24px 28px 60px; }
+
+/* TOP NAV */
+.topnav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+.topnav-logo { font-family: 'Press Start 2P', monospace; font-size: 12px; color: var(--primary-light); letter-spacing: 0.06em; }
+.topnav-links { display: flex; gap: 10px; }
+.topnav-links a { font-size: 12px; color: var(--text-dim); text-decoration: none; padding: 6px 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--border-light); border-radius: 20px; }
+.topnav-links a:hover { color: var(--text); background: rgba(255,255,255,0.08); }
+
+/* HERO */
+.hero { text-align: center; padding: 50px 0 60px; position: relative; }
+.hero-tag { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.2em; color: var(--primary-light); background: rgba(37,99,235,0.10); border: 1px solid rgba(37,99,235,0.3); padding: 6px 16px; border-radius: 20px; margin-bottom: 24px; text-transform: uppercase; }
+.hero-h1 { font-size: clamp(32px, 5vw, 52px); font-weight: 800; line-height: 1.15; margin-bottom: 18px; letter-spacing: -0.02em; }
+.hero-h1 .gradient { background: linear-gradient(135deg, #60a5fa, #c084fc, #f472b6); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.hero-sub { font-size: 18px; color: var(--text-dim); max-width: 640px; margin: 0 auto 36px; line-height: 1.55; }
+.hero-cta-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.btn { padding: 14px 28px; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; transition: background .15s, transform .1s, border-color .15s; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; font-family: inherit; }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-primary:active { transform: scale(0.98); }
+.btn-secondary { background: rgba(37,99,235,0.10); color: #93c5fd; border: 1px solid rgba(37,99,235,0.4); }
+.btn-secondary:hover { background: rgba(37,99,235,0.22); }
+.hero-meta { margin-top: 28px; font-size: 12px; color: var(--text-muted); display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+.hero-meta span { display: inline-flex; align-items: center; gap: 6px; }
+
+/* SECTIONS */
+.section { margin-bottom: 60px; }
+.section-tag { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.24em; color: var(--primary-light); text-transform: uppercase; margin-bottom: 12px; }
+.section-h2 { font-size: 28px; font-weight: 800; margin-bottom: 16px; letter-spacing: -0.01em; }
+.section-intro { font-size: 15px; color: var(--text-dim); max-width: 680px; line-height: 1.6; margin-bottom: 28px; }
+
+/* CARDS GRID */
+.cards-3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.feat-card { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 14px; padding: 24px; backdrop-filter: blur(8px); }
+.feat-ico { font-size: 32px; margin-bottom: 14px; }
+.feat-title { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+.feat-desc { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+
+/* VOICES SOCIAL PROOF */
+.voices-row { display: flex; gap: 14px; flex-wrap: wrap; }
+.voice-mini { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 12px; padding: 14px 18px; display: flex; align-items: center; gap: 12px; flex: 1; min-width: 240px; }
+.voice-mini-avatar { width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 16px; border: 2px solid rgba(255,255,255,0.06); }
+.voice-mini-info { flex: 1; min-width: 0; }
+.voice-mini-name { font-size: 14px; font-weight: 700; }
+.voice-mini-role { font-size: 11px; color: var(--text-muted); }
+
+/* VAGAS */
+.vagas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 16px; }
+.vaga-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; position: relative; overflow: hidden; transition: transform .2s, border-color .2s, box-shadow .2s; }
+.vaga-card:hover { transform: translateY(-3px); border-color: var(--border-active); box-shadow: 0 10px 28px rgba(37,99,235,0.12); }
+.vaga-num { position: absolute; top: 16px; right: 18px; font-family: 'Press Start 2P', monospace; font-size: 18px; color: rgba(96,165,250,0.3); }
+.vaga-nicho { font-size: 18px; font-weight: 700; margin-bottom: 10px; padding-right: 50px; }
+.vaga-perfil { font-size: 13px; color: var(--text-dim); line-height: 1.55; margin-bottom: 14px; }
+.vaga-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+.vaga-tag { font-size: 11px; background: rgba(37,99,235,0.10); border: 1px solid rgba(37,99,235,0.25); color: var(--primary-light); padding: 3px 9px; border-radius: 5px; }
+.vaga-audi { font-size: 11px; color: var(--text-muted); margin-bottom: 16px; }
+.vaga-cta { display: block; text-align: center; padding: 10px; background: rgba(37,99,235,0.12); border: 1px solid rgba(37,99,235,0.35); color: #93c5fd; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 600; transition: background .15s; }
+.vaga-cta:hover { background: rgba(37,99,235,0.22); }
+
+/* FORM */
+.form-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; max-width: 580px; margin: 0 auto; backdrop-filter: blur(8px); }
+.form-row { margin-bottom: 16px; }
+.form-row label { display: block; font-size: 12px; font-weight: 600; color: var(--text-dim); margin-bottom: 6px; letter-spacing: 0.04em; }
+.form-row label .req { color: var(--warning); }
+.form-row input, .form-row select, .form-row textarea {
+  width: 100%; padding: 12px 14px; background: rgba(0,0,0,0.25);
+  border: 1px solid var(--border-light); border-radius: 8px;
+  color: var(--text); font-size: 14px; font-family: inherit; outline: none;
+  transition: border-color .2s, background .2s;
+}
+.form-row input:focus, .form-row select:focus, .form-row textarea:focus { border-color: var(--primary); background: rgba(37,99,235,0.06); }
+.form-row textarea { resize: vertical; min-height: 90px; }
+.form-row .helper { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+.form-submit-row { margin-top: 24px; }
+.form-submit-row .btn { width: 100%; justify-content: center; }
+.form-success { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.4); color: var(--success); padding: 14px 18px; border-radius: 10px; font-size: 14px; margin-bottom: 16px; display: none; }
+.form-success.show { display: block; }
+.form-error { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.4); color: #f87171; padding: 14px 18px; border-radius: 10px; font-size: 14px; margin-bottom: 16px; display: none; }
+.form-error.show { display: block; }
+
+/* FAQ */
+.faq { display: grid; gap: 10px; }
+.faq-item { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 10px; padding: 14px 18px; }
+.faq-q { font-size: 14px; font-weight: 600; color: var(--text); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+.faq-q::after { content: '+'; color: var(--primary-light); font-size: 18px; font-weight: 300; }
+.faq-item.open .faq-q::after { content: '−'; }
+.faq-a { font-size: 13px; color: var(--text-dim); line-height: 1.6; margin-top: 10px; display: none; padding-top: 10px; border-top: 1px dashed var(--border-light); }
+.faq-item.open .faq-a { display: block; }
+
+/* ERP STRIP */
+.erp-strip { background: linear-gradient(135deg, rgba(16,185,129,0.08), rgba(20,184,166,0.04)); border: 1px solid rgba(16,185,129,0.25); border-radius: 16px; padding: 28px; display: flex; gap: 20px; align-items: center; margin-bottom: 40px; }
+.erp-ico { font-size: 48px; flex-shrink: 0; }
+.erp-body { flex: 1; }
+.erp-title { font-size: 16px; font-weight: 700; color: var(--success); margin-bottom: 4px; }
+.erp-desc { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+.erp-link { color: var(--success); text-decoration: none; font-weight: 600; }
+
+/* FOOT */
+.foot { border-top: 1px solid var(--border-light); padding: 28px 0 8px; text-align: center; margin-top: 30px; }
+.foot-line { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
+.foot-line a { color: var(--primary-light); text-decoration: none; }
+.foot-meta { font-family: 'Press Start 2P', monospace; font-size: 9px; color: rgba(148,163,184,0.35); letter-spacing: 0.15em; margin-top: 16px; }
+
+@media (max-width: 720px) {
+  .erp-strip { flex-direction: column; text-align: center; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="topnav">
+    <span class="topnav-logo">EPI-USE VOICES</span>
+    <div class="topnav-links">
+      <a href="/">🎮 Game</a>
+      <a href="/dashboard">📊 Dashboard</a>
+      <a href="/voices">🎙️ Voices</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-tag">3 VAGAS ABERTAS · MVP 2026</div>
+    <h1 class="hero-h1">Você é o próximo <span class="gradient">Voice</span> da EPI-USE Brasil?</h1>
+    <p class="hero-sub">
+      Programa de influência executiva que transforma consultores SAP em referências de mercado no LinkedIn —
+      com suporte de IA, ferramental dedicado e propósito (ERP.ngo).
+    </p>
+    <div class="hero-cta-row">
+      <a class="btn btn-primary" href="#vagas">Ver vagas abertas</a>
+      <a class="btn btn-secondary" href="#inscrever">Quero me inscrever →</a>
+    </div>
+    <div class="hero-meta">
+      <span>🪪 Kit LinkedIn gerado com IA</span>
+      <span>🤖 Agente personalizado por nicho</span>
+      <span>🐘 Embaixador ERP.ngo</span>
+    </div>
+  </section>
+
+  <!-- O QUE É -->
+  <section class="section">
+    <div class="section-tag">O Programa</div>
+    <h2 class="section-h2">Por que existir um programa de Voices?</h2>
+    <p class="section-intro">
+      EPI-USE Brasil é a maior consultoria SAP HCM/Payroll do Brasil — parte do grupo groupelephant.com
+      (4.500+ profissionais · 40+ países · SAP Gold Partner). O programa Voices transforma quem entrega projeto
+      todo dia em quem é referência no LinkedIn.
+    </p>
+    <div class="cards-3">
+      <div class="feat-card">
+        <div class="feat-ico">🎙️</div>
+        <div class="feat-title">Programa estruturado</div>
+        <div class="feat-desc">Metodologia, calendário, tom de voz definido. Você sabe o que postar, quando e por quê. Nada de "improviso na inspiração".</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-ico">🪪</div>
+        <div class="feat-title">Kit LinkedIn com IA</div>
+        <div class="feat-desc">Profile Optimizer com Claude Vision: análise de perfil, headline, "Sobre", competências, destaques, plano de 90 dias.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-ico">🤖</div>
+        <div class="feat-title">Agente personalizado</div>
+        <div class="feat-desc">Cada Voice ganha um agente de IA com seu tom, nicho e regras. Sugere pautas, rescreve posts, analisa métricas.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VOICES ATUAIS (SOCIAL PROOF) -->
+  <section class="section">
+    <div class="section-tag">Quem já está</div>
+    <h2 class="section-h2">Voices ativos no MVP</h2>
+    <p class="section-intro">Conheça os 2 primeiros Voices do programa — todos consultores sêniores da EPI-USE Brasil.</p>
+    <div class="voices-row" id="voices-row"><div style="color:var(--text-muted);font-size:13px">Carregando…</div></div>
+  </section>
+
+  <!-- VOCÊ GANHA -->
+  <section class="section">
+    <div class="section-tag">Benefícios</div>
+    <h2 class="section-h2">O que você ganha sendo Voice</h2>
+    <div class="cards-3">
+      <div class="feat-card">
+        <div class="feat-ico">👁️</div>
+        <div class="feat-title">Visibilidade real</div>
+        <div class="feat-desc">Crescimento estruturado de seguidores e SSI. Meta de 90 dias: +30% seguidores, SSI > 70.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-ico">🧠</div>
+        <div class="feat-title">Suporte de IA</div>
+        <div class="feat-desc">Profile Optimizer + Voice Agent dedicado. Você não escreve do zero — você cura.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-ico">🤝</div>
+        <div class="feat-title">Network qualificado</div>
+        <div class="feat-desc">Conexões com CHROs, CIOs, CFOs do mercado brasileiro de tecnologia e SAP.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-ico">🐘</div>
+        <div class="feat-title">Propósito real</div>
+        <div class="feat-desc">Embaixador automático do ERP.ngo — 1% da receita global vira conservação de elefantes na África.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-ico">📈</div>
+        <div class="feat-title">Carreira acelerada</div>
+        <div class="feat-desc">Quem é Voice é visto como referência interna e externa. Acesso a oportunidades de speaker, mentoria, consultoria.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-ico">🎓</div>
+        <div class="feat-title">Tutoria da Redatoria</div>
+        <div class="feat-desc">Lisiane de Assis (CEO Redatoria) revisa textos de alta exposição. Sua voz fica polida sem perder identidade.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VAGAS -->
+  <section class="section" id="vagas">
+    <div class="section-tag">3 Vagas Abertas</div>
+    <h2 class="section-h2">Qual perfil é o seu?</h2>
+    <p class="section-intro">Procuramos consultores sêniores em 3 áreas estratégicas para a EPI-USE Brasil em 2026.</p>
+    <div class="vagas-grid" id="vagas-grid"><div style="color:var(--text-muted);font-size:13px">Carregando…</div></div>
+  </section>
+
+  <!-- ERP STRIP -->
+  <section>
+    <div class="erp-strip">
+      <div class="erp-ico">🐘</div>
+      <div class="erp-body">
+        <div class="erp-title">Todo Voice é embaixador do ERP.ngo</div>
+        <div class="erp-desc">
+          1% da receita global do grupo groupelephant é destinada à conservação de elefantes africanos e combate à pobreza
+          rural na África. Como Voice, sua atuação no LinkedIn fortalece essa missão.
+          <a class="erp-link" href="https://erp.ngo" target="_blank">erp.ngo →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section">
+    <div class="section-tag">FAQ</div>
+    <h2 class="section-h2">Dúvidas frequentes</h2>
+    <div class="faq" id="faq">
+      <div class="faq-item">
+        <div class="faq-q">Quanto tempo preciso dedicar por semana?</div>
+        <div class="faq-a">Em média 2-3 horas por semana: 2 posts publicados (cada um leva ~30min com nosso agente de IA) + 15-30min/dia de engajamento ativo em posts de líderes do nicho.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">E se eu não souber escrever bem?</div>
+        <div class="faq-a">Sem problema. Nosso Voice Agent (IA personalizado) sugere pautas, rascunha posts e adapta tom. Você cura, edita e publica. A Redatoria (Lisiane de Assis) revisa textos de alta exposição.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Vou ter que falar sobre clientes?</div>
+        <div class="faq-a">Nunca clientes nominais sem aprovação. Você fala sobre temas, tendências, aprendizados — sempre anonimizando casos quando aplicável.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Posso continuar minha rotina de projeto normalmente?</div>
+        <div class="faq-a">Sim — ser Voice é complemento à sua função, não substituto. Os melhores Voices são quem está com mão na massa diariamente.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">O que acontece se eu parar de publicar?</div>
+        <div class="faq-a">Após 30 dias sem post você entra em alerta amarelo. Após 60 dias, vermelho, e a Duda agenda 1:1 pra entender. Sem julgamento — mas a vaga é finita (5 no MVP), então pode ser realocada.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FORMULÁRIO -->
+  <section class="section" id="inscrever">
+    <div class="section-tag">Inscrição</div>
+    <h2 class="section-h2" style="text-align:center">Quero ser Voice</h2>
+    <p class="section-intro" style="text-align:center;margin-left:auto;margin-right:auto">Preencha o form abaixo. A Duda vai te chamar pra um café virtual em até 5 dias úteis.</p>
+
+    <div class="form-card">
+      <div class="form-success" id="form-success">
+        ✓ Inscrição enviada! A Duda vai te chamar em até 5 dias úteis. Obrigado por se candidatar.
+      </div>
+      <div class="form-error" id="form-error">
+        Erro ao enviar. Tente novamente ou mande direto pra rudacosta@epiuse.com.br.
+      </div>
+      <form id="seja-voice-form" novalidate>
+        <div class="form-row">
+          <label for="f-nome">Nome completo <span class="req">*</span></label>
+          <input id="f-nome" name="nome" type="text" required maxlength="100">
+        </div>
+        <div class="form-row">
+          <label for="f-email">E-mail corporativo EPI-USE <span class="req">*</span></label>
+          <input id="f-email" name="email" type="email" required maxlength="100" placeholder="nome@epiuse.com.br">
+        </div>
+        <div class="form-row">
+          <label for="f-linkedin">URL do LinkedIn <span class="req">*</span></label>
+          <input id="f-linkedin" name="linkedin" type="url" required placeholder="https://linkedin.com/in/seu-perfil">
+        </div>
+        <div class="form-row">
+          <label for="f-area">Vaga de interesse <span class="req">*</span></label>
+          <select id="f-area" name="area" required>
+            <option value="">— escolha uma —</option>
+            <option value="signavio">#03 — Signavio / Process Mining</option>
+            <option value="analytics">#04 — Analytics / BI / Data</option>
+            <option value="industria">#05 — Indústria / Manufacturing</option>
+            <option value="outro">Outra área (descreva abaixo)</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label for="f-motivo">Por que você quer ser Voice? <span class="req">*</span></label>
+          <textarea id="f-motivo" name="motivo" required maxlength="800" placeholder="Conte em 3-4 frases o que te motiva e o que você quer compartilhar..."></textarea>
+          <div class="helper">Máx 800 caracteres · Será lido pela Duda e pelo Rudá</div>
+        </div>
+        <!-- UTM hidden inputs -->
+        <input type="hidden" name="utm_source" id="utm_source">
+        <input type="hidden" name="utm_medium" id="utm_medium">
+        <input type="hidden" name="utm_campaign" id="utm_campaign">
+        <input type="hidden" name="utm_voice" id="utm_voice">
+
+        <div class="form-submit-row">
+          <button type="submit" class="btn btn-primary" id="submit-btn">📨 Enviar inscrição</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <div class="foot-line">Seja um Voice · v1.0 · maio/2026 &nbsp; | &nbsp; <a href="https://erp.ngo" target="_blank">🐘 ERP.ngo</a></div>
+    <div class="foot-meta">EPI-USE BRASIL · RECRUTAMENTO VOICES · POWERED BY AI OFFICE ENGINE</div>
+  </footer>
+
+</div>
+
+<script>
+'use strict';
+
+// Capture UTM params from URL
+(function captureUTM() {
+  const params = new URLSearchParams(location.search);
+  ['utm_source','utm_medium','utm_campaign','utm_voice'].forEach(p => {
+    const el = document.getElementById(p);
+    if (el) el.value = params.get(p) || '';
+  });
+})();
+
+// Render Voices social proof + Vagas from voices.json
+async function loadData() {
+  let data;
+  try { const res = await fetch('/api/voices.json'); data = await res.json(); }
+  catch (e) { console.error(e); return; }
+
+  // Voices ativos
+  document.getElementById('voices-row').innerHTML = data.voices.map(v => `
+    <div class="voice-mini">
+      <div class="voice-mini-avatar" style="background:linear-gradient(135deg,${v.avatar_grad[0]},${v.avatar_grad[1]})">👤</div>
+      <div class="voice-mini-info">
+        <div class="voice-mini-name">${v.nome}</div>
+        <div class="voice-mini-role">${v.cargo} · ${v.nicho.split('·')[0].trim()}</div>
+      </div>
+    </div>
+  `).join('');
+
+  // Vagas
+  document.getElementById('vagas-grid').innerHTML = data.vagas_abertas.map(vg => `
+    <div class="vaga-card">
+      <div class="vaga-num">#0${vg.numero}</div>
+      <div class="vaga-nicho">${vg.nicho}</div>
+      <div class="vaga-perfil">${vg.perfil_ideal}</div>
+      <div class="vaga-tags">${vg.tags.map(t => `<span class="vaga-tag">${t}</span>`).join('')}</div>
+      <div class="vaga-audi">🎯 ${vg.audiencia_alvo.join(', ')}</div>
+      <a class="vaga-cta" href="#inscrever" onclick="document.getElementById('f-area').value='${vg.nicho.split(' /')[0].split(' (')[0].toLowerCase().includes('signavio')?'signavio':vg.nicho.toLowerCase().includes('analytics')?'analytics':'industria'}'">Aplicar para esta vaga →</a>
+    </div>
+  `).join('');
+}
+
+// FAQ toggles
+document.getElementById('faq').addEventListener('click', e => {
+  const q = e.target.closest('.faq-q');
+  if (!q) return;
+  q.closest('.faq-item').classList.toggle('open');
+});
+
+// Form submit
+document.getElementById('seja-voice-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const form = e.target;
+  const btn = document.getElementById('submit-btn');
+  const success = document.getElementById('form-success');
+  const error = document.getElementById('form-error');
+  success.classList.remove('show'); error.classList.remove('show');
+
+  const formData = Object.fromEntries(new FormData(form).entries());
+  formData.timestamp = new Date().toISOString();
+
+  btn.disabled = true; btn.textContent = '⏳ Enviando…';
+
+  try {
+    const res = await fetch('/api/seja-voice', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData)
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    success.classList.add('show');
+    form.reset();
+    btn.textContent = '✓ Enviado!';
+    if (window.plausible) plausible('Recruitment Form', { props: { area: formData.area || 'unknown' } });
+    setTimeout(() => { btn.textContent = '📨 Enviar inscrição'; btn.disabled = false; }, 3500);
+  } catch (err) {
+    console.error(err);
+    error.classList.add('show');
+    btn.textContent = '📨 Enviar inscrição';
+    btn.disabled = false;
+  }
+});
+
+loadData();
+</script>
+</body>
+</html>
