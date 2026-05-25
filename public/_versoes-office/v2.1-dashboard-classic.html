@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EPI-USE Office · War Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a1628;
+  --bg-2: #0d1e36;
+  --bg-3: #112540;
+  --bg-card: rgba(15, 30, 53, 0.6);
+  --border: rgba(37,99,235,0.18);
+  --border-light: rgba(255,255,255,0.06);
+  --border-active: rgba(37,99,235,0.5);
+  --text: #e2e8f0;
+  --text-dim: #94a3b8;
+  --text-muted: #64748b;
+  --primary: #2563EB;
+  --primary-light: #60a5fa;
+  --primary-glow: rgba(37,99,235,0.18);
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #06b6d4;
+  --purple: #a855f7;
+  --pink: #ec4899;
+}
+
+html, body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
+body {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(37,99,235,0.12), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 100% 100%, rgba(168,85,247,0.06), transparent 60%),
+    var(--bg);
+  background-attachment: fixed;
+  padding: 24px 28px 48px;
+}
+
+.wrap { max-width: 1280px; margin: 0 auto; }
+
+/* ══════ HEADER ════════════════════════════════════════════════════ */
+.hdr {
+  background: linear-gradient(135deg, rgba(15,30,53,0.7), rgba(10,22,40,0.7));
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 22px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 36px;
+  position: relative;
+  overflow: hidden;
+}
+.hdr::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at 0% 0%, rgba(37,99,235,0.16), transparent 50%);
+  pointer-events: none;
+}
+.hdr-l { position: relative; z-index: 1; }
+.hdr-title { font-family: 'Press Start 2P', monospace; font-size: 26px; color: var(--primary-light); letter-spacing: 0.04em; line-height: 1.4; }
+.hdr-sub { font-size: 11px; color: var(--text-muted); letter-spacing: 0.25em; margin-top: 8px; font-weight: 500; }
+.hdr-r { display: flex; align-items: center; gap: 10px; position: relative; z-index: 1; }
+.hdr-chip {
+  font-size: 13px;
+  color: var(--text-dim);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border-light);
+  padding: 6px 14px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.hdr-chip.online {
+  color: var(--success);
+  background: rgba(16,185,129,0.08);
+  border-color: rgba(16,185,129,0.3);
+  display: flex; align-items: center; gap: 7px;
+}
+.hdr-chip.online::before {
+  content: ''; width: 7px; height: 7px;
+  background: var(--success); border-radius: 50%;
+  box-shadow: 0 0 8px var(--success);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(0.92); }
+}
+
+/* ══════ SECTION HEADERS ═══════════════════════════════════════════ */
+.sec-hdr {
+  display: flex; align-items: center; gap: 14px;
+  margin: 0 0 16px;
+}
+.sec-hdr h2 {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.32em;
+  color: var(--primary-light); text-transform: uppercase;
+}
+.sec-hdr .line { flex: 1; height: 1px; background: linear-gradient(90deg, var(--border), transparent); }
+
+/* ══════ PROJECTS GRID ═════════════════════════════════════════════ */
+.proj-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 40px;
+}
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
+  padding: 20px;
+  position: relative;
+  transition: transform .2s, border-color .2s, box-shadow .2s;
+  backdrop-filter: blur(8px);
+}
+.card:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-active);
+  box-shadow: 0 8px 24px rgba(37,99,235,0.12);
+}
+.card.featured {
+  border-color: rgba(37,99,235,0.55);
+  box-shadow: 0 0 0 1px rgba(37,99,235,0.3), 0 0 32px rgba(37,99,235,0.18);
+  background: linear-gradient(135deg, rgba(37,99,235,0.06), var(--bg-card));
+}
+.card-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+.card-icon {
+  width: 36px; height: 36px;
+  background: rgba(37,99,235,0.12);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px;
+}
+.card-status {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.status-ok { color: var(--success); background: rgba(16,185,129,0.10); border: 1px solid rgba(16,185,129,0.3); }
+.status-prod { color: var(--info); background: rgba(6,182,212,0.10); border: 1px solid rgba(6,182,212,0.3); }
+.status-mvp { color: var(--warning); background: rgba(245,158,11,0.10); border: 1px solid rgba(245,158,11,0.3); }
+.status-build { color: var(--primary-light); background: rgba(37,99,235,0.12); border: 1px solid rgba(37,99,235,0.35); }
+.status-pri-2, .status-pri-3 { color: var(--text-dim); background: rgba(148,163,184,0.08); border: 1px solid rgba(148,163,184,0.2); }
+.card-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.card-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 14px; }
+.card-action { font-size: 13px; color: var(--primary-light); font-weight: 500; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+.card-action:hover { color: #93c5fd; }
+
+/* ══════ VOICES SECTION ════════════════════════════════════════════ */
+.voices-block {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  padding: 24px 26px;
+  margin-bottom: 24px;
+  backdrop-filter: blur(8px);
+}
+.vb-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 18px; }
+.vb-title { font-size: 19px; font-weight: 700; display: flex; align-items: center; gap: 12px; }
+.vb-title .ico { font-size: 22px; }
+.vb-title .meta { color: var(--text-muted); font-weight: 500; font-size: 15px; }
+.vb-progress-chip {
+  background: rgba(245,158,11,0.10);
+  border: 1px solid rgba(245,158,11,0.3);
+  color: var(--warning);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.vb-bar {
+  height: 7px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+.vb-bar-fill {
+  height: 100%;
+  width: 40%;
+  background: linear-gradient(90deg, #10b981, #34d399);
+  border-radius: 4px;
+  position: relative;
+}
+.vb-bar-fill::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  animation: shimmer 2.5s ease-in-out infinite;
+}
+@keyframes shimmer {
+  0%, 100% { transform: translateX(-100%); }
+  50% { transform: translateX(100%); }
+}
+.vb-labels {
+  display: flex; justify-content: space-between;
+  font-size: 11px; color: var(--text-muted);
+  margin-top: 8px;
+}
+
+.voices-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 14px;
+  margin-bottom: 36px;
+}
+.voice-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
+  padding: 18px;
+  backdrop-filter: blur(8px);
+}
+.vc-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.vc-avatar {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2563EB, #a855f7);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px;
+  border: 2px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+.vc-avatar.empty {
+  background: rgba(148,163,184,0.08);
+  border: 2px dashed rgba(148,163,184,0.3);
+  color: var(--text-muted);
+}
+.vc-name-wrap { flex: 1; min-width: 0; }
+.vc-name { font-size: 15px; font-weight: 700; color: var(--text); }
+.vc-role { font-size: 12px; color: var(--text-muted); }
+.vc-num {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 11px;
+  color: var(--primary-light);
+  background: rgba(37,99,235,0.10);
+  padding: 4px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.05em;
+}
+.vc-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.vc-tag {
+  font-size: 11px;
+  background: rgba(37,99,235,0.10);
+  border: 1px solid rgba(37,99,235,0.25);
+  color: var(--primary-light);
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+.vc-status {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(245,158,11,0.10);
+  border: 1px solid rgba(245,158,11,0.3);
+  color: var(--warning);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 11px;
+  border-radius: 14px;
+  margin-bottom: 12px;
+}
+.vc-status::before { content: ''; width: 7px; height: 7px; background: var(--warning); border-radius: 50%; }
+.vc-pending {
+  font-size: 11px;
+  background: rgba(245,158,11,0.06);
+  border-left: 3px solid var(--warning);
+  padding: 8px 12px;
+  border-radius: 5px;
+  color: var(--text-dim);
+}
+.vc-pending b { color: var(--warning); margin-right: 4px; }
+.vc-input-wrap { font-size: 12px; color: var(--text-muted); }
+.vc-input-wrap .lbl { display: block; margin-bottom: 6px; }
+.vc-input-wrap input {
+  width: 100%;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--text-dim);
+  font-family: inherit;
+}
+
+/* ══════ ROADMAP ═══════════════════════════════════════════════════ */
+.roadmap { margin-bottom: 40px; }
+.rm-item {
+  display: flex; gap: 16px;
+  margin-bottom: 12px;
+  position: relative;
+}
+.rm-step {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--border-active);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 11px;
+  color: var(--primary-light);
+  flex-shrink: 0;
+  background: var(--bg);
+  position: relative;
+  z-index: 2;
+}
+.rm-step.urgente { border-color: var(--danger); color: var(--danger); }
+.rm-step.critical { border-color: var(--warning); color: var(--warning); }
+.rm-item:not(:last-child)::after {
+  content: ''; position: absolute;
+  left: 17px; top: 38px;
+  width: 2px; bottom: -8px;
+  background: linear-gradient(to bottom, var(--border-active), transparent);
+}
+.rm-card {
+  flex: 1;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 12px;
+}
+.rm-body { flex: 1; min-width: 0; }
+.rm-name { font-size: 15px; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+.rm-meta { font-size: 12px; color: var(--text-muted); }
+.rm-tag {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+  padding: 5px 12px; border-radius: 6px;
+}
+.rm-tag.urgente { background: rgba(239,68,68,0.10); border: 1px solid rgba(239,68,68,0.4); color: var(--danger); }
+.rm-tag.proximo { background: rgba(37,99,235,0.10); border: 1px solid rgba(37,99,235,0.4); color: var(--primary-light); }
+.rm-tag.critical { background: rgba(245,158,11,0.10); border: 1px solid rgba(245,158,11,0.4); color: var(--warning); }
+.rm-tag.andamento { background: rgba(16,185,129,0.10); border: 1px solid rgba(16,185,129,0.4); color: var(--success); }
+.rm-card.with-countdown { flex-direction: column; align-items: stretch; }
+.rm-countdown {
+  background: rgba(245,158,11,0.06);
+  border: 1px solid rgba(245,158,11,0.25);
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: flex; align-items: center; gap: 14px;
+  margin-top: 6px;
+}
+.rm-countdown-lbl { font-size: 11px; color: var(--warning); font-weight: 700; letter-spacing: 0.12em; }
+.rm-countdown-time { font-family: 'Press Start 2P', monospace; font-size: 18px; color: var(--warning); }
+
+/* ══════ TEAM ══════════════════════════════════════════════════════ */
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+  margin-bottom: 40px;
+}
+.team-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  padding: 20px 18px;
+  text-align: center;
+  transition: transform .2s, border-color .2s;
+}
+.team-card:hover { transform: translateY(-2px); border-color: var(--border-active); }
+.team-icon { font-size: 28px; margin-bottom: 10px; }
+.team-name { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.team-role { font-size: 12px; color: var(--text-muted); }
+
+/* ══════ ALERTAS ═══════════════════════════════════════════════════ */
+.alerts { margin-bottom: 40px; }
+.alert {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 10px;
+  display: flex; gap: 14px; align-items: flex-start;
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+.alert::before {
+  content: '';
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+.alert.warn::before { background: var(--warning); box-shadow: 0 0 6px var(--warning); }
+.alert.info::before { background: var(--primary); box-shadow: 0 0 6px var(--primary); }
+.alert b { color: var(--text); }
+
+/* ══════ FOOTER + VERSIONS ═════════════════════════════════════════ */
+.foot {
+  border-top: 1px solid var(--border-light);
+  padding: 28px 0 8px;
+  text-align: center;
+}
+.foot-line { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
+.foot-line a { color: var(--primary-light); text-decoration: none; }
+.foot-line a:hover { text-decoration: underline; }
+.foot-meta { font-family: 'Press Start 2P', monospace; font-size: 9px; color: rgba(148,163,184,0.35); letter-spacing: 0.15em; margin-top: 16px; }
+
+.versions {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  padding: 18px 22px;
+  margin-top: 28px;
+  text-align: left;
+}
+.versions h3 {
+  font-size: 10px; letter-spacing: 0.28em; color: var(--text-muted);
+  font-weight: 700; text-transform: uppercase; margin-bottom: 12px;
+}
+.ver-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 0; font-size: 13px;
+  border-bottom: 1px dashed var(--border-light);
+}
+.ver-row:last-child { border-bottom: none; }
+.ver-left { display: flex; align-items: center; gap: 10px; }
+.ver-tag {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px; padding: 4px 8px; border-radius: 5px;
+  background: rgba(37,99,235,0.10); color: var(--primary-light); border: 1px solid rgba(37,99,235,0.3);
+}
+.ver-tag.current { background: rgba(16,185,129,0.10); color: var(--success); border-color: rgba(16,185,129,0.3); }
+.ver-name { color: var(--text); font-weight: 500; }
+.ver-meta { color: var(--text-muted); font-size: 12px; }
+.ver-link { color: var(--primary-light); text-decoration: none; font-weight: 500; font-size: 12px; }
+.ver-link:hover { text-decoration: underline; }
+
+@media (max-width: 720px) {
+  .hdr { flex-direction: column; align-items: flex-start; }
+  .hdr-title { font-size: 18px; }
+  body { padding: 16px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ══════ HEADER ══════ -->
+  <header class="hdr">
+    <div class="hdr-l">
+      <div class="hdr-title">EPI-USE OFFICE</div>
+      <div class="hdr-sub">WAR ROOM · MARKETING & REVOPS</div>
+    </div>
+    <div class="hdr-r">
+      <div class="hdr-chip" id="today">23 mai 2026</div>
+      <div class="hdr-chip online">Escritório Online</div>
+      <a class="hdr-chip" href="/" style="text-decoration:none;color:var(--primary-light);background:rgba(37,99,235,0.12);border-color:rgba(37,99,235,0.3)">🎮 Modo Game</a>
+    </div>
+  </header>
+
+  <!-- ══════ PROJETOS ══════ -->
+  <section>
+    <div class="sec-hdr"><h2>Projetos & Status</h2><div class="line"></div></div>
+    <div class="proj-grid">
+
+      <div class="card">
+        <div class="card-head">
+          <div class="card-icon">🪪</div>
+          <div class="card-status status-ok">✓ Pronto</div>
+        </div>
+        <div class="card-title">Profile Optimizer</div>
+        <div class="card-sub">Módulo A</div>
+        <a class="card-action" href="/optimizer" target="_blank">Abrir →</a>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div class="card-icon">📘</div>
+          <div class="card-status status-prod">✓ Em produção</div>
+        </div>
+        <div class="card-title">Marketing Hub</div>
+        <div class="card-sub">Portal de onboarding</div>
+        <a class="card-action" href="/hub" target="_blank">Abrir →</a>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div class="card-icon">🎙️</div>
+          <div class="card-status status-mvp">● MVP — 2/5</div>
+        </div>
+        <div class="card-title">EPI-USE Voices</div>
+        <div class="card-sub">Programa de influência</div>
+        <a class="card-action" href="#voices">Ver programa ↓</a>
+      </div>
+
+      <div class="card featured">
+        <div class="card-head">
+          <div class="card-icon">🏢</div>
+          <div class="card-status status-build">● Em produção</div>
+        </div>
+        <div class="card-title">Office Engine</div>
+        <div class="card-sub">PRIORIDADE 1 · v2 lançada</div>
+        <a class="card-action" href="/">Entrar no escritório →</a>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div class="card-icon">📊</div>
+          <div class="card-status status-pri-2">○ Prioridade 2</div>
+        </div>
+        <div class="card-title">Painel da Duda</div>
+        <div class="card-sub">Módulo C</div>
+        <a class="card-action" href="#roadmap">Construir ↓</a>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div class="card-icon">🤖</div>
+          <div class="card-status status-pri-3">○ Prioridade 3</div>
+        </div>
+        <div class="card-title">Voice Agents</div>
+        <div class="card-sub">Módulo B</div>
+        <a class="card-action" href="#roadmap">Construir ↓</a>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div class="card-icon">🧪</div>
+          <div class="card-status status-ok">✓ Skill ativa</div>
+        </div>
+        <div class="card-title">SAP Competitor Intel</div>
+        <div class="card-sub">Skill autônoma</div>
+        <a class="card-action">Usar skill ↓</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════ VOICES ══════ -->
+  <section id="voices">
+    <div class="sec-hdr"><h2>EPI-USE Voices</h2><div class="line"></div></div>
+
+    <div class="voices-block">
+      <div class="vb-head">
+        <div class="vb-title">
+          <span class="ico">🎙️</span>
+          <span>Voices Ativos</span>
+          <span class="meta">— MVP 2 / 5</span>
+        </div>
+        <div class="vb-progress-chip">40% preenchido</div>
+      </div>
+      <div class="vb-bar"><div class="vb-bar-fill"></div></div>
+      <div class="vb-labels">
+        <span>0 Voices</span>
+        <span>2 ativos</span>
+        <span>Meta: 5 Voices</span>
+      </div>
+    </div>
+
+    <div class="voices-grid">
+
+      <div class="voice-card">
+        <div class="vc-head">
+          <div class="vc-avatar">👤</div>
+          <div class="vc-name-wrap">
+            <div class="vc-name">Anderson Costa</div>
+            <div class="vc-role">Delivery Strategic Account</div>
+          </div>
+          <div class="vc-num">#01</div>
+        </div>
+        <div class="vc-tags">
+          <span class="vc-tag">SAP HCM</span>
+          <span class="vc-tag">SuccessFactors</span>
+        </div>
+        <div class="vc-status">Piloto</div>
+        <div class="vc-pending"><b>Pendente:</b> Ajustes finais no kit</div>
+      </div>
+
+      <div class="voice-card">
+        <div class="vc-head">
+          <div class="vc-avatar" style="background:linear-gradient(135deg,#a855f7,#ec4899)">👤</div>
+          <div class="vc-name-wrap">
+            <div class="vc-name">Carlos Furigo</div>
+            <div class="vc-role">Head of Products & Innovation</div>
+          </div>
+          <div class="vc-num">#02</div>
+        </div>
+        <div class="vc-tags">
+          <span class="vc-tag">SAP BTP</span>
+          <span class="vc-tag">Clean Core</span>
+          <span class="vc-tag">AWS</span>
+        </div>
+        <div class="vc-status">Onboarding</div>
+        <div class="vc-pending"><b>Pendente:</b> Campos em laranja para preencher</div>
+      </div>
+
+      <div class="voice-card">
+        <div class="vc-head">
+          <div class="vc-avatar empty">?</div>
+          <div class="vc-name-wrap">
+            <div class="vc-name">Vaga Reservada</div>
+            <div class="vc-role">Perfil a recrutar</div>
+          </div>
+          <div class="vc-num">#03</div>
+        </div>
+        <div class="vc-input-wrap">
+          <span class="lbl">Prioridade de nicho</span>
+          <input type="text" value="Signavio / Process Mining" readonly>
+        </div>
+      </div>
+
+      <div class="voice-card">
+        <div class="vc-head">
+          <div class="vc-avatar empty">?</div>
+          <div class="vc-name-wrap">
+            <div class="vc-name">Vaga Reservada</div>
+            <div class="vc-role">Perfil a recrutar</div>
+          </div>
+          <div class="vc-num">#04</div>
+        </div>
+        <div class="vc-input-wrap">
+          <span class="lbl">Prioridade de nicho</span>
+          <input type="text" value="Analytics / BI / Data" readonly>
+        </div>
+      </div>
+
+      <div class="voice-card">
+        <div class="vc-head">
+          <div class="vc-avatar empty">?</div>
+          <div class="vc-name-wrap">
+            <div class="vc-name">Vaga Reservada</div>
+            <div class="vc-role">Perfil a recrutar</div>
+          </div>
+          <div class="vc-num">#05</div>
+        </div>
+        <div class="vc-input-wrap">
+          <span class="lbl">Prioridade de nicho</span>
+          <input type="text" value="Indústria / Manufacturing" readonly>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════ ROADMAP ══════ -->
+  <section id="roadmap">
+    <div class="sec-hdr"><h2>Roadmap — Prioridades</h2><div class="line"></div></div>
+    <div class="roadmap">
+
+      <div class="rm-item">
+        <div class="rm-step urgente">1</div>
+        <div class="rm-card">
+          <div class="rm-body">
+            <div class="rm-name">🏢 Office Engine MVP</div>
+            <div class="rm-meta">Estimativa: ~6h de desenvolvimento · Entregue v2 (game + dashboard)</div>
+          </div>
+          <div class="rm-tag andamento">✓ ENTREGUE</div>
+        </div>
+      </div>
+
+      <div class="rm-item">
+        <div class="rm-step">2</div>
+        <div class="rm-card">
+          <div class="rm-body">
+            <div class="rm-name">📊 Painel da Duda</div>
+            <div class="rm-meta">Estimativa: ~3h · Módulo C</div>
+          </div>
+          <div class="rm-tag proximo">PRÓXIMO</div>
+        </div>
+      </div>
+
+      <div class="rm-item">
+        <div class="rm-step">3</div>
+        <div class="rm-card">
+          <div class="rm-body">
+            <div class="rm-name">🤖 Voice Agents</div>
+            <div class="rm-meta">Estimativa: ~3h · Módulo B</div>
+          </div>
+          <div class="rm-tag proximo">PRÓXIMO</div>
+        </div>
+      </div>
+
+      <div class="rm-item">
+        <div class="rm-step critical">4</div>
+        <div class="rm-card with-countdown">
+          <div style="display:flex;justify-content:space-between;align-items:center;width:100%;gap:12px;flex-wrap:wrap">
+            <div class="rm-body">
+              <div class="rm-name">📅 Sessão SAP NOW AI Tour</div>
+              <div class="rm-meta">Data limite: 26 / jun / 2026</div>
+            </div>
+            <div class="rm-tag critical">DEADLINE CRÍTICO</div>
+          </div>
+          <div class="rm-countdown">
+            <span style="font-size:20px">⏳</span>
+            <span class="rm-countdown-lbl">DIAS RESTANTES</span>
+            <span class="rm-countdown-time" id="countdown">33d 8h</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="rm-item">
+        <div class="rm-step">5</div>
+        <div class="rm-card">
+          <div class="rm-body">
+            <div class="rm-name">👥 Onboarding 3 novas Voices</div>
+            <div class="rm-meta">Contínuo · Meta: Voices #03, #04, #05</div>
+          </div>
+          <div class="rm-tag andamento">EM ANDAMENTO</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════ AGENDA EVENTOS ══════ -->
+  <section>
+    <div class="sec-hdr"><h2>Agenda EPI-USE / SAP — 2026</h2><div class="line"></div></div>
+    <div class="voices-block" style="padding:22px">
+      <div class="vb-head" style="margin-bottom:14px">
+        <div class="vb-title"><span class="ico">📅</span><span>30 eventos mapeados</span><span class="meta">— ano 2026</span></div>
+        <a class="card-action" href="https://epiusebr-my.sharepoint.com/:x:/g/personal/ti_brasil_epiuse_com_br/IQCVg4hDxMivTZf9vlCJ01IMAcUjIK3ESRYzWJ81AZWgN5E?e=ceAacH" target="_blank">📊 Editar planilha →</a>
+      </div>
+      <div id="events-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px"></div>
+    </div>
+  </section>
+
+  <!-- ══════ TIME ══════ -->
+  <section>
+    <div class="sec-hdr"><h2>Time</h2><div class="line"></div></div>
+    <div class="team-grid">
+      <div class="team-card"><div class="team-icon">🎯</div><div class="team-name">Rudá Costa</div><div class="team-role">Head RevOps & Marketing</div></div>
+      <div class="team-card"><div class="team-icon">📞</div><div class="team-name">Marlison Estrela</div><div class="team-role">SDR Net New Name</div></div>
+      <div class="team-card"><div class="team-icon">📧</div><div class="team-name">Bruna Yamagami</div><div class="team-role">MKT & CRM</div></div>
+      <div class="team-card"><div class="team-icon">📅</div><div class="team-name">Isabela de Oliveira</div><div class="team-role">Eventos & MDF</div></div>
+      <div class="team-card"><div class="team-icon">🚀</div><div class="team-name">Gui</div><div class="team-role">Growth & IA</div></div>
+      <div class="team-card"><div class="team-icon">📣</div><div class="team-name">Lisiane (Redatoria)</div><div class="team-role">Tom de Voz</div></div>
+      <div class="team-card"><div class="team-icon">🎨</div><div class="team-name">Duda</div><div class="team-role">Brand Experience</div></div>
+      <div class="team-card"><div class="team-icon">🏆</div><div class="team-name">Roberto</div><div class="team-role">Country Manager</div></div>
+    </div>
+  </section>
+
+  <!-- ══════ ALERTAS ══════ -->
+  <section>
+    <div class="sec-hdr"><h2>Alertas & Pendências</h2><div class="line"></div></div>
+    <div class="alerts">
+      <div class="alert warn"><div><b>Carlos Furigo Cardoso:</b> campos em laranja pendentes no kit do Profile Optimizer. Aguardando preenchimento para avançar no onboarding.</div></div>
+      <div class="alert warn"><div><b>Ambos os Voices ativos (Anderson + Carlos):</b> SSI do LinkedIn e número de seguidores ainda não coletados. Necessário para baseline do programa.</div></div>
+      <div class="alert info"><div><b>Budget de mídia paga:</b> não definido. Alinhar com Roberto antes de ativar campanhas pagas.</div></div>
+      <div class="alert info"><div><b>Cases anonimizados para Propostas:</b> repositório ainda vazio. Bloqueia automação de propostas comerciais.</div></div>
+    </div>
+  </section>
+
+  <!-- ══════ VERSIONAMENTO ══════ -->
+  <section>
+    <div class="sec-hdr"><h2>Histórico de Versões</h2><div class="line"></div></div>
+    <div class="versions">
+      <h3>Versões disponíveis do Office</h3>
+      <div class="ver-row">
+        <div class="ver-left">
+          <span class="ver-tag current">v2.1</span>
+          <div>
+            <span class="ver-name">Game Engine 2D + Dashboard duplo</span>
+            <span class="ver-meta">  ·  23/mai/2026  ·  spawn com escolha + calendário rico</span>
+          </div>
+        </div>
+        <a class="ver-link" href="/">Abrir →</a>
+      </div>
+      <div class="ver-row">
+        <div class="ver-left">
+          <span class="ver-tag">v2.0</span>
+          <div>
+            <span class="ver-name">Office Engine 2D inaugural</span>
+            <span class="ver-meta">  ·  23/mai/2026  ·  primeiro release do game</span>
+          </div>
+        </div>
+        <a class="ver-link" href="/_versoes-office/v2.0-game-engine.html">Ver →</a>
+      </div>
+      <div class="ver-row">
+        <div class="ver-left">
+          <span class="ver-tag">v1.0</span>
+          <div>
+            <span class="ver-name">War Room Dashboard clássico</span>
+            <span class="ver-meta">  ·  20/mai/2026  ·  cards de projetos + voices + alertas</span>
+          </div>
+        </div>
+        <a class="ver-link" href="/dashboard">Você está aqui</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════ FOOTER ══════ -->
+  <footer class="foot">
+    <div class="foot-line">EPI-USE Office · War Room · maio/2026 &nbsp; | &nbsp; <a href="https://erp.ngo" target="_blank">🐘 ERP.ngo</a></div>
+    <div class="foot-meta">EPI-USE BRASIL · MARKETING & REVOPS · POWERED BY AI OFFICE ENGINE</div>
+  </footer>
+
+</div>
+
+<script>
+// Today's date in PT-BR
+(function() {
+  const d = new Date();
+  const meses = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  document.getElementById('today').textContent = `${d.getDate()} ${meses[d.getMonth()]} ${d.getFullYear()}`;
+})();
+
+// Events 2026 — single source of truth (também replicado no game)
+const EVENTS_2026 = [
+  { m:1,  d:'10-12', n:'NRF Retail',                                  lob:'Cloud',         who:'NRF / Valcann' },
+  { m:1,  d:'21',    n:'SAP Kickoff Partner Driven 2026',             lob:'Branding',      who:'SAP' },
+  { m:3,  d:'3-5',   n:'SAP BTP Experience',                          lob:'BTP',           who:'SAP' },
+  { m:3,  d:'12',    n:'CIO Cerrado · Reforma Tributária',            lob:'ERP',           who:'CIO Cerrado' },
+  { m:3,  d:'13',    n:'SAP Partner Kickoff (PKOM)',                  lob:'Branding',      who:'SAP' },
+  { m:3,  d:'16-18', n:'SAP Partner Summit',                          lob:'Cross',         who:'SAP' },
+  { m:3,  d:'17',    n:'HR Connect',                                  lob:'HCM',           who:'SAP' },
+  { m:4,  d:'9-11',  n:'CIO Meeting',                                 lob:'Cross',         who:'GGTIC / Valcann' },
+  { m:4,  d:'22-23', n:'EUBR Kick-Off FY27',                          lob:'Institucional', who:'EUBR' },
+  { m:4,  d:'23-24', n:'EUBR Sales Kick-Off FY27',                    lob:'Institucional', who:'EUBR' },
+  { m:5,  d:'11-14', n:'Vision WFS',                                  lob:'WFS',           who:'WFS / EUAM' },
+  { m:5,  d:'11-13', n:'SAP Sapphire',                                lob:'Cross',         who:'SAP' },
+  { m:5,  d:'16',    n:'SAP Inside Track Goiânia',                    lob:'Cross',         who:'SAP / CIO Cerrado' },
+  { m:5,  d:'20',    n:'Almoço GGTIC (COM-MKT Synchro)',              lob:'ERP',           who:'GGTIC / Synchro' },
+  { m:6,  d:'TBC',   n:'Mercado & Opinião — Jantar',                  lob:'Branding',      who:'SAP' },
+  { m:6,  d:'10',    n:'ASUG SIG · SAP S/4HANA',                      lob:'ERP',           who:'ASUG Brasil' },
+  { m:6,  d:'30',    n:'ASUG SIG · SuccessFactors',                   lob:'HCM',           who:'ASUG Brasil' },
+  { m:8,  d:'TBC',   n:'ServiceNow Summit',                           lob:'SN',            who:'ServiceNow' },
+  { m:8,  d:'12-16', n:'CIO Cerrado Experience',                      lob:'ERP',           who:'CIO Cerrado' },
+  { m:8,  d:'25',    n:'ASUG SIG · SuccessFactors',                   lob:'ERP',           who:'ASUG Brasil' },
+  { m:9,  d:'2-3',   n:'AWS Summit',                                  lob:'Cloud',         who:'Valcann' },
+  { m:9,  d:'3',     n:'ASUG SIG · SAP S/4HANA',                      lob:'HCM',           who:'ASUG Brasil' },
+  { m:9,  d:'9-10',  n:'SAP NOW',                                     lob:'Cross',         who:'SAP' },
+  { m:9,  d:'22-24', n:'SAP Transformation Excellence Summit (STES)', lob:'BTM',           who:'SAP / EPI-USE Labs' },
+  { m:9,  d:'TBC',   n:'CIO Cerrado · Jantar de Negócio',             lob:'ERP',           who:'CIO Cerrado' },
+  { m:10, d:'TBC',   n:'Galáticos Open',                              lob:'Branding',      who:'Fund. Fenômenos' },
+  { m:11, d:'1',     n:'Premiação CIO Cerrado Experience',            lob:'Cross',         who:'CIO Cerrado' },
+  { m:11, d:'TBC',   n:'Safari Tech 2026',                            lob:'Cross',         who:'EPI-USE / Valcann' },
+  { m:11, d:'25',    n:'ASUG SIG · SuccessFactors',                   lob:'HCM',           who:'ASUG Brasil' },
+  { m:12, d:'3',     n:'ASUG SIG · SAP S/4HANA',                      lob:'ERP',           who:'ASUG Brasil' },
+];
+const MES_NOMES = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
+
+(function renderEvents() {
+  const grid = document.getElementById('events-grid');
+  const lobColors = {
+    HCM:'#60a5fa', ERP:'#34d399', Cross:'#c084fc', BTP:'#fb923c', Cloud:'#22d3ee',
+    Branding:'#f472b6', Institucional:'#f87171', WFS:'#fbbf24', SN:'#818cf8', BTM:'#2dd4bf'
+  };
+  let html = '';
+  for (let m = 1; m <= 12; m++) {
+    const evs = EVENTS_2026.filter(e => e.m === m);
+    const opacity = evs.length === 0 ? '0.45' : '1';
+    html += `<div style="background:rgba(255,255,255,.025);border:1px solid var(--border-light);border-radius:10px;padding:12px 14px;opacity:${opacity}">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,.06)">
+        <span style="font-family:'Press Start 2P',monospace;font-size:9px;color:var(--primary-light);letter-spacing:.18em">${MES_NOMES[m-1]}</span>
+        <span style="font-size:10px;color:var(--text-muted)">${evs.length} ${evs.length === 1 ? 'evento' : 'eventos'}</span>
+      </div>`;
+    if (evs.length === 0) {
+      html += `<div style="font-size:12px;color:#475569;font-style:italic;padding:6px 0">— sem eventos —</div>`;
+    } else {
+      for (const e of evs) {
+        const c = lobColors[e.lob] || '#94a3b8';
+        html += `<div style="display:flex;gap:8px;padding:6px 0;align-items:flex-start;border-bottom:1px dashed rgba(255,255,255,.04);font-size:12px">
+          <div style="font-family:'Press Start 2P',monospace;font-size:8px;color:#fbbf24;background:rgba(251,191,36,.08);padding:4px 5px;border-radius:4px;white-space:nowrap;min-width:42px;text-align:center;margin-top:1px">${e.d}</div>
+          <div style="flex:1;min-width:0">
+            <div style="color:var(--text);line-height:1.3">${e.n}<span style="display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:4px;background:${c}22;color:${c}">${e.lob}</span></div>
+            <div style="font-size:10px;color:var(--text-muted);margin-top:2px">${e.who}</div>
+          </div>
+        </div>`;
+      }
+    }
+    html += '</div>';
+  }
+  grid.innerHTML = html;
+})();
+
+// Countdown to 26/jun/2026
+(function() {
+  const deadline = new Date('2026-06-26T00:00:00');
+  function update() {
+    const now = new Date();
+    const diff = deadline - now;
+    if (diff <= 0) { document.getElementById('countdown').textContent = 'VENCIDO'; return; }
+    const days = Math.floor(diff / 86400000);
+    const hrs  = Math.floor((diff % 86400000) / 3600000);
+    document.getElementById('countdown').textContent = `${days}d ${hrs}h`;
+  }
+  update(); setInterval(update, 60000);
+})();
+</script>
+</body>
+</html>

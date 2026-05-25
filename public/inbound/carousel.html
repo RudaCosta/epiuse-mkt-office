@@ -1,0 +1,899 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Inbound Engine · Carrossel + Capa · EPI-USE Voices</title>
+<link rel="stylesheet" href="/inbound/inbound-shell.css" />
+<script type="module" src="/office-nav.js"></script>
+<script type="module" src="/office-footer.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<style>
+  /* ============ Layout ============ */
+  .layout {
+    display: grid; grid-template-columns: 360px 1fr 320px; gap: 18px;
+    align-items: start; margin-top: 16px;
+  }
+  .side { display: flex; flex-direction: column; gap: 14px; position: sticky; top: 72px; }
+  .pcard {
+    background: var(--d-card); border: 1px solid var(--d-border);
+    border-radius: 10px; padding: 18px;
+  }
+  .pcard h3 {
+    font-family: var(--eu-font-mono); font-size: 11px; font-weight: 700;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--d-accent);
+    margin: 0 0 12px;
+  }
+  .pcard h3 .meta { color: var(--d-ink-3); font-weight: 600; float: right; }
+  .pcard .field { margin-bottom: 10px; }
+  .pcard .field:last-child { margin-bottom: 0; }
+
+  .deck {
+    background: var(--d-card); border: 1px solid var(--d-border);
+    border-radius: 10px; padding: 24px;
+    display: flex; flex-direction: column; gap: 16px;
+  }
+  .deck-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 14px; border-bottom: 1px solid var(--d-border);
+  }
+  .deck-head h3 {
+    font-family: var(--eu-font-mono); font-size: 11px; font-weight: 700;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--d-accent);
+    margin: 0;
+  }
+  .deck-head .info {
+    font-family: var(--eu-font-mono); font-size: 10px; font-weight: 600;
+    color: var(--d-ink-3); letter-spacing: .1em; text-transform: uppercase;
+  }
+
+  /* slides grid */
+  .slides {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px;
+    align-content: start;
+  }
+  .slide-cell {
+    background: rgba(0,0,0,.18); border: 1px solid var(--d-border);
+    border-radius: 8px; padding: 12px;
+    display: flex; flex-direction: column; gap: 8px;
+    transition: border-color .15s;
+  }
+  .slide-cell.active { border-color: var(--d-accent); box-shadow: 0 0 0 1px var(--d-accent) inset; }
+  .slide-cell .lbl {
+    font-family: var(--eu-font-mono); font-size: 10px; font-weight: 700;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--d-ink-3);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .slide-cell .lbl .num { color: var(--d-accent); }
+  .slide-cell .lbl .ctrls { display: flex; gap: 4px; }
+  .slide-cell .lbl button {
+    background: transparent; border: 1px solid var(--d-border-2);
+    color: var(--d-ink-3); cursor: pointer;
+    font-family: var(--eu-font-mono); font-size: 9px; font-weight: 700;
+    padding: 2px 6px; border-radius: 3px;
+  }
+  .slide-cell .lbl button:hover { color: var(--d-accent); border-color: var(--d-accent); }
+  .slide-cell .lbl button.del:hover { color: var(--d-bad); border-color: var(--d-bad); }
+
+  .slide-thumb {
+    width: 100%; aspect-ratio: 4/5;
+    background: #001844;
+    border-radius: 6px;
+    position: relative; overflow: hidden;
+    cursor: pointer;
+    font-family: 'Open Sans', sans-serif;
+  }
+  .slide-thumb * { box-sizing: border-box; }
+
+  .add-slide {
+    border: 1px dashed var(--d-border-2);
+    background: transparent;
+    border-radius: 8px;
+    aspect-ratio: 4/5;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 6px; cursor: pointer; color: var(--d-ink-3);
+    transition: all .15s;
+  }
+  .add-slide:hover { border-color: var(--d-accent); color: var(--d-accent); }
+  .add-slide .plus { font-size: 28px; line-height: 1; }
+  .add-slide .lb {
+    font-family: var(--eu-font-mono); font-size: 10px; font-weight: 700;
+    letter-spacing: .14em; text-transform: uppercase;
+  }
+
+  /* editor */
+  .editor { display: flex; flex-direction: column; gap: 14px; position: sticky; top: 72px; }
+  .editor .pcard h3 .badge {
+    font-family: var(--eu-font-mono); font-size: 10px; font-weight: 700;
+    padding: 2px 6px; background: rgba(91, 188, 235, .14); color: var(--d-accent);
+    border-radius: 3px; letter-spacing: .1em;
+  }
+
+  .ai-box {
+    background: rgba(91, 188, 235, .06);
+    border: 1px solid rgba(91, 188, 235, .2);
+    border-radius: 6px; padding: 12px;
+    font-size: 12px; line-height: 1.45; color: var(--d-ink-2);
+  }
+  .ai-box b { color: var(--d-accent); }
+
+  .data-warning {
+    background: rgba(245, 187, 92, .08);
+    border: 1px solid rgba(245, 187, 92, .3);
+    border-radius: 6px; padding: 12px;
+    font-size: 12px; line-height: 1.45; color: var(--d-ink);
+  }
+  .data-warning b { color: var(--d-warn); }
+
+  .actions { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+
+  .checks-mini { display: flex; flex-direction: column; gap: 4px; font-size: 11px; }
+  .checks-mini .ck { display: flex; gap: 6px; align-items: flex-start; padding: 6px 8px; border-radius: 4px; background: rgba(0,0,0,.18); }
+  .checks-mini .ck .icn { font-family: var(--eu-font-mono); font-weight: 700; flex-shrink: 0; }
+  .checks-mini .ck.ok .icn { color: var(--d-ok); }
+  .checks-mini .ck.warn .icn { color: var(--d-warn); }
+  .checks-mini .ck.bad .icn { color: var(--d-bad); }
+
+  .gen-status {
+    display: flex; align-items: center; gap: 8px;
+    font-family: var(--eu-font-mono); font-size: 11px; font-weight: 700;
+    letter-spacing: .1em; text-transform: uppercase;
+    color: var(--d-ink-3); padding: 8px 0;
+  }
+  .gen-status.busy { color: var(--d-accent); }
+  .gen-status.ok { color: var(--d-ok); }
+  .gen-status.err { color: var(--d-bad); }
+
+  /* hidden render frame for export */
+  .render-frame {
+    width: 1080px; height: 1350px;
+    position: fixed; left: -9999px; top: 0;
+    background: #001844;
+    font-family: 'Open Sans', sans-serif;
+  }
+  .render-frame * { box-sizing: border-box; }
+
+  /* the actual data-source field — make it stand out */
+  .field-source label {
+    color: var(--d-warn) !important;
+  }
+  .field-source input {
+    border-color: rgba(245,187,92,.3);
+  }
+</style>
+</head>
+<body data-route="inbound" data-tab="carousel">
+
+<office-nav></office-nav>
+
+<!-- ============ INBOUND SUB-NAV ============ -->
+<nav class="inbound-nav">
+  <a class="brand" href="/inbound">
+    <span class="logomark">EPI-USE</span>
+    <span class="lbl"><b>Inbound Engine</b>v1.2 · módulo F</span>
+  </a>
+  <div class="tabs">
+    <a href="/inbound" data-tab-id="hub"><span class="ico">⌂</span> Hub</a>
+    <a href="/inbound/brief" data-tab-id="brief"><span class="ico">✎</span> Brief→Post</a>
+    <a href="/inbound/carousel" data-tab-id="carousel"><span class="ico">▥</span> Carrossel</a>
+    <a href="/inbound/calendar" data-tab-id="calendar"><span class="ico">▦</span> Calendar</a>
+    <a href="/inbound/studio" data-tab-id="studio"><span class="ico">◇</span> Studio</a>
+    <a href="/inbound/playbook" data-tab-id="playbook"><span class="ico">▤</span> Playbook</a>
+  </div>
+  <div class="right">
+    <span class="pill ok">Logos reais</span>
+  </div>
+</nav>
+
+<main class="inbound-page" style="max-width: 1680px;">
+
+  <div style="display:flex; align-items:flex-end; justify-content:space-between; padding: 12px 0 18px; border-bottom: 1px solid var(--d-border); margin-bottom: 8px;">
+    <div>
+      <div class="section-label" style="margin: 0 0 8px;">Tool 04 · Carrossel + Capa</div>
+      <h1 style="font-family: var(--eu-font-display); font-size: 36px; font-weight: 700; margin: 0; color: var(--d-ink); letter-spacing: -.02em;">
+        Carrossel <em style="font-style:normal; color: var(--d-accent);">+</em> Capa
+      </h1>
+      <div style="font-size: 14px; color: var(--d-ink-2); margin-top: 4px;">
+        Lockup real EPI·USE + LOB · Open Sans · números gigantes · ERP.ngo no canto · sem inventar dado.
+      </div>
+    </div>
+    <div class="gen-status" id="status">
+      <span class="pill ok"><span class="dot"></span>Pronto</span>
+    </div>
+  </div>
+
+  <div class="layout">
+
+    <!-- ===== LEFT: Brief ===== -->
+    <div class="side">
+
+      <div class="pcard">
+        <h3>Brief geral</h3>
+        <div class="field">
+          <label>Tema central</label>
+          <input type="text" id="topic" placeholder="Ex: ECC end-of-support — risco fiscal do CFO" />
+        </div>
+        <div class="field">
+          <label>Brief / contexto</label>
+          <textarea id="brief" rows="4" placeholder="Cole a dor real, o que está em jogo, prazo. Português, sem floreio."></textarea>
+        </div>
+      </div>
+
+      <div class="pcard">
+        <h3>Configuração</h3>
+        <div class="field">
+          <label>LOB / Produto SAP</label>
+          <select id="lob">
+            <option value="successfactors">SAP SuccessFactors · HCM</option>
+            <option value="s4hana">SAP S/4HANA · Cloud ERP</option>
+            <option value="btp">SAP BTP · Joule</option>
+            <option value="signavio">SAP Signavio · Process</option>
+            <option value="business-ai">SAP Business AI</option>
+            <option value="leanix">SAP LeanIX</option>
+            <option value="aws">SAP on AWS</option>
+            <option value="servicenow">ServiceNow</option>
+            <option value="workforce">WorkForce · ADP</option>
+            <option value="institucional">Institucional · Group Elephant</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Persona-alvo (BR)</label>
+          <div class="chip-group">
+            <label><input type="radio" name="persona" value="cfo" /><span>CFO</span></label>
+            <label><input type="radio" name="persona" value="chro" checked /><span>CHRO</span></label>
+            <label><input type="radio" name="persona" value="cio" /><span>CIO</span></label>
+            <label><input type="radio" name="persona" value="ceo" /><span>CEO</span></label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Slides de conteúdo</label>
+          <select id="content-count">
+            <option value="3">3 (5 total · capa+CTA)</option>
+            <option value="5" selected>5 (7 total)</option>
+            <option value="7">7 (9 total)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="data-warning">
+        <b>⚠ Regra de ouro:</b> nunca inventamos dado. Cada slide precisa de <b>fonte verificável</b> (instituto + ano). Se não tiver fonte, marque como <b>opinião</b> ou tire o número.
+      </div>
+
+      <div class="actions">
+        <button class="btn btn--primary" id="btn-generate">
+          <span id="gen-label">✨ Estruturar com Claude</span>
+        </button>
+        <button class="btn btn--ghost" id="btn-clear">↺ Limpar tudo</button>
+      </div>
+
+      <div class="pcard">
+        <h3>Exportar</h3>
+        <div class="actions">
+          <button class="btn btn--primary" id="btn-export-zip">↓ ZIP de PNGs (1080×1350)</button>
+          <button class="btn btn--ghost" id="btn-export-current">↓ PNG do slide atual</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ===== CENTER: Slides grid ===== -->
+    <div class="deck">
+      <div class="deck-head">
+        <h3>Pré-visualização</h3>
+        <div class="info" id="deck-info">0 slides</div>
+      </div>
+      <div class="slides" id="slides"></div>
+    </div>
+
+    <!-- ===== RIGHT: Slide editor ===== -->
+    <div class="editor">
+
+      <div class="pcard">
+        <h3>Editar slide <span class="badge" id="editor-num">—</span></h3>
+        <div id="editor-body">
+          <div class="ai-box">
+            Clique em qualquer slide à esquerda para editar, ou <b>Estruturar com Claude</b> a partir do brief.
+          </div>
+        </div>
+      </div>
+
+      <div class="pcard">
+        <h3>Compliance check</h3>
+        <div class="checks-mini" id="mini-checks">
+          <div class="ck"><span class="icn">·</span>Aguardando…</div>
+        </div>
+      </div>
+
+      <div class="pcard">
+        <h3>Anatomia do slide</h3>
+        <div class="ai-box" style="font-size: 11px;">
+          <b>Topo:</b> Logo EPI·USE + logo LOB (lockup branco).<br/>
+          <b>Centro:</b> headline 3-5 palavras + número GIGANTE (Open Sans 800).<br/>
+          <b>Card escuro:</b> contexto 1 linha + fonte do dado.<br/>
+          <b>Rodapé:</b> selo ERP.ngo (1% — conservação) + epiuse.com.br.
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</main>
+
+<!-- hidden high-res render frame -->
+<div class="render-frame" id="render-frame"></div>
+
+<script>
+  // ===== nav active =====
+  (function(){
+    var t = document.body.dataset.tab;
+    if (!t) return;
+    var a = document.querySelector('[data-tab-id="' + t + '"]');
+    if (a) a.classList.add('active');
+  })();
+
+  // ===== LOB definitions — REAL logos + brand palette =====
+  // bg = full-card background. accent = number color. light = use dark ink for body
+  var LOB = {
+    successfactors: {
+      logo: 'assets/logos/sap-successfactors.png',
+      bg: 'linear-gradient(160deg, #6B3FE0 0%, #4A1FB0 100%)',
+      accent: '#FFCB05', light: false, label: 'SuccessFactors'
+    },
+    s4hana: {
+      logo: 'assets/logos/sap-s4hana.png',
+      bg: 'linear-gradient(165deg, #0090E0 0%, #003A6B 100%)',
+      accent: '#2DE2C0', light: false, label: 'S/4HANA'
+    },
+    btp: {
+      logo: 'assets/logos/sap-btp.png',
+      bg: 'linear-gradient(165deg, #2A1860 0%, #6B40A8 50%, #2A1860 100%)',
+      accent: '#B095E8', light: false, label: 'SAP BTP'
+    },
+    signavio: {
+      logo: 'assets/logos/sap-signavio.png',
+      bg: 'linear-gradient(165deg, #003A6B 0%, #001844 100%)',
+      accent: '#5BBCEB', light: false, label: 'Signavio'
+    },
+    'business-ai': {
+      logo: 'assets/logos/sap-business-ai.png',
+      bg: 'linear-gradient(160deg, #0070BF 0%, #001844 100%)',
+      accent: '#5BBCEB', light: false, label: 'Business AI'
+    },
+    leanix: {
+      logo: 'assets/logos/sap-leanix.png',
+      bg: 'linear-gradient(160deg, #0090E0 0%, #003A6B 100%)',
+      accent: '#5BBCEB', light: false, label: 'LeanIX'
+    },
+    aws: {
+      logo: 'assets/logos/sap-aws.png',
+      bg: 'linear-gradient(165deg, #232F3E 0%, #0F1620 100%)',
+      accent: '#FF9300', light: false, label: 'SAP on AWS'
+    },
+    servicenow: {
+      logo: 'assets/logos/servicenow.png',
+      bg: 'linear-gradient(160deg, #003A2E 0%, #001815 100%)',
+      accent: '#62BE5C', light: false, label: 'ServiceNow'
+    },
+    workforce: {
+      logo: 'assets/logos/workforce.png',
+      bg: 'linear-gradient(160deg, #3C0A0E 0%, #1A0506 100%)',
+      accent: '#E54851', light: false, label: 'WorkForce'
+    },
+    institucional: {
+      logo: 'assets/logos/group-elephant.png',
+      bg: 'linear-gradient(165deg, #001844 0%, #00102E 100%)',
+      accent: '#C49B5C', light: false, label: 'Group Elephant'
+    }
+  };
+
+  // ===== state =====
+  var state = {
+    topic: '',
+    brief: '',
+    lob: 'successfactors',
+    contentCount: 5,
+    persona: 'chro',
+    slides: [],
+    activeIdx: 0
+  };
+
+  function getLob(){ return LOB[state.lob]; }
+
+  // ===== defaults =====
+  function defaultCover() {
+    return {
+      type: 'cover',
+      eyebrow: '',
+      headline: 'O que está em jogo para o *RH brasileiro* em 2026',
+      sub: ''
+    };
+  }
+  function defaultContent(n) {
+    return {
+      type: 'content',
+      tag: 'PONTO ' + String(n).padStart(2,'0'),
+      headline: 'Headline curto',
+      number: '',
+      context: 'Linha de contexto',
+      source: ''  // 🔴 source is mandatory
+    };
+  }
+  function defaultCTA() {
+    return {
+      type: 'cta',
+      headline: 'Vamos *juntos*?',
+      sub: 'Fale com o time EPI-USE Brasil',
+      url: 'epiuse.com.br'
+    };
+  }
+  function buildEmptyDeck(n) {
+    var arr = [defaultCover()];
+    for (var i = 1; i <= n; i++) arr.push(defaultContent(i));
+    arr.push(defaultCTA());
+    return arr;
+  }
+
+  // ===== helpers =====
+  function italicize(s, color) {
+    return String(s||'').replace(/\*(.+?)\*/g, '<span style="color:'+color+'; font-weight: 800;">$1</span>');
+  }
+  function splitNum(s) {
+    var m = String(s||'').match(/^([-+]?\d[\d.,]*)(.*)$/);
+    return m ? { n: m[1], unit: (m[2]||'').trim() } : { n: s, unit: '' };
+  }
+  function esc(s) {
+    return String(s||'').replace(/[&<>"]/g, function(c){
+      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c];
+    });
+  }
+
+  // ===== RENDER A SLIDE =====
+  // Renders into target element. `s` = scale multiplier (1.0 for full 1080×1350).
+  function renderSlide(target, slide, idx, total, s) {
+    var L = getLob();
+    var ink = L.light ? '#001844' : '#ffffff';
+    var muted = L.light ? 'rgba(0,24,68,0.60)' : 'rgba(255,255,255,0.62)';
+    var rule = L.light ? 'rgba(0,24,68,0.16)' : 'rgba(255,255,255,0.18)';
+    var ctxbg = L.light ? 'rgba(0,24,68,0.10)' : 'rgba(0,0,0,0.30)';
+
+    target.style.background = L.bg;
+    target.style.color = ink;
+    target.style.fontFamily = "'Open Sans', sans-serif";
+
+    // ===== logo lockup TOP-LEFT — real PNGs, on a white bar
+    var logoBar =
+      '<div style="position:absolute; top:'+(48*s)+'px; left:'+(48*s)+'px; display:flex; align-items:center; gap:'+(10*s)+'px; z-index:5;">'+
+        // EPI-USE box (red on white)
+        '<div style="background:#fff; padding:'+(8*s)+'px; border-radius:'+(4*s)+'px; box-shadow: 0 '+(2*s)+'px '+(6*s)+'px rgba(0,0,0,.15); display:flex; align-items:center; justify-content:center;">'+
+          '<img src="assets/logos/EPI-USE.png" alt="EPI-USE" style="height:'+(40*s)+'px; width:auto; display:block;" crossorigin="anonymous" />'+
+        '</div>'+
+        // LOB box
+        '<div style="background:#fff; padding:'+(8*s)+'px; border-radius:'+(4*s)+'px; box-shadow: 0 '+(2*s)+'px '+(6*s)+'px rgba(0,0,0,.15); display:flex; align-items:center; justify-content:center;">'+
+          '<img src="'+L.logo+'" alt="'+esc(L.label)+'" style="height:'+(40*s)+'px; width:auto; display:block;" crossorigin="anonymous" />'+
+        '</div>'+
+      '</div>';
+
+    // ===== top right — slide pagination
+    var paginate =
+      '<div style="position:absolute; top:'+(56*s)+'px; right:'+(48*s)+'px; font-family:\'Open Sans\', sans-serif; font-size:'+(20*s)+'px; font-weight:700; letter-spacing:'+(2*s)+'px; color:'+muted+'; z-index:5;">'+
+        String(idx+1).padStart(2,'0') + ' / ' + String(total).padStart(2,'0') +
+      '</div>';
+
+    // ===== bottom — ERP.ngo seal + URL
+    var footer =
+      '<div style="position:absolute; left:'+(48*s)+'px; right:'+(48*s)+'px; bottom:'+(48*s)+'px; display:flex; justify-content:space-between; align-items:center; z-index:5;">'+
+        '<div style="display:flex; align-items:center; gap:'+(10*s)+'px;">'+
+          '<img src="assets/logos/erp-ngo.png" alt="ERP.ngo" style="height:'+(40*s)+'px; width:auto; display:block; opacity:0.95;" crossorigin="anonymous" />'+
+          '<div style="font-size:'+(13*s)+'px; line-height:1.3; color:'+muted+'; font-weight:600; max-width:'+(220*s)+'px;">1% do faturamento global<br/>protege elefantes e rinocerontes</div>'+
+        '</div>'+
+        '<div style="font-family:\'Open Sans\', sans-serif; font-size:'+(18*s)+'px; font-weight:700; color:'+ink+'; letter-spacing:'+(0.5*s)+'px;">epiuse.com.br</div>'+
+      '</div>';
+
+    // ===== body per type
+    var body = '';
+    if (slide.type === 'cover') {
+      body =
+        '<div style="position:absolute; left:'+(80*s)+'px; right:'+(80*s)+'px; top:'+(50*100/100)+'%; transform: translateY(-50%); display:flex; flex-direction:column; gap:'+(24*s)+'px;">'+
+        (slide.eyebrow ? '<div style="font-family:\'Open Sans\', sans-serif; font-size:'+(20*s)+'px; font-weight:700; letter-spacing:'+(3*s)+'px; text-transform:uppercase; color:'+L.accent+';">'+esc(slide.eyebrow)+'</div>' : '')+
+        '<div style="font-family:\'Open Sans\', sans-serif; font-weight:800; font-size:'+(80*s)+'px; line-height:1.0; letter-spacing:-0.02em; color:'+ink+';">'+italicize(slide.headline, L.accent)+'</div>'+
+        (slide.sub ? '<div style="font-family:\'Open Sans\', sans-serif; font-size:'+(28*s)+'px; line-height:1.4; font-weight:400; color:'+muted+'; max-width:'+(700*s)+'px;">'+esc(slide.sub)+'</div>' : '')+
+        '</div>';
+    }
+    else if (slide.type === 'content') {
+      var nm = splitNum(slide.number);
+      body =
+        '<div style="position:absolute; left:'+(80*s)+'px; right:'+(80*s)+'px; top:'+(180*s)+'px; bottom:'+(180*s)+'px; display:flex; flex-direction:column; justify-content:center; gap:'+(20*s)+'px;">'+
+        // tag
+        (slide.tag ? '<div style="font-family:\'Open Sans\', sans-serif; font-size:'+(20*s)+'px; font-weight:700; letter-spacing:'+(3*s)+'px; text-transform:uppercase; color:'+L.accent+';">'+esc(slide.tag)+'</div>' : '')+
+        // headline
+        '<div style="font-family:\'Open Sans\', sans-serif; font-weight:700; font-size:'+(46*s)+'px; line-height:1.05; letter-spacing:-0.015em; color:'+ink+'; max-width:'+(900*s)+'px;">'+italicize(slide.headline, L.accent)+'</div>'+
+        // hero number
+        (slide.number ? '<div style="font-family:\'Open Sans\', sans-serif; font-weight:800; font-size:'+(240*s)+'px; line-height:0.9; letter-spacing:-0.05em; color:'+L.accent+'; margin:'+(8*s)+'px 0;">'+nm.n+'<span style="font-size:'+(96*s)+'px; vertical-align:top; font-weight:800;">'+nm.unit+'</span></div>' : '')+
+        // context card
+        (slide.context ? '<div style="background:'+ctxbg+'; padding:'+(20*s)+'px '+(28*s)+'px; border-radius:'+(8*s)+'px; font-family:\'Open Sans\', sans-serif; font-size:'+(26*s)+'px; line-height:1.35; max-width:'+(800*s)+'px; color:'+ink+'; font-weight:600;">'+esc(slide.context)+'</div>' : '')+
+        // source
+        (slide.source ? '<div style="font-family:\'Open Sans\', sans-serif; font-size:'+(14*s)+'px; line-height:1.3; color:'+muted+'; font-weight:500; max-width:'+(800*s)+'px; font-style: italic;">Fonte: '+esc(slide.source)+'</div>' : '')+
+        '</div>';
+    }
+    else if (slide.type === 'cta') {
+      body =
+        '<div style="position:absolute; left:'+(80*s)+'px; right:'+(80*s)+'px; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:'+(30*s)+'px;">'+
+        '<div style="font-family:\'Open Sans\', sans-serif; font-weight:800; font-size:'+(96*s)+'px; line-height:1.0; letter-spacing:-0.025em; color:'+ink+';">'+italicize(slide.headline, L.accent)+'</div>'+
+        (slide.sub ? '<div style="font-family:\'Open Sans\', sans-serif; font-size:'+(30*s)+'px; line-height:1.4; font-weight:600; color:'+muted+'; max-width:'+(700*s)+'px;">'+esc(slide.sub)+'</div>' : '')+
+        '<div style="margin-top:'+(20*s)+'px; display:flex; align-items:center; gap:'+(16*s)+'px;">'+
+          '<div style="width:'+(20*s)+'px; height:'+(20*s)+'px; background:'+L.accent+'; transform:rotate(45deg);"></div>'+
+          '<div style="font-family:\'Open Sans\', sans-serif; font-size:'+(28*s)+'px; font-weight:700; color:'+ink+';">'+esc(slide.url || 'epiuse.com.br')+'</div>'+
+        '</div>'+
+        '</div>';
+    }
+
+    target.innerHTML = logoBar + paginate + body + footer;
+  }
+
+  // ===== render deck (thumbnails) =====
+  function renderDeck() {
+    var grid = document.getElementById('slides');
+    grid.innerHTML = '';
+
+    state.slides.forEach(function(slide, i){
+      var cell = document.createElement('div');
+      cell.className = 'slide-cell' + (i === state.activeIdx ? ' active' : '');
+      var typeLbl = slide.type === 'cover' ? 'CAPA' : slide.type === 'cta' ? 'CTA' : 'CONTEÚDO';
+      var ctrls = '';
+      if (slide.type === 'content') {
+        ctrls = '<button data-action="up" data-i="'+i+'">↑</button>'+
+                '<button data-action="down" data-i="'+i+'">↓</button>'+
+                '<button data-action="del" data-i="'+i+'" class="del">✕</button>';
+      }
+      cell.innerHTML =
+        '<div class="lbl">'+
+          '<span><span class="num">'+(i+1).toString().padStart(2,'0')+'</span> · '+typeLbl+'</span>'+
+          '<span class="ctrls">'+ctrls+'</span>'+
+        '</div>'+
+        '<div class="slide-thumb" data-idx="'+i+'"></div>';
+
+      grid.appendChild(cell);
+
+      // render at thumbnail scale
+      // thumb width ≈ 240px, slide is 1080. so scale ≈ 0.222
+      // we use 0.22 to give a tiny margin
+      var thumb = cell.querySelector('.slide-thumb');
+      renderSlide(thumb, slide, i, state.slides.length, 0.22);
+    });
+
+    // add-slide button
+    var addBtn = document.createElement('button');
+    addBtn.className = 'add-slide';
+    addBtn.innerHTML = '<span class="plus">+</span><span class="lb">Adicionar slide</span>';
+    addBtn.addEventListener('click', addContentSlide);
+    grid.appendChild(addBtn);
+
+    grid.querySelectorAll('.slide-thumb').forEach(function(t){
+      t.addEventListener('click', function(){
+        state.activeIdx = +t.dataset.idx;
+        renderDeck();
+        renderEditor();
+      });
+    });
+    grid.querySelectorAll('[data-action]').forEach(function(b){
+      b.addEventListener('click', function(e){
+        e.stopPropagation();
+        var i = +b.dataset.i;
+        var act = b.dataset.action;
+        if (act === 'up' && i > 1) {
+          [state.slides[i-1], state.slides[i]] = [state.slides[i], state.slides[i-1]];
+          state.activeIdx = i - 1;
+        } else if (act === 'down' && i < state.slides.length - 2) {
+          [state.slides[i+1], state.slides[i]] = [state.slides[i], state.slides[i+1]];
+          state.activeIdx = i + 1;
+        } else if (act === 'del') {
+          if (state.slides.filter(function(x){ return x.type==='content'; }).length <= 1) {
+            alert('Mínimo 1 slide de conteúdo.');
+            return;
+          }
+          state.slides.splice(i,1);
+          if (state.activeIdx >= state.slides.length) state.activeIdx = state.slides.length - 1;
+        }
+        renderDeck(); renderEditor();
+      });
+    });
+
+    document.getElementById('deck-info').textContent =
+      state.slides.length + ' slides · ' + getLob().label;
+  }
+
+  function addContentSlide() {
+    var ctaIdx = state.slides.findIndex(function(s){ return s.type === 'cta'; });
+    var n = state.slides.filter(function(s){ return s.type === 'content'; }).length + 1;
+    var insertAt = ctaIdx === -1 ? state.slides.length : ctaIdx;
+    state.slides.splice(insertAt, 0, defaultContent(n));
+    state.activeIdx = insertAt;
+    renderDeck(); renderEditor();
+  }
+
+  // ===== editor (right) =====
+  function renderEditor() {
+    var slide = state.slides[state.activeIdx];
+    var body = document.getElementById('editor-body');
+    document.getElementById('editor-num').textContent = (state.activeIdx + 1) + '/' + state.slides.length;
+    if (!slide) {
+      body.innerHTML = '<div class="ai-box">Sem slide selecionado.</div>';
+      return;
+    }
+
+    var html = '';
+    if (slide.type === 'cover') {
+      html =
+        '<div class="field"><label>Eyebrow (opcional)</label><input type="text" id="ed-eyebrow" value="'+esc(slide.eyebrow)+'" placeholder="GUIA CHRO · 2026" /></div>'+
+        '<div class="field"><label>Headline da capa</label><textarea id="ed-headline" rows="2">'+esc(slide.headline)+'</textarea><span class="hint">Use *texto* para destacar palavra-chave.</span></div>'+
+        '<div class="field"><label>Subtítulo (opcional)</label><textarea id="ed-sub" rows="2">'+esc(slide.sub)+'</textarea></div>';
+    } else if (slide.type === 'content') {
+      html =
+        '<div class="field"><label>Tag (canto superior)</label><input type="text" id="ed-tag" value="'+esc(slide.tag)+'" /></div>'+
+        '<div class="field"><label>Headline</label><textarea id="ed-headline" rows="2">'+esc(slide.headline)+'</textarea></div>'+
+        '<div class="field"><label>Número-herói</label><input type="text" id="ed-number" value="'+esc(slide.number)+'" placeholder="78% · R$80mi · 14m" /></div>'+
+        '<div class="field"><label>Contexto · 1 linha</label><textarea id="ed-context" rows="2">'+esc(slide.context)+'</textarea></div>'+
+        '<div class="field field-source"><label>⚠ Fonte do dado (instituto + ano)</label><input type="text" id="ed-source" value="'+esc(slide.source)+'" placeholder="Deloitte CFO Survey 2025 · IBGE 2024" /></div>';
+    } else if (slide.type === 'cta') {
+      html =
+        '<div class="field"><label>Headline de CTA</label><input type="text" id="ed-headline" value="'+esc(slide.headline)+'" /><span class="hint">Use *texto* para itálico/destaque.</span></div>'+
+        '<div class="field"><label>Subtítulo</label><input type="text" id="ed-sub" value="'+esc(slide.sub)+'" /></div>'+
+        '<div class="field"><label>URL / contato</label><input type="text" id="ed-url" value="'+esc(slide.url)+'" /></div>';
+    }
+
+    body.innerHTML = html;
+
+    ['eyebrow','headline','sub','tag','number','context','source','url'].forEach(function(k){
+      var el = document.getElementById('ed-'+k);
+      if (!el) return;
+      el.addEventListener('input', function(){
+        state.slides[state.activeIdx][k] = el.value;
+        renderDeck();
+        runChecks();
+      });
+    });
+    runChecks();
+  }
+
+  // ===== compliance =====
+  function runChecks() {
+    var slide = state.slides[state.activeIdx];
+    if (!slide) return;
+    var c = [];
+
+    if (slide.type === 'cover') {
+      var hl = (slide.headline||'');
+      var wc = hl.split(/\s+/).filter(Boolean).length;
+      if (!hl) c.push({s:'bad', t:'Headline ausente'});
+      else if (wc > 10) c.push({s:'warn', t:'Headline com '+wc+' palavras (ideal 6-9)'});
+      else c.push({s:'ok', t:'Headline OK ('+wc+' palavras)'});
+
+      var it = hl.match(/\*[^*]+\*/g);
+      if (!it) c.push({s:'warn', t:'Sem destaque (marque a palavra-chave com *texto*)'});
+      else c.push({s:'ok', t:it.length+' termo em destaque'});
+    }
+    else if (slide.type === 'content') {
+      if (!slide.headline) c.push({s:'bad', t:'Headline ausente'});
+      else c.push({s:'ok', t:'Headline OK'});
+
+      if (!slide.number) c.push({s:'warn', t:'Sem número-herói (recomendado)'});
+      else c.push({s:'ok', t:'Número-herói: '+slide.number});
+
+      if (!slide.context) c.push({s:'warn', t:'Sem contexto'});
+      else if (slide.context.length > 90) c.push({s:'warn', t:'Contexto longo ('+slide.context.length+' chars · alvo: até 80)'});
+      else c.push({s:'ok', t:'Contexto OK'});
+
+      // 🔴 SOURCE check
+      if (slide.number && !slide.source) c.push({s:'bad', t:'NÃO PUBLICAR sem fonte do dado.', sub: true});
+      else if (!slide.source) c.push({s:'warn', t:'Sem fonte (ok se for opinião, não dado)'});
+      else c.push({s:'ok', t:'Fonte: '+slide.source});
+    }
+    else if (slide.type === 'cta') {
+      if (!slide.headline) c.push({s:'bad', t:'CTA sem headline'});
+      else c.push({s:'ok', t:'CTA OK'});
+      if (!slide.url) c.push({s:'warn', t:'Sem URL'});
+      else c.push({s:'ok', t:'URL: '+slide.url});
+    }
+
+    document.getElementById('mini-checks').innerHTML = c.map(function(x){
+      var icn = x.s==='ok'?'✓':x.s==='warn'?'⚠':'✕';
+      return '<div class="ck '+x.s+'"><span class="icn">'+icn+'</span>'+x.t+'</div>';
+    }).join('');
+  }
+
+  // ===== bindings =====
+  document.getElementById('topic').addEventListener('input', function(e){ state.topic = e.target.value; });
+  document.getElementById('brief').addEventListener('input', function(e){ state.brief = e.target.value; });
+  document.getElementById('lob').addEventListener('change', function(e){
+    state.lob = e.target.value;
+    renderDeck(); runChecks();
+  });
+  document.getElementById('content-count').addEventListener('change', function(e){
+    state.contentCount = +e.target.value;
+  });
+  document.querySelectorAll('input[name="persona"]').forEach(function(r){
+    r.addEventListener('change', function(){ state.persona = r.value; });
+  });
+
+  // ===== GENERATE WITH CLAUDE — sem inventar dado =====
+  document.getElementById('btn-generate').addEventListener('click', async function(){
+    var btn = this;
+    var lbl = document.getElementById('gen-label');
+    var status = document.getElementById('status');
+
+    if (!state.topic.trim() && !state.brief.trim()) {
+      alert('Preencha tema central ou brief.');
+      return;
+    }
+
+    btn.setAttribute('disabled','true');
+    lbl.innerHTML = '<span class="spin"></span> Estruturando…';
+    status.className = 'gen-status busy';
+    status.innerHTML = '<span class="spin"></span> Claude estruturando…';
+
+    var prompt = [
+      'Você é o redator do time de Marketing/RevOps da EPI-USE Brasil.',
+      'Tarefa: ESTRUTURAR um carrossel para LinkedIn em português brasileiro, voltado para mercado BR.',
+      '',
+      'REGRAS CRÍTICAS:',
+      '1. NÃO INVENTE NENHUM NÚMERO OU ESTATÍSTICA. Se o brief não trouxer dados verificáveis, deixe o campo "number" e "source" como string vazia "".',
+      '2. SÓ use números que estejam EXPLICITAMENTE no brief OU que sejam fatos públicos comprovados (ex: ECC end-of-support em 31/12/2027, Reforma Tributária a partir de 2026).',
+      '3. NUNCA escreva "fonte: invente algo plausível". Se não souber, deixe vazio.',
+      '4. PT-BR. Voz EPI-USE: sóbria, confiante, específica. Sem emoji. Sem floreio.',
+      '5. Headlines de 4-6 palavras. Marque a palavra-chave com *asteriscos*.',
+      '6. Contexto de até 12 palavras. Cita persona-alvo explicitamente quando relevante.',
+      '',
+      'CONTEXTO:',
+      'TEMA: ' + state.topic,
+      'LOB: ' + getLob().label,
+      'PERSONA: ' + state.persona.toUpperCase() + ' (Brasil)',
+      'SLIDES DE CONTEÚDO: ' + state.contentCount,
+      '',
+      'BRIEF / DADOS:',
+      state.brief || '(sem dados extras)',
+      '',
+      'Gere SOMENTE este JSON, sem markdown:',
+      '{',
+      '  "cover": {',
+      '    "eyebrow": "string curta · ex: \\"GUIA CHRO · 2026\\" ou \\"\\"",',
+      '    "headline": "4-9 palavras com *destaque*",',
+      '    "sub": "subtítulo · 1 linha · pode estar vazio"',
+      '  },',
+      '  "slides": [',
+      '    {',
+      '      "tag": "ex: \\"PONTO 01\\" ou \\"O RISCO\\"",',
+      '      "headline": "4-6 palavras com *destaque*",',
+      '      "number": "se houver fato verificável no brief, escreva (ex: \\"78%\\" ou \\"R$80mi\\"); senão \\"\\"",',
+      '      "context": "1 linha · até 12 palavras · explica o número",',
+      '      "source": "instituto + ano · OBRIGATÓRIO se houver number · senão \\"\\""',
+      '    } ... ' + state.contentCount + ' itens',
+      '  ],',
+      '  "cta": {',
+      '    "headline": "verbo de ação · com *destaque* · ex: \\"Vamos *juntos*?\\"",',
+      '    "sub": "1 linha · convite específico",',
+      '    "url": "epiuse.com.br"',
+      '  }',
+      '}'
+    ].join('\n');
+
+    try {
+      var resp = await window.claude.complete(prompt);
+      var clean = resp.replace(/^```(json)?/i,'').replace(/```$/,'').trim();
+      var data = JSON.parse(clean);
+
+      var newDeck = [];
+      newDeck.push({ type:'cover', ...data.cover });
+      data.slides.forEach(function(slide){
+        newDeck.push({ type:'content', ...slide });
+      });
+      newDeck.push({ type:'cta', ...data.cta });
+
+      state.slides = newDeck;
+      state.activeIdx = 0;
+      renderDeck(); renderEditor();
+
+      status.className = 'gen-status ok';
+      status.innerHTML = '<span class="pill ok"><span class="dot"></span>Estruturado · '+newDeck.length+' slides</span>';
+    } catch (e) {
+      console.error(e);
+      status.className = 'gen-status err';
+      status.innerHTML = '<span class="pill red"><span class="dot"></span>Erro · ver console</span>';
+      alert('Erro: '+(e.message||''));
+    } finally {
+      btn.removeAttribute('disabled');
+      lbl.textContent = '✨ Estruturar com Claude';
+    }
+  });
+
+  document.getElementById('btn-clear').addEventListener('click', function(){
+    if (!confirm('Limpar todo o carrossel?')) return;
+    state.slides = buildEmptyDeck(state.contentCount);
+    state.activeIdx = 0;
+    renderDeck(); renderEditor();
+  });
+
+  // ===== EXPORT =====
+  async function renderToHighRes(slide, idx, total) {
+    var frame = document.getElementById('render-frame');
+    renderSlide(frame, slide, idx, total, 1.0);
+    // wait for images
+    await new Promise(function(r){ setTimeout(r, 300); });
+    var imgs = frame.querySelectorAll('img');
+    await Promise.all(Array.from(imgs).map(function(i){
+      if (i.complete) return Promise.resolve();
+      return new Promise(function(r){ i.onload = r; i.onerror = r; });
+    }));
+    var canvas = await html2canvas(frame, {
+      width: 1080, height: 1350,
+      backgroundColor: null, scale: 1, logging: false, useCORS: true
+    });
+    return canvas;
+  }
+
+  document.getElementById('btn-export-current').addEventListener('click', async function(){
+    var btn = this;
+    btn.setAttribute('disabled','true');
+    btn.textContent = '↓ Renderizando…';
+    try {
+      var canvas = await renderToHighRes(state.slides[state.activeIdx], state.activeIdx, state.slides.length);
+      var a = document.createElement('a');
+      a.download = 'eubr-' + state.lob + '-slide-' + String(state.activeIdx+1).padStart(2,'0') + '.png';
+      a.href = canvas.toDataURL('image/png');
+      a.click();
+    } catch(e) { console.error(e); alert('Erro: '+(e.message||'')); }
+    finally {
+      btn.removeAttribute('disabled');
+      btn.textContent = '↓ PNG do slide atual';
+    }
+  });
+
+  document.getElementById('btn-export-zip').addEventListener('click', async function(){
+    var btn = this;
+    btn.setAttribute('disabled','true');
+    btn.innerHTML = '<span class="spin"></span> Renderizando…';
+    var status = document.getElementById('status');
+    status.className = 'gen-status busy';
+
+    try {
+      var zip = new JSZip();
+      for (var i = 0; i < state.slides.length; i++) {
+        status.innerHTML = '<span class="spin"></span> '+(i+1)+'/'+state.slides.length;
+        var canvas = await renderToHighRes(state.slides[i], i, state.slides.length);
+        var blob = await new Promise(function(res){ canvas.toBlob(res, 'image/png'); });
+        zip.file('slide-'+String(i+1).padStart(2,'0')+'.png', blob);
+      }
+      renderDeck();
+      var zipBlob = await zip.generateAsync({ type:'blob' });
+      var url = URL.createObjectURL(zipBlob);
+      var a = document.createElement('a');
+      a.href = url; a.download = 'eubr-' + state.lob + '-' + Date.now() + '.zip';
+      a.click();
+      URL.revokeObjectURL(url);
+      status.className = 'gen-status ok';
+      status.innerHTML = '<span class="pill ok"><span class="dot"></span>ZIP exportado</span>';
+    } catch(e) {
+      console.error(e);
+      status.className = 'gen-status err';
+      status.innerHTML = '<span class="pill red"><span class="dot"></span>Erro</span>';
+      alert('Erro: '+(e.message||''));
+    } finally {
+      btn.removeAttribute('disabled');
+      btn.innerHTML = '↓ ZIP de PNGs (1080×1350)';
+    }
+  });
+
+  // ===== init =====
+  state.slides = buildEmptyDeck(state.contentCount);
+  renderDeck();
+  renderEditor();
+</script>
+
+<office-footer></office-footer>
+
+</body>
+</html>

@@ -1,0 +1,603 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>EUBR Inbound · Brief → Post</title>
+<link rel="stylesheet" href="inbound-shell.css" />
+<style>
+  .layout {
+    display: grid; grid-template-columns: 1fr 580px; gap: 24px;
+    align-items: start;
+    margin-top: 16px;
+  }
+
+  /* form */
+  .form-panel {
+    background: var(--d-card); border: 1px solid var(--d-border);
+    border-radius: 10px; padding: 28px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .form-panel h2 {
+    font-family: var(--eu-font-display); font-size: 22px; font-weight: 700;
+    margin: 0 0 4px; color: var(--d-ink); letter-spacing: -.01em;
+  }
+  .form-panel h2 em { color: var(--d-accent); font-style: normal; }
+  .form-panel .sub { font-size: 13px; color: var(--d-ink-3); margin: 0 0 22px; }
+
+  .row-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  .section-divider {
+    margin: 8px 0 16px;
+    font-family: var(--eu-font-mono); font-size: 10px; font-weight: 700;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--d-accent);
+    padding-bottom: 8px; border-bottom: 1px solid var(--d-border);
+  }
+
+  .actions {
+    margin-top: 12px;
+    display: flex; gap: 12px; justify-content: space-between; align-items: center;
+    padding-top: 18px; border-top: 1px solid var(--d-border);
+  }
+  .actions .meta {
+    font-family: var(--eu-font-mono); font-size: 10px; font-weight: 700;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--d-ink-3);
+  }
+
+  /* preview panel */
+  .preview-panel {
+    background: var(--d-card); border: 1px solid var(--d-border);
+    border-radius: 10px; padding: 24px;
+    position: sticky; top: 80px;
+    display: flex; flex-direction: column; gap: 18px;
+  }
+  .preview-head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-bottom: 14px; border-bottom: 1px solid var(--d-border);
+  }
+  .preview-head h3 {
+    font-family: var(--eu-font-mono); font-size: 11px; font-weight: 700;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--d-accent);
+    margin: 0;
+  }
+  .preview-tabs { display: flex; gap: 4px; }
+  .preview-tabs .pt-tab {
+    font-family: var(--eu-font-mono); font-size: 10px; font-weight: 700;
+    letter-spacing: .1em; padding: 5px 10px; border-radius: 4px;
+    background: rgba(255,255,255,.04); color: var(--d-ink-2);
+    cursor: pointer; border: 1px solid transparent;
+    text-transform: uppercase;
+  }
+  .preview-tabs .pt-tab.active {
+    background: var(--d-accent); color: var(--d-bg);
+  }
+
+  /* card visual (the post preview itself) */
+  .post-card-wrap {
+    background: rgba(0,0,0,.18); border-radius: 8px;
+    padding: 28px; display: grid; place-items: center;
+    min-height: 600px;
+  }
+  .post-card {
+    width: 100%; max-width: 420px;
+    aspect-ratio: 4/5;
+    background: var(--eu-navy);
+    border-radius: 10px;
+    padding: 28px;
+    color: #fff;
+    display: flex; flex-direction: column;
+    box-shadow: 0 18px 40px rgba(0,0,0,.4);
+    position: relative;
+    overflow: hidden;
+    font-family: var(--eu-font-body);
+  }
+  .post-card .corner-logo {
+    position: absolute; top: 18px; left: 18px;
+    background: #fff; color: var(--eu-red);
+    padding: 4px 8px; border-radius: 3px;
+    font-weight: 800; font-size: 11px;
+    letter-spacing: .04em;
+  }
+  .post-card .corner-logo::after { content:"®"; font-size: 7px; vertical-align: super; }
+  .post-card .corner-cat {
+    position: absolute; top: 18px; right: 18px;
+    font-family: var(--eu-font-mono); font-size: 9px; font-weight: 700;
+    letter-spacing: .14em; text-transform: uppercase;
+    color: rgba(255,255,255,.55);
+    border: 1px solid rgba(255,255,255,.18); padding: 4px 8px; border-radius: 3px;
+  }
+  .post-card .body {
+    flex: 1; display: flex; flex-direction: column; justify-content: center;
+    margin-top: 26px;
+  }
+  .post-card .headline {
+    font-family: var(--eu-font-display); font-weight: 700;
+    font-size: 30px; line-height: 1.05; letter-spacing: -.015em;
+    margin: 0 0 14px; color: #fff;
+    text-wrap: balance;
+  }
+  .post-card .headline em { font-style: normal; color: var(--lob-accent, #5BBCEB); }
+  .post-card .hero-num {
+    align-self: flex-start;
+    font-family: var(--eu-font-display); font-weight: 800;
+    font-size: 88px; line-height: 0.9; letter-spacing: -.04em;
+    color: var(--lob-accent, #5BBCEB);
+    margin: 8px 0;
+  }
+  .post-card .hero-num sub { font-size: 32px; font-weight: 700; vertical-align: top; }
+  .post-card .context {
+    background: rgba(255,255,255,.08);
+    padding: 10px 14px; border-radius: 6px;
+    font-size: 13px; line-height: 1.35;
+    max-width: 90%;
+  }
+  .post-card .footer {
+    margin-top: auto; padding-top: 14px;
+    border-top: 1px solid rgba(255,255,255,.15);
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 11px; color: rgba(255,255,255,.6);
+  }
+  .post-card .footer .dia {
+    display: inline-block; width: 8px; height: 8px;
+    background: var(--lob-accent, #5BBCEB);
+    margin-right: 6px; vertical-align: middle;
+  }
+
+  /* light-bg variant (for SuccessFactors yellow) */
+  .post-card.on-light { background: var(--lob-bg, var(--eu-lob-sfsf)); color: var(--eu-navy); }
+  .post-card.on-light .corner-cat { color: rgba(0,24,68,.55); border-color: rgba(0,24,68,.2); }
+  .post-card.on-light .context { background: rgba(0,24,68,.08); }
+  .post-card.on-light .footer { border-top-color: rgba(0,24,68,.15); color: rgba(0,24,68,.6); }
+  .post-card.on-light .headline em,
+  .post-card.on-light .hero-num { color: var(--eu-red); }
+
+  /* copy panel below preview */
+  .copy-panel {
+    background: rgba(0,0,0,.18); border-radius: 8px;
+    padding: 18px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .copy-panel h4 {
+    font-family: var(--eu-font-mono); font-size: 10px; font-weight: 700;
+    letter-spacing: .14em; text-transform: uppercase; color: var(--d-accent);
+    margin: 0 0 4px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .copy-panel h4 .copy-btn {
+    cursor: pointer; padding: 3px 8px; border-radius: 3px;
+    background: rgba(91, 188, 235, .14); color: var(--d-accent);
+    font-size: 9px; font-weight: 700; letter-spacing: .1em; border: none;
+    font-family: var(--eu-font-mono); text-transform: uppercase;
+  }
+  .copy-panel .li-copy {
+    font-size: 13px; line-height: 1.55; color: var(--d-ink);
+    white-space: pre-wrap;
+  }
+  .copy-panel .hashes {
+    font-family: var(--eu-font-mono); font-size: 12px;
+    color: var(--d-accent);
+    line-height: 1.5;
+  }
+
+  /* AI / load state */
+  .ai-status {
+    display: flex; align-items: center; gap: 8px;
+    font-family: var(--eu-font-mono); font-size: 11px; font-weight: 700;
+    letter-spacing: .12em; text-transform: uppercase;
+    color: var(--d-ink-3);
+  }
+  .ai-status.busy { color: var(--d-accent); }
+  .ai-status.ok   { color: var(--d-ok); }
+  .ai-status.err  { color: var(--d-bad); }
+
+  /* helper text near AI button */
+  .ai-helper {
+    background: rgba(91, 188, 235, .06);
+    border: 1px solid rgba(91, 188, 235, .2);
+    border-radius: 6px; padding: 10px 12px;
+    font-size: 12px; line-height: 1.45; color: var(--d-ink-2);
+    margin-top: 10px;
+  }
+  .ai-helper b { color: var(--d-accent); }
+
+  /* empty preview state */
+  .empty-state {
+    text-align: center; color: var(--d-ink-3);
+    font-size: 13px; line-height: 1.5; padding: 60px 20px;
+  }
+  .empty-state .ico {
+    font-family: var(--eu-font-mono); font-size: 32px;
+    color: var(--d-ink-3); margin-bottom: 14px;
+    opacity: .4;
+  }
+</style>
+</head>
+<body data-tab="brief">
+
+<!-- ============ NAV ============ -->
+<nav class="inbound-nav">
+  <a class="brand" href="/inbound">
+    <span class="logomark">EPI-USE</span>
+    <span class="lbl"><b>Inbound Engine</b>v1.0 · marketing / revops</span>
+  </a>
+  <div class="tabs">
+    <a href="/inbound" data-tab-id="hub"><span class="ico">⌂</span> Hub</a>
+    <a href="/inbound/brief" data-tab-id="brief"><span class="ico">✎</span> Brief→Post</a>
+    <a href="/inbound/calendar" data-tab-id="calendar"><span class="ico">▦</span> Calendar</a>
+    <a href="/inbound/studio" data-tab-id="studio"><span class="ico">◇</span> Studio</a>
+    <a href="EUBR Inbound Playbook.html" data-tab-id="playbook"><span class="ico">▤</span> Playbook</a>
+  </div>
+  <div class="right">
+    <span class="pill ok">Claude · ready</span>
+    <a class="back" href="/">← Office</a>
+  </div>
+</nav>
+
+<main class="inbound-page">
+
+  <div class="stripe" style="display:flex; align-items:flex-end; justify-content:space-between; padding: 12px 0 20px; border-bottom: 1px solid var(--d-border); margin-bottom: 18px;">
+    <div>
+      <div class="section-label" style="margin: 0 0 10px;">Tool 01 · Core</div>
+      <h1 style="font-family: var(--eu-font-display); font-size: 36px; font-weight: 700; margin: 0; color: var(--d-ink); letter-spacing: -.02em;">
+        Brief <em style="font-style:normal; color: var(--d-accent);">→</em> Post
+      </h1>
+      <p style="font-size: 14px; color: var(--d-ink-2); margin: 6px 0 0; max-width: 70ch;">
+        Cole o brief, escolha categoria e LOB. Claude aplica a regra dos 5 elementos do playbook e devolve headline, copy de LinkedIn, hashtags e preview do template renderizado.
+      </p>
+    </div>
+    <div class="ai-status" id="ai-status">
+      <span class="dot pill ok" style="display:inline-flex;"><span class="dot"></span>Claude online</span>
+    </div>
+  </div>
+
+  <div class="layout">
+
+    <!-- ============ FORM ============ -->
+    <div class="form-panel">
+      <h2><em>01.</em> Configurar o post</h2>
+      <p class="sub">Quanto mais específico o brief, melhor a saída. Mencione números, nomes de cliente e LOB.</p>
+
+      <div class="section-divider">Tipo · Categoria</div>
+      <div class="field">
+        <label>Categoria do post</label>
+        <div class="chip-group" id="cat-group">
+          <label><input type="radio" name="cat" value="case" checked /><span>Case de Sucesso</span></label>
+          <label><input type="radio" name="cat" value="event" /><span>Evento / Feira</span></label>
+          <label><input type="radio" name="cat" value="award" /><span>Premiação</span></label>
+          <label><input type="radio" name="cat" value="kickoff" /><span>Kickoff / Go-Live</span></label>
+          <label><input type="radio" name="cat" value="product" /><span>Carrossel Produto</span></label>
+          <label><input type="radio" name="cat" value="video" /><span>Vídeo</span></label>
+          <label><input type="radio" name="cat" value="inst" /><span>Institucional / GE</span></label>
+        </div>
+      </div>
+
+      <div class="row-2col">
+        <div class="field">
+          <label>LOB</label>
+          <select id="lob">
+            <option value="sfsf">HCM · SuccessFactors</option>
+            <option value="erp">Cloud ERP · GROW / S/4HANA</option>
+            <option value="btm">BTP · Joule / Datasphere</option>
+            <option value="sig">Signavio · Process</option>
+            <option value="sn">ServiceNow</option>
+            <option value="wfs">Workforce · WFS</option>
+            <option value="cloud">Cloud · Valcann / AWS</option>
+            <option value="inst">Institucional · Group Elephant</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Modo</label>
+          <select id="mode">
+            <option value="inst">Institucional (default)</option>
+            <option value="camp">Campanha · United We Rise</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section-divider">Conteúdo bruto</div>
+
+      <div class="field">
+        <label>Brief / contexto</label>
+        <textarea id="brief" placeholder="Ex: Drogaria Venancio fez go-live do S/4HANA Cloud na semana passada. Migração de 3 ERPs legados, 280 lojas, projeto de 14 meses tocado pelo time do Marcelo. Cliente quer aparecer."></textarea>
+        <span class="hint">Quanto mais fato — número, data, cliente, persona — melhor.</span>
+      </div>
+
+      <div class="row-2col">
+        <div class="field">
+          <label>Cliente / referência</label>
+          <input type="text" id="client" placeholder="Drogaria Venancio" />
+        </div>
+        <div class="field">
+          <label>Número-chave (opcional)</label>
+          <input type="text" id="metric" placeholder="280 lojas · 14 meses · 38%" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Persona-alvo</label>
+        <div class="chip-group" id="persona-group">
+          <label><input type="radio" name="persona" value="cfo" checked /><span>CFO</span></label>
+          <label><input type="radio" name="persona" value="chro" /><span>CHRO</span></label>
+          <label><input type="radio" name="persona" value="cio" /><span>CIO</span></label>
+          <label><input type="radio" name="persona" value="ceo" /><span>CEO / Sócio</span></label>
+          <label><input type="radio" name="persona" value="ops" /><span>COO / Ops</span></label>
+        </div>
+      </div>
+
+      <div class="ai-helper">
+        💡 <b>Dica do playbook:</b> Posts compartilhados por executivos (ex: o gerente que tocou o projeto) tiveram <b>2,4×</b> mais engajamento que os do perfil corporativo. Marque o autor humano no campo abaixo se quiser gerar versão "share".
+      </div>
+
+      <div class="field" style="margin-top: 16px;">
+        <label>Autor humano para reshare (opcional)</label>
+        <input type="text" id="author" placeholder="Marcelo Costa · Sales Manager" />
+      </div>
+
+      <div class="actions">
+        <div class="meta">
+          <span id="state">Rascunho · não salvo</span>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button class="btn btn--ghost" id="btn-save">Salvar rascunho</button>
+          <button class="btn btn--primary" id="btn-gen">
+            <span id="gen-label">Gerar com Claude →</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ PREVIEW ============ -->
+    <aside class="preview-panel">
+      <div class="preview-head">
+        <h3>Preview · 1080×1350</h3>
+        <div class="preview-tabs">
+          <button class="pt-tab active" data-pt="card">Card</button>
+          <button class="pt-tab" data-pt="copy">Copy</button>
+        </div>
+      </div>
+
+      <div id="pane-card">
+        <div class="post-card-wrap">
+          <div class="post-card" id="card" style="--lob-accent:#5BBCEB; --lob-bg:var(--eu-navy);">
+            <div class="corner-logo">EPI·USE</div>
+            <div class="corner-cat" id="card-cat">CASE</div>
+            <div class="body">
+              <div class="headline" id="card-headline">Como a <em>[Cliente]</em> rodou o S/4HANA em <em>14 meses.</em></div>
+              <div class="hero-num" id="card-num" style="display:none;">38<sub>%</sub></div>
+              <div class="context" id="card-context">Migração de 3 ERPs legados em 280 lojas — com a EPI-USE.</div>
+            </div>
+            <div class="footer">
+              <span><span class="dia"></span><span id="card-lob">HCM</span></span>
+              <span>epiuse.com.br</span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top: 14px; display: flex; justify-content: space-between; align-items: center; font-family: var(--eu-font-mono); font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--d-ink-3);">
+          <span>Preview ao vivo</span>
+          <a href="/inbound/studio" style="color: var(--d-accent); text-decoration: none;">Abrir no Studio →</a>
+        </div>
+      </div>
+
+      <div id="pane-copy" style="display:none;">
+        <div class="copy-panel">
+          <h4>LinkedIn copy
+            <button class="copy-btn" data-copy="li-copy">Copiar</button>
+          </h4>
+          <div class="li-copy" id="li-copy">Cole um brief e gere com Claude — o copy aparece aqui.</div>
+        </div>
+        <div class="copy-panel">
+          <h4>Hashtags
+            <button class="copy-btn" data-copy="hashes">Copiar</button>
+          </h4>
+          <div class="hashes" id="hashes">#EPIUSE #SAPbrasil</div>
+        </div>
+        <div class="copy-panel">
+          <h4>Sugestão de distribuição</h4>
+          <div class="li-copy" id="dist" style="font-size: 12px;">Após gerar, o playbook sugere se este post deve sair do perfil corporativo, ser compartilhado por um executivo, ou virar um carrossel.</div>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+</main>
+
+<script>
+  // ===== nav active state =====
+  (function(){
+    var t = document.body.dataset.tab;
+    if (!t) return;
+    var a = document.querySelector('[data-tab-id="' + t + '"]');
+    if (a) a.classList.add('active');
+  })();
+
+  // ===== LOB color map (matches brand kit + post-card --lob-accent) =====
+  var LOB_MAP = {
+    sfsf:  { name:'HCM',  bg:'#FFC700', accent:'#CE181E', light:true,  label:'HCM' },
+    erp:   { name:'ERP',  bg:'#003A6B', accent:'#5BBCEB', light:false, label:'CLOUD ERP' },
+    btm:   { name:'BTP',  bg:'#3D1A5F', accent:'#B6238D', light:false, label:'SAP BTP' },
+    sig:   { name:'SIG',  bg:'#013C3A', accent:'#FF6B1A', light:false, label:'SIGNAVIO' },
+    sn:    { name:'SN',   bg:'#003A2E', accent:'#62BE5C', light:false, label:'SERVICENOW' },
+    wfs:   { name:'WFS',  bg:'#3C0A0E', accent:'#C8262E', light:false, label:'WORKFORCE' },
+    cloud: { name:'CLD',  bg:'#1B2750', accent:'#F5841F', light:false, label:'CLOUD' },
+    inst:  { name:'INST', bg:'#001844', accent:'#5BBCEB', light:false, label:'GROUP ELEPHANT' }
+  };
+  var CAT_LABEL = {
+    case:'CASE', event:'EVENTO', award:'PREMIAÇÃO', kickoff:'KICKOFF',
+    product:'CARROSSEL · PRODUTO', video:'VÍDEO', inst:'INSTITUCIONAL'
+  };
+
+  // ===== bind UI =====
+  var card = document.getElementById('card');
+  var cardCat = document.getElementById('card-cat');
+  var cardLob = document.getElementById('card-lob');
+  var cardHL = document.getElementById('card-headline');
+  var cardNum = document.getElementById('card-num');
+  var cardCtx = document.getElementById('card-context');
+
+  function applyLOB(){
+    var lob = document.getElementById('lob').value;
+    var l = LOB_MAP[lob];
+    card.style.setProperty('--lob-accent', l.accent);
+    card.style.setProperty('--lob-bg', l.bg);
+    card.style.background = l.bg;
+    if (l.light) card.classList.add('on-light'); else card.classList.remove('on-light');
+    cardLob.textContent = l.label;
+  }
+  function applyCat(){
+    var cat = document.querySelector('input[name="cat"]:checked').value;
+    cardCat.textContent = CAT_LABEL[cat] || cat.toUpperCase();
+  }
+  document.getElementById('lob').addEventListener('change', applyLOB);
+  document.querySelectorAll('input[name="cat"]').forEach(function(r){ r.addEventListener('change', applyCat); });
+
+  // preview tabs
+  document.querySelectorAll('.pt-tab').forEach(function(t){
+    t.addEventListener('click', function(){
+      document.querySelectorAll('.pt-tab').forEach(function(x){ x.classList.remove('active'); });
+      t.classList.add('active');
+      var v = t.dataset.pt;
+      document.getElementById('pane-card').style.display = v==='card' ? '' : 'none';
+      document.getElementById('pane-copy').style.display = v==='copy' ? '' : 'none';
+    });
+  });
+
+  // copy buttons
+  document.querySelectorAll('.copy-btn').forEach(function(b){
+    b.addEventListener('click', function(){
+      var id = b.dataset.copy;
+      var el = document.getElementById(id);
+      if (!el) return;
+      navigator.clipboard.writeText(el.textContent).then(function(){
+        var prev = b.textContent; b.textContent = '✓ Copiado';
+        setTimeout(function(){ b.textContent = prev; }, 1200);
+      });
+    });
+  });
+
+  // ===== save draft (localStorage) =====
+  function getState(){
+    return {
+      cat: document.querySelector('input[name="cat"]:checked').value,
+      lob: document.getElementById('lob').value,
+      mode: document.getElementById('mode').value,
+      brief: document.getElementById('brief').value,
+      client: document.getElementById('client').value,
+      metric: document.getElementById('metric').value,
+      persona: document.querySelector('input[name="persona"]:checked').value,
+      author: document.getElementById('author').value
+    };
+  }
+  document.getElementById('btn-save').addEventListener('click', function(){
+    localStorage.setItem('inbound.brief.draft', JSON.stringify(getState()));
+    document.getElementById('state').textContent = 'Rascunho salvo · ' + new Date().toLocaleTimeString();
+  });
+  // restore
+  (function(){
+    var raw = localStorage.getItem('inbound.brief.draft');
+    if (!raw) return;
+    try {
+      var s = JSON.parse(raw);
+      if (s.cat) document.querySelector('input[name="cat"][value="'+s.cat+'"]').checked = true;
+      if (s.lob) document.getElementById('lob').value = s.lob;
+      if (s.mode) document.getElementById('mode').value = s.mode;
+      if (s.brief) document.getElementById('brief').value = s.brief;
+      if (s.client) document.getElementById('client').value = s.client;
+      if (s.metric) document.getElementById('metric').value = s.metric;
+      if (s.persona) document.querySelector('input[name="persona"][value="'+s.persona+'"]').checked = true;
+      if (s.author) document.getElementById('author').value = s.author;
+      applyLOB(); applyCat();
+    } catch(e){}
+  })();
+  applyLOB(); applyCat();
+
+  // ===== GENERATE WITH CLAUDE =====
+  document.getElementById('btn-gen').addEventListener('click', async function(){
+    var btn = this;
+    var lbl = document.getElementById('gen-label');
+    var status = document.getElementById('ai-status');
+    var state = getState();
+
+    if (!state.brief.trim()) {
+      alert('Cole um brief antes de gerar.');
+      return;
+    }
+
+    btn.setAttribute('disabled', 'true');
+    lbl.innerHTML = '<span class="spin"></span> Gerando...';
+    status.className = 'ai-status busy';
+    status.innerHTML = '<span class="spin"></span> Claude está pensando…';
+
+    var prompt = [
+      'Você é o redator do time de Marketing/RevOps da EPI-USE Brasil.',
+      'Siga o playbook editorial: foto humana > arte; número-herói > parágrafo; CTA no final.',
+      '',
+      'CATEGORIA: ' + (CAT_LABEL[state.cat] || state.cat),
+      'LOB: ' + (LOB_MAP[state.lob]?.label || state.lob),
+      'MODO: ' + (state.mode === 'camp' ? 'Campanha United We Rise' : 'Institucional'),
+      'PERSONA-ALVO: ' + state.persona.toUpperCase(),
+      'CLIENTE/REFERÊNCIA: ' + (state.client || '—'),
+      'NÚMERO-CHAVE: ' + (state.metric || '—'),
+      'AUTOR HUMANO (reshare): ' + (state.author || '—'),
+      '',
+      'BRIEF BRUTO:',
+      state.brief,
+      '',
+      'Gere um objeto JSON com EXATAMENTE estas chaves:',
+      '{',
+      '  "headline": "headline para o card · 4-6 palavras · ponha *aspecto-chave* entre asteriscos para itálico",',
+      '  "heroNumber": "número-herói como string (ex: \\"38%\\" ou \\"14m\\") ou null se não fizer sentido",',
+      '  "context": "1 linha de contexto · máx 12 palavras",',
+      '  "linkedinCopy": "texto pra postar no LinkedIn em PT-BR · 3-5 linhas curtas · começa com gancho · termina com pergunta ou CTA · sem emoji",',
+      '  "hashtags": "string com 5-7 hashtags relevantes separadas por espaço",',
+      '  "distribution": "1 linha em PT-BR · diz se o post deve sair do perfil corporativo, ser shared pelo executivo X, ou virar carrossel"',
+      '}',
+      '',
+      'NÃO inclua nada antes ou depois do JSON. Apenas o objeto.'
+    ].join('\\n');
+
+    try {
+      var resp = await window.claude.complete(prompt);
+      // strip code fences if any
+      var clean = resp.replace(/^```(json)?/i,'').replace(/```$/,'').trim();
+      var data = JSON.parse(clean);
+
+      // headline with *italic*
+      var hl = (data.headline || '').replace(/\\*(.+?)\\*/g, '<em>$1</em>');
+      cardHL.innerHTML = hl;
+
+      if (data.heroNumber) {
+        // split number from unit if % or letter
+        var m = String(data.heroNumber).match(/^([\\d.,]+)(.*)$/);
+        if (m) {
+          cardNum.innerHTML = m[1] + (m[2] ? '<sub>'+m[2]+'</sub>' : '');
+        } else {
+          cardNum.textContent = data.heroNumber;
+        }
+        cardNum.style.display = '';
+      } else {
+        cardNum.style.display = 'none';
+      }
+
+      cardCtx.textContent = data.context || '';
+
+      document.getElementById('li-copy').textContent = data.linkedinCopy || '';
+      document.getElementById('hashes').textContent = data.hashtags || '';
+      document.getElementById('dist').textContent = data.distribution || '';
+
+      status.className = 'ai-status ok';
+      status.innerHTML = '<span class="pill ok" style="font-family:inherit;"><span class="dot"></span>Gerado</span>';
+    } catch(e) {
+      console.error(e);
+      status.className = 'ai-status err';
+      status.innerHTML = '<span class="pill red" style="font-family:inherit;"><span class="dot"></span>Erro · ver console</span>';
+      alert('Erro ao gerar. ' + (e.message || ''));
+    } finally {
+      btn.removeAttribute('disabled');
+      lbl.textContent = 'Gerar com Claude →';
+    }
+  });
+</script>
+
+</body>
+</html>

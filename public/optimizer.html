@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title id="page-title">Profile Optimizer — EPI-USE Voices</title>
   <script defer data-domain="epiuse-voices-optimizer.up.railway.app" src="https://plausible.io/js/script.js"></script>
+  <script type="module" src="/office-nav.js"></script>
+  <script type="module" src="/office-footer.js"></script>
   <meta name="author" content="EPI-USE Brasil Marketing">
   <meta id="meta-subject" name="subject" content="Profile Optimizer — EPI-USE Voices 2026">
   <meta id="meta-description" name="description" content="Kit de otimização de perfil LinkedIn — EPI-USE Voices 2026">
@@ -1369,7 +1371,8 @@
     }
   </style>
 </head>
-<body>
+<body data-route="voices">
+<office-nav></office-nav>
 
 <!-- RESULT PRINT BAR (aparece só quando kit está visível) -->
 <div class="rk-print-bar" id="rk-print-bar">
@@ -1715,6 +1718,23 @@ function toggleTheme() {
   const saved = localStorage.getItem('epiuse_theme') || 'dark';
   document.documentElement.setAttribute('data-theme', saved);
   document.getElementById('theme-btn').textContent = saved === 'dark' ? '🌙 Modo escuro' : '☀️ Modo claro';
+})();
+
+// ── AUTO-SELECT VOICE via ?voice=<slug> (deep-link da página /voices) ──
+(function autoSelectFromUrl() {
+  const param = new URLSearchParams(location.search).get('voice');
+  if (!param) return;
+  // /voices usa slugs longos (anderson-costa, carlos-furigo); o optimizer usa curtos (anderson, carlos).
+  // Mapear pelo primeiro segmento.
+  const shortId = param.split('-')[0];
+  // Aguardar DOM pronto
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.querySelector(`.voice-btn[data-voice="${shortId}"]`);
+    if (btn) {
+      btn.click();
+      setTimeout(() => btn.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+    }
+  });
 })();
 
 // ── VOICE SELECTOR ───────────────────────────────────────
@@ -2575,5 +2595,6 @@ function resetarAnalise() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 </script>
+<office-footer></office-footer>
 </body>
 </html>

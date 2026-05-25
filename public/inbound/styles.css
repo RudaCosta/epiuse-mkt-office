@@ -1,0 +1,154 @@
+/* EUBR Inbound — Social Media Playbook
+   Aligned to EPI-USE Brand Book 2026
+   Tokens: see colors_and_type.css (single source of truth)
+*/
+
+@import url('colors_and_type.css');
+
+/* ============ deck-stage host ============ */
+deck-stage{ --slide-bg: var(--eu-surface-2); }
+deck-stage > section{
+  font-family: var(--eu-font-body);
+  color: var(--eu-ink);
+  background: var(--eu-surface-2);
+  overflow: hidden;
+  position: relative;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ============ shared layout primitives ============ */
+.slide{
+  position:absolute; inset:0;
+  padding: 80px 96px;
+  display:flex; flex-direction:column;
+  min-height: 0;
+}
+.slide > .head{ flex-shrink: 0; align-items: flex-end; }
+.slide > .head > div:first-child{ flex: 1 1 auto; min-width: 0; }
+.slide > .head > .lede{ flex: 0 0 38ch; }
+
+/* ============ Type ============ */
+.eyebrow{
+  font-family: var(--eu-font-mono);
+  font-size: 20px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--eu-red);
+  font-weight: 700;
+  display:flex; align-items:center; gap:14px;
+}
+.eyebrow .num{
+  display:inline-flex; width:44px; height:44px; align-items:center; justify-content:center;
+  border:1.5px solid var(--eu-red); color: var(--eu-red); border-radius:50%;
+  font-size:14px;
+}
+.eyebrow .dash{ width:48px; height:1px; background: var(--eu-red); }
+
+h1.display{
+  font-family: var(--eu-font-display);
+  font-weight: 700;
+  font-size: 96px;
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  color: #fff;
+  margin: 0;
+  text-wrap: balance;
+}
+h1.display em{ font-style: normal; color: #5BBCEB; }
+
+h2.title{
+  font-family: var(--eu-font-display);
+  font-weight: 700;
+  font-size: 60px;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: var(--eu-navy);
+  margin: 0;
+  text-wrap: pretty;
+}
+h2.title em{ font-style: normal; color: var(--eu-red); }
+
+.lede{
+  font-size: 24px; line-height: 1.5; color: var(--eu-ink); max-width: 60ch;
+}
+
+.foot{
+  position:absolute; left:96px; right:96px; bottom:48px;
+  display:flex; justify-content:space-between; align-items:flex-end;
+  font-family: var(--eu-font-mono); font-size: 16px; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--eu-ink-mid);
+}
+.foot .brand{
+  display:flex; align-items:center; gap:12px; color: var(--eu-navy);
+}
+.foot img.logo{ height: 22px; width: auto; }
+
+/* ============ Cover ============ */
+.cover{
+  background: var(--eu-navy);
+  color: #fff;
+  padding: 0;
+}
+.cover .elephant{
+  position:absolute; right:-60px; bottom:-80px;
+  width: 720px; height: 520px;
+  background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 520 360'%3E%3Cg fill='%23849EC3' fill-opacity='0.22'%3E%3Cpath d='M70 280 Q82 220 130 210 Q150 152 222 152 Q260 108 320 124 Q380 108 420 148 Q468 142 480 188 L500 192 L498 220 L482 224 Q478 268 466 282 L466 320 L444 320 L440 290 Q408 296 388 290 L382 320 L362 320 L358 296 Q326 304 296 296 L268 312 L246 312 L250 290 Q210 296 182 290 L178 320 L156 320 L152 296 Q124 290 102 270 L82 290 L62 290 Z M460 168 Q476 156 484 172 Q476 184 462 180 Z'/%3E%3Cpath d='M268 240 Q272 264 282 274 Q284 264 278 244 Z' fill='%23E4E3E6' fill-opacity='0.18'/%3E%3Ccircle cx='325' cy='180' r='3' fill='%23E4E3E6' fill-opacity='0.32'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: contain; background-repeat: no-repeat; pointer-events: none;
+}
+.cover .inner{
+  position: relative; z-index: 2;
+  padding: 80px 96px;
+  display:flex; flex-direction:column; height:100%;
+}
+.cover .top{
+  display:flex; justify-content:space-between; align-items:center;
+  font-family: var(--eu-font-mono); font-size: 16px; letter-spacing: 0.14em;
+  text-transform: uppercase; color: rgba(255,255,255,0.6); font-weight: 700;
+}
+.cover .top .epi-logo{
+  background: #fff; padding: 8px 14px; border-radius: 4px;
+  display:inline-flex; align-items:center; gap: 10px;
+}
+.cover .top .epi-logo img{ height: 28px; }
+.cover h1{
+  font-family: var(--eu-font-display);
+  font-size: 144px; font-weight: 700; line-height: 0.98;
+  letter-spacing: -0.04em; margin: 0;
+  color: #fff;
+}
+.cover h1 em{ color: #5BBCEB; font-style: normal; }
+.cover h1 .red-dot{
+  display:inline-block; width: 18px; height: 18px; background: var(--eu-red);
+  border-radius: 50%; vertical-align: middle; margin-left: 12px;
+}
+.cover .meta{
+  display:grid; grid-template-columns: repeat(4, 1fr); gap: 32px;
+  border-top: 1px solid rgba(255,255,255,0.18);
+  padding-top: 32px;
+}
+.cover .meta div{ display:flex; flex-direction:column; gap: 8px; }
+.cover .meta .lbl{
+  font-family: var(--eu-font-mono); font-size: 13px; letter-spacing: 0.14em;
+  text-transform: uppercase; color: rgba(255,255,255,0.55); font-weight: 700;
+}
+.cover .meta .val{ font-size: 17px; color: #fff; line-height: 1.35; }
+
+/* ============ section divider ============ */
+.section{
+  background: var(--eu-navy);
+  color: #fff;
+  display:flex; flex-direction:column; justify-content:center;
+  padding: 80px 96px;
+}
+.section .num{
+  font-family: var(--eu-font-mono); font-size: 16px; font-weight: 700;
+  letter-spacing: 0.16em; color: #5BBCEB;
+}
+.section h2{
+  font-family: var(--eu-font-display);
+  font-size: 120px; font-weight: 700; line-height: 1.0;
+  letter-spacing: -0.035em; margin: 24px 0 20px;
+}
+.section h2 em{ font-style: normal; color: #5BBCEB; }
+.section p{ font-size: 22px; max-width: 70ch; color: rgba(255,255,255,0.78); line-height: 1.5; }

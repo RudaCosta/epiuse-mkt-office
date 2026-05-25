@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EPI-USE Office · War Room</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #060e1a; overflow: hidden; font-family: 'Inter', sans-serif; color: #fff; user-select: none; }
+
+/* ── CANVAS ─────────────────────────────────────────────────────── */
+#gc { display: block; position: fixed; inset: 0; }
+
+/* ── HUD ────────────────────────────────────────────────────────── */
+#hud {
+  position: fixed; top: 0; left: 0; right: 0; height: 46px;
+  background: rgba(6,14,26,0.88); backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(37,99,235,0.3);
+  display: none; align-items: center; padding: 0 14px; gap: 10px; z-index: 20;
+}
+#hud.on { display: flex; }
+#hud-logo { font-family: 'Press Start 2P', monospace; font-size: 10px; color: #60a5fa; white-space: nowrap; }
+#hud-hint { font-size: 11px; color: #475569; white-space: nowrap; }
+#hud-spacer { flex: 1; }
+#hud-zone { font-size: 11px; color: #94a3b8; padding: 3px 10px; background: rgba(37,99,235,0.08); border-radius: 10px; min-width: 120px; text-align: center; transition: opacity .3s; }
+#hud-user { font-size: 12px; font-weight: 600; color: #93c5fd; background: rgba(37,99,235,0.15); border: 1px solid rgba(37,99,235,0.35); padding: 4px 12px; border-radius: 20px; white-space: nowrap; }
+
+/* ── SPAWN GATE ─────────────────────────────────────────────────── */
+#spawn {
+  position: fixed; inset: 0; background: #060e1a;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 0; z-index: 1000;
+}
+#spawn-anim { width: 88px; height: 88px; margin-bottom: 24px; image-rendering: pixelated; }
+.sg-title { font-family: 'Press Start 2P', monospace; font-size: clamp(14px, 2.5vw, 22px); color: #60a5fa; text-align: center; line-height: 1.6; margin-bottom: 6px; }
+.sg-sub { font-size: 13px; color: #475569; margin-bottom: 36px; text-align: center; }
+.sg-form { display: flex; flex-direction: column; align-items: stretch; gap: 10px; width: 340px; }
+.sg-label { font-size: 12px; color: #64748b; }
+.sg-input { padding: 12px 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(37,99,235,0.4); border-radius: 8px; color: #fff; font-size: 14px; font-family: 'Inter', sans-serif; outline: none; transition: border-color .2s, background .2s; }
+.sg-input:focus { border-color: #2563EB; background: rgba(37,99,235,0.08); }
+.sg-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; }
+.sg-btn { padding: 13px 12px; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; font-family: 'Inter', sans-serif; cursor: pointer; transition: background .15s, transform .1s, border-color .15s; line-height: 1.3; }
+.sg-btn-primary { background: #2563EB; color: #fff; }
+.sg-btn-primary:hover { background: #1d4ed8; }
+.sg-btn-primary:active { transform: scale(0.98); }
+.sg-btn-secondary { background: rgba(37,99,235,0.10); color: #93c5fd; border: 1px solid rgba(37,99,235,0.4); }
+.sg-btn-secondary:hover { background: rgba(37,99,235,0.20); border-color: rgba(37,99,235,0.7); }
+.sg-btn small { display: block; font-size: 10px; font-weight: 400; opacity: 0.78; margin-top: 2px; }
+.sg-divider { display: flex; align-items: center; gap: 10px; margin: 14px 0 4px; color: #334155; font-size: 11px; }
+.sg-divider::before, .sg-divider::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.06); }
+.sg-note { font-size: 11px; color: #334155; text-align: center; margin-top: 24px; }
+.sg-ver { font-family: 'Press Start 2P', monospace; font-size: 8px; color: rgba(96,165,250,0.5); margin-top: 14px; letter-spacing: 0.15em; }
+
+/* ── IFRAME MODAL ───────────────────────────────────────────────── */
+#modal { position: fixed; inset: 0; background: rgba(0,0,0,.82); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 200; }
+#modal.open { display: flex; }
+#modal-box { position: relative; width: 93vw; height: 93vh; border-radius: 12px; overflow: hidden; border: 1px solid rgba(37,99,235,.4); background: #0a1628; }
+#modal-frame { width: 100%; height: 100%; border: 0; }
+#modal-close { position: absolute; top: 10px; right: 10px; width: 34px; height: 34px; border-radius: 50%; background: rgba(220,38,38,.9); color: #fff; border: none; font-size: 16px; cursor: pointer; z-index: 201; line-height: 34px; text-align: center; }
+#modal-close:hover { background: #dc2626; }
+
+/* ── INFO MODAL ─────────────────────────────────────────────────── */
+#info-modal { position: fixed; inset: 0; background: rgba(0,0,0,.75); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 200; }
+#info-modal.open { display: flex; }
+#info-box { position: relative; width: 460px; max-width: 92vw; background: #0d1e36; border: 1px solid rgba(37,99,235,.4); border-radius: 16px; padding: 32px; }
+#info-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; color: #93c5fd; }
+#info-body { font-size: 13px; line-height: 1.75; color: #cbd5e1; white-space: pre-line; }
+#info-close { position: absolute; top: 12px; right: 12px; width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,.08); color: #fff; border: none; font-size: 14px; cursor: pointer; }
+#info-close:hover { background: rgba(255,255,255,.16); }
+
+/* ── EVENTS MODAL ───────────────────────────────────────────────── */
+#events-modal { position: fixed; inset: 0; background: rgba(0,0,0,.78); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 200; padding: 24px; }
+#events-modal.open { display: flex; }
+#em-box { position: relative; width: 100%; max-width: 760px; max-height: 88vh; background: #0a1628; border: 1px solid rgba(37,99,235,.45); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; }
+#em-head { padding: 22px 26px 16px; border-bottom: 1px solid rgba(255,255,255,.06); display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+.em-title { font-size: 17px; font-weight: 700; color: #93c5fd; }
+.em-sub { font-size: 11px; color: #475569; margin-top: 3px; letter-spacing: .14em; text-transform: uppercase; }
+.em-actions { display: flex; gap: 8px; align-items: center; }
+.em-link { font-size: 12px; color: #60a5fa; background: rgba(37,99,235,.10); border: 1px solid rgba(37,99,235,.3); padding: 6px 12px; border-radius: 6px; text-decoration: none; transition: background .15s; }
+.em-link:hover { background: rgba(37,99,235,.22); }
+#em-close { width: 30px; height: 30px; border-radius: 50%; background: rgba(220,38,38,.85); color: #fff; border: none; font-size: 14px; cursor: pointer; }
+#em-body { overflow-y: auto; padding: 18px 22px 22px; flex: 1; }
+.em-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.em-month { background: rgba(255,255,255,.025); border: 1px solid rgba(255,255,255,.06); border-radius: 10px; padding: 12px 14px; }
+.em-month-h { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,.06); }
+.em-m-name { font-family: 'Press Start 2P', monospace; font-size: 9px; color: #60a5fa; letter-spacing: .18em; }
+.em-m-count { font-size: 10px; color: #475569; }
+.em-month.empty { opacity: .45; }
+.em-month.passou { opacity: .42; filter: grayscale(.4); }
+.em-month.passou .em-m-name { color: #64748b; }
+.em-month.current { border-color: rgba(16,185,129,.4); background: rgba(16,185,129,.04); box-shadow: 0 0 0 1px rgba(16,185,129,.2); }
+.em-month.current .em-m-name { color: #34d399; }
+.em-passou-divider { grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; margin: 14px 0 4px; color: #475569; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; }
+.em-passou-divider::before, .em-passou-divider::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,.06); }
+.em-current-badge { font-family: 'Press Start 2P', monospace; font-size: 7px; color: #34d399; background: rgba(16,185,129,.15); padding: 3px 5px; border-radius: 4px; margin-left: 6px; letter-spacing: .1em; }
+.em-passou-badge { font-size: 9px; color: #64748b; font-style: italic; }
+.em-event { display: flex; gap: 8px; padding: 6px 0; align-items: flex-start; border-bottom: 1px dashed rgba(255,255,255,.04); font-size: 12px; }
+.em-event:last-child { border-bottom: none; }
+.em-date { font-family: 'Press Start 2P', monospace; font-size: 8px; color: #fbbf24; background: rgba(251,191,36,.08); padding: 4px 5px; border-radius: 4px; white-space: nowrap; min-width: 42px; text-align: center; margin-top: 1px; }
+.em-info { flex: 1; min-width: 0; }
+.em-name { color: #e2e8f0; line-height: 1.3; }
+.em-who { font-size: 10px; color: #64748b; margin-top: 2px; }
+.em-lob { display: inline-block; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 3px; margin-left: 4px; vertical-align: middle; }
+.lob-HCM     { background: rgba(37,99,235,.18); color: #60a5fa; }
+.lob-ERP     { background: rgba(16,185,129,.18); color: #34d399; }
+.lob-Cross   { background: rgba(168,85,247,.18); color: #c084fc; }
+.lob-BTP     { background: rgba(249,115,22,.18); color: #fb923c; }
+.lob-Cloud   { background: rgba(6,182,212,.18); color: #22d3ee; }
+.lob-Branding{ background: rgba(236,72,153,.18); color: #f472b6; }
+.lob-Institucional { background: rgba(239,68,68,.18); color: #f87171; }
+.lob-WFS     { background: rgba(245,158,11,.18); color: #fbbf24; }
+.lob-SN      { background: rgba(99,102,241,.18); color: #818cf8; }
+.lob-BTM     { background: rgba(20,184,166,.18); color: #2dd4bf; }
+#em-foot { padding: 12px 22px; border-top: 1px solid rgba(255,255,255,.06); font-size: 11px; color: #475569; text-align: center; }
+
+/* ── TOAST ──────────────────────────────────────────────────────── */
+#toast-wrap { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%); z-index: 300; display: flex; flex-direction: column-reverse; gap: 7px; align-items: center; pointer-events: none; }
+.toast { background: rgba(13,30,54,.96); border: 1px solid rgba(37,99,235,.5); border-radius: 8px; padding: 9px 18px; font-size: 13px; color: #e2e8f0; backdrop-filter: blur(8px); white-space: nowrap; animation: tIn .3s ease, tOut .3s ease 2.7s forwards; }
+@keyframes tIn  { from { opacity:0; transform:translateY(10px) } to { opacity:1; transform:translateY(0) } }
+@keyframes tOut { to { opacity:0 } }
+</style>
+</head>
+<body>
+
+<!-- Spawn Gate -->
+<div id="spawn">
+  <canvas id="spawn-anim" width="88" height="88"></canvas>
+  <div class="sg-title">EPI-USE<br>OFFICE</div>
+  <div class="sg-sub">Escritório virtual de influência executiva</div>
+  <div class="sg-form">
+    <label class="sg-label">Como você quer ser chamado?</label>
+    <input id="player-name" class="sg-input" type="text" placeholder="Seu nome" maxlength="22" autofocus>
+    <div class="sg-btns">
+      <button class="sg-btn sg-btn-primary" onclick="enterOffice()">🎮 Modo Game<small>WASD · pixel art 2D</small></button>
+      <button class="sg-btn sg-btn-secondary" onclick="window.location.href='/dashboard'">📊 Dashboard<small>cards · roadmap</small></button>
+    </div>
+  </div>
+  <div class="sg-note">WASD ou ↑↓←→ · E para interagir · ESC para fechar modal</div>
+  <div class="sg-ver">v2.2 · 23 MAI 2026</div>
+</div>
+
+<!-- Game Canvas -->
+<canvas id="gc"></canvas>
+
+<!-- HUD -->
+<div id="hud">
+  <span id="hud-logo">EPI-USE OFFICE</span>
+  <span id="hud-hint">WASD · E interagir</span>
+  <div id="hud-spacer"></div>
+  <span id="hud-zone"></span>
+  <div id="hud-user"></div>
+</div>
+
+<!-- Iframe Modal -->
+<div id="modal">
+  <div id="modal-box">
+    <button id="modal-close" onclick="closeModal()">✕</button>
+    <iframe id="modal-frame" src="about:blank" allow="camera; microphone"></iframe>
+  </div>
+</div>
+
+<!-- Info Modal -->
+<div id="info-modal">
+  <div id="info-box">
+    <button id="info-close" onclick="closeInfo()">✕</button>
+    <h2 id="info-title"></h2>
+    <div id="info-body"></div>
+  </div>
+</div>
+
+<!-- Events Modal (rich calendar) -->
+<div id="events-modal">
+  <div id="em-box">
+    <header id="em-head">
+      <div>
+        <div class="em-title">📅 Agenda EPI-USE / SAP — 2026</div>
+        <div class="em-sub">30 eventos · Atualizado: maio/2026</div>
+      </div>
+      <div class="em-actions">
+        <a class="em-link" href="https://epiusebr-my.sharepoint.com/:x:/g/personal/ti_brasil_epiuse_com_br/IQCVg4hDxMivTZf9vlCJ01IMAcUjIK3ESRYzWJ81AZWgN5E?e=ceAacH" target="_blank">📊 Planilha completa</a>
+        <button id="em-close" onclick="closeEvents()">✕</button>
+      </div>
+    </header>
+    <div id="em-body"><div class="em-grid" id="em-grid"></div></div>
+    <footer id="em-foot">Fonte: planilha "Eventos SAP Brasil" · Para atualizar, edite a planilha no SharePoint</footer>
+  </div>
+</div>
+
+<!-- Toasts -->
+<div id="toast-wrap"></div>
+
+<script>
+'use strict';
+// ══════════════════════════════════════════════════════════════════════
+// EPI-USE OFFICE ENGINE  v1.0  |  Rudá Costa  |  maio/2026
+// ══════════════════════════════════════════════════════════════════════
+
+// ── WORLD CONSTANTS ────────────────────────────────────────────────
+const COLS = 50, ROWS = 30, TS = 32;
+const WW = COLS * TS;   // 1600  world width
+const WH = ROWS * TS;   // 960   world height
+const PLAYER_SPEED = 180; // px/s
+
+// ── TILE TYPES ─────────────────────────────────────────────────────
+const T = { FLOOR:1, WALL:2, VOICES:3, SAP:4, OPTIM:5, DUDA:6, COFFEE:7, EVENTS:8, ERONGO:9, HUB:10 };
+
+const TC = {
+  1:  { bg:'#182438', gl:'#1f2d45' },   // main floor
+  2:  { bg:'#07100e', gl:'#0b1a14' },   // wall — very dark
+  3:  { bg:'#1a3358', gl:'#234572' },   // voices — blue carpet
+  4:  { bg:'#21134c', gl:'#2d1a64' },   // SAP — purple carpet
+  5:  { bg:'#0d2a18', gl:'#133820' },   // optimizer — emerald
+  6:  { bg:'#271408', gl:'#38200e' },   // duda — mahogany
+  7:  { bg:'#201408', gl:'#2d1e0c' },   // coffee — espresso
+  8:  { bg:'#082525', gl:'#0d3232' },   // events — teal
+  9:  { bg:'#0d2810', gl:'#123616' },   // erp.ngo — forest
+  10: { bg:'#200e30', gl:'#2c1440' },   // marketing hub — violet
+};
+
+// ── MAP ARRAYS ─────────────────────────────────────────────────────
+const mapTiles = new Uint8Array(COLS * ROWS).fill(T.FLOOR);
+const mapSolid = new Uint8Array(COLS * ROWS);
+
+function fillArea(c, r, w, h, tile, solid) {
+  for (let row = r; row < r + h && row < ROWS; row++) {
+    for (let col = c; col < c + w && col < COLS; col++) {
+      const i = row * COLS + col;
+      mapTiles[i] = tile;
+      if (solid) mapSolid[i] = 1;
+    }
+  }
+}
+
+(function buildMap() {
+  // Perimeter walls
+  fillArea(0, 0, COLS, 1, T.WALL, true);
+  fillArea(0, ROWS - 1, COLS, 1, T.WALL, true);
+  fillArea(0, 0, 1, ROWS, T.WALL, true);
+  fillArea(COLS - 1, 0, 1, ROWS, T.WALL, true);
+
+  // ── Carpet zones ──────────────────────────────────────────────────
+  fillArea(7,  1,  8,  5,  T.COFFEE);    // Coffee corner
+  fillArea(21, 1, 10,  4,  T.HUB);       // Marketing Hub board
+  fillArea(8,  5, 16, 10,  T.VOICES);    // Voices cowork area (cols 8-23)
+  fillArea(24, 5,  8, 10,  T.OPTIM);     // Profile Optimizer ADJACENT to Voices (cols 24-31)
+  fillArea(41, 8,  7,  9,  T.SAP);       // SAP Lab
+  fillArea(14, 17, 7,  7,  T.ERONGO);    // ERP.ngo memorial (shifted south)
+  fillArea(22, 19,10,  8,  T.DUDA);      // Duda's office (shifted left, narrower)
+  fillArea(34, 19,10,  8,  T.EVENTS);    // Events board (shifted left, wider)
+
+  // ── Duda's office inner walls (cols 22-31, entrance gap bottom row 26, cols 26-27) ──
+  // Top wall (solid — north boundary)
+  for (let c = 22; c <= 31; c++) { mapTiles[19*COLS+c] = T.WALL; mapSolid[19*COLS+c] = 1; }
+  // Side walls
+  for (let r = 19; r <= 26; r++) {
+    mapTiles[r*COLS+22] = T.WALL; mapSolid[r*COLS+22] = 1;
+    mapTiles[r*COLS+31] = T.WALL; mapSolid[r*COLS+31] = 1;
+  }
+  // Bottom wall with entrance gap at cols 26-27 (player enters from south)
+  for (let c = 23; c <= 30; c++) {
+    if (c < 26 || c > 27) { mapTiles[26*COLS+c] = T.WALL; mapSolid[26*COLS+c] = 1; }
+  }
+
+  // Corridor between SAP Lab and main area (leave cols 38-40 open)
+  // (already open by default)
+})();
+
+// ── DECORATIVE OBJECTS ─────────────────────────────────────────────
+// { x, y, w, h, color, border, label, emoji? }  — pixel coordinates
+const OBJECTS = [
+  // ── Top area ──────────────────────────────────────────────────────
+  // Coffee table
+  { x:8.5*TS, y:2*TS+2, w:5*TS-4, h:2*TS-8, color:'#3a1e08', bc:'#7c3b0d', label:'Mesa do Café ☕' },
+  // Hub board
+  { x:22*TS, y:1.4*TS, w:8*TS, h:2.8*TS, color:'#1a0a2e', bc:'#7c3aed', label:'📺 Marketing Hub  ·  Sales Hub' },
+
+  // ── Voices area desks ─────────────────────────────────────────────
+  { x:10*TS, y:7.5*TS, w:1.5*TS-4, h:TS+10, color:'#1a3260', bc:'#2563eb', label:'Anderson 🎙️', monitor:'#60a5fa' },
+  { x:12*TS, y:7.5*TS, w:1.5*TS-4, h:TS+10, color:'#1a3260', bc:'#2563eb', label:'Carlos 🎙️', monitor:'#60a5fa' },
+  { x:14*TS, y:7.5*TS, w:1.5*TS-4, h:TS+10, color:'#1c2c45', bc:'#475569', label:'Vaga ③', monitor:'#475569' },
+  { x:16*TS, y:7.5*TS, w:1.5*TS-4, h:TS+10, color:'#1c2c45', bc:'#475569', label:'Vaga ④', monitor:'#475569' },
+  // Chairs (small dark rect in front of each desk)
+  { x:10*TS+8, y:8.7*TS, w:1.5*TS-20, h:8, color:'#0f172a', bc:'#1e293b', label:'' },
+  { x:12*TS+8, y:8.7*TS, w:1.5*TS-20, h:8, color:'#0f172a', bc:'#1e293b', label:'' },
+  { x:14*TS+8, y:8.7*TS, w:1.5*TS-20, h:8, color:'#0f172a', bc:'#1e293b', label:'' },
+  { x:16*TS+8, y:8.7*TS, w:1.5*TS-20, h:8, color:'#0f172a', bc:'#1e293b', label:'' },
+  // Side desks (outer baias on edges)
+  { x:2*TS, y:7.5*TS, w:1.5*TS-4, h:TS+10, color:'#1c2c45', bc:'#475569', label:'Vaga ⑤', monitor:'#475569' },
+  { x:2*TS, y:12*TS, w:1.5*TS-4, h:TS+10, color:'#1c2c45', bc:'#475569', label:'Vaga ⑦', monitor:'#475569' },
+  { x:47*TS, y:7.5*TS, w:1.5*TS-4, h:TS+10, color:'#1c2c45', bc:'#475569', label:'Vaga ⑥', monitor:'#475569' },
+
+  // ── SAP Lab ───────────────────────────────────────────────────────
+  { x:42*TS, y:9*TS, w:5*TS-4, h:7*TS-4, color:'#180832', bc:'#6d28d9', label:'⚗️ SAP Competitor Lab' },
+
+  // ── ERP.ngo memorial (shifted south to row 17) ────────────────────
+  { x:15*TS, y:18*TS, w:5*TS-4, h:5*TS-4, color:'#071608', bc:'#166534', label:'🐘 ERP.ngo Memorial' },
+
+  // ── Profile Optimizer (NOW ADJACENT TO VOICES AREA) ───────────────
+  { x:25*TS, y:7*TS, w:6*TS, h:6*TS-4, color:'#081a0e', bc:'#10b981', label:'🪪 Profile Optimizer', monitor:'#34d399' },
+
+  // ── Duda's office (shifted left, cols 23-30) ──────────────────────
+  { x:24*TS, y:21.5*TS, w:3*TS, h:2*TS, color:'#180c00', bc:'#d97706', label:"📊 Mesa da Duda" },
+
+  // ── Events board (shifted left, cols 35-43) ───────────────────────
+  { x:35*TS, y:21*TS, w:8*TS-4, h:4.5*TS-4, color:'#041818', bc:'#0d9488', label:'📅 Eventos & Calendário' },
+
+  // ── Decorative plants (corners) ───────────────────────────────────
+  { x:2*TS, y:2*TS, w:TS-4, h:TS-4, color:'#042008', bc:'#14532d', label:'🪴' },
+  { x:47*TS, y:2*TS, w:TS-4, h:TS-4, color:'#042008', bc:'#14532d', label:'🪴' },
+  { x:2*TS, y:27*TS, w:TS-4, h:TS-4, color:'#042008', bc:'#14532d', label:'🪴' },
+  { x:47*TS, y:27*TS, w:TS-4, h:TS-4, color:'#042008', bc:'#14532d', label:'🪴' },
+  { x:8*TS, y:14*TS, w:TS-4, h:TS-4, color:'#042008', bc:'#14532d', label:'🪴' },
+  { x:28*TS, y:14*TS, w:TS-4, h:TS-4, color:'#042008', bc:'#14532d', label:'🪴' },
+
+  // Entrance mat
+  { x:23*TS, y:28*TS+4, w:4*TS, h:TS-10, color:'#08183c', bc:'#1e40af', label:'🚪 ENTRADA' },
+];
+
+// ── INTERACTIVE ZONES ─────────────────────────────────────────────
+// px/py = center of zone in world pixels, r = interaction radius
+const ZONES = [
+  {
+    id:'coffee', px:11*TS, py:3*TS, r:64,
+    name:'☕ Coffee Corner',
+    tip:'Lore do programa EPI-USE Voices',
+    action:{ type:'info', title:'☕ Coffee Corner — Programa EPI-USE Voices',
+      body:`Bem-vindo ao EPI-USE Voices!\n\nSomos o programa de influência executiva da EPI-USE Brasil — maior consultoria SAP HCM/Payroll do Brasil, parte do grupo groupelephant.com (4.500+ profissionais, 40+ países, SAP Gold Partner).\n\nTodos os nossos Voices são automaticamente embaixadores do ERP.ngo — iniciativa que destina 1% da receita global do grupo para conservação de elefantes e combate à pobreza rural na África.\n\n🎯 Meta: transformar colaboradores em referências no LinkedIn com autenticidade e resultado mensurável.\n\n☕ Sente-se, relaxe, e vamos construir sua influência!` }
+  },
+  {
+    id:'hub', px:26*TS, py:2.5*TS, r:72,
+    name:'📺 Marketing Hub',
+    tip:'Portal de onboarding e conteúdo EPI-USE',
+    action:{ type:'iframe', url:'/hub' }
+  },
+  {
+    id:'baia-01', px:10*TS+24, py:8*TS, r:38,
+    name:'Anderson Costa 🎙️',
+    tip:'Voice ativo — Consultor SAP HCM',
+    action:{ type:'info', title:'🎙️ Anderson Costa — Voice Ativo',
+      body:`Cargo: Consultor SAP HCM / SuccessFactors\nEmpresa: EPI-USE Brasil\n\nAnderson é um dos primeiros Voices do programa. Especialista em HCM e payroll com forte atuação em implementações S/4HANA.\n\nSSI Score: em evolução\nSeguidores: em crescimento\n\n📌 Use o Profile Optimizer (baia ao centro-direito) para gerar o kit completo deste Voice.\n\n💡 Módulo B — Voice Agents está a caminho!` }
+  },
+  {
+    id:'baia-02', px:12*TS+24, py:8*TS, r:38,
+    name:'Carlos Furigo 🎙️',
+    tip:'Voice ativo — Especialista SAP',
+    action:{ type:'info', title:'🎙️ Carlos Furigo — Voice Ativo',
+      body:`Cargo: Especialista SAP | EPI-USE Brasil\n\nCarlos integra o time inaugural do EPI-USE Voices, trazendo experiência sólida em projetos SAP para clientes de grande porte no Brasil.\n\nSSI Score: em evolução\nSeguidores: em crescimento\n\n📌 Use o Profile Optimizer para gerar o kit completo.\n\n💡 Módulo B — Voice Agents em breve!` }
+  },
+  {
+    id:'baia-03', px:14*TS+24, py:8*TS, r:36,
+    name:'Vaga ③',
+    tip:'Vaga reservada — em onboarding',
+    action:{ type:'toast', msg:'🪑 Vaga ③ reservada. Em breve uma nova Voice aqui!' }
+  },
+  {
+    id:'baia-04', px:16*TS+24, py:8*TS, r:36,
+    name:'Vaga ④',
+    tip:'Vaga reservada',
+    action:{ type:'toast', msg:'🪑 Vaga ④ reservada. Em breve uma nova Voice aqui!' }
+  },
+  {
+    id:'baia-05', px:3*TS, py:8*TS, r:48,
+    name:'Vaga ⑤',
+    tip:'Vaga reservada',
+    action:{ type:'toast', msg:'🪑 Vaga ⑤ reservada. Em breve uma nova Voice aqui!' }
+  },
+  {
+    id:'baia-06', px:48*TS, py:8*TS, r:48,
+    name:'Vaga ⑥',
+    tip:'Vaga reservada',
+    action:{ type:'toast', msg:'🪑 Vaga ⑥ reservada. Em breve uma nova Voice aqui!' }
+  },
+  {
+    id:'baia-07', px:3*TS, py:13*TS, r:48,
+    name:'Vaga ⑦',
+    tip:'Vaga reservada',
+    action:{ type:'toast', msg:'🪑 Vaga ⑦ reservada. Em breve uma nova Voice aqui!' }
+  },
+  {
+    id:'optimizer', px:28*TS, py:10*TS, r:68,
+    name:'🪪 Profile Optimizer',
+    tip:'Otimizar perfil LinkedIn com IA — Módulo A do programa Voices',
+    action:{ type:'iframe', url:'/optimizer' }
+  },
+  {
+    id:'erp-ngo', px:17*TS, py:20*TS, r:62,
+    name:'🐘 ERP.ngo Memorial',
+    tip:'1% da receita global para conservação de elefantes',
+    action:{ type:'external', url:'https://erp.ngo' }
+  },
+  {
+    id:'duda', px:26*TS, py:23*TS, r:58,
+    name:"📊 Duda's Office",
+    tip:'Painel operacional — Módulo C',
+    action:{ type:'toast', msg:'📊 Painel da Duda (Módulo C) — em construção! Em breve aqui.' }
+  },
+  {
+    id:'events', px:39*TS, py:23*TS, r:58,
+    name:'📅 Agenda de Eventos',
+    tip:'Calendário SAP / EPI-USE 2026 — 30 eventos',
+    action:{ type:'events' }
+  },
+  {
+    id:'sap-lab', px:44*TS, py:13*TS, r:60,
+    name:'⚗️ SAP Competitor Lab',
+    tip:'SAP Competitor Intelligence — análise de mercado',
+    action:{ type:'toast', msg:'⚗️ SAP Competitor Lab — integração com agente de campanhas em breve!' }
+  },
+];
+
+// ── INPUT SYSTEM ───────────────────────────────────────────────────
+const keysHeld = {};
+const keysJust = new Set();
+
+document.addEventListener('keydown', e => {
+  if (!keysHeld[e.code]) keysJust.add(e.code);
+  keysHeld[e.code] = true;
+  if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code)) e.preventDefault();
+  if (e.code === 'Escape') { closeModal(); closeInfo(); closeEvents && closeEvents(); }
+});
+document.addEventListener('keyup', e => { keysHeld[e.code] = false; });
+
+const isHeld = c => !!keysHeld[c];
+const wasJust = c => keysJust.has(c);
+const clearJust = () => keysJust.clear();
+
+const UP    = () => isHeld('KeyW') || isHeld('ArrowUp');
+const DOWN  = () => isHeld('KeyS') || isHeld('ArrowDown');
+const LEFT  = () => isHeld('KeyA') || isHeld('ArrowLeft');
+const RIGHT = () => isHeld('KeyD') || isHeld('ArrowRight');
+const ACT   = () => wasJust('KeyE') || wasJust('Space');
+
+// ── CAMERA ─────────────────────────────────────────────────────────
+const cam = { x: 0, y: 0 };
+
+function updateCamera(px, py, vw, vh) {
+  const tx = Math.max(0, Math.min(px + 12 - vw / 2, WW - vw));
+  const ty = Math.max(0, Math.min(py + 12 - vh / 2, WH - vh));
+  cam.x += (tx - cam.x) * 0.10;
+  cam.y += (ty - cam.y) * 0.10;
+}
+
+// ── PLAYER ─────────────────────────────────────────────────────────
+const player = {
+  x: 25 * TS, y: 27 * TS,  // spawn at entrance
+  dir: 'up', walkF: 0, walkT: 0, moving: false, name: ''
+};
+
+function solidAt(x, y, w, h) {
+  const pts = [[x,y],[x+w,y],[x,y+h],[x+w,y+h]];
+  for (const [px, py] of pts) {
+    const c = Math.floor(px / TS), r = Math.floor(py / TS);
+    if (c < 0 || c >= COLS || r < 0 || r >= ROWS) return true;
+    if (mapSolid[r * COLS + c]) return true;
+  }
+  return false;
+}
+
+function updatePlayer(dt) {
+  if (modalIsOpen || infoIsOpen) return;
+  let dx = 0, dy = 0;
+  if (UP())    { dy -= 1; player.dir = 'up'; }
+  if (DOWN())  { dy += 1; player.dir = 'down'; }
+  if (LEFT())  { dx -= 1; player.dir = 'left'; }
+  if (RIGHT()) { dx += 1; player.dir = 'right'; }
+  if (dx && dy) { dx *= 0.707; dy *= 0.707; }
+  player.moving = !!(dx || dy);
+
+  const HB = 14, HOX = 5, HOY = 16;
+  const nx = player.x + dx * PLAYER_SPEED * dt;
+  const ny = player.y + dy * PLAYER_SPEED * dt;
+  if (!solidAt(nx + HOX, player.y + HOY, HB, HB)) player.x = nx;
+  if (!solidAt(player.x + HOX, ny + HOY, HB, HB)) player.y = ny;
+
+  player.x = Math.max(TS, Math.min(player.x, WW - TS));
+  player.y = Math.max(TS, Math.min(player.y, WH - TS));
+
+  if (player.moving) {
+    player.walkT += dt;
+    if (player.walkT > 0.13) { player.walkF = (player.walkF + 1) % 4; player.walkT = 0; }
+  } else {
+    player.walkF = 0;
+  }
+}
+
+// ── CANVAS & CTX ───────────────────────────────────────────────────
+const canvas = document.getElementById('gc');
+const ctx = canvas.getContext('2d');
+let vw, vh;
+
+function resizeCanvas() {
+  vw = canvas.width  = window.innerWidth;
+  vh = canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+// ── RENDER: MAP ────────────────────────────────────────────────────
+function renderMap() {
+  const cx = cam.x, cy = cam.y;
+  const c0 = Math.max(0, Math.floor(cx / TS));
+  const r0 = Math.max(0, Math.floor(cy / TS));
+  const c1 = Math.min(COLS, Math.ceil((cx + vw) / TS));
+  const r1 = Math.min(ROWS, Math.ceil((cy + vh) / TS));
+
+  for (let r = r0; r < r1; r++) {
+    for (let c = c0; c < c1; c++) {
+      const tid = mapTiles[r * COLS + c];
+      const vis = TC[tid] || TC[1];
+      const sx = c * TS - cx, sy = r * TS - cy;
+      ctx.fillStyle = vis.bg;
+      ctx.fillRect(sx, sy, TS, TS);
+      ctx.strokeStyle = vis.gl;
+      ctx.lineWidth = 0.4;
+      ctx.strokeRect(sx + 0.5, sy + 0.5, TS - 1, TS - 1);
+    }
+  }
+}
+
+// ── RENDER: OBJECTS ────────────────────────────────────────────────
+function renderObjects() {
+  ctx.save();
+  ctx.font = '10px Inter, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  for (const o of OBJECTS) {
+    const sx = o.x - cam.x, sy = o.y - cam.y;
+    if (sx + o.w < -20 || sx > vw + 20 || sy + o.h < -20 || sy > vh + 20) continue;
+
+    // Shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.28)';
+    ctx.fillRect(sx + 3, sy + 4, o.w, o.h);
+    // Body
+    ctx.fillStyle = o.color;
+    ctx.fillRect(sx, sy, o.w, o.h);
+    // Border
+    ctx.strokeStyle = o.bc;
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(sx + 0.75, sy + 0.75, o.w - 1.5, o.h - 1.5);
+    // Monitor accent (animated glow for desk monitors)
+    if (o.monitor) {
+      const mw = o.w * 0.55, mh = 9;
+      const mx = sx + (o.w - mw) / 2, my = sy + 4;
+      ctx.fillStyle = '#070d1a';
+      ctx.fillRect(mx, my, mw, mh);
+      const glow = 0.55 + 0.45 * Math.sin(pulseT * 1.4 + sx * 0.1);
+      ctx.fillStyle = o.monitor;
+      ctx.globalAlpha = 0.55 + glow * 0.4;
+      ctx.fillRect(mx + 1, my + 1, mw - 2, mh - 2);
+      ctx.globalAlpha = 1;
+    }
+    // Label
+    if (o.label) {
+      const maxF = Math.min(10, (o.w - 6) / Math.max(1, o.label.length) * 1.6);
+      ctx.fillStyle = 'rgba(255,255,255,0.78)';
+      ctx.font = `${Math.max(8, maxF)}px Inter, sans-serif`;
+      const labelY = o.monitor ? sy + o.h - 8 : sy + o.h / 2;
+      ctx.fillText(o.label, sx + o.w / 2, labelY, o.w - 6);
+    }
+  }
+  ctx.restore();
+}
+
+// ── RENDER: AREA LABELS ────────────────────────────────────────────
+const AREA_LABELS = [
+  { px:16*TS, py:5.5*TS, text:'VOICES AREA', color:'rgba(96,165,250,0.34)' },
+  { px:28*TS, py:5.5*TS, text:'⟵ OPTIMIZER (Módulo A)', color:'rgba(52,211,153,0.34)' },
+  { px:44*TS, py:8.5*TS, text:'SAP LAB', color:'rgba(167,139,250,0.30)' },
+  { px:27*TS, py:22.5*TS, text:"DUDA'S OFFICE", color:'rgba(251,146,60,0.28)' },
+  { px:39*TS, py:20.5*TS, text:'EVENTS', color:'rgba(45,212,191,0.28)' },
+  { px:11*TS, py:1.5*TS, text:'COFFEE CORNER', color:'rgba(251,191,36,0.28)' },
+  { px:17*TS, py:17.5*TS, text:'ERP.NGO', color:'rgba(74,222,128,0.26)' },
+  { px:26*TS, py:1.5*TS, text:'MARKETING HUB', color:'rgba(192,132,252,0.28)' },
+];
+
+function renderAreaLabels() {
+  ctx.save();
+  ctx.font = 'bold 9px Inter, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  for (const a of AREA_LABELS) {
+    const sx = a.px - cam.x, sy = a.py - cam.y;
+    if (sx < -160 || sx > vw + 160) continue;
+    ctx.fillStyle = a.color;
+    ctx.fillText(a.text, sx, sy);
+  }
+  ctx.restore();
+}
+
+// ── RENDER: PLAYER ─────────────────────────────────────────────────
+function renderPlayer() {
+  const sx = Math.round(player.x - cam.x);
+  const sy = Math.round(player.y - cam.y);
+  const bob = player.moving ? Math.sin(player.walkF * Math.PI * 0.5) * 1.5 : 0;
+  const leg = player.moving ? Math.sin(player.walkF * Math.PI * 0.5) * 3.5 : 0;
+
+  // Shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.32)';
+  ctx.beginPath();
+  ctx.ellipse(sx + 12, sy + 30, 9, 3.5, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Legs
+  ctx.fillStyle = '#1e3a8a';
+  ctx.fillRect(sx + 6,  sy + 20 + bob, 5, 9 - leg);
+  ctx.fillRect(sx + 13, sy + 20 + bob, 5, 9 + leg);
+
+  // Shoes
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(sx + 5,  sy + 28 + bob - leg, 7, 4);
+  ctx.fillRect(sx + 12, sy + 28 + bob + leg, 7, 4);
+
+  // Body (EPI-USE blue jacket)
+  ctx.fillStyle = '#2563EB';
+  ctx.fillRect(sx + 4, sy + 12 + bob, 16, 10);
+  // Shirt logo accent
+  ctx.fillStyle = '#93c5fd';
+  ctx.fillRect(sx + 7, sy + 14 + bob, 5, 3);
+
+  // Neck
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillRect(sx + 10, sy + 10 + bob, 4, 4);
+
+  // Head
+  ctx.fillStyle = '#fbbf24';
+  ctx.beginPath();
+  ctx.arc(sx + 12, sy + 7 + bob, 7.5, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Face details
+  ctx.fillStyle = '#0f172a';
+  switch (player.dir) {
+    case 'down':
+      ctx.fillRect(sx + 9,  sy + 6 + bob, 2, 2);
+      ctx.fillRect(sx + 14, sy + 6 + bob, 2, 2);
+      ctx.fillRect(sx + 10, sy + 10 + bob, 4, 1);
+      break;
+    case 'up':
+      // no face visible (back of head)
+      ctx.fillStyle = '#e6a800';
+      ctx.fillRect(sx + 8, sy + 4 + bob, 8, 5);
+      break;
+    case 'right':
+      ctx.fillRect(sx + 15, sy + 6 + bob, 2, 2);
+      ctx.fillRect(sx + 14, sy + 9 + bob, 3, 1);
+      break;
+    case 'left':
+      ctx.fillRect(sx + 7, sy + 6 + bob, 2, 2);
+      ctx.fillRect(sx + 7, sy + 9 + bob, 3, 1);
+      break;
+  }
+
+  // Hair
+  ctx.fillStyle = '#92400e';
+  ctx.fillRect(sx + 6, sy + 1 + bob, 12, 5);
+  ctx.fillRect(sx + 4, sy + 4 + bob, 3, 4);
+
+  // Name tag above player
+  if (player.name) {
+    ctx.save();
+    const label = player.name;
+    ctx.font = '600 10px Inter, sans-serif';
+    const tw = ctx.measureText(label).width + 10;
+    const tx = sx + 12 - tw / 2;
+    const ty = sy - 12;
+    ctx.fillStyle = 'rgba(9,25,48,0.88)';
+    ctx.fillRect(tx, ty, tw, 14);
+    ctx.fillStyle = '#93c5fd';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText(label, tx + 5, ty + 2);
+    ctx.restore();
+  }
+}
+
+// ── RENDER: ZONES (interaction hints) ─────────────────────────────
+let pulseT = 0;
+let activeZone = null;
+
+function renderZones() {
+  const pulse = 0.5 + 0.5 * Math.sin(pulseT * 3.5);
+  const px = player.x + 12, py = player.y + 12;
+
+  activeZone = null;
+  let minDist = Infinity;
+
+  for (const z of ZONES) {
+    const dist = Math.hypot(px - z.px, py - z.py);
+    const nearby = dist < z.r;
+
+    // Zone glow ring (visible from afar)
+    if (dist < z.r * 2.8) {
+      const alpha = nearby ? 0.14 : 0.05 * Math.max(0, 1 - (dist - z.r) / (z.r * 1.8));
+      ctx.fillStyle = `rgba(37,99,235,${alpha.toFixed(3)})`;
+      ctx.beginPath();
+      ctx.arc(z.px - cam.x, z.py - cam.y, z.r * 0.7, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    if (nearby && dist < minDist) { minDist = dist; activeZone = z; }
+  }
+
+  if (activeZone) {
+    const z = activeZone;
+    const sx = z.px - cam.x, sy = z.py - cam.y;
+    const bY = sy - 58;
+
+    // Pulsing "E" badge
+    const bR = 13 + pulse * 3.5;
+    ctx.save();
+    ctx.shadowColor = '#2563EB';
+    ctx.shadowBlur = 12 * pulse;
+    ctx.fillStyle = `rgba(37,99,235,${0.82 + pulse * 0.18})`;
+    ctx.beginPath();
+    ctx.arc(sx, bY, bR, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    ctx.fillStyle = '#fff';
+    ctx.font = `bold ${Math.round(bR * 0.9)}px Inter, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('E', sx, bY);
+
+    // Tooltip pill
+    ctx.font = '11px Inter, sans-serif';
+    const tipW = Math.min(240, ctx.measureText(z.tip).width + 22);
+    const tipH = 24;
+    const tipX = Math.max(6, Math.min(sx - tipW / 2, vw - tipW - 6));
+    const tipY = bY + bR + 6;
+
+    ctx.fillStyle = 'rgba(9,25,48,0.92)';
+    ctx.fillRect(tipX, tipY, tipW, tipH);
+    ctx.strokeStyle = 'rgba(37,99,235,0.5)';
+    ctx.lineWidth = 0.8;
+    ctx.strokeRect(tipX, tipY, tipW, tipH);
+
+    ctx.fillStyle = '#cbd5e1';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(z.tip, tipX + tipW / 2, tipY + tipH / 2, tipW - 12);
+
+    // Update HUD zone name
+    document.getElementById('hud-zone').textContent = z.name;
+  } else {
+    document.getElementById('hud-zone').textContent = '';
+  }
+}
+
+// ── RENDER: MINIMAP ────────────────────────────────────────────────
+function renderMinimap() {
+  const mx = vw - 90, my = vh - 70;
+  const mw = 80, mh = 60;
+  const scaleX = mw / WW, scaleY = mh / WH;
+
+  // Background
+  ctx.fillStyle = 'rgba(6,14,26,0.80)';
+  ctx.fillRect(mx, my, mw, mh);
+  ctx.strokeStyle = 'rgba(37,99,235,0.4)';
+  ctx.lineWidth = 0.8;
+  ctx.strokeRect(mx, my, mw, mh);
+
+  // Carpet zones (dots of color)
+  const miniZones = [
+    { c:8,  r:5,  w:18, h:10, color:'rgba(37,99,235,0.5)' },
+    { c:41, r:8,  w:7,  h:9,  color:'rgba(109,40,217,0.5)' },
+    { c:31, r:15, w:8,  h:7,  color:'rgba(5,150,105,0.5)' },
+    { c:21, r:19, w:11, h:8,  color:'rgba(217,119,6,0.5)' },
+    { c:36, r:20, w:9,  h:7,  color:'rgba(13,148,136,0.5)' },
+  ];
+  for (const z of miniZones) {
+    ctx.fillStyle = z.color;
+    ctx.fillRect(mx + z.c * TS * scaleX, my + z.r * TS * scaleY, z.w * TS * scaleX, z.h * TS * scaleY);
+  }
+
+  // Viewport rect
+  ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+  ctx.lineWidth = 0.6;
+  ctx.strokeRect(
+    mx + cam.x * scaleX, my + cam.y * scaleY,
+    vw * scaleX, vh * scaleY
+  );
+
+  // Player dot
+  ctx.fillStyle = '#f59e0b';
+  ctx.beginPath();
+  ctx.arc(mx + player.x * scaleX, my + player.y * scaleY, 2.5, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+// ── INTERACTIONS ───────────────────────────────────────────────────
+function checkInteract() {
+  if (activeZone && ACT()) {
+    triggerAction(activeZone.action);
+  }
+}
+
+// ── MODAL / INFO / TOAST ───────────────────────────────────────────
+let modalIsOpen = false, infoIsOpen = false;
+const modalEl    = document.getElementById('modal');
+const modalFrame = document.getElementById('modal-frame');
+const infoEl     = document.getElementById('info-modal');
+
+function openModal(url) {
+  modalFrame.src = url;
+  modalEl.classList.add('open');
+  modalIsOpen = true;
+}
+function closeModal() {
+  modalEl.classList.remove('open');
+  modalFrame.src = 'about:blank';
+  modalIsOpen = false;
+}
+function openInfo(title, body) {
+  document.getElementById('info-title').textContent = title;
+  document.getElementById('info-body').textContent = body;
+  infoEl.classList.add('open');
+  infoIsOpen = true;
+}
+function closeInfo() {
+  infoEl.classList.remove('open');
+  infoIsOpen = false;
+}
+function showToast(msg) {
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  document.getElementById('toast-wrap').prepend(el);
+  setTimeout(() => el.remove(), 3200);
+}
+function triggerAction(action) {
+  switch (action.type) {
+    case 'iframe':    openModal(action.url); break;
+    case 'external':  window.open(action.url, '_blank'); break;
+    case 'toast':     showToast(action.msg); break;
+    case 'info':      openInfo(action.title, action.body); break;
+    case 'events':    openEvents(); break;
+  }
+}
+
+// ── EVENTS CALENDAR (2026 SAP / EPI-USE) ───────────────────────────
+const EVENTS_2026 = [
+  { m:1,  d:'10-12', n:'NRF Retail',                                     lob:'Cloud',        who:'NRF / Valcann' },
+  { m:1,  d:'21',    n:'SAP Kickoff Partner Driven 2026',                lob:'Branding',     who:'SAP' },
+  { m:3,  d:'3-5',   n:'SAP BTP Experience',                             lob:'BTP',          who:'SAP' },
+  { m:3,  d:'12',    n:'CIO Cerrado · Reforma Tributária',               lob:'ERP',          who:'CIO Cerrado' },
+  { m:3,  d:'13',    n:'SAP Partner Kickoff (PKOM)',                     lob:'Branding',     who:'SAP' },
+  { m:3,  d:'16-18', n:'SAP Partner Summit',                             lob:'Cross',        who:'SAP' },
+  { m:3,  d:'17',    n:'HR Connect',                                     lob:'HCM',          who:'SAP' },
+  { m:4,  d:'9-11',  n:'CIO Meeting',                                    lob:'Cross',        who:'GGTIC / Valcann' },
+  { m:4,  d:'22-23', n:'EUBR Kick-Off FY27',                             lob:'Institucional',who:'EUBR' },
+  { m:4,  d:'23-24', n:'EUBR Sales Kick-Off FY27',                       lob:'Institucional',who:'EUBR' },
+  { m:5,  d:'11-14', n:'Vision WFS',                                     lob:'WFS',          who:'WFS / EUAM' },
+  { m:5,  d:'11-13', n:'SAP Sapphire',                                   lob:'Cross',        who:'SAP' },
+  { m:5,  d:'16',    n:'SAP Inside Track Goiânia',                       lob:'Cross',        who:'SAP / CIO Cerrado' },
+  { m:5,  d:'20',    n:'Almoço GGTIC (COM-MKT Synchro)',                 lob:'ERP',          who:'GGTIC / Synchro' },
+  { m:6,  d:'TBC',   n:'Mercado & Opinião — Jantar',                     lob:'Branding',     who:'SAP' },
+  { m:6,  d:'10',    n:'ASUG SIG · SAP S/4HANA',                         lob:'ERP',          who:'ASUG Brasil' },
+  { m:6,  d:'30',    n:'ASUG SIG · SuccessFactors',                      lob:'HCM',          who:'ASUG Brasil' },
+  { m:8,  d:'TBC',   n:'ServiceNow Summit',                              lob:'SN',           who:'ServiceNow' },
+  { m:8,  d:'12-16', n:'CIO Cerrado Experience',                         lob:'ERP',          who:'CIO Cerrado' },
+  { m:8,  d:'25',    n:'ASUG SIG · SuccessFactors',                      lob:'ERP',          who:'ASUG Brasil' },
+  { m:9,  d:'2-3',   n:'AWS Summit',                                     lob:'Cloud',        who:'Valcann' },
+  { m:9,  d:'3',     n:'ASUG SIG · SAP S/4HANA',                         lob:'HCM',          who:'ASUG Brasil' },
+  { m:9,  d:'9-10',  n:'SAP NOW',                                        lob:'Cross',        who:'SAP' },
+  { m:9,  d:'22-24', n:'SAP Transformation Excellence Summit (STES)',    lob:'BTM',          who:'SAP / EPI-USE Labs' },
+  { m:9,  d:'TBC',   n:'CIO Cerrado · Jantar de Negócio',                lob:'ERP',          who:'CIO Cerrado' },
+  { m:10, d:'TBC',   n:'Galáticos Open',                                 lob:'Branding',     who:'Fund. Fenômenos' },
+  { m:11, d:'1',     n:'Premiação CIO Cerrado Experience',               lob:'Cross',        who:'CIO Cerrado' },
+  { m:11, d:'TBC',   n:'Safari Tech 2026',                               lob:'Cross',        who:'EPI-USE / Valcann' },
+  { m:11, d:'25',    n:'ASUG SIG · SuccessFactors',                      lob:'HCM',          who:'ASUG Brasil' },
+  { m:12, d:'3',     n:'ASUG SIG · SAP S/4HANA',                         lob:'ERP',          who:'ASUG Brasil' },
+];
+const MES_NOMES = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
+
+let eventsRendered = false;
+function openEvents() {
+  renderEvents();   // sempre re-renderiza (cobre mudança de mês)
+  document.getElementById('events-modal').classList.add('open');
+  infoIsOpen = true;
+}
+function closeEvents() {
+  document.getElementById('events-modal').classList.remove('open');
+  infoIsOpen = false;
+}
+function renderMonthCard(m, classes) {
+  const evs = EVENTS_2026.filter(e => e.m === m);
+  const isEmpty = evs.length === 0;
+  const cls = [isEmpty ? 'empty' : '', classes].filter(Boolean).join(' ');
+  const isCurrent = classes && classes.includes('current');
+  const isPast = classes && classes.includes('passou');
+  let html = `<div class="em-month ${cls}">
+    <div class="em-month-h">
+      <span class="em-m-name">${MES_NOMES[m-1]}${isCurrent ? '<span class="em-current-badge">AGORA</span>' : ''}</span>
+      <span class="em-m-count">${isPast ? '<span class="em-passou-badge">passou</span>' : (evs.length + ' ' + (evs.length === 1 ? 'evento' : 'eventos'))}</span>
+    </div>`;
+  if (isEmpty) {
+    html += `<div class="em-event"><div class="em-info" style="color:#475569;font-style:italic">— sem eventos —</div></div>`;
+  } else {
+    for (const e of evs) {
+      const lobCls = `lob-${e.lob.replace(/[^A-Za-z]/g, '')}`;
+      html += `<div class="em-event">
+        <div class="em-date">${e.d}</div>
+        <div class="em-info">
+          <div class="em-name">${e.n}<span class="em-lob ${lobCls}">${e.lob}</span></div>
+          <div class="em-who">${e.who}</div>
+        </div>
+      </div>`;
+    }
+  }
+  return html + '</div>';
+}
+function renderEvents() {
+  const grid = document.getElementById('em-grid');
+  const today = new Date();
+  const cur = today.getMonth() + 1;          // mês atual 1-12
+  const start = Math.max(1, cur - 1);        // começa do mês passado
+  let html = '';
+  // 1) Meses primários: do mês passado em diante
+  for (let m = start; m <= 12; m++) {
+    html += renderMonthCard(m, m === cur ? 'current' : '');
+  }
+  // 2) Meses já passados (antes do mês passado) ao final
+  if (start > 1) {
+    html += `<div class="em-passou-divider">↓ Já passou neste ano ↓</div>`;
+    for (let m = 1; m < start; m++) {
+      html += renderMonthCard(m, 'passou');
+    }
+  }
+  grid.innerHTML = html;
+  eventsRendered = true;
+}
+document.getElementById('events-modal').addEventListener('click', e => {
+  if (e.target.id === 'events-modal') closeEvents();
+});
+
+// Close modals on backdrop click
+modalEl.addEventListener('click', e => { if (e.target === modalEl) closeModal(); });
+infoEl.addEventListener('click',  e => { if (e.target === infoEl)  closeInfo(); });
+
+// ── GAME LOOP ──────────────────────────────────────────────────────
+let lastTime = 0;
+let gameActive = false;
+
+function loop(ts) {
+  if (!gameActive) return;
+  const dt = Math.min((ts - lastTime) / 1000, 0.05);
+  lastTime = ts;
+  pulseT += dt;
+
+  updatePlayer(dt);
+  updateCamera(player.x, player.y, vw, vh);
+  checkInteract();
+  clearJust();
+
+  // Clear
+  ctx.fillStyle = '#060e1a';
+  ctx.fillRect(0, 0, vw, vh);
+
+  renderMap();
+  renderObjects();
+  renderAreaLabels();
+  renderZones();
+  renderPlayer();
+  renderMinimap();
+
+  requestAnimationFrame(loop);
+}
+
+// ── SPAWN GATE ANIMATION ───────────────────────────────────────────
+(function initSpawnAnim() {
+  const sc = document.getElementById('spawn-anim');
+  const sx = sc.getContext('2d');
+  let t = 0;
+
+  function frame() {
+    sx.clearRect(0, 0, 88, 88);
+
+    // Floor
+    sx.fillStyle = '#182438'; sx.fillRect(4, 44, 80, 40);
+    sx.strokeStyle = '#1f2d45'; sx.lineWidth = 0.4;
+    for (let i = 4; i < 84; i += 8) sx.strokeRect(i, 44, 8, 8);
+
+    // Desk
+    sx.fillStyle = '#1a3260'; sx.fillRect(16, 48, 56, 18);
+    sx.strokeStyle = '#2563eb'; sx.lineWidth = 1;
+    sx.strokeRect(16.5, 48.5, 55, 17);
+
+    // Monitor
+    sx.fillStyle = '#07100e'; sx.fillRect(28, 28, 32, 22);
+    sx.fillStyle = '#1e40af'; sx.fillRect(30, 30, 28, 18);
+    // Screen glow animation
+    const g = 0.5 + 0.5 * Math.sin(t * 2);
+    sx.fillStyle = `rgba(96,165,250,${0.25 + g * 0.45})`;
+    sx.fillRect(30, 30, 28, 18);
+    // EPI-USE logo pixel on screen
+    sx.fillStyle = 'rgba(255,255,255,0.7)';
+    sx.fillRect(38, 34, 12, 6);
+
+    // Character bob
+    const bob = Math.sin(t * 2.5) * 2;
+    // Body
+    sx.fillStyle = '#2563EB'; sx.fillRect(38, 52 + bob, 12, 8);
+    // Head
+    sx.fillStyle = '#fbbf24';
+    sx.beginPath(); sx.arc(44, 47 + bob, 6, 0, Math.PI * 2); sx.fill();
+
+    t += 0.04;
+    requestAnimationFrame(frame);
+  }
+  frame();
+})();
+
+// ── SPAWN GATE LOGIC ───────────────────────────────────────────────
+function enterOffice() {
+  const raw = document.getElementById('player-name').value.trim();
+  player.name = raw || 'Visitante';
+
+  document.getElementById('spawn').style.display = 'none';
+  document.getElementById('hud').classList.add('on');
+  document.getElementById('hud-user').textContent = '👤 ' + player.name;
+
+  gameActive = true;
+  lastTime = performance.now();
+  requestAnimationFrame(loop);
+
+  setTimeout(() => showToast(`🎉 Bem-vindo ao EPI-USE Office, ${player.name}!`), 400);
+  setTimeout(() => showToast('💡 Use WASD para mover e E para interagir com as baias.'), 1800);
+  setTimeout(() => showToast('🪪 Experimente o Profile Optimizer ao centro-direito do mapa!'), 3600);
+}
+
+document.getElementById('player-name').addEventListener('keydown', e => {
+  if (e.key === 'Enter') enterOffice();
+});
+</script>
+</body>
+</html>

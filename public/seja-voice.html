@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Press+Start+2P&display=swap" rel="stylesheet">
 <script defer data-domain="epiuse-voices-optimizer.up.railway.app" src="https://plausible.io/js/script.js"></script>
+<script type="module" src="/office-nav.js"></script>
+<script type="module" src="/office-footer.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -135,17 +137,9 @@ body {
 }
 </style>
 </head>
-<body>
+<body data-route="voices">
+<office-nav></office-nav>
 <div class="wrap">
-
-  <nav class="topnav">
-    <span class="topnav-logo">EPI-USE VOICES</span>
-    <div class="topnav-links">
-      <a href="/">🎮 Game</a>
-      <a href="/dashboard">📊 Dashboard</a>
-      <a href="/voices">🎙️ Voices</a>
-    </div>
-  </nav>
 
   <!-- HERO -->
   <section class="hero">
@@ -437,5 +431,6 @@ document.getElementById('seja-voice-form').addEventListener('submit', async (e) 
 
 loadData();
 </script>
+<office-footer></office-footer>
 </body>
 </html>

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel da Duda · EPI-USE Voices</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+<script defer data-domain="epiuse-voices-optimizer.up.railway.app" src="https://plausible.io/js/script.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0a1628; --bg-2: #0d1e36; --bg-3: #112540;
+  --bg-card: rgba(15, 30, 53, 0.6);
+  --border: rgba(37,99,235,0.18); --border-light: rgba(255,255,255,0.06); --border-active: rgba(37,99,235,0.5);
+  --text: #e2e8f0; --text-dim: #94a3b8; --text-muted: #64748b;
+  --primary: #2563EB; --primary-light: #60a5fa;
+  --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --info: #06b6d4; --purple: #a855f7;
+}
+html, body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
+body {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(217,119,6,0.10), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 100% 100%, rgba(37,99,235,0.06), transparent 60%),
+    var(--bg);
+  background-attachment: fixed;
+  padding: 24px 28px 48px;
+}
+.wrap { max-width: 1320px; margin: 0 auto; }
+
+/* HEADER */
+.hdr {
+  background: linear-gradient(135deg, rgba(15,30,53,0.7), rgba(10,22,40,0.7));
+  border: 1px solid var(--border); border-radius: 18px;
+  padding: 22px 28px; display: flex; align-items: center; justify-content: space-between;
+  gap: 24px; margin-bottom: 32px; position: relative; overflow: hidden;
+}
+.hdr::before { content: ''; position: absolute; inset: 0;
+  background: radial-gradient(circle at 0% 0%, rgba(217,119,6,0.12), transparent 50%); pointer-events: none; }
+.hdr-l { position: relative; z-index: 1; }
+.hdr-title { font-family: 'Press Start 2P', monospace; font-size: 18px; color: #f59e0b; letter-spacing: 0.04em; line-height: 1.5; }
+.hdr-sub { font-size: 11px; color: var(--text-muted); letter-spacing: 0.25em; margin-top: 6px; font-weight: 500; }
+.hdr-r { display: flex; align-items: center; gap: 10px; position: relative; z-index: 1; }
+.hdr-chip { font-size: 13px; color: var(--text-dim); background: rgba(255,255,255,0.04); border: 1px solid var(--border-light); padding: 6px 14px; border-radius: 20px; text-decoration: none; }
+.hdr-chip.online { color: var(--success); background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.3); display: flex; align-items: center; gap: 7px; }
+.hdr-chip.online::before { content: ''; width: 7px; height: 7px; background: var(--success); border-radius: 50%; box-shadow: 0 0 8px var(--success); animation: pulse 2s ease-in-out infinite; }
+.hdr-chip.link { color: #93c5fd; background: rgba(37,99,235,0.12); border-color: rgba(37,99,235,0.3); }
+.hdr-chip.link:hover { background: rgba(37,99,235,0.22); }
+@keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.7; transform:scale(0.92); } }
+
+/* SECTION HDR */
+.sec-hdr { display: flex; align-items: center; gap: 14px; margin: 0 0 14px; }
+.sec-hdr h2 { font-size: 11px; font-weight: 700; letter-spacing: 0.32em; color: var(--primary-light); text-transform: uppercase; }
+.sec-hdr .line { flex: 1; height: 1px; background: linear-gradient(90deg, var(--border), transparent); }
+
+/* KPI CARDS */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin-bottom: 32px; }
+.kpi-card { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 14px; padding: 18px 20px; backdrop-filter: blur(8px); position: relative; overflow: hidden; }
+.kpi-card.warn { border-color: rgba(245,158,11,0.3); background: linear-gradient(135deg, rgba(245,158,11,0.05), var(--bg-card)); }
+.kpi-card.ok { border-color: rgba(16,185,129,0.3); background: linear-gradient(135deg, rgba(16,185,129,0.05), var(--bg-card)); }
+.kpi-lbl { font-size: 10px; letter-spacing: 0.16em; color: var(--text-muted); text-transform: uppercase; font-weight: 700; }
+.kpi-val { font-family: 'Press Start 2P', monospace; font-size: 22px; color: var(--text); margin: 10px 0 4px; letter-spacing: 0.04em; }
+.kpi-val.warn { color: var(--warning); }
+.kpi-val.ok { color: var(--success); }
+.kpi-val.dim { color: var(--text-muted); font-size: 18px; }
+.kpi-sub { font-size: 11px; color: var(--text-muted); }
+.kpi-bar { height: 5px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden; margin-top: 10px; }
+.kpi-bar-fill { height: 100%; background: linear-gradient(90deg, var(--warning), #fbbf24); border-radius: 3px; }
+
+/* VOICES TABLE */
+.tbl-wrap { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 14px; overflow: hidden; margin-bottom: 32px; }
+.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.tbl thead { background: rgba(255,255,255,0.02); }
+.tbl th { padding: 12px 14px; text-align: left; font-size: 10px; letter-spacing: 0.14em; color: var(--text-muted); text-transform: uppercase; font-weight: 700; border-bottom: 1px solid var(--border-light); }
+.tbl td { padding: 14px; border-bottom: 1px solid var(--border-light); vertical-align: middle; }
+.tbl tr:last-child td { border-bottom: none; }
+.tbl tr:hover { background: rgba(255,255,255,0.02); }
+.tbl-name { font-weight: 700; color: var(--text); }
+.tbl-niche { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.chip { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 11px; white-space: nowrap; }
+.chip.piloto, .chip.onboarding { background: rgba(245,158,11,0.10); color: var(--warning); border: 1px solid rgba(245,158,11,0.3); }
+.chip.piloto::before, .chip.onboarding::before { content: ''; width: 6px; height: 6px; background: var(--warning); border-radius: 50%; }
+.chip.ativo { background: rgba(16,185,129,0.10); color: var(--success); border: 1px solid rgba(16,185,129,0.3); }
+.chip.ativo::before { content: ''; width: 6px; height: 6px; background: var(--success); border-radius: 50%; }
+.chip.kit-ok { background: rgba(16,185,129,0.10); color: var(--success); border: 1px solid rgba(16,185,129,0.25); font-size: 10px; }
+.chip.kit-no { background: rgba(148,163,184,0.08); color: var(--text-muted); border: 1px solid rgba(148,163,184,0.2); font-size: 10px; }
+.tbl-action { font-size: 12px; color: var(--primary-light); text-decoration: none; padding: 5px 10px; background: rgba(37,99,235,0.10); border-radius: 5px; }
+.tbl-action:hover { background: rgba(37,99,235,0.20); }
+.muted { color: var(--text-muted); font-size: 12px; }
+
+/* ALERTS */
+.alerts-wrap { display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 32px; }
+.alert { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 10px; padding: 13px 18px; display: flex; gap: 14px; align-items: flex-start; font-size: 13px; color: var(--text-dim); line-height: 1.5; }
+.alert::before { content: ''; width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.alert.warn::before { background: var(--warning); box-shadow: 0 0 6px var(--warning); }
+.alert.info::before { background: var(--primary); box-shadow: 0 0 6px var(--primary); }
+.alert.critical::before { background: var(--danger); box-shadow: 0 0 6px var(--danger); }
+.alert b { color: var(--text); }
+
+/* KANBAN FASES */
+.kanban { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; margin-bottom: 32px; }
+.fase-card { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 12px; padding: 16px 18px; }
+.fase-name { font-size: 12px; font-weight: 700; color: var(--primary-light); letter-spacing: 0.08em; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+.fase-prog { font-size: 11px; color: var(--text-muted); }
+.fase-item { display: flex; gap: 8px; align-items: flex-start; padding: 7px 0; font-size: 13px; color: var(--text-dim); }
+.fase-item input[type="checkbox"] { margin-top: 3px; flex-shrink: 0; accent-color: var(--success); cursor: pointer; }
+.fase-item label { cursor: pointer; flex: 1; }
+.fase-item.done label { color: var(--text-muted); text-decoration: line-through; }
+
+/* QUICK ACTIONS */
+.qa-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-bottom: 32px; }
+.qa-card { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 12px; padding: 16px 18px; text-decoration: none; color: var(--text); transition: transform .2s, border-color .2s; display: flex; gap: 14px; align-items: center; }
+.qa-card:hover { transform: translateY(-2px); border-color: var(--border-active); }
+.qa-icon { font-size: 24px; }
+.qa-body { flex: 1; min-width: 0; }
+.qa-title { font-size: 14px; font-weight: 700; }
+.qa-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+/* FOOTER */
+.foot { border-top: 1px solid var(--border-light); padding: 28px 0 8px; text-align: center; margin-top: 30px; }
+.foot-line { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
+.foot-line a { color: var(--primary-light); text-decoration: none; }
+.foot-meta { font-family: 'Press Start 2P', monospace; font-size: 9px; color: rgba(148,163,184,0.35); letter-spacing: 0.15em; margin-top: 16px; }
+
+/* LOADING/EMPTY */
+.empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+.spinner { width: 32px; height: 32px; border: 3px solid rgba(255,255,255,0.08); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 14px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 720px) {
+  .hdr { flex-direction: column; align-items: flex-start; }
+  body { padding: 14px; }
+  .tbl th:nth-child(n+5), .tbl td:nth-child(n+5) { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hdr">
+    <div class="hdr-l">
+      <div class="hdr-title">PAINEL DA DUDA</div>
+      <div class="hdr-sub">OPERAÇÃO · EPI-USE VOICES</div>
+    </div>
+    <div class="hdr-r">
+      <span class="hdr-chip" id="today">23 mai 2026</span>
+      <span class="hdr-chip online">Painel Ativo</span>
+      <a class="hdr-chip link" href="/">🎮 Game</a>
+      <a class="hdr-chip link" href="/dashboard">📊 Dashboard</a>
+    </div>
+  </header>
+
+  <!-- KPI GLOBAIS -->
+  <section>
+    <div class="sec-hdr"><h2>KPIs Globais</h2><div class="line"></div></div>
+    <div class="kpi-grid" id="kpi-grid">
+      <div class="empty-state" style="grid-column:1/-1"><div class="spinner"></div>Carregando dados…</div>
+    </div>
+  </section>
+
+  <!-- VOICES TABLE -->
+  <section>
+    <div class="sec-hdr"><h2>Voices · Pipeline Operacional</h2><div class="line"></div></div>
+    <div class="tbl-wrap">
+      <table class="tbl" id="voices-table">
+        <thead><tr>
+          <th>Voice</th><th>Status</th><th>Kit</th><th>Posts/mês</th><th>Meta</th><th>SSI</th><th>Último post</th><th>Pendência</th><th></th>
+        </tr></thead>
+        <tbody id="voices-tbody"><tr><td colspan="9" class="empty-state"><div class="spinner"></div>Carregando Voices…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ALERTAS -->
+  <section>
+    <div class="sec-hdr"><h2>Alertas & Pendências</h2><div class="line"></div></div>
+    <div class="alerts-wrap" id="alerts-wrap"></div>
+  </section>
+
+  <!-- KANBAN FASES -->
+  <section>
+    <div class="sec-hdr"><h2>Roadmap por Fases (checkboxes salvas localmente)</h2><div class="line"></div></div>
+    <div class="kanban" id="kanban"></div>
+  </section>
+
+  <!-- AÇÕES RÁPIDAS -->
+  <section>
+    <div class="sec-hdr"><h2>Ações Rápidas</h2><div class="line"></div></div>
+    <div class="qa-grid">
+      <a class="qa-card" href="/optimizer" target="_blank">
+        <div class="qa-icon">🪪</div>
+        <div class="qa-body"><div class="qa-title">Gerar kit p/ novo Voice</div><div class="qa-sub">Profile Optimizer</div></div>
+      </a>
+      <a class="qa-card" href="/seja-voice" target="_blank">
+        <div class="qa-icon">📨</div>
+        <div class="qa-body"><div class="qa-title">Recrutar Voice</div><div class="qa-sub">LP de inscrição</div></div>
+      </a>
+      <a class="qa-card" href="/voices" target="_blank">
+        <div class="qa-icon">🎙️</div>
+        <div class="qa-body"><div class="qa-title">Voice Agents</div><div class="qa-sub">Hub de cada Voice</div></div>
+      </a>
+      <a class="qa-card" href="https://erp.ngo" target="_blank">
+        <div class="qa-icon">🐘</div>
+        <div class="qa-body"><div class="qa-title">ERP.ngo</div><div class="qa-sub">Impacto social</div></div>
+      </a>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <div class="foot-line">Painel da Duda · v1.0 · maio/2026 &nbsp; | &nbsp; <a href="https://erp.ngo" target="_blank">🐘 ERP.ngo</a></div>
+    <div class="foot-meta">EPI-USE BRASIL · OPERAÇÃO VOICES · POWERED BY AI OFFICE ENGINE</div>
+  </footer>
+
+</div>
+
+<script>
+'use strict';
+// Date
+(function(){
+  const d = new Date(); const m=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  document.getElementById('today').textContent = `${d.getDate()} ${m[d.getMonth()]} ${d.getFullYear()}`;
+})();
+
+// Load data
+async function loadPainel() {
+  let data;
+  try {
+    const res = await fetch('/api/voices.json');
+    data = await res.json();
+  } catch (e) {
+    document.getElementById('kpi-grid').innerHTML = '<div class="empty-state" style="grid-column:1/-1">Erro ao carregar dados. <a href="/api/voices.json" style="color:#60a5fa">Ver JSON</a></div>';
+    console.error(e); return;
+  }
+
+  // ── KPIs ────────────────────────────────────────────────
+  const ativos = data.voices.length;
+  const meta = data.programa.vagas_total;
+  const pendentes = data.voices.filter(v => v.pendencia).length;
+  const semBaseline = data.voices.filter(v => v.ssi_baseline === null).length;
+  const postsMes = data.voices.reduce((s,v) => s + (v.posts_mes_atual||0), 0);
+  const metaPostsMes = data.programa.meta_posts_mes * ativos;
+  const ssiMedio = (() => {
+    const valid = data.voices.filter(v => v.ssi_baseline !== null);
+    if (!valid.length) return null;
+    return Math.round(valid.reduce((s,v)=>s+v.ssi_baseline,0) / valid.length);
+  })();
+  const alertasCount = (data.alertas||[]).length + (pendentes>0?0:0);
+
+  document.getElementById('kpi-grid').innerHTML = `
+    <div class="kpi-card ${ativos < meta ? 'warn' : 'ok'}">
+      <div class="kpi-lbl">Voices Ativos</div>
+      <div class="kpi-val ${ativos < meta ? 'warn' : 'ok'}">${ativos}/${meta}</div>
+      <div class="kpi-sub">${meta-ativos} vagas abertas</div>
+      <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${(ativos/meta*100)}%"></div></div>
+    </div>
+    <div class="kpi-card ${postsMes < metaPostsMes ? 'warn' : 'ok'}">
+      <div class="kpi-lbl">Posts no Mês</div>
+      <div class="kpi-val ${postsMes < metaPostsMes ? 'warn' : 'ok'}">${postsMes}/${metaPostsMes}</div>
+      <div class="kpi-sub">meta: 2/sem × Voice</div>
+      <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${Math.min(100,(postsMes/Math.max(1,metaPostsMes)*100))}%"></div></div>
+    </div>
+    <div class="kpi-card ${ssiMedio === null ? 'warn' : ''}">
+      <div class="kpi-lbl">SSI Médio do Grupo</div>
+      <div class="kpi-val ${ssiMedio === null ? 'dim' : ''}">${ssiMedio === null ? '—' : ssiMedio}</div>
+      <div class="kpi-sub">${ssiMedio === null ? 'baseline a coletar' : 'baseline registrado'}</div>
+    </div>
+    <div class="kpi-card ${alertasCount > 2 ? 'warn' : ''}">
+      <div class="kpi-lbl">Alertas Ativos</div>
+      <div class="kpi-val ${alertasCount > 2 ? 'warn' : ''}">${alertasCount}</div>
+      <div class="kpi-sub">${pendentes} Voice(s) com pendência</div>
+    </div>
+  `;
+
+  // ── Tabela de Voices ─────────────────────────────────────
+  const tb = document.getElementById('voices-tbody');
+  tb.innerHTML = data.voices.map(v => `
+    <tr>
+      <td>
+        <div class="tbl-name">${v.nome}</div>
+        <div class="tbl-niche">${v.nicho}</div>
+      </td>
+      <td><span class="chip ${v.status}">${v.status_label}</span></td>
+      <td><span class="chip ${v.kit_gerado ? 'kit-ok' : 'kit-no'}">${v.kit_gerado ? '✓ gerado' : '○ pendente'}</span></td>
+      <td><span class="muted">${v.posts_mes_atual||0}</span></td>
+      <td><span class="muted">${data.programa.meta_posts_mes*4}/mês</span></td>
+      <td><span class="muted">${v.ssi_baseline === null ? '—' : v.ssi_baseline}</span></td>
+      <td><span class="muted">${v.ultimo_post || '—'}</span></td>
+      <td><span class="muted">${v.pendencia || '—'}</span></td>
+      <td><a class="tbl-action" href="/voices?v=${v.id}" target="_blank">Abrir →</a></td>
+    </tr>
+  `).join('') + data.vagas_abertas.map(vg => `
+    <tr style="opacity:0.6">
+      <td>
+        <div class="tbl-name" style="color:#94a3b8">Vaga #${vg.numero}</div>
+        <div class="tbl-niche">${vg.nicho}</div>
+      </td>
+      <td><span class="chip" style="background:rgba(148,163,184,0.08);color:#94a3b8;border:1px solid rgba(148,163,184,0.2)">aberta</span></td>
+      <td colspan="5"><span class="muted">${vg.perfil_ideal}</span></td>
+      <td></td>
+      <td><a class="tbl-action" href="/seja-voice" target="_blank">Recrutar →</a></td>
+    </tr>
+  `).join('');
+
+  // ── Alertas ──────────────────────────────────────────────
+  document.getElementById('alerts-wrap').innerHTML = data.alertas.map(a => `
+    <div class="alert ${a.tipo}"><div>${a.msg.replace(/^([^:]+):/,'<b>$1:</b>')}</div></div>
+  `).join('');
+
+  // ── Kanban de Fases ─────────────────────────────────────
+  const lsKey = 'painel-fases-checks';
+  const checks = JSON.parse(localStorage.getItem(lsKey) || '{}');
+  const overrideDone = (item) => checks[item.id] !== undefined ? checks[item.id] : item.done;
+  document.getElementById('kanban').innerHTML = data.fases_roadmap.map(f => {
+    const total = f.itens.length;
+    const doneCount = f.itens.filter(i => overrideDone(i)).length;
+    return `<div class="fase-card">
+      <div class="fase-name">${f.nome}<span class="fase-prog">${doneCount}/${total}</span></div>
+      ${f.itens.map(i => `
+        <div class="fase-item ${overrideDone(i) ? 'done' : ''}">
+          <input type="checkbox" id="ck-${i.id}" data-id="${i.id}" ${overrideDone(i) ? 'checked' : ''}>
+          <label for="ck-${i.id}">${i.label}</label>
+        </div>
+      `).join('')}
+    </div>`;
+  }).join('');
+
+  // Hook checkbox events
+  document.querySelectorAll('#kanban input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', () => {
+      checks[cb.dataset.id] = cb.checked;
+      localStorage.setItem(lsKey, JSON.stringify(checks));
+      cb.closest('.fase-item').classList.toggle('done', cb.checked);
+      // recount
+      const card = cb.closest('.fase-card');
+      const total = card.querySelectorAll('input[type="checkbox"]').length;
+      const done = card.querySelectorAll('input[type="checkbox"]:checked').length;
+      card.querySelector('.fase-prog').textContent = `${done}/${total}`;
+    });
+  });
+}
+
+loadPainel();
+</script>
+</body>
+</html>

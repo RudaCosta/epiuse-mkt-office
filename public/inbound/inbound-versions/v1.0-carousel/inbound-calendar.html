@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>EUBR Inbound · Calendário Editorial</title>
+<link rel="stylesheet" href="inbound-shell.css" />
+<style>
+  /* ============ Layout ============ */
+  .toolbar {
+    display: flex; align-items: center; justify-content: space-between; gap: 24px;
+    padding: 12px 0 20px; border-bottom: 1px solid var(--d-border);
+    margin-bottom: 24px;
+  }
+  .toolbar .title-block h1 {
+    font-family: var(--eu-font-display); font-size: 36px; font-weight: 700; margin: 0;
+    color: var(--d-ink); letter-spacing: -.02em;
+  }
+  .toolbar .title-block h1 em { color: var(--d-accent); font-style: normal; }
+  .toolbar .title-block .sub {
+    font-size: 14px; color: var(--d-ink-2); margin-top: 4px;
+  }
+  .toolbar .nav-month {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .month-btn {
+    width: 32px; height: 32px; border-radius: 4px;
+    background: rgba(255,255,255,.04); border: 1px solid var(--d-border-2);
+    color: var(--d-ink); font-family: var(--eu-font-mono); font-size: 14px;
+    cursor: pointer; transition: all .15s;
+  }
+  .month-btn:hover { border-color: var(--d-accent); color: var(--d-accent); }
+  .month-label {
+    font-family: var(--eu-font-mono); font-size: 13px; font-weight: 700;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--d-accent);
+    min-width: 220px; text-align: center;
+  }
+
+  /* ============ Main grid ============ */
+  .cal-grid {
+    display: grid; grid-template-columns: 1fr 320px; gap: 20px;
+    align-items: start;
+  }
+
+  /* ============ Calendar ============ */
+  .cal {
+    background: var(--d-card); border: 1px solid var(--d-border);
+    border-radius: 10px; padding: 18px;
+  }
+  .weekdays {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px;
+    margin-bottom: 6px;
+  }
+  .weekdays div {
+    font-family: var(--eu-font-mono); font-size: 10px; font-weight: 700;
+    letter-spacing: .14em; text-transform: uppercase; color: var(--d-ink-3);
+    text-align: center; padding: 6px 0;
+  }
+  .days {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px;
+  }
+  .day {
+    background: rgba(0,0,0,.18); border: 1px solid var(--d-border);
+    border-radius: 6px; min-height: 110px;
+    padding: 8px; position: relative;
+    display: flex; flex-direction: column; gap: 4px;
+    transition: background .15s, border-color .15s;
+  }
+  .day.other { opacity: 0.35; }
+  .day.today { border-color: var(--d-accent); box-shadow: 0 0 0 1px var(--d-accent) inset; }
+  .day.weekend { background: rgba(0,0,0,.32); }
+  .day.drop-target { background: rgba(91, 188, 235, .14); border-color: var(--d-accent); }
+  .day-num {
+    font-family: var(--eu-font-mono); font-size: 11px; font-weight: 700;
+    color: var(--d-ink-2); letter-spacing: .04em;
+  }
+  .day.today .day-num { color: var(--d-accent); }
+  .day-num .lbl {
+    font-size: 9px; color: var(--d-ink-3); margin-left: 4px; text-transform: uppercase;
+  }
+  .day .post {
+    background: var(--eu-navy); color: #fff;
+    border-radius: 4px; padding: 5px 7px;
+    font-size: 11px; line-height: 1.25;
+    cursor: grab; user-select: none;
+    border-left: 3px solid var(--d-accent);
+    display: flex; align-items: center; gap: 5px;
+    transition: transform .15s;
+  }
+  .day .post:active { cursor: grabbing; }
+  .day .post.dragging { opacity: .4; transform: scale(.96); }
+  .day .post .lob-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .day .post .ttl { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .day .post .cat-mark {
+    font-family: var(--eu-font-mono); font-size: 8px; font-weight: 700;
+    letter-spacing: .04em; color: rgba(255,255,255,.6); flex-shrink: 0;
+  }
+  .day .add-btn {
+    margin-top: auto; align-self: flex-start;
+    font-family: var(--eu-font-mono); font-size: 9px; font-weight: 700;
+    letter-spacing: .08em; color: var(--d-ink-3);
+    background: transparent; border: 1px dashed var(--d-border-2);
+    border-radius: 3px; padding: 2px 6px; cursor: pointer;
+    text-transform: uppercase; transition: all .15s;
+  }
+  .day .add-btn:hover { color: var(--d-accent); border-color: var(--d-accent); }
+  .day:hover .add-btn { color: var(--d-ink-2); border-color: var(--d-border-2); }
+
+  /* ============ Right panel — balance & forms ============ */
+  .side-panel { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 72px; }
+  .side-card {
+    background: var(--d-card); border: 1px solid var(--d-border);
+    border-radius: 10px; padding: 20px;
+  }
+  .side-card h3 {
+    font-family: var(--eu-font-mono); font-size: 11px; font-weight: 700;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--d-accent);
+    margin: 0 0 16px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .side-card h3 .meta { color: var(--d-ink-3); font-weight: 600; }
+
+  /* balance bars */
+  .bal { display: flex; flex-direction: column; gap: 8px; }
+  .bal-row {
+    display: grid; grid-template-columns: 100px 1fr 24px; align-items: center; gap: 10px;
+    font-size: 11px;
+  }
+  .bal-row .name { color: var(--d-ink); font-weight: 600; }
+  .bal-row .track { height: 6px; background: rgba(255,255,255,.06); border-radius: 3px; overflow: hidden; }
+  .bal-row .fill { height: 100%; border-radius: 3px; }
+  .bal-row .v {
+    font-family: var(--eu-font-mono); font-size: 11px; font-weight: 700;
+    text-align: right; color: var(--d-ink-2);
+  }
+  .bal-row.warn .v { color: var(--d-warn); }
+  .bal-row.ok .v { color: var(--d-ok); }
+
+  /* legend */
+  .legend { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--d-ink-2); }
+  .legend-item .sw { width: 12px; height: 12px; border-radius: 3px; }
+
+  /* alerts */
+  .alert {
+    background: rgba(245, 187, 92, .08);
+    border: 1px solid rgba(245, 187, 92, .25);
+    border-radius: 6px; padding: 10px 12px;
+    font-size: 12px; line-height: 1.45; color: var(--d-ink);
+    margin-bottom: 8px;
+  }
+  .alert::before { content: "⚠ "; color: var(--d-warn); font-weight: 700; }
+  .alert.ok {
+    background: rgba(77, 230, 130, .08);
+    border-color: rgba(77, 230, 130, .25);
+  }
+  .alert.ok::before { content: "✓ "; color: var(--d-ok); }
+
+  /* modal */
+  .modal-bg {
+    position: fixed; inset: 0; background: rgba(0,0,0,.7);
+    z-index: 200; display: none; align-items: center; justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  .modal-bg.open { display: flex; }
+  .modal {
+    background: var(--d-card); border: 1px solid var(--d-border-2);
+    border-radius: 10px; padding: 28px;
+    width: 520px; max-width: 92vw;
+    box-shadow: 0 30px 80px rgba(0,0,0,.5);
+  }
+  .modal h3 {
+    font-family: var(--eu-font-display); font-size: 22px; font-weight: 700;
+    margin: 0 0 16px; color: var(--d-ink); letter-spacing: -.01em;
+  }
+  .modal .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .modal-actions {
+    display: flex; justify-content: space-between; gap: 12px;
+    margin-top: 8px; padding-top: 16px; border-top: 1px solid var(--d-border);
+  }
+  .modal-actions .left { display: flex; gap: 8px; }
+</style>
+</head>
+<body data-tab="calendar">
+
+<!-- ============ NAV ============ -->
+<nav class="inbound-nav">
+  <a class="brand" href="/inbound">
+    <span class="logomark">EPI-USE</span>
+    <span class="lbl"><b>Inbound Engine</b>v1.0 · marketing / revops</span>
+  </a>
+  <div class="tabs">
+    <a href="/inbound" data-tab-id="hub"><span class="ico">⌂</span> Hub</a>
+    <a href="/inbound/brief" data-tab-id="brief"><span class="ico">✎</span> Brief→Post</a>
+    <a href="/inbound/calendar" data-tab-id="calendar"><span class="ico">▦</span> Calendar</a>
+    <a href="/inbound/studio" data-tab-id="studio"><span class="ico">◇</span> Studio</a>
+    <a href="EUBR Inbound Playbook.html" data-tab-id="playbook"><span class="ico">▤</span> Playbook</a>
+  </div>
+  <div class="right">
+    <span class="pill ok">Auto-save</span>
+    <a class="back" href="/">← Office</a>
+  </div>
+</nav>
+
+<main class="inbound-page" style="max-width: 1600px;">
+
+  <div class="toolbar">
+    <div class="title-block">
+      <div class="section-label" style="margin: 0 0 8px;">Tool 02 · Planning</div>
+      <h1>Calendário <em>Editorial</em></h1>
+      <div class="sub">Arraste posts entre dias. Balance bar mostra distribuição de LOBs e categorias no mês.</div>
+    </div>
+    <div class="nav-month">
+      <button class="btn btn--ghost" id="btn-add">+ Novo post</button>
+      <div style="width: 1px; height: 28px; background: var(--d-border); margin: 0 8px;"></div>
+      <button class="month-btn" id="prev">‹</button>
+      <span class="month-label" id="month-label">Maio · 2026</span>
+      <button class="month-btn" id="next">›</button>
+      <button class="month-btn" id="today" title="Hoje" style="width:auto; padding: 0 10px;">Hoje</button>
+    </div>
+  </div>
+
+  <div class="cal-grid">
+
+    <!-- ====== CALENDAR ====== -->
+    <div class="cal">
+      <div class="weekdays">
+        <div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div><div>Dom</div>
+      </div>
+      <div class="days" id="days"></div>
+    </div>
+
+    <!-- ====== SIDE PANEL ====== -->
+    <aside class="side-panel">
+
+      <div class="side-card">
+        <h3>Saúde do mês <span class="meta" id="month-count">0 posts</span></h3>
+        <div id="alerts"></div>
+      </div>
+
+      <div class="side-card">
+        <h3>Balanço · LOB</h3>
+        <div class="bal" id="bal-lob"></div>
+      </div>
+
+      <div class="side-card">
+        <h3>Balanço · Categoria</h3>
+        <div class="bal" id="bal-cat"></div>
+      </div>
+
+      <div class="side-card">
+        <h3>Legenda</h3>
+        <div class="legend" id="legend"></div>
+      </div>
+
+      <div class="side-card" style="background: rgba(91, 188, 235, .05);">
+        <h3>Próximas integrações</h3>
+        <ul style="margin: 0; padding-left: 18px; font-size: 12px; line-height: 1.5; color: var(--d-ink-2);">
+          <li>Sync com SharePoint da Comunicação</li>
+          <li>Export ICS / CSV</li>
+          <li>Importar do Plausible (engajamento real)</li>
+          <li>Sugerir slot ótimo via Claude</li>
+        </ul>
+      </div>
+
+    </aside>
+
+  </div>
+
+</main>
+
+<!-- modal de novo post -->
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <h3 id="modal-title">Novo post</h3>
+    <div class="field">
+      <label>Título / headline curto</label>
+      <input type="text" id="m-title" placeholder="Ex: Case Drogaria Venancio — go-live" />
+    </div>
+    <div class="row-2">
+      <div class="field">
+        <label>Data</label>
+        <input type="date" id="m-date" />
+      </div>
+      <div class="field">
+        <label>Categoria</label>
+        <select id="m-cat">
+          <option value="case">Case de Sucesso</option>
+          <option value="event">Evento / Feira</option>
+          <option value="award">Premiação</option>
+          <option value="kickoff">Kickoff / Go-Live</option>
+          <option value="product">Carrossel Produto</option>
+          <option value="video">Vídeo</option>
+          <option value="inst">Institucional / GE</option>
+        </select>
+      </div>
+    </div>
+    <div class="row-2">
+      <div class="field">
+        <label>LOB</label>
+        <select id="m-lob">
+          <option value="sfsf">HCM · SuccessFactors</option>
+          <option value="erp">Cloud ERP</option>
+          <option value="btm">BTP</option>
+          <option value="sig">Signavio</option>
+          <option value="sn">ServiceNow</option>
+          <option value="wfs">Workforce</option>
+          <option value="cloud">Cloud · AWS</option>
+          <option value="inst">Institucional</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Owner</label>
+        <input type="text" id="m-owner" placeholder="Marlison · Lisiane · Gui…" />
+      </div>
+    </div>
+    <div class="field">
+      <label>Notas (opcional)</label>
+      <textarea id="m-notes" placeholder="Quem compartilha? Texto pronto? Aprovado pelo cliente?"></textarea>
+    </div>
+    <div class="modal-actions">
+      <div class="left">
+        <button class="btn btn--ghost" id="m-delete" style="display:none;">Excluir</button>
+      </div>
+      <div style="display:flex; gap: 10px;">
+        <button class="btn btn--ghost" id="m-cancel">Cancelar</button>
+        <button class="btn btn--primary" id="m-save">Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ===== nav active =====
+  (function(){
+    var t = document.body.dataset.tab;
+    if (!t) return;
+    var a = document.querySelector('[data-tab-id="' + t + '"]');
+    if (a) a.classList.add('active');
+  })();
+
+  // ===== LOB & category maps =====
+  var LOB_MAP = {
+    sfsf:  { name:'HCM',  color:'#FFC700', label:'HCM' },
+    erp:   { name:'ERP',  color:'#5BBCEB', label:'CLOUD ERP' },
+    btm:   { name:'BTP',  color:'#B6238D', label:'BTP' },
+    sig:   { name:'SIG',  color:'#00857C', label:'SIGNAVIO' },
+    sn:    { name:'SN',   color:'#62BE5C', label:'SERVICENOW' },
+    wfs:   { name:'WFS',  color:'#C8262E', label:'WORKFORCE' },
+    cloud: { name:'CLD',  color:'#F5841F', label:'CLOUD' },
+    inst:  { name:'INST', color:'#E2E8F4', label:'INSTITUCIONAL' }
+  };
+  var CAT_MAP = {
+    case:'Case', event:'Evento', award:'Award',
+    kickoff:'Kickoff', product:'Carrossel', video:'Vídeo', inst:'Institucional'
+  };
+  var CAT_TARGETS = { // target posts per category per month
+    case: 4, event: 2, award: 1, kickoff: 2, product: 3, video: 4, inst: 2
+  };
+
+  // ===== seed posts (replace with real data later) =====
+  var SEED = [
+    { id:'p1', date:'2026-05-26', cat:'kickoff', lob:'erp',  title:'Case Drogaria Venancio — go-live', owner:'Marlison', notes:'Share pelo Sales Manager' },
+    { id:'p2', date:'2026-05-28', cat:'product', lob:'sfsf', title:'5 ways HR ensures AI succeeds',     owner:'Lisiane',  notes:'Adapt BR da matriz' },
+    { id:'p3', date:'2026-06-03', cat:'event',   lob:'inst', title:'SAP NOW 2026 — convite',            owner:'Isabela',  notes:'Stand parceiro' },
+    { id:'p4', date:'2026-06-10', cat:'video',   lob:'sig',  title:'Process mapping em 8 semanas',      owner:'Bruna',    notes:'Depoimento Diretor' },
+    { id:'p5', date:'2026-05-14', cat:'event',   lob:'erp',  title:'SAP Inside Track Goiânia',           owner:'Rudá',     notes:'Anúncio prévio' },
+    { id:'p6', date:'2026-05-12', cat:'event',   lob:'wfs',  title:'Vision WFS · Salt Lake recap',       owner:'Marlison', notes:'' },
+    { id:'p7', date:'2026-05-20', cat:'case',    lob:'sfsf', title:'Embraer · ciclo de avaliação',       owner:'Lisiane',  notes:'Carrossel · número 38%' },
+    { id:'p8', date:'2026-06-17', cat:'product', lob:'btm',  title:'Joule Studio — overview',           owner:'Gui',      notes:'' },
+    { id:'p9', date:'2026-06-24', cat:'inst',    lob:'inst', title:'ERP.ngo · 1% do faturamento',       owner:'Duda',     notes:'Beyond Corporate Purpose' }
+  ];
+
+  // ===== state =====
+  var posts = [];
+  function load(){
+    var raw = localStorage.getItem('inbound.calendar');
+    posts = raw ? JSON.parse(raw) : SEED.slice();
+  }
+  function save(){
+    localStorage.setItem('inbound.calendar', JSON.stringify(posts));
+  }
+  load();
+
+  // ===== current month state =====
+  // anchor to May 2026 (we're "today = 24 mai 2026")
+  var current = { y: 2026, m: 4 }; // 0-indexed → May
+
+  function monthName(m){
+    return ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'][m];
+  }
+  function fmtDate(y,m,d){
+    return y + '-' + String(m+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+  }
+  function parseDate(s){
+    var p = s.split('-');
+    return { y: +p[0], m: +p[1]-1, d: +p[2] };
+  }
+
+  // ===== render calendar =====
+  function render(){
+    document.getElementById('month-label').textContent = monthName(current.m) + ' · ' + current.y;
+    var grid = document.getElementById('days');
+    grid.innerHTML = '';
+
+    var first = new Date(current.y, current.m, 1);
+    // monday-first index: getDay() returns 0=Sun → convert to 0=Mon
+    var startCol = (first.getDay() + 6) % 7;
+
+    var daysInMonth = new Date(current.y, current.m + 1, 0).getDate();
+    var prevDays = new Date(current.y, current.m, 0).getDate();
+    // also pad end so we have 6 rows
+    var cells = startCol + daysInMonth;
+    var rows = Math.ceil(cells / 7);
+    var totalCells = rows * 7;
+
+    var today = new Date();
+    // Force "today" to be May 24, 2026 (matches the system info)
+    today = new Date(2026, 4, 24);
+
+    for (var i=0; i<totalCells; i++) {
+      var dnum, dy, dm, isOther = false;
+      if (i < startCol) {
+        dnum = prevDays - (startCol - i - 1);
+        var p = current.m === 0 ? { y: current.y - 1, m: 11 } : { y: current.y, m: current.m - 1 };
+        dy = p.y; dm = p.m; isOther = true;
+      } else if (i >= startCol + daysInMonth) {
+        dnum = i - (startCol + daysInMonth) + 1;
+        var n = current.m === 11 ? { y: current.y + 1, m: 0 } : { y: current.y, m: current.m + 1 };
+        dy = n.y; dm = n.m; isOther = true;
+      } else {
+        dnum = i - startCol + 1;
+        dy = current.y; dm = current.m;
+      }
+
+      var dow = (i % 7);
+      var isWeekend = (dow === 5 || dow === 6);
+      var iso = fmtDate(dy, dm, dnum);
+      var isToday = (dy === today.getFullYear() && dm === today.getMonth() && dnum === today.getDate());
+
+      var dayPosts = posts.filter(function(p){ return p.date === iso; });
+
+      var classes = ['day'];
+      if (isOther) classes.push('other');
+      if (isWeekend) classes.push('weekend');
+      if (isToday) classes.push('today');
+
+      var div = document.createElement('div');
+      div.className = classes.join(' ');
+      div.dataset.iso = iso;
+      div.innerHTML =
+        '<div class="day-num">' + String(dnum).padStart(2,'0') + (isToday ? ' <span class="lbl">hoje</span>' : '') + '</div>';
+
+      dayPosts.forEach(function(p){
+        var lob = LOB_MAP[p.lob] || { color:'#888', label:'?' };
+        var post = document.createElement('div');
+        post.className = 'post';
+        post.dataset.id = p.id;
+        post.draggable = true;
+        post.style.borderLeftColor = lob.color;
+        post.innerHTML =
+          '<span class="lob-dot" style="background:'+lob.color+'"></span>'+
+          '<span class="ttl">'+ escapeHtml(p.title) +'</span>'+
+          '<span class="cat-mark">'+ (CAT_MAP[p.cat]||'').slice(0,3).toUpperCase() +'</span>';
+        post.addEventListener('click', function(e){ e.stopPropagation(); editPost(p.id); });
+        post.addEventListener('dragstart', function(e){
+          e.dataTransfer.setData('text/plain', p.id);
+          e.dataTransfer.effectAllowed = 'move';
+          post.classList.add('dragging');
+        });
+        post.addEventListener('dragend', function(){ post.classList.remove('dragging'); });
+        div.appendChild(post);
+      });
+
+      var addBtn = document.createElement('button');
+      addBtn.className = 'add-btn';
+      addBtn.textContent = '+ post';
+      addBtn.addEventListener('click', function(){ openModal(null, iso); });
+      div.appendChild(addBtn);
+
+      // drop target
+      div.addEventListener('dragover', function(e){ e.preventDefault(); div.classList.add('drop-target'); });
+      div.addEventListener('dragleave', function(){ div.classList.remove('drop-target'); });
+      div.addEventListener('drop', function(e){
+        e.preventDefault();
+        div.classList.remove('drop-target');
+        var id = e.dataTransfer.getData('text/plain');
+        var post = posts.find(function(p){ return p.id === id; });
+        if (post) {
+          post.date = iso;
+          save(); render();
+        }
+      });
+
+      grid.appendChild(div);
+    }
+
+    renderSidePanel();
+  }
+
+  function escapeHtml(s){
+    return String(s||'').replace(/[&<>"]/g, function(c){
+      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c];
+    });
+  }
+
+  // ===== side panel =====
+  function renderSidePanel(){
+    var monthPosts = posts.filter(function(p){
+      var d = parseDate(p.date);
+      return d.y === current.y && d.m === current.m;
+    });
+
+    document.getElementById('month-count').textContent = monthPosts.length + ' posts';
+
+    // alerts
+    var alertsHtml = '';
+    var lobCounts = {};
+    var catCounts = {};
+    monthPosts.forEach(function(p){
+      lobCounts[p.lob] = (lobCounts[p.lob]||0) + 1;
+      catCounts[p.cat] = (catCounts[p.cat]||0) + 1;
+    });
+
+    if (monthPosts.length === 0) {
+      alertsHtml += '<div class="alert">Nenhum post agendado neste mês.</div>';
+    } else {
+      if (monthPosts.length < 8) alertsHtml += '<div class="alert">Menos de 8 posts no mês — meta é 8-12.</div>';
+      if (monthPosts.length > 14) alertsHtml += '<div class="alert">Mais de 14 posts no mês — risco de saturação.</div>';
+
+      // LOBs sub-representados
+      var underLobs = ['sfsf','erp','btm','sig','sn','wfs','inst'].filter(function(l){
+        return (lobCounts[l]||0) === 0;
+      });
+      if (underLobs.length > 2) {
+        alertsHtml += '<div class="alert">'+ underLobs.length +' LOBs sem nenhum post: '+ underLobs.map(function(l){ return LOB_MAP[l]?.name; }).join(', ') +'.</div>';
+      }
+
+      // categoria balance
+      if (!catCounts.case && monthPosts.length > 5) alertsHtml += '<div class="alert">Mês sem case de sucesso — a categoria com mais engajamento.</div>';
+      if ((catCounts.product||0) > monthPosts.length / 2) alertsHtml += '<div class="alert">Mais de 50% são carrosséis — falta variedade.</div>';
+
+      if (!alertsHtml) alertsHtml = '<div class="alert ok">Mês balanceado. Boa cadência editorial.</div>';
+    }
+    document.getElementById('alerts').innerHTML = alertsHtml;
+
+    // LOB bars
+    var lobHtml = '';
+    var maxLob = Math.max(1, ...Object.values(lobCounts), 4);
+    ['sfsf','erp','btm','sig','sn','wfs','inst'].forEach(function(lob){
+      var l = LOB_MAP[lob];
+      var n = lobCounts[lob] || 0;
+      var pct = Math.round((n / maxLob) * 100);
+      var cls = '';
+      if (n === 0 && monthPosts.length > 4) cls = 'warn';
+      else if (n >= 2) cls = 'ok';
+      lobHtml +=
+        '<div class="bal-row '+cls+'">'+
+        '<div class="name">'+ l.name +'</div>'+
+        '<div class="track"><div class="fill" style="width:'+pct+'%; background:'+l.color+'"></div></div>'+
+        '<div class="v">'+ n +'</div>'+
+        '</div>';
+    });
+    document.getElementById('bal-lob').innerHTML = lobHtml;
+
+    // Category bars
+    var catHtml = '';
+    Object.keys(CAT_MAP).forEach(function(cat){
+      var n = catCounts[cat] || 0;
+      var target = CAT_TARGETS[cat] || 2;
+      var pct = Math.min(100, Math.round((n / target) * 100));
+      var cls = '';
+      if (n === 0) cls = 'warn';
+      else if (n >= target) cls = 'ok';
+      catHtml +=
+        '<div class="bal-row '+cls+'">'+
+        '<div class="name">'+ CAT_MAP[cat] +'</div>'+
+        '<div class="track"><div class="fill" style="width:'+pct+'%; background: var(--d-accent);"></div></div>'+
+        '<div class="v">'+ n +'/'+ target +'</div>'+
+        '</div>';
+    });
+    document.getElementById('bal-cat').innerHTML = catHtml;
+
+    // legend
+    var legendHtml = '';
+    Object.keys(LOB_MAP).forEach(function(lob){
+      var l = LOB_MAP[lob];
+      legendHtml += '<div class="legend-item"><span class="sw" style="background:'+l.color+'"></span>'+ l.name +'</div>';
+    });
+    document.getElementById('legend').innerHTML = legendHtml;
+  }
+
+  // ===== modal =====
+  var modal = document.getElementById('modal');
+  var editingId = null;
+  function openModal(id, defaultDate){
+    editingId = id;
+    if (id) {
+      var p = posts.find(function(x){ return x.id === id; });
+      if (!p) return;
+      document.getElementById('modal-title').textContent = 'Editar post';
+      document.getElementById('m-title').value = p.title;
+      document.getElementById('m-date').value = p.date;
+      document.getElementById('m-cat').value = p.cat;
+      document.getElementById('m-lob').value = p.lob;
+      document.getElementById('m-owner').value = p.owner || '';
+      document.getElementById('m-notes').value = p.notes || '';
+      document.getElementById('m-delete').style.display = '';
+    } else {
+      document.getElementById('modal-title').textContent = 'Novo post';
+      document.getElementById('m-title').value = '';
+      document.getElementById('m-date').value = defaultDate || fmtDate(current.y, current.m, 15);
+      document.getElementById('m-cat').value = 'case';
+      document.getElementById('m-lob').value = 'sfsf';
+      document.getElementById('m-owner').value = '';
+      document.getElementById('m-notes').value = '';
+      document.getElementById('m-delete').style.display = 'none';
+    }
+    modal.classList.add('open');
+    setTimeout(function(){ document.getElementById('m-title').focus(); }, 50);
+  }
+  function closeModal(){ modal.classList.remove('open'); }
+  function editPost(id){ openModal(id); }
+
+  document.getElementById('btn-add').addEventListener('click', function(){
+    openModal(null, fmtDate(current.y, current.m, 15));
+  });
+  document.getElementById('m-cancel').addEventListener('click', closeModal);
+  modal.addEventListener('click', function(e){ if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeModal(); });
+
+  document.getElementById('m-save').addEventListener('click', function(){
+    var title = document.getElementById('m-title').value.trim();
+    if (!title) { alert('Adicione um título.'); return; }
+    var data = {
+      title: title,
+      date: document.getElementById('m-date').value,
+      cat: document.getElementById('m-cat').value,
+      lob: document.getElementById('m-lob').value,
+      owner: document.getElementById('m-owner').value.trim(),
+      notes: document.getElementById('m-notes').value.trim()
+    };
+    if (editingId) {
+      var p = posts.find(function(x){ return x.id === editingId; });
+      Object.assign(p, data);
+    } else {
+      data.id = 'p' + Date.now();
+      posts.push(data);
+    }
+    save(); render(); closeModal();
+  });
+  document.getElementById('m-delete').addEventListener('click', function(){
+    if (!editingId) return;
+    if (!confirm('Excluir este post?')) return;
+    posts = posts.filter(function(x){ return x.id !== editingId; });
+    save(); render(); closeModal();
+  });
+
+  // ===== month navigation =====
+  document.getElementById('prev').addEventListener('click', function(){
+    current.m--; if (current.m < 0) { current.m = 11; current.y--; }
+    render();
+  });
+  document.getElementById('next').addEventListener('click', function(){
+    current.m++; if (current.m > 11) { current.m = 0; current.y++; }
+    render();
+  });
+  document.getElementById('today').addEventListener('click', function(){
+    current = { y: 2026, m: 4 };
+    render();
+  });
+
+  render();
+</script>
+
+</body>
+</html>

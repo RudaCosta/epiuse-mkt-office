@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Changelog · EPI-USE Office</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+<script defer data-domain="epiuse-voices-optimizer.up.railway.app" src="https://plausible.io/js/script.js"></script>
+<script type="module" src="/office-nav.js"></script>
+<script type="module" src="/office-footer.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0a1628; --bg-card: rgba(15, 30, 53, 0.6);
+  --border: rgba(37,99,235,0.18); --border-light: rgba(255,255,255,0.06);
+  --text: #e2e8f0; --text-dim: #94a3b8; --text-muted: #64748b;
+  --primary: #2563EB; --primary-light: #60a5fa;
+  --success: #10b981; --warning: #f59e0b;
+}
+html, body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
+body {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(37,99,235,0.10), transparent 60%),
+    var(--bg);
+  background-attachment: fixed;
+}
+.wrap { max-width: 880px; margin: 0 auto; padding: 32px 28px 48px; }
+.page-head { text-align: center; margin-bottom: 44px; }
+.page-eyebrow { font-size: 11px; letter-spacing: 0.28em; color: var(--primary-light); text-transform: uppercase; font-weight: 700; margin-bottom: 8px; }
+.page-h1 { font-family: 'Press Start 2P', monospace; font-size: 22px; color: var(--text); letter-spacing: 0.04em; line-height: 1.5; margin-bottom: 12px; }
+.page-sub { font-size: 14px; color: var(--text-dim); max-width: 540px; margin: 0 auto; line-height: 1.55; }
+
+.timeline { position: relative; padding-left: 36px; }
+.timeline::before {
+  content: ''; position: absolute; left: 11px; top: 8px; bottom: 8px; width: 2px;
+  background: linear-gradient(to bottom, var(--border), transparent);
+}
+.entry {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+  transition: border-color .2s;
+}
+.entry:hover { border-color: var(--border); }
+.entry::before {
+  content: '';
+  position: absolute;
+  left: -32px;
+  top: 22px;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 2px solid var(--primary);
+}
+.entry.current::before { background: var(--success); border-color: var(--success); box-shadow: 0 0 8px var(--success); }
+.entry-head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
+.ver-tag { font-family: 'Press Start 2P', monospace; font-size: 11px; color: var(--primary-light); background: rgba(37,99,235,0.10); border: 1px solid rgba(37,99,235,0.3); padding: 5px 10px; border-radius: 5px; letter-spacing: 0.04em; }
+.ver-tag.current { color: var(--success); background: rgba(16,185,129,0.10); border-color: rgba(16,185,129,0.3); }
+.entry-date { font-size: 12px; color: var(--text-muted); }
+.entry-status { font-size: 11px; padding: 3px 9px; border-radius: 10px; font-weight: 600; }
+.status-live { background: rgba(16,185,129,0.10); color: var(--success); border: 1px solid rgba(16,185,129,0.3); }
+.status-local { background: rgba(245,158,11,0.10); color: var(--warning); border: 1px solid rgba(245,158,11,0.3); }
+.status-broken { background: rgba(239,68,68,0.10); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+.entry-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+.entry-body { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+.entry-body ul { padding-left: 18px; margin: 6px 0; }
+.entry-body li { margin: 3px 0; }
+.entry-body code { background: rgba(255,255,255,0.05); padding: 1px 5px; border-radius: 3px; font-size: 11px; }
+.entry-link { display: inline-block; margin-top: 12px; font-size: 12px; color: var(--primary-light); text-decoration: none; padding: 5px 10px; background: rgba(37,99,235,0.08); border-radius: 5px; }
+.entry-link:hover { background: rgba(37,99,235,0.18); }
+</style>
+</head>
+<body data-route="changelog">
+<office-nav></office-nav>
+
+<div class="wrap">
+  <header class="page-head">
+    <div class="page-eyebrow">Histórico de Releases</div>
+    <h1 class="page-h1">CHANGELOG</h1>
+    <p class="page-sub">Todas as versões do EPI-USE Office, em ordem cronológica reversa. Cada release tem snapshot completo em <code>_versoes-office/</code>.</p>
+  </header>
+
+  <div class="timeline" id="timeline"></div>
+</div>
+
+<office-footer></office-footer>
+
+<script>
+const RELEASES = [
+  {
+    version: 'v3.4', date: '25/mai/2026', current: true, status: 'local',
+    title: 'Inbound Engine + Carrossel Hub + Voices Dashboard + Fixes',
+    body: `Sprint v3.4 entrega o Módulo F (Inbound) e resolve UX-debt:
+    <ul>
+      <li><b>Módulo F · Inbound Engine</b>: 6 rotas novas (<code>/inbound</code>, <code>/inbound/brief</code>, <code>/inbound/calendar</code>, <code>/inbound/studio</code>, <code>/inbound/carousel</code>, <code>/inbound/playbook</code>) com playbook de 19 slides + 5 ferramentas vivas vindas do handoff Claude Design</li>
+      <li><b>Carrossel Hub</b>: editor visual capa + N slides + export ZIP de PNGs (jszip + html2canvas)</li>
+      <li><b>Chip de versão</b> ao lado do EPI-USE no <code>&lt;office-nav&gt;</code> → clica e vai pro changelog</li>
+      <li><b>Footer com dropdown de versões anteriores</b> — agora todas as snapshots em <code>public/_versoes-office/</code> servem tanto local quanto Railway (antes só local)</li>
+      <li><b>Eventos restaurados</b>: dashboard/hub/game agora consomem a estrutura nova <code>abas.brasil/abas.latam</code> do <code>events.json</code> + tabs 🇧🇷 Brasil / 🌎 LATAM / TODOS</li>
+      <li><b>Voices enriquecido</b>: galeria mostra KPIs reais por Voice (posts totais, últ 30d, engaj.) vindos do <code>/api/posts</code>; perfil ganha "Dashboard de Performance" com 4 cards de KPI + chart engajamento — <b>zero fake data</b></li>
+      <li><b>Profile Optimizer integrado</b>: card prominente no perfil de cada Voice → <code>/optimizer?voice=&lt;slug&gt;</code> auto-seleciona o Voice na tela do Optimizer</li>
+    </ul>`
+  },
+  {
+    version: 'v3.3', date: '24/mai/2026', status: 'local',
+    title: 'Foundation Arquitetural + LATAM + Áreas MKT',
+    body: `Sprint baseada na auditoria do Claude Design. Reorganização profunda:
+    <ul>
+      <li><b>Foundation</b>: web component <code>&lt;office-nav&gt;</code> global em todas as rotas (remove os 6 jeitos diferentes de navegar de antes)</li>
+      <li><b>&lt;office-footer&gt;</b> também global com status + versão + links</li>
+      <li><b>/changelog</b> dedicado (esta página)</li>
+      <li><b>Information Architecture</b>: roadmap só no Painel · Time só no Painel · alertas consolidados · eventos centralizam · War Room vira widgets cruzados</li>
+      <li><b>Eventos LATAM</b>: events.json com abas brasil/latam (~86 eventos extras de 7 países)</li>
+      <li><b>5 Áreas MKT</b> no game + dashboard: Intelligence & CRM · Growth & Performance · Field Marketing · Development Sales · Brand Experience</li>
+      <li><b>Time atualizado</b>: Eduarda Hirose (Duda) + novos cargos da Bruna/Gui/Isabela/Marlison</li>
+    </ul>`
+  },
+  {
+    version: 'v3.2', date: '24/mai/2026', status: 'local',
+    title: 'Voice Agent Pro + Dashboard de Performance',
+    body: `4 features grandes:
+    <ul>
+      <li><b>Editor de Perfil Voice</b> (CMS via token) — Anderson/Carlos editam próprio <code>.md</code> + campos do <code>voices.json</code> direto no browser</li>
+      <li><b>Post Tracker</b> manual — registrar URL + métricas, snapshot em <code>posts.jsonl</code></li>
+      <li><b>Gerar 3 Pautas via Claude API</b> — contexto do Voice + eventos próximos + posts recentes</li>
+      <li><b>Dashboard de Performance</b> no Painel — KPIs cruzados, sparklines Chart.js, Top post da semana, filtros 7d/30d/90d</li>
+    </ul>`
+  },
+  {
+    version: 'v3.1', date: '24/mai/2026', status: 'local',
+    title: 'Email LP (fallback) + Dados Honestos',
+    body: `<ul>
+      <li>Email Resend com fallback gracioso (sem API key continua funcionando, só não envia)</li>
+      <li>Dados inventados marcados como <code>{valor, provisorio}</code></li>
+      <li>Banner amarelo "⚠️ Dados provisórios" no perfil de cada Voice</li>
+      <li>Coluna "Dados" no Painel + KPI "Dados Confirmados: N/X"</li>
+      <li>Doc operacional Plausible em <code>vault/00-contexto/setup-plausible.md</code></li>
+    </ul>`
+  },
+  {
+    version: 'v3.0', date: '23/mai/2026', status: 'broken',
+    title: 'Sprint Maximalist — 3 módulos novos',
+    body: `<ul>
+      <li><b>Painel da Duda</b> (operação): KPIs, tabela Voices, alertas, kanban fases</li>
+      <li><b>Voice Agents</b> (distribuição): galeria + perfil individual + prompt copiável</li>
+      <li><b>LP "Seja um Voice"</b> (recrutamento): hero + benefícios + 3 vagas + form UTM-aware</li>
+      <li><b>Data layer</b>: voices.json + events.json single source</li>
+      <li><b>Rate limit</b> no Optimizer (anti-abuso de tokens) + UTM redirect <code>/v/:slug</code></li>
+      <li><b>Plausible</b> em todos HTMLs</li>
+      <li>⚠️ <b>Parcialmente quebrada em produção</b> — rotas novas retornam 404 no Railway. Será corrigida no push v3.3.</li>
+    </ul>`
+  },
+  {
+    version: 'v2.2', date: '23/mai/2026', status: 'live',
+    title: 'Optimizer integrado ao Voices + agenda dinâmica',
+    body: `<ul>
+      <li>Profile Optimizer movido pra adjacente da Voices Area no game</li>
+      <li>Agenda de eventos auto-reordena por data atual (mês passado pra frente; passados ao final marcados)</li>
+      <li>Mês corrente ganha border verde + badge "AGORA"</li>
+    </ul>`
+  },
+  {
+    version: 'v2.1', date: '23/mai/2026', status: 'live',
+    title: 'Dashboard duplo + spawn com escolha',
+    body: `<ul>
+      <li>War Room clássico restaurado (cards, voices, roadmap, time)</li>
+      <li>Spawn gate com escolha: 🎮 Modo Game OU 📊 Dashboard</li>
+      <li>Modal rico de eventos (30 eventos SAP 2026)</li>
+      <li>Versionamento footer com links pros snapshots</li>
+      <li>Game polish: mesas mais próximas, monitores animados, cadeiras</li>
+    </ul>`
+  },
+  {
+    version: 'v2.0', date: '23/mai/2026', status: 'live',
+    title: 'Office Engine 2D inaugural',
+    body: `Primeiro release do escritório 2D pixel art:
+    <ul>
+      <li>Mapa 50×30 tiles (1600×960 world)</li>
+      <li>WASD movement, câmera lerp, 14 zonas interativas</li>
+      <li>Pulsing E badge, minimap, sparkline em cards</li>
+    </ul>`
+  }
+];
+
+const STATUS_META = {
+  live:   { label: '🚀 Em produção',   cls: 'status-live' },
+  local:  { label: '🏠 Local only',     cls: 'status-local' },
+  broken: { label: '⚠️ Parcialmente quebrada', cls: 'status-broken' }
+};
+
+const tl = document.getElementById('timeline');
+tl.innerHTML = RELEASES.map(r => {
+  const status = STATUS_META[r.status] || STATUS_META.local;
+  return `<div class="entry ${r.current ? 'current' : ''}">
+    <div class="entry-head">
+      <span class="ver-tag ${r.current ? 'current' : ''}">${r.version}</span>
+      <span class="entry-date">${r.date}</span>
+      <span class="entry-status ${status.cls}">${status.label}</span>
+    </div>
+    <div class="entry-title">${r.title}</div>
+    <div class="entry-body">${r.body}</div>
+    ${r.version !== 'v3.3' && r.version !== 'v3.2' && r.version !== 'v3.1' ? `<a class="entry-link" href="/_versoes-office/${r.version}-game-engine.html">Ver snapshot do game →</a>` : ''}
+  </div>`;
+}).join('');
+</script>
+</body>
+</html>

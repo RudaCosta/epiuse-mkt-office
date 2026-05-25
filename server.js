@@ -16,8 +16,177 @@ const express   = IS_LOCAL_DEV ? require(localModules + '/express')            :
 const multer    = IS_LOCAL_DEV ? require(localModules + '/multer')             : require('multer');
 const Anthropic = IS_LOCAL_DEV ? require(localModules + '/@anthropic-ai/sdk')  : require('@anthropic-ai/sdk');
 const rateLimit = IS_LOCAL_DEV ? require(localModules + '/express-rate-limit') : require('express-rate-limit');
+// Resend é opcional — se require falhar, segue sem email
+let Resend;
+try { Resend = (IS_LOCAL_DEV ? require(localModules + '/resend') : require('resend')).Resend; }
+catch (e) { console.warn('[boot] resend não instalado — emails serão skipped:', e.message); }
 const fs = require('fs');
 const path = require('path');
+
+// ── EDITOR AUTH ───────────────────────────────────────────────────────────────
+// Token simples (MVP). Override via env var em produção.
+const EDITOR_TOKEN = process.env.EDITOR_TOKEN || 'epiuse-2026';
+function requireEditorToken(req, res, next) {
+  const t = req.query.token || req.headers['x-editor-token'];
+  if (t !== EDITOR_TOKEN) return res.status(401).json({ success: false, error: 'Token inválido' });
+  next();
+}
+
+// ── PATHS DE DADOS ────────────────────────────────────────────────────────────
+const VOICES_JSON_PATH = path.join(__dirname, 'public/api/voices.json');
+const VOICES_MD_DIR    = path.join(__dirname, 'public/api/voices');
+
+// ── SQLite DATABASE ───────────────────────────────────────────────────────────
+// Railway: montar volume em /data e setar DATA_DIR=/data nas env vars do projeto
+// Local dev Windows: C:/Users/Ruds/.epiuse-optimizer/db.sqlite
+const Database = (() => {
+  try { return IS_LOCAL_DEV ? require(localModules + '/better-sqlite3') : require('better-sqlite3'); }
+  catch (e) { console.error('[boot] FATAL: better-sqlite3 não encontrado:', e.message); process.exit(1); }
+})();
+
+const DB_DIR = IS_LOCAL_DEV
+  ? 'C:/Users/Ruds/.epiuse-optimizer'
+  : (process.env.DATA_DIR || path.join(__dirname, 'data'));
+if (!fs0.existsSync(DB_DIR)) fs0.mkdirSync(DB_DIR, { recursive: true });
+
+const DB_PATH = path.join(DB_DIR, 'db.sqlite');
+const db = new Database(DB_PATH);
+db.pragma('journal_mode = WAL');
+db.exec(`
+  CREATE TABLE IF NOT EXISTS posts (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    voice_id        TEXT NOT NULL,
+    post_url        TEXT NOT NULL,
+    post_id         TEXT DEFAULT '',
+    published_at    TEXT DEFAULT '',
+    captured_at     TEXT NOT NULL,
+    content_type    TEXT DEFAULT 'post',
+    content_preview TEXT DEFAULT '',
+    pillar          TEXT,
+    likes           INTEGER DEFAULT 0,
+    comments        INTEGER DEFAULT 0,
+    reposts         INTEGER DEFAULT 0,
+    views           INTEGER,
+    created_at      TEXT DEFAULT (datetime('now'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_posts_voice ON posts(voice_id);
+  CREATE INDEX IF NOT EXISTS idx_posts_url   ON posts(post_url);
+  CREATE TABLE IF NOT EXISTS recruitment_applications (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome         TEXT NOT NULL,
+    email        TEXT NOT NULL,
+    linkedin     TEXT NOT NULL,
+    area         TEXT NOT NULL,
+    motivo       TEXT DEFAULT '',
+    utm_source   TEXT DEFAULT '',
+    utm_medium   TEXT DEFAULT '',
+    utm_campaign TEXT DEFAULT '',
+    utm_voice    TEXT DEFAULT '',
+    timestamp    TEXT NOT NULL,
+    ip           TEXT DEFAULT '',
+    created_at   TEXT DEFAULT (datetime('now'))
+  );
+`);
+
+// Migra JSONL legado → SQLite (roda só uma vez se as tabelas estiverem vazias)
+(function migrateJSONL() {
+  const postsFile = path.join(__dirname, 'posts.jsonl');
+  if (fs0.existsSync(postsFile) && db.prepare('SELECT COUNT(*) as n FROM posts').get().n === 0) {
+    const lines = fs0.readFileSync(postsFile, 'utf8').trim().split('\n').filter(Boolean);
+    const ins = db.prepare('INSERT OR IGNORE INTO posts (voice_id,post_url,post_id,published_at,captured_at,content_type,content_preview,pillar,likes,comments,reposts,views) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)');
+    db.transaction(() => {
+      for (const line of lines) {
+        try {
+          const p = JSON.parse(line);
+          ins.run(p.voice_id,p.post_url,p.post_id||'',p.published_at||'',p.captured_at||new Date().toISOString(),p.content_type||'post',p.content_preview||'',p.pillar??null,p.metrics?.likes||0,p.metrics?.comments||0,p.metrics?.reposts||0,p.metrics?.views??null);
+        } catch {}
+      }
+    })();
+    console.log(`[migrate] ${lines.length} post(s) migrado(s) de JSONL → SQLite`);
+    fs0.renameSync(postsFile, postsFile + '.migrated');
+  }
+
+  const recruitFile = path.join(__dirname, 'recruitment-applications.jsonl');
+  if (fs0.existsSync(recruitFile) && db.prepare('SELECT COUNT(*) as n FROM recruitment_applications').get().n === 0) {
+    const lines = fs0.readFileSync(recruitFile, 'utf8').trim().split('\n').filter(Boolean);
+    const ins = db.prepare('INSERT OR IGNORE INTO recruitment_applications (nome,email,linkedin,area,motivo,utm_source,utm_medium,utm_campaign,utm_voice,timestamp,ip) VALUES (?,?,?,?,?,?,?,?,?,?,?)');
+    db.transaction(() => {
+      for (const line of lines) {
+        try {
+          const r = JSON.parse(line);
+          ins.run(r.nome,r.email,r.linkedin,r.area,r.motivo||'',r.utm_source||'',r.utm_medium||'',r.utm_campaign||'',r.utm_voice||'',r.timestamp,r.ip||'');
+        } catch {}
+      }
+    })();
+    console.log(`[migrate] ${lines.length} inscrição(ões) migrada(s) de JSONL → SQLite`);
+    fs0.renameSync(recruitFile, recruitFile + '.migrated');
+  }
+})();
+
+console.log(`[boot] SQLite: ${DB_PATH}`);
+
+function backupFile(p) {
+  if (!fs.existsSync(p)) return;
+  const ts = new Date().toISOString().replace(/[:.]/g, '-');
+  const bak = `${p}.bak.${ts}`;
+  try { fs.copyFileSync(p, bak); } catch (e) { console.warn('[backup-fail]', p, e.message); }
+}
+
+// ── EMAIL (opcional via Resend) ───────────────────────────────────────────────
+const NOTIFY_EMAIL = process.env.NOTIFY_EMAIL || 'ruda.costa@epiuse.com.br';
+const FROM_EMAIL   = process.env.FROM_EMAIL   || 'voices@resend.dev';
+const resend = (Resend && process.env.RESEND_API_KEY) ? new Resend(process.env.RESEND_API_KEY) : null;
+if (resend) console.log(`[boot] email pronto: from=${FROM_EMAIL} to=${NOTIFY_EMAIL}`);
+else        console.log(`[boot] email desabilitado (sem RESEND_API_KEY) — inscrições só em JSONL + console`);
+
+function buildEmailHTML(app) {
+  const safe = (s) => String(s||'').replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
+  const utmRow = (k, v) => v ? `<tr><td style="padding:4px 12px;color:#64748b;font-size:12px">${k}</td><td style="padding:4px 12px;color:#334155;font-size:12px"><b>${safe(v)}</b></td></tr>` : '';
+  return `<!DOCTYPE html><html><body style="font-family:Inter,Arial,sans-serif;background:#f1f5f9;margin:0;padding:24px">
+  <table cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e2e8f0">
+    <tr><td style="background:linear-gradient(135deg,#0a1628,#2563EB);padding:24px;color:#fff">
+      <div style="font-size:11px;letter-spacing:.2em;opacity:.7;text-transform:uppercase;margin-bottom:6px">EPI-USE Voices · LP</div>
+      <div style="font-size:20px;font-weight:700">🎙️ Nova inscrição: ${safe(app.nome)}</div>
+    </td></tr>
+    <tr><td style="padding:22px 24px">
+      <table cellpadding="0" cellspacing="0" style="width:100%;font-size:14px;color:#1e293b">
+        <tr><td style="padding:6px 0;color:#64748b;width:130px">Nome</td><td style="padding:6px 0"><b>${safe(app.nome)}</b></td></tr>
+        <tr><td style="padding:6px 0;color:#64748b">E-mail</td><td style="padding:6px 0"><a href="mailto:${safe(app.email)}" style="color:#2563EB">${safe(app.email)}</a></td></tr>
+        <tr><td style="padding:6px 0;color:#64748b">LinkedIn</td><td style="padding:6px 0"><a href="${safe(app.linkedin)}" style="color:#2563EB">${safe(app.linkedin)}</a></td></tr>
+        <tr><td style="padding:6px 0;color:#64748b">Vaga</td><td style="padding:6px 0"><b>${safe(app.area)}</b></td></tr>
+      </table>
+      <div style="margin:16px 0 6px;color:#64748b;font-size:11px;letter-spacing:.16em;text-transform:uppercase">Motivo</div>
+      <div style="background:#f8fafc;border-left:3px solid #2563EB;padding:12px 14px;border-radius:4px;font-size:13px;color:#334155;line-height:1.55;white-space:pre-wrap">${safe(app.motivo)}</div>
+    </td></tr>
+    <tr><td style="padding:0 24px 18px"><div style="background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:10px 14px">
+      <div style="font-size:10px;letter-spacing:.18em;color:#92400e;text-transform:uppercase;font-weight:700;margin-bottom:6px">🎯 ATRIBUIÇÃO</div>
+      <table cellpadding="0" cellspacing="0" style="width:100%;font-size:12px">
+        ${utmRow('source', app.utm_source)}${utmRow('medium', app.utm_medium)}${utmRow('campaign', app.utm_campaign)}${utmRow('voice', app.utm_voice) || `<tr><td colspan="2" style="padding:4px 12px;color:#92400e;font-size:12px;font-style:italic">— sem UTM (acesso direto) —</td></tr>`}
+      </table>
+    </div></td></tr>
+    <tr><td style="padding:14px 24px 22px;border-top:1px solid #e2e8f0;font-size:11px;color:#94a3b8">
+      <div>Recebido em ${safe(app.timestamp)}</div>
+      <div style="margin-top:6px"><a href="https://epiuse-voices-optimizer.up.railway.app/painel" style="color:#2563EB;text-decoration:none">→ Ver todas inscrições no Painel da Duda</a></div>
+    </td></tr>
+  </table>
+  </body></html>`;
+}
+
+async function sendRecruitmentEmail(app) {
+  if (!resend) { console.log('[EMAIL-SKIPPED] sem RESEND_API_KEY'); return; }
+  try {
+    const r = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: NOTIFY_EMAIL,
+      subject: `🎙️ Nova inscrição EPI-USE Voices — ${app.nome}`,
+      html: buildEmailHTML(app),
+      reply_to: app.email
+    });
+    console.log(`[EMAIL-SENT] id=${r.data?.id || 'unknown'} to=${NOTIFY_EMAIL}`);
+  } catch (e) {
+    console.error(`[EMAIL-FAIL] ${e.message}`);
+  }
+}
 
 const app = express();
 const upload = multer({
@@ -60,21 +229,35 @@ app.get('/optimizer', (req, res) => res.sendFile(OPTIMIZER_PATH));
 const PAINEL_PATH     = path.join(__dirname, 'public/painel.html');
 const VOICES_PATH     = path.join(__dirname, 'public/voices.html');
 const SEJA_VOICE_PATH = path.join(__dirname, 'public/seja-voice.html');
+const CHANGELOG_PATH  = path.join(__dirname, 'public/changelog.html');
 app.get('/painel',     (req, res) => res.sendFile(PAINEL_PATH));
 app.get('/voices',     (req, res) => res.sendFile(VOICES_PATH));
 app.get('/seja-voice', (req, res) => res.sendFile(SEJA_VOICE_PATH));
+app.get('/changelog',  (req, res) => res.sendFile(CHANGELOG_PATH));
+
+// ── MODULE F · INBOUND ENGINE ──────────────────────────────────────────────────
+// Pacote vindo do projeto Claude Design (sessão EUBR Inbound, 25/mai/2026).
+// 6 telas single-file. Assets (CSS/JS/refs/assets) servidos pelo express.static
+// global da linha 202. Aqui só definimos as URLs limpas sem extensão.
+const INBOUND_DIR = path.join(__dirname, 'public/inbound');
+app.get('/inbound',           (req, res) => res.sendFile(path.join(INBOUND_DIR, 'index.html')));
+app.get('/inbound/brief',     (req, res) => res.sendFile(path.join(INBOUND_DIR, 'brief.html')));
+app.get('/inbound/calendar',  (req, res) => res.sendFile(path.join(INBOUND_DIR, 'calendar.html')));
+app.get('/inbound/studio',    (req, res) => res.sendFile(path.join(INBOUND_DIR, 'studio.html')));
+app.get('/inbound/carousel',  (req, res) => res.sendFile(path.join(INBOUND_DIR, 'carousel.html')));
+app.get('/inbound/playbook',  (req, res) => res.sendFile(path.join(INBOUND_DIR, 'playbook.html')));
 
 if (IS_LOCAL_DEV) {
   // Local: / = Office Engine Game | /dashboard = War Room clássico | /hub = Marketing Hub
   const OFFICE_GAME_PATH = path.resolve('G:/Meu Drive/Claude MKT EUBR/dashboard-escritorio.html');
   const DASHBOARD_PATH   = path.resolve('G:/Meu Drive/Claude MKT EUBR/dashboard-classic.html');
   const MKT_HUB_PATH     = path.resolve('G:/Meu Drive/Claude MKT EUBR/Estudos/portal-mkt-hub-FINAL.html');
-  const VERSIONS_DIR     = path.resolve('G:/Meu Drive/Claude MKT EUBR/_versoes-office');
   app.get('/',          (req, res) => res.sendFile(OFFICE_GAME_PATH));
   app.get('/game',      (req, res) => res.sendFile(OFFICE_GAME_PATH));
   app.get('/dashboard', (req, res) => res.sendFile(DASHBOARD_PATH));
   app.get('/hub',       (req, res) => res.sendFile(MKT_HUB_PATH));
-  app.use('/_versoes-office', express.static(VERSIONS_DIR));
+  // Snapshots de versões anteriores: servidos pelo express.static global (linha 202),
+  // pois os arquivos agora vivem em public/_versoes-office/ (também funciona em Railway).
 } else {
   // Railway: servimos os HTMLs do Office direto do public/
   const OFFICE_PROD    = path.join(__dirname, 'public/office.html');
@@ -99,7 +282,7 @@ app.get('/v/:slug', (req, res) => {
 });
 
 // ── FORM SUBMIT: /api/seja-voice (LP recrutamento) ────────────────────────────
-app.post('/api/seja-voice', recruitmentLimiter, (req, res) => {
+app.post('/api/seja-voice', recruitmentLimiter, async (req, res) => {
   const data = req.body || {};
   // Sanitização básica
   const clean = {
@@ -118,16 +301,342 @@ app.post('/api/seja-voice', recruitmentLimiter, (req, res) => {
   if (!clean.nome || !clean.email || !clean.linkedin || !clean.area || !clean.motivo) {
     return res.status(400).json({ success: false, error: 'Campos obrigatórios não preenchidos.' });
   }
-  // Append JSONL local (1 linha por inscrição) — em prod isso vai pra Railway logs
-  const line = JSON.stringify(clean) + '\n';
-  const logPath = path.join(__dirname, 'recruitment-applications.jsonl');
   try {
-    fs.appendFileSync(logPath, line);
+    db.prepare('INSERT INTO recruitment_applications (nome,email,linkedin,area,motivo,utm_source,utm_medium,utm_campaign,utm_voice,timestamp,ip) VALUES (?,?,?,?,?,?,?,?,?,?,?)')
+      .run(clean.nome,clean.email,clean.linkedin,clean.area,clean.motivo,clean.utm_source,clean.utm_medium,clean.utm_campaign,clean.utm_voice,clean.timestamp,clean.ip);
   } catch (e) {
     console.error('[RECRUITMENT-WRITE-FAIL]', e.message);
   }
   console.log(`[RECRUITMENT] ${clean.nome} (${clean.email}) → vaga ${clean.area} | utm_source=${clean.utm_source}`);
+
+  // Dispara email (não bloqueia response — best effort)
+  sendRecruitmentEmail(clean).catch(e => console.error('[EMAIL-UNCAUGHT]', e.message));
+
   res.json({ success: true, message: 'Inscrição recebida. Você será contactado em até 5 dias úteis.' });
+});
+
+// GET /api/applications — lista inscrições (requer token de editor)
+app.get('/api/applications', requireEditorToken, (req, res) => {
+  try {
+    const rows = db.prepare('SELECT * FROM recruitment_applications ORDER BY created_at DESC LIMIT 200').all();
+    res.json({ success: true, applications: rows, total: rows.length });
+  } catch (e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// VOICE EDITOR — atualiza voices.json e .md de cada Voice via token auth
+// ─────────────────────────────────────────────────────────────────────────────
+
+// PUT /api/voices/:slug — atualiza campos editáveis do Voice em voices.json
+app.put('/api/voices/:slug', requireEditorToken, (req, res) => {
+  const slug = String(req.params.slug || '').replace(/[^a-z0-9-]/g, '').slice(0, 60);
+  if (!slug) return res.status(400).json({ success: false, error: 'slug inválido' });
+
+  let data;
+  try {
+    data = JSON.parse(fs.readFileSync(VOICES_JSON_PATH, 'utf8'));
+  } catch (e) {
+    return res.status(500).json({ success: false, error: 'falha ao ler voices.json: ' + e.message });
+  }
+
+  const voice = (data.voices || []).find(v => v.id === slug);
+  if (!voice) return res.status(404).json({ success: false, error: 'Voice não encontrado: ' + slug });
+
+  const patch = req.body || {};
+  // Campos editáveis (whitelist)
+  const editable = ['nicho', 'tags', 'audiencia', 'linkedin', 'ssi_baseline', 'seguidores_baseline',
+                    'posts_mes_atual', 'kit_gerado', 'ultimo_post', 'pendencia',
+                    'tom_voz', 'lado_humano', 'resultados'];
+
+  const dadosAConfirmar = new Set(voice.dados_a_confirmar || []);
+  let touchedAnyProv = false;
+
+  for (const key of editable) {
+    if (!(key in patch)) continue;
+    let val = patch[key];
+    // sanitize ints
+    if (key === 'ssi_baseline' || key === 'seguidores_baseline' || key === 'posts_mes_atual') {
+      val = (val === null || val === '') ? null : Number(val);
+      if (Number.isNaN(val)) val = null;
+    }
+    // sanitize arrays from string (comma-separated)
+    if ((key === 'tags' || key === 'audiencia') && typeof val === 'string') {
+      val = val.split(',').map(s => s.trim()).filter(Boolean);
+    }
+    if (key === 'resultados' && typeof val === 'string') {
+      val = val.split('\n').map(s => s.trim()).filter(Boolean);
+    }
+    if (key === 'kit_gerado') val = !!val;
+
+    // Se valor era {valor, provisorio} e agora foi editado, vira valor cru (não mais provisório)
+    voice[key] = val;
+    if (dadosAConfirmar.has(key)) {
+      dadosAConfirmar.delete(key);
+      touchedAnyProv = true;
+    }
+  }
+
+  voice.dados_a_confirmar = [...dadosAConfirmar];
+  data.programa = data.programa || {};
+  data.programa.atualizado_em = new Date().toISOString().slice(0, 10);
+
+  // Backup + write
+  backupFile(VOICES_JSON_PATH);
+  try {
+    fs.writeFileSync(VOICES_JSON_PATH, JSON.stringify(data, null, 2));
+  } catch (e) {
+    return res.status(500).json({ success: false, error: 'falha ao salvar: ' + e.message });
+  }
+
+  console.log(`[VOICE-EDIT] ${slug} updated. prov_removed=${touchedAnyProv} dados_a_confirmar=${[...dadosAConfirmar].length}`);
+  res.json({ success: true, voice });
+});
+
+// PUT /api/voices/:slug/md — atualiza arquivo .md do agente
+app.put('/api/voices/:slug/md', requireEditorToken, express.text({ type: '*/*', limit: '100kb' }), (req, res) => {
+  const slug = String(req.params.slug || '').replace(/[^a-z0-9-]/g, '').slice(0, 60);
+  if (!slug) return res.status(400).json({ success: false, error: 'slug inválido' });
+  const md = String(req.body || '');
+  if (md.length < 50) return res.status(400).json({ success: false, error: 'markdown muito curto' });
+  if (md.length > 50000) return res.status(400).json({ success: false, error: 'markdown excede 50KB' });
+
+  const mdPath = path.join(VOICES_MD_DIR, slug + '.md');
+  backupFile(mdPath);
+  try {
+    fs.writeFileSync(mdPath, md);
+  } catch (e) {
+    return res.status(500).json({ success: false, error: 'falha ao salvar md: ' + e.message });
+  }
+  console.log(`[VOICE-MD] ${slug} updated (${md.length} chars)`);
+  res.json({ success: true, bytes: md.length });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// POST TRACKER — registrar/atualizar posts publicados no LinkedIn
+// ─────────────────────────────────────────────────────────────────────────────
+
+const postsLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, error: 'Limite de 60 posts/hora atingido.' }
+});
+
+// POST /api/posts — cria snapshot de um post
+app.post('/api/posts', postsLimiter, (req, res) => {
+  const b = req.body || {};
+  const clean = {
+    voice_id:         String(b.voice_id || '').replace(/[^a-z0-9-]/g, '').slice(0, 60),
+    post_url:         String(b.post_url || '').slice(0, 500),
+    post_id:          '',
+    published_at:     String(b.published_at || '').slice(0, 20),
+    captured_at:      new Date().toISOString(),
+    content_type:     ['post', 'article', 'video', 'image', 'document'].includes(b.content_type) ? b.content_type : 'post',
+    content_preview:  String(b.content_preview || '').slice(0, 500),
+    pillar:           ['Thought Leadership', 'Cases', 'Pessoas', 'Propósito'].includes(b.pillar) ? b.pillar : null,
+    metrics: {
+      likes:    Math.max(0, parseInt(b.metrics?.likes, 10) || 0),
+      comments: Math.max(0, parseInt(b.metrics?.comments, 10) || 0),
+      reposts:  Math.max(0, parseInt(b.metrics?.reposts, 10) || 0),
+      views:    b.metrics?.views ? Math.max(0, parseInt(b.metrics.views, 10) || 0) : null
+    }
+  };
+
+  if (!clean.voice_id || !clean.post_url) {
+    return res.status(400).json({ success: false, error: 'voice_id e post_url obrigatórios' });
+  }
+
+  // Derive post_id from URL (último segmento ou hash)
+  const idMatch = clean.post_url.match(/(?:activity|share|posts)[-_:](\d+)/i) || clean.post_url.match(/-(\d{15,25})-/) || [];
+  clean.post_id = idMatch[1] || clean.post_url.split('/').filter(Boolean).pop() || clean.post_url.slice(-30);
+
+  try {
+    db.prepare('INSERT INTO posts (voice_id,post_url,post_id,published_at,captured_at,content_type,content_preview,pillar,likes,comments,reposts,views) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)')
+      .run(clean.voice_id,clean.post_url,clean.post_id,clean.published_at,clean.captured_at,clean.content_type,clean.content_preview||'',clean.pillar,clean.metrics.likes,clean.metrics.comments,clean.metrics.reposts,clean.metrics.views??null);
+  } catch (e) {
+    return res.status(500).json({ success: false, error: 'falha ao gravar: ' + e.message });
+  }
+  console.log(`[POST] ${clean.voice_id} | ${clean.metrics.likes}❤️ ${clean.metrics.comments}💬 ${clean.metrics.reposts}🔄 | ${clean.post_url.slice(0, 60)}`);
+  res.json({ success: true, post: clean });
+});
+
+// GET /api/posts?voice=X&period=7d|30d|90d|all — retorna posts agregados (último snapshot por post_url)
+app.get('/api/posts', (req, res) => {
+  const voiceFilter = req.query.voice ? String(req.query.voice).replace(/[^a-z0-9-]/g, '') : null;
+  const period = ['7d', '30d', '90d', 'all'].includes(req.query.period) ? req.query.period : 'all';
+
+  try {
+    let cutoff = null;
+    if (period !== 'all') {
+      cutoff = new Date(Date.now() - parseInt(period, 10) * 86400000).toISOString();
+    }
+
+    let sql = `
+      SELECT p.* FROM posts p
+      WHERE p.captured_at = (
+        SELECT MAX(p2.captured_at) FROM posts p2 WHERE p2.post_url = p.post_url
+      )
+    `;
+    const params = [];
+    if (voiceFilter)  { sql += ' AND p.voice_id = ?'; params.push(voiceFilter); }
+    if (cutoff)       { sql += ' AND (p.published_at >= ? OR (p.published_at = \'\' AND p.captured_at >= ?))'; params.push(cutoff, cutoff); }
+    sql += ' ORDER BY CASE WHEN p.published_at != \'\' THEN p.published_at ELSE p.captured_at END DESC';
+
+    const rows = db.prepare(sql).all(...params);
+    const posts = rows.map(r => ({
+      voice_id: r.voice_id, post_url: r.post_url, post_id: r.post_id,
+      published_at: r.published_at, captured_at: r.captured_at,
+      content_type: r.content_type, content_preview: r.content_preview, pillar: r.pillar,
+      metrics: { likes: r.likes, comments: r.comments, reposts: r.reposts, views: r.views }
+    }));
+    res.json({ success: true, posts, total: posts.length });
+  } catch (e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+// GET /api/posts/timeline/:post_id — todos snapshots de 1 post (evolução)
+app.get('/api/posts/timeline/:post_id', (req, res) => {
+  const pid = String(req.params.post_id).slice(0, 60);
+  try {
+    const snaps = db.prepare('SELECT * FROM posts WHERE post_id = ? ORDER BY captured_at ASC').all(pid)
+      .map(r => ({
+        voice_id: r.voice_id, post_url: r.post_url, post_id: r.post_id,
+        published_at: r.published_at, captured_at: r.captured_at,
+        content_type: r.content_type, content_preview: r.content_preview, pillar: r.pillar,
+        metrics: { likes: r.likes, comments: r.comments, reposts: r.reposts, views: r.views }
+      }));
+    res.json({ success: true, snapshots: snaps });
+  } catch (e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GERAR PAUTAS — Claude API com contexto do Voice
+// ─────────────────────────────────────────────────────────────────────────────
+
+const pautasLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 5,  // custa tokens — limita pra evitar abuso
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, error: 'Limite de 5 gerações/hora atingido.' }
+});
+
+app.post('/api/voice/:slug/generate-pautas', pautasLimiter, async (req, res) => {
+  const slug = String(req.params.slug || '').replace(/[^a-z0-9-]/g, '').slice(0, 60);
+  if (!slug) return res.status(400).json({ success: false, error: 'slug inválido' });
+
+  // 1. Carrega voice
+  let voicesData, voice, mdContent, eventsData, recentPosts = [];
+  try {
+    voicesData = JSON.parse(fs.readFileSync(VOICES_JSON_PATH, 'utf8'));
+    voice = (voicesData.voices || []).find(v => v.id === slug);
+    if (!voice) return res.status(404).json({ success: false, error: 'Voice não encontrado' });
+
+    const mdPath = path.join(VOICES_MD_DIR, slug + '.md');
+    mdContent = fs.existsSync(mdPath) ? fs.readFileSync(mdPath, 'utf8') : '';
+
+    const eventsPath = path.join(__dirname, 'public/api/events.json');
+    if (fs.existsSync(eventsPath)) eventsData = JSON.parse(fs.readFileSync(eventsPath, 'utf8'));
+  } catch (e) {
+    return res.status(500).json({ success: false, error: 'falha ao ler contexto: ' + e.message });
+  }
+
+  // 2. Recent posts do voice (últimos 5)
+  recentPosts = db.prepare(`
+    SELECT p.* FROM posts p
+    WHERE p.voice_id = ?
+      AND p.captured_at = (SELECT MAX(p2.captured_at) FROM posts p2 WHERE p2.post_url = p.post_url)
+    ORDER BY CASE WHEN p.published_at != '' THEN p.published_at ELSE p.captured_at END DESC
+    LIMIT 5
+  `).all(slug).map(r => ({
+    voice_id: r.voice_id, post_url: r.post_url,
+    published_at: r.published_at, captured_at: r.captured_at,
+    content_preview: r.content_preview || '', pillar: r.pillar,
+    metrics: { likes: r.likes, comments: r.comments, reposts: r.reposts, views: r.views }
+  }));
+
+  // 3. Eventos próximos (próximas 4 semanas)
+  const nowMonth = new Date().getMonth() + 1;
+  const nearMonths = [nowMonth, nowMonth + 1 > 12 ? 1 : nowMonth + 1];
+  const upcomingEvents = (eventsData?.eventos || []).filter(e => nearMonths.includes(e.m)).slice(0, 8);
+
+  // 4. Helper pra extrair valor de {valor, provisorio} ou cru
+  const unwrap = (v) => (v && typeof v === 'object' && 'valor' in v) ? v.valor : v;
+
+  // 5. Monta o prompt
+  const linkedinUrl = unwrap(voice.linkedin);
+  const tomVoz = unwrap(voice.tom_voz) || '(não definido)';
+  const ladoHumano = unwrap(voice.lado_humano) || '(não definido)';
+  const resultados = unwrap(voice.resultados) || [];
+
+  const prompt = `Você é um copywriter B2B especialista em SAP e LinkedIn. Sua missão: gerar 3 sugestões de pauta de post para ${voice.nome}, ${voice.cargo} na EPI-USE Brasil.
+
+CONTEXTO DO VOICE:
+- Nome: ${voice.nome}
+- Cargo: ${voice.cargo}
+- Empresa: ${voice.empresa}
+- Nicho: ${voice.nicho}
+- Audiência-alvo: ${(voice.audiencia || []).join(', ')}
+- Tom de voz: ${tomVoz}
+- Lado humano: ${ladoHumano}
+- Resultados concretos:
+${resultados.map(r => '  - ' + r).join('\n') || '  (a definir)'}
+
+EVENTOS DAS PRÓXIMAS 8 SEMANAS (use como gancho temporal):
+${upcomingEvents.map(e => `- ${e.d}/${e.m}: ${e.n} (${e.lob})`).join('\n') || '  (sem eventos próximos)'}
+
+${recentPosts.length > 0 ? `POSTS RECENTES DESTE VOICE (NÃO REPITA esses temas):
+${recentPosts.map(p => `- [${p.pillar || '?'}] ${p.content_preview.slice(0, 100)}`).join('\n')}
+
+` : ''}REGRAS DO PROGRAMA EPI-USE VOICES:
+- PT-BR obrigatório
+- Hook forte na primeira linha
+- Sem clientes nominais (anonimizar como "Fortune 500 BR" ou "holding com 12 filiais")
+- Sem concorrentes nominais (TIVIT, Stefanini, Accenture, etc.)
+- Sem promessas absurdas
+- 1x/mês mencionar EPI-USE Brasil; ERP.ngo quando relevante
+- Distribuir entre 4 pilares: Thought Leadership (40%) | Cases (30%) | Pessoas (20%) | Propósito (10%)
+
+GERE 3 PAUTAS DISTINTAS. Cada uma deve:
+1. Ter um hook forte e específico
+2. Indicar pilar editorial
+3. Justificar relevância AGORA (gancho temporal)
+4. Trazer 1 dado/insight concreto pra o Voice expandir
+5. Sugerir CTA claro
+
+Retorne APENAS JSON válido, sem texto antes/depois:
+{
+  "pautas": [
+    { "titulo": "string", "hook": "string", "pilar": "Thought Leadership|Cases|Pessoas|Propósito", "gancho_temporal": "string", "insight_chave": "string", "cta_sugerido": "string" }
+  ]
+}`;
+
+  // 6. Chama Claude
+  try {
+    const response = await client.messages.create({
+      model: 'claude-opus-4-6',
+      max_tokens: 2048,
+      temperature: 0.7,
+      messages: [{ role: 'user', content: prompt }]
+    });
+
+    let rawText = response.content[0].text;
+    rawText = rawText.replace(/```json\s*/gi, '').replace(/```\s*/g, '');
+    const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) return res.status(500).json({ success: false, error: 'IA não retornou JSON válido' });
+    const parsed = JSON.parse(jsonMatch[0]);
+    console.log(`[PAUTAS] ${slug} gerou ${parsed.pautas?.length || 0} pautas`);
+    res.json({ success: true, pautas: parsed.pautas || [], generated_at: new Date().toISOString() });
+  } catch (e) {
+    console.error('[PAUTAS-FAIL]', e.message);
+    res.status(500).json({ success: false, error: e.message });
+  }
 });
 
 function buildPrompt(fields) {

@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Inbound Engine · Hub · EPI-USE Voices</title>
+<link rel="stylesheet" href="/inbound/inbound-shell.css" />
+<script type="module" src="/office-nav.js"></script>
+<script type="module" src="/office-footer.js"></script>
+<style>
+  /* hero stripe at the top */
+  .stripe {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 28px 0 8px;
+    border-bottom: 1px solid var(--d-border);
+    margin-bottom: 8px;
+  }
+  .stripe h1 {
+    font-family: var(--eu-font-mono);
+    font-size: 32px; font-weight: 700; letter-spacing: .04em;
+    color: var(--d-accent);
+    margin: 0;
+  }
+  .stripe h1 .small {
+    display:block;
+    font-family: var(--eu-font-mono); font-size: 11px; font-weight: 700;
+    letter-spacing: .18em; color: var(--d-ink-3); margin-top: 4px;
+    text-transform: uppercase;
+  }
+  .stripe .meta { display: flex; align-items: center; gap: 10px; }
+  .stripe .date {
+    color: var(--d-ink-2); font-family: var(--eu-font-mono); font-size: 12px;
+    padding: 6px 12px; border: 1px solid var(--d-border-2); border-radius: 4px;
+  }
+
+  /* big intro hero */
+  .hero {
+    margin: 24px 0 32px;
+    padding: 40px 44px;
+    background: linear-gradient(160deg, var(--d-card) 0%, var(--d-bg-2) 100%);
+    border: 1px solid var(--d-border);
+    border-radius: 14px;
+    position: relative; overflow: hidden;
+  }
+  .hero::after {
+    content:""; position: absolute; right: -40px; bottom: -60px;
+    width: 460px; height: 320px;
+    background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 520 360'%3E%3Cg fill='%235BBCEB' fill-opacity='0.06'%3E%3Cpath d='M70 280 Q82 220 130 210 Q150 152 222 152 Q260 108 320 124 Q380 108 420 148 Q468 142 480 188 L500 192 L498 220 L482 224 Q478 268 466 282 L466 320 L444 320 L440 290 Q408 296 388 290 L382 320 L362 320 L358 296 Q326 304 296 296 L268 312 L246 312 L250 290 Q210 296 182 290 L178 320 L156 320 L152 296 Q124 290 102 270 L82 290 L62 290 Z M460 168 Q476 156 484 172 Q476 184 462 180 Z'/%3E%3C/g%3E%3C/svg%3E");
+    background-size: contain; background-repeat: no-repeat;
+    pointer-events: none;
+  }
+  .hero .eyebrow {
+    font-family: var(--eu-font-mono); font-size: 11px; font-weight: 700;
+    letter-spacing: .18em; text-transform: uppercase; color: var(--d-red);
+  }
+  .hero h2 {
+    font-family: var(--eu-font-display);
+    font-size: 48px; font-weight: 700; line-height: 1.05;
+    letter-spacing: -.025em; margin: 12px 0 10px;
+    color: var(--d-ink); max-width: 22ch;
+    position: relative; z-index: 1;
+  }
+  .hero h2 em { color: var(--d-accent); font-style: normal; }
+  .hero h2 .spark { color: var(--d-red); }
+  .hero p {
+    font-size: 15px; line-height: 1.6; max-width: 64ch;
+    color: var(--d-ink-2); margin: 0;
+    position: relative; z-index: 1;
+  }
+  .hero .kpis {
+    margin-top: 28px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px;
+    position: relative; z-index: 1;
+    max-width: 760px;
+  }
+  .hero .kpis .k { display: flex; flex-direction: column; gap: 6px; }
+  .hero .kpis .lbl {
+    font-family: var(--eu-font-mono); font-size: 10px; font-weight: 700;
+    letter-spacing: .14em; text-transform: uppercase; color: var(--d-ink-3);
+  }
+  .hero .kpis .v {
+    font-family: var(--eu-font-display); font-size: 28px; font-weight: 700;
+    color: var(--d-ink); line-height: 1; letter-spacing: -.01em;
+  }
+  .hero .kpis .v em { color: var(--d-accent); font-style: normal; font-size: 14px; font-weight: 600; margin-left: 6px; }
+  .hero .kpis .v.win { color: var(--d-ok); }
+
+  /* tools grid */
+  .tools {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+    margin-bottom: 8px;
+  }
+  .tool {
+    background: var(--d-card); border: 1px solid var(--d-border); border-radius: 10px;
+    padding: 22px; display: flex; flex-direction: column; gap: 12px;
+    text-decoration: none; color: var(--d-ink);
+    transition: border-color .15s, background .15s, transform .15s;
+    cursor: pointer; position: relative;
+  }
+  .tool:hover { border-color: var(--d-accent); background: var(--d-card-2); transform: translateY(-2px); }
+  .tool .head { display: flex; justify-content: space-between; align-items: center; }
+  .tool .head .ico {
+    width: 36px; height: 36px; border-radius: 8px;
+    background: rgba(91, 188, 235, .1);
+    color: var(--d-accent); font-family: var(--eu-font-mono); font-size: 18px;
+    display: grid; place-items: center;
+  }
+  .tool .head .badge {
+    font-family: var(--eu-font-mono); font-size: 10px; font-weight: 700;
+    letter-spacing: .14em; padding: 3px 8px; border-radius: 99px;
+    background: rgba(77, 230, 130, .14); color: var(--d-ok);
+  }
+  .tool .head .badge.soon { background: rgba(245, 187, 92, .14); color: var(--d-warn); }
+  .tool h3 {
+    font-family: var(--eu-font-display); font-size: 20px; font-weight: 700;
+    margin: 0; letter-spacing: -.01em; line-height: 1.2; color: var(--d-ink);
+  }
+  .tool h3 em { font-style: normal; color: var(--d-accent); }
+  .tool .desc { font-size: 13px; line-height: 1.55; color: var(--d-ink-2); margin: 0; }
+  .tool .cta {
+    margin-top: auto; padding-top: 14px; border-top: 1px solid var(--d-border);
+    font-family: var(--eu-font-mono); font-size: 10px; font-weight: 700;
+    letter-spacing: .14em; text-transform: uppercase; color: var(--d-accent);
+    display: flex; justify-content: space-between;
+  }
+
+  /* row of 2 panels */
+  .row-2 {
+    display: grid; grid-template-columns: 1.3fr 1fr; gap: 12px;
+  }
+
+  /* LOB balance */
+  .panel { background: var(--d-card); border: 1px solid var(--d-border); border-radius: 10px; padding: 24px; }
+  .panel h4 {
+    font-family: var(--eu-font-mono); font-size: 11px; font-weight: 700;
+    letter-spacing: .14em; text-transform: uppercase; color: var(--d-accent);
+    margin: 0 0 18px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .panel h4 .meta {
+    color: var(--d-ink-3); font-weight: 600; letter-spacing: .1em;
+  }
+
+  .lob-bar { display: flex; flex-direction: column; gap: 10px; }
+  .lob-bar-row {
+    display: grid; grid-template-columns: 120px 1fr 32px; align-items: center; gap: 12px;
+    font-size: 12px;
+  }
+  .lob-bar-row .name { font-weight: 600; color: var(--d-ink); }
+  .lob-bar-row .name small {
+    display: block; font-family: var(--eu-font-mono); font-size: 9px;
+    letter-spacing: .08em; color: var(--d-ink-3); font-weight: 700;
+    text-transform: uppercase; margin-top: 2px;
+  }
+  .lob-bar-row .track { height: 8px; background: rgba(255,255,255,.06); border-radius: 4px; overflow: hidden; }
+  .lob-bar-row .fill { height: 100%; border-radius: 4px; }
+  .lob-bar-row .v { font-family: var(--eu-font-mono); font-size: 13px; font-weight: 700; text-align: right; color: var(--d-ink); }
+  .lob-bar-row.under .v { color: var(--d-warn); }
+
+  /* pipeline */
+  .pipe { display: flex; flex-direction: column; gap: 8px; }
+  .pipe .item {
+    display: grid; grid-template-columns: 56px 1fr auto; gap: 14px; align-items: center;
+    padding: 12px; border: 1px solid var(--d-border); border-radius: 8px;
+    font-size: 13px; background: rgba(0,0,0,.12);
+  }
+  .pipe .item .day {
+    font-family: var(--eu-font-mono); font-size: 10px; font-weight: 700;
+    color: var(--d-ink-3); letter-spacing: .08em; text-transform: uppercase;
+    line-height: 1.2; text-align: center;
+  }
+  .pipe .item .day b { display: block; font-size: 20px; color: var(--d-ink); margin-top: 2px; }
+  .pipe .item .info .ttl { font-weight: 600; color: var(--d-ink); margin-bottom: 3px; font-size: 13px; }
+  .pipe .item .info .sub { font-size: 11px; color: var(--d-ink-3); line-height: 1.4; }
+
+  /* engine link */
+  .footer-block {
+    margin-top: 32px;
+    background: linear-gradient(140deg, var(--d-card) 0%, rgba(206, 24, 30, .08) 100%);
+    border: 1px solid var(--d-border);
+    border-radius: 10px;
+    padding: 28px 32px;
+    display: flex; align-items: center; gap: 28px;
+  }
+  .footer-block .ico {
+    width: 56px; height: 56px; border-radius: 10px;
+    background: rgba(91, 188, 235, .12); color: var(--d-accent);
+    display: grid; place-items: center;
+    font-family: var(--eu-font-mono); font-size: 22px; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .footer-block .body { flex: 1; }
+  .footer-block h4 {
+    font-family: var(--eu-font-display); font-size: 18px; font-weight: 700;
+    margin: 0 0 4px; color: var(--d-ink); letter-spacing: -.005em;
+  }
+  .footer-block p { margin: 0; font-size: 13px; line-height: 1.5; color: var(--d-ink-2); }
+  .footer-block a { color: var(--d-accent); text-decoration: none; font-weight: 600; }
+  .footer-block a:hover { text-decoration: underline; }
+
+</style>
+</head>
+<body data-route="inbound" data-tab="hub">
+
+<office-nav></office-nav>
+
+<!-- ============ INBOUND SUB-NAV (6 ferramentas do módulo) ============ -->
+<nav class="inbound-nav">
+  <a class="brand" href="/inbound">
+    <span class="logomark">EPI-USE</span>
+    <span class="lbl"><b>Inbound Engine</b>v1.0 · módulo F</span>
+  </a>
+  <div class="tabs">
+    <a href="/inbound" data-tab-id="hub"><span class="ico">⌂</span> Hub</a>
+    <a href="/inbound/brief" data-tab-id="brief"><span class="ico">✎</span> Brief→Post</a>
+    <a href="/inbound/carousel" data-tab-id="carousel"><span class="ico">▥</span> Carousel</a>
+    <a href="/inbound/calendar" data-tab-id="calendar"><span class="ico">▦</span> Calendar</a>
+    <a href="/inbound/studio" data-tab-id="studio"><span class="ico">◇</span> Studio</a>
+    <a href="/inbound/playbook" data-tab-id="playbook"><span class="ico">▤</span> Playbook</a>
+  </div>
+  <div class="right">
+    <span class="pill">Online</span>
+  </div>
+</nav>
+
+<main class="inbound-page">
+
+  <!-- top stripe like dashboard's EPI-USE OFFICE -->
+  <div class="stripe">
+    <h1>
+      INBOUND ENGINE
+      <span class="small">War room · Marketing / RevOps · módulo F</span>
+    </h1>
+    <div class="meta">
+      <span class="date">24 mai 2026</span>
+      <span class="pill ok"><span class="dot"></span>Sistema operacional</span>
+    </div>
+  </div>
+
+  <!-- hero intro -->
+  <section class="hero">
+    <div class="eyebrow">EPI-USE Brasil · Inbound Marketing FY26</div>
+    <h2>Um <em>jeito só</em> de publicar.<br/>Dez países, uma <span class="spark">voz</span>.</h2>
+    <p>Plataforma central do time de Marketing &amp; RevOps. Briefs viram posts em minutos, o calendário equilibra LOBs e categorias, e cada peça nasce dentro do brand system da EPI-USE Brasil.</p>
+    <div class="kpis">
+      <div class="k"><span class="lbl">Posts esta semana</span><span class="v">7</span></div>
+      <div class="k"><span class="lbl">Próximo go-live</span><span class="v">3<em>d</em></span></div>
+      <div class="k"><span class="lbl">Engajamento médio</span><span class="v win">86<em>↑</em></span></div>
+      <div class="k"><span class="lbl">LOB em destaque</span><span class="v">HCM</span></div>
+    </div>
+  </section>
+
+  <!-- TOOLS -->
+  <div class="section-label">Ferramentas</div>
+  <section class="tools" style="grid-template-columns: repeat(5, 1fr);">
+    <a class="tool" href="/inbound/brief">
+      <div class="head">
+        <div class="ico">✎</div>
+        <span class="badge">Pronto</span>
+      </div>
+      <h3>Brief <em>→</em> Post</h3>
+      <p class="desc">Cole o brief. Claude devolve headline, copy e hashtags. Card único.</p>
+      <div class="cta">Abrir →<span>01</span></div>
+    </a>
+    <a class="tool" href="/inbound/carousel">
+      <div class="head">
+        <div class="ico">▥</div>
+        <span class="badge">Novo</span>
+      </div>
+      <h3>Carrossel <em>+</em> Capa</h3>
+      <p class="desc">Capa + N conteúdo + CTA. Gera tudo com Claude. Exporta ZIP de PNGs.</p>
+      <div class="cta">Abrir →<span>02</span></div>
+    </a>
+    <a class="tool" href="/inbound/calendar">
+      <div class="head">
+        <div class="ico">▦</div>
+        <span class="badge">Pronto</span>
+      </div>
+      <h3>Calendário <em>Editorial</em></h3>
+      <p class="desc">60 dias à frente. Drag-and-drop. Balance bar de LOBs e categorias.</p>
+      <div class="cta">Abrir →<span>03</span></div>
+    </a>
+    <a class="tool" href="/inbound/studio">
+      <div class="head">
+        <div class="ico">◇</div>
+        <span class="badge">Pronto</span>
+      </div>
+      <h3>Template <em>Studio</em></h3>
+      <p class="desc">Categoria + LOB + conteúdo. Render 1080×1350 ao vivo. Exporta PNG.</p>
+      <div class="cta">Abrir →<span>04</span></div>
+    </a>
+    <a class="tool" href="/inbound/playbook">
+      <div class="head">
+        <div class="ico">▤</div>
+        <span class="badge">v1.0</span>
+      </div>
+      <h3>Playbook <em>EUBR</em></h3>
+      <p class="desc">19 slides: 7 categorias, 2 modos, anatomia, look-book, do/don't.</p>
+      <div class="cta">Ver deck →<span>00</span></div>
+    </a>
+  </section>
+
+  <!-- STATUS PANELS -->
+  <div class="section-label">Status · últimos 30 dias</div>
+  <section class="row-2">
+    <div class="panel">
+      <h4>Balanço de LOBs<span class="meta">— 24 posts</span></h4>
+      <div class="lob-bar">
+        <div class="lob-bar-row">
+          <div class="name">HCM<small>SuccessFactors</small></div>
+          <div class="track"><div class="fill" style="width:78%; background:var(--eu-lob-sfsf)"></div></div>
+          <div class="v">7</div>
+        </div>
+        <div class="lob-bar-row">
+          <div class="name">Cloud ERP<small>GROW · S/4HANA</small></div>
+          <div class="track"><div class="fill" style="width:55%; background:var(--eu-lob-erp)"></div></div>
+          <div class="v">5</div>
+        </div>
+        <div class="lob-bar-row">
+          <div class="name">Institucional<small>Group Elephant</small></div>
+          <div class="track"><div class="fill" style="width:44%; background:#fff"></div></div>
+          <div class="v">4</div>
+        </div>
+        <div class="lob-bar-row">
+          <div class="name">BTP<small>Joule · Datasphere</small></div>
+          <div class="track"><div class="fill" style="width:33%; background:var(--eu-lob-btm)"></div></div>
+          <div class="v">3</div>
+        </div>
+        <div class="lob-bar-row">
+          <div class="name">Signavio<small>Process</small></div>
+          <div class="track"><div class="fill" style="width:22%; background:var(--eu-sec-teal)"></div></div>
+          <div class="v">2</div>
+        </div>
+        <div class="lob-bar-row">
+          <div class="name">ServiceNow<small>SN Partner</small></div>
+          <div class="track"><div class="fill" style="width:22%; background:var(--eu-lob-sn)"></div></div>
+          <div class="v">2</div>
+        </div>
+        <div class="lob-bar-row under">
+          <div class="name">Workforce<small>WFS — sub-representado</small></div>
+          <div class="track"><div class="fill" style="width:11%; background:var(--eu-lob-wfs)"></div></div>
+          <div class="v">1</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h4>Pipeline · próximos 14 dias<span class="meta">— 4 itens</span></h4>
+      <div class="pipe">
+        <div class="item">
+          <div class="day">MAI<b>26</b></div>
+          <div class="info">
+            <div class="ttl">Case Drogaria Venancio — go-live</div>
+            <div class="sub">Compartilhar do perfil do Sales Manager</div>
+          </div>
+          <span class="lob-chip" data-lob="erp">ERP</span>
+        </div>
+        <div class="item">
+          <div class="day">MAI<b>28</b></div>
+          <div class="info">
+            <div class="ttl">Carrossel: 5 ways HR ensures AI succeeds</div>
+            <div class="sub">Tradução + adaptação BR do post da matriz</div>
+          </div>
+          <span class="lob-chip" data-lob="sfsf">HCM</span>
+        </div>
+        <div class="item">
+          <div class="day">JUN<b>03</b></div>
+          <div class="info">
+            <div class="ttl">SAP NOW 2026 — convite</div>
+            <div class="sub">Stand parceiro · CFO e CHRO target</div>
+          </div>
+          <span class="lob-chip" data-lob="inst">INST</span>
+        </div>
+        <div class="item">
+          <div class="day">JUN<b>10</b></div>
+          <div class="info">
+            <div class="ttl">Vídeo Signavio — process mapping em 8 semanas</div>
+            <div class="sub">Depoimento Diretor Transformação</div>
+          </div>
+          <span class="lob-chip" data-lob="sig">SIG</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- footer block linking to office -->
+  <div class="footer-block">
+    <div class="ico">▶</div>
+    <div class="body">
+      <h4>Primeira vez aqui?</h4>
+      <p>O <a href="/inbound/playbook">Playbook</a> tem o sistema visual completo — 7 categorias, 2 modos (Institucional / Campanha United We Rise), anatomia do carrossel padrão e look-book por LOB. Depois siga pra Brief → Post para gerar a primeira peça.</p>
+    </div>
+    <a href="/inbound/playbook" class="btn btn--primary">Ver Playbook →</a>
+  </div>
+
+</main>
+
+<script>
+  (function(){
+    var t = document.body.dataset.tab;
+    if (!t) return;
+    var a = document.querySelector('[data-tab-id="' + t + '"]');
+    if (a) a.classList.add('active');
+  })();
+</script>
+
+<office-footer></office-footer>
+
+</body>
+</html>

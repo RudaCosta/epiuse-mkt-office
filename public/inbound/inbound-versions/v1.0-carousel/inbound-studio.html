@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>EUBR Inbound · Template Studio</title>
+<link rel="stylesheet" href="inbound-shell.css" />
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<style>
+  .layout {
+    display: grid; grid-template-columns: 380px 1fr 320px; gap: 20px;
+    align-items: start; margin-top: 16px;
+  }
+
+  /* picker panel */
+  .picker { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 72px; }
+  .pcard {
+    background: var(--d-card); border: 1px solid var(--d-border);
+    border-radius: 10px; padding: 20px;
+  }
+  .pcard h3 {
+    font-family: var(--eu-font-mono); font-size: 11px; font-weight: 700;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--d-accent);
+    margin: 0 0 14px;
+  }
+
+  /* template tiles (small) */
+  .tpl-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  }
+  .tpl-tile {
+    background: rgba(0,0,0,.18); border: 1px solid var(--d-border-2);
+    border-radius: 6px; padding: 10px;
+    cursor: pointer; transition: all .15s;
+    display: flex; flex-direction: column; gap: 4px;
+    text-align: left;
+  }
+  .tpl-tile:hover { border-color: var(--d-accent); background: rgba(0,0,0,.32); }
+  .tpl-tile.sel { border-color: var(--d-accent); background: rgba(91, 188, 235, .12); }
+  .tpl-tile .swatch {
+    height: 36px; border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-family: var(--eu-font-display); font-size: 16px; font-weight: 800;
+    letter-spacing: -.02em;
+    margin-bottom: 4px;
+  }
+  .tpl-tile .name { font-size: 12px; font-weight: 600; color: var(--d-ink); }
+  .tpl-tile .desc { font-size: 10px; color: var(--d-ink-3); line-height: 1.3; }
+
+  /* center stage */
+  .stage-wrap {
+    background: var(--d-card); border: 1px solid var(--d-border);
+    border-radius: 10px; padding: 32px;
+    display: flex; flex-direction: column; align-items: center; gap: 16px;
+    min-height: 760px;
+  }
+  .stage-bar {
+    width: 100%;
+    display: flex; justify-content: space-between; align-items: center;
+    padding-bottom: 16px; border-bottom: 1px solid var(--d-border);
+  }
+  .stage-bar h3 {
+    font-family: var(--eu-font-mono); font-size: 11px; font-weight: 700;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--d-accent);
+    margin: 0;
+  }
+  .stage-bar .px {
+    font-family: var(--eu-font-mono); font-size: 10px; color: var(--d-ink-3);
+    letter-spacing: .12em; text-transform: uppercase;
+  }
+
+  /* THE TEMPLATE — fixed 1080×1350 (Instagram/LinkedIn portrait) */
+  .stage {
+    width: 540px;  /* 0.5× of 1080 */
+    height: 675px; /* 0.5× of 1350 */
+    background: #001844;
+    border-radius: 8px;
+    overflow: hidden; position: relative;
+    box-shadow: 0 20px 50px rgba(0,0,0,.4);
+    transform-origin: top left;
+  }
+  .stage * { box-sizing: border-box; }
+
+  /* compliance panel */
+  .actions-card {
+    background: var(--d-card); border: 1px solid var(--d-border);
+    border-radius: 10px; padding: 20px;
+    display: flex; flex-direction: column; gap: 14px;
+    position: sticky; top: 72px;
+  }
+  .actions-card h3 {
+    font-family: var(--eu-font-mono); font-size: 11px; font-weight: 700;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--d-accent);
+    margin: 0;
+  }
+  .check-list { display: flex; flex-direction: column; gap: 8px; font-size: 12px; }
+  .check-list .ck {
+    display: grid; grid-template-columns: 18px 1fr; gap: 8px; align-items: flex-start;
+    padding: 8px 10px; border-radius: 6px;
+    background: rgba(0,0,0,.18);
+  }
+  .check-list .ck .icn { font-family: var(--eu-font-mono); font-weight: 700; font-size: 13px; }
+  .check-list .ck.ok .icn { color: var(--d-ok); }
+  .check-list .ck.warn .icn { color: var(--d-warn); }
+  .check-list .ck.bad .icn { color: var(--d-bad); }
+  .check-list .ck .lbl { color: var(--d-ink); }
+  .check-list .ck .lbl small { display: block; color: var(--d-ink-3); margin-top: 2px; }
+
+  /* preset content field */
+  .pcard .field { margin-bottom: 10px; }
+  .pcard .field:last-child { margin-bottom: 0; }
+</style>
+</head>
+<body data-tab="studio">
+
+<!-- ============ NAV ============ -->
+<nav class="inbound-nav">
+  <a class="brand" href="/inbound">
+    <span class="logomark">EPI-USE</span>
+    <span class="lbl"><b>Inbound Engine</b>v1.0 · marketing / revops</span>
+  </a>
+  <div class="tabs">
+    <a href="/inbound" data-tab-id="hub"><span class="ico">⌂</span> Hub</a>
+    <a href="/inbound/brief" data-tab-id="brief"><span class="ico">✎</span> Brief→Post</a>
+    <a href="/inbound/calendar" data-tab-id="calendar"><span class="ico">▦</span> Calendar</a>
+    <a href="/inbound/studio" data-tab-id="studio"><span class="ico">◇</span> Studio</a>
+    <a href="EUBR Inbound Playbook.html" data-tab-id="playbook"><span class="ico">▤</span> Playbook</a>
+  </div>
+  <div class="right">
+    <span class="pill ok">PNG export</span>
+    <a class="back" href="/">← Office</a>
+  </div>
+</nav>
+
+<main class="inbound-page" style="max-width: 1600px;">
+
+  <div style="display:flex; align-items:flex-end; justify-content:space-between; padding: 12px 0 20px; border-bottom: 1px solid var(--d-border); margin-bottom: 8px;">
+    <div>
+      <div class="section-label" style="margin: 0 0 8px;">Tool 03 · Output</div>
+      <h1 style="font-family: var(--eu-font-display); font-size: 36px; font-weight: 700; margin: 0; color: var(--d-ink); letter-spacing: -.02em;">
+        Template <em style="font-style:normal; color: var(--d-accent);">Studio</em>
+      </h1>
+      <div style="font-size: 14px; color: var(--d-ink-2); margin-top: 4px;">
+        Escolha template + LOB, cole o conteúdo, exporta PNG 1080×1350 pronto pro feed.
+      </div>
+    </div>
+  </div>
+
+  <div class="layout">
+
+    <!-- ====== PICKER ====== -->
+    <div class="picker">
+      <div class="pcard">
+        <h3>Template</h3>
+        <div class="tpl-grid" id="tpl-grid">
+          <button class="tpl-tile sel" data-tpl="hero-num">
+            <div class="swatch" style="background:#5BBCEB; color: var(--eu-navy)">88<span style="font-size:8px; vertical-align:top;">%</span></div>
+            <div class="name">Número-herói</div>
+            <div class="desc">O padrão do playbook</div>
+          </button>
+          <button class="tpl-tile" data-tpl="quote">
+            <div class="swatch" style="background:#003A6B; color:#5BBCEB; font-family:var(--eu-font-ed);">"</div>
+            <div class="name">Quote</div>
+            <div class="desc">Frase de executivo</div>
+          </button>
+          <button class="tpl-tile" data-tpl="case">
+            <div class="swatch" style="background:#CE181E;">CASE</div>
+            <div class="name">Case</div>
+            <div class="desc">Cliente + métrica</div>
+          </button>
+          <button class="tpl-tile" data-tpl="event">
+            <div class="swatch" style="background:#184586;">📍</div>
+            <div class="name">Evento</div>
+            <div class="desc">Cidade + data</div>
+          </button>
+          <button class="tpl-tile" data-tpl="cta">
+            <div class="swatch" style="background:linear-gradient(160deg,#1B4FB8,#0F2566);">→</div>
+            <div class="name">CTA / Capa</div>
+            <div class="desc">Slide final</div>
+          </button>
+          <button class="tpl-tile" data-tpl="award">
+            <div class="swatch" style="background:#FFC700; color:var(--eu-navy);">★</div>
+            <div class="name">Premiação</div>
+            <div class="desc">Reconhecimento</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="pcard">
+        <h3>LOB · Cor</h3>
+        <div class="field">
+          <select id="lob">
+            <option value="sfsf">HCM · SuccessFactors (amarelo)</option>
+            <option value="erp" selected>Cloud ERP (azul-céu)</option>
+            <option value="btm">BTP (magenta)</option>
+            <option value="sig">Signavio (teal)</option>
+            <option value="sn">ServiceNow (verde)</option>
+            <option value="wfs">Workforce (vermelho)</option>
+            <option value="cloud">Cloud · AWS (laranja)</option>
+            <option value="inst">Institucional (navy)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="pcard">
+        <h3>Conteúdo</h3>
+        <div class="field">
+          <label>Headline (use *itálico*)</label>
+          <input type="text" id="f-headline" value="Como a *Embraer* decolou sua gestão de talentos." maxlength="80" />
+          <span class="hint">Máx 6 palavras-chave. Use *texto* para itálico.</span>
+        </div>
+        <div class="field">
+          <label>Número-herói (opcional)</label>
+          <input type="text" id="f-number" value="38%" />
+        </div>
+        <div class="field">
+          <label>Linha de contexto</label>
+          <input type="text" id="f-context" value="redução do ciclo de avaliação · 14 países · SF onboarding" maxlength="60" />
+        </div>
+        <div class="field">
+          <label>Categoria · etiqueta</label>
+          <input type="text" id="f-cat" value="CASE DE SUCESSO" maxlength="30" />
+        </div>
+        <div class="field">
+          <label>Autor / fonte (opcional)</label>
+          <input type="text" id="f-author" placeholder="Diretor de RH · Embraer" />
+        </div>
+      </div>
+
+      <button class="btn btn--primary" id="btn-export" style="width: 100%;">↓ Exportar PNG 1080×1350</button>
+    </div>
+
+    <!-- ====== STAGE ====== -->
+    <div class="stage-wrap">
+      <div class="stage-bar">
+        <h3>Preview ao vivo</h3>
+        <div class="px">Stage 540×675 · output 1080×1350</div>
+      </div>
+      <div id="stage" class="stage"></div>
+      <div style="font-family: var(--eu-font-mono); font-size: 10px; letter-spacing:.12em; text-transform: uppercase; color: var(--d-ink-3);">
+        ↑ Preview reduzido 50% · export sai em resolução final
+      </div>
+    </div>
+
+    <!-- ====== COMPLIANCE ====== -->
+    <div class="actions-card">
+      <h3>Compliance · Brand check</h3>
+      <div class="check-list" id="checks"></div>
+
+      <div style="margin-top: 8px; padding-top: 14px; border-top: 1px solid var(--d-border);">
+        <h3 style="margin: 0 0 10px;">Atalhos</h3>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <button class="btn btn--ghost" id="btn-clear" style="justify-content: flex-start;">↺ Limpar campos</button>
+          <button class="btn btn--ghost" id="btn-from-brief" style="justify-content: flex-start;">← Importar do Brief</button>
+        </div>
+      </div>
+
+      <div style="margin-top: 8px; font-size: 11px; line-height: 1.5; color: var(--d-ink-3); padding-top: 14px; border-top: 1px solid var(--d-border);">
+        <strong style="color: var(--d-ink-2);">Próximas integrações:</strong><br/>
+        · Multi-slide (carrossel completo)<br/>
+        · Galeria de presets<br/>
+        · Upload de foto humana<br/>
+        · Templates por país (DACH, US, UK)
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<script>
+  // nav
+  (function(){
+    var t = document.body.dataset.tab;
+    if (!t) return;
+    var a = document.querySelector('[data-tab-id="' + t + '"]');
+    if (a) a.classList.add('active');
+  })();
+
+  // ===== LOB palette (matches brand kit) =====
+  var LOB = {
+    sfsf:  { bg:'#FFC700', accent:'#CE181E', light:true,  label:'HCM' },
+    erp:   { bg:'#003A6B', accent:'#5BBCEB', light:false, label:'CLOUD ERP' },
+    btm:   { bg:'#3D1A5F', accent:'#B6238D', light:false, label:'SAP BTP' },
+    sig:   { bg:'#013C3A', accent:'#FF6B1A', light:false, label:'SIGNAVIO' },
+    sn:    { bg:'#003A2E', accent:'#62BE5C', light:false, label:'SERVICENOW' },
+    wfs:   { bg:'#3C0A0E', accent:'#FFC1B5', light:false, label:'WORKFORCE' },
+    cloud: { bg:'#1B2750', accent:'#F5841F', light:false, label:'CLOUD' },
+    inst:  { bg:'#001844', accent:'#5BBCEB', light:false, label:'GROUP ELEPHANT' }
+  };
+
+  // ===== state =====
+  var state = {
+    tpl: 'hero-num',
+    lob: 'erp',
+    headline: 'Como a *Embraer* decolou sua gestão de talentos.',
+    number: '38%',
+    context: 'redução do ciclo de avaliação · 14 países · SF onboarding',
+    cat: 'CASE DE SUCESSO',
+    author: ''
+  };
+
+  // ===== template renderers (write inline styles so html2canvas captures them) =====
+  function italicize(s) {
+    return String(s||'').replace(/\*(.+?)\*/g, '<em style="font-style: normal; color: var(--accent);">$1</em>');
+  }
+  function splitNumber(s) {
+    var m = String(s||'').match(/^([\d.,]+)(.*)$/);
+    if (m) return { n: m[1], unit: m[2] || '' };
+    return { n: s, unit: '' };
+  }
+
+  function render() {
+    var l = LOB[state.lob];
+    var stage = document.getElementById('stage');
+    stage.style.background = l.bg;
+    var ink = l.light ? '#001844' : '#ffffff';
+    var muted = l.light ? 'rgba(0,24,68,0.6)' : 'rgba(255,255,255,0.62)';
+    var rule  = l.light ? 'rgba(0,24,68,0.18)' : 'rgba(255,255,255,0.18)';
+    var ctxbg = l.light ? 'rgba(0,24,68,0.08)' : 'rgba(255,255,255,0.10)';
+    var accent = l.accent;
+
+    stage.style.setProperty('--accent', accent);
+    stage.style.color = ink;
+
+    var headlineHTML = italicize(state.headline);
+    var nm = splitNumber(state.number);
+
+    var common =
+      // top
+      '<div style="position:absolute; top: 24px; left: 24px; right: 24px; display: flex; justify-content: space-between; align-items: flex-start; z-index: 2;">'+
+        '<div style="background:#fff; color: var(--eu-red); padding: 4px 8px; border-radius: 3px; font-family: var(--eu-font-display); font-weight: 800; font-size: 14px; letter-spacing: 0.02em;">EPI·USE<span style="font-size: 8px; vertical-align: super;">®</span></div>'+
+        '<div style="font-family: var(--eu-font-mono); font-size: 9px; font-weight: 700; letter-spacing: 0.14em; color: '+muted+'; border: 1px solid '+rule+'; padding: 4px 8px; border-radius: 3px; text-transform: uppercase;">'+ (state.cat || l.label) +'</div>'+
+      '</div>'+
+      // footer
+      '<div style="position: absolute; left: 24px; right: 24px; bottom: 22px; padding-top: 14px; border-top: 1px solid '+rule+'; display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: '+muted+'; z-index: 2;">'+
+        '<span><span style="display:inline-block; width:8px; height:8px; background:'+accent+'; margin-right: 8px; vertical-align: middle;"></span>'+ l.label +'</span>'+
+        '<span style="font-family: var(--eu-font-mono); letter-spacing: 0.08em; font-weight: 700;">epiuse.com.br</span>'+
+      '</div>';
+
+    var body = '';
+
+    if (state.tpl === 'hero-num') {
+      body =
+        '<div style="position: absolute; inset: 0; padding: 88px 48px 80px; display: flex; flex-direction: column; justify-content: center; gap: 12px;">'+
+        '<div style="font-family: var(--eu-font-display); font-weight: 700; font-size: 32px; line-height: 1.08; letter-spacing: -0.015em; color: '+ink+'; max-width: 90%;">'+ headlineHTML +'</div>'+
+        (state.number ? '<div style="font-family: var(--eu-font-display); font-weight: 800; font-size: 140px; line-height: 0.9; letter-spacing: -0.04em; color: '+accent+'; margin: 0;">'+ nm.n +'<sub style="font-size: 48px; vertical-align: top; font-weight: 700;">'+ nm.unit +'</sub></div>' : '')+
+        '<div style="background: '+ctxbg+'; padding: 12px 16px; border-radius: 6px; font-size: 14px; line-height: 1.35; max-width: 90%; color: '+ink+';">'+ state.context +'</div>'+
+        '</div>';
+    }
+    else if (state.tpl === 'quote') {
+      body =
+        '<div style="position: absolute; inset: 0; padding: 88px 48px 80px; display: flex; flex-direction: column; justify-content: center; gap: 20px;">'+
+        '<div style="font-family: \'Instrument Serif\', Georgia, serif; font-size: 80px; line-height: 0.5; color: '+accent+'; opacity: 0.8;">"</div>'+
+        '<div style="font-family: var(--eu-font-display); font-weight: 600; font-size: 26px; line-height: 1.2; letter-spacing: -0.01em; color: '+ink+'; max-width: 90%;">'+ headlineHTML +'</div>'+
+        (state.author ? '<div style="margin-top: 16px; font-family: var(--eu-font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: '+muted+'; font-weight: 700;">'+ state.author +'</div>' : '')+
+        '</div>';
+    }
+    else if (state.tpl === 'case') {
+      body =
+        '<div style="position: absolute; inset: 0; padding: 88px 48px 80px; display: flex; flex-direction: column; gap: 16px;">'+
+        '<div style="font-family: var(--eu-font-mono); font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: '+accent+';">Case de Sucesso</div>'+
+        '<div style="font-family: var(--eu-font-display); font-weight: 700; font-size: 32px; line-height: 1.1; letter-spacing: -0.015em; color: '+ink+';">'+ headlineHTML +'</div>'+
+        (state.number ? '<div style="display: flex; align-items: baseline; gap: 14px; margin-top: 14px;"><div style="font-family: var(--eu-font-display); font-weight: 800; font-size: 88px; line-height: 0.85; letter-spacing: -0.04em; color: '+accent+';">'+ nm.n +'<sub style="font-size: 30px; vertical-align: top; font-weight: 700;">'+ nm.unit +'</sub></div></div>' : '')+
+        '<div style="margin-top: auto; font-size: 14px; line-height: 1.4; color: '+ink+'; max-width: 95%;">'+ state.context +'</div>'+
+        (state.author ? '<div style="font-family: var(--eu-font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: '+muted+'; font-weight: 700; margin-top: 8px;">'+ state.author +'</div>' : '')+
+        '</div>';
+    }
+    else if (state.tpl === 'event') {
+      body =
+        '<div style="position: absolute; inset: 0; padding: 88px 48px 80px; display: flex; flex-direction: column; gap: 18px;">'+
+        '<div style="font-family: var(--eu-font-mono); font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: '+accent+';">📍 Estaremos presentes</div>'+
+        '<div style="font-family: var(--eu-font-display); font-weight: 700; font-size: 38px; line-height: 1.05; letter-spacing: -0.025em; color: '+ink+';">'+ headlineHTML +'</div>'+
+        '<div style="margin-top: 14px; padding: 16px 18px; background: '+ctxbg+'; border-radius: 8px; border-left: 4px solid '+accent+'; max-width: 95%;">'+
+          '<div style="font-size: 13px; color: '+ink+'; line-height: 1.4;">'+ state.context +'</div>'+
+        '</div>'+
+        (state.author ? '<div style="font-family: var(--eu-font-mono); font-size: 12px; letter-spacing: 0.08em; color: '+muted+'; font-weight: 700; margin-top: 14px;">'+ state.author +'</div>' : '')+
+        '</div>';
+    }
+    else if (state.tpl === 'cta') {
+      body =
+        '<div style="position: absolute; inset: 0; padding: 88px 48px 80px; display: flex; flex-direction: column; justify-content: flex-end; gap: 18px;">'+
+        '<div style="font-family: var(--eu-font-display); font-weight: 700; font-size: 56px; line-height: 0.98; letter-spacing: -0.03em; color: '+ink+'; max-width: 12ch;">'+ headlineHTML +'</div>'+
+        '<div style="display: flex; align-items: center; gap: 12px; padding-top: 16px;">'+
+          '<div style="width: 12px; height: 12px; background: '+accent+'; transform: rotate(45deg);"></div>'+
+          '<span style="font-size: 14px; color: '+ink+'; opacity: 0.85;">'+ state.context +'</span>'+
+        '</div>'+
+        '</div>';
+    }
+    else if (state.tpl === 'award') {
+      body =
+        '<div style="position: absolute; inset: 0; padding: 88px 48px 80px; display: flex; flex-direction: column; justify-content: center; gap: 14px;">'+
+        '<div style="font-family: var(--eu-font-mono); font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: '+accent+';">★ Reconhecimento</div>'+
+        '<div style="font-family: var(--eu-font-display); font-weight: 700; font-size: 36px; line-height: 1.05; letter-spacing: -0.02em; color: '+ink+';">'+ headlineHTML +'</div>'+
+        (state.number ? '<div style="font-family: var(--eu-font-display); font-weight: 800; font-size: 80px; line-height: 0.9; letter-spacing: -0.03em; color: '+accent+';">'+ nm.n +'<sub style="font-size: 28px; vertical-align: top; font-weight: 700;">'+ nm.unit +'</sub></div>' : '')+
+        '<div style="font-size: 14px; line-height: 1.4; color: '+ink+'; max-width: 90%; opacity: 0.9;">'+ state.context +'</div>'+
+        '</div>';
+    }
+
+    stage.innerHTML = common + body;
+    runChecks();
+  }
+
+  // ===== compliance checks =====
+  function runChecks() {
+    var checks = [];
+    var hl = state.headline || '';
+    var wordCount = hl.split(/\s+/).filter(Boolean).length;
+
+    if (wordCount === 0) {
+      checks.push({ s:'bad', t:'Headline ausente', sub:'Cole um headline.' });
+    } else if (wordCount > 8) {
+      checks.push({ s:'warn', t:'Headline com '+wordCount+' palavras', sub:'Ideal: até 6. Quebre em mais slides.' });
+    } else {
+      checks.push({ s:'ok', t:'Headline com '+wordCount+' palavras', sub:'Dentro da regra dos 5 elementos.' });
+    }
+
+    if (state.context && state.context.length > 70) {
+      checks.push({ s:'warn', t:'Contexto longo', sub:'Tente reduzir para 1 linha (até 60 chars).' });
+    } else if (state.context) {
+      checks.push({ s:'ok', t:'Contexto OK', sub:state.context.length+' caracteres.' });
+    }
+
+    var italicMatches = (hl.match(/\*[^*]+\*/g) || []).length;
+    if (italicMatches === 0) {
+      checks.push({ s:'warn', t:'Sem termo em itálico', sub:'Use *texto* para destacar uma palavra-chave.' });
+    } else if (italicMatches > 2) {
+      checks.push({ s:'warn', t:'Muitos itálicos ('+italicMatches+')', sub:'Use no máximo 2 — o spark deve ser único.' });
+    } else {
+      checks.push({ s:'ok', t:italicMatches+' termo em itálico', sub:'Bom uso do realce.' });
+    }
+
+    if ((state.tpl === 'hero-num' || state.tpl === 'case') && !state.number) {
+      checks.push({ s:'warn', t:'Template pede número-herói', sub:'Carrosséis de produto/case rendem mais com número visual.' });
+    }
+
+    if (state.lob === 'inst' && !state.context.match(/group elephant|ERP\.ngo|40 anos/i)) {
+      checks.push({ s:'warn', t:'Institucional sem âncora', sub:'Cite Group Elephant, ERP.ngo ou 40 anos.' });
+    }
+
+    var html = checks.map(function(c){
+      var icn = c.s === 'ok' ? '✓' : c.s === 'warn' ? '⚠' : '✕';
+      return '<div class="ck '+c.s+'"><span class="icn">'+icn+'</span><div class="lbl">'+c.t+(c.sub?'<small>'+c.sub+'</small>':'')+'</div></div>';
+    }).join('');
+    document.getElementById('checks').innerHTML = html || '<div class="ck ok"><span class="icn">✓</span><div class="lbl">Tudo certo</div></div>';
+  }
+
+  // ===== bind UI =====
+  document.querySelectorAll('.tpl-tile').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.querySelectorAll('.tpl-tile').forEach(function(x){ x.classList.remove('sel'); });
+      b.classList.add('sel');
+      state.tpl = b.dataset.tpl;
+      render();
+    });
+  });
+  document.getElementById('lob').addEventListener('change', function(e){ state.lob = e.target.value; render(); });
+  document.getElementById('f-headline').addEventListener('input', function(e){ state.headline = e.target.value; render(); });
+  document.getElementById('f-number').addEventListener('input', function(e){ state.number = e.target.value; render(); });
+  document.getElementById('f-context').addEventListener('input', function(e){ state.context = e.target.value; render(); });
+  document.getElementById('f-cat').addEventListener('input', function(e){ state.cat = e.target.value; render(); });
+  document.getElementById('f-author').addEventListener('input', function(e){ state.author = e.target.value; render(); });
+
+  document.getElementById('btn-clear').addEventListener('click', function(){
+    state = { tpl:'hero-num', lob:'erp', headline:'', number:'', context:'', cat:'', author:'' };
+    document.getElementById('f-headline').value = '';
+    document.getElementById('f-number').value = '';
+    document.getElementById('f-context').value = '';
+    document.getElementById('f-cat').value = '';
+    document.getElementById('f-author').value = '';
+    document.getElementById('lob').value = 'erp';
+    document.querySelectorAll('.tpl-tile').forEach(function(x){ x.classList.remove('sel'); });
+    document.querySelector('[data-tpl="hero-num"]').classList.add('sel');
+    render();
+  });
+
+  document.getElementById('btn-from-brief').addEventListener('click', function(){
+    var raw = localStorage.getItem('inbound.brief.draft');
+    if (!raw) { alert('Nenhum brief salvo. Vá no Brief→Post primeiro.'); return; }
+    try {
+      var b = JSON.parse(raw);
+      if (b.lob) { state.lob = b.lob; document.getElementById('lob').value = b.lob; }
+      if (b.client) {
+        state.headline = 'Case ' + b.client;
+        document.getElementById('f-headline').value = state.headline;
+      }
+      if (b.metric) {
+        state.number = b.metric;
+        document.getElementById('f-number').value = b.metric;
+      }
+      render();
+    } catch(e) { alert('Brief inválido.'); }
+  });
+
+  // ===== EXPORT PNG =====
+  document.getElementById('btn-export').addEventListener('click', async function(){
+    var stage = document.getElementById('stage');
+    var btn = this;
+    btn.setAttribute('disabled','true');
+    btn.innerHTML = '<span class="spin"></span> Renderizando…';
+
+    try {
+      // Render at 2x for sharp 1080×1350 output
+      var canvas = await html2canvas(stage, {
+        backgroundColor: null,
+        scale: 2, // 540×675 × 2 = 1080×1350
+        logging: false,
+        useCORS: true
+      });
+
+      var url = canvas.toDataURL('image/png');
+      var a = document.createElement('a');
+      a.download = 'eubr-inbound-' + state.lob + '-' + state.tpl + '-' + Date.now() + '.png';
+      a.href = url;
+      a.click();
+    } catch (e) {
+      console.error(e);
+      alert('Erro ao exportar: ' + (e.message || ''));
+    } finally {
+      btn.removeAttribute('disabled');
+      btn.innerHTML = '↓ Exportar PNG 1080×1350';
+    }
+  });
+
+  render();
+</script>
+
+</body>
+</html>

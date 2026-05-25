@@ -1,0 +1,217 @@
+/* ====================================================================
+   EPI-USE Brasil — Design Tokens
+   Source of truth: Canva brand kit (MAY 2026) — EPI-USE Brasil Marketing Branding.
+   Reference these vars from every artifact.
+   ==================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+  /* ============================================================
+     PRIMARY — from Canva brand kit (MAY 2026)
+     The team's day-to-day source of truth.
+     ============================================================ */
+  --eu-primary-navy:  #001844;  /* deep navy — wordmark, fills, type */
+  --eu-primary-red:   #CE181E;  /* logo red — wordmark + 1 spark/layout */
+  --eu-primary-gray:  #E4E3E6;  /* light warm gray — surfaces */
+  --eu-primary-paper: #F1F1F1;  /* near-white background */
+  /* The older ECC navy (#003A6B) is preserved as a deck ramp step */
+  --eu-deck-navy:     #003A6B;
+  --eu-primary-blue:  #6797B8;  /* mid blue — secondary fills, charts */
+
+  /* Legacy aliases (existing artifacts) */
+  --eu-navy:        var(--eu-primary-navy);
+  --eu-blue:        var(--eu-primary-blue);
+  --eu-line:        var(--eu-primary-gray);
+
+  /* ============================================================
+     SECONDARY — Canva sec. (sec.gris ink #313131) + ramp steps
+     ============================================================ */
+  --eu-sec-charcoal:  #313131;   /* near-black — body on light surfaces */
+  --eu-sec-blue:      #6797B8;   /* alias of primary blue */
+  --eu-sec-white:     #FFFFFF;
+  --eu-sec-navy-1:    #002354;
+  --eu-sec-navy-2:    #184586;
+  --eu-sec-teal:      #046595;
+  --eu-sec-slate:     #507392;
+  --eu-sec-paper:     #F1F1F1;
+
+  /* Legacy navy/blue aliases for compatibility */
+  --eu-navy-deep:   var(--eu-sec-navy-1);
+  --eu-navy-mid:    var(--eu-sec-navy-2);
+  --eu-teal:        var(--eu-sec-teal);
+  --eu-blue-link:   var(--eu-sec-slate);
+  --eu-blue-soft:   #8FAEC4;
+
+  /* ============================================================
+     GRADIENTS — built ONLY from primary + secondary stops.
+     Never invent a new gradient outside this set.
+     ============================================================ */
+  --eu-grad-deep:    linear-gradient(135deg, #002354 0%, #003A6B 100%);
+  --eu-grad-royal:   linear-gradient(135deg, #184586 0%, #2A6FC9 100%);
+  --eu-grad-sky:     linear-gradient(135deg, #046595 0%, #8FC8E6 100%);
+  --eu-grad-soft:    linear-gradient(135deg, #6897B8 0%, #E0EDF6 100%);
+  --eu-grad-fade:    linear-gradient(135deg, #D7DAD6 0%, #FFFFFF 100%);
+
+  /* ============================================================
+     LoB — Line of Business colors (Canva brand kit)
+     One color per business line. Use as accent in headers,
+     case-study chips, vertical badges. NEVER as body fill.
+     ============================================================ */
+  --eu-lob-sfsf:   #FFC700;  /* SuccessFactors · yellow */
+  --eu-lob-btm:    #B6238D;  /* Business Transformation Mgmt · magenta */
+  --eu-lob-wfs:    #C8262E;  /* WorkForce Software · red */
+  --eu-lob-erp:    #5BBCEB;  /* ERP / S/4HANA · sky blue */
+  --eu-lob-cloud:  #F5841F;  /* Cloud / Valcann / AWS · orange */
+  --eu-lob-sn:     #62BE5C;  /* ServiceNow · green */
+
+  /* ============================================================
+     SPOT — calibrated to Canva spot palette
+     For instructional diagrams only. Never as decorative color.
+     ============================================================ */
+  --eu-spot-navy:    #113363;
+  --eu-spot-blue:    #2042B1;
+  --eu-spot-sky:     #0380BB;
+  --eu-spot-azure:   #0070BF;
+  --eu-spot-teal:    #009193;
+  --eu-spot-green:   #00B050;
+  --eu-spot-cyan:    #23A8C3;
+  --eu-spot-orange:  #FF9300;
+  --eu-spot-red:     #C00000;
+  --eu-spot-black:   #313131;
+  --eu-spot-yellow:  #FAE200;
+
+  /* ============================================================
+     RED — the logo's spark. From the actual EPI-USE SVG (epiuselabs.com).
+     Reserved for the wordmark + (rarely) a single accent moment.
+     ============================================================ */
+  --eu-red:         #CE181E;
+  --eu-red-deep:    #A8141A;
+
+  /* ============================================================
+     LABS — slightly different navy + softer blue used across
+     epiuselabs.com SVGs. Use when designing for global EPI-USE
+     Labs collateral; the Brazil/corporate work stays on
+     --eu-primary-navy (#003A6B).
+     ============================================================ */
+  --eu-labs-navy:   #1B2750;
+  --eu-labs-blue:   #849EC3;
+
+  /* ============================================================
+     NEUTRALS — ink + surface
+     ============================================================ */
+  --eu-ink:         #313131;   /* body copy — from Canva sec. */
+  --eu-ink-mid:     #6E6E6E;   /* secondary copy, meta */
+  --eu-surface-1:   #FFFFFF;
+  --eu-surface-2:   #F1F1F1;   /* near-white section background */
+  --eu-surface-3:   #E4E3E6;   /* primary gray surface */
+
+  /* ----------  STATUS ---------- */
+  --eu-success:    #1F8A5B;
+  --eu-warning:    #C57A00;
+  --eu-danger:     var(--eu-red);
+
+  /* ----------  TYPE ---------- */
+  /* Template ships in Verdana (the only font allowed in client-facing PPT).      */
+  /* For digital surfaces the brand uses Open Sans — open humanist sans with the   */
+  /* same broad x-height as Verdana; reads warm but stays enterprise-credible.     */
+  --eu-font-display: 'Open Sans', 'Verdana', system-ui, sans-serif;
+  --eu-font-body:    'Open Sans', 'Verdana', system-ui, sans-serif;
+  --eu-font-mono:    'JetBrains Mono', ui-monospace, Menlo, monospace;
+
+  --eu-fs-display:  64px;   /* slide titles 1920x1080 */
+  --eu-fs-h1:       40px;
+  --eu-fs-h2:       28px;
+  --eu-fs-h3:       20px;
+  --eu-fs-body:     16px;
+  --eu-fs-small:    13px;
+  --eu-fs-caption:  11px;
+  --eu-lh-tight:    1.1;
+  --eu-lh-normal:   1.45;
+  --eu-lh-relaxed:  1.6;
+
+  /* ----------  SHAPE ---------- */
+  --eu-radius-sm:   4px;
+  --eu-radius-md:   8px;
+  --eu-radius-lg:   16px;
+  --eu-radius-pill: 999px;
+
+  /* ----------  ELEVATION (subtle — this is enterprise, not e-commerce) ---------- */
+  --eu-shadow-1: 0 1px 2px rgba(1, 35, 85, .06), 0 1px 1px rgba(1, 35, 85, .04);
+  --eu-shadow-2: 0 4px 16px rgba(1, 35, 85, .08), 0 1px 2px rgba(1, 35, 85, .04);
+  --eu-shadow-3: 0 12px 40px rgba(1, 35, 85, .12);
+
+  /* ----------  GRID ---------- */
+  --eu-space-1:  4px;
+  --eu-space-2:  8px;
+  --eu-space-3:  12px;
+  --eu-space-4:  16px;
+  --eu-space-5:  24px;
+  --eu-space-6:  32px;
+  --eu-space-7:  48px;
+  --eu-space-8:  64px;
+  --eu-space-9:  96px;
+}
+
+/* ====================================================================
+   Base utility classes (opt-in; do not auto-apply to body)
+   ==================================================================== */
+
+.eu-base {
+  color: var(--eu-ink);
+  font-family: var(--eu-font-body);
+  font-size: var(--eu-fs-body);
+  line-height: var(--eu-lh-normal);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.eu-display { font-family: var(--eu-font-display); font-weight: 700; letter-spacing: -0.02em; line-height: var(--eu-lh-tight); color: var(--eu-navy); }
+.eu-h1      { font-size: var(--eu-fs-h1);      font-weight: 700; line-height: var(--eu-lh-tight);  color: var(--eu-navy); letter-spacing: -0.015em; }
+.eu-h2      { font-size: var(--eu-fs-h2);      font-weight: 600; line-height: 1.2;  color: var(--eu-navy); letter-spacing: -0.01em; }
+.eu-h3      { font-size: var(--eu-fs-h3);      font-weight: 600; line-height: 1.3;  color: var(--eu-navy-deep); }
+.eu-body    { font-size: var(--eu-fs-body);    line-height: var(--eu-lh-normal); color: var(--eu-ink); }
+.eu-small   { font-size: var(--eu-fs-small);   line-height: var(--eu-lh-normal); color: var(--eu-ink-mid); }
+.eu-caption { font-size: var(--eu-fs-caption); line-height: 1.35; color: var(--eu-ink-mid); text-transform: uppercase; letter-spacing: .08em; font-weight: 600; }
+
+/* The "spark" — use once per layout, never for body text. */
+.eu-spark { color: var(--eu-red); }
+
+/* ====================================================================
+   Buttons (primary surfaces)
+   ==================================================================== */
+
+.eu-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 8px; padding: 12px 22px;
+  font-family: var(--eu-font-body); font-size: 15px; font-weight: 600;
+  letter-spacing: 0.01em; line-height: 1; border: 1px solid transparent;
+  border-radius: var(--eu-radius-sm); cursor: pointer; user-select: none;
+  transition: background .15s ease, border-color .15s ease, color .15s ease, transform .05s ease;
+}
+.eu-btn:active { transform: translateY(1px); }
+
+.eu-btn--primary    { background: var(--eu-navy); color: #fff; }
+.eu-btn--primary:hover    { background: var(--eu-navy-deep); }
+
+.eu-btn--accent     { background: var(--eu-red);  color: #fff; }
+.eu-btn--accent:hover     { background: var(--eu-red-deep); }
+
+.eu-btn--secondary  { background: transparent; color: var(--eu-navy); border-color: var(--eu-navy); }
+.eu-btn--secondary:hover  { background: var(--eu-navy); color: #fff; }
+
+.eu-btn--ghost      { background: transparent; color: var(--eu-navy); }
+.eu-btn--ghost:hover      { background: var(--eu-surface-2); }
+
+/* ====================================================================
+   Sphere — the ONLY decorative shape the brand template permits.
+   Use as a container for icons or stat numbers.
+   ==================================================================== */
+
+.eu-sphere {
+  --size: 160px;
+  width: var(--size); height: var(--size); border-radius: 50%;
+  background: radial-gradient(circle at 30% 28%, #6897B8 0%, #184586 55%, #002354 100%);
+  box-shadow: inset 0 -10px 30px rgba(0,0,0,.18), 0 6px 18px rgba(0,35,84,.18);
+  display: grid; place-items: center; color: #fff;
+}
