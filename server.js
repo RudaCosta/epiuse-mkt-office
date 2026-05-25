@@ -247,27 +247,16 @@ app.get('/inbound/studio',    (req, res) => res.sendFile(path.join(INBOUND_DIR, 
 app.get('/inbound/carousel',  (req, res) => res.sendFile(path.join(INBOUND_DIR, 'carousel.html')));
 app.get('/inbound/playbook',  (req, res) => res.sendFile(path.join(INBOUND_DIR, 'playbook.html')));
 
-if (IS_LOCAL_DEV) {
-  // Local: / = Office Engine Game | /dashboard = War Room clássico | /hub = Marketing Hub
-  const OFFICE_GAME_PATH = path.resolve('G:/Meu Drive/Claude MKT EUBR/dashboard-escritorio.html');
-  const DASHBOARD_PATH   = path.resolve('G:/Meu Drive/Claude MKT EUBR/dashboard-classic.html');
-  const MKT_HUB_PATH     = path.resolve('G:/Meu Drive/Claude MKT EUBR/Estudos/portal-mkt-hub-FINAL.html');
-  app.get('/',          (req, res) => res.sendFile(OFFICE_GAME_PATH));
-  app.get('/game',      (req, res) => res.sendFile(OFFICE_GAME_PATH));
-  app.get('/dashboard', (req, res) => res.sendFile(DASHBOARD_PATH));
-  app.get('/hub',       (req, res) => res.sendFile(MKT_HUB_PATH));
-  // Snapshots de versões anteriores: servidos pelo express.static global (linha 202),
-  // pois os arquivos agora vivem em public/_versoes-office/ (também funciona em Railway).
-} else {
-  // Railway: servimos os HTMLs do Office direto do public/
-  const OFFICE_PROD    = path.join(__dirname, 'public/office.html');
-  const DASHBOARD_PROD = path.join(__dirname, 'public/dashboard.html');
-  const HUB_PROD       = path.join(__dirname, 'public/hub.html');
-  app.get('/',          (req, res) => res.sendFile(OFFICE_PROD));
-  app.get('/game',      (req, res) => res.sendFile(OFFICE_PROD));
-  app.get('/dashboard', (req, res) => res.sendFile(DASHBOARD_PROD));
-  app.get('/hub',       (req, res) => res.sendFile(HUB_PROD));
-}
+// Single source of truth — local e Railway servem do mesmo public/.
+// (Antes o local lia de G:/Meu Drive/.../dashboard-classic.html que ficou stale.
+// Agora qualquer edição em public/ aparece imediatamente nos 2 ambientes.)
+const OFFICE_HTML    = path.join(__dirname, 'public/office.html');
+const DASHBOARD_HTML = path.join(__dirname, 'public/dashboard.html');
+const HUB_HTML       = path.join(__dirname, 'public/hub.html');
+app.get('/',          (req, res) => res.sendFile(OFFICE_HTML));
+app.get('/game',      (req, res) => res.sendFile(OFFICE_HTML));
+app.get('/dashboard', (req, res) => res.sendFile(DASHBOARD_HTML));
+app.get('/hub',       (req, res) => res.sendFile(HUB_HTML));
 
 // ── UTM REDIRECT: /v/:slug ────────────────────────────────────────────────────
 // Bio link de cada Voice. Adiciona UTMs e redireciona pra /seja-voice.
