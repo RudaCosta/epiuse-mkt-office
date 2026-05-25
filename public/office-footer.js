@@ -3,21 +3,24 @@
 // Status do sistema + versão atual + dropdown de versões anteriores
 // ════════════════════════════════════════════════════════════════════════════
 
-const OFFICE_FOOTER_VERSION = 'v3.4';
+const OFFICE_FOOTER_VERSION = '0.4.0';
 const OFFICE_FOOTER_BUILD = '2026-05-25';
 
-// Cada release abre o snapshot daquele momento em uma das telas-chave.
-// Os arquivos vivem em public/_versoes-office/ e são servidos via express.static.
-// `path` é o que abre no clique; `label` aparece no dropdown.
+// Schema semver pré-1.0 — explicação em vault/00-contexto/versioning.md
+// Versões antigas que começavam com "v2.X" ou "v3.X" foram renumeradas pra 0.2.X / 0.3.X
+// (semver indica pré-1.0 enquanto não há "release oficial"). URLs dos snapshots no
+// disco mantêm o prefixo antigo (v3.X) pra não quebrar links — só o label visual mudou.
 const OFFICE_VERSION_HISTORY = [
-  { ver: 'v3.4', date: '25/mai/2026', label: 'Inbound Engine + Carrossel Hub + chip de versão', path: null, status: 'current' },
-  { ver: 'v3.3', date: '24/mai/2026', label: 'office-nav + office-footer + SQLite', path: '/_versoes-office/v3.1-game-engine.html', status: 'snapshot' },
-  { ver: 'v3.2', date: '24/mai/2026', label: 'Painel da Duda + post tracker', path: '/_versoes-office/v3.2-painel.html', status: 'snapshot' },
-  { ver: 'v3.1', date: '23/mai/2026', label: 'Voices + LP Seja um Voice', path: '/_versoes-office/v3.1-voices.html', status: 'snapshot' },
-  { ver: 'v3.0', date: '23/mai/2026', label: 'Sprint Maximalist — Painel + Voice Agents + LP', path: '/_versoes-office/v3.0-game-engine.html', status: 'snapshot' },
-  { ver: 'v2.2', date: '23/mai/2026', label: 'Optimizer integrado ao Voices + agenda dinâmica', path: '/_versoes-office/v2.2-game-engine.html', status: 'snapshot' },
-  { ver: 'v2.1', date: '23/mai/2026', label: 'Game Engine 2D + Dashboard duplo', path: '/_versoes-office/v2.1-game-engine.html', status: 'snapshot' },
-  { ver: 'v2.0', date: '23/mai/2026', label: 'Office Engine 2D inaugural', path: '/_versoes-office/v2.0-game-engine.html', status: 'snapshot' }
+  { ver: '0.4.0', date: '25/mai/2026', label: 'Refactor: top menu remodel + Cases & CS Hub + Calendar API + paleta Gather + Inbound paleta unificada + RD Station + SSO doc', path: null, status: 'current' },
+  { ver: '0.3.5', date: '25/mai/2026', label: 'Quick wins + Optimizer Sonnet + Voices auto-fill via Vision', path: '/_versoes-office/v3.4-inbound-hub.html', status: 'snapshot' },
+  { ver: '0.3.4', date: '25/mai/2026', label: 'Inbound Engine + Carrossel Hub + chip de versão + footer dropdown', path: '/_versoes-office/v3.4-inbound-hub.html', status: 'snapshot' },
+  { ver: '0.3.3', date: '24/mai/2026', label: 'office-nav + office-footer + SQLite', path: '/_versoes-office/v3.1-game-engine.html', status: 'snapshot' },
+  { ver: '0.3.2', date: '24/mai/2026', label: 'Painel da Duda + post tracker', path: '/_versoes-office/v3.2-painel.html', status: 'snapshot' },
+  { ver: '0.3.1', date: '23/mai/2026', label: 'Voices + LP Seja um Voice', path: '/_versoes-office/v3.1-voices.html', status: 'snapshot' },
+  { ver: '0.3.0', date: '23/mai/2026', label: 'Sprint Maximalist — Painel + Voice Agents + LP', path: '/_versoes-office/v3.0-game-engine.html', status: 'snapshot' },
+  { ver: '0.2.2', date: '23/mai/2026', label: 'Optimizer integrado ao Voices + agenda dinâmica', path: '/_versoes-office/v2.2-game-engine.html', status: 'snapshot' },
+  { ver: '0.2.1', date: '23/mai/2026', label: 'Game Engine 2D + Dashboard duplo', path: '/_versoes-office/v2.1-game-engine.html', status: 'snapshot' },
+  { ver: '0.2.0', date: '23/mai/2026', label: 'Office Engine 2D inaugural', path: '/_versoes-office/v2.0-game-engine.html', status: 'snapshot' }
 ];
 
 class OfficeFooter extends HTMLElement {

@@ -90,11 +90,47 @@ body {
 <office-footer></office-footer>
 
 <script>
+// Esquema de versionamento adotado em 25/mai/2026: semver pré-1.0 (0.X.Y).
+// Antes usávamos vX.Y (cosmético) — agora indica explicitamente que estamos em dev,
+// sem release "estável" oficial ainda. 1.0.0 fica reservado pra quando bater SSO
+// + adoção do time medida + estabilidade em produção por X semanas seguidas.
+// Detalhes em vault/00-contexto/versioning.md.
 const RELEASES = [
   {
-    version: 'v3.4', date: '25/mai/2026', current: true, status: 'local',
+    version: '0.4.0', date: '25/mai/2026', current: true, status: 'local',
+    title: 'Refactor estrutural: Top menu remodel + Cases & CS Hub + Calendar API + paleta Gather',
+    body: `Sprint pós-reunião + iterações do dia. Refactor com 8 entregas:
+    <ul>
+      <li><b>Top menu remodel:</b> active state forte (gradient + dot indicator + double underline) · user chip vira dropdown real (tema, rename, logout limpa preferências, ERP.ngo) · 🔔 notification bell lê <code>GET /api/alerts</code> com badge · breadcrumb sutil em rotas profundas · hamburger mobile <720px · skip-to-content a11y · tab nova "🤝 Cases & CS"</li>
+      <li><b>Game Gather-style:</b> paleta pastel-clean (substituiu tons cyber-dark) · labels flutuantes estilo Gather (bubble preta arredondada com borda colorida da área) · polyfill ctx.roundRect</li>
+      <li><b>Cases & CS Hub novo</b> em <code>/cases</code>: tabela SQLite <code>cs_clientes</code>, KPIs agregados (live, onboarding, churn risk, NPS médio), filtros por status, callout "case publicável", seed inicial 3 clientes anonimizados, endpoint <code>POST /api/cases/sync</code> pra cron diário com SharePoint</li>
+      <li><b>Calendar editorial API:</b> tabela <code>editorial_calendar</code> + endpoints GET/POST + integração RD Station via <code>POST /api/inbound/sync-rd</code> (API key já registrada)</li>
+      <li><b>Inbound paleta unificada</b>: <code>inbound-shell.css</code> agora usa os mesmos tokens do <code>/dashboard</code> (#060e1a bg, rgba surfaces, sky #5BBCEB mantido como identidade)</li>
+      <li><b>/api/alerts</b>: feed unificado do <code>voices.json#alertas</code> + alertas derivados (Voice sem post há 14 dias)</li>
+      <li><b>Doc SSO Microsoft</b> (<code>vault/00-contexto/sso-microsoft-plan.md</code>): avaliação completa pra Roberto — $0 Microsoft, 11h dev, perguntas pendentes pro IT</li>
+      <li><b>Doc Sync Policy</b> (<code>vault/00-contexto/sync-policy.md</code>): política de scheduled tasks por planilha (CS 7h, Calendar Duda 6h, manual pra team.json)</li>
+    </ul>`
+  },
+  {
+    version: '0.3.5', date: '25/mai/2026', status: 'snapshot',
+    title: 'Quick wins + Optimizer Sonnet + Voices auto-fill (Vision)',
+    body: `Sprint pós-reunião do time RevOps & MKT (25/mai):
+    <ul>
+      <li><b>Aniversários do time</b> em <code>team.json</code> + strip 🎂 no <code>/dashboard</code> (Bruna 10/06 · Duda 12/09 · Isabela 05/09 · Rudá 30/07 · Marlison 05/11 · Gui 17/01)</li>
+      <li><b>Label "Office"</b> no lugar de "Hub" no primeiro tab do nav</li>
+      <li><b>Painel da Duda dentro de Voices</b> — redirect <code>/voices/painel</code> + card destaque na galeria + remove do top nav</li>
+      <li><b>Naming "Carrossel"</b> consistente em todas as telas Inbound (acabou "Carousel" mixed)</li>
+      <li><b>Playbook ganha header sticky de retorno</b> "← Inbound Hub" sem quebrar o deck 1920×1080</li>
+      <li><b>Optimizer modo escuro fixado</b> — removido sistema local de tema que conflitava com o global do <code>&lt;office-nav&gt;</code></li>
+      <li><b>Optimizer fix timeout/erro 20s:</b> swap Claude Opus → Sonnet 4.6 (corta latência pra ~12-18s), timeout 90s no fetch, loading 3-etapas com progresso, error handling informativo</li>
+      <li><b>Voices auto-fill via Claude Vision:</b> 2 endpoints novos (<code>POST /api/voices/extract</code> pra Voice existente preencher campos vazios · <code>POST /api/voices/create-from-profile</code> pra criar novo Voice) + botão "+ Novo Voice (auto-preenche)" na galeria + banner ✨ no editor</li>
+      <li><b>Schema de versionamento</b> agora segue semver pré-1.0 (0.X.Y) — versões anteriores renumeradas</li>
+    </ul>`
+  },
+  {
+    version: '0.3.4', date: '25/mai/2026', status: 'live',
     title: 'Inbound Engine + Carrossel Hub + Voices Dashboard + Fixes',
-    body: `Sprint v3.4 entrega o Módulo F (Inbound) e resolve UX-debt:
+    body: `Sprint 0.3.4 entrega o Módulo F (Inbound) e resolve UX-debt:
     <ul>
       <li><b>Módulo F · Inbound Engine</b>: 6 rotas novas (<code>/inbound</code>, <code>/inbound/brief</code>, <code>/inbound/calendar</code>, <code>/inbound/studio</code>, <code>/inbound/carousel</code>, <code>/inbound/playbook</code>) com playbook de 19 slides + 5 ferramentas vivas vindas do handoff Claude Design</li>
       <li><b>Carrossel Hub</b>: editor visual capa + N slides + export ZIP de PNGs (jszip + html2canvas)</li>
@@ -106,7 +142,7 @@ const RELEASES = [
     </ul>`
   },
   {
-    version: 'v3.3', date: '24/mai/2026', status: 'local',
+    version: '0.3.3', date: '24/mai/2026', status: 'live',
     title: 'Foundation Arquitetural + LATAM + Áreas MKT',
     body: `Sprint baseada na auditoria do Claude Design. Reorganização profunda:
     <ul>
@@ -120,7 +156,7 @@ const RELEASES = [
     </ul>`
   },
   {
-    version: 'v3.2', date: '24/mai/2026', status: 'local',
+    version: '0.3.2', date: '24/mai/2026', status: 'live',
     title: 'Voice Agent Pro + Dashboard de Performance',
     body: `4 features grandes:
     <ul>
@@ -131,7 +167,7 @@ const RELEASES = [
     </ul>`
   },
   {
-    version: 'v3.1', date: '24/mai/2026', status: 'local',
+    version: '0.3.1', date: '24/mai/2026', status: 'live',
     title: 'Email LP (fallback) + Dados Honestos',
     body: `<ul>
       <li>Email Resend com fallback gracioso (sem API key continua funcionando, só não envia)</li>
@@ -142,7 +178,7 @@ const RELEASES = [
     </ul>`
   },
   {
-    version: 'v3.0', date: '23/mai/2026', status: 'broken',
+    version: '0.3.0', date: '23/mai/2026', status: 'broken',
     title: 'Sprint Maximalist — 3 módulos novos',
     body: `<ul>
       <li><b>Painel da Duda</b> (operação): KPIs, tabela Voices, alertas, kanban fases</li>
@@ -151,11 +187,11 @@ const RELEASES = [
       <li><b>Data layer</b>: voices.json + events.json single source</li>
       <li><b>Rate limit</b> no Optimizer (anti-abuso de tokens) + UTM redirect <code>/v/:slug</code></li>
       <li><b>Plausible</b> em todos HTMLs</li>
-      <li>⚠️ <b>Parcialmente quebrada em produção</b> — rotas novas retornam 404 no Railway. Será corrigida no push v3.3.</li>
+      <li>⚠️ <b>Parcialmente quebrada em produção</b> — rotas novas retornam 404 no Railway. Foi corrigida no push 0.3.4 (regenerar <code>package-lock.json</code>).</li>
     </ul>`
   },
   {
-    version: 'v2.2', date: '23/mai/2026', status: 'live',
+    version: '0.2.2', date: '23/mai/2026', status: 'live',
     title: 'Optimizer integrado ao Voices + agenda dinâmica',
     body: `<ul>
       <li>Profile Optimizer movido pra adjacente da Voices Area no game</li>
@@ -164,7 +200,7 @@ const RELEASES = [
     </ul>`
   },
   {
-    version: 'v2.1', date: '23/mai/2026', status: 'live',
+    version: '0.2.1', date: '23/mai/2026', status: 'live',
     title: 'Dashboard duplo + spawn com escolha',
     body: `<ul>
       <li>War Room clássico restaurado (cards, voices, roadmap, time)</li>
@@ -175,7 +211,7 @@ const RELEASES = [
     </ul>`
   },
   {
-    version: 'v2.0', date: '23/mai/2026', status: 'live',
+    version: '0.2.0', date: '23/mai/2026', status: 'live',
     title: 'Office Engine 2D inaugural',
     body: `Primeiro release do escritório 2D pixel art:
     <ul>
@@ -192,9 +228,22 @@ const STATUS_META = {
   broken: { label: '⚠️ Parcialmente quebrada', cls: 'status-broken' }
 };
 
+// Mapeamento explícito version → snapshot file (algumas versões não tinham
+// snapshot de game-engine). Filenames mantém o prefixo v3.X antigo pra não
+// quebrar histórico — só os labels visuais estão em 0.X.Y.
+const SNAPSHOT_MAP = {
+  '0.2.0': '/_versoes-office/v2.0-game-engine.html',
+  '0.2.1': '/_versoes-office/v2.1-game-engine.html',
+  '0.2.2': '/_versoes-office/v2.2-game-engine.html',
+  '0.3.0': '/_versoes-office/v3.0-game-engine.html',
+  '0.3.1': '/_versoes-office/v3.1-game-engine.html',
+  '0.3.4': '/_versoes-office/v3.4-game-engine.html'
+};
+
 const tl = document.getElementById('timeline');
 tl.innerHTML = RELEASES.map(r => {
   const status = STATUS_META[r.status] || STATUS_META.local;
+  const snapshotUrl = SNAPSHOT_MAP[r.version];
   return `<div class="entry ${r.current ? 'current' : ''}">
     <div class="entry-head">
       <span class="ver-tag ${r.current ? 'current' : ''}">${r.version}</span>
@@ -203,7 +252,7 @@ tl.innerHTML = RELEASES.map(r => {
     </div>
     <div class="entry-title">${r.title}</div>
     <div class="entry-body">${r.body}</div>
-    ${r.version !== 'v3.3' && r.version !== 'v3.2' && r.version !== 'v3.1' ? `<a class="entry-link" href="/_versoes-office/${r.version}-game-engine.html">Ver snapshot do game →</a>` : ''}
+    ${snapshotUrl && !r.current ? `<a class="entry-link" href="${snapshotUrl}">Ver snapshot do game →</a>` : ''}
   </div>`;
 }).join('');
 </script>

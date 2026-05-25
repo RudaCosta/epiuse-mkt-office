@@ -4,7 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>EUBR Inbound · Brief → Post</title>
-<link rel="stylesheet" href="inbound-shell.css" />
+<link rel="stylesheet" href="/inbound/inbound-shell.css" />
+<script type="module" src="/office-nav.js"></script>
+<script type="module" src="/office-footer.js"></script>
 <style>
   .layout {
     display: grid; grid-template-columns: 1fr 580px; gap: 24px;
@@ -212,24 +214,26 @@
   }
 </style>
 </head>
-<body data-tab="brief">
+<body data-route="inbound" data-tab="brief">
 
-<!-- ============ NAV ============ -->
+<office-nav></office-nav>
+
+<!-- ============ INBOUND SUB-NAV ============ -->
 <nav class="inbound-nav">
   <a class="brand" href="/inbound">
     <span class="logomark">EPI-USE</span>
-    <span class="lbl"><b>Inbound Engine</b>v1.0 · marketing / revops</span>
+    <span class="lbl"><b>Inbound Engine</b>v1.0 · módulo F</span>
   </a>
   <div class="tabs">
     <a href="/inbound" data-tab-id="hub"><span class="ico">⌂</span> Hub</a>
     <a href="/inbound/brief" data-tab-id="brief"><span class="ico">✎</span> Brief→Post</a>
+    <a href="/inbound/carousel" data-tab-id="carousel"><span class="ico">▥</span> Carrossel</a>
     <a href="/inbound/calendar" data-tab-id="calendar"><span class="ico">▦</span> Calendar</a>
     <a href="/inbound/studio" data-tab-id="studio"><span class="ico">◇</span> Studio</a>
-    <a href="EUBR Inbound Playbook.html" data-tab-id="playbook"><span class="ico">▤</span> Playbook</a>
+    <a href="/inbound/playbook" data-tab-id="playbook"><span class="ico">▤</span> Playbook</a>
   </div>
   <div class="right">
     <span class="pill ok">Claude · ready</span>
-    <a class="back" href="/">← Office</a>
   </div>
 </nav>
 
@@ -254,6 +258,57 @@
 
     <!-- ============ FORM ============ -->
     <div class="form-panel">
+
+      <!-- ░░░░░░░░░░ 00 · ORIGEM ░░░░░░░░░░ -->
+      <h2 style="margin-top:0"><em>00.</em> Origem do conteúdo</h2>
+      <p class="sub">De onde vem o texto? Se a Redatoria (Lisiane) mandou um material pronto, cole aqui — Claude extrai dor + persona + LOB + número-chave automaticamente. Se está criando do zero, pule pra etapa 01.</p>
+
+      <!-- Tabs de origem -->
+      <div style="display:flex;gap:6px;margin:8px 0 14px;border-bottom:1px solid var(--d-border)">
+        <button class="origin-tab active" data-mode="redatoria" type="button" style="background:transparent;border:none;border-bottom:2px solid var(--d-accent);color:var(--d-accent);font-family:var(--eu-font-mono);font-size:11px;font-weight:700;letter-spacing:.12em;padding:10px 14px;cursor:pointer;text-transform:uppercase">📄 Texto da Redatoria</button>
+        <button class="origin-tab" data-mode="manual" type="button" style="background:transparent;border:none;border-bottom:2px solid transparent;color:var(--d-ink-3);font-family:var(--eu-font-mono);font-size:11px;font-weight:700;letter-spacing:.12em;padding:10px 14px;cursor:pointer;text-transform:uppercase">✍️ Criar do zero</button>
+      </div>
+
+      <!-- Pane: Redatoria -->
+      <div id="origin-redatoria-pane">
+        <div class="field">
+          <label>Texto bruto da Redatoria · cola aqui</label>
+          <textarea id="redatoria-input" placeholder="Cole aqui o texto que a Lisiane (Redatoria) mandou. Pode ser email, doc, brief solto — Claude lê, identifica a dor central, a persona alvo e os pontos editoriais e popula os campos abaixo automaticamente." style="min-height:140px"></textarea>
+          <span class="hint">Texto pode ter formatação, fontes citadas, headers — Claude limpa.</span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <button id="btn-extract" type="button" class="btn btn--primary" style="display:inline-flex;align-items:center;gap:8px">
+            <span id="extract-label">✨ Extrair com Claude</span>
+          </button>
+          <span id="extract-status" class="ai-status" style="font-size:11px;color:var(--d-ink-3)">Aguardando texto…</span>
+        </div>
+
+        <!-- Pills de resultado (preenchidas após extração) -->
+        <div id="extract-result" style="display:none;margin-top:14px;padding:14px;background:rgba(91,188,235,.05);border:1px solid rgba(91,188,235,.20);border-radius:8px">
+          <div style="font-family:var(--eu-font-mono);font-size:10px;letter-spacing:.14em;color:var(--d-accent);text-transform:uppercase;margin-bottom:10px">↓ Extraído pelo Claude · revise antes de gerar</div>
+          <div style="display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:12px;line-height:1.5">
+            <span style="color:var(--d-ink-3);font-weight:700">DOR:</span>            <span id="ext-dor" style="color:var(--d-ink)">—</span>
+            <span style="color:var(--d-ink-3);font-weight:700">PERSONA:</span>        <span id="ext-persona" style="color:var(--d-ink)">—</span>
+            <span style="color:var(--d-ink-3);font-weight:700">LOB:</span>            <span id="ext-lob" style="color:var(--d-ink)">—</span>
+            <span style="color:var(--d-ink-3);font-weight:700">CATEGORIA:</span>      <span id="ext-cat" style="color:var(--d-ink)">—</span>
+            <span style="color:var(--d-ink-3);font-weight:700">CLIENTE:</span>        <span id="ext-client" style="color:var(--d-ink)">—</span>
+            <span style="color:var(--d-ink-3);font-weight:700">MÉTRICA:</span>        <span id="ext-metric" style="color:var(--d-ink)">—</span>
+          </div>
+          <div id="ext-key-points-wrap" style="margin-top:10px;display:none">
+            <div style="color:var(--d-ink-3);font-weight:700;font-size:11px;margin-bottom:4px">PONTOS-CHAVE:</div>
+            <ul id="ext-key-points" style="margin:0;padding-left:18px;font-size:12px;color:var(--d-ink-2);line-height:1.6"></ul>
+          </div>
+          <div style="margin-top:12px;font-size:11px;color:var(--d-ink-3);font-style:italic">↓ Os campos do formulário abaixo já foram preenchidos. Ajuste o que precisar e clique <b>"Gerar com Claude"</b>.</div>
+        </div>
+      </div>
+
+      <!-- Pane: Manual (mostra apenas mensagem, vai direto pra etapa 01) -->
+      <div id="origin-manual-pane" style="display:none;padding:14px;background:rgba(255,255,255,.025);border:1px dashed var(--d-border-2);border-radius:8px;font-size:12px;color:var(--d-ink-2)">
+        OK — você vai preencher tudo manualmente. Pule pra etapa <b>01. Configurar o post</b> abaixo.
+      </div>
+
+      <div class="section-divider" style="margin-top:24px">───────────────────────────────────────</div>
+
       <h2><em>01.</em> Configurar o post</h2>
       <p class="sub">Quanto mais específico o brief, melhor a saída. Mencione números, nomes de cliente e LOB.</p>
 
@@ -511,6 +566,111 @@
   })();
   applyLOB(); applyCat();
 
+  // ===== ORIGEM DO CONTEÚDO (Redatoria | Manual) =====
+  document.querySelectorAll('.origin-tab').forEach(function(t){
+    t.addEventListener('click', function(){
+      document.querySelectorAll('.origin-tab').forEach(function(x){
+        x.classList.remove('active');
+        x.style.borderBottomColor = 'transparent';
+        x.style.color = 'var(--d-ink-3)';
+      });
+      t.classList.add('active');
+      t.style.borderBottomColor = 'var(--d-accent)';
+      t.style.color = 'var(--d-accent)';
+      var mode = t.dataset.mode;
+      document.getElementById('origin-redatoria-pane').style.display = mode === 'redatoria' ? '' : 'none';
+      document.getElementById('origin-manual-pane').style.display    = mode === 'manual' ? '' : 'none';
+    });
+  });
+
+  // ===== EXTRAIR DA REDATORIA =====
+  // Helper: mapear valor extraído pro option correto (tolerante a variações)
+  function matchOption(selectId, candidates) {
+    var sel = document.getElementById(selectId);
+    if (!sel) return false;
+    var values = Array.from(sel.options).map(function(o){ return o.value.toLowerCase(); });
+    for (var i = 0; i < candidates.length; i++) {
+      var c = String(candidates[i] || '').toLowerCase().trim();
+      if (values.indexOf(c) > -1) { sel.value = c; return true; }
+    }
+    return false;
+  }
+  function matchRadio(name, candidates) {
+    for (var i = 0; i < candidates.length; i++) {
+      var c = String(candidates[i] || '').toLowerCase().trim();
+      var r = document.querySelector('input[name="' + name + '"][value="' + c + '"]');
+      if (r) { r.checked = true; return true; }
+    }
+    return false;
+  }
+
+  document.getElementById('btn-extract').addEventListener('click', async function(){
+    var btn = this;
+    var lbl = document.getElementById('extract-label');
+    var status = document.getElementById('extract-status');
+    var raw = document.getElementById('redatoria-input').value.trim();
+    if (!raw) { alert('Cole o texto da Redatoria primeiro.'); return; }
+
+    btn.setAttribute('disabled', 'true');
+    lbl.innerHTML = '<span class="spin"></span> Extraindo…';
+    status.textContent = 'Claude lendo…';
+    status.style.color = 'var(--d-accent)';
+
+    try {
+      var apiRes = await fetch('/api/inbound/extract', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: raw })
+      });
+      var d = await apiRes.json();
+      if (!apiRes.ok || d.success === false) throw new Error(d.error || ('HTTP ' + apiRes.status));
+
+      // Mostrar pills de resultado
+      document.getElementById('ext-dor').textContent     = d.dor || '—';
+      document.getElementById('ext-persona').textContent = (d.persona || '—').toUpperCase();
+      document.getElementById('ext-lob').textContent     = d.lob || '—';
+      document.getElementById('ext-cat').textContent     = d.cat || '—';
+      document.getElementById('ext-client').textContent  = d.client || '—';
+      document.getElementById('ext-metric').textContent  = d.metric || '—';
+      if (Array.isArray(d.key_points) && d.key_points.length) {
+        document.getElementById('ext-key-points-wrap').style.display = '';
+        document.getElementById('ext-key-points').innerHTML = d.key_points.map(function(k){
+          return '<li>' + String(k).replace(/</g, '&lt;') + '</li>';
+        }).join('');
+      }
+      document.getElementById('extract-result').style.display = '';
+
+      // Auto-popular o formulário
+      matchRadio('cat', [d.cat]);
+      matchOption('lob', [d.lob]);
+      matchOption('mode', [d.mode]);
+      matchRadio('persona', [d.persona]);
+      if (d.client) document.getElementById('client').value = d.client;
+      if (d.metric) document.getElementById('metric').value = d.metric;
+      if (d.brief_resumido) {
+        // Junta dor + key_points pro brief final, que vai pro /api/inbound/generate
+        var brief = '';
+        if (d.dor) brief += 'DOR: ' + d.dor + '\n\n';
+        brief += d.brief_resumido;
+        if (d.key_points && d.key_points.length) {
+          brief += '\n\nPONTOS-CHAVE:\n' + d.key_points.map(function(k){ return '- ' + k; }).join('\n');
+        }
+        document.getElementById('brief').value = brief;
+      }
+      applyLOB(); applyCat();
+
+      status.textContent = '✓ Extraído · formulário preenchido';
+      status.style.color = 'var(--d-ok)';
+    } catch (e) {
+      console.error(e);
+      status.textContent = 'Erro: ' + (e.message || 'falha na extração');
+      status.style.color = 'var(--d-bad)';
+    } finally {
+      btn.removeAttribute('disabled');
+      lbl.textContent = '✨ Extrair com Claude';
+    }
+  });
+
   // ===== GENERATE WITH CLAUDE =====
   document.getElementById('btn-gen').addEventListener('click', async function(){
     var btn = this;
@@ -528,39 +688,25 @@
     status.className = 'ai-status busy';
     status.innerHTML = '<span class="spin"></span> Claude está pensando…';
 
-    var prompt = [
-      'Você é o redator do time de Marketing/RevOps da EPI-USE Brasil.',
-      'Siga o playbook editorial: foto humana > arte; número-herói > parágrafo; CTA no final.',
-      '',
-      'CATEGORIA: ' + (CAT_LABEL[state.cat] || state.cat),
-      'LOB: ' + (LOB_MAP[state.lob]?.label || state.lob),
-      'MODO: ' + (state.mode === 'camp' ? 'Campanha United We Rise' : 'Institucional'),
-      'PERSONA-ALVO: ' + state.persona.toUpperCase(),
-      'CLIENTE/REFERÊNCIA: ' + (state.client || '—'),
-      'NÚMERO-CHAVE: ' + (state.metric || '—'),
-      'AUTOR HUMANO (reshare): ' + (state.author || '—'),
-      '',
-      'BRIEF BRUTO:',
-      state.brief,
-      '',
-      'Gere um objeto JSON com EXATAMENTE estas chaves:',
-      '{',
-      '  "headline": "headline para o card · 4-6 palavras · ponha *aspecto-chave* entre asteriscos para itálico",',
-      '  "heroNumber": "número-herói como string (ex: \\"38%\\" ou \\"14m\\") ou null se não fizer sentido",',
-      '  "context": "1 linha de contexto · máx 12 palavras",',
-      '  "linkedinCopy": "texto pra postar no LinkedIn em PT-BR · 3-5 linhas curtas · começa com gancho · termina com pergunta ou CTA · sem emoji",',
-      '  "hashtags": "string com 5-7 hashtags relevantes separadas por espaço",',
-      '  "distribution": "1 linha em PT-BR · diz se o post deve sair do perfil corporativo, ser shared pelo executivo X, ou virar carrossel"',
-      '}',
-      '',
-      'NÃO inclua nada antes ou depois do JSON. Apenas o objeto.'
-    ].join('\\n');
-
+    // Chama o backend (Claude Haiku via /api/inbound/generate) — substitui o
+    // window.claude.complete() que só funcionava dentro do artifact host.
     try {
-      var resp = await window.claude.complete(prompt);
-      // strip code fences if any
-      var clean = resp.replace(/^```(json)?/i,'').replace(/```$/,'').trim();
-      var data = JSON.parse(clean);
+      var apiRes = await fetch('/api/inbound/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          brief: state.brief,
+          cat: CAT_LABEL[state.cat] || state.cat,
+          lob: LOB_MAP[state.lob]?.label || state.lob,
+          mode: state.mode,
+          persona: state.persona,
+          client: state.client,
+          metric: state.metric,
+          author: state.author
+        })
+      });
+      var data = await apiRes.json();
+      if (!apiRes.ok || data.success === false) throw new Error(data.error || ('HTTP ' + apiRes.status));
 
       // headline with *italic*
       var hl = (data.headline || '').replace(/\\*(.+?)\\*/g, '<em>$1</em>');
@@ -587,6 +733,20 @@
 
       status.className = 'ai-status ok';
       status.innerHTML = '<span class="pill ok" style="font-family:inherit;"><span class="dot"></span>Gerado</span>';
+
+      // Mostrar botão "→ Carrossel" (bridge pra /inbound/carousel via localStorage)
+      var bridgeWrap = document.getElementById('carousel-bridge');
+      if (!bridgeWrap) {
+        bridgeWrap = document.createElement('div');
+        bridgeWrap.id = 'carousel-bridge';
+        bridgeWrap.style.cssText = 'margin-top:18px;padding:14px;background:rgba(91,188,235,.06);border:1px solid rgba(91,188,235,.25);border-radius:8px;display:flex;gap:12px;align-items:center;flex-wrap:wrap';
+        document.getElementById('btn-gen').closest('.form-panel').appendChild(bridgeWrap);
+      }
+      bridgeWrap.innerHTML =
+        '<span style="font-size:12px;color:var(--d-ink-2);flex:1;min-width:200px">Quer transformar esse mesmo brief num <b>carrossel multi-slide</b>? O Carrossel Hub abre com o brief já carregado.</span>' +
+        '<a href="/inbound/carousel" class="btn btn--primary" style="font-size:11px;padding:8px 14px;text-decoration:none">→ Mandar pro Carrossel</a>';
+      // Garante que o estado está no localStorage antes do clique
+      localStorage.setItem('inbound.brief.draft', JSON.stringify(getState()));
     } catch(e) {
       console.error(e);
       status.className = 'ai-status err';
@@ -598,6 +758,8 @@
     }
   });
 </script>
+
+<office-footer></office-footer>
 
 </body>
 </html>

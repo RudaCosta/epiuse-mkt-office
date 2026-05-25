@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cases & CS · EPI-USE Office</title>
+<script defer data-domain="epiuse-voices-optimizer.up.railway.app" src="https://plausible.io/js/script.js"></script>
+<script type="module" src="/office-nav.js"></script>
+<script type="module" src="/office-footer.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #060e1a;
+  --bg-2: #0c1729;
+  --surface: rgba(255,255,255,0.025);
+  --surface-2: rgba(255,255,255,0.05);
+  --border: rgba(255,255,255,0.08);
+  --border-light: rgba(255,255,255,0.05);
+  --text: #e2e8f0;
+  --text-dim: #cbd5e1;
+  --text-muted: #94a3b8;
+  --primary: #2563eb;
+  --primary-light: #60a5fa;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); font-family: 'Inter', sans-serif; color: var(--text); min-height: 100vh; }
+.wrap { max-width: 1400px; margin: 0 auto; padding: 28px 24px 80px; }
+
+.hdr { display: flex; justify-content: space-between; align-items: end; gap: 20px; flex-wrap: wrap; margin-bottom: 24px; }
+.hdr-l h1 { font-family: 'Press Start 2P', monospace; font-size: 22px; color: var(--primary-light); letter-spacing: .04em; margin: 0 0 6px; }
+.hdr-l .sub { font-size: 12px; color: var(--text-muted); letter-spacing: .14em; text-transform: uppercase; }
+.hdr-r { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.btn { padding: 8px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); text-decoration: none; transition: all .15s; }
+.btn:hover { background: var(--surface); border-color: var(--primary-light); color: var(--primary-light); }
+.btn.primary { background: rgba(37,99,235,.20); border-color: rgba(37,99,235,.45); color: #93c5fd; }
+.btn.primary:hover { background: rgba(37,99,235,.32); }
+
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 28px; }
+.kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+.kpi-card .label { font-family: 'Press Start 2P', monospace; font-size: 9px; letter-spacing: .12em; margin-bottom: 8px; }
+.kpi-card .value { font-size: 26px; font-weight: 700; line-height: 1; color: var(--text); }
+.kpi-card .meta  { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
+.kpi-card.live  .label { color: #34d399; } .kpi-card.live  .value { color: #34d399; }
+.kpi-card.risk  .label { color: #f87171; } .kpi-card.risk  .value { color: #f87171; }
+.kpi-card.onb   .label { color: #fbbf24; } .kpi-card.onb   .value { color: #fbbf24; }
+.kpi-card.nps   .label { color: #60a5fa; } .kpi-card.nps   .value { color: #60a5fa; }
+.kpi-card.total .label { color: #c084fc; } .kpi-card.total .value { color: #c084fc; }
+
+.filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; padding: 12px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; align-items: center; }
+.filter-pill { padding: 5px 11px; border-radius: 999px; font-size: 11px; font-weight: 600; border: 1px solid var(--border); color: var(--text-muted); background: transparent; cursor: pointer; transition: all .12s; }
+.filter-pill.active { background: rgba(37,99,235,.20); border-color: rgba(37,99,235,.50); color: #93c5fd; }
+.filter-pill:hover { color: var(--text); }
+.filter-sep { width: 1px; height: 18px; background: var(--border); margin: 0 4px; }
+.filter-label { font-size: 11px; color: var(--text-muted); letter-spacing: .1em; text-transform: uppercase; margin-right: 4px; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px; transition: border-color .15s, transform .15s; }
+.card:hover { border-color: var(--primary-light); transform: translateY(-1px); }
+.card .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.card .name { font-size: 15px; font-weight: 700; color: var(--text); line-height: 1.3; }
+.card .conta { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+.status-pill { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 999px; white-space: nowrap; letter-spacing: .05em; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; }
+.status-pill.live { background: rgba(52,211,153,.15); color: #34d399; }
+.status-pill.onboarding { background: rgba(251,191,36,.15); color: #fbbf24; }
+.status-pill.renewal { background: rgba(96,165,250,.15); color: #60a5fa; }
+.status-pill.churn-risk { background: rgba(248,113,113,.15); color: #f87171; }
+.status-pill.lost { background: rgba(148,163,184,.15); color: #94a3b8; }
+.lob-chip { display: inline-block; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 3px; background: rgba(96,165,250,.12); color: #60a5fa; letter-spacing: .04em; }
+.card .meta-row { display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; font-size: 11px; color: var(--text-muted); margin: 10px 0; }
+.card .meta-row .k { color: var(--text-muted); font-weight: 600; }
+.card .meta-row .v { color: var(--text-dim); }
+.card .case-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px; background: rgba(192,132,252,.12); color: #c084fc; border-radius: 5px; font-size: 10px; font-weight: 700; margin-top: 6px; letter-spacing: .04em; text-transform: uppercase; }
+.card .case-resumo { font-size: 12px; color: var(--text-dim); line-height: 1.5; margin-top: 10px; padding: 10px; background: rgba(192,132,252,.05); border-left: 2px solid #c084fc; border-radius: 4px; font-style: italic; }
+.card .nps-display { display: inline-flex; align-items: center; gap: 5px; padding: 3px 7px; border-radius: 4px; font-size: 10px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+.nps-display.high { background: rgba(52,211,153,.15); color: #34d399; }
+.nps-display.mid  { background: rgba(251,191,36,.15); color: #fbbf24; }
+.nps-display.low  { background: rgba(248,113,113,.15); color: #f87171; }
+
+.section-sub { font-size: 14px; color: var(--text-dim); margin: 28px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+.section-sub .ico { font-size: 18px; }
+.section-sub .count { color: var(--text-muted); font-size: 12px; margin-left: auto; }
+
+.cases-callout { background: linear-gradient(135deg, rgba(192,132,252,.08), rgba(96,165,250,.05)); border: 1px solid rgba(192,132,252,.25); border-radius: 12px; padding: 20px 22px; margin-bottom: 24px; }
+.cases-callout h2 { font-size: 15px; color: #c084fc; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.cases-callout p { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+
+.empty { padding: 40px 20px; text-align: center; color: var(--text-muted); font-style: italic; grid-column: 1 / -1; }
+.sync-info { font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+</style>
+</head>
+<body data-route="cases">
+<office-nav></office-nav>
+
+<div class="wrap" id="main">
+
+  <div class="hdr">
+    <div class="hdr-l">
+      <h1>🤝 CASES &amp; CS HUB</h1>
+      <div class="sub">Módulo G · Customer Success + Cases publicáveis</div>
+    </div>
+    <div class="hdr-r">
+      <span class="sync-info" id="sync-info">— sem sync —</span>
+      <a class="btn" href="https://epiusebr-my.sharepoint.com/:x:/g/personal/roberto_medeiros_epiuse_com_br/IQAGkABIW2bmXAf_-gmLlIKoAecPMsXYZd4IKF9LefeAXkU?e=vdM2Wk" target="_blank" rel="noopener">📊 Editar planilha (SharePoint)</a>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpis" id="kpis">
+    <div class="kpi-card total"><div class="label">CLIENTES</div><div class="value">—</div><div class="meta">na base</div></div>
+    <div class="kpi-card live"><div class="label">LIVE</div><div class="value">—</div><div class="meta">contratos ativos</div></div>
+    <div class="kpi-card onb"><div class="label">ONBOARDING</div><div class="value">—</div><div class="meta">implementação</div></div>
+    <div class="kpi-card risk"><div class="label">CHURN RISK</div><div class="value">—</div><div class="meta">requer atenção</div></div>
+    <div class="kpi-card nps"><div class="label">NPS MÉDIO</div><div class="value">—</div><div class="meta">últimos 12m</div></div>
+  </div>
+
+  <!-- Callout Cases publicáveis -->
+  <div class="cases-callout">
+    <h2>✨ Cases publicáveis pra propostas e Voices</h2>
+    <p>Clientes marcados como "case publicável" abaixo podem ser usados em propostas, posts de Voices e materiais comerciais. Cases anonimizados também aparecem aqui (sem nomes/dados sensíveis). <b>Aprovação Duda + Roberto</b> antes de qualquer publicação externa.</p>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters" id="filters">
+    <span class="filter-label">STATUS:</span>
+    <button class="filter-pill active" data-filter="status" data-value="">Todos</button>
+    <button class="filter-pill" data-filter="status" data-value="live">Live</button>
+    <button class="filter-pill" data-filter="status" data-value="onboarding">Onboarding</button>
+    <button class="filter-pill" data-filter="status" data-value="renewal">Renewal</button>
+    <button class="filter-pill" data-filter="status" data-value="churn-risk">Churn Risk</button>
+    <span class="filter-sep"></span>
+    <span class="filter-label">CASE:</span>
+    <button class="filter-pill" data-filter="case" data-value="1">Só publicáveis ✨</button>
+  </div>
+
+  <div class="section-sub">
+    <span class="ico">📋</span>
+    <span>Clientes</span>
+    <span class="count" id="count">—</span>
+  </div>
+
+  <div class="grid" id="grid">
+    <div class="empty">Carregando…</div>
+  </div>
+
+</div>
+
+<office-footer></office-footer>
+
+<script>
+'use strict';
+
+let ALL_CLIENTES = [];
+let FILTER = { status: '', case: '' };
+
+const LOB_LABELS = {
+  HCM: 'HCM · SuccessFactors',
+  ERP: 'Cloud ERP',
+  BTP: 'BTP',
+  Cloud: 'Cloud',
+  WFS: 'WorkForce',
+  SN: 'ServiceNow',
+  Cross: 'Cross-LOB'
+};
+
+function fmtDate(d) {
+  if (!d) return '—';
+  const [y,m,day] = d.slice(0,10).split('-');
+  return `${day}/${m}/${y.slice(2)}`;
+}
+
+function npsClass(n) {
+  if (n == null) return '';
+  if (n >= 9) return 'high';
+  if (n >= 7) return 'mid';
+  return 'low';
+}
+
+async function load() {
+  try {
+    const res = await fetch('/api/cases');
+    const data = await res.json();
+    ALL_CLIENTES = data.clientes || [];
+
+    // KPIs
+    const kpiEls = document.querySelectorAll('#kpis .value');
+    kpiEls[0].textContent = data.kpis.total ?? 0;
+    kpiEls[1].textContent = data.kpis.live ?? 0;
+    kpiEls[2].textContent = data.kpis.onboarding ?? 0;
+    kpiEls[3].textContent = data.kpis.churn_risk ?? 0;
+    kpiEls[4].textContent = data.kpis.nps_medio ?? '—';
+
+    const syncEl = document.getElementById('sync-info');
+    if (data.kpis.synced_at) {
+      syncEl.textContent = `↻ sync: ${fmtDate(data.kpis.synced_at)} ${data.kpis.synced_at.slice(11,16)}`;
+    } else {
+      syncEl.textContent = '⚠ sem sync com SharePoint (dados seed)';
+    }
+
+    render();
+  } catch (e) {
+    document.getElementById('grid').innerHTML = `<div class="empty">Erro ao carregar: ${e.message}</div>`;
+  }
+}
+
+function applyFilters(list) {
+  return list.filter(c => {
+    if (FILTER.status && c.status !== FILTER.status) return false;
+    if (FILTER.case && !c.case_publicavel) return false;
+    return true;
+  });
+}
+
+function render() {
+  const list = applyFilters(ALL_CLIENTES);
+  document.getElementById('count').textContent = `${list.length} de ${ALL_CLIENTES.length}`;
+  const grid = document.getElementById('grid');
+  if (list.length === 0) {
+    grid.innerHTML = '<div class="empty">Nenhum cliente com esses filtros.</div>';
+    return;
+  }
+  grid.innerHTML = list.map(c => {
+    const lobLabel = LOB_LABELS[c.lob] || c.lob || '—';
+    const npsCls = npsClass(c.nps);
+    return `<div class="card">
+      <div class="top">
+        <div>
+          <div class="name">${c.cliente_nome}</div>
+          <div class="conta">${c.conta || '—'} · ${lobLabel}</div>
+        </div>
+        <span class="status-pill ${c.status}">${(c.status || 'live').replace('-', ' ')}</span>
+      </div>
+
+      <div class="meta-row">
+        <span class="k">CSM:</span>     <span class="v">${c.csm || '—'}</span>
+        <span class="k">Contato:</span> <span class="v">${c.contato_principal || '—'}</span>
+        <span class="k">Últ contato:</span> <span class="v">${fmtDate(c.ultimo_contato)}</span>
+        ${c.nps != null ? `<span class="k">NPS:</span> <span class="v"><span class="nps-display ${npsCls}">${c.nps}/10</span></span>` : ''}
+      </div>
+
+      ${c.case_publicavel ? `<span class="case-badge">✨ Case publicável</span>` : ''}
+      ${c.case_publicavel && c.case_resumo ? `<div class="case-resumo">${c.case_resumo}</div>` : ''}
+      ${c.observacoes && !c.case_publicavel ? `<div style="font-size:11px;color:var(--text-muted);margin-top:10px;font-style:italic">${c.observacoes.slice(0, 180)}${c.observacoes.length > 180 ? '…' : ''}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// Filter pills
+document.querySelectorAll('.filter-pill').forEach(p => {
+  p.addEventListener('click', () => {
+    const filter = p.dataset.filter;
+    const value = p.dataset.value;
+    if (filter === 'status') {
+      FILTER.status = value;
+      document.querySelectorAll('.filter-pill[data-filter="status"]').forEach(x => x.classList.toggle('active', x === p));
+    } else if (filter === 'case') {
+      FILTER.case = FILTER.case === value ? '' : value;
+      p.classList.toggle('active', !!FILTER.case);
+    }
+    render();
+  });
+});
+
+load();
+</script>
+</body>
+</html>

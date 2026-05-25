@@ -4,7 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>EUBR Inbound · Template Studio</title>
-<link rel="stylesheet" href="inbound-shell.css" />
+<link rel="stylesheet" href="/inbound/inbound-shell.css" />
+<script type="module" src="/office-nav.js"></script>
+<script type="module" src="/office-footer.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <style>
   .layout {
@@ -111,24 +113,26 @@
   .pcard .field:last-child { margin-bottom: 0; }
 </style>
 </head>
-<body data-tab="studio">
+<body data-route="inbound" data-tab="studio">
 
-<!-- ============ NAV ============ -->
+<office-nav></office-nav>
+
+<!-- ============ INBOUND SUB-NAV ============ -->
 <nav class="inbound-nav">
   <a class="brand" href="/inbound">
     <span class="logomark">EPI-USE</span>
-    <span class="lbl"><b>Inbound Engine</b>v1.0 · marketing / revops</span>
+    <span class="lbl"><b>Inbound Engine</b>v1.0 · módulo F</span>
   </a>
   <div class="tabs">
     <a href="/inbound" data-tab-id="hub"><span class="ico">⌂</span> Hub</a>
     <a href="/inbound/brief" data-tab-id="brief"><span class="ico">✎</span> Brief→Post</a>
+    <a href="/inbound/carousel" data-tab-id="carousel"><span class="ico">▥</span> Carrossel</a>
     <a href="/inbound/calendar" data-tab-id="calendar"><span class="ico">▦</span> Calendar</a>
     <a href="/inbound/studio" data-tab-id="studio"><span class="ico">◇</span> Studio</a>
-    <a href="EUBR Inbound Playbook.html" data-tab-id="playbook"><span class="ico">▤</span> Playbook</a>
+    <a href="/inbound/playbook" data-tab-id="playbook"><span class="ico">▤</span> Playbook</a>
   </div>
   <div class="right">
     <span class="pill ok">PNG export</span>
-    <a class="back" href="/">← Office</a>
   </div>
 </nav>
 
@@ -524,6 +528,8 @@
 
   render();
 </script>
+
+<office-footer></office-footer>
 
 </body>
 </html>

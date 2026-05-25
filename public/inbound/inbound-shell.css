@@ -1,26 +1,39 @@
 /* EUBR Inbound — shared shell · DARK MODE
-   Matches Office Engine War Room dashboard aesthetic.
-   Tokens still come from colors_and_type.css but override surfaces.
+   v0.4.0: tokens alinhados com o Office Engine (mesma paleta do /dashboard).
+   --d-accent #5BBCEB mantido como cor de destaque do módulo (zone INBOUND HQ no game usa o mesmo).
 */
 
 @import url('colors_and_type.css');
 
-/* dark mode brand-extension tokens (don't pollute the main token file) */
 :root {
-  --d-bg:        #0A1530;          /* page background */
-  --d-bg-2:      #0E1B3D;          /* alt background */
-  --d-card:      #14213D;          /* card surface */
-  --d-card-2:    #182852;          /* hover card */
-  --d-border:    rgba(255,255,255,.08);
-  --d-border-2:  rgba(255,255,255,.16);
-  --d-ink:       #E2E8F4;          /* primary text */
-  --d-ink-2:     #A0AAC4;          /* secondary text */
-  --d-ink-3:     #6B7A9F;          /* muted */
-  --d-accent:    #5BBCEB;          /* sky accent (titles, links) */
-  --d-warn:      #F5BB5C;
-  --d-ok:        #4DE682;
-  --d-bad:       #E5564D;
+  --d-bg:        #060e1a;          /* page background — alinhado com office-nav */
+  --d-bg-2:      #0c1729;          /* alt background */
+  --d-card:      rgba(255,255,255,0.025);   /* card surface — match /dashboard */
+  --d-card-2:    rgba(255,255,255,0.05);    /* hover card */
+  --d-border:    rgba(255,255,255,0.08);
+  --d-border-2:  rgba(96,165,250,0.18);
+  --d-ink:       #e2e8f0;
+  --d-ink-2:     #cbd5e1;
+  --d-ink-3:     #94a3b8;
+  --d-accent:    #5BBCEB;          /* sky accent — identidade do módulo Inbound */
+  --d-accent-strong: #60a5fa;      /* nav primary EPI-USE */
+  --d-warn:      #fbbf24;
+  --d-ok:        #34d399;
+  --d-bad:       #f87171;
   --d-red:       var(--eu-red);
+}
+
+/* Light mode override — herda do office-nav (data-theme="light" no <html>) */
+:root[data-theme="light"] {
+  --d-bg:        #f8fafc;
+  --d-bg-2:      #f1f5f9;
+  --d-card:      #ffffff;
+  --d-card-2:    #f1f5f9;
+  --d-border:    rgba(15,23,42,0.08);
+  --d-border-2:  rgba(15,23,42,0.16);
+  --d-ink:       #0f172a;
+  --d-ink-2:     #334155;
+  --d-ink-3:     #64748b;
 }
 
 * { box-sizing: border-box; }

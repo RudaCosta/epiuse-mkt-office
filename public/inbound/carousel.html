@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Inbound Engine · Carrossel + Capa · EPI-USE Voices</title>
+<title>Inbound Engine · Carrossel · EPI-USE Voices</title>
 <link rel="stylesheet" href="/inbound/inbound-shell.css" />
 <script type="module" src="/office-nav.js"></script>
 <script type="module" src="/office-footer.js"></script>
@@ -193,7 +193,7 @@
 
   <div style="display:flex; align-items:flex-end; justify-content:space-between; padding: 12px 0 18px; border-bottom: 1px solid var(--d-border); margin-bottom: 8px;">
     <div>
-      <div class="section-label" style="margin: 0 0 8px;">Tool 04 · Carrossel + Capa</div>
+      <div class="section-label" style="margin: 0 0 8px;">Tool 04 · Carrossel</div>
       <h1 style="font-family: var(--eu-font-display); font-size: 36px; font-weight: 700; margin: 0; color: var(--d-ink); letter-spacing: -.02em;">
         Carrossel <em style="font-style:normal; color: var(--d-accent);">+</em> Capa
       </h1>
@@ -706,6 +706,37 @@
     }).join('');
   }
 
+  // ===== bridge: ler draft do /inbound/brief se houver =====
+  // (vem do botão "→ Mandar pro Carrossel" depois que a geração rolou no Brief→Post)
+  (function importFromBrief() {
+    try {
+      var raw = localStorage.getItem('inbound.brief.draft');
+      if (!raw) return;
+      var d = JSON.parse(raw);
+      if (d.brief && !state.brief) {
+        state.brief = d.brief;
+        document.getElementById('brief').value = d.brief;
+      }
+      // Tema: usa client + lob como tema natural se não foi setado
+      if (!state.topic && (d.client || d.metric)) {
+        var topic = [d.client, d.metric].filter(Boolean).join(' · ');
+        state.topic = topic;
+        document.getElementById('topic').value = topic;
+      }
+      // Persona: mapeia se bater
+      if (d.persona) {
+        var personaRadio = document.querySelector('input[name="persona"][value="' + d.persona + '"]');
+        if (personaRadio) { personaRadio.checked = true; state.persona = d.persona; }
+      }
+      // Mostrar banner sinalizando que o draft foi importado
+      var hint = document.createElement('div');
+      hint.style.cssText = 'margin:8px 0 14px;padding:10px 14px;background:rgba(91,188,235,.08);border:1px solid rgba(91,188,235,.25);border-radius:6px;font-size:12px;color:var(--d-ink-2)';
+      hint.innerHTML = '↪ <b>Brief importado</b> do Brief→Post. Ajuste tema/dados extras se quiser, e clique <b>Estruturar com Claude</b>.';
+      var briefField = document.getElementById('brief').closest('.field');
+      if (briefField && briefField.parentNode) briefField.parentNode.insertBefore(hint, briefField);
+    } catch(e) { console.warn('[carousel] import bridge falhou:', e.message); }
+  })();
+
   // ===== bindings =====
   document.getElementById('topic').addEventListener('input', function(e){ state.topic = e.target.value; });
   document.getElementById('brief').addEventListener('input', function(e){ state.brief = e.target.value; });
@@ -736,55 +767,22 @@
     status.className = 'gen-status busy';
     status.innerHTML = '<span class="spin"></span> Claude estruturando…';
 
-    var prompt = [
-      'Você é o redator do time de Marketing/RevOps da EPI-USE Brasil.',
-      'Tarefa: ESTRUTURAR um carrossel para LinkedIn em português brasileiro, voltado para mercado BR.',
-      '',
-      'REGRAS CRÍTICAS:',
-      '1. NÃO INVENTE NENHUM NÚMERO OU ESTATÍSTICA. Se o brief não trouxer dados verificáveis, deixe o campo "number" e "source" como string vazia "".',
-      '2. SÓ use números que estejam EXPLICITAMENTE no brief OU que sejam fatos públicos comprovados (ex: ECC end-of-support em 31/12/2027, Reforma Tributária a partir de 2026).',
-      '3. NUNCA escreva "fonte: invente algo plausível". Se não souber, deixe vazio.',
-      '4. PT-BR. Voz EPI-USE: sóbria, confiante, específica. Sem emoji. Sem floreio.',
-      '5. Headlines de 4-6 palavras. Marque a palavra-chave com *asteriscos*.',
-      '6. Contexto de até 12 palavras. Cita persona-alvo explicitamente quando relevante.',
-      '',
-      'CONTEXTO:',
-      'TEMA: ' + state.topic,
-      'LOB: ' + getLob().label,
-      'PERSONA: ' + state.persona.toUpperCase() + ' (Brasil)',
-      'SLIDES DE CONTEÚDO: ' + state.contentCount,
-      '',
-      'BRIEF / DADOS:',
-      state.brief || '(sem dados extras)',
-      '',
-      'Gere SOMENTE este JSON, sem markdown:',
-      '{',
-      '  "cover": {',
-      '    "eyebrow": "string curta · ex: \\"GUIA CHRO · 2026\\" ou \\"\\"",',
-      '    "headline": "4-9 palavras com *destaque*",',
-      '    "sub": "subtítulo · 1 linha · pode estar vazio"',
-      '  },',
-      '  "slides": [',
-      '    {',
-      '      "tag": "ex: \\"PONTO 01\\" ou \\"O RISCO\\"",',
-      '      "headline": "4-6 palavras com *destaque*",',
-      '      "number": "se houver fato verificável no brief, escreva (ex: \\"78%\\" ou \\"R$80mi\\"); senão \\"\\"",',
-      '      "context": "1 linha · até 12 palavras · explica o número",',
-      '      "source": "instituto + ano · OBRIGATÓRIO se houver number · senão \\"\\""',
-      '    } ... ' + state.contentCount + ' itens',
-      '  ],',
-      '  "cta": {',
-      '    "headline": "verbo de ação · com *destaque* · ex: \\"Vamos *juntos*?\\"",',
-      '    "sub": "1 linha · convite específico",',
-      '    "url": "epiuse.com.br"',
-      '  }',
-      '}'
-    ].join('\n');
-
+    // Backend (Claude Haiku) — substitui o window.claude.complete() do artifact host
     try {
-      var resp = await window.claude.complete(prompt);
-      var clean = resp.replace(/^```(json)?/i,'').replace(/```$/,'').trim();
-      var data = JSON.parse(clean);
+      var apiRes = await fetch('/api/inbound/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          format: 'carousel',
+          topic: state.topic,
+          brief: state.brief,
+          lob: getLob().label,
+          persona: state.persona,
+          contentCount: state.contentCount
+        })
+      });
+      var data = await apiRes.json();
+      if (!apiRes.ok || data.success === false) throw new Error(data.error || ('HTTP ' + apiRes.status));
 
       var newDeck = [];
       newDeck.push({ type:'cover', ...data.cover });

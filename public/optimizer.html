@@ -1397,9 +1397,7 @@
   <div class="header-right">
     <a class="btn-back-office" href="/">← Office Engine</a>
     <div class="erp-badge">🐘 <strong>ERP.ngo</strong> — 1% para conservação na África</div>
-    <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">
-      🌙 Modo escuro
-    </button>
+    <!-- Toggle de tema: usar o ☾/☀ do &lt;office-nav&gt; global (sistema unificado em office.theme) -->
   </div>
 </header>
 
@@ -1594,11 +1592,24 @@
     </div>
   </div>
 
-  <!-- LOADING -->
+  <!-- LOADING (multi-etapa, com progresso explícito) -->
   <div id="loading-state">
     <div class="spinner"></div>
-    <div class="loading-text">Analisando com IA…</div>
-    <div class="loading-sub">Gerando kit completo — cerca de 20 segundos ☕</div>
+    <div class="loading-text" id="loading-text">Analisando com IA…</div>
+    <div class="loading-sub" id="loading-sub">Lendo screenshots e dados do perfil…</div>
+    <div id="loading-steps" style="display:flex;gap:10px;justify-content:center;margin-top:18px;font-size:11px;font-family:'JetBrains Mono',monospace;color:#94a3b8">
+      <span id="step-1" class="step active">① Lendo</span>
+      <span style="opacity:.4">›</span>
+      <span id="step-2" class="step">② Diagnóstico</span>
+      <span style="opacity:.4">›</span>
+      <span id="step-3" class="step">③ Montando kit</span>
+    </div>
+    <style>
+      .step { opacity: .35; transition: opacity .3s, color .3s; }
+      .step.active { opacity: 1; color: #60a5fa; font-weight: 700; }
+      .step.done { opacity: .85; color: #34d399; }
+      .step.done::before { content: '✓ '; }
+    </style>
   </div>
 
   <!-- RESULTADO -->
@@ -1706,18 +1717,14 @@ const fDataEntrada  = document.getElementById('f-data-entrada');
 const fFotoOficial  = document.getElementById('f-foto-oficial');
 
 // ── THEME ────────────────────────────────────────────────
-function toggleTheme() {
-  const html = document.documentElement;
-  const isDark = html.getAttribute('data-theme') === 'dark';
-  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
-  document.getElementById('theme-btn').textContent = isDark ? '🌙 Modo escuro' : '☀️ Modo claro';
-  localStorage.setItem('epiuse_theme', isDark ? 'light' : 'dark');
-}
-
+// Sistema unificado agora vive no &lt;office-nav&gt; (localStorage `office.theme`).
+// Aqui só garantimos que o `data-theme` no &lt;html&gt; reflita o salvo no boot —
+// previne flash de "modo claro" antes do office-nav montar.
 (function() {
-  const saved = localStorage.getItem('epiuse_theme') || 'dark';
-  document.documentElement.setAttribute('data-theme', saved);
-  document.getElementById('theme-btn').textContent = saved === 'dark' ? '🌙 Modo escuro' : '☀️ Modo claro';
+  try {
+    const saved = localStorage.getItem('office.theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+  } catch {}
 })();
 
 // ── AUTO-SELECT VOICE via ?voice=<slug> (deep-link da página /voices) ──
@@ -2059,18 +2066,59 @@ async function analisarPerfil() {
   formData.append('foto_oficial',         fFotoOficial.checked ? 'true' : 'false');
   selectedFiles.forEach(f => formData.append('screenshots', f));
 
+  // Animação das 3 etapas — avança a cada ~7s (cobre os ~15-20s do Sonnet 4.6)
+  const stepEls = [document.getElementById('step-1'), document.getElementById('step-2'), document.getElementById('step-3')];
+  const subEl = document.getElementById('loading-sub');
+  const subs = [
+    'Lendo screenshots e dados do perfil…',
+    'Diagnóstico do perfil (problemas + pontos fortes)…',
+    'Montando kit completo (headline, sobre, destaques)…'
+  ];
+  let stepIdx = 0;
+  const stepInterval = setInterval(() => {
+    if (stepIdx < stepEls.length - 1) {
+      stepEls[stepIdx].classList.remove('active');
+      stepEls[stepIdx].classList.add('done');
+      stepIdx++;
+      stepEls[stepIdx].classList.add('active');
+      if (subEl) subEl.textContent = subs[stepIdx];
+    }
+  }, 7000);
+
+  // Timeout explícito de 90s — Sonnet 4.6 geralmente termina em 15-20s, dá margem grande
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 90000);
+
   try {
-    const res = await fetch('/api/analisar-perfil', { method: 'POST', body: formData });
-    const data = await res.json();
+    const res = await fetch('/api/analisar-perfil', {
+      method: 'POST',
+      body: formData,
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+    clearInterval(stepInterval);
+
+    // Tentar ler JSON mesmo se status não-200 — backend retorna {success:false, error:...}
+    let data;
+    try { data = await res.json(); }
+    catch (parseErr) {
+      throw new Error(`Resposta inválida do servidor (HTTP ${res.status}). Tente novamente.`);
+    }
+
     loadingState.style.display = 'none';
-    if (!data.success) throw new Error(data.error || 'Erro desconhecido.');
+    if (!res.ok || !data.success) throw new Error(data.error || `HTTP ${res.status}`);
     renderKit(data.kit);
     resultadoEl.style.display = 'block';
     resultadoEl.scrollIntoView({ behavior: 'smooth' });
   } catch (err) {
+    clearTimeout(timeoutId);
+    clearInterval(stepInterval);
     loadingState.style.display = 'none';
     formSection.style.display = 'block';
-    showError('Erro: ' + err.message);
+    const msg = err.name === 'AbortError'
+      ? 'A análise demorou mais de 90s e foi cancelada. Tente reduzir o número de screenshots ou tente novamente em 1 minuto.'
+      : 'Erro: ' + err.message;
+    showError(msg);
   }
 }
 

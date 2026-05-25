@@ -5,23 +5,39 @@
 // ════════════════════════════════════════════════════════════════════════════
 
 // Versão atual exposta no chip ao lado do logomark.
+// Schema semver pré-1.0 — explicação completa em vault/00-contexto/versioning.md
 // Manter em sincronia com office-footer.js (OFFICE_FOOTER_VERSION).
-const OFFICE_NAV_VERSION = 'v3.4';
+const OFFICE_NAV_VERSION = '0.4.0';
 
 const OFFICE_NAV_TABS = [
-  { id: 'hub',      label: 'Hub',      icon: '🏠', href: '/dashboard',   matches: ['hub'] },
-  { id: 'voices',   label: 'Voices',   icon: '🎙️', href: '/voices',     matches: ['voices'] },
+  { id: 'hub',      label: 'Office',   icon: '🏠', href: '/dashboard',   matches: ['hub'] },
+  { id: 'voices',   label: 'Voices',   icon: '🎙️', href: '/voices',     matches: ['voices', 'painel'] },
   { id: 'inbound',  label: 'Inbound',  icon: '📡', href: '/inbound',     matches: ['inbound'] },
-  { id: 'hub-mkt',  label: 'MKT Hub',  icon: '📈', href: '/hub',         matches: ['hub-mkt'] },
-  { id: 'painel',   label: 'Painel',   icon: '⚙️', href: '/painel',     matches: ['painel'] }
+  { id: 'cases',    label: 'Cases & CS', icon: '🤝', href: '/cases',     matches: ['cases'] },
+  { id: 'hub-mkt',  label: 'MKT Hub',  icon: '📈', href: '/hub',         matches: ['hub-mkt'] }
 ];
 
+// Breadcrumbs por rota — aparece sutil abaixo do nav em rotas profundas
+const OFFICE_NAV_BREADCRUMBS = {
+  'inbound':       ['📡 Inbound'],
+  'inbound-brief': ['📡 Inbound', 'Brief → Post'],
+  'inbound-carousel': ['📡 Inbound', 'Carrossel + Capa'],
+  'inbound-calendar': ['📡 Inbound', 'Calendário Editorial'],
+  'inbound-studio': ['📡 Inbound', 'Template Studio'],
+  'inbound-playbook': ['📡 Inbound', 'Playbook'],
+  'voices': ['🎙️ Voices'],
+  'painel': ['🎙️ Voices', '🎯 Painel da Duda'],
+  'optimizer': ['🎙️ Voices', '🪪 Profile Optimizer'],
+  'cases': ['🤝 Cases & CS']
+};
+
 const OFFICE_NAV_OVERFLOW = [
-  { label: '📜 Histórico de versões',   href: '/changelog' },
+  { label: '🎯 Painel da Duda',          href: '/voices/painel' },
   { label: '🪪 Profile Optimizer',       href: '/optimizer' },
   { label: '📨 Seja um Voice (LP)',      href: '/seja-voice' },
-  { label: '🐘 ERP.ngo',                 href: 'https://erp.ngo', external: true },
-  { label: '🎮 Modo Game',               href: '/game' }
+  { label: '🎮 Modo Game',               href: '/game' },
+  { label: '📜 Histórico de versões',   href: '/changelog' },
+  { label: '🐘 ERP.ngo',                 href: 'https://erp.ngo', external: true }
 ];
 
 class OfficeNav extends HTMLElement {
@@ -42,12 +58,26 @@ class OfficeNav extends HTMLElement {
     // 2. fallback: detecta da URL
     const path = location.pathname;
     if (path === '/' || path === '/dashboard' || path.startsWith('/game')) return 'hub';
+    if (path.startsWith('/painel') || path === '/voices/painel') return 'painel';
     if (path.startsWith('/voices') || path.startsWith('/optimizer') || path.startsWith('/seja-voice')) return 'voices';
+    if (path === '/inbound/brief') return 'inbound-brief';
+    if (path === '/inbound/carousel') return 'inbound-carousel';
+    if (path === '/inbound/calendar') return 'inbound-calendar';
+    if (path === '/inbound/studio') return 'inbound-studio';
+    if (path === '/inbound/playbook') return 'inbound-playbook';
     if (path.startsWith('/inbound')) return 'inbound';
+    if (path.startsWith('/cases')) return 'cases';
     if (path.startsWith('/hub')) return 'hub-mkt';
-    if (path.startsWith('/painel')) return 'painel';
     if (path.startsWith('/changelog')) return 'changelog';
     return '';
+  }
+
+  // Mapa route → tab id (várias rotas mapeiam pro mesmo tab principal)
+  getActiveTab() {
+    const r = this.getActiveRoute();
+    if (r.startsWith('inbound')) return 'inbound';
+    if (r === 'painel' || r === 'voices') return 'voices';
+    return r;
   }
 
   getUser() {
@@ -62,6 +92,8 @@ class OfficeNav extends HTMLElement {
 
   render() {
     const activeRoute = this.getActiveRoute();
+    const activeTab = this.getActiveTab();
+    const breadcrumb = OFFICE_NAV_BREADCRUMBS[activeRoute] || null;
     const user = this.getUser();
     const theme = this.getTheme();
     const themeIcon = theme === 'dark' ? '☾' : '☀';
@@ -147,10 +179,18 @@ class OfficeNav extends HTMLElement {
         }
         .tab:hover { background: var(--nav-hover-bg); color: var(--nav-text); }
         .tab.active {
-          background: var(--nav-active-bg);
-          border-color: var(--nav-active-border);
-          color: var(--nav-accent);
-          font-weight: 600;
+          background: linear-gradient(180deg, rgba(37,99,235,0.28) 0%, rgba(37,99,235,0.18) 100%);
+          border-color: rgba(96,165,250,0.55);
+          color: #93c5fd;
+          font-weight: 700;
+          box-shadow: 0 1px 0 rgba(96,165,250,0.40) inset, 0 -2px 0 rgba(96,165,250,0.55) inset;
+        }
+        .tab.active::before {
+          content: '';
+          width: 5px; height: 5px;
+          background: #60a5fa;
+          border-radius: 50%;
+          box-shadow: 0 0 6px #60a5fa;
         }
         .tab-ico { font-size: 13px; }
         .spacer { flex: 1; }
@@ -218,21 +258,202 @@ class OfficeNav extends HTMLElement {
           transition: background .12s;
         }
         .overflow-item:hover { background: var(--nav-hover-bg); }
+
+        /* ── Breadcrumb sutil ── */
+        .crumbs {
+          background: rgba(6, 14, 26, 0.65);
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+          border-bottom: 1px solid rgba(37,99,235,0.10);
+          padding: 6px 18px;
+          font-size: 11px;
+          color: var(--nav-muted);
+          display: flex;
+          gap: 6px;
+          align-items: center;
+          letter-spacing: 0.02em;
+        }
+        .crumbs .sep { opacity: 0.4; }
+        .crumbs .item { color: var(--nav-muted); }
+        .crumbs .item.current { color: var(--nav-accent); font-weight: 600; }
+
+        /* ── Notification bell ── */
+        .bell-wrap { position: relative; }
+        .bell-btn {
+          background: transparent;
+          border: 1px solid transparent;
+          color: var(--nav-text);
+          font-size: 14px;
+          padding: 5px 9px;
+          border-radius: 6px;
+          cursor: pointer;
+          font-family: inherit;
+          position: relative;
+          transition: background .15s, border-color .15s;
+        }
+        .bell-btn:hover { background: var(--nav-hover-bg); border-color: var(--nav-border); }
+        .bell-badge {
+          position: absolute;
+          top: 1px; right: 1px;
+          background: #ef4444;
+          color: #fff;
+          font-size: 9px;
+          font-weight: 700;
+          min-width: 14px; height: 14px;
+          padding: 0 4px;
+          border-radius: 999px;
+          display: inline-flex; align-items: center; justify-content: center;
+          line-height: 1;
+        }
+        .bell-panel {
+          display: none;
+          position: absolute;
+          right: 0;
+          top: calc(100% + 6px);
+          width: 320px; max-height: 60vh;
+          overflow-y: auto;
+          background: #0d1e36;
+          border: 1px solid var(--nav-border);
+          border-radius: 10px;
+          box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+          z-index: 10;
+        }
+        .bell-panel.open { display: block; }
+        .bell-panel .bp-head {
+          padding: 12px 14px;
+          border-bottom: 1px solid rgba(255,255,255,0.06);
+          font-size: 11px;
+          color: var(--nav-muted);
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          font-family: 'JetBrains Mono', monospace;
+          display: flex; justify-content: space-between; align-items: center;
+        }
+        .bell-panel .bp-item {
+          padding: 10px 14px;
+          font-size: 12px;
+          color: var(--nav-text);
+          border-bottom: 1px solid rgba(255,255,255,0.04);
+          display: block;
+          text-decoration: none;
+        }
+        .bell-panel .bp-item:hover { background: var(--nav-hover-bg); }
+        .bell-panel .bp-item.empty { color: var(--nav-muted); font-style: italic; cursor: default; }
+        .bell-panel .bp-item .bp-tag {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 9px;
+          padding: 1px 5px;
+          border-radius: 3px;
+          margin-right: 6px;
+          letter-spacing: 0.06em;
+        }
+        .bp-tag.warn { background: rgba(251,191,36,0.18); color: #fbbf24; }
+        .bp-tag.info { background: rgba(96,165,250,0.18); color: #60a5fa; }
+
+        /* ── User dropdown real (substitui prompt()) ── */
+        .user-menu {
+          display: none;
+          position: absolute;
+          right: 0;
+          top: calc(100% + 6px);
+          min-width: 240px;
+          background: #0d1e36;
+          border: 1px solid var(--nav-border);
+          border-radius: 10px;
+          padding: 8px;
+          box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+          z-index: 10;
+        }
+        .user-menu.open { display: block; }
+        .user-menu .um-head {
+          padding: 8px 10px 10px;
+          border-bottom: 1px solid rgba(255,255,255,0.06);
+          margin-bottom: 6px;
+        }
+        .user-menu .um-name {
+          font-size: 13px; font-weight: 600; color: var(--nav-text);
+        }
+        .user-menu .um-sub {
+          font-size: 11px; color: var(--nav-muted); margin-top: 2px;
+        }
+        .user-menu .um-item {
+          display: flex; align-items: center; gap: 8px;
+          padding: 8px 10px;
+          font-size: 12px;
+          color: var(--nav-text);
+          text-decoration: none;
+          border-radius: 6px;
+          cursor: pointer;
+          background: transparent;
+          border: none;
+          width: 100%;
+          text-align: left;
+          font-family: inherit;
+        }
+        .user-menu .um-item:hover { background: var(--nav-hover-bg); }
+        .user-menu .um-item .ic { font-size: 13px; opacity: 0.85; }
+        .user-wrap { position: relative; }
+
+        /* ── Skip-to-content a11y ── */
+        .skip-link {
+          position: absolute;
+          left: -9999px;
+          top: 8px;
+          background: var(--nav-accent);
+          color: #06141a;
+          padding: 8px 12px;
+          border-radius: 6px;
+          font-size: 12px;
+          font-weight: 700;
+          text-decoration: none;
+          z-index: 999;
+        }
+        .skip-link:focus { left: 8px; }
+
+        /* ── Mobile hamburger ── */
+        .hamburger {
+          display: none;
+          background: transparent;
+          border: 1px solid var(--nav-border);
+          color: var(--nav-text);
+          font-size: 16px;
+          padding: 6px 10px;
+          border-radius: 6px;
+          cursor: pointer;
+        }
+        .mobile-tabs {
+          display: none;
+          background: rgba(6,14,26,0.97);
+          border-bottom: 1px solid var(--nav-border);
+          padding: 8px;
+          flex-direction: column;
+          gap: 4px;
+        }
+        .mobile-tabs.open { display: flex; }
+        .mobile-tabs .tab { font-size: 14px; padding: 12px 14px; }
+
         @media (max-width: 720px) {
           .logo { font-size: 9px; padding: 5px 7px; }
-          .tab { padding: 7px 10px; font-size: 11px; }
-          .tab-label { display: none; }
+          .ver-chip { font-size: 8px; padding: 2px 5px; }
+          .tabs { display: none; }
+          .hamburger { display: inline-block; }
+          .user-chip .user-name { display: none; }
           .ctrl-btn .kbd { display: none; }
+          .bell-panel, .user-menu { width: 92vw; right: -8px; }
         }
       </style>
 
+      <a href="#main" class="skip-link">Pular pro conteúdo</a>
+
       <nav class="nav-bar" role="navigation" aria-label="Office navigation">
-        <a class="logo" href="/dashboard" aria-label="Voltar ao Hub">EPI-USE</a>
+        <a class="logo" href="/dashboard" aria-label="Voltar ao Office">EPI-USE</a>
         <a class="ver-chip" href="/changelog" title="Versão atual — clique para ver histórico">${OFFICE_NAV_VERSION}</a>
+
+        <button class="hamburger" id="hamburger-btn" type="button" aria-label="Menu" title="Menu">☰</button>
 
         <div class="tabs" role="tablist">
           ${OFFICE_NAV_TABS.map(t => {
-            const isActive = t.matches.includes(activeRoute);
+            const isActive = t.id === activeTab;
             return `<a class="tab ${isActive ? 'active' : ''}" href="${t.href}" data-tab="${t.id}" role="tab" aria-selected="${isActive}">
               <span class="tab-ico">${t.icon}</span>
               <span class="tab-label">${t.label}</span>
@@ -241,9 +462,29 @@ class OfficeNav extends HTMLElement {
         </div>
 
         <div class="controls">
-          <button class="ctrl-btn" id="cmdk-btn" title="Command palette (em breve)" type="button">⌘<span class="kbd">K</span></button>
-          <button class="ctrl-btn" id="theme-btn" title="Trocar tema (light em breve)" type="button">${themeIcon}</button>
-          <button class="user-chip" id="user-btn" type="button">👤 ${user}</button>
+          <button class="ctrl-btn" id="cmdk-btn" title="Command palette ⌘K" type="button">⌘<span class="kbd">K</span></button>
+          <div class="bell-wrap">
+            <button class="bell-btn" id="bell-btn" type="button" title="Notificações" aria-label="Notificações">🔔<span class="bell-badge" id="bell-badge" style="display:none">0</span></button>
+            <div class="bell-panel" id="bell-panel" role="menu">
+              <div class="bp-head"><span>Notificações</span><a href="/painel" style="color:var(--nav-accent);text-decoration:none;font-size:10px">Ver tudo →</a></div>
+              <div id="bell-items"><div class="bp-item empty">Carregando…</div></div>
+            </div>
+          </div>
+          <button class="ctrl-btn" id="theme-btn" title="Trocar tema (dark/light)" type="button">${themeIcon}</button>
+          <div class="user-wrap">
+            <button class="user-chip" id="user-btn" type="button">👤 <span class="user-name">${user}</span></button>
+            <div class="user-menu" id="user-menu" role="menu">
+              <div class="um-head">
+                <div class="um-name">👤 ${user}</div>
+                <div class="um-sub">EPI-USE Office · ${OFFICE_NAV_VERSION}</div>
+              </div>
+              <button class="um-item" id="um-rename" type="button"><span class="ic">✏️</span>Trocar nome de exibição</button>
+              <button class="um-item" id="um-theme" type="button"><span class="ic">${themeIcon}</span>Tema: ${theme === 'dark' ? 'escuro' : 'claro'}</button>
+              <a class="um-item" href="/changelog"><span class="ic">📜</span>Changelog</a>
+              <a class="um-item" href="https://erp.ngo" target="_blank" rel="noopener"><span class="ic">🐘</span>ERP.ngo</a>
+              <button class="um-item" id="um-logout" type="button"><span class="ic">↪</span>Sair (limpa preferências)</button>
+            </div>
+          </div>
           <div class="overflow-wrap">
             <button class="ctrl-btn" id="more-btn" title="Mais opções" type="button">⋯</button>
             <div class="overflow-menu" id="overflow-menu">
@@ -255,25 +496,77 @@ class OfficeNav extends HTMLElement {
           </div>
         </div>
       </nav>
+
+      <div class="mobile-tabs" id="mobile-tabs" role="menu">
+        ${OFFICE_NAV_TABS.map(t => {
+          const isActive = t.id === activeTab;
+          return `<a class="tab ${isActive ? 'active' : ''}" href="${t.href}"><span class="tab-ico">${t.icon}</span><span>${t.label}</span></a>`;
+        }).join('')}
+      </div>
+
+      ${breadcrumb ? `
+      <div class="crumbs" role="navigation" aria-label="Breadcrumb">
+        ${breadcrumb.map((c, i) => `
+          <span class="item ${i === breadcrumb.length - 1 ? 'current' : ''}">${c}</span>
+          ${i < breadcrumb.length - 1 ? '<span class="sep">›</span>' : ''}
+        `).join('')}
+      </div>` : ''}
     `;
   }
 
   hookEvents() {
-    const overflowBtn = this.shadowRoot.getElementById('more-btn');
-    const overflowMenu = this.shadowRoot.getElementById('overflow-menu');
-    const userBtn = this.shadowRoot.getElementById('user-btn');
-    const cmdkBtn = this.shadowRoot.getElementById('cmdk-btn');
-    const themeBtn = this.shadowRoot.getElementById('theme-btn');
+    const $ = (id) => this.shadowRoot.getElementById(id);
+    const overflowBtn = $('more-btn');
+    const overflowMenu = $('overflow-menu');
+    const userBtn = $('user-btn');
+    const userMenu = $('user-menu');
+    const cmdkBtn = $('cmdk-btn');
+    const themeBtn = $('theme-btn');
+    const bellBtn = $('bell-btn');
+    const bellPanel = $('bell-panel');
+    const hamburgerBtn = $('hamburger-btn');
+    const mobileTabs = $('mobile-tabs');
+
+    // Helper: fecha todos os dropdowns exceto o que abriu
+    const closeAll = (except) => {
+      [overflowMenu, userMenu, bellPanel, mobileTabs].forEach(el => {
+        if (el && el !== except) el.classList.remove('open');
+      });
+    };
 
     overflowBtn?.addEventListener('click', (e) => {
       e.stopPropagation();
-      overflowMenu.classList.toggle('open');
+      const isOpen = overflowMenu.classList.contains('open');
+      closeAll();
+      if (!isOpen) overflowMenu.classList.add('open');
     });
 
-    // Click fora fecha overflow
-    document.addEventListener('click', () => overflowMenu?.classList.remove('open'));
+    userBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = userMenu.classList.contains('open');
+      closeAll();
+      if (!isOpen) userMenu.classList.add('open');
+    });
 
-    userBtn?.addEventListener('click', () => {
+    bellBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = bellPanel.classList.contains('open');
+      closeAll();
+      if (!isOpen) bellPanel.classList.add('open');
+    });
+
+    hamburgerBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = mobileTabs.classList.contains('open');
+      closeAll();
+      if (!isOpen) mobileTabs.classList.add('open');
+    });
+
+    // Click fora (no document) fecha tudo
+    document.addEventListener('click', () => closeAll());
+
+    // User menu actions
+    $('um-rename')?.addEventListener('click', () => {
       const cur = this.getUser();
       const next = prompt('Trocar nome de exibição:', cur === 'Visitante' ? '' : cur);
       if (next !== null) {
@@ -284,22 +577,344 @@ class OfficeNav extends HTMLElement {
       }
     });
 
-    cmdkBtn?.addEventListener('click', () => {
-      alert('⌘K Command Palette chega na v3.5 (próxima sprint).');
+    $('um-theme')?.addEventListener('click', () => {
+      const cur = this.getTheme();
+      const next = cur === 'dark' ? 'light' : 'dark';
+      try { localStorage.setItem('office.theme', next); } catch {}
+      applyTheme(next);
+      this.render();
+      this.hookEvents();
     });
+
+    $('um-logout')?.addEventListener('click', () => {
+      if (!confirm('Limpar preferências locais (nome, tema, drafts)?')) return;
+      try {
+        ['office.user', 'office.theme', 'inbound.brief.draft', 'inbound.calendar'].forEach(k => localStorage.removeItem(k));
+      } catch {}
+      location.reload();
+    });
+
+    // Notification bell — busca /api/alerts uma vez
+    this.loadAlerts();
+
+    cmdkBtn?.addEventListener('click', () => OfficeCommandPalette.open());
 
     themeBtn?.addEventListener('click', () => {
-      alert('Light mode chega na v3.5 — por enquanto, dark only.');
+      const cur = this.getTheme();
+      const next = cur === 'dark' ? 'light' : 'dark';
+      try { localStorage.setItem('office.theme', next); } catch {}
+      applyTheme(next);
+      this.render();
+      this.hookEvents();
     });
 
-    // Keyboard shortcut placeholder
+    // Cmd+K / Ctrl+K abre command palette
     document.addEventListener('keydown', (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
-        alert('⌘K Command Palette chega na v3.5.');
+        OfficeCommandPalette.open();
       }
     });
+
+    // Aplica tema salvo na primeira montagem (idempotente)
+    applyTheme(this.getTheme());
+  }
+
+  async loadAlerts() {
+    const items = this.shadowRoot.getElementById('bell-items');
+    const badge = this.shadowRoot.getElementById('bell-badge');
+    if (!items) return;
+    try {
+      const res = await fetch('/api/alerts');
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      const alerts = data.alertas || [];
+      if (alerts.length === 0) {
+        items.innerHTML = '<div class="bp-item empty">Nenhum alerta no momento.</div>';
+        badge.style.display = 'none';
+        return;
+      }
+      badge.textContent = alerts.length > 9 ? '9+' : String(alerts.length);
+      badge.style.display = 'inline-flex';
+      items.innerHTML = alerts.slice(0, 10).map(a => {
+        const tagCls = a.tipo === 'warn' ? 'warn' : 'info';
+        const tagLbl = a.tipo === 'warn' ? '⚠' : 'i';
+        return `<a class="bp-item" href="/painel"><span class="bp-tag ${tagCls}">${tagLbl}</span>${(a.msg || '').slice(0, 140)}</a>`;
+      }).join('');
+    } catch (e) {
+      items.innerHTML = '<div class="bp-item empty">Não foi possível carregar alertas.</div>';
+      badge.style.display = 'none';
+    }
   }
 }
 
 customElements.define('office-nav', OfficeNav);
+
+// ════════════════════════════════════════════════════════════════════════════
+// THEME APPLY — seta data-theme no <html> + injeta tokens de light mode globais
+// (cada página tem suas próprias CSS vars; só sobrescrevemos as comuns)
+// ════════════════════════════════════════════════════════════════════════════
+function applyTheme(theme) {
+  const html = document.documentElement;
+  if (theme === 'light') html.setAttribute('data-theme', 'light');
+  else html.removeAttribute('data-theme');
+}
+
+// Garante que o stylesheet de light mode global existe (injetado 1x)
+(function ensureLightStyles() {
+  if (document.getElementById('office-light-tokens')) return;
+  const style = document.createElement('style');
+  style.id = 'office-light-tokens';
+  style.textContent = `
+    /* Office Engine — Light Mode override (apenas onde o token existe globalmente).
+       Páginas que usam CSS vars locais escuras hardcoded ficam parcialmente cobertas —
+       é o trade-off prático sem reescrever 8 HTMLs. */
+    :root[data-theme="light"] {
+      --bg: #f8fafc;
+      --bg-2: #f1f5f9;
+      --surface: #ffffff;
+      --surface-2: #f8fafc;
+      --border: rgba(15, 23, 42, 0.08);
+      --border-light: rgba(15, 23, 42, 0.06);
+      --text: #0f172a;
+      --text-dim: #334155;
+      --text-muted: #64748b;
+      --primary: #2563eb;
+      --primary-light: #3b82f6;
+      color-scheme: light;
+    }
+    :root[data-theme="light"] body {
+      background: #f8fafc !important;
+      color: #0f172a !important;
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
+// Aplica o tema salvo o quanto antes (evita FOUC se o nav demorar pra montar)
+(function preApplyTheme() {
+  try {
+    const saved = localStorage.getItem('office.theme') || 'dark';
+    applyTheme(saved);
+  } catch {}
+})();
+
+// ════════════════════════════════════════════════════════════════════════════
+// COMMAND PALETTE — Cmd+K modal global
+// ════════════════════════════════════════════════════════════════════════════
+const OfficeCommandPalette = (() => {
+  let overlay = null;
+  let input = null;
+  let list = null;
+  let items = [];      // [{id, label, hint, icon, action: fn|url, group}]
+  let filtered = [];
+  let selectedIdx = 0;
+  let isOpen = false;
+
+  // Catalog estática + voices carregadas async em build()
+  function baseItems() {
+    return [
+      // Rotas
+      { group:'Rotas', icon:'🏠', label:'Hub (War Room)',       hint:'/dashboard',  action:'/dashboard' },
+      { group:'Rotas', icon:'🎮', label:'Modo Game (mapa 2D)',  hint:'/game',       action:'/game' },
+      { group:'Rotas', icon:'🎙️', label:'Voice Agents',         hint:'/voices',     action:'/voices' },
+      { group:'Rotas', icon:'📡', label:'Inbound Engine',       hint:'/inbound',    action:'/inbound' },
+      { group:'Rotas', icon:'✎',  label:'Brief → Post',         hint:'/inbound/brief',    action:'/inbound/brief' },
+      { group:'Rotas', icon:'▥',  label:'Carrossel Hub',        hint:'/inbound/carousel', action:'/inbound/carousel' },
+      { group:'Rotas', icon:'▦',  label:'Calendário Editorial', hint:'/inbound/calendar', action:'/inbound/calendar' },
+      { group:'Rotas', icon:'◇',  label:'Template Studio',      hint:'/inbound/studio',   action:'/inbound/studio' },
+      { group:'Rotas', icon:'▤',  label:'Playbook (deck 19 slides)', hint:'/inbound/playbook', action:'/inbound/playbook' },
+      { group:'Rotas', icon:'📈', label:'Marketing Hub',        hint:'/hub',        action:'/hub' },
+      { group:'Rotas', icon:'⚙️', label:'Painel da Duda',       hint:'/painel',     action:'/painel' },
+      { group:'Rotas', icon:'🪪', label:'Profile Optimizer',    hint:'/optimizer',  action:'/optimizer' },
+      { group:'Rotas', icon:'📨', label:'LP Seja um Voice',     hint:'/seja-voice', action:'/seja-voice' },
+      { group:'Rotas', icon:'📜', label:'Changelog',            hint:'/changelog',  action:'/changelog' },
+      // Ações
+      { group:'Ações', icon:'☾',  label:'Alternar tema (dark/light)', hint:'persiste', action: () => {
+          const cur = (localStorage.getItem('office.theme') || 'dark');
+          const next = cur === 'dark' ? 'light' : 'dark';
+          try { localStorage.setItem('office.theme', next); } catch {}
+          applyTheme(next);
+        }},
+      { group:'Ações', icon:'🐘', label:'ERP.ngo (externo)',    hint:'1% receita global pra conservação', action: () => window.open('https://erp.ngo', '_blank') },
+    ];
+  }
+
+  async function build() {
+    items = baseItems();
+    // Tenta carregar voices ativos pra adicionar atalhos diretos
+    try {
+      const res = await fetch('/api/voices.json');
+      const data = await res.json();
+      (data.voices || []).forEach(v => {
+        items.push({ group:'Voices', icon:'🎙️', label:v.nome, hint:`${v.cargo} · ${v.nicho}`, action:`/voices?v=${v.id}` });
+      });
+    } catch {}
+  }
+
+  function ensureDom() {
+    if (overlay) return;
+    overlay = document.createElement('div');
+    overlay.id = 'office-cmdk-overlay';
+    overlay.innerHTML = `
+      <style>
+        #office-cmdk-overlay {
+          position: fixed; inset: 0; background: rgba(2, 6, 23, .7);
+          backdrop-filter: blur(8px); display: none;
+          align-items: flex-start; justify-content: center;
+          z-index: 9999; padding: 80px 16px 16px;
+          font-family: 'Inter', -apple-system, sans-serif;
+        }
+        #office-cmdk-overlay.open { display: flex; }
+        #office-cmdk-box {
+          width: min(640px, 100%); max-height: 70vh;
+          background: #0d1e36; border: 1px solid rgba(37, 99, 235, 0.35);
+          border-radius: 14px; overflow: hidden;
+          box-shadow: 0 24px 60px rgba(0,0,0,.5);
+          display: flex; flex-direction: column;
+        }
+        :root[data-theme="light"] #office-cmdk-box {
+          background: #ffffff; border-color: rgba(37, 99, 235, 0.25);
+          box-shadow: 0 24px 60px rgba(15,23,42,.20);
+        }
+        #office-cmdk-input {
+          width: 100%; background: transparent; color: #e2e8f0;
+          border: none; outline: none; padding: 18px 22px;
+          font-size: 16px; font-family: inherit;
+          border-bottom: 1px solid rgba(255,255,255,.08);
+        }
+        :root[data-theme="light"] #office-cmdk-input { color: #0f172a; border-bottom-color: rgba(15,23,42,.10); }
+        #office-cmdk-input::placeholder { color: #64748b; }
+        #office-cmdk-list {
+          overflow-y: auto; padding: 6px 0 8px;
+        }
+        .cmdk-group {
+          font-family: 'JetBrains Mono', monospace; font-size: 10px;
+          color: #64748b; padding: 10px 22px 4px;
+          letter-spacing: 0.16em; text-transform: uppercase;
+        }
+        .cmdk-item {
+          display: flex; align-items: center; gap: 12px;
+          padding: 10px 22px; cursor: pointer;
+          color: #cbd5e1; font-size: 14px;
+        }
+        :root[data-theme="light"] .cmdk-item { color: #334155; }
+        .cmdk-item:hover, .cmdk-item.selected {
+          background: rgba(37, 99, 235, .15);
+          color: #60a5fa;
+        }
+        :root[data-theme="light"] .cmdk-item:hover, :root[data-theme="light"] .cmdk-item.selected {
+          background: rgba(37, 99, 235, .08); color: #2563eb;
+        }
+        .cmdk-icon { font-size: 16px; min-width: 22px; text-align: center; }
+        .cmdk-label { flex: 1; font-weight: 500; }
+        .cmdk-hint {
+          font-family: 'JetBrains Mono', monospace; font-size: 10px;
+          color: #64748b; letter-spacing: 0.04em;
+        }
+        #office-cmdk-footer {
+          padding: 8px 16px; border-top: 1px solid rgba(255,255,255,.06);
+          display: flex; justify-content: space-between; align-items: center;
+          font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #64748b;
+        }
+        :root[data-theme="light"] #office-cmdk-footer { border-top-color: rgba(15,23,42,.08); }
+        .cmdk-kbd {
+          background: rgba(255,255,255,.06); padding: 2px 6px;
+          border-radius: 3px; font-size: 10px;
+        }
+        :root[data-theme="light"] .cmdk-kbd { background: rgba(15,23,42,.06); color: #334155; }
+        .cmdk-empty { padding: 30px 22px; color: #64748b; text-align: center; font-size: 13px; }
+      </style>
+      <div id="office-cmdk-box">
+        <input id="office-cmdk-input" placeholder="Buscar rotas, Voices, ações…" autocomplete="off" />
+        <div id="office-cmdk-list"></div>
+        <div id="office-cmdk-footer">
+          <span><span class="cmdk-kbd">↑↓</span> navegar · <span class="cmdk-kbd">Enter</span> abrir · <span class="cmdk-kbd">Esc</span> fechar</span>
+          <span>EPI-USE Office · Cmd+K</span>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    input = overlay.querySelector('#office-cmdk-input');
+    list = overlay.querySelector('#office-cmdk-list');
+
+    // Click no overlay fora da box fecha
+    overlay.addEventListener('click', e => { if (e.target.id === 'office-cmdk-overlay') close(); });
+
+    input.addEventListener('input', () => { selectedIdx = 0; renderList(); });
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { close(); return; }
+      if (e.key === 'ArrowDown') { e.preventDefault(); selectedIdx = Math.min(filtered.length - 1, selectedIdx + 1); renderList(); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); selectedIdx = Math.max(0, selectedIdx - 1); renderList(); }
+      else if (e.key === 'Enter') { e.preventDefault(); runSelected(); }
+    });
+  }
+
+  function renderList() {
+    const q = (input.value || '').trim().toLowerCase();
+    filtered = !q ? items : items.filter(it =>
+      it.label.toLowerCase().includes(q) ||
+      (it.hint || '').toLowerCase().includes(q) ||
+      (it.group || '').toLowerCase().includes(q)
+    );
+    if (filtered.length === 0) {
+      list.innerHTML = '<div class="cmdk-empty">Nada encontrado pra "' + q + '"</div>';
+      return;
+    }
+    // Agrupar por group preservando ordem
+    const groups = [];
+    const map = new Map();
+    filtered.forEach((it, i) => {
+      if (!map.has(it.group)) { map.set(it.group, []); groups.push(it.group); }
+      map.get(it.group).push({ ...it, _gidx: i });
+    });
+    let html = '';
+    let globalIdx = 0;
+    groups.forEach(g => {
+      html += `<div class="cmdk-group">${g}</div>`;
+      map.get(g).forEach(it => {
+        const sel = globalIdx === selectedIdx ? ' selected' : '';
+        html += `<div class="cmdk-item${sel}" data-idx="${globalIdx}">
+          <span class="cmdk-icon">${it.icon || '•'}</span>
+          <span class="cmdk-label">${it.label}</span>
+          <span class="cmdk-hint">${it.hint || ''}</span>
+        </div>`;
+        globalIdx++;
+      });
+    });
+    list.innerHTML = html;
+    list.querySelectorAll('.cmdk-item').forEach(el => {
+      el.addEventListener('click', () => { selectedIdx = parseInt(el.dataset.idx, 10); runSelected(); });
+      el.addEventListener('mouseenter', () => { selectedIdx = parseInt(el.dataset.idx, 10); list.querySelectorAll('.cmdk-item').forEach(x => x.classList.remove('selected')); el.classList.add('selected'); });
+    });
+    // Scroll into view
+    const sel = list.querySelector('.cmdk-item.selected');
+    if (sel) sel.scrollIntoView({ block: 'nearest' });
+  }
+
+  function runSelected() {
+    const it = filtered[selectedIdx];
+    if (!it) return;
+    close();
+    if (typeof it.action === 'function') it.action();
+    else if (typeof it.action === 'string') window.location.href = it.action;
+  }
+
+  async function open() {
+    if (!items.length) await build();
+    ensureDom();
+    isOpen = true;
+    overlay.classList.add('open');
+    input.value = '';
+    selectedIdx = 0;
+    renderList();
+    setTimeout(() => input.focus(), 30);
+  }
+
+  function close() {
+    isOpen = false;
+    overlay?.classList.remove('open');
+  }
+
+  return { open, close };
+})();

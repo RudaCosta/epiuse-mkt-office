@@ -3,13 +3,54 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>EUBR Inbound — Social Media Playbook</title>
+<title>Inbound Engine · Playbook · EPI-USE Voices</title>
 <link rel="stylesheet" href="styles.css" />
 <link rel="stylesheet" href="styles-2.css" />
 <link rel="stylesheet" href="styles-3.css" />
 <script src="deck-stage.js"></script>
+<style>
+  /* Header sticky de retorno — fora do deck, z-index alto, fundo escuro p/ não competir com slides */
+  .playbook-return-bar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 9999;
+    background: rgba(6, 14, 26, 0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(91, 188, 235, 0.25);
+    padding: 8px 18px;
+    display: flex; align-items: center; justify-content: space-between; gap: 14px;
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: 12px;
+  }
+  .playbook-return-bar a {
+    color: #5BBCEB; text-decoration: none;
+    padding: 5px 10px; border-radius: 5px;
+    transition: background .15s;
+  }
+  .playbook-return-bar a:hover { background: rgba(91, 188, 235, 0.10); }
+  .playbook-return-bar .title {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    letter-spacing: .14em; text-transform: uppercase; color: #94a3b8;
+  }
+  .playbook-return-bar .hide-btn {
+    background: transparent; border: 1px solid rgba(148,163,184,.25);
+    color: #94a3b8; font-size: 10px; padding: 3px 8px; border-radius: 4px;
+    cursor: pointer; font-family: inherit;
+  }
+  .playbook-return-bar .hide-btn:hover { color: #fff; border-color: rgba(255,255,255,.4); }
+  body.playbook-fullscreen .playbook-return-bar { display: none; }
+  /* Deck-stage compensation — sem padding, o deck ainda usa viewport completo (z-index abaixo) */
+</style>
 </head>
 <body>
+<div class="playbook-return-bar" role="navigation" aria-label="Playbook navigation">
+  <div style="display:flex;align-items:center;gap:14px">
+    <a href="/inbound">← Inbound Hub</a>
+    <a href="/" style="color:#94a3b8">🏠 Office</a>
+    <span class="title">📘 Playbook editorial · 19 slides</span>
+  </div>
+  <button class="hide-btn" onclick="document.body.classList.toggle('playbook-fullscreen')" title="Esconder/mostrar barra (F11 vira fullscreen real)">⛶ Fullscreen</button>
+</div>
 <deck-stage>
 
 <!-- ============ 01 COVER ============ -->

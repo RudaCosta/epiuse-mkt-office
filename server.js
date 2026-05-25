@@ -86,6 +86,43 @@ db.exec(`
     ip           TEXT DEFAULT '',
     created_at   TEXT DEFAULT (datetime('now'))
   );
+  CREATE TABLE IF NOT EXISTS cs_clientes (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    sharepoint_id   TEXT UNIQUE,
+    conta           TEXT NOT NULL,
+    cliente_nome    TEXT NOT NULL,
+    contato_principal TEXT DEFAULT '',
+    contato_email   TEXT DEFAULT '',
+    csm             TEXT DEFAULT '',
+    lob             TEXT DEFAULT '',
+    status          TEXT DEFAULT 'live',
+    nps             INTEGER,
+    valor_anual     REAL,
+    ultimo_contato  TEXT,
+    observacoes     TEXT DEFAULT '',
+    case_publicavel INTEGER DEFAULT 0,
+    case_resumo     TEXT DEFAULT '',
+    updated_at      TEXT DEFAULT (datetime('now')),
+    synced_at       TEXT
+  );
+  CREATE INDEX IF NOT EXISTS idx_cs_status ON cs_clientes(status);
+  CREATE INDEX IF NOT EXISTS idx_cs_csm    ON cs_clientes(csm);
+  CREATE TABLE IF NOT EXISTS editorial_calendar (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    external_id     TEXT UNIQUE,
+    fonte           TEXT NOT NULL,
+    data            TEXT NOT NULL,
+    canal           TEXT DEFAULT 'linkedin',
+    autor           TEXT DEFAULT '',
+    titulo          TEXT NOT NULL,
+    resumo          TEXT DEFAULT '',
+    pilar           TEXT DEFAULT '',
+    status          TEXT DEFAULT 'planned',
+    url_post        TEXT DEFAULT '',
+    updated_at      TEXT DEFAULT (datetime('now')),
+    synced_at       TEXT
+  );
+  CREATE INDEX IF NOT EXISTS idx_cal_data ON editorial_calendar(data);
 `);
 
 // Migra JSONL legado → SQLite (roda só uma vez se as tabelas estiverem vazias)
@@ -221,6 +258,15 @@ const recruitmentLimiter = rateLimit({
   message: { success: false, error: 'Limite de 5 inscrições/hora atingido.' }
 });
 
+// Inbound Brief→Post: 20 gerações por hora por IP (suficiente p/ uso normal, anti-abuse de Claude API)
+const inboundGenLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, error: 'Limite de 20 gerações/hora atingido. Aguarde 1h.' }
+});
+
 // ── ROTAS DO OFFICE ENGINE ────────────────────────────────────────────────────
 const OPTIMIZER_PATH = path.join(__dirname, 'public/optimizer.html');
 app.get('/optimizer', (req, res) => res.sendFile(OPTIMIZER_PATH));
@@ -231,9 +277,114 @@ const VOICES_PATH     = path.join(__dirname, 'public/voices.html');
 const SEJA_VOICE_PATH = path.join(__dirname, 'public/seja-voice.html');
 const CHANGELOG_PATH  = path.join(__dirname, 'public/changelog.html');
 app.get('/painel',     (req, res) => res.sendFile(PAINEL_PATH));
+// /voices/painel é o caminho canônico (Painel da Duda é parte do projeto Voices) —
+// redireciona pro /painel real mantendo URLs antigas válidas.
+app.get('/voices/painel', (req, res) => res.redirect(301, '/painel'));
 app.get('/voices',     (req, res) => res.sendFile(VOICES_PATH));
 app.get('/seja-voice', (req, res) => res.sendFile(SEJA_VOICE_PATH));
 app.get('/changelog',  (req, res) => res.sendFile(CHANGELOG_PATH));
+
+// ── MODULE G · CASES & CS HUB (sprint 0.4.0) ─────────────────────────────────
+const CASES_PATH = path.join(__dirname, 'public/cases.html');
+app.get('/cases', (req, res) => res.sendFile(CASES_PATH));
+
+// API: lista clientes (com filtros opcionais)
+app.get('/api/cases', (req, res) => {
+  try {
+    const q = req.query;
+    let sql = 'SELECT * FROM cs_clientes WHERE 1=1';
+    const params = [];
+    if (q.status) { sql += ' AND status = ?'; params.push(q.status); }
+    if (q.csm)    { sql += ' AND csm    = ?'; params.push(q.csm); }
+    if (q.lob)    { sql += ' AND lob    = ?'; params.push(q.lob); }
+    sql += ' ORDER BY cliente_nome ASC';
+    const rows = db.prepare(sql).all(...params);
+    // KPIs agregados
+    const all = db.prepare('SELECT status, nps FROM cs_clientes').all();
+    const kpis = {
+      total: all.length,
+      live: all.filter(r => r.status === 'live').length,
+      churn_risk: all.filter(r => r.status === 'churn-risk').length,
+      onboarding: all.filter(r => r.status === 'onboarding').length,
+      nps_medio: (() => {
+        const valid = all.map(r => r.nps).filter(n => n !== null && n !== undefined);
+        if (!valid.length) return null;
+        return Math.round(valid.reduce((s, n) => s + n, 0) / valid.length);
+      })(),
+      synced_at: rows[0]?.synced_at || null
+    };
+    res.json({ kpis, clientes: rows });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// API: upsert via cron (recebe array de clientes da planilha SharePoint).
+// Protegido pelo mesmo EDITOR_TOKEN dos PUT de voices.
+app.post('/api/cases/sync', requireEditorToken, (req, res) => {
+  const items = Array.isArray(req.body?.items) ? req.body.items : [];
+  if (!items.length) return res.status(400).json({ success: false, error: 'items[] vazio.' });
+  const upsert = db.prepare(`
+    INSERT INTO cs_clientes (sharepoint_id, conta, cliente_nome, contato_principal, contato_email, csm, lob, status, nps, valor_anual, ultimo_contato, observacoes, case_publicavel, case_resumo, synced_at)
+    VALUES (@sharepoint_id, @conta, @cliente_nome, @contato_principal, @contato_email, @csm, @lob, @status, @nps, @valor_anual, @ultimo_contato, @observacoes, @case_publicavel, @case_resumo, datetime('now'))
+    ON CONFLICT(sharepoint_id) DO UPDATE SET
+      conta=excluded.conta,
+      cliente_nome=excluded.cliente_nome,
+      contato_principal=excluded.contato_principal,
+      contato_email=excluded.contato_email,
+      csm=excluded.csm,
+      lob=excluded.lob,
+      status=excluded.status,
+      nps=excluded.nps,
+      valor_anual=excluded.valor_anual,
+      ultimo_contato=excluded.ultimo_contato,
+      observacoes=excluded.observacoes,
+      case_publicavel=excluded.case_publicavel,
+      case_resumo=excluded.case_resumo,
+      synced_at=datetime('now'),
+      updated_at=datetime('now')
+  `);
+  const tx = db.transaction((arr) => {
+    let n = 0;
+    for (const it of arr) {
+      try {
+        upsert.run({
+          sharepoint_id: String(it.sharepoint_id || it.id || '').slice(0, 100) || `gen-${Date.now()}-${n}`,
+          conta:         String(it.conta || '').slice(0, 100),
+          cliente_nome:  String(it.cliente_nome || it.cliente || '').slice(0, 200),
+          contato_principal: String(it.contato_principal || it.contato || '').slice(0, 100),
+          contato_email: String(it.contato_email || it.email || '').slice(0, 100),
+          csm:           String(it.csm || '').slice(0, 100),
+          lob:           String(it.lob || '').slice(0, 50),
+          status:        String(it.status || 'live').slice(0, 30),
+          nps:           it.nps != null ? parseInt(it.nps, 10) : null,
+          valor_anual:   it.valor_anual != null ? parseFloat(it.valor_anual) : null,
+          ultimo_contato: String(it.ultimo_contato || '').slice(0, 30),
+          observacoes:   String(it.observacoes || '').slice(0, 2000),
+          case_publicavel: it.case_publicavel ? 1 : 0,
+          case_resumo:   String(it.case_resumo || '').slice(0, 1000)
+        });
+        n++;
+      } catch (e) { console.warn('[cases/sync] item falhou:', e.message); }
+    }
+    return n;
+  });
+  const n = tx(items);
+  res.json({ success: true, upserted: n, total_received: items.length });
+});
+
+// Seed inicial de cases anonimizados (rodada uma vez se tabela vazia)
+(function seedCases() {
+  if (db.prepare('SELECT COUNT(*) as n FROM cs_clientes').get().n > 0) return;
+  const seed = [
+    { sharepoint_id: 'seed-1', conta: 'EUBR-2024-001', cliente_nome: 'Drogaria Venancio', contato_principal: '— (anonimizado)', contato_email: '', csm: 'Marlison Estrela', lob: 'HCM', status: 'live', nps: 9, valor_anual: null, ultimo_contato: '2026-04-15', observacoes: 'Migração ECC → SuccessFactors em 14 meses · 280 lojas. Case publicável.', case_publicavel: 1, case_resumo: '280 lojas migradas em 14 meses do ECC para SuccessFactors. Bridge marketing→vendas via Voices.' },
+    { sharepoint_id: 'seed-2', conta: 'EUBR-2025-007', cliente_nome: 'Cliente Cloud LATAM', contato_principal: '— (anonimizado)', contato_email: '', csm: 'Marlison Estrela', lob: 'Cloud', status: 'onboarding', nps: null, valor_anual: null, ultimo_contato: '2026-05-10', observacoes: 'Em onboarding · projeto BTP/Joule. Não publicar sem aprovação Roberto.', case_publicavel: 0, case_resumo: '' },
+    { sharepoint_id: 'seed-3', conta: 'EUBR-2024-019', cliente_nome: 'Renner Group', contato_principal: '— (anonimizado)', contato_email: '', csm: 'Bruna Yamagami', lob: 'ERP', status: 'live', nps: 8, valor_anual: null, ultimo_contato: '2026-05-20', observacoes: 'S/4HANA Cloud · contrato anual confirmado renewal 2026.', case_publicavel: 0, case_resumo: '' }
+  ];
+  const ins = db.prepare(`INSERT INTO cs_clientes (sharepoint_id, conta, cliente_nome, contato_principal, contato_email, csm, lob, status, nps, valor_anual, ultimo_contato, observacoes, case_publicavel, case_resumo, synced_at) VALUES (@sharepoint_id, @conta, @cliente_nome, @contato_principal, @contato_email, @csm, @lob, @status, @nps, @valor_anual, @ultimo_contato, @observacoes, @case_publicavel, @case_resumo, datetime('now'))`);
+  db.transaction(() => { seed.forEach(s => ins.run(s)); })();
+  console.log(`[seed] ${seed.length} cliente(s) anonimizado(s) carregado(s) em cs_clientes. Substitua via /api/cases/sync.`);
+})();
 
 // ── MODULE F · INBOUND ENGINE ──────────────────────────────────────────────────
 // Pacote vindo do projeto Claude Design (sessão EUBR Inbound, 25/mai/2026).
@@ -246,6 +397,289 @@ app.get('/inbound/calendar',  (req, res) => res.sendFile(path.join(INBOUND_DIR, 
 app.get('/inbound/studio',    (req, res) => res.sendFile(path.join(INBOUND_DIR, 'studio.html')));
 app.get('/inbound/carousel',  (req, res) => res.sendFile(path.join(INBOUND_DIR, 'carousel.html')));
 app.get('/inbound/playbook',  (req, res) => res.sendFile(path.join(INBOUND_DIR, 'playbook.html')));
+
+// ── INBOUND CALENDAR API (sprint 0.4.0) ─────────────────────────────────────
+// GET retorna posts agendados; POST faz upsert (usado pelo frontend e pelo cron de sync)
+app.get('/api/inbound/calendar', (req, res) => {
+  try {
+    const from = req.query.from || new Date(Date.now() - 7*24*3600*1000).toISOString().slice(0,10);
+    const to   = req.query.to   || new Date(Date.now() + 90*24*3600*1000).toISOString().slice(0,10);
+    const rows = db.prepare('SELECT * FROM editorial_calendar WHERE data >= ? AND data <= ? ORDER BY data ASC').all(from, to);
+    const last = db.prepare('SELECT MAX(synced_at) AS s FROM editorial_calendar').get();
+    res.json({ posts: rows, range: { from, to }, last_sync: last?.s || null });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post('/api/inbound/calendar', requireEditorToken, (req, res) => {
+  const items = Array.isArray(req.body?.items) ? req.body.items : [];
+  if (!items.length) return res.status(400).json({ success: false, error: 'items[] vazio.' });
+  const upsert = db.prepare(`
+    INSERT INTO editorial_calendar (external_id, fonte, data, canal, autor, titulo, resumo, pilar, status, url_post, synced_at)
+    VALUES (@external_id, @fonte, @data, @canal, @autor, @titulo, @resumo, @pilar, @status, @url_post, datetime('now'))
+    ON CONFLICT(external_id) DO UPDATE SET
+      fonte=excluded.fonte, data=excluded.data, canal=excluded.canal, autor=excluded.autor,
+      titulo=excluded.titulo, resumo=excluded.resumo, pilar=excluded.pilar, status=excluded.status,
+      url_post=excluded.url_post, synced_at=datetime('now'), updated_at=datetime('now')
+  `);
+  let n = 0;
+  db.transaction((arr) => {
+    for (const it of arr) {
+      try {
+        upsert.run({
+          external_id: String(it.external_id || it.id || `${it.fonte}-${it.data}-${(it.titulo||'').slice(0,30)}`).slice(0,200),
+          fonte:  String(it.fonte || 'manual').slice(0, 30),
+          data:   String(it.data || '').slice(0, 10),
+          canal:  String(it.canal || 'linkedin').slice(0, 30),
+          autor:  String(it.autor || '').slice(0, 100),
+          titulo: String(it.titulo || '').slice(0, 300),
+          resumo: String(it.resumo || '').slice(0, 2000),
+          pilar:  String(it.pilar || '').slice(0, 50),
+          status: String(it.status || 'planned').slice(0, 30),
+          url_post: String(it.url_post || '').slice(0, 500)
+        });
+        n++;
+      } catch (e) { console.warn('[calendar] upsert falhou:', e.message); }
+    }
+  })(items);
+  res.json({ success: true, upserted: n });
+});
+
+// Webhook pra cron sync com RD Station (lê a API de Conversões/Posts/Email)
+// Por enquanto: endpoint que retorna metadata + sample request curl pra testar manual.
+// Quando RD_API_KEY estiver no Railway, o cron diário 6h vai chamar /api/inbound/sync-rd.
+app.post('/api/inbound/sync-rd', requireEditorToken, async (req, res) => {
+  if (!process.env.RD_API_KEY) {
+    return res.status(503).json({ success: false, error: 'RD_API_KEY não configurada no env.' });
+  }
+  try {
+    // Endpoint genérico da RD — vai precisar ajustar conforme o tipo de "post" que se quer puxar.
+    // Doc: https://developers.rdstation.com/reference
+    // MVP: puxar email campaigns agendados/enviados, mapear pra editorial_calendar.
+    const url = 'https://api.rd.services/platform/email_marketing';
+    const rdRes = await fetch(url, { headers: { 'Authorization': `Bearer ${process.env.RD_API_KEY}` } });
+    if (!rdRes.ok) throw new Error(`RD respondeu HTTP ${rdRes.status}`);
+    const data = await rdRes.json();
+    const emails = Array.isArray(data?.email_marketing) ? data.email_marketing : [];
+    // Mapeia pra editorial_calendar
+    const items = emails.slice(0, 100).map(e => ({
+      external_id: `rd-email-${e.id}`,
+      fonte: 'rd-station',
+      data: (e.scheduled_at || e.sent_at || '').slice(0,10),
+      canal: 'email',
+      autor: e.from_name || 'EPI-USE',
+      titulo: e.subject || '(sem assunto)',
+      resumo: e.preheader || '',
+      pilar: 'Email Marketing',
+      status: e.status || 'planned',
+      url_post: ''
+    })).filter(i => i.data);
+    res.json({ success: true, fetched: emails.length, mapped: items.length, items });
+    // TODO: chamar /api/inbound/calendar internamente pra persistir, ou retornar pro caller decidir
+  } catch (e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+// ── /api/alerts: feed unificado pro sino de notificação do office-nav ──
+// Fonte: voices.json#alertas + alertas operacionais derivados (ex: posts atrasados)
+app.get('/api/alerts', (req, res) => {
+  try {
+    const voicesPath = path.join(__dirname, 'public/api/voices.json');
+    const voices = JSON.parse(fs0.readFileSync(voicesPath, 'utf8'));
+    const alertas = [...(voices.alertas || [])];
+
+    // Adiciona alertas derivados de runtime
+    const now = Date.now();
+    const D14 = 14 * 24 * 3600 * 1000;
+    try {
+      const recentPosts = db.prepare("SELECT voice_id, MAX(captured_at) AS last_at FROM posts GROUP BY voice_id").all();
+      const voicesAtivos = (voices.voices || []).filter(v => v.status !== 'inativo');
+      for (const v of voicesAtivos) {
+        const row = recentPosts.find(p => p.voice_id === v.id);
+        if (!row || (now - new Date(row.last_at).getTime()) > D14) {
+          alertas.push({ tipo: 'warn', msg: `${v.nome}: sem post registrado nos últimos 14 dias.` });
+        }
+      }
+    } catch (e) { /* sqlite offline ou tabela vazia — segue sem o alerta derivado */ }
+
+    res.json({ alertas, count: alertas.length });
+  } catch (e) {
+    res.status(500).json({ alertas: [], error: e.message });
+  }
+});
+
+// ── INBOUND GENERATE: substitui window.claude.complete() do artifact host ──
+// Aceita format='post' (Brief→Post, default) ou 'carousel' (cover + N slides + cta).
+// Usado por /inbound/brief e /inbound/carousel.
+function buildPostPrompt(b) {
+  return [
+    'Você é o redator do time de Marketing/RevOps da EPI-USE Brasil.',
+    'Siga o playbook editorial: foto humana > arte; número-herói > parágrafo; CTA no final.',
+    '',
+    `CATEGORIA: ${b.cat}`,
+    `LOB: ${b.lob}`,
+    `MODO: ${b.mode === 'camp' ? 'Campanha United We Rise' : 'Institucional'}`,
+    `PERSONA-ALVO: ${b.persona.toUpperCase()}`,
+    `CLIENTE/REFERÊNCIA: ${b.client || '—'}`,
+    `NÚMERO-CHAVE: ${b.metric || '—'}`,
+    `AUTOR HUMANO (reshare): ${b.author || '—'}`,
+    '',
+    'BRIEF BRUTO:',
+    b.brief,
+    '',
+    'Gere um objeto JSON com EXATAMENTE estas chaves:',
+    '{',
+    '  "headline": "4-6 palavras · ponha *termo-chave* entre asteriscos para itálico",',
+    '  "heroNumber": "número-herói como string (ex: \\"38%\\" ou \\"14m\\") ou null",',
+    '  "context": "1 linha · máx 12 palavras",',
+    '  "linkedinCopy": "PT-BR · 3-5 linhas curtas · gancho no início · pergunta/CTA no fim · sem emoji",',
+    '  "hashtags": "5-7 hashtags separadas por espaço",',
+    '  "distribution": "1 linha · perfil corporativo OU shared pelo executivo X OU carrossel"',
+    '}',
+    '',
+    'NÃO inclua nada antes ou depois do JSON. Apenas o objeto.'
+  ].join('\n');
+}
+
+function buildCarouselPrompt(b) {
+  const n = Math.max(2, Math.min(10, parseInt(b.contentCount, 10) || 4));
+  return [
+    'Você é o redator do time de Marketing/RevOps da EPI-USE Brasil.',
+    'Tarefa: ESTRUTURAR um carrossel para LinkedIn em português brasileiro, voltado para mercado BR.',
+    '',
+    'REGRAS CRÍTICAS:',
+    '1. NÃO INVENTE NENHUM NÚMERO OU ESTATÍSTICA. Se o brief não trouxer dados verificáveis, deixe "number" e "source" como string vazia "".',
+    '2. SÓ use números que estejam EXPLICITAMENTE no brief OU que sejam fatos públicos comprovados (ex: ECC end-of-support em 31/12/2027, Reforma Tributária a partir de 2026).',
+    '3. NUNCA escreva "fonte: invente algo plausível". Se não souber, deixe vazio.',
+    '4. PT-BR. Voz EPI-USE: sóbria, confiante, específica. Sem emoji. Sem floreio.',
+    '5. Headlines de 4-6 palavras. Marque a palavra-chave com *asteriscos*.',
+    '6. Contexto de até 12 palavras. Cita persona-alvo explicitamente quando relevante.',
+    '',
+    'CONTEXTO:',
+    `TEMA: ${b.topic || ''}`,
+    `LOB: ${b.lob}`,
+    `PERSONA: ${b.persona.toUpperCase()} (Brasil)`,
+    `SLIDES DE CONTEÚDO: ${n}`,
+    '',
+    'BRIEF / DADOS:',
+    b.brief || '(sem dados extras)',
+    '',
+    'Gere SOMENTE este JSON, sem markdown:',
+    '{',
+    '  "cover": {',
+    '    "eyebrow": "string curta · ex: \\"GUIA CHRO · 2026\\" ou \\"\\"",',
+    '    "headline": "4-9 palavras com *destaque*",',
+    '    "sub": "subtítulo · 1 linha · pode estar vazio"',
+    '  },',
+    '  "slides": [',
+    '    {',
+    '      "tag": "ex: \\"PONTO 01\\" ou \\"O RISCO\\"",',
+    '      "headline": "4-6 palavras com *destaque*",',
+    '      "number": "se houver fato verificável no brief, escreva (ex: \\"78%\\"); senão \\"\\"",',
+    '      "context": "1 linha · até 12 palavras · explica o número",',
+    '      "source": "instituto + ano · OBRIGATÓRIO se houver number · senão \\"\\""',
+    `    } ... ${n} itens`,
+    '  ],',
+    '  "cta": {',
+    '    "headline": "verbo de ação · com *destaque* · ex: \\"Vamos *juntos*?\\"",',
+    '    "sub": "1 linha · convite específico",',
+    '    "url": "epiuse.com.br"',
+    '  }',
+    '}'
+  ].join('\n');
+}
+
+// ── INBOUND EXTRACT: parseia texto bruto da Redatoria → campos estruturados do brief ──
+// Recebe { text } (texto cru que a Lisiane mandou). Retorna { dor, persona, lob, cat, mode,
+// client, metric, brief_resumido, key_points[] } pra auto-popular o formulário.
+app.post('/api/inbound/extract', inboundGenLimiter, async (req, res) => {
+  const text = String((req.body || {}).text || '').slice(0, 8000);
+  if (!text.trim()) return res.status(400).json({ success: false, error: 'Texto é obrigatório.' });
+
+  const prompt = [
+    'Você é o redator do time de Marketing/RevOps da EPI-USE Brasil.',
+    'Tarefa: ler o texto bruto enviado pela Redatoria (parceira de conteúdo Lisiane de Assis) e extrair os elementos editoriais que o Inbound Engine precisa.',
+    '',
+    'TEXTO BRUTO DA REDATORIA:',
+    '"""',
+    text,
+    '"""',
+    '',
+    'EXTRAIA os seguintes campos e devolva SOMENTE este JSON, sem markdown:',
+    '{',
+    '  "dor": "string · 1 frase · a dor central que o conteúdo endereça (ex: \\"CHROs ainda rodam folha em ECC e perdem prazo do end-of-support\\")",',
+    '  "persona": "uma das opções: chro · cio · cfo · ceo · ops · diretor-rh · diretor-ti · arquiteto · cdo · coo",',
+    '  "lob": "uma das opções: sfsf · erp · btm · sig · sn · wfs · cloud · inst (HCM=sfsf, Cloud ERP=erp, BTP=btm, Signavio=sig, ServiceNow=sn, Workforce=wfs, AWS/Valcann=cloud, Institucional=inst)",',
+    '  "cat": "uma das opções: case · event · award · kickoff · product · video · inst (case=case sucesso, event=feira/evento, award=premiação, kickoff=go-live, product=carrossel produto, video, inst=institucional)",',
+    '  "mode": "instit ou camp (default instit; camp = se for parte da campanha United We Rise)",',
+    '  "client": "string · nome do cliente/referência citado · vazio se não houver",',
+    '  "metric": "string · número-herói extraído do texto · vazio se não houver (ex: \\"280 lojas\\" ou \\"38%\\" ou \\"14 meses\\")",',
+    '  "brief_resumido": "string · 3-6 linhas · síntese editorial do conteúdo, em PT-BR, voz EPI-USE (sóbria, confiante, específica) · preserva fatos verificáveis · será o input pro próximo passo (Brief→Post)",',
+    '  "key_points": ["array de 3-5 bullets curtos · pontos editorialmente relevantes que devem aparecer no post/carrossel"]',
+    '}',
+    '',
+    'REGRAS:',
+    '- NÃO INVENTE números. Se não estiver no texto, deixe metric vazio.',
+    '- Se a persona não estiver clara, escolha a mais plausível pelo contexto.',
+    '- NÃO inclua nada antes ou depois do JSON.'
+  ].join('\n');
+
+  try {
+    const completion = await client.messages.create({
+      model: 'claude-haiku-4-5',
+      max_tokens: 1500,
+      messages: [{ role: 'user', content: prompt }]
+    });
+    const raw = completion.content[0].text;
+    const clean = raw.replace(/^```(json)?/i, '').replace(/```$/, '').trim();
+    const data = JSON.parse(clean);
+    res.json({ success: true, ...data });
+  } catch (e) {
+    console.error('[inbound/extract]', e.message);
+    res.status(500).json({ success: false, error: e.message || 'Falha na extração.' });
+  }
+});
+
+app.post('/api/inbound/generate', inboundGenLimiter, async (req, res) => {
+  const b = req.body || {};
+  const format = b.format === 'carousel' ? 'carousel' : 'post';
+  const payload = {
+    brief:   String(b.brief || '').slice(0, 6000),
+    cat:     String(b.cat || 'thought').slice(0, 40),
+    lob:     String(b.lob || 'Cross').slice(0, 40),
+    mode:    String(b.mode || 'instit').slice(0, 20),
+    persona: String(b.persona || 'CFO').slice(0, 20),
+    client:  String(b.client || '').slice(0, 100),
+    metric:  String(b.metric || '').slice(0, 60),
+    author:  String(b.author || '').slice(0, 60),
+    topic:   String(b.topic || '').slice(0, 200),
+    contentCount: b.contentCount
+  };
+
+  if (!payload.brief.trim() && !payload.topic.trim()) {
+    return res.status(400).json({ success: false, error: 'Brief ou tema é obrigatório.' });
+  }
+
+  const prompt = format === 'carousel' ? buildCarouselPrompt(payload) : buildPostPrompt(payload);
+  const maxTokens = format === 'carousel' ? 2500 : 1200;
+
+  try {
+    const completion = await client.messages.create({
+      model: 'claude-haiku-4-5',
+      max_tokens: maxTokens,
+      messages: [{ role: 'user', content: prompt }]
+    });
+    const raw = completion.content[0].text;
+    const clean = raw.replace(/^```(json)?/i, '').replace(/```$/, '').trim();
+    const data = JSON.parse(clean);
+    res.json({ success: true, format, ...data });
+  } catch (e) {
+    console.error('[inbound/generate]', format, e.message);
+    res.status(500).json({ success: false, error: e.message || 'Falha na geração.' });
+  }
+});
 
 // Single source of truth — local e Railway servem do mesmo public/.
 // (Antes o local lia de G:/Meu Drive/.../dashboard-classic.html que ficou stale.
@@ -838,11 +1272,15 @@ app.post('/api/analisar-perfil', optimizerLimiter, upload.array('screenshots', 5
       })
     });
 
+    // Sonnet 4.6: ~12-18s p/ esse prompt vs ~25-45s do Opus 4.6 — mesma qualidade
+    // estrutural. Usuário reportou erros/timeout com Opus; Sonnet resolve.
+    const t0 = Date.now();
     const response = await client.messages.create({
-      model: 'claude-opus-4-6',
-      max_tokens: 8192,   // aumentado: JSON completo pode ter 5-6k tokens
+      model: 'claude-sonnet-4-6',
+      max_tokens: 8192,
       messages: [{ role: 'user', content }]
     });
+    console.log(`[optimizer] análise concluída em ${((Date.now() - t0) / 1000).toFixed(1)}s · ${response.usage?.input_tokens || '?'}→${response.usage?.output_tokens || '?'} tokens`);
 
     files.forEach(f => { try { fs.unlinkSync(f.path); } catch (_) {} });
 
@@ -867,6 +1305,131 @@ app.post('/api/analisar-perfil', optimizerLimiter, upload.array('screenshots', 5
     files.forEach(f => { try { fs.unlinkSync(f.path); } catch (_) {} });
     console.error('Erro:', error.message);
     res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// VOICES VISION — extrai dados de perfil LinkedIn via Claude Vision
+// (a) extract: Voice existente, preenche campos faltantes
+// (b) create-from-profile: novo Voice do zero, retorna esqueleto pra revisão
+// ════════════════════════════════════════════════════════════════════════════
+
+const voicesVisionLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 8,    // 8/h por IP — Vision é caro
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, error: 'Limite de 8 análises Vision/hora atingido.' }
+});
+
+function buildExtractPrompt(linkedin_url, nome) {
+  return `Você analisa o perfil LinkedIn de ${nome || 'um Voice'} (URL: ${linkedin_url || 'ver screenshots'}) e extrai dados estruturados pra atualizar o perfil dele no programa EPI-USE Voices.
+
+Use o que VOCÊ CONSEGUE VER nos screenshots. Não invente números. Onde não houver evidência, retorne null.
+
+Retorne APENAS este JSON, sem texto antes/depois:
+{
+  "ssi_baseline": "número 0-100 se aparecer na URL https://linkedin.com/sales/ssi (provavelmente null)",
+  "seguidores_baseline": "número de seguidores se visível",
+  "tom_voz": "string 1-2 frases descrevendo o tom — formal/coloquial, técnico/storytelling, etc — inferido dos posts ou Sobre",
+  "lado_humano": "string 1 frase — paixões/causas/diferencial humano visível no perfil (família, mentoria, comunidade, esportes, etc)",
+  "resultados": ["array de 3-5 strings com resultados quantitativos REAIS do perfil — extrair de Sobre, Destaques, recomendações. Ex: '14 anos consultoria SAP HCM' · 'liderou migração para 280 lojas Drogaria Venancio'. Se não houver, retornar array vazio []"]
+}`;
+}
+
+function buildCreatePrompt(nome, linkedin_url, area_principal) {
+  return `Você está cadastrando ${nome} como novo Voice do programa EPI-USE Voices (LinkedIn: ${linkedin_url}, área: ${area_principal || 'não informada'}).
+
+Analise os screenshots do perfil dele e extraia TUDO que conseguir ver pra montar o esqueleto do Voice. Retorne APENAS este JSON:
+
+{
+  "nome": "${nome}",
+  "cargo": "cargo atual visível no LinkedIn",
+  "empresa": "EPI-USE Brasil",
+  "nicho": "string · 3-6 palavras · ex: 'SAP HCM · SuccessFactors · Folha de Pagamento'",
+  "tags": ["array de 3-5 tags técnicas relevantes pro nicho — ex: 'SAP HCM', 'SuccessFactors', 'Payroll'"],
+  "audiencia": ["array de 2-4 personas que esse Voice vai atingir — ex: 'CHROs', 'Diretores de RH', 'Líderes de Folha'"],
+  "tom_voz": "string 1-2 frases — tom natural visível nos posts/Sobre",
+  "lado_humano": "string 1 frase — diferencial humano visível",
+  "resultados": ["array 3-5 resultados quantitativos REAIS extraídos do perfil — não inventar"],
+  "seguidores_baseline": "número se visível, senão null",
+  "ssi_baseline": null
+}`;
+}
+
+app.post('/api/voices/extract', voicesVisionLimiter, upload.array('screenshots', 5), async (req, res) => {
+  const files = req.files || [];
+  try {
+    const { linkedin_url, nome } = req.body;
+    if (!linkedin_url && files.length === 0) {
+      return res.status(400).json({ success: false, error: 'Forneça URL LinkedIn ou pelo menos 1 screenshot.' });
+    }
+    const content = [];
+    for (const file of files) {
+      const base64 = fs.readFileSync(file.path).toString('base64');
+      content.push({ type: 'image', source: { type: 'base64', media_type: file.mimetype, data: base64 } });
+    }
+    content.push({ type: 'text', text: buildExtractPrompt(linkedin_url, nome) });
+
+    const t0 = Date.now();
+    const response = await client.messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 2000,
+      messages: [{ role: 'user', content }]
+    });
+    console.log(`[voices/extract] ${((Date.now() - t0)/1000).toFixed(1)}s · ${response.usage?.input_tokens||'?'}→${response.usage?.output_tokens||'?'}`);
+    files.forEach(f => { try { fs.unlinkSync(f.path); } catch {} });
+
+    let raw = response.content[0].text.replace(/```json\s*/gi, '').replace(/```\s*/g, '');
+    const m = raw.match(/\{[\s\S]*\}/);
+    if (!m) return res.status(500).json({ success: false, error: 'JSON inválido da IA. Tente novamente.' });
+    const data = JSON.parse(m[0]);
+    res.json({ success: true, ...data });
+  } catch (e) {
+    files.forEach(f => { try { fs.unlinkSync(f.path); } catch {} });
+    console.error('[voices/extract]', e.message);
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+app.post('/api/voices/create-from-profile', voicesVisionLimiter, upload.array('screenshots', 5), async (req, res) => {
+  const files = req.files || [];
+  try {
+    const { nome, linkedin_url, area_principal } = req.body;
+    if (!nome || !nome.trim()) return res.status(400).json({ success: false, error: 'Nome é obrigatório.' });
+    if (!linkedin_url && files.length === 0) {
+      return res.status(400).json({ success: false, error: 'Forneça URL LinkedIn ou pelo menos 1 screenshot.' });
+    }
+    const content = [];
+    for (const file of files) {
+      const base64 = fs.readFileSync(file.path).toString('base64');
+      content.push({ type: 'image', source: { type: 'base64', media_type: file.mimetype, data: base64 } });
+    }
+    content.push({ type: 'text', text: buildCreatePrompt(nome.trim(), linkedin_url, area_principal) });
+
+    const t0 = Date.now();
+    const response = await client.messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 2500,
+      messages: [{ role: 'user', content }]
+    });
+    console.log(`[voices/create] ${((Date.now() - t0)/1000).toFixed(1)}s · ${response.usage?.input_tokens||'?'}→${response.usage?.output_tokens||'?'}`);
+    files.forEach(f => { try { fs.unlinkSync(f.path); } catch {} });
+
+    let raw = response.content[0].text.replace(/```json\s*/gi, '').replace(/```\s*/g, '');
+    const m = raw.match(/\{[\s\S]*\}/);
+    if (!m) return res.status(500).json({ success: false, error: 'JSON inválido da IA. Tente novamente.' });
+    const data = JSON.parse(m[0]);
+    // Adiciona campos infra que o user vai precisar revisar/preencher
+    data.linkedin = linkedin_url || null;
+    data.status = 'onboarding';
+    data.status_label = 'Onboarding';
+    data.id = (nome.toLowerCase().replace(/[^a-z\s]/g,'').trim().replace(/\s+/g,'-')).slice(0, 40);
+    res.json({ success: true, ...data });
+  } catch (e) {
+    files.forEach(f => { try { fs.unlinkSync(f.path); } catch {} });
+    console.error('[voices/create]', e.message);
+    res.status(500).json({ success: false, error: e.message });
   }
 });
 
