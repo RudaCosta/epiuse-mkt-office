@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Metas LinkedIn · EPI-USE Brasil</title>
+<script defer data-domain="epiuse-voices-optimizer.up.railway.app" src="https://plausible.io/js/script.js"></script>
+<script type="module" src="/office-nav.js"></script>
+<script type="module" src="/office-footer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #060e1a;
+  --surface: rgba(255,255,255,0.025);
+  --surface-2: rgba(255,255,255,0.05);
+  --border: rgba(255,255,255,0.08);
+  --text: #e2e8f0;
+  --text-dim: #cbd5e1;
+  --text-muted: #94a3b8;
+  --primary: #2563eb;
+  --primary-light: #60a5fa;
+  --success: #10b981;
+  --success-light: #34d399;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --pink: #ec4899;
+}
+[data-theme="light"] {
+  --bg: #f8fafc;
+  --surface: rgba(0,0,0,0.025);
+  --surface-2: rgba(0,0,0,0.05);
+  --border: rgba(0,0,0,0.08);
+  --text: #0f172a;
+  --text-dim: #1e293b;
+  --text-muted: #64748b;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); font-family: 'Inter', sans-serif; color: var(--text); min-height: 100vh; }
+.wrap { max-width: 1400px; margin: 0 auto; padding: 28px 24px 80px; }
+
+/* ── HERO ───────────────────────────────── */
+.hero {
+  background: linear-gradient(135deg, rgba(37,99,235,0.18), rgba(236,72,153,0.10));
+  border: 1px solid rgba(37,99,235,0.35);
+  border-radius: 16px;
+  padding: 28px 32px;
+  margin-bottom: 28px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -50%; right: -10%;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(236,72,153,0.18), transparent 70%);
+  pointer-events: none;
+}
+.hero-eyebrow { font-family: 'Press Start 2P', monospace; font-size: 10px; letter-spacing: .2em; color: var(--primary-light); margin-bottom: 12px; }
+.hero-h1 { font-size: 32px; font-weight: 800; line-height: 1.1; margin-bottom: 8px; }
+.hero-h1 em { font-style: normal; background: linear-gradient(135deg, #60a5fa, #ec4899); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero-sub { font-size: 14px; color: var(--text-muted); max-width: 720px; line-height: 1.6; margin-bottom: 22px; }
+
+.hero-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; position: relative; z-index: 1; }
+.hero-kpi { background: rgba(0,0,0,0.18); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 14px 18px; }
+[data-theme="light"] .hero-kpi { background: rgba(255,255,255,0.85); }
+.hero-kpi-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+.hero-kpi-value { font-size: 28px; font-weight: 800; line-height: 1; }
+.hero-kpi-sub { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
+.hero-kpi.primary .hero-kpi-value { color: var(--primary-light); }
+.hero-kpi.success .hero-kpi-value { color: var(--success-light); }
+.hero-kpi.warning .hero-kpi-value { color: var(--warning); }
+.hero-kpi.pink .hero-kpi-value { color: var(--pink); }
+
+/* ── SECTION HEADERS ───────────────────────── */
+.section-hdr { display: flex; align-items: center; gap: 14px; margin: 36px 0 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+.section-hdr h2 { font-family: 'Press Start 2P', monospace; font-size: 13px; color: var(--primary-light); letter-spacing: .06em; }
+.section-hdr .meta { font-size: 11px; color: var(--text-muted); margin-left: auto; }
+
+/* ── CARDS ───────────────────────────────── */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+.card h3 { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.card h3 .badge { font-size: 10px; padding: 2px 8px; background: rgba(96,165,250,0.15); color: var(--primary-light); border-radius: 99px; font-family: 'JetBrains Mono', monospace; }
+
+/* ── EVENTOS ROI ─────────────────────────── */
+.eventos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-bottom: 8px; }
+.evento-card { background: linear-gradient(135deg, var(--surface), var(--surface-2)); border: 1px solid var(--border); border-radius: 12px; padding: 18px; position: relative; transition: transform .15s, border-color .15s; }
+.evento-card:hover { transform: translateY(-2px); border-color: var(--primary-light); }
+.evento-rank { position: absolute; top: 14px; right: 14px; width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #1a1a1a; font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 13px; font-family: 'JetBrains Mono', monospace; }
+.evento-rank.silver { background: linear-gradient(135deg, #cbd5e1, #94a3b8); }
+.evento-rank.bronze { background: linear-gradient(135deg, #d97706, #b45309); color: #fff; }
+.evento-rank.normal { background: rgba(96,165,250,0.18); color: var(--primary-light); }
+.evento-nome { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 6px; padding-right: 40px; }
+.evento-data { font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; margin-bottom: 14px; }
+.evento-num { font-size: 36px; font-weight: 800; color: var(--success-light); line-height: 1; }
+.evento-unit { font-size: 12px; color: var(--text-muted); margin-left: 4px; }
+.evento-vs { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+.evento-vs .mult { color: var(--warning); font-weight: 700; }
+
+.tatica-callout { background: linear-gradient(135deg, rgba(16,185,129,0.10), rgba(34,197,94,0.05)); border-left: 4px solid var(--success); padding: 14px 18px; border-radius: 8px; margin-top: 14px; font-size: 13px; line-height: 1.6; }
+.tatica-callout strong { color: var(--success-light); }
+
+/* ── GRAFICOS ───────────────────────────── */
+.charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+@media (max-width: 900px) { .charts-grid { grid-template-columns: 1fr; } }
+.chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; min-height: 320px; }
+.chart-card h3 { margin-bottom: 16px; }
+.chart-wrap { position: relative; height: 240px; }
+
+/* ── DISTRIBUIÇÃO ───────────────────────── */
+.dist-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+@media (max-width: 900px) { .dist-grid { grid-template-columns: 1fr; } }
+.dist-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+.dist-card .dist-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.dist-row { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 6px 0; border-bottom: 1px dashed rgba(255,255,255,0.04); font-size: 13px; }
+.dist-row:last-child { border-bottom: none; }
+.dist-row .name { color: var(--text-dim); }
+.dist-row .name .pct { font-size: 10px; color: var(--text-muted); margin-left: 6px; }
+.dist-row .num { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--primary-light); }
+.dist-row .bar { grid-column: 1 / -1; height: 4px; background: rgba(255,255,255,0.05); border-radius: 99px; overflow: hidden; margin-top: 2px; }
+.dist-row .bar-fill { height: 100%; background: linear-gradient(90deg, var(--primary-light), var(--pink)); border-radius: 99px; transition: width .8s ease; }
+
+/* ── METAS POR ÁREA ─────────────────────── */
+.metas-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+.meta-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px; transition: border-color .15s; }
+.meta-card:hover { border-color: var(--primary-light); }
+.meta-area { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.meta-area-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.meta-area-name { flex: 1; font-size: 14px; font-weight: 700; color: var(--text); }
+.meta-area-owner { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.meta-row-input { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; padding: 8px 0; }
+.meta-row-input label { font-size: 12px; color: var(--text-dim); }
+.meta-row-input .input-meta { width: 80px; padding: 5px 8px; background: rgba(0,0,0,0.25); border: 1px solid var(--border); color: var(--text); border-radius: 5px; font-family: 'JetBrains Mono', monospace; font-size: 12px; text-align: right; }
+[data-theme="light"] .meta-row-input .input-meta { background: rgba(255,255,255,0.85); }
+.meta-row-input .input-meta:focus { outline: none; border-color: var(--primary-light); }
+.meta-acoes { margin-top: 12px; padding-top: 12px; border-top: 1px dashed rgba(255,255,255,0.08); }
+.meta-acoes label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .08em; display: block; margin-bottom: 6px; }
+.meta-acoes textarea { width: 100%; min-height: 60px; padding: 8px 10px; background: rgba(0,0,0,0.25); border: 1px solid var(--border); color: var(--text); border-radius: 6px; font-family: 'Inter', sans-serif; font-size: 12px; resize: vertical; line-height: 1.5; }
+[data-theme="light"] .meta-acoes textarea { background: rgba(255,255,255,0.85); }
+.meta-acoes textarea:focus { outline: none; border-color: var(--primary-light); }
+.meta-saved-tag { font-size: 10px; color: var(--success-light); margin-top: 6px; opacity: 0; transition: opacity .3s; font-family: 'JetBrains Mono', monospace; }
+.meta-saved-tag.show { opacity: 1; }
+
+.btn-save-all { display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px; background: linear-gradient(135deg, var(--primary), var(--pink)); color: #fff; border: none; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; margin-top: 16px; transition: transform .15s; }
+.btn-save-all:hover { transform: translateY(-1px); }
+
+/* ── INSIGHTS ──────────────────────────── */
+.insights { background: linear-gradient(135deg, rgba(245,158,11,0.10), rgba(236,72,153,0.05)); border-left: 4px solid var(--warning); border-radius: 8px; padding: 18px 22px; margin-top: 16px; }
+.insights h3 { font-size: 13px; color: var(--warning); margin-bottom: 12px; }
+.insights ul { list-style: none; padding: 0; }
+.insights li { padding: 6px 0 6px 22px; position: relative; font-size: 13px; line-height: 1.6; color: var(--text-dim); }
+.insights li::before { content: '→'; position: absolute; left: 0; color: var(--warning); font-weight: 700; }
+.insights li strong { color: var(--text); }
+</style>
+</head>
+<body data-route="metas">
+<office-nav></office-nav>
+
+<div class="wrap">
+
+  <!-- ════ HERO ════ -->
+  <div class="hero">
+    <div class="hero-eyebrow">🎯 PROGRAMA · CRESCIMENTO LINKEDIN EPI-USE BRASIL</div>
+    <h1 class="hero-h1">Meta: crescer <em>10×</em> em 12 meses</h1>
+    <p class="hero-sub">Plano de batalha pra sair de ~4.9 seguidores/dia (atual) pra <strong>30+ seguidores/dia</strong>. Ativações em eventos + Voices + conteúdo orgânico. Cada área tem meta atribuída — sem meta não tem accountability.</p>
+
+    <div class="hero-kpis">
+      <div class="hero-kpi primary">
+        <div class="hero-kpi-label">SEGUIDORES HOJE</div>
+        <div class="hero-kpi-value" id="kpi-total">7.844</div>
+        <div class="hero-kpi-sub">base atual · maio/2026</div>
+      </div>
+      <div class="hero-kpi success">
+        <div class="hero-kpi-label">GANHOS 12M</div>
+        <div class="hero-kpi-value" id="kpi-12m">1.456</div>
+        <div class="hero-kpi-sub">média 4.9/dia · mediana 3</div>
+      </div>
+      <div class="hero-kpi warning">
+        <div class="hero-kpi-label">META 90 DIAS</div>
+        <div class="hero-kpi-value" id="kpi-meta90">+2.700</div>
+        <div class="hero-kpi-sub">30/dia · 6× ritmo atual</div>
+      </div>
+      <div class="hero-kpi pink">
+        <div class="hero-kpi-label">META 12 MESES</div>
+        <div class="hero-kpi-value" id="kpi-meta12m">+10.000</div>
+        <div class="hero-kpi-sub">17.800 totais · 2.3× base</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ EVENTOS: TÁTICA DO ELEFANTE ════ -->
+  <div class="section-hdr">
+    <h2>🎪 TÁTICA DO ELEFANTE — Eventos com maior ROI</h2>
+    <span class="meta">elefante de pelúcia ERP.ngo em troca de like na company page</span>
+  </div>
+
+  <div class="eventos-grid">
+    <div class="evento-card">
+      <div class="evento-rank">1</div>
+      <div class="evento-nome">SAP NOW 2025</div>
+      <div class="evento-data">20/ago/2025</div>
+      <div><span class="evento-num">101</span><span class="evento-unit">seguidores</span></div>
+      <div class="evento-vs">em 1 dia · <span class="mult">20× a média diária</span></div>
+    </div>
+    <div class="evento-card">
+      <div class="evento-rank silver">2</div>
+      <div class="evento-nome">SAP NOW 2026</div>
+      <div class="evento-data">19/ago/2025</div>
+      <div><span class="evento-num">72</span><span class="evento-unit">seguidores</span></div>
+      <div class="evento-vs">em 1 dia · <span class="mult">14× a média diária</span></div>
+    </div>
+    <div class="evento-card">
+      <div class="evento-rank bronze">3</div>
+      <div class="evento-nome">Inside Track GO 2026</div>
+      <div class="evento-data">16/mai/2026</div>
+      <div><span class="evento-num">28</span><span class="evento-unit">seguidores</span></div>
+      <div class="evento-vs">em 1 dia · <span class="mult">5× a média diária</span></div>
+    </div>
+    <div class="evento-card">
+      <div class="evento-rank normal">4</div>
+      <div class="evento-nome">BTP Experience 2026</div>
+      <div class="evento-data">03/mar/2026</div>
+      <div><span class="evento-num">26</span><span class="evento-unit">seguidores</span></div>
+      <div class="evento-vs">em 1 dia · <span class="mult">5× a média diária</span></div>
+    </div>
+  </div>
+
+  <div class="tatica-callout">
+    <strong>🧠 Insight:</strong> Cada evento bem ativado vale <strong>25-100 seguidores em um único dia</strong>. SAP NOW concentrou 12% de TODO o crescimento anual em 2 dias. Próximos eventos identificados pra 2026/H2: <strong>SAP NOW 2026 (ago/2026), SAP TechEd, Inside Track POA, BTP Experience 2026 retorno</strong>. Meta: ativar Field MKT em ≥ 8 eventos/ano com tática completa do elefante.
+  </div>
+
+  <!-- ════ GRÁFICOS ════ -->
+  <div class="section-hdr">
+    <h2>📈 EVOLUÇÃO DOS ÚLTIMOS 12 MESES</h2>
+  </div>
+
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h3>Seguidores ganhos/mês <span class="badge">12 meses</span></h3>
+      <div class="chart-wrap"><canvas id="chart-mes"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Acumulado vs Meta <span class="badge">projeção</span></h3>
+      <div class="chart-wrap"><canvas id="chart-projecao"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ════ DISTRIBUIÇÃO DA AUDIÊNCIA ════ -->
+  <div class="section-hdr">
+    <h2>👥 QUEM JÁ NOS SEGUE</h2>
+    <span class="meta">distribuição da base atual de 7.844 seguidores</span>
+  </div>
+
+  <div class="dist-grid">
+
+    <div class="dist-card">
+      <div class="dist-title">🌎 Top cidades</div>
+      <div class="dist-row"><span class="name">São Paulo<span class="pct">· 52%</span></span><span class="num">4.096</span><div class="bar"><div class="bar-fill" style="width: 100%"></div></div></div>
+      <div class="dist-row"><span class="name">Rio de Janeiro</span><span class="num">382</span><div class="bar"><div class="bar-fill" style="width: 9%"></div></div></div>
+      <div class="dist-row"><span class="name">Campinas</span><span class="num">368</span><div class="bar"><div class="bar-fill" style="width: 9%"></div></div></div>
+      <div class="dist-row"><span class="name">Santo André</span><span class="num">285</span><div class="bar"><div class="bar-fill" style="width: 7%"></div></div></div>
+      <div class="dist-row"><span class="name">Belo Horizonte</span><span class="num">249</span><div class="bar"><div class="bar-fill" style="width: 6%"></div></div></div>
+      <div class="dist-row"><span class="name">Curitiba</span><span class="num">241</span><div class="bar"><div class="bar-fill" style="width: 5%"></div></div></div>
+    </div>
+
+    <div class="dist-card">
+      <div class="dist-title">💼 Top funções</div>
+      <div class="dist-row"><span class="name">TI<span class="pct">· 27%</span></span><span class="num">2.107</span><div class="bar"><div class="bar-fill" style="width: 100%"></div></div></div>
+      <div class="dist-row"><span class="name">Dev. de Negócios</span><span class="num">860</span><div class="bar"><div class="bar-fill" style="width: 41%"></div></div></div>
+      <div class="dist-row"><span class="name">Vendas</span><span class="num">764</span><div class="bar"><div class="bar-fill" style="width: 36%"></div></div></div>
+      <div class="dist-row"><span class="name">Operações</span><span class="num">660</span><div class="bar"><div class="bar-fill" style="width: 31%"></div></div></div>
+      <div class="dist-row"><span class="name">RH</span><span class="num">647</span><div class="bar"><div class="bar-fill" style="width: 31%"></div></div></div>
+      <div class="dist-row"><span class="name">Marketing</span><span class="num">388</span><div class="bar"><div class="bar-fill" style="width: 18%"></div></div></div>
+    </div>
+
+    <div class="dist-card">
+      <div class="dist-title">🏢 Top setores</div>
+      <div class="dist-row"><span class="name">Serviços TI<span class="pct">· 37%</span></span><span class="num">2.943</span><div class="bar"><div class="bar-fill" style="width: 100%"></div></div></div>
+      <div class="dist-row"><span class="name">Desenvolvimento de software</span><span class="num">787</span><div class="bar"><div class="bar-fill" style="width: 27%"></div></div></div>
+      <div class="dist-row"><span class="name">Consultoria gestão</span><span class="num">371</span><div class="bar"><div class="bar-fill" style="width: 13%"></div></div></div>
+      <div class="dist-row"><span class="name">Tech / Internet</span><span class="num">236</span><div class="bar"><div class="bar-fill" style="width: 8%"></div></div></div>
+      <div class="dist-row"><span class="name">Varejo</span><span class="num">228</span><div class="bar"><div class="bar-fill" style="width: 8%"></div></div></div>
+    </div>
+
+    <div class="dist-card">
+      <div class="dist-title">📊 Por tamanho de empresa</div>
+      <div class="dist-row"><span class="name">+ 10.001 funcionários<span class="pct">· enterprise</span></span><span class="num">2.157</span><div class="bar"><div class="bar-fill" style="width: 100%"></div></div></div>
+      <div class="dist-row"><span class="name">1.001 – 5.000</span><span class="num">1.429</span><div class="bar"><div class="bar-fill" style="width: 66%"></div></div></div>
+      <div class="dist-row"><span class="name">51 – 200</span><span class="num">1.243</span><div class="bar"><div class="bar-fill" style="width: 58%"></div></div></div>
+      <div class="dist-row"><span class="name">501 – 1.000</span><span class="num">868</span><div class="bar"><div class="bar-fill" style="width: 40%"></div></div></div>
+      <div class="dist-row"><span class="name">201 – 500</span><span class="num">809</span><div class="bar"><div class="bar-fill" style="width: 37%"></div></div></div>
+    </div>
+
+  </div>
+
+  <div class="insights">
+    <h3>💡 INSIGHTS — pra calibrar a estratégia</h3>
+    <ul>
+      <li><strong>SP concentra 52%</strong> — eventos fora de SP (Inside Track GO, Recife, POA) abrem geografias menos saturadas. Plano: priorizar pelo menos 2 eventos fora do eixo SP-Rio/ano.</li>
+      <li><strong>TI lidera com 27%</strong> mas <strong>RH é a vertical-mãe</strong> (647 + relacionados) e está sub-representada. Programa Voices precisa puxar mais conteúdo HCM/SuccessFactors.</li>
+      <li><strong>72% da base é Sr ou Jr</strong> — falta engajar Gerentes/Diretores (1.146 hoje). Anderson e Carlos têm que postar mais conteúdo voltado pra esse decisor.</li>
+      <li><strong>Enterprise (10k+) representa 28%</strong> — alinhado com nosso ICP SAP. Manter foco em conteúdo C-level.</li>
+      <li><strong>Tração crescente em mar-mai/2026</strong> (231/148/154/mês) — ritmo recente está em 5/dia, vs 3/dia da mediana histórica. Caminhando pra meta de 30/dia se sustentar isso e ativar os eventos.</li>
+    </ul>
+  </div>
+
+  <!-- ════ METAS POR ÁREA ════ -->
+  <div class="section-hdr">
+    <h2>🎯 METAS POR ÁREA — sem meta não tem accountability</h2>
+    <span class="meta">cada owner edita a sua meta e ações planejadas</span>
+  </div>
+
+  <div class="metas-grid" id="metas-grid">
+    <!-- preenchido via JS -->
+  </div>
+
+  <button class="btn-save-all" id="btn-save-all">💾 Salvar todas as metas</button>
+
+</div>
+
+<office-footer></office-footer>
+
+<script>
+'use strict';
+
+// ── DADOS DE METAS POR ÁREA (editáveis em runtime, persistidos via /api/metas) ──
+const AREAS = [
+  { id: 'vendas', nome: 'Vendas', icon: '📞', color_bg: 'rgba(248,113,113,.18)', color: '#f87171',
+    owners: 'Sergio Crepaldi + Marlison Estrela',
+    meta_default: { seg_30d: 200, seg_90d: 700, eventos_q: 3 },
+    placeholder_acoes: '• Cold outbound mencionando posts EPI-USE\n• Convidar 50 contatos/mês pra seguir a page\n• Compartilhar 1 post EPI-USE/semana no perfil pessoal' },
+  { id: 'brand', nome: 'Brand Experience', icon: '🎨', color_bg: 'rgba(192,132,252,.18)', color: '#c084fc',
+    owners: 'Duda',
+    meta_default: { seg_30d: 300, seg_90d: 1200, eventos_q: 4 },
+    placeholder_acoes: '• Aprovar ativação do elefante em todos os eventos do trimestre\n• Calendário editorial com 2 posts/semana\n• Polir visual da company page (capa, sobre, destaques)' },
+  { id: 'intel', nome: 'MKT Intelligence', icon: '🧠', color_bg: 'rgba(96,165,250,.18)', color: '#60a5fa',
+    owners: 'Bruna Yamagami',
+    meta_default: { seg_30d: 150, seg_90d: 500, eventos_q: 1 },
+    placeholder_acoes: '• Relatório mensal de quem nos seguiu (alimentar Apollo + CRM)\n• Identificar 20 contas-alvo enterprise/mês\n• Sinalizar pro Inbound conteúdos que mais geram seguidores' },
+  { id: 'field', nome: 'Field Marketing', icon: '📅', color_bg: 'rgba(251,191,36,.18)', color: '#fbbf24',
+    owners: 'Isabela Carvalho',
+    meta_default: { seg_30d: 500, seg_90d: 1800, eventos_q: 8 },
+    placeholder_acoes: '• Garantir kit do elefante em TODO evento presencial\n• Mínimo 8 eventos/trimestre (SAP NOW, TechEd, BTP, Inside Track, regionais)\n• Capturar leads pós-evento e re-engajar via DM' },
+  { id: 'growth', nome: 'Growth', icon: '🚀', color_bg: 'rgba(52,211,153,.18)', color: '#34d399',
+    owners: 'Gui Sant\'Ana',
+    meta_default: { seg_30d: 250, seg_90d: 1000, eventos_q: 2 },
+    placeholder_acoes: '• Sponsored content em LinkedIn Ads pra crescimento de seguidores\n• Testar 3 criativos/mês com CTA "Siga a página"\n• Budget: definir com Roberto' },
+  { id: 'voices', nome: 'Voices (Anderson + Carlos)', icon: '🎙️', color_bg: 'rgba(236,72,153,.18)', color: '#ec4899',
+    owners: 'Anderson Costa + Carlos Furigo + futuros',
+    meta_default: { seg_30d: 400, seg_90d: 1500, eventos_q: 2 },
+    placeholder_acoes: '• 2 posts/semana cada Voice (8 posts/semana total quando crescer)\n• Mencionar @EPI-USE Brasil em todo post\n• Comentar em posts de SAP, EPI-USE Global, SAP partners' }
+];
+
+const grid = document.getElementById('metas-grid');
+const STATE = JSON.parse(localStorage.getItem('metas-linkedin') || '{}');
+
+function renderAreas() {
+  grid.innerHTML = AREAS.map(a => {
+    const saved = STATE[a.id] || {};
+    return `<div class="meta-card" data-area="${a.id}">
+      <div class="meta-area">
+        <div class="meta-area-icon" style="background:${a.color_bg};color:${a.color}">${a.icon}</div>
+        <div style="flex:1">
+          <div class="meta-area-name">${a.nome}</div>
+          <div class="meta-area-owner">${a.owners}</div>
+        </div>
+      </div>
+      <div class="meta-row-input">
+        <label>Seguidores em <strong>30 dias</strong></label>
+        <input type="number" class="input-meta" data-key="seg_30d" min="0" max="9999" placeholder="${a.meta_default.seg_30d}" value="${saved.seg_30d || ''}">
+      </div>
+      <div class="meta-row-input">
+        <label>Seguidores em <strong>90 dias</strong></label>
+        <input type="number" class="input-meta" data-key="seg_90d" min="0" max="99999" placeholder="${a.meta_default.seg_90d}" value="${saved.seg_90d || ''}">
+      </div>
+      <div class="meta-row-input">
+        <label>Eventos ativados <strong>no trimestre</strong></label>
+        <input type="number" class="input-meta" data-key="eventos_q" min="0" max="99" placeholder="${a.meta_default.eventos_q}" value="${saved.eventos_q || ''}">
+      </div>
+      <div class="meta-acoes">
+        <label>Ações planejadas</label>
+        <textarea data-key="acoes" placeholder="${a.placeholder_acoes}">${saved.acoes || ''}</textarea>
+        <div class="meta-saved-tag" data-saved="${a.id}">✓ salvo</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // auto-save no blur
+  grid.querySelectorAll('input, textarea').forEach(el => {
+    el.addEventListener('blur', e => {
+      const card = e.target.closest('.meta-card');
+      const area = card.dataset.area;
+      const key = e.target.dataset.key;
+      STATE[area] = STATE[area] || {};
+      STATE[area][key] = e.target.value;
+      localStorage.setItem('metas-linkedin', JSON.stringify(STATE));
+      const tag = card.querySelector(`[data-saved="${area}"]`);
+      tag.classList.add('show');
+      setTimeout(() => tag.classList.remove('show'), 1500);
+    });
+  });
+}
+
+document.getElementById('btn-save-all').addEventListener('click', async () => {
+  // tenta persistir via API (futuro: SQLite), por ora só localStorage com confirmação
+  const token = localStorage.getItem('editor-token') || prompt('Editor token pra salvar pra todos:');
+  if (!token) return;
+  localStorage.setItem('editor-token', token);
+  try {
+    const res = await fetch('/api/metas', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Editor-Token': token },
+      body: JSON.stringify({ metas: STATE })
+    });
+    const d = await res.json();
+    if (d.success) alert('✅ Metas salvas no servidor!\nTodos do time vão ver os números atualizados.');
+    else alert('❌ Erro: ' + (d.error || 'desconhecido'));
+  } catch (e) { alert('❌ ' + e.message); }
+});
+
+renderAreas();
+
+// Tenta carregar do servidor (se tiver metas salvas)
+fetch('/api/metas').then(r => r.json()).then(d => {
+  if (d.metas && Object.keys(d.metas).length) {
+    Object.assign(STATE, d.metas);
+    localStorage.setItem('metas-linkedin', JSON.stringify(STATE));
+    renderAreas();
+  }
+}).catch(() => {/* não persistido ainda, ok */});
+
+// ── CHARTS ────────────────────────────────
+const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+const textColor = isDark ? '#cbd5e1' : '#475569';
+
+Chart.defaults.color = textColor;
+Chart.defaults.borderColor = gridColor;
+Chart.defaults.font.family = "'Inter', sans-serif";
+
+// Gráfico 1: ganhos por mês
+const mesData = [
+  { m: 'ago/25', v: 291 }, { m: 'set/25', v: 91 }, { m: 'out/25', v: 148 },
+  { m: 'nov/25', v: 86 },  { m: 'dez/25', v: 74 }, { m: 'jan/26', v: 109 },
+  { m: 'fev/26', v: 124 }, { m: 'mar/26', v: 231 }, { m: 'abr/26', v: 148 }, { m: 'mai/26', v: 154 }
+];
+new Chart(document.getElementById('chart-mes'), {
+  type: 'bar',
+  data: {
+    labels: mesData.map(d => d.m),
+    datasets: [{
+      label: 'Seguidores ganhos',
+      data: mesData.map(d => d.v),
+      backgroundColor: mesData.map(d => d.v >= 200 ? '#34d399' : d.v >= 100 ? '#60a5fa' : '#94a3b8'),
+      borderRadius: 4
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.parsed.y + ' seguidores' } } },
+    scales: { x: { grid: { display: false } }, y: { beginAtZero: true, grid: { color: gridColor } } }
+  }
+});
+
+// Gráfico 2: acumulado vs meta
+const acumulado = [];
+let sum = 0;
+mesData.forEach(d => { sum += d.v; acumulado.push(sum); });
+// Projeção próximos 12 meses com meta 30/dia = 900/mês
+const projecaoMeta = [...acumulado];
+for (let i = 0; i < 12; i++) projecaoMeta.push(projecaoMeta[projecaoMeta.length - 1] + 900);
+const projecaoAtual = [...acumulado];
+for (let i = 0; i < 12; i++) projecaoAtual.push(projecaoAtual[projecaoAtual.length - 1] + 145);
+
+const labelsProj = [...mesData.map(d => d.m)];
+const futuros = ['jun/26', 'jul/26', 'ago/26', 'set/26', 'out/26', 'nov/26', 'dez/26', 'jan/27', 'fev/27', 'mar/27', 'abr/27', 'mai/27'];
+labelsProj.push(...futuros);
+
+new Chart(document.getElementById('chart-projecao'), {
+  type: 'line',
+  data: {
+    labels: labelsProj,
+    datasets: [
+      { label: 'Real (até hoje)', data: acumulado, borderColor: '#60a5fa', backgroundColor: 'rgba(96,165,250,0.10)', fill: true, tension: 0.3, pointRadius: 3, borderWidth: 2.5 },
+      { label: 'Tendência atual', data: projecaoAtual, borderColor: '#94a3b8', borderDash: [4,4], pointRadius: 0, borderWidth: 1.5, fill: false },
+      { label: 'Meta agressiva (30/dia)', data: projecaoMeta, borderColor: '#ec4899', borderDash: [6,3], pointRadius: 0, borderWidth: 2.5, fill: false }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } },
+    scales: { x: { grid: { display: false }, ticks: { font: { size: 10 } } }, y: { beginAtZero: false, grid: { color: gridColor } } }
+  }
+});
+</script>
+</body>
+</html>

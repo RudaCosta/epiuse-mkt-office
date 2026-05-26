@@ -123,6 +123,14 @@ db.exec(`
     synced_at       TEXT
   );
   CREATE INDEX IF NOT EXISTS idx_cal_data ON editorial_calendar(data);
+  CREATE TABLE IF NOT EXISTS metas_linkedin (
+    area_id         TEXT PRIMARY KEY,
+    seg_30d         INTEGER,
+    seg_90d         INTEGER,
+    eventos_q       INTEGER,
+    acoes           TEXT DEFAULT '',
+    updated_at      TEXT DEFAULT (datetime('now'))
+  );
 `);
 
 // Migra JSONL legado → SQLite (roda só uma vez se as tabelas estiverem vazias)
@@ -283,6 +291,55 @@ app.get('/voices/painel', (req, res) => res.redirect(301, '/painel'));
 app.get('/voices',     (req, res) => res.sendFile(VOICES_PATH));
 app.get('/seja-voice', (req, res) => res.sendFile(SEJA_VOICE_PATH));
 app.get('/changelog',  (req, res) => res.sendFile(CHANGELOG_PATH));
+
+// ── MODULE H · METAS LINKEDIN (sprint 0.4.8 — apresentação corporativa) ─────
+const METAS_PATH = path.join(__dirname, 'public/metas.html');
+app.get('/metas', (req, res) => res.sendFile(METAS_PATH));
+
+// GET metas (público — qualquer um do time vê os números)
+app.get('/api/metas', (req, res) => {
+  try {
+    const rows = db.prepare('SELECT * FROM metas_linkedin').all();
+    const metas = {};
+    for (const r of rows) {
+      metas[r.area_id] = {
+        seg_30d: r.seg_30d || '',
+        seg_90d: r.seg_90d || '',
+        eventos_q: r.eventos_q || '',
+        acoes: r.acoes || ''
+      };
+    }
+    res.json({ metas, updated_at: rows[0]?.updated_at || null });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST metas (protegido — só com EDITOR_TOKEN)
+app.post('/api/metas', requireEditorToken, (req, res) => {
+  const m = req.body?.metas || {};
+  if (!Object.keys(m).length) return res.status(400).json({ success: false, error: 'metas{} vazio' });
+  const upsert = db.prepare(`
+    INSERT INTO metas_linkedin (area_id, seg_30d, seg_90d, eventos_q, acoes, updated_at)
+    VALUES (@area_id, @seg_30d, @seg_90d, @eventos_q, @acoes, datetime('now'))
+    ON CONFLICT(area_id) DO UPDATE SET
+      seg_30d=excluded.seg_30d, seg_90d=excluded.seg_90d,
+      eventos_q=excluded.eventos_q, acoes=excluded.acoes,
+      updated_at=datetime('now')
+  `);
+  let n = 0;
+  db.transaction(() => {
+    for (const [area_id, data] of Object.entries(m)) {
+      upsert.run({
+        area_id,
+        seg_30d: data.seg_30d ? parseInt(data.seg_30d, 10) : null,
+        seg_90d: data.seg_90d ? parseInt(data.seg_90d, 10) : null,
+        eventos_q: data.eventos_q ? parseInt(data.eventos_q, 10) : null,
+        acoes: String(data.acoes || '').slice(0, 5000)
+      });
+      n++;
+    }
+  })();
+  res.json({ success: true, upserted: n });
+});
 
 // ── MODULE G · CASES & CS HUB (sprint 0.4.0) ─────────────────────────────────
 const CASES_PATH = path.join(__dirname, 'public/cases.html');

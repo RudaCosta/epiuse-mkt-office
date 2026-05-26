@@ -97,7 +97,23 @@ body {
 // Detalhes em vault/00-contexto/versioning.md.
 const RELEASES = [
   {
-    version: '0.4.7', date: '26/mai/2026', current: true, status: 'live',
+    version: '0.4.8', date: '26/mai/2026', current: true, status: 'live',
+    title: 'Painel de Metas LinkedIn + footer history corrigido',
+    body: `Apresentação corporativa: novo painel <code>/metas</code> com:
+    <ul>
+      <li><b>Hero com meta agressiva</b>: 7.844 → +10k em 12m (saída de 4.9/dia → 30/dia · 6× ritmo atual)</li>
+      <li><b>Tática do Elefante</b>: ranking de eventos por ROI — SAP NOW 2025 gerou 101 seg em 1 dia (20× média!), SAP NOW 2026 (72), Inside Track GO (28), BTP Experience (26)</li>
+      <li><b>2 gráficos Chart.js</b>: evolução mensal últ 12m + acumulado vs projeção meta (real azul, tendência atual cinza tracejado, meta agressiva rosa tracejado)</li>
+      <li><b>4 distribuições</b>: cidades (SP 52%), funções (TI 27%), setores (Serv TI 37%), tamanho empresa (10k+ 28%)</li>
+      <li><b>6 cards de Meta por Área editáveis</b>: Vendas (Sergio+Marlison), Brand (Duda), Intelligence (Bruna), Field (Isabela), Growth (Gui), Voices (Anderson+Carlos). Cada um tem 3 metas numéricas (30d, 90d, eventos/Q) + textarea ações. Auto-save no blur + botão "Salvar todas" via API</li>
+      <li><b>5 insights estratégicos</b>: SP saturada (priorizar não-SP), RH sub-representado, falta gerente/diretor, enterprise alinhado ICP, ritmo recente acelerando</li>
+      <li><b>Tab "🎯 Metas" no office-nav</b></li>
+      <li><b>Tabela SQLite <code>metas_linkedin</code></b> + endpoints <code>GET/POST /api/metas</code> (POST protegido por EDITOR_TOKEN)</li>
+      <li><b>Footer histórico de versões corrigido</b>: agora mostra todas as 0.4.1→0.4.8 corretas (antes parava em 0.4.0)</li>
+    </ul>`
+  },
+  {
+    version: '0.4.7', date: '26/mai/2026', status: 'snapshot',
     title: 'Polish pré-apresentação corporativa + decisões SSO/RD',
     body: `Polish menor antes da apresentação pra empresa inteira:
     <ul>
