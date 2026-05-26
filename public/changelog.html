@@ -97,7 +97,19 @@ body {
 // Detalhes em vault/00-contexto/versioning.md.
 const RELEASES = [
   {
-    version: '0.4.6', date: '26/mai/2026', current: true, status: 'local',
+    version: '0.4.7', date: '26/mai/2026', current: true, status: 'live',
+    title: 'Polish pré-apresentação corporativa + decisões SSO/RD',
+    body: `Polish menor antes da apresentação pra empresa inteira:
+    <ul>
+      <li><b>/cases header com EPI-USE Brasil</b> + subtitle "22 clientes na base" (branding reforçado)</li>
+      <li><b>22 cases reais em produção</b>: 19 do Roberto sincronizados via curl POST após setup do EDITOR_TOKEN no Railway. Distribuição: 1 publicado · 1 em edição · 13 negociação · 4 declinados · 3 CS legado.</li>
+      <li><b>Decisões tomadas pelo Rudá:</b> SSO Opção A (todo @epiuse.com.br loga, sem grupos), drop RD Station sync (pivot pra planilha Duda quando ela criar)</li>
+      <li><b>Doc novo:</b> <code>vault/00-contexto/pendencias.md</code> — Claude relê toda sessão pra lembrar bloqueadores externos (IT Azure AD, Duda planilha)</li>
+      <li><b>Doc novo:</b> <code>vault/00-contexto/email-ti-sso-microsoft.md</code> — email pronto pra forward ao admin Azure AD com 7 passos detalhados (enviado pelo Rudá em 26/mai)</li>
+    </ul>`
+  },
+  {
+    version: '0.4.6', date: '26/mai/2026', status: 'snapshot',
     title: 'Decorator real no Game + 1-click sync Cases Roberto',
     body: `Bateria de 6 sprints incrementais (0.4.1 → 0.4.6):
     <ul>
