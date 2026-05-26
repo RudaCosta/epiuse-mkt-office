@@ -97,7 +97,19 @@ body {
 // Detalhes em vault/00-contexto/versioning.md.
 const RELEASES = [
   {
-    version: '0.4.9', date: '26/mai/2026', current: true, status: 'live',
+    version: '0.4.10', date: '26/mai/2026', current: true, status: 'live',
+    title: 'HOTFIX: "+ Novo Voice" agora cria de verdade',
+    body: `Bug crítico reportado: "Erro ao salvar: Voice não encontrado: ruda-costa".
+    <ul>
+      <li><b>Root cause:</b> o modal "+ Novo Voice (auto-preenche via IA)" fazia <code>PUT /api/voices/:slug</code> que SÓ ATUALIZAVA Voice existente. Pra Voice novo, o slug ainda não existe → 404.</li>
+      <li><b>Fix:</b> transformei o PUT em <b>upsert</b> — se o slug não existe, cria do zero com schema completo (nome, cargo, área, status onboarding, foto dicebear gerada, etc) + aplica o patch normalmente.</li>
+      <li>Whitelist de campos editáveis expandida pra aceitar <code>nome, cargo, area, status, foto, bio</code> (antes só campos secundários).</li>
+      <li>Response agora retorna <code>created: true/false</code> pra UI saber se criou ou atualizou.</li>
+      <li>Console log diferencia <code>[VOICE-CREATE]</code> vs <code>[VOICE-EDIT]</code>.</li>
+    </ul>`
+  },
+  {
+    version: '0.4.9', date: '26/mai/2026', status: 'snapshot',
     title: 'Optimizer 3 modos: transcrição (Claude lê tudo) · roteiro · manual',
     body: `Refundação UX do Optimizer — chega de form gigante:
     <ul>

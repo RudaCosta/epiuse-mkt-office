@@ -956,12 +956,40 @@ app.put('/api/voices/:slug', requireEditorToken, (req, res) => {
     return res.status(500).json({ success: false, error: 'falha ao ler voices.json: ' + e.message });
   }
 
-  const voice = (data.voices || []).find(v => v.id === slug);
-  if (!voice) return res.status(404).json({ success: false, error: 'Voice não encontrado: ' + slug });
+  data.voices = data.voices || [];
+  let voice = data.voices.find(v => v.id === slug);
+  let isNew = false;
+  if (!voice) {
+    // Upsert: cria Voice novo do zero (fluxo "+ Novo Voice")
+    isNew = true;
+    voice = {
+      id: slug,
+      nome: req.body?.nome || slug,
+      cargo: req.body?.cargo || '',
+      area: req.body?.area || '',
+      status: req.body?.status || 'onboarding',
+      foto: req.body?.foto || `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(req.body?.nome || slug)}`,
+      linkedin: req.body?.linkedin || '',
+      bio: req.body?.bio || '',
+      tags: [],
+      audiencia: [],
+      tom_voz: '',
+      lado_humano: '',
+      resultados: [],
+      ssi_baseline: null,
+      seguidores_baseline: null,
+      kit_gerado: false,
+      pendencia: '',
+      dados_a_confirmar: [],
+      created_at: new Date().toISOString()
+    };
+    data.voices.push(voice);
+  }
 
   const patch = req.body || {};
-  // Campos editáveis (whitelist)
-  const editable = ['nicho', 'tags', 'audiencia', 'linkedin', 'ssi_baseline', 'seguidores_baseline',
+  // Campos editáveis (whitelist) — expandido pra criação também aceitar campos básicos
+  const editable = ['nome', 'cargo', 'area', 'status', 'foto', 'bio', 'nicho', 'tags', 'audiencia', 'linkedin',
+                    'ssi_baseline', 'seguidores_baseline',
                     'posts_mes_atual', 'kit_gerado', 'ultimo_post', 'pendencia',
                     'tom_voz', 'lado_humano', 'resultados'];
 
@@ -1005,8 +1033,8 @@ app.put('/api/voices/:slug', requireEditorToken, (req, res) => {
     return res.status(500).json({ success: false, error: 'falha ao salvar: ' + e.message });
   }
 
-  console.log(`[VOICE-EDIT] ${slug} updated. prov_removed=${touchedAnyProv} dados_a_confirmar=${[...dadosAConfirmar].length}`);
-  res.json({ success: true, voice });
+  console.log(`[VOICE-${isNew ? 'CREATE' : 'EDIT'}] ${slug}. prov_removed=${touchedAnyProv} dados_a_confirmar=${[...dadosAConfirmar].length}`);
+  res.json({ success: true, voice, created: isNew });
 });
 
 // PUT /api/voices/:slug/md — atualiza arquivo .md do agente
