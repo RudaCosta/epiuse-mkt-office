@@ -3,7 +3,7 @@
 // Status do sistema + versão atual + dropdown de versões anteriores
 // ════════════════════════════════════════════════════════════════════════════
 
-const OFFICE_FOOTER_VERSION = '0.4.8';
+const OFFICE_FOOTER_VERSION = '0.4.9';
 const OFFICE_FOOTER_BUILD = '2026-05-26';
 
 // Schema semver pré-1.0 — explicação em vault/00-contexto/versioning.md
@@ -11,7 +11,8 @@ const OFFICE_FOOTER_BUILD = '2026-05-26';
 // (semver indica pré-1.0 enquanto não há "release oficial"). URLs dos snapshots no
 // disco mantêm o prefixo antigo (v3.X) pra não quebrar links — só o label visual mudou.
 const OFFICE_VERSION_HISTORY = [
-  { ver: '0.4.8', date: '26/mai/2026', label: 'Painel Metas LinkedIn + persistência SQLite + footer corrigido', path: null, status: 'current' },
+  { ver: '0.4.9', date: '26/mai/2026', label: 'Optimizer 3 modos: transcrição entrevista (Claude extrai tudo) · roteiro 12 perguntas · manual (fallback)', path: null, status: 'current' },
+  { ver: '0.4.8', date: '26/mai/2026', label: 'Painel Metas LinkedIn + footer history corrigido', path: '/_versoes-office/v0.4.8-metas.html', status: 'snapshot' },
   { ver: '0.4.7', date: '26/mai/2026', label: 'Polish pré-apresentação: header /cases EPI-USE Brasil + decisões SSO/RD', path: null, status: 'snapshot' },
   { ver: '0.4.6', date: '26/mai/2026', label: 'Decorator drag-drop real no game + bateria 0.4.1→0.4.6', path: '/_versoes-office/v0.4.6-game.html', status: 'snapshot' },
   { ver: '0.4.5', date: '26/mai/2026', label: 'Sync Cases 1-click (botão OneDrive → Railway)', path: '/_versoes-office/v0.4.6-cases.html', status: 'snapshot' },

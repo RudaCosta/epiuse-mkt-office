@@ -1762,6 +1762,94 @@ app.post('/api/optimizer/extract', optimizerExtractLimiter, upload.array('screen
 });
 
 // ════════════════════════════════════════════════════════════════════════════
+// OPTIMIZER FROM-TRANSCRIPT (v0.4.9) — single textarea com transcrição da
+// entrevista. Sonnet extrai os 14 campos do form + sinaliza o que faltou.
+// User não precisa preencher nada manualmente — só cola e gera.
+// ════════════════════════════════════════════════════════════════════════════
+function buildOptimizerTranscriptPrompt(transcript, linkedin_url) {
+  return `Você analisa a transcrição de uma entrevista feita com um colaborador da EPI-USE Brasil pra preencher o formulário do Profile Optimizer.
+
+CONTEXTO: Pra otimizar o perfil LinkedIn do Voice, precisamos extrair 14 dados específicos da conversa. Use linguagem natural pra capturar tom e detalhes humanos. Se algo NÃO foi mencionado, retorna null + adiciona o campo em _faltando[].
+
+URL LinkedIn (se disponível): ${linkedin_url || '(não fornecida)'}
+
+═══ TRANSCRIÇÃO DA ENTREVISTA ═══
+${transcript}
+═══ FIM DA TRANSCRIÇÃO ═══
+
+EXTRAIA EM JSON (APENAS o JSON, sem texto antes/depois):
+{
+  "nome": "nome completo se mencionado ou null",
+  "cargo_atual": "cargo/headline atual (ex: 'Delivery Strategic Account | EPI-USE Brasil') ou null",
+  "area_principal": "área SAP principal: SAP HCM / SuccessFactors | SAP BTP / Clean Core | SAP ERP / S/4HANA | SAP Signavio | Analytics / Stratview | ServiceNow HRSD / ITSM | Múltiplas áreas",
+  "anos_experiencia": "número inteiro ou null",
+  "ssi_score": "0-100 se mencionado SSI, senão null",
+  "seguidores": "número se mencionado, senão null",
+  "cargo_oficial": "cargo oficial EPI-USE Brasil se citado",
+  "data_entrada_epiuse": "data ou ano de entrada (formato YYYY ou 'Mês de YYYY')",
+  "foto_oficial": "true se mencionou ter foto oficial, false se admitiu não ter",
+  "resultado_1": "1º resultado quantitativo concreto extraído (preferir os com NÚMEROS reais — ex: '14 anos consultoria SAP HCM' · 'Migrei 280 lojas Drogaria Venancio em 14 meses'). Capture com riqueza, NÃO resuma.",
+  "resultado_2": "2º resultado quantitativo OU null",
+  "resultado_3": "3º resultado quantitativo OU null",
+  "diferencial_humano": "1-2 frases sobre família/paixões/causas/esportes/mentorias mencionados (ex: 'pai do João e Maria, apaixonado por trail running, mentor de jovens SAP'). NÃO invente.",
+  "publico_alvo": "personas-alvo no LinkedIn mencionadas (ex: 'CHROs, Diretores de RH de empresas com SAP')",
+  "tom_voz": "uma das opções: equilibrado | técnico | executivo | inspirador — inferir do tom da entrevista",
+  "certificacoes": "lista de certificações SAP mencionadas ou null (string separada por vírgula)",
+  "eventos_palestras": "eventos onde palestrou/participou (ex: 'SAP NOW 2025, BTP Experience 2026')",
+  "frequencia_post_meta": "se mencionou meta de frequência de posts (ex: '2/semana')",
+  "kickoffs_recentes": "kickoffs/go-lives recentes que viraram caso de sucesso",
+  "trechos_destacados": "array de 3-5 trechos LITERAIS marcantes da entrevista que valem virar conteúdo de post — frases dele próprio entre aspas",
+  "_faltando": ["array com NOMES dos campos null/vazios — pra UI sinalizar pro user"],
+  "_confianca": "alta | media | baixa — qualidade geral da transcrição pra extração",
+  "_observacoes": "string opcional: o que ficou ambíguo na entrevista, ou sugestões de pergunta de follow-up"
+}
+
+REGRAS CRÍTICAS:
+- Não invente. Se o entrevistado não falou, retorna null e adiciona em _faltando.
+- "tom_voz" SEMPRE retorna um valor (default 'equilibrado').
+- "trechos_destacados" deve ter pelo menos 2 itens — frases LITERAIS dele, não paráfrases.
+- Não corrija português coloquial nas frases dele; preserve voz natural.
+- "resultado_*" são o coração — capture com NÚMEROS quando houver, e contexto suficiente pro Claude gerar Sobre depois.`;
+}
+
+const transcriptLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 10,
+  standardHeaders: true, legacyHeaders: false,
+  message: { success: false, error: 'Limite 10/h atingido.' }
+});
+
+app.post('/api/optimizer/from-transcript', transcriptLimiter, async (req, res) => {
+  try {
+    const { transcript, linkedin_url } = req.body || {};
+    if (!transcript || transcript.length < 100) {
+      return res.status(400).json({ success: false, error: 'Transcrição precisa ter pelo menos 100 caracteres.' });
+    }
+    if (transcript.length > 80000) {
+      return res.status(400).json({ success: false, error: 'Transcrição muito longa (>80k chars). Reduza pra trechos relevantes.' });
+    }
+
+    const t0 = Date.now();
+    const response = await client.messages.create({
+      model: 'claude-sonnet-4-6',   // Sonnet pra ler texto longo + extrair com qualidade
+      max_tokens: 4000,
+      messages: [{ role: 'user', content: buildOptimizerTranscriptPrompt(transcript, linkedin_url) }]
+    });
+    const dur = ((Date.now() - t0) / 1000).toFixed(1);
+    console.log(`[optimizer/from-transcript] ${dur}s · ${response.usage?.input_tokens}→${response.usage?.output_tokens} · stop=${response.stop_reason}`);
+
+    let raw = response.content[0].text.replace(/```json\s*/gi, '').replace(/```\s*/g, '');
+    const m = raw.match(/\{[\s\S]*\}/);
+    if (!m) return res.status(500).json({ success: false, error: 'JSON inválido da IA.' });
+    const data = JSON.parse(m[0]);
+    res.json({ success: true, ...data });
+  } catch (e) {
+    console.error('[optimizer/from-transcript]', e.message);
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+// ════════════════════════════════════════════════════════════════════════════
 // VOICES VISION — extrai dados de perfil LinkedIn via Claude Vision
 // (a) extract: Voice existente, preenche campos faltantes
 // (b) create-from-profile: novo Voice do zero, retorna esqueleto pra revisão
