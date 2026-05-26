@@ -3,8 +3,8 @@
 // Status do sistema + versão atual + dropdown de versões anteriores
 // ════════════════════════════════════════════════════════════════════════════
 
-const OFFICE_FOOTER_VERSION = '0.4.0';
-const OFFICE_FOOTER_BUILD = '2026-05-25';
+const OFFICE_FOOTER_VERSION = '0.4.6';
+const OFFICE_FOOTER_BUILD = '2026-05-26';
 
 // Schema semver pré-1.0 — explicação em vault/00-contexto/versioning.md
 // Versões antigas que começavam com "v2.X" ou "v3.X" foram renumeradas pra 0.2.X / 0.3.X

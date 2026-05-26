@@ -299,13 +299,21 @@ app.get('/api/cases', (req, res) => {
     if (q.lob)    { sql += ' AND lob    = ?'; params.push(q.lob); }
     sql += ' ORDER BY cliente_nome ASC';
     const rows = db.prepare(sql).all(...params);
-    // KPIs agregados
-    const all = db.prepare('SELECT status, nps FROM cs_clientes').all();
+    // KPIs agregados — combina schema CS clássico (live/onboarding/churn-risk) + Customer Reference do Roberto (case-publicado/em-edicao/negociacao/declinado)
+    const all = db.prepare('SELECT status, nps, case_publicavel FROM cs_clientes').all();
     const kpis = {
       total: all.length,
+      // CS clássico
       live: all.filter(r => r.status === 'live').length,
       churn_risk: all.filter(r => r.status === 'churn-risk').length,
       onboarding: all.filter(r => r.status === 'onboarding').length,
+      // Customer Reference (planilha Roberto)
+      case_publicado: all.filter(r => r.status === 'case-publicado').length,
+      em_edicao: all.filter(r => r.status === 'em-edicao').length,
+      negociacao: all.filter(r => r.status === 'negociacao').length,
+      declinado: all.filter(r => r.status === 'declinado').length,
+      // Cross
+      publicaveis: all.filter(r => r.case_publicavel === 1).length,
       nps_medio: (() => {
         const valid = all.map(r => r.nps).filter(n => n !== null && n !== undefined);
         if (!valid.length) return null;
@@ -317,6 +325,58 @@ app.get('/api/cases', (req, res) => {
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
+});
+
+// v0.4.5 — Sync direto do OneDrive local (chama scripts/sync/sync_cases_roberto.py)
+// Vantagem: 1 click no /cases atualiza tudo, sem precisar rodar curl manual.
+// Roda local apenas (OneDrive sync precisa estar montado em C:\Users\...\OneDrive...).
+// Em produção (Railway), retorna 503 — fonte de verdade lá deve vir via Graph API pós-SSO v0.5.0.
+app.post('/api/cases/sync-from-onedrive', requireEditorToken, (req, res) => {
+  const { spawn } = require('child_process');
+  const scriptPath = path.join(__dirname, 'scripts', 'sync', 'sync_cases_roberto.py');
+  if (!fs0.existsSync(scriptPath)) {
+    return res.status(503).json({ success: false, error: `Script não encontrado: ${scriptPath}. Esta rota só funciona em ambiente local com Python + OneDrive sync.` });
+  }
+
+  // Detecta python (no Windows pode ser "python" ou "py")
+  const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
+  const py = spawn(pythonCmd, [scriptPath], { env: { ...process.env, PYTHONIOENCODING: 'utf-8' } });
+  let stdout = '', stderr = '';
+  py.stdout.on('data', d => stdout += d.toString('utf8'));
+  py.stderr.on('data', d => stderr += d.toString('utf8'));
+  py.on('error', err => res.status(500).json({ success: false, error: `Falha ao invocar Python: ${err.message}` }));
+  py.on('close', code => {
+    if (code !== 0) {
+      return res.status(500).json({ success: false, error: `Python exit code ${code}`, stderr: stderr.slice(0, 1000) });
+    }
+    let payload;
+    try { payload = JSON.parse(stdout); }
+    catch (e) { return res.status(500).json({ success: false, error: `JSON inválido do script: ${e.message}`, raw: stdout.slice(0, 500) }); }
+    const items = Array.isArray(payload?.items) ? payload.items : [];
+    if (!items.length) return res.json({ success: true, upserted: 0, note: 'Script retornou 0 itens.' });
+
+    // Reusa o upsert do endpoint /api/cases/sync
+    const upsert = db.prepare(`
+      INSERT INTO cs_clientes (sharepoint_id, conta, cliente_nome, contato_principal, contato_email, csm, lob, status, nps, valor_anual, ultimo_contato, observacoes, case_publicavel, case_resumo, synced_at)
+      VALUES (@sharepoint_id, @conta, @cliente_nome, @contato_principal, @contato_email, @csm, @lob, @status, @nps, @valor_anual, @ultimo_contato, @observacoes, @case_publicavel, @case_resumo, datetime('now'))
+      ON CONFLICT(sharepoint_id) DO UPDATE SET
+        conta=excluded.conta, cliente_nome=excluded.cliente_nome,
+        contato_principal=excluded.contato_principal, contato_email=excluded.contato_email,
+        csm=excluded.csm, lob=excluded.lob, status=excluded.status, nps=excluded.nps,
+        valor_anual=excluded.valor_anual, ultimo_contato=excluded.ultimo_contato,
+        observacoes=excluded.observacoes, case_publicavel=excluded.case_publicavel,
+        case_resumo=excluded.case_resumo,
+        synced_at=datetime('now'), updated_at=datetime('now')
+    `);
+    let n = 0;
+    db.transaction(() => {
+      for (const it of items) {
+        try { upsert.run(it); n++; }
+        catch (e) { console.warn('[sync-from-onedrive] item falhou:', e.message); }
+      }
+    })();
+    res.json({ success: true, upserted: n, total_received: items.length, fonte: 'OneDrive local (script Python)' });
+  });
 });
 
 // API: upsert via cron (recebe array de clientes da planilha SharePoint).
@@ -394,7 +454,8 @@ const INBOUND_DIR = path.join(__dirname, 'public/inbound');
 app.get('/inbound',           (req, res) => res.sendFile(path.join(INBOUND_DIR, 'index.html')));
 app.get('/inbound/brief',     (req, res) => res.sendFile(path.join(INBOUND_DIR, 'brief.html')));
 app.get('/inbound/calendar',  (req, res) => res.sendFile(path.join(INBOUND_DIR, 'calendar.html')));
-app.get('/inbound/studio',    (req, res) => res.sendFile(path.join(INBOUND_DIR, 'studio.html')));
+// Studio foi mergeado no Carrossel via mode=single (v0.4.4) — preserva URL antiga via 301
+app.get('/inbound/studio',    (req, res) => res.redirect(301, '/inbound/carousel?mode=single'));
 app.get('/inbound/carousel',  (req, res) => res.sendFile(path.join(INBOUND_DIR, 'carousel.html')));
 app.get('/inbound/playbook',  (req, res) => res.sendFile(path.join(INBOUND_DIR, 'playbook.html')));
 
@@ -446,40 +507,114 @@ app.post('/api/inbound/calendar', requireEditorToken, (req, res) => {
   res.json({ success: true, upserted: n });
 });
 
-// Webhook pra cron sync com RD Station (lê a API de Conversões/Posts/Email)
-// Por enquanto: endpoint que retorna metadata + sample request curl pra testar manual.
-// Quando RD_API_KEY estiver no Railway, o cron diário 6h vai chamar /api/inbound/sync-rd.
+// RD Station → Calendar editorial (sprint v0.4.3)
+// IMPORTANTE: a API key precisa ser uma "Personal/Account API token" da conta RD Station EPI-USE
+// (gerada em Configurações → Integrações → API), NÃO uma publisher key da App Marketplace.
+// Endpoints públicos da RD: https://developers.rdstation.com/reference
+//
+// Fluxo:
+//   1. Tenta endpoints possíveis (email_campaigns, landing_pages, popups)
+//   2. Mapeia cada item pra schema editorial_calendar
+//   3. Persiste via INSERT...ON CONFLICT(external_id) DO UPDATE
+//   4. Retorna estatísticas
+
+async function fetchRDPaginated(url, token, maxPages = 5) {
+  const results = [];
+  let next = url;
+  for (let i = 0; i < maxPages && next; i++) {
+    const r = await fetch(next, { headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' } });
+    if (!r.ok) {
+      const body = await r.text().catch(() => '');
+      throw new Error(`RD HTTP ${r.status} em ${next.split('/').slice(-2).join('/')}: ${body.slice(0,200)}`);
+    }
+    const data = await r.json();
+    const items = Array.isArray(data) ? data : (data.items || data.email_marketing || data.email_campaigns || data.landing_pages || data.popups || []);
+    results.push(...items);
+    next = data?.next_page_url || data?.paging?.next || null;
+  }
+  return results;
+}
+
+function mapRDItem(item, fonte) {
+  // Tenta múltiplos campos pq cada endpoint RD tem schema diferente
+  const id = item.id || item.uuid || item.identifier;
+  const data = (item.scheduled_at || item.sent_at || item.published_at || item.created_at || '').slice(0,10);
+  if (!id || !data) return null;
+  return {
+    external_id: `rd-${fonte}-${id}`,
+    fonte: 'rd-station',
+    data,
+    canal: fonte.includes('email') ? 'email' : fonte.includes('landing') ? 'landing-page' : (fonte.includes('popup') ? 'popup' : 'rd'),
+    autor: item.from_name || item.created_by_name || 'RD Station',
+    titulo: (item.subject || item.name || item.title || '(sem título)').slice(0, 200),
+    resumo: (item.preheader || item.description || '').slice(0, 500),
+    pilar: fonte.includes('email') ? 'Email Marketing' : fonte.includes('landing') ? 'Conversão' : 'RD Station',
+    status: item.status === 'sent' || item.is_published ? 'published' : 'planned',
+    url_post: item.url || item.public_url || ''
+  };
+}
+
 app.post('/api/inbound/sync-rd', requireEditorToken, async (req, res) => {
   if (!process.env.RD_API_KEY) {
     return res.status(503).json({ success: false, error: 'RD_API_KEY não configurada no env.' });
   }
-  try {
-    // Endpoint genérico da RD — vai precisar ajustar conforme o tipo de "post" que se quer puxar.
-    // Doc: https://developers.rdstation.com/reference
-    // MVP: puxar email campaigns agendados/enviados, mapear pra editorial_calendar.
-    const url = 'https://api.rd.services/platform/email_marketing';
-    const rdRes = await fetch(url, { headers: { 'Authorization': `Bearer ${process.env.RD_API_KEY}` } });
-    if (!rdRes.ok) throw new Error(`RD respondeu HTTP ${rdRes.status}`);
-    const data = await rdRes.json();
-    const emails = Array.isArray(data?.email_marketing) ? data.email_marketing : [];
-    // Mapeia pra editorial_calendar
-    const items = emails.slice(0, 100).map(e => ({
-      external_id: `rd-email-${e.id}`,
-      fonte: 'rd-station',
-      data: (e.scheduled_at || e.sent_at || '').slice(0,10),
-      canal: 'email',
-      autor: e.from_name || 'EPI-USE',
-      titulo: e.subject || '(sem assunto)',
-      resumo: e.preheader || '',
-      pilar: 'Email Marketing',
-      status: e.status || 'planned',
-      url_post: ''
-    })).filter(i => i.data);
-    res.json({ success: true, fetched: emails.length, mapped: items.length, items });
-    // TODO: chamar /api/inbound/calendar internamente pra persistir, ou retornar pro caller decidir
-  } catch (e) {
-    res.status(500).json({ success: false, error: e.message });
+  const token = process.env.RD_API_KEY;
+  const tried = [];
+  const allItems = [];
+
+  // Endpoints conhecidos da RD pra puxar conteúdo agendado/publicado
+  const sources = [
+    { url: 'https://api.rd.services/platform/email_marketing/emails', fonte: 'email' },
+    { url: 'https://api.rd.services/platform/landing_pages', fonte: 'landing-pages' },
+    { url: 'https://api.rd.services/platform/popups', fonte: 'popups' },
+  ];
+
+  for (const src of sources) {
+    try {
+      const items = await fetchRDPaginated(src.url, token);
+      tried.push({ endpoint: src.fonte, fetched: items.length, ok: true });
+      for (const it of items) {
+        const mapped = mapRDItem(it, src.fonte);
+        if (mapped) allItems.push(mapped);
+      }
+    } catch (e) {
+      tried.push({ endpoint: src.fonte, ok: false, error: e.message });
+    }
   }
+
+  // Persiste no SQLite via upsert
+  let upserted = 0;
+  if (allItems.length) {
+    const upsert = db.prepare(`
+      INSERT INTO editorial_calendar (external_id, fonte, data, canal, autor, titulo, resumo, pilar, status, url_post, synced_at)
+      VALUES (@external_id, @fonte, @data, @canal, @autor, @titulo, @resumo, @pilar, @status, @url_post, datetime('now'))
+      ON CONFLICT(external_id) DO UPDATE SET
+        data=excluded.data, canal=excluded.canal, autor=excluded.autor,
+        titulo=excluded.titulo, resumo=excluded.resumo, pilar=excluded.pilar,
+        status=excluded.status, url_post=excluded.url_post,
+        synced_at=datetime('now'), updated_at=datetime('now')
+    `);
+    db.transaction(() => { allItems.forEach(i => upsert.run(i)); })();
+    upserted = allItems.length;
+  }
+
+  const successCount = tried.filter(t => t.ok).length;
+  if (successCount === 0) {
+    return res.status(502).json({
+      success: false,
+      error: 'Nenhum endpoint RD respondeu OK. A RD_API_KEY pode ser uma publisher key da App Marketplace (não funciona pra ler dados de conta). Gere uma "Personal/Account API token" no painel RD Station EPI-USE: Configurações → Integrações → API.',
+      tried
+    });
+  }
+
+  res.json({
+    success: true,
+    fetched_total: allItems.length,
+    upserted,
+    sources_ok: successCount,
+    sources_total: tried.length,
+    tried
+  });
 });
 
 // ── /api/alerts: feed unificado pro sino de notificação do office-nav ──
@@ -1129,19 +1264,191 @@ REGRAS OBRIGATÓRIAS:
 - Cargo sugerido deve incluir "EPI-USE Brasil" (ex: "Consultor SAP HCM | EPI-USE Brasil")
 - Usar os resultados reais fornecidos — não inventar números
 - Onde não há número real, usar placeholder: [preencher: ex. X% de redução]
-- Headline: máximo 220 caracteres, área de expertise + empresa + diferencial
-- Competências: priorizar tecnologias atuais (SAP BTP, Clean Core, S/4HANA, SuccessFactors) — remover versões legadas (SAP R/3, etc.)
+- Headline: máximo 220 caracteres, área de expertise + empresa + diferencial + LADO HUMANO se houver (ex: "pai de 2, apaixonado por trail running")
+- Competências: priorizar tecnologias atuais (SAP BTP, Clean Core, S/4HANA, SuccessFactors) — remover versões legadas (SAP R/3, etc.) — sugerir competências baseado na expertise visível
 - Tom deve seguir a preferência indicada: ${tom_voz || 'equilibrado'}
 - Formatação mobile: parágrafos curtos, sem paredes de texto
 - Seção Sobre: máximo 2.600 caracteres (limite LinkedIn)
-- ERP.ngo DEVE ser sugerido como "Causas Sociais" no LinkedIn para este perfil
-- Sempre gerar exatamente 5 Destaques Estratégicos (seção Featured do LinkedIn)
+- ERP.ngo DEVE ser sugerido como "Causas Sociais" no LinkedIn para este perfil — todo Voice é embaixador padrão
+- Sempre gerar exatamente 5 Destaques Estratégicos (seção Featured do LinkedIn), variando entre:
+  · Artigo TÉCNICO publicado fora do LinkedIn (StratView/blog SAP)
+  · Artigo/post publicado DENTRO do LinkedIn
+  · Link EXTERNO (column publicada, podcast, vídeo)
+  · Imagem de kickoff/go-live/reunião estratégica/evento SAP-AWS
+  · Publicação de PARCEIRO citando o Voice (SAP, EPI-USE Global, AWS) ou premiação/elogio/exposição
+- "imagens_perfil" deve sugerir: kickoffs, go-lives, reuniões estratégicas, participação em eventos, prêmios, exposições com clientes/parceiros
+- Recomendações: priorizar publicações de SAP, EPI-USE Labs, parceiros — associação de marca por proximidade
+- Voluntariado: ERP.ngo sempre como Causa Social padrão
+
+AVALIAÇÃO POR PILARES (CRÍTICO — usar escala de 4 níveis em CADA critério):
+- 🟢 forte    — está no top 20% dos profissionais SAP/HCM, exemplar
+- 🟡 ok       — médio, dá pra melhorar
+- 🟠 fraco    — atrás da média, prioridade de ação
+- 🔴 ausente  — não existe, gap crítico
+- ⚪ na       — não aplicável a este perfil
+
+Avalie EXATAMENTE estes 7 pilares e seus critérios (use o que vê nos screenshots + dados do form; quando não houver evidência, marque "ausente" ou "na" e justifique):
+
+PILAR 1 — IDENTIDADE VISUAL & ESTRUTURAL:
+  · URL customizada (linkedin.com/in/nome-sobrenome vs id aleatório)
+  · Localização visível + área de atuação
+  · Pronouns declarados
+  · Primeiras 3 linhas do "Sobre" (gancho antes do "ver mais")
+  · CTA no fim do "Sobre" (email/agenda/DM)
+  · Modo Criador ativado + hashtags estratégicas
+  · Cover story (vídeo 30s no avatar)
+
+PILAR 2 — AUTORIDADE & PROVA SOCIAL:
+  · Competências (Skills) Top 3 endossadas alinhadas com expertise
+  · Certificações SAP/EPI-USE (S/4HANA, SuccessFactors, HXM, etc.)
+  · Formação acadêmica com instituição relevante
+  · Recomendações recebidas (qty + qualidade do recomendante)
+  · Premiações (Top Voice, SAP Awards, EPI-USE Insights)
+  · Eventos como palestrante (TechEd, SAPPHIRE, EPI-USE Insights)
+  · Publicações próprias (artigos LinkedIn, blogs externos, StratView)
+  · Newsletter própria
+
+PILAR 3 — CONTEÚDO & ATIVIDADE:
+  · Frequência de posts (ideal 1-3/semana)
+  · Último post < 7 dias (atividade recente)
+  · Mix de formato (texto / carrossel / vídeo / imagem / poll)
+  · Engajamento médio (likes + comments / followers)
+  · Comentários em posts alheios (pilar SSI "engajar com insights")
+  · Polls/enquetes publicadas
+  · Tagueamento de colegas/clientes/SAP
+  · Compartilhamento de conteúdo SAP / EPI-USE mãe / parceiros
+
+PILAR 4 — NETWORK & RELACIONAMENTO:
+  · Conexões totais (>500 vira "500+")
+  · Followers vs Conexões (ratio)
+  · Membro de Grupos SAP Community, RH Brasil, ASUG
+  · DM aberto (mensagens disponíveis fora da rede)
+
+PILAR 5 — SSI INDEX (LinkedIn oficial):
+  · Estabelecer marca profissional
+  · Encontrar pessoas certas
+  · Engajar com insights
+  · Construir relacionamentos
+  (Se SSI Score foi fornecido no form, use-o como referência. Senão, estime cada pilar do SSI pelos screenshots.)
+
+PILAR 6 — ADERÊNCIA EPI-USE (institucional):
+  · Capa oficial EPI-USE Brasil ativa
+  · Cargo oficial EPI-USE (não inventado)
+  · Foto oficial com fundo padrão / alta qualidade
+  · Data de entrada na EPI-USE declarada
+  · ERP.ngo no voluntariado
+  · Menção EPI-USE Voices quando faz sentido
+  · Citação ou tag de parceiros (SAP, AWS, HXM)
+
+PILAR 7 — CONVERSÃO (lead → reunião):
+  · Link em destaque (Calendly, Linktree, página EPI-USE)
+  · CTA explícito em pelo menos 1 destaque
+  · Email visível no Sobre ou Contato
+  · Botão "Serviços" ativado (LinkedIn) com tags certas
+
+Calcule o score de cada pilar (0-100) pela média ponderada dos critérios (forte=100, ok=70, fraco=40, ausente=10, na=ignorar).
+Calcule o "voice_index_score" geral (0-100) = média simples dos 7 scores de pilar.
 
 Retorne a análise em JSON estruturado. Retorne APENAS o JSON, sem texto antes ou depois:
 {
   "nome": "string",
   "cargo_atual": "string",
   "empresa_atual": "EPI-USE Brasil",
+  "voice_index_score": 0,
+  "voice_index_resumo": "string (1-2 frases explicando o score geral — onde o Voice está forte e onde precisa atacar primeiro)",
+  "pilares_avaliacao": [
+    {
+      "pilar": "Identidade Visual & Estrutural",
+      "icone": "🪪",
+      "score": 0,
+      "criterios": [
+        { "nome": "URL customizada", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string (1 frase)" },
+        { "nome": "Localização visível", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Pronouns declarados", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Gancho nas 3 primeiras linhas do Sobre", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "CTA no fim do Sobre", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Modo Criador + hashtags", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Cover story (vídeo 30s)", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" }
+      ]
+    },
+    {
+      "pilar": "Autoridade & Prova Social",
+      "icone": "🏆",
+      "score": 0,
+      "criterios": [
+        { "nome": "Top 3 Skills endossadas", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Certificações SAP/EPI-USE", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Formação acadêmica relevante", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Recomendações recebidas", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Premiações (Top Voice, SAP Awards)", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Eventos como palestrante", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Publicações próprias (artigos)", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Newsletter própria", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" }
+      ]
+    },
+    {
+      "pilar": "Conteúdo & Atividade",
+      "icone": "📊",
+      "score": 0,
+      "criterios": [
+        { "nome": "Frequência de posts (1-3/semana)", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Último post < 7 dias", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Mix de formato (texto/carrossel/vídeo/poll)", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Engajamento médio", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Comentários em posts alheios", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Polls/enquetes publicadas", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Tag de colegas/clientes/SAP", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Compartilha SAP/EPI-USE mãe/parceiros", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" }
+      ]
+    },
+    {
+      "pilar": "Network & Relacionamento",
+      "icone": "🌐",
+      "score": 0,
+      "criterios": [
+        { "nome": "Conexões totais (>500)", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Ratio Followers/Conexões", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Membro de Grupos relevantes", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "DM aberto", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" }
+      ]
+    },
+    {
+      "pilar": "SSI Index (LinkedIn oficial)",
+      "icone": "📈",
+      "score": 0,
+      "criterios": [
+        { "nome": "Estabelecer marca profissional", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Encontrar pessoas certas", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Engajar com insights", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Construir relacionamentos", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" }
+      ]
+    },
+    {
+      "pilar": "Aderência EPI-USE Brasil",
+      "icone": "💼",
+      "score": 0,
+      "criterios": [
+        { "nome": "Capa oficial EPI-USE Brasil", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Cargo oficial EPI-USE", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Foto oficial alta qualidade", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Data de entrada na EPI-USE declarada", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "ERP.ngo no voluntariado", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Menção EPI-USE Voices", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Tag/citação de parceiros (SAP, AWS)", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" }
+      ]
+    },
+    {
+      "pilar": "Conversão (lead → reunião)",
+      "icone": "🎯",
+      "score": 0,
+      "criterios": [
+        { "nome": "Link em destaque (Calendly/agenda)", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "CTA explícito em destaque", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Email visível no Sobre/Contato", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Botão Serviços ativado", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" }
+      ]
+    }
+  ],
   "diagnostico": {
     "pontos_positivos": ["string"],
     "problemas_encontrados": [
@@ -1272,17 +1579,26 @@ app.post('/api/analisar-perfil', optimizerLimiter, upload.array('screenshots', 5
       })
     });
 
-    // Sonnet 4.6: ~12-18s p/ esse prompt vs ~25-45s do Opus 4.6 — mesma qualidade
-    // estrutural. Usuário reportou erros/timeout com Opus; Sonnet resolve.
+    // Sonnet 4.6: o JSON do kit completo + 7 pilares × ~7 critérios (v0.4.1) chega facilmente
+    // em 14-18k tokens output. max_tokens=20000 dá margem confortável.
     const t0 = Date.now();
     const response = await client.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 8192,
+      max_tokens: 20000,
       messages: [{ role: 'user', content }]
     });
-    console.log(`[optimizer] análise concluída em ${((Date.now() - t0) / 1000).toFixed(1)}s · ${response.usage?.input_tokens || '?'}→${response.usage?.output_tokens || '?'} tokens`);
+    const dur = ((Date.now() - t0) / 1000).toFixed(1);
+    console.log(`[optimizer] análise concluída em ${dur}s · ${response.usage?.input_tokens || '?'}→${response.usage?.output_tokens || '?'} tokens · stop=${response.stop_reason}`);
 
     files.forEach(f => { try { fs.unlinkSync(f.path); } catch (_) {} });
+
+    // Se Claude bateu o teto de output, o JSON tá truncado — falha clara
+    if (response.stop_reason === 'max_tokens') {
+      return res.status(500).json({
+        success: false,
+        error: `Resposta truncada (estourou ${response.usage.output_tokens} tokens). Reduza pra 2-3 screenshots ou tente novamente.`
+      });
+    }
 
     // Extrair JSON — remove blocos markdown se Claude os incluir
     let rawText = response.content[0].text;
@@ -1296,8 +1612,8 @@ app.post('/api/analisar-perfil', optimizerLimiter, upload.array('screenshots', 5
     try {
       kit = JSON.parse(jsonMatch[0]);
     } catch (parseErr) {
-      console.error('JSON parse error:', parseErr.message);
-      return res.status(500).json({ success: false, error: 'Resposta da IA incompleta (JSON truncado). Tente novamente ou reduza o número de screenshots.' });
+      console.error('JSON parse error:', parseErr.message, '· raw length:', rawText.length);
+      return res.status(500).json({ success: false, error: 'Resposta da IA incompleta (JSON malformado). Tente novamente ou reduza o número de screenshots.' });
     }
     res.json({ success: true, kit });
 
@@ -1305,6 +1621,86 @@ app.post('/api/analisar-perfil', optimizerLimiter, upload.array('screenshots', 5
     files.forEach(f => { try { fs.unlinkSync(f.path); } catch (_) {} });
     console.error('Erro:', error.message);
     res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// OPTIMIZER EXTRACT — Vision pass 1: pré-preenche todos os campos do form
+// (Haiku 4.5, ~8s, retorna 14 campos + _faltando[] com o que não conseguiu)
+// ════════════════════════════════════════════════════════════════════════════
+function buildOptimizerExtractPrompt(linkedin_url) {
+  return `Você analisa o perfil LinkedIn (URL: ${linkedin_url || 'não fornecida — usar screenshots'}) e pré-preenche o formulário do EPI-USE Voices Profile Optimizer.
+
+Sua tarefa: extrair do que VOCÊ VÊ nos screenshots o máximo possível dos 14 campos abaixo. Onde não houver evidência, retorne null (NÃO INVENTE).
+
+Retorne APENAS este JSON, sem texto antes/depois:
+{
+  "nome": "nome completo conforme aparece no perfil ou null",
+  "cargo_atual": "headline OU cargo principal visível (ex: 'Head Products & Innovation | FIAP') ou null",
+  "area_principal": "1-4 palavras do nicho técnico (ex: 'SAP HCM SuccessFactors', 'SAP BTP Cloud', 'Process Mining') ou null",
+  "anos_experiencia": "número inteiro inferido das datas de experiência ou null",
+  "ssi_score": "número 0-100 só se aparecer screenshot do linkedin.com/sales/ssi senão null",
+  "seguidores": "número de seguidores se visível senão null",
+  "cargo_oficial": "cargo oficial na EPI-USE Brasil se o perfil já cita (ex: 'Head of Products & Innovation') OU null se ainda não está atualizado",
+  "data_entrada_epiuse": "data início se EPI-USE aparece na experiência (formato YYYY-MM ou 'YYYY') ou null",
+  "foto_oficial": "true se a foto atual parece profissional/atual (rosto visível, fundo neutro), false se claramente precisa atualizar",
+  "resultado_1": "1º resultado quantitativo REAL extraído (ex: '14 anos consultoria SAP HCM' · '280 lojas Drogaria Venancio em 14 meses'). Null se não houver.",
+  "resultado_2": "2º resultado quantitativo OU null",
+  "resultado_3": "3º resultado quantitativo OU null",
+  "diferencial_humano": "1 frase sobre família/paixão/causa/mentoria/esporte visível no perfil (ex: 'pai do João, apaixonado por corrida') ou null",
+  "publico_alvo": "1-3 personas que esse perfil deveria atingir (ex: 'CHROs, Diretores RH', 'CIOs, Arquitetos SAP') ou null",
+  "tom_voz": "uma das opções: formal | equilibrado | coloquial | técnico-storytelling — inferido dos posts/Sobre, default 'equilibrado'",
+  "_faltando": ["array com os NOMES dos campos que você retornou null/vazio — pra UI marcar pro user preencher manualmente"]
+}
+
+REGRAS:
+- Não invente. Se a info não está visível, retorne null e adicione o nome do campo em _faltando.
+- "tom_voz" SEMPRE retorna um valor (default 'equilibrado'), nunca null.
+- _faltando deve listar exatamente os keys dos campos null/vazios.
+- **CRÍTICO:** mesmo se não houver screenshots (só URL) ou nenhum dado, RETORNE o JSON com todos os campos null + _faltando listando todos. NUNCA retorne texto fora do JSON.`;
+}
+
+const optimizerExtractLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 15,    // mais permissivo que kit completo (10/h) — extract é barato
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, error: 'Limite de 15 extrações/hora atingido. Tente em 1h.' }
+});
+
+app.post('/api/optimizer/extract', optimizerExtractLimiter, upload.array('screenshots', 5), async (req, res) => {
+  const files = req.files || [];
+  try {
+    const { linkedin_url } = req.body;
+    if (!linkedin_url && files.length === 0) {
+      return res.status(400).json({ success: false, error: 'Forneça URL LinkedIn ou pelo menos 1 screenshot.' });
+    }
+    const content = [];
+    for (const file of files) {
+      const base64 = fs.readFileSync(file.path).toString('base64');
+      content.push({ type: 'image', source: { type: 'base64', media_type: file.mimetype, data: base64 } });
+    }
+    content.push({ type: 'text', text: buildOptimizerExtractPrompt(linkedin_url) });
+
+    const t0 = Date.now();
+    const response = await client.messages.create({
+      model: 'claude-haiku-4-5',         // Haiku — barato, rápido (~5-10s pra Vision)
+      max_tokens: 2500,
+      messages: [{ role: 'user', content }]
+    });
+    const dur = ((Date.now() - t0) / 1000).toFixed(1);
+    console.log(`[optimizer/extract] ${dur}s · ${response.usage?.input_tokens || '?'}→${response.usage?.output_tokens || '?'} · stop=${response.stop_reason}`);
+    files.forEach(f => { try { fs.unlinkSync(f.path); } catch {} });
+
+    let raw = response.content[0].text.replace(/```json\s*/gi, '').replace(/```\s*/g, '');
+    const m = raw.match(/\{[\s\S]*\}/);
+    if (!m) return res.status(500).json({ success: false, error: 'JSON inválido da IA. Tente novamente.' });
+    const data = JSON.parse(m[0]);
+    res.json({ success: true, ...data });
+  } catch (e) {
+    files.forEach(f => { try { fs.unlinkSync(f.path); } catch {} });
+    console.error('[optimizer/extract]', e.message);
+    res.status(500).json({ success: false, error: e.message || 'Falha na extração.' });
   }
 });
 

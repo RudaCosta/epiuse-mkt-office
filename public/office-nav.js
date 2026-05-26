@@ -7,7 +7,7 @@
 // Versão atual exposta no chip ao lado do logomark.
 // Schema semver pré-1.0 — explicação completa em vault/00-contexto/versioning.md
 // Manter em sincronia com office-footer.js (OFFICE_FOOTER_VERSION).
-const OFFICE_NAV_VERSION = '0.4.0';
+const OFFICE_NAV_VERSION = '0.4.6';
 
 const OFFICE_NAV_TABS = [
   { id: 'hub',      label: 'Office',   icon: '🏠', href: '/dashboard',   matches: ['hub'] },
@@ -656,8 +656,9 @@ customElements.define('office-nav', OfficeNav);
 // ════════════════════════════════════════════════════════════════════════════
 function applyTheme(theme) {
   const html = document.documentElement;
-  if (theme === 'light') html.setAttribute('data-theme', 'light');
-  else html.removeAttribute('data-theme');
+  // SEMPRE seta o atributo explicitamente. Páginas como /optimizer dependem
+  // do CSS `[data-theme="dark"]` ativar (não funciona se o atributo for removido).
+  html.setAttribute('data-theme', theme === 'light' ? 'light' : 'dark');
 }
 
 // Garante que o stylesheet de light mode global existe (injetado 1x)
