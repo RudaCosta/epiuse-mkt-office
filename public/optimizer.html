@@ -2043,22 +2043,40 @@ async function runFromTranscript() {
   icon.textContent = '⏳';
   lbl.textContent = 'Claude lendo a entrevista...';
   status.style.display = 'block';
-  status.textContent = 'Etapa 1/2 · Extraindo 14+ campos da transcrição (Sonnet, ~20s)...';
+
+  // Timer visual mostrando segundos decorridos (UX clara)
+  const startTime = Date.now();
+  let timerInterval = null;
+  function startTimer(prefix) {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      const secs = Math.floor((Date.now() - startTime) / 1000);
+      status.textContent = `${prefix} ⏱ ${secs}s decorridos...`;
+    }, 1000);
+  }
+  function stopTimer() { if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } }
+
+  startTimer('Etapa 1/2 · Extraindo 14+ campos (Haiku, ~10-30s) ·');
 
   try {
-    // STEP 1: extract from transcript
+    // STEP 1: extract from transcript — com AbortController explícito (120s timeout)
+    const c1 = new AbortController();
+    const t1 = setTimeout(() => c1.abort(new Error('TIMEOUT_120S')), 120000);
     const r1 = await fetch('/api/optimizer/from-transcript', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ transcript: text, linkedin_url: url })
+      body: JSON.stringify({ transcript: text, linkedin_url: url }),
+      signal: c1.signal
     });
+    clearTimeout(t1);
     const extracted = await r1.json();
     if (!extracted.success) throw new Error(extracted.error || 'Extração falhou');
 
-    status.textContent = '✓ Campos extraídos. Etapa 2/2 · Gerando kit completo (Sonnet, ~90s)...';
+    stopTimer();
+    startTimer('✓ Campos extraídos. Etapa 2/2 · Gerando kit (Sonnet, ~90s) ·');
     lbl.textContent = 'Gerando kit completo...';
 
-    // STEP 2: feed extracted into /api/analisar-perfil to generate full kit
+    // STEP 2: feed extracted into /api/analisar-perfil
     const fd = new FormData();
     fd.append('linkedin_url', url || 'https://linkedin.com/in/voice-entrevistado');
     fd.append('nome', extracted.nome || '');
@@ -2076,14 +2094,14 @@ async function runFromTranscript() {
     fd.append('cargo_oficial', extracted.cargo_oficial || '');
     fd.append('foto_oficial', extracted.foto_oficial || false);
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 180000);
-    const r2 = await fetch('/api/analisar-perfil', { method: 'POST', body: fd, signal: controller.signal });
-    clearTimeout(timeoutId);
+    const c2 = new AbortController();
+    const t2 = setTimeout(() => c2.abort(new Error('TIMEOUT_180S')), 180000);
+    const r2 = await fetch('/api/analisar-perfil', { method: 'POST', body: fd, signal: c2.signal });
+    clearTimeout(t2);
     const kitData = await r2.json();
     if (!kitData.success) throw new Error(kitData.error || 'Geração do kit falhou');
 
-    // Sucesso — esconde form, renderiza kit
+    stopTimer();
     document.getElementById('form-section').style.display = 'none';
     document.getElementById('loading-state').style.display = 'none';
     renderKit(kitData.kit);
@@ -2091,12 +2109,22 @@ async function runFromTranscript() {
     resultadoEl.scrollIntoView({ behavior: 'smooth' });
 
   } catch (e) {
+    stopTimer();
     status.textContent = '';
     status.style.display = 'none';
     icon.textContent = '✨';
     lbl.textContent = 'Extrair com Claude e gerar kit';
     btn.disabled = false;
-    alert('❌ Erro: ' + e.message);
+    // Mensagens específicas pra cada tipo de erro
+    let msg = e.message || 'erro desconhecido';
+    if (e.name === 'AbortError' || msg.includes('aborted') || msg.includes('TIMEOUT')) {
+      msg = '⏱ Tempo esgotado (transcrição muito longa ou Claude demorando). Tente reduzir a transcrição pra trechos mais relevantes (cortar pelo menos: agradecimentos, small talk, repetições).';
+    } else if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
+      msg = '🌐 Falha de rede — verifique conexão e tente novamente.';
+    } else if (msg.includes('JSON')) {
+      msg = '📦 Resposta inválida do servidor. Tente novamente em alguns segundos.';
+    }
+    alert('❌ ' + msg);
   }
 }
 

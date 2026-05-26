@@ -1859,12 +1859,15 @@ app.post('/api/optimizer/from-transcript', transcriptLimiter, async (req, res) =
 
     const t0 = Date.now();
     const response = await client.messages.create({
-      model: 'claude-sonnet-4-6',   // Sonnet pra ler texto longo + extrair com qualidade
+      model: 'claude-haiku-4-5',    // Haiku — 5x rápido que Sonnet, qualidade suficiente pra extract estruturado
       max_tokens: 4000,
       messages: [{ role: 'user', content: buildOptimizerTranscriptPrompt(transcript, linkedin_url) }]
     });
     const dur = ((Date.now() - t0) / 1000).toFixed(1);
     console.log(`[optimizer/from-transcript] ${dur}s · ${response.usage?.input_tokens}→${response.usage?.output_tokens} · stop=${response.stop_reason}`);
+    if (response.stop_reason === 'max_tokens') {
+      return res.status(500).json({ success: false, error: 'Extração truncada — transcrição muito longa. Reduza pra trechos mais relevantes.' });
+    }
 
     let raw = response.content[0].text.replace(/```json\s*/gi, '').replace(/```\s*/g, '');
     const m = raw.match(/\{[\s\S]*\}/);

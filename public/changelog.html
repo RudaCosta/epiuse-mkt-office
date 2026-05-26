@@ -97,7 +97,18 @@ body {
 // Detalhes em vault/00-contexto/versioning.md.
 const RELEASES = [
   {
-    version: '0.4.10', date: '26/mai/2026', current: true, status: 'live',
+    version: '0.4.11', date: '26/mai/2026', current: true, status: 'live',
+    title: 'HOTFIX: extract da transcrição (Haiku + AbortController + timer visual)',
+    body: `Bug crítico: "signal is aborted without reason" ao extrair transcrição da entrevista.
+    <ul>
+      <li><b>Root cause:</b> fetch <code>/from-transcript</code> não tinha AbortController nem timeout. Sonnet 4.6 com input grande (transcrição completa) demorava >60s e o browser/Railway abortava sem mensagem clara.</li>
+      <li><b>Fix backend:</b> trocou <code>claude-sonnet-4-6</code> → <code>claude-haiku-4-5</code> no endpoint <code>/api/optimizer/from-transcript</code> (5× mais rápido, qualidade suficiente pra extração estruturada). Adicionou check de <code>stop_reason === 'max_tokens'</code> com erro específico.</li>
+      <li><b>Fix frontend:</b> AbortController explícito com timeout 120s no extract + 180s no kit. Timer visual em tempo real ("⏱ 15s decorridos..."). Catch específico pra AbortError com mensagem amigável ("Tempo esgotado, reduza transcrição") em vez de error genérico.</li>
+      <li><b>Regra de ouro nova:</b> CLAUDE.md atualizado — Claude sempre lembra pendências em toda conversa + avisa quando bate ~75% do contexto.</li>
+    </ul>`
+  },
+  {
+    version: '0.4.10', date: '26/mai/2026', status: 'snapshot',
     title: 'HOTFIX: "+ Novo Voice" agora cria de verdade',
     body: `Bug crítico reportado: "Erro ao salvar: Voice não encontrado: ruda-costa".
     <ul>
