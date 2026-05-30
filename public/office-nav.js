@@ -7,15 +7,37 @@
 // Versão atual exposta no chip ao lado do logomark.
 // Schema semver pré-1.0 — explicação completa em vault/00-contexto/versioning.md
 // Manter em sincronia com office-footer.js (OFFICE_FOOTER_VERSION).
-const OFFICE_NAV_VERSION = '0.4.11';
+const OFFICE_NAV_VERSION = '0.6.4';
 
+// Tokens CSS globais ERP.ngo (v0.4.12) — injetados em document.head pra ficar
+// disponíveis em todas as páginas. Cores oficiais do brand guide ERP.ngo v1.0.
+// Doc fonte: vault/00-contexto/branding-erp-ngo.md
+(function injectERPNgoTokens() {
+  if (document.getElementById('erp-ngo-tokens')) return;
+  const style = document.createElement('style');
+  style.id = 'erp-ngo-tokens';
+  style.textContent = `
+    :root {
+      --erp-blue-navy:   #131B41;
+      --erp-blue-mid:    #0066B2;
+      --erp-blue-light:  #BFDCF3;
+      --erp-brown-mid:   #74685B;
+      --erp-brown-light: #BBA997;
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
+// 6 tabs principais + Pipeline/Projeções/etc movidos pro overflow menu (v0.5.1)
+// pra evitar tabs apertadas em desktop médio.
 const OFFICE_NAV_TABS = [
-  { id: 'hub',      label: 'Office',   icon: '🏠', href: '/dashboard',   matches: ['hub'] },
-  { id: 'voices',   label: 'Voices',   icon: '🎙️', href: '/voices',     matches: ['voices', 'painel'] },
-  { id: 'inbound',  label: 'Inbound',  icon: '📡', href: '/inbound',     matches: ['inbound'] },
-  { id: 'cases',    label: 'Cases & CS', icon: '🤝', href: '/cases',     matches: ['cases'] },
-  { id: 'metas',    label: 'Metas',    icon: '🎯', href: '/metas',       matches: ['metas'] },
-  { id: 'hub-mkt',  label: 'MKT Hub',  icon: '📈', href: '/hub',         matches: ['hub-mkt'] }
+  { id: 'hub',       label: 'Office',     icon: '🏠', href: '/dashboard',  matches: ['hub'] },
+  { id: 'relatorio', label: 'Relatório',  icon: '📊', href: '/relatorio',  matches: ['relatorio'] },
+  { id: 'voices',    label: 'Voices',     icon: '🎙️', href: '/voices',     matches: ['voices', 'painel'] },
+  { id: 'inbound',   label: 'Inbound',    icon: '📡', href: '/inbound',    matches: ['inbound'] },
+  { id: 'cases',     label: 'Cases & CS', icon: '🤝', href: '/cases',      matches: ['cases'] },
+  { id: 'artigos',   label: 'Artigos',    icon: '📚', href: '/artigos',    matches: ['artigos', 'jornadas'] },
+  { id: 'metas',     label: 'Metas',      icon: '🎯', href: '/metas',      matches: ['metas', 'projecoes'] }
 ];
 
 // Breadcrumbs por rota — aparece sutil abaixo do nav em rotas profundas
@@ -33,6 +55,11 @@ const OFFICE_NAV_BREADCRUMBS = {
 };
 
 const OFFICE_NAV_OVERFLOW = [
+  { label: '🎨 Design System',           href: '/design' },
+  { label: '🎯 Metas FY26 (oficiais)',    href: '/metas-fy26' },
+  { label: '📞 Pipeline (Apollo)',       href: '/pipeline' },
+  { label: '💰 Projeções (paid media)',  href: '/projecoes' },
+  { label: '🗺️ Jornadas de Compra',      href: '/jornadas' },
   { label: '🎯 Painel da Duda',          href: '/voices/painel' },
   { label: '🪪 Profile Optimizer',       href: '/optimizer' },
   { label: '📨 Seja um Voice (LP)',      href: '/seja-voice' },
@@ -68,6 +95,10 @@ class OfficeNav extends HTMLElement {
     if (path === '/inbound/playbook') return 'inbound-playbook';
     if (path.startsWith('/inbound')) return 'inbound';
     if (path.startsWith('/cases')) return 'cases';
+    if (path.startsWith('/relatorio')) return 'relatorio';
+    if (path.startsWith('/artigos') || path.startsWith('/jornadas')) return 'artigos';
+    if (path.startsWith('/metas') || path.startsWith('/projecoes')) return 'metas';
+    if (path.startsWith('/pipeline')) return 'pipeline';
     if (path.startsWith('/hub')) return 'hub-mkt';
     if (path.startsWith('/changelog')) return 'changelog';
     return '';
@@ -128,17 +159,20 @@ class OfficeNav extends HTMLElement {
           gap: 8px;
         }
         .logo {
-          font-family: 'Press Start 2P', 'Courier New', monospace;
-          font-size: 11px;
-          color: var(--nav-accent);
+          display: inline-flex;
+          align-items: center;
           text-decoration: none;
-          letter-spacing: 0.06em;
           padding: 6px 10px;
           border-radius: 6px;
-          transition: background .15s;
+          transition: background .15s, filter .15s;
           white-space: nowrap;
+          filter: brightness(1) saturate(1);
         }
         .logo:hover { background: var(--nav-hover-bg); }
+        /* Dark theme: logo branco · Light: cor original RGB */
+        :host-context([data-theme="dark"]) .logo img,
+        .logo img { filter: brightness(0) invert(1); transition: filter .15s; }
+        :host-context([data-theme="light"]) .logo img { filter: none; }
         .ver-chip {
           font-family: 'JetBrains Mono', 'Courier New', monospace;
           font-size: 9px;
@@ -447,7 +481,9 @@ class OfficeNav extends HTMLElement {
       <a href="#main" class="skip-link">Pular pro conteúdo</a>
 
       <nav class="nav-bar" role="navigation" aria-label="Office navigation">
-        <a class="logo" href="/dashboard" aria-label="Voltar ao Office">EPI-USE</a>
+        <a class="logo" href="/dashboard" aria-label="Voltar ao Office" title="EPI-USE Brasil Office">
+          <img src="/assets/logos-epi-use/epi-use-logo-rgb.svg" alt="EPI-USE" height="20" style="display:block">
+        </a>
         <a class="ver-chip" href="/changelog" title="Versão atual — clique para ver histórico">${OFFICE_NAV_VERSION}</a>
 
         <button class="hamburger" id="hamburger-btn" type="button" aria-label="Menu" title="Menu">☰</button>

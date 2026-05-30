@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎯 Metas FY26 · EPI-USE Brasil Marketing</title>
+<link rel="stylesheet" href="/design-tokens.css">
+<script type="module" src="/office-nav.js"></script>
+<script type="module" src="/office-footer.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after { box-sizing:border-box; margin:0; padding:0 }
+  body { background: linear-gradient(180deg, var(--color-bg-2) 0%, var(--color-bg) 100%); color: var(--color-text); font-family:'Inter',sans-serif; min-height:100vh; padding-bottom:60px }
+  .container { max-width: 1320px; margin: 0 auto; padding: var(--space-xl); }
+  h1 { font-size: 28px; margin-bottom: 4px; font-weight: 800; }
+  .sub { color: var(--color-text-muted); font-size: 13px; margin-bottom: var(--space-xl); }
+
+  /* Transparência Rule 7 banner */
+  .transparency {
+    background: rgba(251,191,36,.08); border: 1px solid rgba(251,191,36,.25);
+    border-radius: var(--rounded-md); padding: var(--space-md) var(--space-lg); margin-bottom: var(--space-xl);
+    font-size: 11.5px; color: var(--color-warning-300); line-height: 1.5;
+  }
+
+  /* Stats strip */
+  .stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--space-md); margin-bottom: var(--space-xl); }
+  @media (max-width: 900px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+  .stat {
+    background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--rounded-md); padding: var(--space-md);
+    text-align: center;
+  }
+  .stat-n { font-size: 26px; font-weight: 800; color: var(--color-info-500); font-family:'JetBrains Mono',monospace; }
+  .stat-l { font-size: 10px; color: var(--color-text-muted); letter-spacing: .08em; text-transform: uppercase; margin-top: 4px; }
+  .stat.real .stat-n { color: var(--color-success-500); }
+  .stat.manual .stat-n { color: var(--color-warning-500); }
+  .stat.pending .stat-n { color: var(--color-accent-orange-500); }
+  .stat.aguarda .stat-n { color: var(--color-accent-purple-500); }
+
+  /* Áreas */
+  .area-card {
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: var(--rounded-xl); padding: var(--space-lg); margin-bottom: var(--space-lg);
+  }
+  .area-hdr {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: var(--space-md); padding-bottom: var(--space-sm); border-bottom: 1px solid var(--color-divider);
+  }
+  .area-nome { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .area-resumo { font-size: 12px; color: var(--color-text-muted); font-family:'JetBrains Mono',monospace; }
+
+  /* Meta row */
+  .meta-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 10px; }
+  .meta {
+    background: rgba(15,30,53,.4); border-radius: 8px; padding: 12px;
+    border-left: 3px solid #475569;
+  }
+  .meta.real     { border-left-color: #10b981; }
+  .meta.manual   { border-left-color: #fbbf24; }
+  .meta.parcial  { border-left-color: #f59e0b; }
+  .meta.pending  { border-left-color: #f97316; }
+  .meta.aguarda  { border-left-color: #a78bfa; }
+  .meta-top { display:flex; justify-content:space-between; align-items: flex-start; margin-bottom: 8px; gap: 8px; }
+  .meta-label { font-size: 13px; font-weight: 600; flex:1; }
+  .meta-detalhe { font-size: 10px; color: #94a3b8; font-style: italic; margin-top: 2px; }
+  .meta-valor { font-family:'JetBrains Mono',monospace; font-size: 11px; color: #60a5fa; font-weight:700; white-space:nowrap; }
+
+  /* Progress bar */
+  .pbar-wrap { height: 6px; background: rgba(96,165,250,.10); border-radius: 3px; overflow: hidden; margin-top: 8px; }
+  .pbar { height: 100%; background: linear-gradient(90deg, #10b981, #60a5fa); transition: width .4s; }
+  .pbar.warn { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
+  .pbar.danger { background: linear-gradient(90deg, #ef4444, #f97316); }
+
+  .meta-bottom {
+    display:flex; justify-content:space-between; align-items:center; margin-top: 8px;
+    font-size: 11px; font-family:'JetBrains Mono',monospace;
+  }
+  .meta-real { color: #e2e8f0; }
+  .meta-real strong { color: #10b981; }
+  .meta-pct { color: #60a5fa; font-weight: 700; }
+  .meta-pct.warn { color: #fbbf24; }
+  .meta-pct.danger { color: #ef4444; }
+  .fonte-badge {
+    display: inline-block; padding: 2px 6px; border-radius: 3px;
+    font-size: 9px; font-family:'JetBrains Mono',monospace; letter-spacing: .04em;
+  }
+  .fonte-badge.real    { background: rgba(16,185,129,.12); color: #6ee7b7; }
+  .fonte-badge.manual  { background: rgba(251,191,36,.10); color: #fcd34d; }
+  .fonte-badge.parcial { background: rgba(245,158,11,.12); color: #fbbf24; }
+  .fonte-badge.pending { background: rgba(249,115,22,.10); color: #fdba74; }
+  .fonte-badge.aguarda { background: rgba(167,139,250,.12); color: #c4b5fd; }
+</style>
+</head>
+<body data-route="metas">
+<office-nav></office-nav>
+
+<div class="container">
+  <h1>🎯 Metas EPI-USE FY26 · Marketing</h1>
+  <p class="sub" id="sub">Carregando metas oficiais...</p>
+
+  <div class="transparency">
+    ⚠️ <b>Transparência de dados (Regra 7):</b> cada meta mostra a fonte do "realizado" (🟢 real / 🟡 manual / 🟠 pending / 🟣 aguarda integração). Quando aparecer "—" no realizado é porque a integração ainda não tá pronta. Mapa completo em <code>vault/00-contexto/mapa-fontes-dados.md</code>.
+  </div>
+
+  <!-- Stats por status -->
+  <div class="stats" id="stats"></div>
+
+  <!-- Áreas + metas -->
+  <div id="areas"></div>
+</div>
+
+<office-footer></office-footer>
+
+<script>
+function fmt(n) { if (n == null) return '—'; if (n >= 1000) return n.toLocaleString('pt-BR'); return String(n); }
+
+async function carregar() {
+  const r = await fetch('/api/metas/fy26');
+  const d = await r.json();
+  if (!d.success) { document.getElementById('areas').innerHTML = `<div style="color:#ef4444;padding:20px">Falha: ${d.error}</div>`; return; }
+
+  document.getElementById('sub').textContent =
+    `${d.total_metas} metas oficiais · período ${d.periodo_fiscal} · ${Object.entries(d.por_status_fonte).map(([k,v]) => `${v} ${k}`).join(' · ')}`;
+
+  // Stats
+  const s = d.por_status_fonte;
+  document.getElementById('stats').innerHTML = `
+    <div class="stat"><div class="stat-n">${d.total_metas}</div><div class="stat-l">Metas Totais</div></div>
+    <div class="stat real"><div class="stat-n">${s.real||0}</div><div class="stat-l">🟢 Real (vivo)</div></div>
+    <div class="stat manual"><div class="stat-n">${s.manual||0}</div><div class="stat-l">🟡 Manual</div></div>
+    <div class="stat pending"><div class="stat-n">${(s.pending||0)+(s.parcial||0)}</div><div class="stat-l">🟠 Pending/Parcial</div></div>
+    <div class="stat aguarda"><div class="stat-n">${s.aguarda_integracao||0}</div><div class="stat-l">🟣 Aguarda Integração</div></div>
+  `;
+
+  // Agrupar por área (ordem manual)
+  const ORDEM_AREAS = ['Aquisição & Demanda', 'Conteúdo', 'Branding', 'Relacionamento', 'Programas Especiais', 'Eventos', 'Branding/Premiações'];
+  const ICONES = {
+    'Aquisição & Demanda': '🎯',
+    'Conteúdo': '📝',
+    'Branding': '💼',
+    'Relacionamento': '🤝',
+    'Programas Especiais': '🎁',
+    'Eventos': '🎤',
+    'Branding/Premiações': '🏆',
+  };
+  const porArea = {};
+  d.metas.forEach(m => { (porArea[m.area] = porArea[m.area] || []).push(m); });
+
+  const html = ORDEM_AREAS.filter(a => porArea[a]).map(a => {
+    const metas = porArea[a];
+    const reais = metas.filter(m => m.status_fonte === 'real').length;
+    return `
+      <div class="area-card">
+        <div class="area-hdr">
+          <div class="area-nome">${ICONES[a]||'•'} ${a}</div>
+          <div class="area-resumo">${metas.length} metas · ${reais} com dado real</div>
+        </div>
+        <div class="meta-grid">
+          ${metas.map(m => renderMeta(m)).join('')}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('areas').innerHTML = html;
+}
+
+function renderMeta(m) {
+  const pct = m.progresso_pct;
+  let pbarCls = '', pctCls = '';
+  if (pct != null) {
+    if (pct >= 80) { pbarCls = ''; pctCls = ''; }
+    else if (pct >= 40) { pbarCls = 'warn'; pctCls = 'warn'; }
+    else { pbarCls = 'danger'; pctCls = 'danger'; }
+  }
+  const valorTxt = m.unidade === '%' ? `${m.valor}%` :
+                   m.valor >= 1000 ? `${(m.valor/1000)}k` :
+                   String(m.valor);
+  const periodoTxt = m.periodo === 'mensal' ? `/mês (${m.valor_ano||m.valor*12}/ano)` :
+                     m.periodo === 'anual' ? '/ano' :
+                     '';
+
+  return `
+    <div class="meta ${m.status_fonte}">
+      <div class="meta-top">
+        <div>
+          <div class="meta-label">${m.label}</div>
+          ${m.detalhe ? `<div class="meta-detalhe">${m.detalhe}</div>` : ''}
+        </div>
+        <div class="meta-valor">${valorTxt} ${m.unidade}${periodoTxt}</div>
+      </div>
+      ${pct != null ? `
+        <div class="pbar-wrap"><div class="pbar ${pbarCls}" style="width:${Math.min(100,pct)}%"></div></div>
+        <div class="meta-bottom">
+          <div class="meta-real">Realizado: <strong>${fmt(m.realizado)} ${m.unidade}</strong></div>
+          <div class="meta-pct ${pctCls}">${pct}%</div>
+        </div>
+      ` : `
+        <div class="meta-bottom">
+          <div class="meta-real">Realizado: <span style="color:#64748b">— pendente</span></div>
+          <div></div>
+        </div>
+      `}
+      <div style="margin-top:6px">
+        <span class="fonte-badge ${m.status_fonte}" title="${m.fonte||''}">${m.status_fonte==='real'?'🟢':m.status_fonte==='manual'?'🟡':m.status_fonte==='parcial'?'🟠':m.status_fonte==='aguarda_integracao'?'🟣':'🟠'} ${m.fonte}</span>
+      </div>
+    </div>
+  `;
+}
+
+carregar();
+</script>
+</body>
+</html>

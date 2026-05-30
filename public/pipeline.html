@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📞 Pipeline · EPI-USE Office</title>
+<link rel="stylesheet" href="/design-tokens.css">
+<script type="module" src="/office-nav.js"></script>
+<script type="module" src="/office-footer.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after { box-sizing:border-box; margin:0; padding:0 }
+  body { background: linear-gradient(180deg,#061020 0%,#0a1525 100%); color:#e2e8f0; font-family:'Inter',sans-serif; min-height:100vh; padding-bottom:60px }
+  .container { max-width: 1280px; margin: 0 auto; padding: 24px; }
+  h1 { font-size: 26px; margin-bottom: 4px; }
+  .sub { color: #94a3b8; font-size: 13px; margin-bottom: 22px; }
+  .integration-status {
+    background: linear-gradient(135deg, rgba(251,191,36,.10), rgba(167,139,250,.06));
+    border: 1px solid rgba(251,191,36,.30); border-radius: 12px; padding: 18px;
+    margin-bottom: 22px; display: flex; gap: 14px; align-items: center;
+  }
+  .is-icon { font-size: 28px; }
+  .is-text { flex: 1; }
+  .is-text h3 { font-size: 14px; margin-bottom: 4px; color: #fcd34d; }
+  .is-text p { font-size: 12px; color: #cbd5e1; line-height: 1.5; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 14px; margin-bottom: 28px; }
+  .kpi { background: #0f1e35; border: 1px solid rgba(96,165,250,.15); border-radius: 12px; padding: 18px; }
+  .kpi-val { font-size: 28px; font-weight: 800; color: #60a5fa; font-family:'JetBrains Mono',monospace; }
+  .kpi-val.empty { color: #475569; }
+  .kpi-lbl { font-size: 11px; color: #94a3b8; letter-spacing: .08em; text-transform: uppercase; margin-top: 4px; }
+  .kpi-extra { font-size: 11px; color: #64748b; margin-top: 8px; font-family:'JetBrains Mono',monospace; }
+
+  .funnel-card { background:#0f1e35; border:1px solid rgba(96,165,250,.15); border-radius:14px; padding:20px; margin-bottom:18px; }
+  .funnel-card h2 { font-size: 16px; margin-bottom: 14px; }
+  .funnel-step { display:flex; justify-content:space-between; padding: 12px; background: rgba(96,165,250,.04); border-radius: 8px; margin-bottom: 8px; align-items: center; }
+  .funnel-step .lbl { font-weight: 600; }
+  .funnel-step .num { font-family:'JetBrains Mono',monospace; color: #60a5fa; font-weight: 700; font-size: 18px; }
+
+  .sync-info {
+    background: rgba(15,30,53,.4); border-radius: 10px; padding: 14px; margin-top: 18px;
+    font-size: 12px; color: #94a3b8; line-height: 1.6;
+  }
+  .sync-info code { background: rgba(96,165,250,.08); padding: 2px 6px; border-radius: 3px; font-family:'JetBrains Mono',monospace; color: #93c5fd; }
+</style>
+</head>
+<body data-route="pipeline">
+<office-nav></office-nav>
+
+<div class="container">
+  <h1>📞 Pipeline · SDR & Comercial</h1>
+  <p class="sub">Dados do Apollo MCP (read-only) · sync diário 6h via Windows Task Scheduler</p>
+
+  <div class="integration-status">
+    <div class="is-icon">🔌</div>
+    <div class="is-text">
+      <h3>Integração Apollo MCP — em fase de conexão</h3>
+      <p>O Apollo MCP já está conectado nas tools do Claude. Sync diário criado em <code>scripts/sync/apollo_daily_sync.md</code> (instruções pra rodar manual via Claude até cron estar pronto). Dados aparecem aqui quando 1º sync rodar.</p>
+    </div>
+  </div>
+
+  <!-- KPIs principais -->
+  <div class="kpi-grid" id="kpis">
+    <div class="kpi"><div class="kpi-val empty">—</div><div class="kpi-lbl">Contas Ativas</div><div class="kpi-extra">Apollo Accounts</div></div>
+    <div class="kpi"><div class="kpi-val empty">—</div><div class="kpi-lbl">Contatos Total</div><div class="kpi-extra">Apollo Contacts</div></div>
+    <div class="kpi"><div class="kpi-val empty">—</div><div class="kpi-lbl">Sequências Rodando</div><div class="kpi-extra">Emailer Campaigns</div></div>
+    <div class="kpi"><div class="kpi-val empty">—</div><div class="kpi-lbl">Reuniões Agendadas</div><div class="kpi-extra">Calendar API + Apollo</div></div>
+  </div>
+
+  <!-- Funnel -->
+  <div class="funnel-card">
+    <h2>🌪️ Funil Comercial (últimos 30 dias)</h2>
+    <div class="funnel-step"><span class="lbl">📧 Emails Enviados</span><span class="num">—</span></div>
+    <div class="funnel-step"><span class="lbl">👁️ Opens</span><span class="num">—</span></div>
+    <div class="funnel-step"><span class="lbl">💬 Replies</span><span class="num">—</span></div>
+    <div class="funnel-step"><span class="lbl">📅 Reuniões Agendadas</span><span class="num">—</span></div>
+    <div class="funnel-step"><span class="lbl">💰 Pipeline R$</span><span class="num">—</span></div>
+  </div>
+
+  <div class="sync-info">
+    <strong>Como rodar o sync (manual por enquanto):</strong><br>
+    1. Abrir chat com Claude no Cursor/Claude Code<br>
+    2. Pedir: <code>"roda apollo_daily_sync e salva no /api/pipeline/sync"</code><br>
+    3. Claude usa as tools <code>mcp__9eac0979__apollo_*</code> pra puxar contas/contatos/sequências/analytics<br>
+    4. Resposta vira POST <code>/api/pipeline/sync</code> com token editor<br>
+    5. Dashboard atualiza imediatamente<br><br>
+    <strong>Próxima sprint:</strong> Windows Task Scheduler dispara isso automaticamente todo dia 6h.
+  </div>
+</div>
+
+<office-footer></office-footer>
+
+<script>
+async function carregar() {
+  const r = await fetch('/api/pipeline');
+  const d = await r.json();
+  if (!d.success) return;
+  // Se algum dado já vier, populate
+  if (d.contas_ativas) {
+    document.querySelectorAll('.kpi-val')[0].textContent = d.contas_ativas;
+    document.querySelectorAll('.kpi-val')[0].classList.remove('empty');
+  }
+  // ...mesmo pra outros campos quando sync rodar
+}
+carregar();
+</script>
+</body>
+</html>

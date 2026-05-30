@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📚 Artigos · EPI-USE Office</title>
+<link rel="stylesheet" href="/design-tokens.css">
+<script type="module" src="/office-nav.js"></script>
+<script type="module" src="/office-footer.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after { box-sizing:border-box; margin:0; padding:0 }
+  body { background: linear-gradient(180deg,#061020 0%,#0a1525 100%); color: #e2e8f0; font-family: 'Inter',sans-serif; min-height: 100vh; padding-bottom: 60px; }
+  .container { max-width: 1280px; margin: 0 auto; padding: 24px; }
+  h1 { font-size: 26px; margin-bottom: 4px; }
+  .sub { color: #94a3b8; font-size: 13px; margin-bottom: 22px; }
+
+  .filters { display:grid; grid-template-columns: 1.5fr 1fr 1fr 1fr 80px; gap: 10px; margin-bottom: 18px; }
+  .filters input, .filters select {
+    background: rgba(15,30,53,.6); border: 1px solid rgba(96,165,250,.18); color: #e2e8f0;
+    padding: 10px 14px; border-radius: 8px; font-size: 13px; font-family: inherit;
+  }
+  .filters input:focus, .filters select:focus { outline: none; border-color: #60a5fa; }
+  .filters button { background: rgba(96,165,250,.15); border: 1px solid rgba(96,165,250,.30); color: #60a5fa; border-radius: 8px; cursor: pointer; font-size: 12px; }
+
+  .stats-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 12px; margin-bottom: 22px; }
+  .stat { background: rgba(15,30,53,.6); border: 1px solid rgba(96,165,250,.15); padding: 14px; border-radius: 10px; }
+  .stat-num { font-family:'JetBrains Mono',monospace; font-weight:700; font-size: 22px; color: #60a5fa; }
+  .stat-lbl { font-size: 11px; color: #94a3b8; letter-spacing: .08em; text-transform: uppercase; margin-top: 4px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px,1fr)); gap: 14px; }
+  .card {
+    background: #0f1e35; border: 1px solid rgba(96,165,250,.12); border-radius: 12px; padding: 16px;
+    transition: transform .12s, border-color .12s;
+  }
+  .card:hover { transform: translateY(-2px); border-color: rgba(96,165,250,.30); }
+  .card-titulo { font-size: 14px; font-weight: 600; margin-bottom: 10px; line-height: 1.35; color: #e2e8f0; }
+  .card-titulo a { color: inherit; text-decoration: none; }
+  .card-titulo a:hover { color: #60a5fa; }
+  .card-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .tag {
+    font-size: 10px; padding: 3px 8px; border-radius: 4px; font-family:'JetBrains Mono',monospace;
+    background: rgba(96,165,250,.10); color: #93c5fd;
+  }
+  .tag.topo  { background: rgba(167,139,250,.12); color: #c4b5fd }
+  .tag.meio  { background: rgba(251,191,36,.12); color: #fcd34d }
+  .tag.fundo { background: rgba(16,185,129,.12); color: #6ee7b7 }
+  .tag.lob   { background: rgba(0,102,178,.15); color: #93c5fd }
+  .tag.seo   { background: rgba(16,185,129,.10); color: #6ee7b7 }
+  .card-foot { display:flex; justify-content:space-between; align-items:center; font-size:11px; color: #64748b; margin-top: 8px; padding-top: 8px; border-top: 1px dashed rgba(148,163,184,.08); }
+  .card-foot a { color: #60a5fa; text-decoration: none; font-family:'JetBrains Mono',monospace; }
+
+  .pagination { display:flex; justify-content:center; gap: 8px; margin-top: 22px; }
+  .pagination button { background: rgba(96,165,250,.10); border: 1px solid rgba(96,165,250,.20); color: #60a5fa; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+  .pagination button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .empty { text-align:center; padding: 40px; color: #94a3b8; }
+  .loading { text-align:center; padding: 40px; color: #60a5fa; font-style: italic; }
+</style>
+</head>
+<body data-route="artigos">
+<office-nav></office-nav>
+
+<div class="container">
+  <h1>📚 Artigos do Blog EPI-USE Brasil</h1>
+  <p class="sub">693 artigos classificados (via Manus AI) · score SEO médio 69→99 · fonte de matéria-prima pros Voices republicarem/comentarem/reescreverem</p>
+
+  <!-- STATS -->
+  <div class="stats-strip" id="stats"></div>
+
+  <!-- FILTROS -->
+  <div class="filters">
+    <input type="text" id="f-q" placeholder="🔎 Buscar no título..." />
+    <select id="f-linha">
+      <option value="">Todas as LOBs</option>
+    </select>
+    <select id="f-etapa">
+      <option value="">Todas as etapas</option>
+      <option value="Topo (Aprendizado)">Topo (Aprendizado)</option>
+      <option value="Meio (Consideração)">Meio (Consideração)</option>
+      <option value="Fundo (Decisão)">Fundo (Decisão)</option>
+    </select>
+    <select id="f-oferta">
+      <option value="">Todas as ofertas</option>
+    </select>
+    <button onclick="resetFiltros()">Limpar</button>
+  </div>
+
+  <div id="resultados">
+    <div class="loading">carregando 693 artigos...</div>
+  </div>
+
+  <div class="pagination" id="pag"></div>
+</div>
+
+<office-footer></office-footer>
+
+<script>
+let DATA = null;
+let pagina = 0;
+const PER_PAGE = 30;
+
+async function carregar() {
+  const r = await fetch('/api/artigos?limit=1000');
+  DATA = await r.json();
+  if (!DATA.success) { document.getElementById('resultados').innerHTML = '<div class="empty">Falha ao carregar</div>'; return; }
+  // Stats top
+  const agg = DATA.agregados || {};
+  document.getElementById('stats').innerHTML = `
+    <div class="stat"><div class="stat-num">${DATA.total}</div><div class="stat-lbl">Artigos Total</div></div>
+    <div class="stat"><div class="stat-num">${agg.por_etapa_funil?.['Topo (Aprendizado)'] || 0}</div><div class="stat-lbl">Topo (TOFU)</div></div>
+    <div class="stat"><div class="stat-num">${agg.por_etapa_funil?.['Meio (Consideração)'] || 0}</div><div class="stat-lbl">Meio (MOFU)</div></div>
+    <div class="stat"><div class="stat-num">${agg.por_etapa_funil?.['Fundo (Decisão)'] || 0}</div><div class="stat-lbl">Fundo (BOFU)</div></div>
+    <div class="stat"><div class="stat-num">${Object.keys(agg.por_linha_negocio || {}).length}</div><div class="stat-lbl">LOBs Cobertas</div></div>
+  `;
+  // Popula selects
+  const lobSel = document.getElementById('f-linha');
+  Object.entries(agg.por_linha_negocio || {}).sort((a,b)=>b[1]-a[1]).forEach(([k,v]) => {
+    lobSel.innerHTML += `<option value="${k}">${k} (${v})</option>`;
+  });
+  const ofSel = document.getElementById('f-oferta');
+  Object.entries(agg.por_oferta || {}).sort((a,b)=>b[1]-a[1]).forEach(([k,v]) => {
+    ofSel.innerHTML += `<option value="${k}">${k} (${v})</option>`;
+  });
+  render();
+}
+
+function filtrados() {
+  const q = document.getElementById('f-q').value.toLowerCase().trim();
+  const linha = document.getElementById('f-linha').value;
+  const etapa = document.getElementById('f-etapa').value;
+  const oferta = document.getElementById('f-oferta').value;
+  return DATA.artigos.filter(a => {
+    if (q && !a.titulo.toLowerCase().includes(q)) return false;
+    if (linha && a.linha_de_negocio !== linha) return false;
+    if (etapa && a.etapa_funil !== etapa) return false;
+    if (oferta && a.oferta_especifica !== oferta) return false;
+    return true;
+  });
+}
+
+function tagEtapa(e) {
+  if (!e) return '';
+  const k = e.startsWith('Topo') ? 'topo' : e.startsWith('Meio') ? 'meio' : 'fundo';
+  return `<span class="tag ${k}">${e}</span>`;
+}
+
+function render() {
+  const lista = filtrados();
+  const inicio = pagina * PER_PAGE;
+  const fim = inicio + PER_PAGE;
+  const slice = lista.slice(inicio, fim);
+  const box = document.getElementById('resultados');
+  if (slice.length === 0) { box.innerHTML = '<div class="empty">Nenhum artigo encontrado</div>'; document.getElementById('pag').innerHTML = ''; return; }
+  box.innerHTML = '<div class="grid">' + slice.map(a => `
+    <div class="card">
+      <div class="card-titulo"><a href="${a.url}" target="_blank">${a.titulo}</a></div>
+      <div class="card-meta">
+        ${tagEtapa(a.etapa_funil)}
+        ${a.linha_de_negocio ? `<span class="tag lob">${a.linha_de_negocio}</span>` : ''}
+        ${a.oferta_especifica && a.oferta_especifica !== 'Outros' ? `<span class="tag">${a.oferta_especifica}</span>` : ''}
+        ${a.ativos_nutricao && a.ativos_nutricao !== 'Institucional' ? `<span class="tag">${a.ativos_nutricao}</span>` : ''}
+      </div>
+      <div class="card-foot">
+        <span class="tag seo">SEO ${a.score_antes || '?'}→${a.score_depois || '?'} ${a.ganho || ''}</span>
+        <a href="${a.url}" target="_blank">ver →</a>
+      </div>
+    </div>
+  `).join('') + '</div>';
+
+  // Paginação
+  const total = lista.length;
+  const totalPag = Math.ceil(total / PER_PAGE);
+  document.getElementById('pag').innerHTML = `
+    <button onclick="setPag(0)" ${pagina === 0 ? 'disabled' : ''}>« início</button>
+    <button onclick="setPag(${pagina-1})" ${pagina === 0 ? 'disabled' : ''}>‹ ant.</button>
+    <span style="color:#94a3b8;font-size:12px;padding:8px 14px;font-family:'JetBrains Mono',monospace">${inicio+1}–${Math.min(fim,total)} de ${total}</span>
+    <button onclick="setPag(${pagina+1})" ${pagina >= totalPag-1 ? 'disabled' : ''}>prox. ›</button>
+    <button onclick="setPag(${totalPag-1})" ${pagina >= totalPag-1 ? 'disabled' : ''}>fim »</button>
+  `;
+}
+
+function setPag(n) { pagina = n; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+function resetFiltros() {
+  document.getElementById('f-q').value = '';
+  document.getElementById('f-linha').value = '';
+  document.getElementById('f-etapa').value = '';
+  document.getElementById('f-oferta').value = '';
+  pagina = 0; render();
+}
+['f-q', 'f-linha', 'f-etapa', 'f-oferta'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => { pagina = 0; render(); });
+  document.getElementById(id).addEventListener('change', () => { pagina = 0; render(); });
+});
+
+carregar();
+</script>
+</body>
+</html>

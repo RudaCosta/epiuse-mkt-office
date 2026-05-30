@@ -883,6 +883,346 @@ app.get('/',          (req, res) => res.sendFile(OFFICE_HTML));
 app.get('/game',      (req, res) => res.sendFile(OFFICE_HTML));
 app.get('/dashboard', (req, res) => res.sendFile(DASHBOARD_HTML));
 app.get('/hub',       (req, res) => res.sendFile(HUB_HTML));
+// v0.5.0 — Novas rotas (Onda 2-6)
+app.get('/relatorio', (req, res) => res.sendFile(path.join(__dirname, 'public/relatorio.html')));
+app.get('/artigos',   (req, res) => res.sendFile(path.join(__dirname, 'public/artigos.html')));
+app.get('/jornadas',  (req, res) => res.sendFile(path.join(__dirname, 'public/jornadas.html')));
+app.get('/projecoes', (req, res) => res.sendFile(path.join(__dirname, 'public/projecoes.html')));
+app.get('/metas-fy26', (req, res) => res.sendFile(path.join(__dirname, 'public/metas-fy26.html')));
+app.get('/metas/fy26', (req, res) => res.redirect(301, '/metas-fy26'));
+app.get('/design', (req, res) => res.sendFile(path.join(__dirname, 'public/design.html')));
+app.get('/pipeline',  (req, res) => res.sendFile(path.join(__dirname, 'public/pipeline.html')));
+
+// ════════════════════════════════════════════════════════════════════════════
+// v0.5.0 ENDPOINTS — Artigos · LinkedIn historical · Jornadas · Relatório · Projeções
+// ════════════════════════════════════════════════════════════════════════════
+const ARTIGOS_JSON_PATH = path.join(__dirname, 'public/api/artigos.json');
+const LINKEDIN_HIST_PATH = path.join(__dirname, 'public/api/linkedin-historical.json');
+const METAS_FY26_PATH = path.join(__dirname, 'public/api/metas-fy26.json');
+
+function _readJSON(filePath, fallback = null) {
+  try {
+    return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+  } catch (e) {
+    console.warn(`[json] não conseguiu ler ${filePath}: ${e.message}`);
+    return fallback;
+  }
+}
+
+// GET /api/artigos?linha=X&etapa=Y&q=texto&voice=slug&status=reescrever&limit=50&offset=0
+app.get('/api/artigos', (req, res) => {
+  const data = _readJSON(ARTIGOS_JSON_PATH, { artigos: [], agregados: {} });
+  let lista = data.artigos || [];
+  const { linha, etapa, q, voice, status, limit = 50, offset = 0 } = req.query;
+  if (linha) lista = lista.filter(a => a.linha_de_negocio === linha);
+  if (etapa) lista = lista.filter(a => a.etapa_funil === etapa);
+  if (status) lista = lista.filter(a => a.status_reaproveitamento === status);
+  if (voice) lista = lista.filter(a => a.voice_atribuido === voice || (a.favorito_voices || []).includes(voice));
+  if (q) {
+    const qq = String(q).toLowerCase();
+    lista = lista.filter(a => (a.titulo || '').toLowerCase().includes(qq));
+  }
+  const total = lista.length;
+  const lim = Math.min(parseInt(limit) || 50, 200);
+  const off = parseInt(offset) || 0;
+  res.json({
+    success: true,
+    total,
+    agregados: data.agregados,
+    artigos: lista.slice(off, off + lim),
+    gerado_em: data.gerado_em,
+  });
+});
+
+// GET /api/jornadas — matriz LOB × etapa funil com gaps
+app.get('/api/jornadas', (req, res) => {
+  const data = _readJSON(ARTIGOS_JSON_PATH, { artigos: [] });
+  const matriz = {};
+  for (const a of data.artigos || []) {
+    const lob = a.linha_de_negocio || 'Sem LOB';
+    const et = a.etapa_funil || 'Sem Etapa';
+    matriz[lob] = matriz[lob] || { 'Topo (Aprendizado)': [], 'Meio (Consideração)': [], 'Fundo (Decisão)': [] };
+    if (!matriz[lob][et]) matriz[lob][et] = [];
+    matriz[lob][et].push({ id: a.id, titulo: a.titulo, url: a.url });
+  }
+  // Calcula gaps (LOB sem Meio ou sem Fundo)
+  const gaps = [];
+  for (const [lob, etapas] of Object.entries(matriz)) {
+    for (const [etapa, artigos] of Object.entries(etapas)) {
+      if (artigos.length === 0 && etapa !== 'Sem Etapa') {
+        gaps.push({ lob, etapa, situacao: 'crítico' });
+      } else if (artigos.length < 3 && etapa !== 'Topo (Aprendizado)') {
+        gaps.push({ lob, etapa, situacao: 'insuficiente', count: artigos.length });
+      }
+    }
+  }
+  res.json({ success: true, matriz, gaps });
+});
+
+// GET /api/linkedin/historical — 16+ meses + demografia + eventos
+app.get('/api/linkedin/historical', (req, res) => {
+  const data = _readJSON(LINKEDIN_HIST_PATH, null);
+  if (!data) return res.status(404).json({ success: false, error: 'linkedin-historical.json não encontrado. Rode: python scripts/sync/sync_linkedin_historical.py' });
+  res.json({ success: true, ...data });
+});
+
+// GET /api/relatorio/snapshot?mes=YYYY-MM — agrega TUDO pra o relatório mensal
+app.get('/api/relatorio/snapshot', (req, res) => {
+  const mes = req.query.mes || new Date().toISOString().slice(0, 7);
+  const linkedin = _readJSON(LINKEDIN_HIST_PATH, { serie_mensal: [], demografia: {}, resumo: {}, eventos: [] });
+
+  // Recupera o mês específico + comparativo com mês anterior
+  const sm = linkedin.serie_mensal || [];
+  const idxAtual = sm.findIndex(m => m.mes === mes);
+  const atual = idxAtual >= 0 ? sm[idxAtual] : null;
+  const anterior = idxAtual > 0 ? sm[idxAtual - 1] : null;
+  const mom = (a, b) => (a && b && b > 0) ? Math.round(100 * (a - b) / b * 100) / 100 : null;
+
+  // Cases atuais
+  let cases = { live: 0, publicado: 0, em_edicao: 0, negociacao: 0, declinado: 0 };
+  try {
+    const cs = db.prepare('SELECT status, COUNT(*) as n FROM cs_clientes GROUP BY status').all();
+    cs.forEach(r => {
+      const k = (r.status || '').replace('case-', '').replace('-', '_');
+      if (k in cases) cases[k] = r.n;
+    });
+  } catch (e) { console.warn('[relatorio] cases fail:', e.message); }
+
+  // Voices
+  let voices = [];
+  try {
+    const vd = _readJSON(path.join(__dirname, 'public/api/voices.json'), { voices: [] });
+    voices = (vd.voices || []).map(v => ({ id: v.id, nome: v.nome, status: v.status, area: v.area, ssi: v.ssi_baseline || null, seg: v.seguidores_baseline || null }));
+  } catch {}
+
+  // Eventos do mês
+  const eventosMes = (linkedin.eventos || []).filter(e => (e.data || '').startsWith(mes));
+
+  // Próximos eventos (events.json)
+  let eventos_proximos = [];
+  try {
+    const ev = _readJSON(path.join(__dirname, 'public/api/events.json'), { eventos_brasil: [] });
+    const all = (ev.eventos_brasil || []).concat(ev.eventos_latam || []);
+    const hoje = new Date().toISOString().slice(0, 10);
+    eventos_proximos = all.filter(e => (e.data_inicio || e.data || '') >= hoje).slice(0, 5);
+  } catch {}
+
+  res.json({
+    success: true,
+    mes,
+    linkedin: {
+      total_atual: atual?.total_seguidores ?? null,
+      novos: atual?.novos ?? atual?.novos_diario ?? null,
+      novos_mom_pct: mom(atual?.novos ?? atual?.novos_diario, anterior?.novos ?? anterior?.novos_diario),
+      newsletter: atual?.newsletter ?? null,
+      impressoes: atual?.impressoes ?? null,
+      posts_mes: atual?.posts_mes ?? null,
+      serie_12m: sm.slice(-12),
+      eventos_mes: eventosMes,
+      tatica_elefante: {
+        eventos_no_periodo: (linkedin.eventos || []).length,
+        seguidores_via_eventos: linkedin.resumo?.total_via_eventos || 0,
+        pct_eventos: linkedin.resumo?.pct_eventos || 0,
+      },
+      demografia: linkedin.demografia,
+    },
+    cases,
+    voices: {
+      ativos: voices.filter(v => v.status === 'ativo' || v.status === 'onboarding').length,
+      total: voices.length,
+      lista: voices,
+    },
+    eventos_proximos,
+    alertas: _gerarAlertas(linkedin, atual, anterior),
+    gerado_em: new Date().toISOString(),
+  });
+});
+
+function _gerarAlertas(linkedin, atual, anterior) {
+  const a = [];
+  // Newsletter estagnada
+  const newsletters = (linkedin.serie_mensal || []).slice(-3).map(m => m.newsletter).filter(Boolean);
+  if (newsletters.length === 3 && newsletters[0] === newsletters[1] && newsletters[1] === newsletters[2]) {
+    a.push({ tipo: 'warn', msg: `Newsletter estagnada em ${newsletters[0]} há 3 meses — sem captação nova` });
+  }
+  // Queda forte MoM
+  if (atual && anterior) {
+    const na = atual.novos ?? atual.novos_diario;
+    const nb = anterior.novos ?? anterior.novos_diario;
+    if (na && nb && (na - nb) / nb < -0.3) {
+      a.push({ tipo: 'warn', msg: `Queda forte de novos seguidores: ${nb} → ${na} (${Math.round(100*(na-nb)/nb)}% MoM)` });
+    }
+  }
+  // Sem posts trackeados
+  if (atual && !atual.posts_mes) {
+    a.push({ tipo: 'info', msg: 'Posts/mês sem tracking — pedir Sergio retomar a métrica' });
+  }
+  return a;
+}
+
+// GET /api/projecoes?budget_linkedin=5000&budget_google=2000&budget_meta=2000 — paid media
+app.get('/api/projecoes', (req, res) => {
+  // Premissas conservadoras B2B SAP (atualizar com base em campanhas reais)
+  const PREMISSAS = {
+    linkedin_sponsored: { cpm: 60, ctr: 0.012, conv_follow: 0.04, label: 'LinkedIn Sponsored Content' },
+    linkedin_inmail:    { cpm: 200, ctr: 0.05, conv_follow: 0.08, label: 'LinkedIn Sponsored InMail (decision-makers)' },
+    google_display:     { cpm: 8,  ctr: 0.003, conv_follow: 0.01, label: 'Google Display Network' },
+    meta_remarketing:   { cpm: 15, ctr: 0.008, conv_follow: 0.02, label: 'Meta Ads (B2B remarketing)' },
+  };
+  function projetar(budget, p) {
+    if (!budget || budget <= 0) return { impressoes: 0, cliques: 0, followers_mes: 0, followers_ano: 0 };
+    const imp = (budget / p.cpm) * 1000;
+    const cli = imp * p.ctr;
+    const fol = cli * p.conv_follow;
+    return { impressoes: Math.round(imp), cliques: Math.round(cli), followers_mes: Math.round(fol), followers_ano: Math.round(fol * 12) };
+  }
+  const linkedin = _readJSON(LINKEDIN_HIST_PATH, { resumo: {} });
+  const baseline_organico_ano = 1800; // 5/dia * 30 * 12
+  const baseline_eventos_ano = Math.round((linkedin.resumo?.total_via_eventos || 227) * 12 / 10); // extrapola
+  const budgets = {
+    linkedin: parseFloat(req.query.budget_linkedin) || 0,
+    linkedin_inmail: parseFloat(req.query.budget_linkedin_inmail) || 0,
+    google: parseFloat(req.query.budget_google) || 0,
+    meta: parseFloat(req.query.budget_meta) || 0,
+  };
+  const canais = {
+    linkedin_sponsored: { ...projetar(budgets.linkedin, PREMISSAS.linkedin_sponsored), budget: budgets.linkedin, premissas: PREMISSAS.linkedin_sponsored },
+    linkedin_inmail: { ...projetar(budgets.linkedin_inmail, PREMISSAS.linkedin_inmail), budget: budgets.linkedin_inmail, premissas: PREMISSAS.linkedin_inmail },
+    google_display: { ...projetar(budgets.google, PREMISSAS.google_display), budget: budgets.google, premissas: PREMISSAS.google_display },
+    meta_remarketing: { ...projetar(budgets.meta, PREMISSAS.meta_remarketing), budget: budgets.meta, premissas: PREMISSAS.meta_remarketing },
+  };
+  const paid_total_mes = Object.values(canais).reduce((s, c) => s + c.followers_mes, 0);
+  const paid_total_ano = paid_total_mes * 12;
+  const budget_total_mes = Object.values(canais).reduce((s, c) => s + c.budget, 0);
+
+  // Helper: cenários pre-definidos usando a mesma fórmula (transparência)
+  function cenario(label, budget, split) {
+    // split: % de cada canal {li, liim, go, me}
+    const b = {
+      linkedin: budget * (split.li || 0),
+      linkedin_inmail: budget * (split.liim || 0),
+      google: budget * (split.go || 0),
+      meta: budget * (split.me || 0),
+    };
+    const c = {
+      linkedin_sponsored: projetar(b.linkedin, PREMISSAS.linkedin_sponsored),
+      linkedin_inmail: projetar(b.linkedin_inmail, PREMISSAS.linkedin_inmail),
+      google_display: projetar(b.google, PREMISSAS.google_display),
+      meta_remarketing: projetar(b.meta, PREMISSAS.meta_remarketing),
+    };
+    const paid_ano = Object.values(c).reduce((s, x) => s + x.followers_ano, 0);
+    return {
+      label, budget, organico: baseline_organico_ano, eventos: baseline_eventos_ano,
+      paid: paid_ano, total: baseline_organico_ano + baseline_eventos_ano + paid_ano,
+    };
+  }
+  const cenarios_predefinidos = [
+    cenario('Hoje (0 paid)', 0, {}),
+    cenario('Conservador R$5k/mês', 5000, { li: 0.50, liim: 0.20, go: 0.15, me: 0.15 }),
+    cenario('Moderado R$12k/mês', 12000, { li: 0.42, liim: 0.25, go: 0.17, me: 0.16 }),
+    cenario('Agressivo R$30k/mês', 30000, { li: 0.45, liim: 0.25, go: 0.15, me: 0.15 }),
+  ];
+
+  res.json({
+    success: true,
+    cenarios_predefinidos,
+    custom: {
+      canais,
+      paid_total_mes,
+      paid_total_ano,
+      budget_total_mes,
+      total_combinado_ano: baseline_organico_ano + baseline_eventos_ano + paid_total_ano,
+      multiplicador_vs_hoje: baseline_organico_ano > 0 ? +((baseline_organico_ano + baseline_eventos_ano + paid_total_ano) / (baseline_organico_ano + baseline_eventos_ano)).toFixed(2) : null,
+    },
+    baseline: {
+      organico_ano: baseline_organico_ano,
+      eventos_ano: baseline_eventos_ano,
+      total_ano: baseline_organico_ano + baseline_eventos_ano,
+    },
+  });
+});
+
+// GET /api/metas/fy26 — Metas oficiais FY26 + realizado real cruzado
+app.get('/api/metas/fy26', (req, res) => {
+  const data = _readJSON(METAS_FY26_PATH, null);
+  if (!data) return res.status(404).json({ success: false, error: 'metas-fy26.json não encontrado. Rode: python scripts/sync/sync_metas_fy26.py' });
+
+  const linkedin = _readJSON(LINKEDIN_HIST_PATH, { resumo: {}, serie_mensal: [] });
+  let casesPorLinha = {};
+  let casesTotal = 0;
+  try {
+    const cs = db.prepare("SELECT status, linha_negocio, COUNT(*) as n FROM cs_clientes WHERE status='case-publicado' GROUP BY linha_negocio").all();
+    cs.forEach(r => { casesPorLinha[r.linha_negocio || 'outros'] = r.n; casesTotal += r.n; });
+  } catch (e) { console.warn('[metas/fy26] cases fail:', e.message); }
+
+  let eventos_proprios_ano = 0;
+  try {
+    const ev = _readJSON(path.join(__dirname, 'public/api/events.json'), { eventos_brasil: [] });
+    eventos_proprios_ano = (ev.eventos_brasil || []).filter(e => (e.tipo || '').toLowerCase().includes('proprio')).length;
+  } catch {}
+
+  // Cruzar realizado por categoria
+  const metas_com_realizado = (data.metas || []).map(m => {
+    let realizado = null, realizado_fonte = null;
+    switch (m.categoria) {
+      case 'linkedin_seguidores_totais': {
+        const ultima = linkedin.serie_mensal?.filter(x => x.total_seguidores).slice(-1)[0];
+        realizado = ultima?.total_seguidores || null;
+        realizado_fonte = ultima ? `report ${ultima.mes}` : null;
+        break;
+      }
+      case 'cases_publicados_ano':
+        realizado = casesTotal; realizado_fonte = 'SQLite cs_clientes'; break;
+      case 'cases_sap_erp_ano':
+        realizado = Object.entries(casesPorLinha).filter(([k]) => /SAP ERP|S\/4/i.test(k)).reduce((s, [,n]) => s+n, 0);
+        realizado_fonte = 'cs_clientes onde linha_negocio matches SAP ERP'; break;
+      case 'cases_successfactors_ano':
+        realizado = Object.entries(casesPorLinha).filter(([k]) => /SuccessFactors|HCM/i.test(k)).reduce((s, [,n]) => s+n, 0);
+        realizado_fonte = 'cs_clientes onde linha_negocio matches HCM/SF'; break;
+      case 'cases_workforce_ano':
+        realizado = Object.entries(casesPorLinha).filter(([k]) => /WorkForce/i.test(k)).reduce((s, [,n]) => s+n, 0);
+        realizado_fonte = 'cs_clientes onde linha_negocio matches WorkForce'; break;
+      case 'cases_servicenow_ano':
+        realizado = Object.entries(casesPorLinha).filter(([k]) => /ServiceNow/i.test(k)).reduce((s, [,n]) => s+n, 0);
+        realizado_fonte = 'cs_clientes onde linha_negocio matches ServiceNow'; break;
+      case 'cases_process_ano':
+        realizado = Object.entries(casesPorLinha).filter(([k]) => /Process|Excelência/i.test(k)).reduce((s, [,n]) => s+n, 0);
+        realizado_fonte = 'cs_clientes onde linha_negocio matches Process'; break;
+      case 'eventos_proprios_ano':
+        realizado = eventos_proprios_ano; realizado_fonte = 'events.json tipo=proprio'; break;
+    }
+    let progresso_pct = null;
+    if (realizado != null && m.valor) progresso_pct = Math.round(100 * realizado / m.valor * 10) / 10;
+    return { ...m, realizado, realizado_fonte, progresso_pct };
+  });
+
+  res.json({
+    success: true,
+    ano_fiscal: data.ano_fiscal,
+    periodo_fiscal: data.periodo_fiscal,
+    total_metas: data.total_metas,
+    por_status_fonte: data.por_status_fonte,
+    metas: metas_com_realizado,
+    gerado_em: data.gerado_em,
+  });
+});
+
+// GET /api/pipeline — Apollo stub (Onda 5 conecta real)
+app.get('/api/pipeline', (req, res) => {
+  res.json({
+    success: true,
+    fonte: 'stub — aguardando integração Apollo MCP',
+    contas_ativas: null,
+    contatos_total: null,
+    sequencias_rodando: null,
+    emails_enviados_30d: null,
+    opens_30d: null,
+    replies_30d: null,
+    reunioes_agendadas: null,
+    pipeline_R$: null,
+    ultima_sync: null,
+  });
+});
 
 // ── UTM REDIRECT: /v/:slug ────────────────────────────────────────────────────
 // Bio link de cada Voice. Adiciona UTMs e redireciona pra /seja-voice.
@@ -1616,6 +1956,377 @@ Retorne a análise em JSON estruturado. Retorne APENAS o JSON, sem texto antes o
 }`;
 }
 
+// ════════════════════════════════════════════════════════════════════════════
+// SPLIT P1/P2 (v0.4.12) — quebra o kit monolítico em 2 calls Sonnet ~70s cada
+// pra evitar timeout 174s. P1 = identidade/conteúdo editável (header, sobre,
+// destaques, competências). P2 = Voice Index (7 pilares) + estratégia + KPIs.
+// Frontend chama p1, renderiza parcial, chama p2, faz merge {...p1, ...p2}.
+// ════════════════════════════════════════════════════════════════════════════
+
+function buildPromptP1(fields) {
+  const {
+    linkedin_url, nome, area_principal, anos_experiencia,
+    resultado_1, resultado_2, resultado_3,
+    diferencial_humano, publico_alvo, tom_voz,
+    ssi_score, seguidores,
+    data_entrada_epiuse, cargo_oficial, foto_oficial
+  } = fields;
+  const resultados = [resultado_1, resultado_2, resultado_3]
+    .filter(Boolean).map((r, i) => `  ${i + 1}. ${r}`).join('\n');
+
+  return `Você é o Profile Optimizer do programa EPI-USE Voices (PARTE 1/2 — IDENTIDADE & CONTEÚDO EDITÁVEL).
+
+CONTEXTO DO PROGRAMA:
+- EPI-USE Brasil: maior consultoria SAP HCM/Payroll do Brasil; em evolução para EPI-USE 5.0
+- Grupo: EPI-USE / groupelephant.com | 42+ anos | 4.500+ profissionais | 40+ países | SAP Gold Partner
+- LOBs: SAP HCM/SuccessFactors, S/4HANA, BTP, Signavio, ServiceNow, Stratview
+- IPs: TalenTools, PRISM
+- ERP.ngo: 1% receita global → conservação elefantes + combate pobreza rural África (erp.ngo)
+- Todo Voice é embaixador ERP.ngo
+- SEMPRE "EPI-USE Brasil" por extenso
+
+DADOS FORNECIDOS:
+- URL: ${linkedin_url}
+- Nome: ${nome || '(ver screenshot)'}
+- Área: ${area_principal || '(ver screenshot)'}
+- Anos exp: ${anos_experiencia || '(não informado)'}
+- Cargo oficial EPI-USE Brasil: ${cargo_oficial || '(não informado)'}
+- Data entrada EPI-USE: ${data_entrada_epiuse || '(não informada)'}
+- Resultados reais:
+${resultados || '  (não informados — use placeholders [preencher])'}
+- Diferencial humano: ${diferencial_humano || '(não informado)'}
+- Público-alvo: ${publico_alvo || '(não informado)'}
+- Tom: ${tom_voz || 'equilibrado'}
+- SSI: ${ssi_score || '(não medido)'}
+- Seguidores: ${seguidores || '(não informado)'}
+- Foto oficial EPI-USE disponível: ${(foto_oficial === 'true' || foto_oficial === true) ? 'Sim' : 'Não confirmado'}
+
+MISSÃO PARTE 1: Diagnóstico + headline + sobre + competências + 5 destaques + ERP.ngo + idioma.
+
+REGRAS:
+- Português Brasil
+- "Sobre" em 1ª pessoa, máx 2.600 chars, mencionar EPI-USE Voices E ERP.ngo
+- Headline máx 220 chars: expertise + EPI-USE Brasil + diferencial + LADO HUMANO se houver
+- SEMPRE "EPI-USE Brasil" por extenso
+- Competências: priorizar SAP BTP, Clean Core, S/4HANA, SuccessFactors — remover legados
+- Resultados reais fornecidos OU placeholder [preencher: ...]
+- Sempre 5 Destaques variando: artigo técnico fora LinkedIn | artigo dentro LinkedIn | link externo (podcast/vídeo) | imagem kickoff/go-live/evento SAP-AWS | publicação de PARCEIRO citando o Voice
+
+Retorne APENAS o JSON, sem texto antes/depois:
+{
+  "nome": "string",
+  "cargo_atual": "string",
+  "empresa_atual": "EPI-USE Brasil",
+  "diagnostico": {
+    "pontos_positivos": ["string"],
+    "problemas_encontrados": [
+      { "elemento": "string", "situacao_atual": "string", "meta": "string", "urgencia": "alta|media|baixa" }
+    ]
+  },
+  "headline_sugerida": "string (máx 220 chars)",
+  "url_sugerida": "string (linkedin.com/in/nome-sobrenome)",
+  "sobre_texto": "string (1ª pessoa, máx 2600 chars, mencionar EPI-USE Voices + ERP.ngo, com [preencher: ...] para placeholders)",
+  "competencias": {
+    "adicionar": ["string"],
+    "remover": ["string"],
+    "manter": ["string"]
+  },
+  "destaques": [
+    { "numero": 1, "titulo": "string", "descricao": "string", "tipo": "artigo|projeto|conquista|curso|evento" },
+    { "numero": 2, "titulo": "string", "descricao": "string", "tipo": "artigo|projeto|conquista|curso|evento" },
+    { "numero": 3, "titulo": "string", "descricao": "string", "tipo": "artigo|projeto|conquista|curso|evento" },
+    { "numero": 4, "titulo": "string", "descricao": "string", "tipo": "artigo|projeto|conquista|curso|evento" },
+    { "numero": 5, "titulo": "string", "descricao": "string", "tipo": "artigo|projeto|conquista|curso|evento" }
+  ],
+  "secao_fotos": {
+    "foto_sugestao": "string (orientações concretas para foto de perfil)",
+    "imagens_perfil": ["string (sugestões de capa/kickoffs/eventos)"]
+  },
+  "erp_ngo": {
+    "passo_causas_sociais": "string (passo a passo: como adicionar ERP.ngo como Causa Social no LinkedIn)",
+    "como_virar_embaixador": "string (como se posicionar como embaixador ERP.ngo)"
+  },
+  "estrategia_idioma": {
+    "orientacoes": ["string (dica prática sobre idioma)"],
+    "instrucao_perfil_en": "string (passo a passo: criar perfil secundário em inglês no LinkedIn)"
+  }
+}`;
+}
+
+function buildPromptP2(fields, p1) {
+  const { tom_voz, ssi_score, area_principal, publico_alvo } = fields;
+  return `Você é o Profile Optimizer do programa EPI-USE Voices (PARTE 2/2 — VOICE INDEX & ESTRATÉGIA).
+
+PARTE 1 JÁ FEITA — perfil:
+- Nome: ${p1.nome || '(?)'}
+- Cargo: ${p1.cargo_atual || '(?)'}
+- Headline sugerida: ${p1.headline_sugerida || '(?)'}
+- Área: ${area_principal || '(?)'}
+- Público-alvo: ${publico_alvo || '(não informado)'}
+- Tom: ${tom_voz || 'equilibrado'}
+- SSI: ${ssi_score || '(não medido)'}
+
+CONTEXTO EPI-USE Brasil: maior consultoria SAP HCM/Payroll do Brasil; LOBs SAP HCM/SF, S/4HANA, BTP, Signavio, ServiceNow, Stratview. Todo Voice é embaixador ERP.ngo (1% receita → conservação elefantes + combate pobreza África).
+
+MISSÃO PARTE 2: avaliar perfil em 7 pilares (Voice Index 0-100) + linha editorial 4 semanas + social selling + recomendações + checklist + KPIs + próximos passos.
+
+AVALIAÇÃO POR PILARES — escala 4 níveis em CADA critério:
+- 🟢 forte    — top 20%, exemplar
+- 🟡 ok       — médio, dá pra melhorar
+- 🟠 fraco    — atrás da média, prioridade
+- 🔴 ausente  — gap crítico
+- ⚪ na       — não aplicável
+
+PILAR 1 IDENTIDADE VISUAL & ESTRUTURAL: URL customizada · Localização · Pronouns · Gancho 3 primeiras linhas Sobre · CTA no fim Sobre · Modo Criador+hashtags · Cover story
+PILAR 2 AUTORIDADE & PROVA SOCIAL: Top 3 Skills endossadas · Certificações SAP/EPI-USE · Formação · Recomendações · Premiações · Eventos palestrante · Publicações próprias · Newsletter
+PILAR 3 CONTEÚDO & ATIVIDADE: Frequência posts · Último<7d · Mix formato · Engajamento médio · Comentários alheios · Polls · Tag colegas/clientes/SAP · Compartilha SAP/EPI-USE/parceiros
+PILAR 4 NETWORK & RELACIONAMENTO: Conexões >500 · Ratio Followers/Conexões · Grupos relevantes · DM aberto
+PILAR 5 SSI INDEX: Estabelecer marca · Encontrar pessoas certas · Engajar com insights · Construir relacionamentos
+PILAR 6 ADERÊNCIA EPI-USE: Capa oficial · Cargo oficial · Foto alta qualidade · Data entrada · ERP.ngo voluntariado · Menção Voices · Tag parceiros
+PILAR 7 CONVERSÃO: Link destaque · CTA em destaque · Email visível · Botão Serviços
+
+Score pilar (0-100) = média ponderada critérios (forte=100, ok=70, fraco=40, ausente=10, na=ignorar).
+voice_index_score = média simples dos 7 pilares.
+
+REGRAS LINHA EDITORIAL:
+- Pilares: 40% Thought Leadership, 30% Cases, 20% Pessoas, 10% Propósito
+- Calendário 4 semanas × 2 posts (8 temas personalizados pra área do Voice)
+- Nota: primeiras 4 semanas SEM links externos no corpo (algoritmo penaliza)
+- Tom: ${tom_voz || 'equilibrado'}
+
+Retorne APENAS o JSON, sem texto antes/depois:
+{
+  "voice_index_score": 0,
+  "voice_index_resumo": "string (1-2 frases — onde forte, onde atacar primeiro)",
+  "pilares_avaliacao": [
+    {
+      "pilar": "Identidade Visual & Estrutural",
+      "icone": "🪪",
+      "score": 0,
+      "criterios": [
+        { "nome": "URL customizada", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Localização visível", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Pronouns declarados", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Gancho 3 primeiras linhas Sobre", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "CTA no fim do Sobre", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Modo Criador + hashtags", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Cover story (vídeo 30s)", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" }
+      ]
+    },
+    {
+      "pilar": "Autoridade & Prova Social",
+      "icone": "🏆",
+      "score": 0,
+      "criterios": [
+        { "nome": "Top 3 Skills endossadas", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Certificações SAP/EPI-USE", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Formação acadêmica relevante", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Recomendações recebidas", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Premiações (Top Voice, SAP Awards)", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Eventos como palestrante", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Publicações próprias (artigos)", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Newsletter própria", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" }
+      ]
+    },
+    {
+      "pilar": "Conteúdo & Atividade",
+      "icone": "📊",
+      "score": 0,
+      "criterios": [
+        { "nome": "Frequência de posts (1-3/semana)", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Último post < 7 dias", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Mix de formato (texto/carrossel/vídeo/poll)", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Engajamento médio", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Comentários em posts alheios", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Polls/enquetes publicadas", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Tag de colegas/clientes/SAP", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Compartilha SAP/EPI-USE mãe/parceiros", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" }
+      ]
+    },
+    {
+      "pilar": "Network & Relacionamento",
+      "icone": "🌐",
+      "score": 0,
+      "criterios": [
+        { "nome": "Conexões totais (>500)", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Ratio Followers/Conexões", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Membro de Grupos relevantes", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "DM aberto", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" }
+      ]
+    },
+    {
+      "pilar": "SSI Index (LinkedIn oficial)",
+      "icone": "📈",
+      "score": 0,
+      "criterios": [
+        { "nome": "Estabelecer marca profissional", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Encontrar pessoas certas", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Engajar com insights", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Construir relacionamentos", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" }
+      ]
+    },
+    {
+      "pilar": "Aderência EPI-USE Brasil",
+      "icone": "💼",
+      "score": 0,
+      "criterios": [
+        { "nome": "Capa oficial EPI-USE Brasil", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Cargo oficial EPI-USE", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Foto oficial alta qualidade", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Data de entrada na EPI-USE declarada", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "ERP.ngo no voluntariado", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Menção EPI-USE Voices", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Tag/citação de parceiros (SAP, AWS)", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" }
+      ]
+    },
+    {
+      "pilar": "Conversão (lead → reunião)",
+      "icone": "🎯",
+      "score": 0,
+      "criterios": [
+        { "nome": "Link em destaque (Calendly/agenda)", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "CTA explícito em destaque", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Email visível no Sobre/Contato", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" },
+        { "nome": "Botão Serviços ativado", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" }
+      ]
+    }
+  ],
+  "ssi_diagnostico": {
+    "nivel": "baixo|medio|bom|excelente",
+    "observacoes": "string",
+    "dicas": ["string"]
+  },
+  "linha_editorial": {
+    "pilares": [
+      { "percentual": "40%", "nome": "Thought Leadership", "exemplos": ["string (tema personalizado pra área deste Voice)"] },
+      { "percentual": "30%", "nome": "Cases", "exemplos": ["string"] },
+      { "percentual": "20%", "nome": "Pessoas", "exemplos": ["string"] },
+      { "percentual": "10%", "nome": "Propósito", "exemplos": ["string"] }
+    ],
+    "calendario_4_semanas": [
+      { "semana": 1, "post_1": "string (tema específico pra este Voice)", "post_2": "string" },
+      { "semana": 2, "post_1": "string", "post_2": "string" },
+      { "semana": 3, "post_1": "string", "post_2": "string" },
+      { "semana": 4, "post_1": "string", "post_2": "string" }
+    ],
+    "nota_algoritmo": "string (dica: primeiras 4 semanas sem links externos no corpo do post)"
+  },
+  "social_selling": {
+    "perfis_para_alertas": ["string (perfis sugeridos pra seguir/comentar)"],
+    "exemplo_comentario": "string (modelo de comentário de alto impacto contextualizado pra área deste Voice — mencionar EPI-USE Brasil + dado concreto)",
+    "dica_30_min": "string (instrução tática: primeiros 30 min após publicação de líder do nicho, comentar com insight)"
+  },
+  "recomendacoes": {
+    "meta": "8 a 12 recomendações ativas",
+    "perfis_prioritarios": ["string"],
+    "template_mensagem": "string (mensagem pronta pra copiar e enviar no LinkedIn pedindo recomendação)"
+  },
+  "checklist": [
+    { "item": "string", "prioridade": "urgente|normal|bonus", "passo": "string" }
+  ],
+  "kpis": {
+    "instrucoes_baseline": "string (incluir https://www.linkedin.com/sales/ssi)",
+    "metas_90_dias": [
+      { "kpi": "SSI Score", "meta": "> 70" },
+      { "kpi": "Visualizações de perfil/semana", "meta": "+150%" },
+      { "kpi": "Seguidores", "meta": "+30%" },
+      { "kpi": "Convites recebidos/semana", "meta": "+25%" },
+      { "kpi": "Mensagens diretas recebidas/semana", "meta": "+20%" },
+      { "kpi": "Posts publicados (90 dias)", "meta": "24 (2x/semana)" },
+      { "kpi": "Impressões médias por post", "meta": "baseline + 100%" }
+    ]
+  },
+  "proximos_passos": ["string"]
+}`;
+}
+
+// Helper: extrai req.body comum + arquivos pra base64
+function _extractCommonInput(req) {
+  const files = req.files || [];
+  const fields = {
+    linkedin_url: req.body.linkedin_url,
+    nome: req.body.nome,
+    area_principal: req.body.area_principal,
+    anos_experiencia: req.body.anos_experiencia,
+    resultado_1: req.body.resultado_1,
+    resultado_2: req.body.resultado_2,
+    resultado_3: req.body.resultado_3,
+    diferencial_humano: req.body.diferencial_humano,
+    publico_alvo: req.body.publico_alvo,
+    tom_voz: req.body.tom_voz,
+    ssi_score: req.body.ssi_score,
+    seguidores: req.body.seguidores,
+    data_entrada_epiuse: req.body.data_entrada_epiuse,
+    cargo_oficial: req.body.cargo_oficial,
+    foto_oficial: req.body.foto_oficial
+  };
+  const images = files.map(file => ({
+    type: 'image',
+    source: { type: 'base64', media_type: file.mimetype, data: fs.readFileSync(file.path).toString('base64') }
+  }));
+  return { fields, files, images };
+}
+
+// POST /api/analisar-perfil/p1 — header + sobre + destaques + ERP.ngo (~70s, max_tokens 8000)
+app.post('/api/analisar-perfil/p1', optimizerLimiter, upload.array('screenshots', 5), async (req, res) => {
+  const { fields, files, images } = _extractCommonInput(req);
+  try {
+    if (!fields.linkedin_url) return res.status(400).json({ success: false, error: 'URL do LinkedIn é obrigatória.' });
+    const content = [...images, { type: 'text', text: buildPromptP1(fields) }];
+    const t0 = Date.now();
+    const response = await client.messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 8000,
+      messages: [{ role: 'user', content }]
+    });
+    const dur = ((Date.now() - t0) / 1000).toFixed(1);
+    console.log(`[optimizer/p1] ${dur}s · ${response.usage?.input_tokens || '?'}→${response.usage?.output_tokens || '?'} · stop=${response.stop_reason}`);
+    files.forEach(f => { try { fs.unlinkSync(f.path); } catch {} });
+    if (response.stop_reason === 'max_tokens') {
+      return res.status(500).json({ success: false, error: `P1 truncado (${response.usage.output_tokens} tokens). Reduza screenshots ou tente novamente.` });
+    }
+    let raw = response.content[0].text.replace(/```json\s*/gi, '').replace(/```\s*/g, '');
+    const m = raw.match(/\{[\s\S]*\}/);
+    if (!m) return res.status(500).json({ success: false, error: 'JSON inválido da IA na parte 1.' });
+    const p1 = JSON.parse(m[0]);
+    res.json({ success: true, p1, dur_ms: Date.now() - t0 });
+  } catch (e) {
+    files.forEach(f => { try { fs.unlinkSync(f.path); } catch {} });
+    console.error('[optimizer/p1]', e.message);
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+// POST /api/analisar-perfil/p2 — Voice Index + estratégia + KPIs (~70s, max_tokens 12000)
+// Recebe p1_json no body pra ter contexto. NÃO precisa de screenshots (já analisados em p1).
+app.post('/api/analisar-perfil/p2', optimizerLimiter, async (req, res) => {
+  try {
+    const { p1, ...fields } = req.body;
+    if (!p1 || !p1.nome) return res.status(400).json({ success: false, error: 'p1 (resultado da parte 1) é obrigatório no body.' });
+    const content = [{ type: 'text', text: buildPromptP2(fields, p1) }];
+    const t0 = Date.now();
+    const response = await client.messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 12000,
+      messages: [{ role: 'user', content }]
+    });
+    const dur = ((Date.now() - t0) / 1000).toFixed(1);
+    console.log(`[optimizer/p2] ${dur}s · ${response.usage?.input_tokens || '?'}→${response.usage?.output_tokens || '?'} · stop=${response.stop_reason}`);
+    if (response.stop_reason === 'max_tokens') {
+      return res.status(500).json({ success: false, error: `P2 truncado (${response.usage.output_tokens} tokens). Tente novamente.` });
+    }
+    let raw = response.content[0].text.replace(/```json\s*/gi, '').replace(/```\s*/g, '');
+    const m = raw.match(/\{[\s\S]*\}/);
+    if (!m) return res.status(500).json({ success: false, error: 'JSON inválido da IA na parte 2.' });
+    const p2 = JSON.parse(m[0]);
+    res.json({ success: true, p2, dur_ms: Date.now() - t0 });
+  } catch (e) {
+    console.error('[optimizer/p2]', e.message);
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+// LEGACY: /api/analisar-perfil — mantém pra fallback. Faz p1+p2 sequencial internamente.
 app.post('/api/analisar-perfil', optimizerLimiter, upload.array('screenshots', 5), async (req, res) => {
   const files = req.files || [];
 

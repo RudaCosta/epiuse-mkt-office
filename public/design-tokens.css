@@ -1,0 +1,196 @@
+/* design-tokens.css — gerado por scripts/design/gen_tokens.py em 2026-05-27T17:44:44.608360 */
+/* FONTE DA VERDADE: vault/00-contexto/DESIGN.md (NÃO editar este arquivo direto) */
+/* Sistema: EPI-USE Brasil Office Design System · versão: 2.0 */
+
+/* Open Sans self-hosted (fonte primária oficial EPI-USE confirmada 28/mai/2026) */
+@import url('/assets/fonts/open-sans/open-sans.css');
+
+:root {
+  /* ── COLORS ── */
+  --color-ge-blue: #1C478A;
+  --color-ge-brown: #A37D57;
+  --color-ge-dark-blue: #111B42;
+  --color-ge-light-blue: #DCF1F9;
+  --color-ge-grey: #ABACAB;
+  --color-ge-red: #CC1F45;
+  --color-primary-navy: #001844;
+  --color-primary-red: #cd1543;
+  --color-primary-charcoal: #272F3A;
+  --color-secondary-blue-light: #869ec3;
+  --color-secondary-blue-soft: #8eafc6;
+  --color-secondary-blue-mid: #395170;
+  --color-secondary-grey: #cfd1d3;
+  --color-bg-light-1: #f7f7f7;
+  --color-bg-light-2: #ebebeb;
+  --color-erp-blue: #131B41;
+  --color-erp-blue-mid: #0066B2;
+  --color-erp-blue-light: #BFDCF3;
+  --color-erp-brown-mid: #74685B;
+  --color-erp-brown-light: #BBA997;
+  --color-success-300: #6ee7b7;
+  --color-success-500: #10b981;
+  --color-warning-300: #fcd34d;
+  --color-warning-500: #fbbf24;
+  --color-danger-300: #fca5a5;
+  --color-danger-500: #cd1543;
+  --color-info-300: #869ec3;
+  --color-info-500: #001844;
+  --color-ia-purple-300: #c4b5fd;
+  --color-ia-purple-500: #a78bfa;
+  --color-neutral-dark-bg: #0a1525;
+  --color-neutral-dark-bg-2: #050d18;
+  --color-neutral-dark-surface: #0f1e35;
+  --color-neutral-dark-surface-2: #142547;
+  --color-neutral-dark-border: rgba(134,158,195,0.18);
+  --color-neutral-dark-text: #e6ebf2;
+  --color-neutral-dark-text-dim: #c0ccd9;
+  --color-neutral-dark-text-muted: #869ec3;
+  --color-neutral-dark-divider: rgba(134,158,195,0.10);
+  --color-neutral-light-bg: #f7f7f7;
+  --color-neutral-light-bg-2: #ebebeb;
+  --color-neutral-light-surface: #ffffff;
+  --color-neutral-light-surface-2: #f7f7f7;
+  --color-neutral-light-border: #cfd1d3;
+  --color-neutral-light-text: #272F3A;
+  --color-neutral-light-text-dim: #395170;
+  --color-neutral-light-text-muted: #869ec3;
+  --color-neutral-light-divider: #ebebeb;
+
+  /* ── SPACING ── */
+  --space-none: 0;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+  --space-2xl: 32px;
+  --space-3xl: 48px;
+  --space-4xl: 64px;
+
+  /* ── ROUNDED ── */
+  --rounded-none: 0;
+  --rounded-sm: 4px;
+  --rounded-md: 8px;
+  --rounded-lg: 12px;
+  --rounded-xl: 16px;
+  --rounded-full: 9999px;
+
+  /* ── ELEVATION ── */
+  --elevation-none: none;
+  --elevation-sm: 0 1px 2px rgba(0,24,68,0.08);
+  --elevation-md: 0 4px 12px rgba(0,24,68,0.12);
+  --elevation-lg: 0 8px 24px rgba(0,24,68,0.20);
+  --elevation-xl: 0 14px 40px rgba(0,24,68,0.30);
+
+  /* ── TYPOGRAPHY ── */
+  --type-display-lg-font-family: "Open Sans, Maven Pro, Verdana, Arial, sans-serif";
+  --type-display-lg-font-size: 40px;
+  --type-display-lg-font-weight: 800;
+  --type-display-lg-line-height: 1.1;
+  --type-display-lg-letter-spacing: -0.02em;
+  --type-display-md-font-family: "Open Sans, Maven Pro, Verdana, Arial, sans-serif";
+  --type-display-md-font-size: 32px;
+  --type-display-md-font-weight: 700;
+  --type-display-md-line-height: 1.15;
+  --type-headline-lg-font-family: "Open Sans, Maven Pro, Verdana, Arial, sans-serif";
+  --type-headline-lg-font-size: 26px;
+  --type-headline-lg-font-weight: 700;
+  --type-headline-lg-line-height: 1.2;
+  --type-headline-md-font-family: "Open Sans, Maven Pro, Verdana, Arial, sans-serif";
+  --type-headline-md-font-size: 20px;
+  --type-headline-md-font-weight: 700;
+  --type-headline-md-line-height: 1.3;
+  --type-headline-sm-font-family: "Open Sans, Maven Pro, Verdana, Arial, sans-serif";
+  --type-headline-sm-font-size: 16px;
+  --type-headline-sm-font-weight: 700;
+  --type-headline-sm-line-height: 1.4;
+  --type-body-lg-font-family: "Open Sans, Verdana, Arial, sans-serif";
+  --type-body-lg-font-size: 16px;
+  --type-body-lg-font-weight: 400;
+  --type-body-lg-line-height: 1.55;
+  --type-body-md-font-family: "Open Sans, Verdana, Arial, sans-serif";
+  --type-body-md-font-size: 14px;
+  --type-body-md-font-weight: 400;
+  --type-body-md-line-height: 1.5;
+  --type-body-sm-font-family: "Open Sans, Verdana, Arial, sans-serif";
+  --type-body-sm-font-size: 12px;
+  --type-body-sm-font-weight: 400;
+  --type-body-sm-line-height: 1.45;
+  --type-label-md-font-family: "Open Sans, Verdana, Arial, sans-serif";
+  --type-label-md-font-size: 13px;
+  --type-label-md-font-weight: 600;
+  --type-label-md-line-height: 1.4;
+  --type-label-sm-font-family: "Open Sans, Verdana, Arial, sans-serif";
+  --type-label-sm-font-size: 11px;
+  --type-label-sm-font-weight: 700;
+  --type-label-sm-line-height: 1.4;
+  --type-label-sm-letter-spacing: 0.06em;
+  --type-label-sm-text-transform: uppercase;
+  --type-code-md-font-family: "JetBrains Mono, Consolas, monospace";
+  --type-code-md-font-size: 12px;
+  --type-code-md-font-weight: 500;
+  --type-code-md-line-height: 1.4;
+  --type-code-sm-font-family: "JetBrains Mono, Consolas, monospace";
+  --type-code-sm-font-size: 10px;
+  --type-code-sm-font-weight: 500;
+  --type-code-sm-line-height: 1.4;
+  --type-pixel-display-font-family: 'Press Start 2P', monospace;
+  --type-pixel-display-font-size: 11px;
+  --type-pixel-display-font-weight: 400;
+  --type-pixel-display-letter-spacing: 0.06em;
+
+}
+
+/* ── THEME BINDINGS ── */
+:root, [data-theme="dark"] {
+  --color-surface:        var(--color-neutral-dark-surface);
+  --color-surface-2:      var(--color-neutral-dark-surface-2);
+  --color-bg:             var(--color-neutral-dark-bg);
+  --color-bg-2:           var(--color-neutral-dark-bg-2);
+  --color-border:         var(--color-neutral-dark-border);
+  --color-border-2:       var(--color-neutral-dark-border-2);
+  --color-text:           var(--color-neutral-dark-text);
+  --color-text-dim:       var(--color-neutral-dark-text-dim);
+  --color-text-muted:     var(--color-neutral-dark-text-muted);
+  --color-text-dimmest:   var(--color-neutral-dark-text-dimmest);
+  --color-divider:        var(--color-neutral-dark-divider);
+}
+
+[data-theme="light"] {
+  --color-surface:        var(--color-neutral-light-surface);
+  --color-surface-2:      var(--color-neutral-light-surface-2);
+  --color-bg:             var(--color-neutral-light-bg);
+  --color-bg-2:           var(--color-neutral-light-bg-2);
+  --color-border:         var(--color-neutral-light-border);
+  --color-border-2:       var(--color-neutral-light-border-2);
+  --color-text:           var(--color-neutral-light-text);
+  --color-text-dim:       var(--color-neutral-light-text-dim);
+  --color-text-muted:     var(--color-neutral-light-text-muted);
+  --color-text-dimmest:   var(--color-neutral-light-text-muted);
+  --color-divider:        var(--color-neutral-light-divider);
+}
+
+/* ── ALIASES legados (manter telas antigas funcionando durante refactor) ── */
+:root {
+  --bg: var(--color-bg);
+  --bg-2: var(--color-bg-2);
+  --card: var(--color-surface);
+  --card-2: var(--color-surface-2);
+  --text: var(--color-text);
+  --text-dim: var(--color-text-dim);
+  --text-muted: var(--color-text-muted);
+  --border: var(--color-border);
+  --primary: var(--color-primary-500);
+  --primary-light: var(--color-primary-400);
+  --accent: var(--color-info-500);
+  --success: var(--color-success-500);
+  --warning: var(--color-warning-500);
+  --danger: var(--color-danger-500);
+  --muted: var(--color-text-muted);
+  --dim: var(--color-text-dimmest);
+  --green: var(--color-success-500);
+  --yellow: var(--color-warning-500);
+  --red: var(--color-danger-500);
+  --purple: var(--color-accent-purple-500);
+  --radius: var(--rounded-lg);
+}

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎨 Design System · EPI-USE Office</title>
+<link rel="stylesheet" href="/design-tokens.css">
+<script type="module" src="/office-nav.js"></script>
+<script type="module" src="/office-footer.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after { box-sizing:border-box; margin:0; padding:0 }
+  body {
+    background: linear-gradient(180deg, var(--color-bg-2) 0%, var(--color-bg) 100%);
+    color: var(--color-text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh; padding-bottom: 60px;
+  }
+  .container { max-width: 1320px; margin: 0 auto; padding: 24px; }
+
+  h1 { font-size: 28px; margin-bottom: 4px; font-weight: 800; }
+  .sub { color: var(--color-text-muted); font-size: 13px; margin-bottom: 22px; }
+
+  .section { margin-bottom: 36px; }
+  .section-hdr {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--color-border);
+  }
+  .section-hdr h2 { font-size: 20px; font-weight: 700; }
+  .section-hdr .count { color: var(--color-text-muted); font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+
+  /* Theme toggle */
+  .theme-toggle {
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    color: var(--color-text); padding: 8px 16px; border-radius: var(--rounded-md);
+    cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 600;
+  }
+
+  /* COLOR SWATCHES */
+  .color-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: 10px;
+  }
+  .swatch {
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: var(--rounded-md); overflow: hidden;
+    cursor: pointer; transition: transform .12s;
+  }
+  .swatch:hover { transform: translateY(-2px); }
+  .swatch-color { height: 70px; }
+  .swatch-meta { padding: 8px 10px; }
+  .swatch-name { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--color-text); }
+  .swatch-hex { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--color-text-muted); margin-top: 2px; }
+
+  /* TYPOGRAPHY */
+  .type-row {
+    display: grid; grid-template-columns: 160px 1fr;
+    padding: 14px; gap: 16px;
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: var(--rounded-md); margin-bottom: 8px;
+  }
+  .type-name { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--color-text-muted); align-self: center; }
+  .type-name code { background: var(--color-bg-2); padding: 2px 6px; border-radius: 3px; font-size: 10px; }
+  .type-preview { min-width: 0; overflow: hidden; }
+
+  /* SPACING */
+  .spacing-grid { display: grid; gap: 8px; }
+  .spacing-row { display: grid; grid-template-columns: 80px 80px 1fr; gap: 12px; align-items: center; padding: 10px 14px; background: var(--color-surface); border-radius: var(--rounded-md); }
+  .spacing-name { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--color-info-500); }
+  .spacing-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--color-text-muted); }
+  .spacing-bar { height: 18px; background: var(--color-primary-500); border-radius: 3px; }
+
+  /* ROUNDED */
+  .rounded-grid { display: flex; gap: 16px; flex-wrap: wrap; }
+  .rounded-box { width: 90px; height: 90px; background: var(--color-primary-500); display: flex; align-items: center; justify-content: center; color: white; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; }
+
+  /* ELEVATION */
+  .elev-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 20px; padding: 20px; }
+  .elev-box {
+    height: 90px; background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: var(--rounded-md); display:flex; align-items:center; justify-content:center;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight:700; color: var(--color-info-500);
+  }
+
+  /* COMPONENTS */
+  .comp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap: 14px; }
+  .comp-card {
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: var(--rounded-lg); padding: 16px;
+  }
+  .comp-title { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--color-text-muted); margin-bottom: 10px; letter-spacing: .04em; }
+  .comp-demo { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+  .btn-primary-demo {
+    background: var(--color-primary-500); color: white;
+    padding: 8px 16px; border-radius: var(--rounded-md); border: 0;
+    font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  .btn-secondary-demo {
+    background: rgba(96,165,250,0.10); color: var(--color-info-500);
+    padding: 8px 14px; border-radius: var(--rounded-md); border: 1px solid rgba(96,165,250,0.30);
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; cursor: pointer;
+  }
+
+  .badge {
+    display: inline-block; padding: 3px 8px; border-radius: var(--rounded-sm);
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .04em;
+  }
+  .badge.real    { background: rgba(16,185,129,.12); color: var(--color-success-300); }
+  .badge.manual  { background: rgba(251,191,36,.10); color: var(--color-warning-300); }
+  .badge.pending { background: rgba(249,115,22,.10); color: #fdba74; }
+  .badge.aguarda { background: rgba(167,139,250,.12); color: var(--color-accent-purple-300); }
+  .badge.ia      { background: rgba(167,139,250,.10); color: var(--color-accent-purple-300); }
+  .badge.projecao{ background: rgba(96,165,250,.10); color: var(--color-info-300); }
+
+  .alert {
+    padding: 12px 16px; border-radius: var(--rounded-md);
+    border-left: 3px solid; font-size: 13px; line-height: 1.5;
+  }
+  .alert.warn { background: rgba(251,191,36,.08); border-color: var(--color-warning-500); color: var(--color-warning-300); }
+  .alert.info { background: rgba(96,165,250,.08); border-color: var(--color-info-500); color: var(--color-info-300); }
+  .alert.danger { background: rgba(239,68,68,.08); border-color: var(--color-danger-500); color: var(--color-danger-300); }
+
+  /* DOS / DONTS */
+  .rules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width:768px) { .rules-grid { grid-template-columns: 1fr; } }
+  .rules-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--rounded-md); padding: 16px; }
+  .rules-card h3 { font-size: 14px; margin-bottom: 10px; }
+  .rules-card.do h3 { color: var(--color-success-300); }
+  .rules-card.dont h3 { color: var(--color-danger-300); }
+  .rules-card ul { list-style: none; }
+  .rules-card li { padding: 6px 0; font-size: 13px; line-height: 1.45; border-bottom: 1px dashed var(--color-divider); }
+  .rules-card li:last-child { border-bottom: 0; }
+</style>
+</head>
+<body data-route="design">
+<office-nav></office-nav>
+
+<div class="container">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+    <div>
+      <h1>🎨 EPI-USE Office Design System</h1>
+      <p class="sub" id="sub">carregando tokens...</p>
+    </div>
+    <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">☀ Light Mode</button>
+  </div>
+
+  <div style="background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.20);border-radius:var(--rounded-md);padding:10px 14px;margin-bottom:24px;font-size:12px;line-height:1.55">
+    📖 <b>Fonte da verdade:</b> <code style="background:rgba(0,0,0,.2);padding:2px 6px;border-radius:3px;font-family:'JetBrains Mono',monospace">vault/00-contexto/DESIGN.md</code> · Gerado por: <code style="background:rgba(0,0,0,.2);padding:2px 6px;border-radius:3px;font-family:'JetBrains Mono',monospace">scripts/design/gen_tokens.py</code> · Consome: <code style="background:rgba(0,0,0,.2);padding:2px 6px;border-radius:3px;font-family:'JetBrains Mono',monospace">/api/design-tokens.json</code>
+  </div>
+
+  <!-- BRANDS HIERARQUIA -->
+  <section class="section">
+    <div class="section-hdr"><h2>🏛️ Brand Hierarchy</h2><span class="count">3 brands oficiais</span></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px">
+      <div class="comp-card" style="border-color:#1C478A;border-left:4px solid #1C478A">
+        <div class="comp-title">🐘 Group Elephant (holding)</div>
+        <div style="background:#fff;padding:12px;border-radius:6px;margin:8px 0;text-align:center">
+          <img src="/assets/logos-group-elephant/ge-logo.svg" alt="GE" style="max-height:50px">
+        </div>
+        <div style="font-size:11px;color:var(--color-text-muted);line-height:1.5">
+          Blue <code style="color:#1C478A">#1C478A</code> · Brown <code style="color:#A37D57">#A37D57</code><br>
+          Brand Guide April 2024
+        </div>
+      </div>
+      <div class="comp-card" style="border-color:#001844;border-left:4px solid #001844">
+        <div class="comp-title">🔵 EPI-USE Brasil (operação)</div>
+        <div style="background:#fff;padding:12px;border-radius:6px;margin:8px 0;text-align:center">
+          <img src="/assets/logos-epi-use/epi-use-logo-rgb.svg" alt="EPI-USE" style="max-height:40px">
+        </div>
+        <div style="font-size:11px;color:var(--color-text-muted);line-height:1.5">
+          Navy <code style="color:#001844">#001844</code> · Red <code style="color:#cd1543">#cd1543</code><br>
+          Brand Guide V1.1 + Template Jan 2026
+        </div>
+      </div>
+      <div class="comp-card" style="border-color:#131B41;border-left:4px solid #131B41">
+        <div class="comp-title">🦏 ERP.ngo (NGO institucional)</div>
+        <div style="background:#fff;padding:12px;border-radius:6px;margin:8px 0;text-align:center">
+          <img src="/assets/logos-erp-ngo/erp-logo-blue.svg" alt="ERP.ngo" style="max-height:50px">
+        </div>
+        <div style="font-size:11px;color:var(--color-text-muted);line-height:1.5">
+          Blue <code style="color:#131B41">#131B41</code> · Mid <code style="color:#0066B2">#0066B2</code> · Brown <code style="color:#74685B">#74685B</code><br>
+          Brand Guide V1.0 (2016) · tagline obrigatória
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COLORS -->
+  <section class="section">
+    <div class="section-hdr"><h2>🎨 Colors</h2><span class="count" id="color-count">—</span></div>
+    <div id="color-cats"></div>
+  </section>
+
+  <!-- TYPOGRAPHY -->
+  <section class="section">
+    <div class="section-hdr"><h2>🔤 Typography</h2><span class="count" id="type-count">—</span></div>
+    <div id="types"></div>
+  </section>
+
+  <!-- SPACING -->
+  <section class="section">
+    <div class="section-hdr"><h2>📏 Spacing</h2><span class="count" id="sp-count">—</span></div>
+    <div id="spacings" class="spacing-grid"></div>
+  </section>
+
+  <!-- ROUNDED -->
+  <section class="section">
+    <div class="section-hdr"><h2>⬛ Rounded</h2><span class="count" id="rd-count">—</span></div>
+    <div id="roundeds" class="rounded-grid"></div>
+  </section>
+
+  <!-- ELEVATION -->
+  <section class="section">
+    <div class="section-hdr"><h2>🌫️ Elevation</h2><span class="count" id="el-count">—</span></div>
+    <div id="elevs" class="elev-grid"></div>
+  </section>
+
+  <!-- COMPONENTS -->
+  <section class="section">
+    <div class="section-hdr"><h2>🧱 Components</h2><span class="count" id="cm-count">—</span></div>
+    <div class="comp-grid">
+      <div class="comp-card">
+        <div class="comp-title">button-primary · button-secondary</div>
+        <div class="comp-demo">
+          <button class="btn-primary-demo">Primary CTA</button>
+          <button class="btn-secondary-demo">◀ Secondary</button>
+          <button class="btn-secondary-demo">Filtrar</button>
+        </div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-title">badge-* (Rule 7 transparência)</div>
+        <div class="comp-demo">
+          <span class="badge real">🟢 real</span>
+          <span class="badge manual">🟡 manual</span>
+          <span class="badge pending">🟠 pending</span>
+          <span class="badge aguarda">🟣 aguarda integração</span>
+          <span class="badge ia">🤖 ia-gerado</span>
+          <span class="badge projecao">🔮 projeção</span>
+        </div>
+      </div>
+      <div class="comp-card" style="grid-column: span 2">
+        <div class="comp-title">alert-warn · alert-info · alert-danger</div>
+        <div style="display:grid;gap:8px;margin-top:6px">
+          <div class="alert warn">⚠️ Newsletter estagnada em 3.698 há 3 meses — sem captação nova</div>
+          <div class="alert info">ℹ️ Posts/mês sem tracking — pedir Sergio retomar a métrica</div>
+          <div class="alert danger">🚨 Queda forte de novos seguidores: 231 → 149 (-35.5% MoM)</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOS / DONTS -->
+  <section class="section">
+    <div class="section-hdr"><h2>✅ Do's & Don'ts</h2></div>
+    <div class="rules-grid">
+      <div class="rules-card do">
+        <h3>✅ Do</h3>
+        <ul>
+          <li>Usar <strong>sempre</strong> tokens semânticos (<code>var(--color-primary-500)</code>)</li>
+          <li>Preservar 2 brand identities (Office azul + ERP.ngo navy)</li>
+          <li>Aplicar badges semânticas em dados (Regra 7)</li>
+          <li>Dark theme padrão · light como toggle</li>
+          <li>Inter (UI) · JetBrains Mono (números) · Press Start 2P (só game)</li>
+          <li>Adicionar tokens novos primeiro no DESIGN.md</li>
+        </ul>
+      </div>
+      <div class="rules-card dont">
+        <h3>❌ Don't</h3>
+        <ul>
+          <li>Não inventar <code>--meu-azul-customizado</code> em tela específica</li>
+          <li>Não misturar fontes (Roboto, Helvetica, etc fora de contexto)</li>
+          <li>Não usar <code>brand-epiuse-blue</code> em telas novas (legacy)</li>
+          <li>Não esconder etiqueta de fonte de dado (Regra 7)</li>
+          <li>Não fazer override com <code>!important</code> (reflita no DESIGN.md)</li>
+          <li>Não publicar dado fake sem badge <code>projecao</code>/<code>pending</code></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<office-footer></office-footer>
+
+<script>
+let TOKENS = null;
+
+function fmt(n) { return n == null ? '—' : String(n); }
+
+async function carregar() {
+  const r = await fetch('/api/design-tokens.json');
+  TOKENS = await r.json();
+
+  document.getElementById('sub').textContent =
+    `${TOKENS.name} · versão ${TOKENS.version} · gerado em ${TOKENS.generated_at.slice(0,16).replace('T',' ')} · ${Object.keys(TOKENS.colors).length} colors · ${Object.keys(TOKENS.typography).length} type · ${Object.keys(TOKENS.components).length} components`;
+
+  renderColors();
+  renderTypes();
+  renderSpacings();
+  renderRoundeds();
+  renderElevations();
+}
+
+function renderColors() {
+  const cats = {
+    '🐘 Group Elephant (holding)': k => k.startsWith('ge-'),
+    '🔵 EPI-USE Brasil — Primary': k => k.startsWith('primary-'),
+    '🔵 EPI-USE Brasil — Secondary': k => k.startsWith('secondary-') || k.startsWith('bg-light-'),
+    '🦏 ERP.ngo (NGO)': k => k.startsWith('erp-'),
+    'Semantic (UI status)': k => /^(success|warning|danger|info|ia-)/.test(k),
+    'Neutral Dark (tema padrão)': k => k.startsWith('neutral-dark-'),
+    'Neutral Light (tema claro)': k => k.startsWith('neutral-light-'),
+  };
+  const all = Object.entries(TOKENS.colors);
+  document.getElementById('color-count').textContent = `${all.length} tokens`;
+
+  document.getElementById('color-cats').innerHTML = Object.entries(cats).map(([cat, filterFn]) => {
+    const items = all.filter(([k]) => filterFn(k));
+    if (items.length === 0) return '';
+    return `
+      <h3 style="font-size:12px;color:var(--color-text-muted);margin-top:14px;margin-bottom:8px;letter-spacing:.08em;text-transform:uppercase">${cat} (${items.length})</h3>
+      <div class="color-grid">
+        ${items.map(([name, hex]) => `
+          <div class="swatch" onclick="copyHex('${hex}')" title="Clique pra copiar">
+            <div class="swatch-color" style="background:${hex}"></div>
+            <div class="swatch-meta">
+              <div class="swatch-name">--color-${name}</div>
+              <div class="swatch-hex">${hex}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }).join('');
+}
+
+function renderTypes() {
+  const t = TOKENS.typography;
+  document.getElementById('type-count').textContent = `${Object.keys(t).length} levels`;
+  document.getElementById('types').innerHTML = Object.entries(t).map(([name, props]) => {
+    const style = Object.entries(props).map(([k, v]) => {
+      const css = {fontFamily:'font-family',fontSize:'font-size',fontWeight:'font-weight',lineHeight:'line-height',letterSpacing:'letter-spacing',textTransform:'text-transform'}[k];
+      if (!css) return '';
+      const val = (k==='fontFamily' && /\s/.test(v) && !/['"]/.test(v)) ? `"${v}"` : v;
+      return `${css}:${val}`;
+    }).filter(Boolean).join(';');
+    return `
+      <div class="type-row">
+        <div class="type-name">
+          <code>${name}</code><br>
+          <span style="opacity:.7;font-size:10px">${props.fontSize || ''} · ${props.fontFamily}</span>
+        </div>
+        <div class="type-preview" style="${style}">EPI-USE Voices · 2026 · Marketing & RevOps</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderSpacings() {
+  const s = TOKENS.spacing;
+  document.getElementById('sp-count').textContent = `${Object.keys(s).length} levels`;
+  document.getElementById('spacings').innerHTML = Object.entries(s).map(([name, val]) => {
+    const px = parseInt(val) || 0;
+    return `
+      <div class="spacing-row">
+        <span class="spacing-name">${name}</span>
+        <span class="spacing-val">${val}</span>
+        <div class="spacing-bar" style="width:${Math.max(2,px*2)}px"></div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderRoundeds() {
+  const r = TOKENS.rounded;
+  document.getElementById('rd-count').textContent = `${Object.keys(r).length} levels`;
+  document.getElementById('roundeds').innerHTML = Object.entries(r).map(([name, val]) => `
+    <div class="rounded-box" style="border-radius:${val}">${name}<br><span style="opacity:.7;font-size:8px">${val}</span></div>
+  `).join('');
+}
+
+function renderElevations() {
+  const e = TOKENS.elevation;
+  document.getElementById('el-count').textContent = `${Object.keys(e).length} levels`;
+  document.getElementById('elevs').innerHTML = Object.entries(e).map(([name, val]) => `
+    <div class="elev-box" style="box-shadow:${val}">${name}</div>
+  `).join('');
+}
+
+function copyHex(hex) {
+  navigator.clipboard.writeText(hex);
+  // Quick visual feedback
+  const sub = document.getElementById('sub');
+  const orig = sub.textContent;
+  sub.textContent = `📋 Copiado: ${hex}`;
+  setTimeout(() => { sub.textContent = orig; }, 1500);
+}
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const cur = html.getAttribute('data-theme') || 'dark';
+  const next = cur === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  document.getElementById('theme-btn').textContent = next === 'dark' ? '☀ Light Mode' : '☾ Dark Mode';
+}
+
+carregar();
+</script>
+</body>
+</html>

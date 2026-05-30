@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📊 Relatório Mensal · EPI-USE Office</title>
+<link rel="stylesheet" href="/design-tokens.css">
+<script type="module" src="/office-nav.js"></script>
+<script type="module" src="/office-footer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after { box-sizing:border-box; margin:0; padding:0 }
+  /* Tokens vêm de /design-tokens.css (aliases legados mantidos pra compat) */
+  /* Adições locais — só se necessário */
+  body {
+    background: linear-gradient(180deg, var(--color-bg-2) 0%, var(--color-bg) 100%);
+    color: var(--color-text); font-family: 'Inter', sans-serif;
+    min-height: 100vh; padding-bottom: 80px;
+  }
+  .container { max-width: 1280px; margin: 0 auto; padding: 24px; }
+
+  /* HEADER */
+  .rep-header {
+    display:flex; justify-content:space-between; align-items:center; gap:20px;
+    padding: 18px 24px; background: rgba(15,30,53,.6); border:1px solid var(--border);
+    border-radius: 14px; margin-bottom: 24px; flex-wrap: wrap;
+  }
+  .rep-title { font-size: 24px; font-weight: 700; }
+  .rep-title small { display:block; font-size: 12px; color: var(--muted); font-weight: 400; margin-top: 4px; letter-spacing: .04em }
+  .rep-controls { display:flex; gap: 8px; align-items: center; flex-wrap: wrap }
+  .rep-controls select, .rep-controls button {
+    background: rgba(96,165,250,.10); border: 1px solid rgba(96,165,250,.30);
+    color: var(--accent); padding: 7px 12px; border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; cursor: pointer;
+    transition: background .15s; white-space: nowrap;
+  }
+  .rep-controls select { min-width: 110px; }
+  .rep-controls button { min-width: 36px; }
+  .rep-controls button:hover, .rep-controls select:hover { background: rgba(96,165,250,.20) }
+  .rep-controls button.primary { background: var(--accent); color: #0a1525; font-weight: 700; }
+  .rep-controls button.primary:hover { background: #93c5fd }
+
+  /* AGENDA */
+  .agenda {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px;
+    padding: 14px; background: rgba(15,30,53,.4); border:1px solid var(--border);
+    border-radius: 12px; margin-bottom: 24px;
+  }
+  @media (max-width: 1024px) {
+    .agenda { grid-template-columns: repeat(4, 1fr); }
+  }
+  @media (max-width: 640px) {
+    .agenda { grid-template-columns: repeat(2, 1fr); }
+  }
+  .agenda-item {
+    display:flex; align-items:center; gap:8px; padding: 8px 12px;
+    background: rgba(96,165,250,.05); border-radius: 6px; font-size: 12px;
+    color: var(--muted); cursor: pointer; transition: all .15s;
+  }
+  .agenda-item:hover { background: rgba(96,165,250,.15); color: var(--text); transform: translateY(-1px) }
+  .agenda-num { font-family: 'JetBrains Mono', monospace; font-weight:700; color: var(--accent); }
+
+  /* SECTIONS */
+  .sec { margin-bottom: 36px; }
+  .sec-hdr {
+    display:flex; align-items:center; gap:14px; margin-bottom: 16px;
+    padding-bottom: 10px; border-bottom: 1px solid var(--border);
+  }
+  .sec-num {
+    width: 32px; height: 32px; display:flex; align-items:center; justify-content:center;
+    border-radius: 8px; background: linear-gradient(135deg, var(--accent), var(--purple));
+    color: #0a1525; font-weight: 800; font-size: 14px;
+  }
+  .sec-title { font-size: 18px; font-weight: 700; }
+
+  /* KPIs DIGITAIS — 4 colunas */
+  .kpi-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;
+  }
+  .kpi-canal {
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 18px; position: relative;
+  }
+  .kpi-canal h3 {
+    font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 14px; display:flex; align-items:center; gap:8px;
+  }
+  .kpi-row {
+    display:flex; justify-content:space-between; align-items: baseline;
+    padding: 8px 0; border-bottom: 1px dashed rgba(148,163,184,.10);
+  }
+  .kpi-row:last-child { border-bottom: 0 }
+  .kpi-label { font-size: 11px; color: var(--dim); }
+  .kpi-val { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 15px; }
+  .kpi-mom { font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 6px; font-family:'JetBrains Mono',monospace }
+  .kpi-mom.up { background: rgba(16,185,129,.15); color: var(--green) }
+  .kpi-mom.down { background: rgba(239,68,68,.15); color: var(--red) }
+  .kpi-mom.flat { background: rgba(148,163,184,.10); color: var(--muted) }
+
+  /* LINKEDIN DETALHE */
+  .li-hero {
+    display: grid; grid-template-columns: 1fr 2fr; gap: 20px; margin-bottom: 18px;
+  }
+  .li-hero-card {
+    background: linear-gradient(135deg, rgba(0,102,178,.15), rgba(96,165,250,.08));
+    border: 1px solid rgba(0,102,178,.30); border-radius: 14px; padding: 22px;
+  }
+  .li-big-num { font-size: 40px; font-weight: 800; font-family:'JetBrains Mono',monospace; color: var(--accent); line-height: 1; }
+  .li-big-label { font-size: 12px; color: var(--muted); margin-top: 6px; letter-spacing: .04em; text-transform: uppercase }
+  .li-delta { display: inline-block; padding: 4px 10px; border-radius: 6px; margin-top: 12px; font-family:'JetBrains Mono',monospace; font-size: 12px; }
+  .li-chart-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px; position: relative; height: 240px; }
+
+  /* DEMO TOPS */
+  .demo-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap:12px; margin-top: 14px }
+  .demo-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+  .demo-card h4 { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  .demo-bar { display:flex; justify-content:space-between; align-items:center; padding: 4px 0; font-size: 12px; }
+  .demo-bar-lbl { color: var(--text); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+  .demo-bar-val { font-family:'JetBrains Mono',monospace; color: var(--accent); font-weight: 600; }
+
+  /* ALERTAS */
+  .alerts-strip { display:flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+  .alert {
+    padding: 10px 14px; border-radius: 8px; font-size: 13px;
+    border-left: 4px solid; display:flex; align-items:center; gap: 10px;
+  }
+  .alert.warn { background: rgba(251,191,36,.08); border-color: var(--yellow); color: #fcd34d; }
+  .alert.info { background: rgba(96,165,250,.08); border-color: var(--accent); color: #93c5fd; }
+  .alert.err { background: rgba(239,68,68,.08); border-color: var(--red); color: #fca5a5; }
+
+  /* CONTEUDO/EVENTOS/VOICES — cards genéricos */
+  .gen-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 18px; margin-bottom: 14px;
+  }
+  .gen-row { display:flex; justify-content:space-between; padding: 6px 0; font-size: 13px; }
+  .gen-row-lbl { color: var(--muted); }
+  .gen-row-val { color: var(--text); font-weight: 600; font-family:'JetBrains Mono',monospace }
+
+  /* TÁTICA ELEFANTE */
+  .eleph-card {
+    background: linear-gradient(135deg, rgba(116,104,91,.15), rgba(187,169,151,.08));
+    border: 1px solid rgba(116,104,91,.30); border-radius: 14px; padding: 18px;
+  }
+  .eleph-row {
+    display:grid; grid-template-columns: 1fr 100px 70px;
+    gap: 12px; padding: 8px 0; align-items: center;
+    border-bottom: 1px dashed rgba(148,163,184,.10); font-size: 13px;
+  }
+  .eleph-row:last-child { border-bottom: 0 }
+  .eleph-date { font-family: 'JetBrains Mono', monospace; color: var(--muted); font-size: 11px; }
+  .eleph-name { color: var(--text); }
+  .eleph-seg { text-align:right; font-family: 'JetBrains Mono', monospace; font-weight:700; color: #fbbf24 }
+
+  /* PRINT */
+  @media print {
+    @page { size: A4; margin: 12mm }
+    .rep-controls, office-nav, office-footer, .agenda { display: none !important; }
+    body { background: white; color: #1e293b; }
+    .gen-card, .kpi-canal, .demo-card, .li-chart-card, .li-hero-card { background: white !important; border-color: #e2e8f0 !important; box-shadow: none; break-inside: avoid; }
+    .sec { break-inside: avoid; }
+    .kpi-val, .li-big-num, .gen-row-val, .eleph-seg { color: #0066B2 !important; }
+    .demo-bar-val { color: #131B41 !important; }
+  }
+</style>
+</head>
+<body data-route="relatorio">
+<office-nav></office-nav>
+
+<div class="container" id="rep-root">
+  <!-- HEADER -->
+  <div class="rep-header">
+    <div style="min-width:0;flex:1">
+      <div class="rep-title">📊 Monthly Report — Marketing</div>
+      <small id="rep-subtitle" style="display:block;color:var(--muted);font-size:12px;margin-top:4px">Carregando...</small>
+    </div>
+    <div class="rep-controls">
+      <button onclick="navMes(-1)" title="Mês anterior">◀</button>
+      <select id="mes-select" onchange="setMes(this.value)"></select>
+      <button onclick="navMes(+1)" title="Próximo mês">▶</button>
+      <button class="primary" onclick="exportarPDF()">⬇ PDF</button>
+    </div>
+  </div>
+
+  <div style="background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.25);border-radius:8px;padding:10px 14px;margin-bottom:18px;font-size:11.5px;color:#fcd34d;line-height:1.5">
+    ⚠️ <b>Transparência de dados (Regra 7):</b> LinkedIn · Cases · Voices · Metas FY26 = real · Site/Instagram/Email = aguardam integração (GA4/Graph/RD) · Eventos sem o mês = top históricos com label · Pipeline = aguarda Apollo sync
+  </div>
+
+  <!-- AGENDA -->
+  <div class="agenda">
+    <div class="agenda-item" onclick="scrollToSec('s1')"><span class="agenda-num">1</span> KPIs Digitais</div>
+    <div class="agenda-item" onclick="scrollToSec('s2')"><span class="agenda-num">2</span> LinkedIn</div>
+    <div class="agenda-item" onclick="scrollToSec('s3')"><span class="agenda-num">3</span> Conteúdo</div>
+    <div class="agenda-item" onclick="scrollToSec('s4')"><span class="agenda-num">4</span> Eventos</div>
+    <div class="agenda-item" onclick="scrollToSec('s5')"><span class="agenda-num">5</span> Voices</div>
+    <div class="agenda-item" onclick="scrollToSec('s6')"><span class="agenda-num">6</span> SDR/Pipeline</div>
+    <div class="agenda-item" onclick="scrollToSec('s7')"><span class="agenda-num">7</span> Next Steps</div>
+  </div>
+
+  <!-- ALERTAS -->
+  <div id="alertas-box"></div>
+
+  <!-- 1. KPIs DIGITAIS -->
+  <section class="sec" id="s1">
+    <div class="sec-hdr"><div class="sec-num">1</div><div class="sec-title">KPIs Digitais</div></div>
+    <div class="kpi-grid" id="kpis-grid">
+      <!-- 4 cards: Site · LinkedIn · Instagram · E-mail -->
+    </div>
+  </section>
+
+  <!-- 2. LINKEDIN -->
+  <section class="sec" id="s2">
+    <div class="sec-hdr"><div class="sec-num">2</div><div class="sec-title">LinkedIn — Detalhe</div></div>
+    <div class="li-hero">
+      <div class="li-hero-card">
+        <div id="li-total" class="li-big-num">—</div>
+        <div class="li-big-label">Seguidores Totais</div>
+        <div id="li-delta" class="li-delta">—</div>
+        <div style="margin-top: 18px; font-size: 12px; color: var(--muted)">
+          📧 <span id="li-newsletter">—</span> assinantes newsletter
+        </div>
+        <div style="margin-top: 4px; font-size: 12px; color: var(--muted)">
+          📝 <span id="li-posts">—</span> posts no mês
+        </div>
+        <div style="margin-top: 4px; font-size: 12px; color: var(--muted)">
+          👀 <span id="li-impressoes">—</span> impressões
+        </div>
+      </div>
+      <div class="li-chart-card">
+        <canvas id="li-chart-12m"></canvas>
+      </div>
+    </div>
+    <div class="demo-grid" id="li-demo"></div>
+  </section>
+
+  <!-- 3. CONTEÚDO -->
+  <section class="sec" id="s3">
+    <div class="sec-hdr"><div class="sec-num">3</div><div class="sec-title">Conteúdo do Mês</div></div>
+    <div class="gen-card" id="conteudo-card">
+      <div class="gen-row"><span class="gen-row-lbl">Temas trabalhados</span><span class="gen-row-val" id="ct-temas">—</span></div>
+      <div class="gen-row"><span class="gen-row-lbl">Publicações de colaboradores (Voices)</span><span class="gen-row-val" id="ct-voices">—</span></div>
+      <div class="gen-row"><span class="gen-row-lbl">Taxa média de engajamento</span><span class="gen-row-val" id="ct-eng">—</span></div>
+      <div class="gen-row"><span class="gen-row-lbl">Destaques do mês</span><span class="gen-row-val" id="ct-destaques">—</span></div>
+    </div>
+  </section>
+
+  <!-- 4. EVENTOS -->
+  <section class="sec" id="s4">
+    <div class="sec-hdr"><div class="sec-num">4</div><div class="sec-title">Eventos — Tática do Elefante 🐘</div></div>
+    <div class="eleph-card" id="elefantes">
+      <div style="font-size: 12px; color: var(--muted); margin-bottom: 12px;">
+        Brindes em forma de elefante distribuídos em troca de seguir a página — ativação principal do programa.
+      </div>
+      <div id="elefantes-rows"></div>
+      <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(148,163,184,.15); display:flex; justify-content:space-between; font-size: 13px;">
+        <span style="color: var(--muted)">Total ganho via eventos</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-weight:700; color: #fbbf24">
+          <span id="elef-total">—</span> seg · <span id="elef-pct">—</span>% do total
+        </span>
+      </div>
+    </div>
+    <div class="gen-card" style="margin-top: 14px">
+      <h4 style="font-size: 12px; color: var(--muted); margin-bottom: 10px; letter-spacing: .08em; text-transform: uppercase">📅 Próximos Eventos</h4>
+      <div id="prox-eventos"></div>
+    </div>
+  </section>
+
+  <!-- 5. VOICES -->
+  <section class="sec" id="s5">
+    <div class="sec-hdr"><div class="sec-num">5</div><div class="sec-title">EPI-USE Voices</div></div>
+    <div class="gen-card" id="voices-card">
+      <div style="font-size: 13px; color: var(--muted); margin-bottom: 14px;">
+        Programa de influência executiva — embaixadores técnicos no LinkedIn.
+      </div>
+      <div class="gen-row"><span class="gen-row-lbl">Voices ativos</span><span class="gen-row-val" id="v-ativos">—</span></div>
+      <div class="gen-row"><span class="gen-row-lbl">Total no programa</span><span class="gen-row-val" id="v-total">—</span></div>
+      <div id="v-lista" style="margin-top: 14px; display:grid; grid-template-columns: repeat(auto-fill,minmax(200px,1fr)); gap: 10px;"></div>
+    </div>
+  </section>
+
+  <!-- 6. SDR/PIPELINE -->
+  <section class="sec" id="s6">
+    <div class="sec-hdr"><div class="sec-num">6</div><div class="sec-title">SDR / Pipeline (Apollo)</div></div>
+    <div class="gen-card" id="pipeline-card">
+      <div style="font-size: 13px; color: var(--muted); text-align:center; padding: 24px;">
+        🔌 Integração Apollo MCP — em desenvolvimento (Onda 5 v0.5.0).<br>
+        Dados disponíveis em breve: contas ativas · contatos · sequências · reuniões · pipeline R$.
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. NEXT STEPS / CASES -->
+  <section class="sec" id="s7">
+    <div class="sec-hdr"><div class="sec-num">7</div><div class="sec-title">Cases & CS Highlights</div></div>
+    <div class="gen-card" id="cases-card">
+      <div class="gen-row"><span class="gen-row-lbl">Case publicado</span><span class="gen-row-val" id="cs-pub">—</span></div>
+      <div class="gen-row"><span class="gen-row-lbl">Em edição</span><span class="gen-row-val" id="cs-edit">—</span></div>
+      <div class="gen-row"><span class="gen-row-lbl">Em negociação</span><span class="gen-row-val" id="cs-neg">—</span></div>
+      <div class="gen-row"><span class="gen-row-lbl">Declinado</span><span class="gen-row-val" id="cs-dec">—</span></div>
+    </div>
+  </section>
+</div>
+
+<office-footer></office-footer>
+
+<script>
+let chart12m = null;
+let mesAtual = null;
+
+function fmt(n) { return n == null ? '—' : Number(n).toLocaleString('pt-BR') }
+function fmtMomBadge(pct) {
+  if (pct == null) return '<span class="kpi-mom flat">—</span>';
+  const cls = pct > 0 ? 'up' : pct < 0 ? 'down' : 'flat';
+  const arrow = pct > 0 ? '↗' : pct < 0 ? '↘' : '→';
+  return `<span class="kpi-mom ${cls}">${arrow} ${Math.abs(pct).toFixed(1)}%</span>`;
+}
+
+async function carregar(mes) {
+  mesAtual = mes;
+  document.getElementById('rep-subtitle').textContent = `${mes} · agregado de /api/relatorio/snapshot · gerado em tempo real`;
+  const r = await fetch(`/api/relatorio/snapshot?mes=${mes}`);
+  const d = await r.json();
+  if (!d.success) { alert('Falha ao carregar: ' + d.error); return; }
+
+  // Header
+  const [y, m] = mes.split('-');
+  const NOMES = ['','Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  document.querySelector('.rep-title').firstChild.textContent = `📊 Monthly Report — Marketing · ${NOMES[+m]} de ${y}`;
+
+  // Alertas
+  renderAlertas(d.alertas);
+
+  // KPIs Digitais (4 colunas)
+  renderKPIs(d.linkedin);
+
+  // LinkedIn detalhe
+  document.getElementById('li-total').textContent = fmt(d.linkedin.total_atual);
+  document.getElementById('li-newsletter').textContent = fmt(d.linkedin.newsletter);
+  document.getElementById('li-posts').textContent = fmt(d.linkedin.posts_mes);
+  document.getElementById('li-impressoes').textContent = fmt(d.linkedin.impressoes);
+  const dEl = document.getElementById('li-delta');
+  dEl.innerHTML = `+${fmt(d.linkedin.novos)} novos ${fmtMomBadge(d.linkedin.novos_mom_pct)}`;
+
+  renderChart12m(d.linkedin.serie_12m);
+  renderDemo(d.linkedin.demografia);
+
+  // Eventos
+  renderElefantes(d.linkedin.tatica_elefante, d.linkedin.eventos_mes);
+  renderProxEventos(d.eventos_proximos);
+
+  // Voices
+  document.getElementById('v-ativos').textContent = fmt(d.voices.ativos);
+  document.getElementById('v-total').textContent = fmt(d.voices.total);
+  document.getElementById('v-lista').innerHTML = (d.voices.lista || []).map(v =>
+    `<div style="background: rgba(96,165,250,.08); padding: 10px; border-radius: 8px; font-size: 12px;">
+      <div style="font-weight: 600">${v.nome}</div>
+      <div style="color: var(--muted); margin-top: 4px;">${v.area || '—'} · ${v.status || '—'}</div>
+      <div style="font-family:'JetBrains Mono',monospace; color: var(--accent); margin-top: 4px; font-size:11px">SSI ${v.ssi || '?'} · ${fmt(v.seg)} seg</div>
+    </div>`).join('');
+
+  // Cases
+  document.getElementById('cs-pub').textContent = fmt(d.cases.publicado);
+  document.getElementById('cs-edit').textContent = fmt(d.cases.em_edicao);
+  document.getElementById('cs-neg').textContent = fmt(d.cases.negociacao);
+  document.getElementById('cs-dec').textContent = fmt(d.cases.declinado);
+}
+
+function renderAlertas(alertas) {
+  const box = document.getElementById('alertas-box');
+  if (!alertas || alertas.length === 0) { box.innerHTML = ''; return; }
+  box.className = 'alerts-strip';
+  box.innerHTML = '<div style="font-size:11px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">⚠️ Alertas automáticos</div>' +
+    alertas.map(a => `<div class="alert ${a.tipo}">${a.tipo === 'warn' ? '⚠️' : 'ℹ️'} ${a.msg}</div>`).join('');
+}
+
+function renderKPIs(li) {
+  const grid = document.getElementById('kpis-grid');
+  grid.innerHTML = `
+    <div class="kpi-canal">
+      <h3>💼 LinkedIn</h3>
+      <div class="kpi-row"><span class="kpi-label">Seguidores totais</span><span class="kpi-val">${fmt(li.total_atual)}</span></div>
+      <div class="kpi-row"><span class="kpi-label">Novos no mês</span><span class="kpi-val">+${fmt(li.novos)} ${fmtMomBadge(li.novos_mom_pct)}</span></div>
+      <div class="kpi-row"><span class="kpi-label">Impressões</span><span class="kpi-val">${fmt(li.impressoes)}</span></div>
+      <div class="kpi-row"><span class="kpi-label">Posts</span><span class="kpi-val">${fmt(li.posts_mes)}</span></div>
+    </div>
+    <div class="kpi-canal">
+      <h3>🌐 Site</h3>
+      <div class="kpi-row"><span class="kpi-label">Usuários</span><span class="kpi-val">— ${fmtMomBadge(null)}</span></div>
+      <div class="kpi-row"><span class="kpi-label">Visualizações</span><span class="kpi-val">—</span></div>
+      <div class="kpi-row"><span class="kpi-label">Duração sessão</span><span class="kpi-val">—</span></div>
+      <div class="kpi-row" style="color:var(--dim);font-size:10px"><span>⚠️ Aguarda integração GA4 API</span></div>
+    </div>
+    <div class="kpi-canal">
+      <h3>📷 Instagram</h3>
+      <div class="kpi-row"><span class="kpi-label">Seguidores</span><span class="kpi-val">— ${fmtMomBadge(null)}</span></div>
+      <div class="kpi-row"><span class="kpi-label">Alcance</span><span class="kpi-val">—</span></div>
+      <div class="kpi-row" style="color:var(--dim);font-size:10px"><span>⚠️ Aguarda Instagram Graph API</span></div>
+    </div>
+    <div class="kpi-canal">
+      <h3>✉️ E-mail (RD Station)</h3>
+      <div class="kpi-row"><span class="kpi-label">Taxa abertura</span><span class="kpi-val">—</span></div>
+      <div class="kpi-row"><span class="kpi-label">Taxa cliques</span><span class="kpi-val">—</span></div>
+      <div class="kpi-row"><span class="kpi-label">Leads</span><span class="kpi-val">—</span></div>
+      <div class="kpi-row" style="color:var(--dim);font-size:10px"><span>⚠️ Personal API Token RD pendente</span></div>
+    </div>
+  `;
+}
+
+function renderChart12m(serie) {
+  const ctx = document.getElementById('li-chart-12m').getContext('2d');
+  if (chart12m) chart12m.destroy();
+  const labels = serie.map(s => s.mes);
+  const totals = serie.map(s => s.total_seguidores || null);
+  const novos = serie.map(s => s.novos || s.novos_diario || 0);
+  chart12m = new Chart(ctx, {
+    data: {
+      labels,
+      datasets: [
+        { type:'line', label:'Total Seguidores', data: totals, borderColor:'#60a5fa', backgroundColor:'rgba(96,165,250,.10)', yAxisID:'y', tension:0.3, fill: true, spanGaps: true },
+        { type:'bar',  label:'Novos no Mês',     data: novos,  backgroundColor:'rgba(167,139,250,.65)', yAxisID:'y2' },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#94a3b8', font: { size: 10 }}}},
+      scales: {
+        x: { ticks: { color: '#64748b', font: { size: 10 }}, grid: { color: 'rgba(148,163,184,.05)' }},
+        y: { position: 'left', ticks: { color: '#60a5fa', font: { size: 10 }}, grid: { color: 'rgba(148,163,184,.05)' }, title: { display: true, text: 'Total', color: '#60a5fa', font: { size: 10 }}},
+        y2: { position: 'right', ticks: { color: '#a78bfa', font: { size: 10 }}, grid: { display: false }, title: { display: true, text: 'Novos', color: '#a78bfa', font: { size: 10 }}},
+      }
+    }
+  });
+}
+
+function renderDemo(demo) {
+  if (!demo) return;
+  const grid = document.getElementById('li-demo');
+  const cards = [];
+  const order = [['Localidade','📍 Top Localidades'], ['Função','💼 Top Funções'], ['Nível de experiência','🎓 Níveis'], ['Setor','🏢 Top Setores'], ['Tamanho da empresa','🏗️ Tamanho']];
+  for (const [k, label] of order) {
+    const arr = demo[k] || [];
+    if (!arr.length) continue;
+    const top5 = arr.slice(0, 5);
+    cards.push(`<div class="demo-card"><h4>${label}</h4>` +
+      top5.map(d => `<div class="demo-bar"><span class="demo-bar-lbl">${d.label}</span><span class="demo-bar-val">${fmt(d.value)}</span></div>`).join('') +
+      `</div>`);
+  }
+  grid.innerHTML = cards.join('');
+}
+
+function renderElefantes(tatica, eventos_mes) {
+  const rows = document.getElementById('elefantes-rows');
+  const temEventoNoMes = eventos_mes && eventos_mes.length > 0;
+  // Eventos REAIS dos últimos 10 meses (xls Sergio) — usados como fallback
+  // QUANDO o mês selecionado não teve evento marcado. Labelado claramente.
+  const FALLBACK_HISTORICO = [
+    { data:'2025-08-20', evento:'SAP NOW 2025', total: 101 },
+    { data:'2025-08-19', evento:'SAP NOW 2026', total: 72 },
+    { data:'2026-05-16', evento:'Inside Track GO 2026', total: 28 },
+    { data:'2026-03-03', evento:'BTP Experience 2026', total: 26 },
+  ];
+  const lista = temEventoNoMes ? eventos_mes : FALLBACK_HISTORICO;
+  const headerLabel = temEventoNoMes
+    ? '🔴 Eventos do mês selecionado (dado real)'
+    : '📜 <em>Top 4 históricos (não houve evento marcado no mês selecionado)</em>';
+  rows.innerHTML = `<div style="font-size:11px;color:${temEventoNoMes ? '#10b981' : '#fbbf24'};margin-bottom:8px;font-weight:600">${headerLabel}</div>` +
+    lista.map(e => `
+      <div class="eleph-row">
+        <span class="eleph-name">🐘 ${e.evento}</span>
+        <span class="eleph-date">${e.data}</span>
+        <span class="eleph-seg">+${e.total}</span>
+      </div>
+    `).join('');
+  document.getElementById('elef-total').textContent = fmt(tatica?.seguidores_via_eventos || 0);
+  document.getElementById('elef-pct').textContent = (tatica?.pct_eventos || 0).toFixed(1);
+}
+
+function renderProxEventos(ev) {
+  const box = document.getElementById('prox-eventos');
+  if (!ev || ev.length === 0) { box.innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:14px">Sem eventos próximos cadastrados</div>'; return; }
+  box.innerHTML = ev.map(e => `
+    <div style="display:flex; justify-content:space-between; padding: 8px 0; border-bottom: 1px dashed rgba(148,163,184,.10); font-size: 13px;">
+      <span>${e.nome || e.titulo || e.evento}</span>
+      <span style="color: var(--accent); font-family:'JetBrains Mono',monospace; font-size: 11px">${e.data_inicio || e.data || ''}</span>
+    </div>
+  `).join('');
+}
+
+// ── Navegação de mês
+async function inicializarSelect() {
+  const r = await fetch('/api/linkedin/historical');
+  const d = await r.json();
+  if (!d.success) return;
+  const meses = (d.serie_mensal || []).map(m => m.mes).sort();
+  const sel = document.getElementById('mes-select');
+  sel.innerHTML = meses.map(m => `<option value="${m}">${m}</option>`).join('');
+  const ultimoMes = meses[meses.length - 1] || new Date().toISOString().slice(0, 7);
+  sel.value = ultimoMes;
+  carregar(ultimoMes);
+}
+
+function setMes(m) { carregar(m); }
+function navMes(delta) {
+  const sel = document.getElementById('mes-select');
+  const opts = Array.from(sel.options).map(o => o.value);
+  const i = opts.indexOf(sel.value);
+  const novo = opts[Math.max(0, Math.min(opts.length-1, i + delta))];
+  sel.value = novo; carregar(novo);
+}
+function scrollToSec(id) { document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+window.scrollToSec = scrollToSec;
+
+function exportarPDF() {
+  if (typeof html2pdf === 'undefined') { window.print(); return; }
+  const root = document.getElementById('rep-root');
+  const filename = `relatorio-${mesAtual || 'mensal'}.pdf`;
+  html2pdf().set({
+    margin: [10, 8, 12, 8], filename,
+    image: { type: 'jpeg', quality: 0.92 },
+    html2canvas: { scale: 1.6, useCORS: true, backgroundColor: '#0a1525' },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true },
+    pagebreak: { mode: ['css', 'legacy'], avoid: ['.sec', '.kpi-canal', '.gen-card', '.li-chart-card', '.eleph-card'] }
+  }).from(root).save();
+}
+
+inicializarSelect();
+</script>
+</body>
+</html>

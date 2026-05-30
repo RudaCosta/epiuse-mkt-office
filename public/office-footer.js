@@ -3,15 +3,19 @@
 // Status do sistema + versão atual + dropdown de versões anteriores
 // ════════════════════════════════════════════════════════════════════════════
 
-const OFFICE_FOOTER_VERSION = '0.4.11';
-const OFFICE_FOOTER_BUILD = '2026-05-26';
+const OFFICE_FOOTER_VERSION = '0.6.4';
+const OFFICE_FOOTER_BUILD = '2026-05-28';
 
 // Schema semver pré-1.0 — explicação em vault/00-contexto/versioning.md
 // Versões antigas que começavam com "v2.X" ou "v3.X" foram renumeradas pra 0.2.X / 0.3.X
 // (semver indica pré-1.0 enquanto não há "release oficial"). URLs dos snapshots no
 // disco mantêm o prefixo antigo (v3.X) pra não quebrar links — só o label visual mudou.
 const OFFICE_VERSION_HISTORY = [
-  { ver: '0.4.11', date: '26/mai/2026', label: 'HOTFIX: extract da transcrição (Haiku 5× rápido + AbortController + timer visual)', path: null, status: 'current' },
+  { ver: '0.6.0',  date: '28/mai/2026', label: 'DESIGN SYSTEM unificado (Google Labs DESIGN.md spec) · /design viewer Storybook lite · gen_tokens.py (52 colors · 13 type · 12 components) · 3 telas refatoradas (metas-fy26 · relatorio · dashboard) · Rule 8 (não hardcodar hex)', path: null, status: 'current' },
+  { ver: '0.5.1',  date: '28/mai/2026', label: '/metas-fy26 oficial (29 metas × 6 áreas, LinkedIn 69.9% real-time) · Bug fix menu /relatorio (scrollTo shadowing) · Layout encavalado fixado · Rule 7 NO FAKE DATA · mapa-fontes-dados.md auditoria 20+ métricas · Memes-rudugues.md · Hooks lifecycle doc (manual setup)', path: null, status: 'snapshot' },
+  { ver: '0.5.0',  date: '27/mai/2026', label: 'SPRINT MONSTRO: /relatorio (espelha PPT mensal) · /artigos (693 do Manus) · /jornadas (matriz LOB×etapa+gaps) · /projecoes (paid media) · /pipeline (Apollo MVP) · Skill relatorio-mensal (auto-PPT) · 5 endpoints novos · 17m história LinkedIn real', path: null, status: 'snapshot' },
+  { ver: '0.4.12', date: '27/mai/2026', label: 'Optimizer split em 2 calls Sonnet (~70+70s, sem timeout) · ERP.ngo branding (logo + tokens) · Export PDF do kit (html2pdf)', path: null, status: 'snapshot' },
+  { ver: '0.4.11', date: '26/mai/2026', label: 'HOTFIX: extract da transcrição (Haiku 5× rápido + AbortController + timer visual)', path: null, status: 'snapshot' },
   { ver: '0.4.10', date: '26/mai/2026', label: 'HOTFIX: + Novo Voice agora cria de verdade (PUT virou upsert)', path: null, status: 'snapshot' },
   { ver: '0.4.9', date: '26/mai/2026', label: 'Optimizer 3 modos: transcrição entrevista (Claude extrai tudo) · roteiro 12 perguntas · manual (fallback)', path: '/_versoes-office/v0.4.9-optimizer.html', status: 'snapshot' },
   { ver: '0.4.8', date: '26/mai/2026', label: 'Painel Metas LinkedIn + footer history corrigido', path: '/_versoes-office/v0.4.8-metas.html', status: 'snapshot' },
@@ -67,6 +71,9 @@ class OfficeFooter extends HTMLElement {
         }
         .foot a { color: #60a5fa; text-decoration: none; cursor: pointer; }
         .foot a:hover { text-decoration: underline; }
+        .foot a.erp-link { display: inline-flex; align-items: center; gap: 5px; }
+        .foot a.erp-link img { display: block; opacity: 0.9; transition: opacity .15s; }
+        .foot a.erp-link:hover img { opacity: 1; }
         .foot .sep { opacity: 0.4; }
         .status {
           display: inline-flex;
@@ -227,7 +234,7 @@ class OfficeFooter extends HTMLElement {
         <span class="sep">·</span>
         <span class="status">sistemas online</span>
         <span class="sep">·</span>
-        <a href="https://erp.ngo" target="_blank" rel="noopener">🐘 ERP.ngo</a>
+        <a href="https://erp.ngo" target="_blank" rel="noopener" class="erp-link" title="ERP.ngo · 1% receita global → conservação de elefantes e combate à pobreza rural"><img src="/assets/erp-ngo/erp-logo-white.svg" alt="ERP.ngo" height="14"> erp.ngo</a>
         <span class="sep">·</span>
         <span>build ${OFFICE_FOOTER_BUILD}</span>
       </footer>

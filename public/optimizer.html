@@ -5,8 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title id="page-title">Profile Optimizer — EPI-USE Voices</title>
   <script defer data-domain="epiuse-voices-optimizer.up.railway.app" src="https://plausible.io/js/script.js"></script>
+<link rel="stylesheet" href="/design-tokens.css">
   <script type="module" src="/office-nav.js"></script>
   <script type="module" src="/office-footer.js"></script>
+  <!-- html2pdf (v0.4.12) — download direto sem dialog do browser -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
   <meta name="author" content="EPI-USE Brasil Marketing">
   <meta id="meta-subject" name="subject" content="Profile Optimizer — EPI-USE Voices 2026">
   <meta id="meta-description" name="description" content="Kit de otimização de perfil LinkedIn — EPI-USE Voices 2026">
@@ -1430,9 +1433,13 @@
   <span class="rk-print-bar-label" id="rk-bar-label">🪪 Kit LinkedIn · EPI-USE Voices 2026</span>
   <div class="rk-print-bar-actions">
     <button class="btn-reset-bar" onclick="resetarAnalise()">↩ Nova análise</button>
-    <button class="btn-pdf" onclick="window.print()">
+    <button class="btn-pdf" onclick="exportarPDFDireto()" title="Baixa o PDF direto sem abrir dialog do browser">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Baixar PDF
+    </button>
+    <button class="btn-pdf" onclick="window.print()" style="background:rgba(96,165,250,.10);border-color:rgba(96,165,250,.30);color:#60a5fa" title="Abre dialog do browser pra escolher destino">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
-      Salvar como PDF
+      Imprimir
     </button>
   </div>
 </div>
@@ -2029,6 +2036,55 @@ if (transcriptEl) {
   });
 }
 
+// ════════════════════════════════════════════════════════════════════════════
+// analisar2Pass (v0.4.12) — chama /api/analisar-perfil/p1 + p2 sequencial.
+// P1 traz header/sobre/destaques (~70s), P2 traz Voice Index + estratégia
+// (~70s). Total ~140s. Se P2 falhar, renderiza P1 sozinho (graceful).
+// onProgress({step, total, label}) chamado a cada etapa pra UI atualizar.
+// ════════════════════════════════════════════════════════════════════════════
+async function analisar2Pass(formData, onProgress) {
+  onProgress && onProgress({ step: 1, total: 2, label: 'Gerando perfil base (parte 1/2 · Sonnet · ~70s)', detail: 'Header · Sobre · Competências · 5 Destaques · ERP.ngo' });
+  const c1 = new AbortController();
+  const t1 = setTimeout(() => c1.abort(new Error('TIMEOUT_P1_120S')), 120000);
+  let d1;
+  try {
+    const r1 = await fetch('/api/analisar-perfil/p1', { method: 'POST', body: formData, signal: c1.signal });
+    clearTimeout(t1);
+    d1 = await r1.json();
+  } catch (e) {
+    clearTimeout(t1);
+    throw new Error(e.name === 'AbortError' ? 'Parte 1 demorou demais (>120s). Reduza screenshots e tente novamente.' : 'Erro na parte 1: ' + e.message);
+  }
+  if (!d1.success) throw new Error(d1.error || 'Parte 1 falhou');
+
+  onProgress && onProgress({ step: 2, total: 2, label: 'Gerando análise estratégica (parte 2/2 · Sonnet · ~70s)', detail: 'Voice Index 7 pilares · Linha editorial 4 semanas · Social selling · KPIs' });
+  const p2Body = { p1: d1.p1 };
+  for (const [k, v] of formData.entries()) {
+    if (k !== 'screenshots') p2Body[k] = v;
+  }
+  const c2 = new AbortController();
+  const t2 = setTimeout(() => c2.abort(new Error('TIMEOUT_P2_120S')), 120000);
+  try {
+    const r2 = await fetch('/api/analisar-perfil/p2', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(p2Body),
+      signal: c2.signal
+    });
+    clearTimeout(t2);
+    const d2 = await r2.json();
+    if (!d2.success) {
+      console.warn('[analisar2Pass] P2 falhou — renderizando só P1:', d2.error);
+      return { ...d1.p1, _p2_failed: true, _p2_error: d2.error };
+    }
+    return { ...d1.p1, ...d2.p2 };
+  } catch (e) {
+    clearTimeout(t2);
+    console.warn('[analisar2Pass] P2 abortado — renderizando só P1:', e.message);
+    return { ...d1.p1, _p2_failed: true, _p2_error: e.name === 'AbortError' ? 'Parte 2 demorou demais (>120s)' : e.message };
+  }
+}
+
 async function runFromTranscript() {
   const text = transcriptEl.value.trim();
   if (text.length < 100) { alert('Cole pelo menos 100 caracteres de transcrição.'); return; }
@@ -2073,10 +2129,9 @@ async function runFromTranscript() {
     if (!extracted.success) throw new Error(extracted.error || 'Extração falhou');
 
     stopTimer();
-    startTimer('✓ Campos extraídos. Etapa 2/2 · Gerando kit (Sonnet, ~90s) ·');
     lbl.textContent = 'Gerando kit completo...';
 
-    // STEP 2: feed extracted into /api/analisar-perfil
+    // STEP 2: feed extracted into split p1/p2 (v0.4.12)
     const fd = new FormData();
     fd.append('linkedin_url', url || 'https://linkedin.com/in/voice-entrevistado');
     fd.append('nome', extracted.nome || '');
@@ -2094,19 +2149,21 @@ async function runFromTranscript() {
     fd.append('cargo_oficial', extracted.cargo_oficial || '');
     fd.append('foto_oficial', extracted.foto_oficial || false);
 
-    const c2 = new AbortController();
-    const t2 = setTimeout(() => c2.abort(new Error('TIMEOUT_180S')), 180000);
-    const r2 = await fetch('/api/analisar-perfil', { method: 'POST', body: fd, signal: c2.signal });
-    clearTimeout(t2);
-    const kitData = await r2.json();
-    if (!kitData.success) throw new Error(kitData.error || 'Geração do kit falhou');
+    startTimer('✓ Extraído. Parte 1/2 · Perfil base (Sonnet, ~70s) ·');
+    const kitMerged = await analisar2Pass(fd, (p) => {
+      stopTimer();
+      startTimer(`✓ Extraído. Parte ${p.step}/${p.total} · ${p.label.replace('Gerando ', '').replace(' (parte ' + p.step + '/' + p.total + ' · Sonnet · ~70s)', '')} (Sonnet, ~70s) ·`);
+    });
 
     stopTimer();
     document.getElementById('form-section').style.display = 'none';
     document.getElementById('loading-state').style.display = 'none';
-    renderKit(kitData.kit);
+    renderKit(kitMerged);
     resultadoEl.style.display = 'block';
     resultadoEl.scrollIntoView({ behavior: 'smooth' });
+    if (kitMerged._p2_failed) {
+      console.warn('Kit renderizado parcialmente (P2 falhou): ' + kitMerged._p2_error);
+    }
 
   } catch (e) {
     stopTimer();
@@ -2587,58 +2644,39 @@ async function analisarPerfil() {
   formData.append('foto_oficial',         fFotoOficial.checked ? 'true' : 'false');
   selectedFiles.forEach(f => formData.append('screenshots', f));
 
-  // Animação das 3 etapas — avança a cada ~7s (cobre os ~15-20s do Sonnet 4.6)
+  // Animação das 3 etapas — avança baseado em onProgress do analisar2Pass
   const stepEls = [document.getElementById('step-1'), document.getElementById('step-2'), document.getElementById('step-3')];
   const subEl = document.getElementById('loading-sub');
-  const subs = [
-    'Lendo screenshots e dados do perfil…',
-    'Diagnóstico do perfil (problemas + pontos fortes)…',
-    'Montando kit completo (headline, sobre, destaques)…'
-  ];
-  let stepIdx = 0;
-  const stepInterval = setInterval(() => {
-    if (stepIdx < stepEls.length - 1) {
-      stepEls[stepIdx].classList.remove('active');
-      stepEls[stepIdx].classList.add('done');
-      stepIdx++;
-      stepEls[stepIdx].classList.add('active');
-      if (subEl) subEl.textContent = subs[stepIdx];
-    }
-  }, 7000);
-
-  // Timeout 180s — o kit completo (25 campos + calendar 4 semanas) com 5 screenshots
-  // pode levar 60-120s no Sonnet. Margem boa pra não cortar prematuro.
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 180000);
+  if (stepEls[0]) { stepEls[0].classList.add('active'); }
+  if (subEl) subEl.textContent = 'Parte 1/2 · Gerando perfil base (Sonnet · ~70s) — header · sobre · competências · 5 destaques · ERP.ngo';
 
   try {
-    const res = await fetch('/api/analisar-perfil', {
-      method: 'POST',
-      body: formData,
-      signal: controller.signal
+    const kitMerged = await analisar2Pass(formData, (p) => {
+      // Avança as bolinhas conforme as 2 etapas chegam (1 inicial já marcada acima)
+      const idx = Math.min(p.step, stepEls.length) - 1;
+      stepEls.forEach((el, i) => {
+        if (i < idx) { el.classList.remove('active'); el.classList.add('done'); }
+        else if (i === idx) { el.classList.remove('done'); el.classList.add('active'); }
+        else { el.classList.remove('active', 'done'); }
+      });
+      if (subEl) subEl.textContent = `${p.label} — ${p.detail}`;
     });
-    clearTimeout(timeoutId);
-    clearInterval(stepInterval);
 
-    // Tentar ler JSON mesmo se status não-200 — backend retorna {success:false, error:...}
-    let data;
-    try { data = await res.json(); }
-    catch (parseErr) {
-      throw new Error(`Resposta inválida do servidor (HTTP ${res.status}). Tente novamente.`);
-    }
+    // Marca última bolinha como done
+    stepEls.forEach(el => { if (el) { el.classList.remove('active'); el.classList.add('done'); } });
 
     loadingState.style.display = 'none';
-    if (!res.ok || !data.success) throw new Error(data.error || `HTTP ${res.status}`);
-    renderKit(data.kit);
+    renderKit(kitMerged);
     resultadoEl.style.display = 'block';
     resultadoEl.scrollIntoView({ behavior: 'smooth' });
+    if (kitMerged._p2_failed) {
+      console.warn('Kit renderizado parcialmente (P2 falhou): ' + kitMerged._p2_error);
+    }
   } catch (err) {
-    clearTimeout(timeoutId);
-    clearInterval(stepInterval);
     loadingState.style.display = 'none';
     formSection.style.display = 'block';
     const msg = err.name === 'AbortError'
-      ? 'A análise demorou mais de 3 minutos e foi cancelada. Tente reduzir pra 2-3 screenshots e gerar novamente.'
+      ? 'A análise demorou demais e foi cancelada. Tente reduzir pra 2-3 screenshots.'
       : 'Erro: ' + err.message;
     showError(msg);
   }
@@ -2679,6 +2717,9 @@ function renderKit(k) {
         <div class="rk-pill">📋 <strong>Seções:</strong>&nbsp;13</div>
         <div class="rk-pill">✅ <strong>Checklist:</strong>&nbsp;${total} itens</div>
         <div class="rk-pill">🐘 ERP.ngo</div>
+      </div>
+      <div style="margin-top:18px;padding:10px 14px;background:rgba(167,139,250,.10);border:1px solid rgba(167,139,250,.30);border-radius:8px;font-size:12px;color:#c4b5fd;line-height:1.5">
+        🤖 <strong>Conteúdo gerado por IA (Claude Sonnet 4.6)</strong> a partir do seu input (URL LinkedIn + screenshots + dados do form/transcrição). <strong>Revisar cada seção antes de aplicar no LinkedIn</strong> — placeholders <code style="background:rgba(96,165,250,.15);padding:1px 6px;border-radius:3px">[preencher: ...]</code> são pontos onde a IA não tinha dado suficiente e você precisa preencher manualmente.
       </div>
     </div>
 
@@ -3220,6 +3261,47 @@ function toggleCheck(el) {
 function copiar(id, btn) {
   const el = document.getElementById(id);
   if (el) copiarTexto(el.innerText || el.textContent, btn);
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// exportarPDFDireto (v0.4.12) — html2pdf 1-click sem dialog do browser.
+// Usa o resultado renderizado + media print CSS pra layout limpo.
+// Fallback: se html2pdf não carregou (sem rede), cai pro window.print().
+// ════════════════════════════════════════════════════════════════════════════
+async function exportarPDFDireto() {
+  if (typeof html2pdf === 'undefined') {
+    alert('html2pdf não carregou (offline?). Abrindo dialog de impressão como fallback.');
+    window.print();
+    return;
+  }
+  const kit = document.getElementById('resultado');
+  if (!kit) { alert('Nenhum kit pra exportar.'); return; }
+  const bar = document.getElementById('rk-print-bar');
+  const oldBarHTML = bar?.innerHTML;
+  if (bar) bar.innerHTML = '<span style="color:#60a5fa;font-size:12px">⏳ Gerando PDF...</span>';
+
+  // Tenta extrair nome do kit pra usar como filename
+  const nomeEl = kit.querySelector('.rk-cover-title, h1, h2');
+  const nome = (nomeEl ? nomeEl.textContent : 'voice').trim().toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'voice';
+  const data = new Date().toISOString().slice(0, 10);
+  const filename = `kit-${nome}-${data}.pdf`;
+
+  try {
+    await html2pdf().set({
+      margin: [12, 10, 14, 10],
+      filename,
+      image: { type: 'jpeg', quality: 0.92 },
+      html2canvas: { scale: 2, useCORS: true, logging: false, backgroundColor: '#0a1525' },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true },
+      pagebreak: { mode: ['css', 'legacy'], avoid: ['.card', '.vi-pillar', '.rk-cover'] }
+    }).from(kit).save();
+  } catch (e) {
+    alert('Erro ao gerar PDF: ' + e.message + '\n\nTentando dialog do browser como fallback.');
+    window.print();
+  } finally {
+    if (bar && oldBarHTML) bar.innerHTML = oldBarHTML;
+  }
 }
 
 function copiarTexto(texto, btn) {
