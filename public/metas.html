@@ -169,13 +169,13 @@ body { background: var(--bg); font-family: 'Inter', sans-serif; color: var(--tex
     <div class="hero-kpis">
       <div class="hero-kpi primary">
         <div class="hero-kpi-label">SEGUIDORES HOJE</div>
-        <div class="hero-kpi-value" id="kpi-total">7.844</div>
-        <div class="hero-kpi-sub">base atual · maio/2026</div>
+        <div class="hero-kpi-value" id="kpi-total">10.481</div>
+        <div class="hero-kpi-sub" id="kpi-total-sub">🟢 real · abr/2026 · fonte: xls LinkedIn</div>
       </div>
       <div class="hero-kpi success">
         <div class="hero-kpi-label">GANHOS 12M</div>
-        <div class="hero-kpi-value" id="kpi-12m">1.456</div>
-        <div class="hero-kpi-sub">média 4.9/dia · mediana 3</div>
+        <div class="hero-kpi-value" id="kpi-12m">2.279</div>
+        <div class="hero-kpi-sub" id="kpi-12m-sub">🟢 real · jan/25→abr/26</div>
       </div>
       <div class="hero-kpi warning">
         <div class="hero-kpi-label">META 90 DIAS</div>
@@ -185,7 +185,7 @@ body { background: var(--bg); font-family: 'Inter', sans-serif; color: var(--tex
       <div class="hero-kpi pink">
         <div class="hero-kpi-label">META 12 MESES</div>
         <div class="hero-kpi-value" id="kpi-meta12m">+10.000</div>
-        <div class="hero-kpi-sub">17.800 totais · 2.3× base</div>
+        <div class="hero-kpi-sub" id="kpi-meta12m-sub">🔮 ~20.481 totais (projeção)</div>
       </div>
     </div>
   </div>
@@ -430,6 +430,22 @@ fetch('/api/metas').then(r => r.json()).then(d => {
     renderAreas();
   }
 }).catch(() => {/* não persistido ainda, ok */});
+
+// ── Regra 7: KPIs do topo vêm do DADO REAL (linkedin-historical.json), nunca chumbado ──
+fetch('/api/linkedin-historical.json').then(r => r.json()).then(d => {
+  const sm = (d.serie_mensal || []).filter(m => m.total_seguidores);
+  if (!sm.length) return;
+  const fmt = n => (n == null ? '—' : Number(n).toLocaleString('pt-BR'));
+  const ult = sm[sm.length - 1];
+  const total = ult.total_seguidores;
+  const setTxt = (id, t) => { const e = document.getElementById(id); if (e) e.textContent = t; };
+  setTxt('kpi-total', fmt(total));
+  setTxt('kpi-total-sub', `🟢 real · ${ult.mes} · fonte: xls LinkedIn`);
+  const base12 = sm[Math.max(0, sm.length - 13)];
+  setTxt('kpi-12m', '+' + fmt(total - base12.total_seguidores));
+  setTxt('kpi-12m-sub', `🟢 real · ${base12.mes}→${ult.mes}`);
+  setTxt('kpi-meta12m-sub', `🔮 ~${fmt(total + 10000)} totais (projeção)`);
+}).catch(() => {/* sem dado: mantém último valor real conhecido */});
 
 // ── CHARTS ────────────────────────────────
 const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
