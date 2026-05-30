@@ -98,25 +98,16 @@ body {
 // Detalhes em vault/00-contexto/versioning.md.
 const RELEASES = [
   {
-    version: '0.7.2', date: '30/mai/2026', current: true, status: 'live',
-    title: 'Dados reais automáticos + infra estável (Apollo diário · CMD oculto)',
-    body: `Sprint 8 começou — dados reais que se atualizam sozinhos.
+    version: '0.7.1', date: '30/mai/2026', current: true, status: 'live',
+    title: 'Estabilização + Migração C:\\ + Dados reais (Apollo diário · LinkedIn)',
+    body: `Fundação estabilizada + dados reais que se atualizam sozinhos.
     <ul>
-      <li><b>Apollo sync DIÁRIO automático</b>: <code>scripts/integrations/apollo_pipeline_sync.js</code> + Tarefa Agendada <code>EPI-USE-Apollo-Sync</code> (6h) → <code>/pipeline</code> com 39.166 contatos · 15 sequências reais, atualiza sozinho sem Claude no meio.</li>
-      <li><b>GA4 em integração</b>: Service Account + probe que descobre o Property ID; aguarda só liberar o SA no GA4.</li>
-      <li><b>CMD para de piscar</b>: tarefas agendadas via <code>wscript</code>+VBS = 100% ocultas (antes a de health abria janela PowerShell a cada 5min).</li>
-    </ul>`
-  },
-  {
-    version: '0.7.1', date: '30/mai/2026', status: 'snapshot',
-    title: 'MIGRAÇÃO Google Drive → C:\\ local + dados reais',
-    body: `Fundação estabilizada + correções de dados fake.
-    <ul>
-      <li><b>Repo migrado pro disco local</b> <code>C:\\epiuse-mkt-office</code> (GitHub <code>epiuse-mkt-office</code>): resolve o clobber/corrupção do Google Drive que causava reversão de versão. vault no git. Multi-máquina via git pull.</li>
-      <li><b>LinkedIn real 10.640</b> (admin, mai/26) — corrigido <code>/metas</code> que mostrava 7.844 chumbado/errado.</li>
-      <li><b>/pipeline real</b> via Apollo (era stub null).</li>
-      <li><b>Regra de Ouro 11</b> (roadmap sempre aberto + snapshots versionados) + <b>Regra 12</b> (repo no C:\\).</li>
-      <li>Versionamento travado (nav revertia pra 0.6.4 pelo Drive sync) + footer history 0.6.1→0.6.4 restaurado.</li>
+      <li><b>Apollo sync DIÁRIO automático</b>: Tarefa Agendada (6h) → <code>/pipeline</code> com 39.166 contatos · 14.027 empresas · 15 sequências reais, sem Claude no meio.</li>
+      <li><b>Migração pro disco local</b> <code>C:\\epiuse-mkt-office</code> (GitHub <code>epiuse-mkt-office</code>): resolve o clobber do Google Drive. vault no git.</li>
+      <li><b>LinkedIn real 10.640</b> + atualização em 5s no <code>/metas</code> (corrigido 7.844 chumbado).</li>
+      <li><b>CMD para de piscar</b> (tarefas via VBS oculto) · <b>GA4</b> em integração (OAuth).</li>
+      <li><b>Fonte ÚNICA de versões</b> (<code>changelog.json</code>): dashboard + footer + /changelog leem dela — sem mais drift.</li>
+      <li><b>Regras de Ouro 11</b> (roadmap sempre aberto) <b>+ 12</b> (repo no C:\\).</li>
     </ul>`
   },
   {

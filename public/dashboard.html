@@ -824,58 +824,27 @@ body {
     <div class="sec-hdr"><h2>Histórico de Versões</h2><div class="line"></div></div>
     <div class="versions">
       <h3>Versões disponíveis do Office</h3>
-      <div class="ver-row">
-        <div class="ver-left">
-          <span class="ver-tag current">v3.0</span>
-          <div>
-            <span class="ver-name">Sprint Maximalist — Painel + Voice Agents + LP Recrutamento</span>
-            <span class="ver-meta">  ·  24/mai/2026  ·  3 módulos novos + data layer único + rate limit + Plausible + UTM tracking</span>
-          </div>
-        </div>
-        <a class="ver-link" href="/">Abrir →</a>
-      </div>
-      <div class="ver-row">
-        <div class="ver-left">
-          <span class="ver-tag">v2.2</span>
-          <div>
-            <span class="ver-name">Optimizer integrado ao Voices + agenda dinâmica</span>
-            <span class="ver-meta">  ·  23/mai/2026  ·  Optimizer dentro da área Voices + eventos ordenados por data</span>
-          </div>
-        </div>
-        <a class="ver-link" href="/_versoes-office/v2.2-game-engine.html">Ver →</a>
-      </div>
-      <div class="ver-row">
-        <div class="ver-left">
-          <span class="ver-tag">v2.1</span>
-          <div>
-            <span class="ver-name">Game Engine 2D + Dashboard duplo</span>
-            <span class="ver-meta">  ·  23/mai/2026  ·  spawn com escolha + calendário rico</span>
-          </div>
-        </div>
-        <a class="ver-link" href="/_versoes-office/v2.1-game-engine.html">Ver →</a>
-      </div>
-      <div class="ver-row">
-        <div class="ver-left">
-          <span class="ver-tag">v2.0</span>
-          <div>
-            <span class="ver-name">Office Engine 2D inaugural</span>
-            <span class="ver-meta">  ·  23/mai/2026  ·  primeiro release do game</span>
-          </div>
-        </div>
-        <a class="ver-link" href="/_versoes-office/v2.0-game-engine.html">Ver →</a>
-      </div>
-      <div class="ver-row">
-        <div class="ver-left">
-          <span class="ver-tag">v1.0</span>
-          <div>
-            <span class="ver-name">War Room Dashboard clássico</span>
-            <span class="ver-meta">  ·  20/mai/2026  ·  cards de projetos + voices + alertas</span>
-          </div>
-        </div>
-        <a class="ver-link" href="/dashboard">Você está aqui</a>
-      </div>
+      <div id="ver-list"><span class="ver-meta">carregando…</span></div>
+      <a class="ver-link" href="/changelog" style="display:inline-block;margin-top:10px">Ver histórico completo →</a>
     </div>
   </section>
+  <script>
+  // Fonte ÚNICA de versões: /api/changelog.json (mesma que footer + /changelog leem — sem drift)
+  (async function(){
+    try{
+      const r = await fetch('/api/changelog.json'); const d = await r.json(); const cur = d.current;
+      const el = document.getElementById('ver-list'); if(!el) return;
+      el.innerHTML = (d.releases||[]).slice(0,6).map(function(v){
+        var isCur = v.version === cur;
+        var link = isCur ? '<span class="ver-link">Você está aqui</span>'
+                         : (v.path ? '<a class="ver-link" href="'+v.path+'">Ver →</a>' : '<a class="ver-link" href="/changelog">Detalhes →</a>');
+        return '<div class="ver-row"><div class="ver-left"><span class="ver-tag'+(isCur?' current':'')+'">'+v.version+'</span>'
+             + '<div><span class="ver-name">'+(v.title||'')+'</span>'
+             + '<span class="ver-meta">  ·  '+v.date+'  ·  '+(v.summary||'')+'</span></div></div>'+link+'</div>';
+      }).join('');
+    }catch(e){ var el=document.getElementById('ver-list'); if(el) el.innerHTML='<span class="ver-meta">erro ao carregar versões</span>'; }
+  })();
+  </script>
 
   <!-- ══════ FOOTER ══════ -->
   <footer class="foot">
