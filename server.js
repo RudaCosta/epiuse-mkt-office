@@ -966,6 +966,34 @@ app.get('/api/linkedin/historical', (req, res) => {
   res.json({ success: true, ...data });
 });
 
+// POST /api/linkedin/update-today — Ruda crava o nº de seguidores do dia em 5s (interim ate LinkedIn API)
+app.post('/api/linkedin/update-today', requireEditorToken, (req, res) => {
+  const total = parseInt(req.body && req.body.total, 10);
+  if (!total || total < 1000 || total > 2000000) {
+    return res.status(400).json({ success: false, error: 'Informe um total de seguidores válido (ex: 10640).' });
+  }
+  const data = _readJSON(LINKEDIN_HIST_PATH, null);
+  if (!data || !Array.isArray(data.serie_mensal)) {
+    return res.status(404).json({ success: false, error: 'linkedin-historical.json não encontrado.' });
+  }
+  const mes = new Date().toISOString().slice(0, 7);
+  const anteriores = data.serie_mensal.filter(m => m.total_seguidores && m.mes < mes);
+  const ultimoAnterior = anteriores.length ? anteriores[anteriores.length - 1].total_seguidores : null;
+  let entry = data.serie_mensal.find(m => m.mes === mes);
+  if (!entry) {
+    entry = { mes, total_seguidores: null, novos: null, newsletter: null, posts_mes: null, impressoes: null };
+    data.serie_mensal.push(entry);
+  }
+  entry.total_seguidores = total;
+  if (req.body.novos != null) entry.novos = parseInt(req.body.novos, 10);
+  else if (ultimoAnterior) entry.novos = total - ultimoAnterior;
+  entry.fonte = 'manual (Rudá ' + new Date().toISOString().slice(0, 10) + ')';
+  data.atualizado_em = new Date().toISOString().slice(0, 10);
+  try { fs.writeFileSync(LINKEDIN_HIST_PATH, JSON.stringify(data, null, 2), 'utf8'); }
+  catch (e) { return res.status(500).json({ success: false, error: e.message }); }
+  res.json({ success: true, mes, total_seguidores: total, novos: entry.novos });
+});
+
 // GET /api/relatorio/snapshot?mes=YYYY-MM — agrega TUDO pra o relatório mensal
 app.get('/api/relatorio/snapshot', (req, res) => {
   const mes = req.query.mes || new Date().toISOString().slice(0, 7);
