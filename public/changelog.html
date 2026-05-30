@@ -98,7 +98,59 @@ body {
 // Detalhes em vault/00-contexto/versioning.md.
 const RELEASES = [
   {
-    version: '0.4.11', date: '26/mai/2026', current: true, status: 'live',
+    version: '0.7.2', date: '30/mai/2026', current: true, status: 'live',
+    title: 'Dados reais automáticos + infra estável (Apollo diário · CMD oculto)',
+    body: `Sprint 8 começou — dados reais que se atualizam sozinhos.
+    <ul>
+      <li><b>Apollo sync DIÁRIO automático</b>: <code>scripts/integrations/apollo_pipeline_sync.js</code> + Tarefa Agendada <code>EPI-USE-Apollo-Sync</code> (6h) → <code>/pipeline</code> com 39.166 contatos · 15 sequências reais, atualiza sozinho sem Claude no meio.</li>
+      <li><b>GA4 em integração</b>: Service Account + probe que descobre o Property ID; aguarda só liberar o SA no GA4.</li>
+      <li><b>CMD para de piscar</b>: tarefas agendadas via <code>wscript</code>+VBS = 100% ocultas (antes a de health abria janela PowerShell a cada 5min).</li>
+    </ul>`
+  },
+  {
+    version: '0.7.1', date: '30/mai/2026', status: 'snapshot',
+    title: 'MIGRAÇÃO Google Drive → C:\\ local + dados reais',
+    body: `Fundação estabilizada + correções de dados fake.
+    <ul>
+      <li><b>Repo migrado pro disco local</b> <code>C:\\epiuse-mkt-office</code> (GitHub <code>epiuse-mkt-office</code>): resolve o clobber/corrupção do Google Drive que causava reversão de versão. vault no git. Multi-máquina via git pull.</li>
+      <li><b>LinkedIn real 10.640</b> (admin, mai/26) — corrigido <code>/metas</code> que mostrava 7.844 chumbado/errado.</li>
+      <li><b>/pipeline real</b> via Apollo (era stub null).</li>
+      <li><b>Regra de Ouro 11</b> (roadmap sempre aberto + snapshots versionados) + <b>Regra 12</b> (repo no C:\\).</li>
+      <li>Versionamento travado (nav revertia pra 0.6.4 pelo Drive sync) + footer history 0.6.1→0.6.4 restaurado.</li>
+    </ul>`
+  },
+  {
+    version: '0.7.0', date: '30/mai/2026', status: 'snapshot',
+    title: 'Estabilização + Design Codex + Multi-tool',
+    body: `<ul>
+      <li><b>Localhost always-on</b>: causa raiz era <code>better-sqlite3</code> incompatível com Node 24 → fix prebuilt + Tarefa Agendada Windows (aposenta PM2). <code>/api/health</code> novo.</li>
+      <li><b>Paleta Codex oficial</b> (#013A6A + Open Sans + surfaces claras), dark preservado.</li>
+      <li><b>Protocolo multi-tool</b> (Claude/Codex/Obsidian/openclaw) + lock + ROADMAP único.</li>
+    </ul>`
+  },
+  {
+    version: '0.6.0 → 0.6.4', date: '28/mai/2026', status: 'snapshot',
+    title: 'Design System (DESIGN.md + gen_tokens) + Brand oficial',
+    body: `<ul>
+      <li>DESIGN.md (spec Google Labs) + <code>gen_tokens.py</code> → design-tokens.css/json · viewer <code>/design</code>.</li>
+      <li>Brand Guides oficiais (EPI-USE V1.1 · ERP.ngo · Group Elephant) + cores reais do PPT Template Jan 2026 · Open Sans self-hosted · logos no nav · modularização <code>/modulos/</code>.</li>
+    </ul>`
+  },
+  {
+    version: '0.5.0 → 0.5.1', date: '27-28/mai/2026', status: 'snapshot',
+    title: 'Sprint dados + telas: /relatorio · /artigos · /metas-fy26 · Rule 7',
+    body: `<ul>
+      <li><code>/relatorio</code> (espelha PPT mensal) · <code>/artigos</code> (693 do Manus) · <code>/jornadas</code> · <code>/projecoes</code> (paid media) · <code>/pipeline</code>.</li>
+      <li><code>/metas-fy26</code> (29 metas × 6 áreas) · skill <code>relatorio-mensal</code> · <b>Regra 7 NO FAKE DATA</b> + auditoria de fontes.</li>
+    </ul>`
+  },
+  {
+    version: '0.4.12', date: '27/mai/2026', status: 'snapshot',
+    title: 'Optimizer 2-calls + ERP.ngo branding + Export PDF',
+    body: `<ul><li>Split <code>/api/analisar-perfil</code> em 2 calls Sonnet (sem timeout) · ERP.ngo logo+tokens · Export PDF do kit (html2pdf).</li></ul>`
+  },
+  {
+    version: '0.4.11', date: '26/mai/2026', status: 'snapshot',
     title: 'HOTFIX: extract da transcrição (Haiku + AbortController + timer visual)',
     body: `Bug crítico: "signal is aborted without reason" ao extrair transcrição da entrevista.
     <ul>
