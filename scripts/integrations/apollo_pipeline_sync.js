@@ -24,8 +24,11 @@ async function apollo(p, body) {
 (async () => {
   const contacts = await apollo('/contacts/search', { page: 1, per_page: 1 });
   const camps = await apollo('/emailer_campaigns/search', { per_page: 100 });
+  const accounts = await apollo('/accounts/search', { page: 1, per_page: 5 });
   const list = camps.emailer_campaigns || [];
   const ativos = list.filter(c => c.active).length;
+  const contasTotal = accounts.pagination ? accounts.pagination.total_entries : null;
+  const topContas = (accounts.accounts || []).slice(0, 5).map(a => a.name).filter(Boolean);
 
   const snap = {
     fonte: 'Apollo API (sync automatico diario)',
@@ -34,6 +37,8 @@ async function apollo(p, body) {
     conta: 'EPI-USE Brasil',
     contatos_total: contacts.pagination ? contacts.pagination.total_entries : null,
     contatos_obs: '\u{1F7E1} base Apollo total — inclui importados/seed (filtrar Brasil/label p/ pipeline puro).',
+    contas_total: contasTotal,
+    top_contas: topContas,
     sequencias_total: list.length,
     sequencias_ativas: ativos,
     sequencias_obs: '\u{1F7E2} ' + ativos + ' ativa(s) de ' + list.length + ' cadastradas (real).',
@@ -43,5 +48,5 @@ async function apollo(p, body) {
 
   const out = path.resolve(__dirname, '../../public/api/pipeline-snapshot.json');
   fs.writeFileSync(out, JSON.stringify(snap, null, 2), 'utf8');
-  console.log('OK pipeline-snapshot atualizado:', snap.contatos_total, 'contatos,', list.length, 'seq (' + ativos + ' ativas)');
+  console.log('OK pipeline-snapshot:', snap.contatos_total, 'contatos,', contasTotal, 'empresas,', list.length, 'seq (' + ativos + ' ativas)');
 })().catch(e => { console.error('FALHOU:', e.message); process.exit(1); });
