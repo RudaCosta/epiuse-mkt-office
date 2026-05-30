@@ -53,37 +53,33 @@
   <div class="integration-status">
     <div class="is-icon">🔌</div>
     <div class="is-text">
-      <h3>Integração Apollo MCP — em fase de conexão</h3>
-      <p>O Apollo MCP já está conectado nas tools do Claude. Sync diário criado em <code>scripts/sync/apollo_daily_sync.md</code> (instruções pra rodar manual via Claude até cron estar pronto). Dados aparecem aqui quando 1º sync rodar.</p>
+      <h3>✅ Apollo conectado — sync automático diário</h3>
+      <p>Dados reais do Apollo (conta EPI-USE Brasil) atualizados todo dia às 6h pela Tarefa Agendada <code>EPI-USE-Apollo-Sync</code>. <span id="apollo-sync"></span></p>
     </div>
   </div>
 
-  <!-- KPIs principais -->
+  <!-- KPIs principais (dados REAIS Apollo) -->
   <div class="kpi-grid" id="kpis">
-    <div class="kpi"><div class="kpi-val empty">—</div><div class="kpi-lbl">Contas Ativas</div><div class="kpi-extra">Apollo Accounts</div></div>
-    <div class="kpi"><div class="kpi-val empty">—</div><div class="kpi-lbl">Contatos Total</div><div class="kpi-extra">Apollo Contacts</div></div>
-    <div class="kpi"><div class="kpi-val empty">—</div><div class="kpi-lbl">Sequências Rodando</div><div class="kpi-extra">Emailer Campaigns</div></div>
-    <div class="kpi"><div class="kpi-val empty">—</div><div class="kpi-lbl">Reuniões Agendadas</div><div class="kpi-extra">Calendar API + Apollo</div></div>
+    <div class="kpi"><div class="kpi-val empty" id="k-contatos">—</div><div class="kpi-lbl">Contatos na base</div><div class="kpi-extra">Apollo Contacts</div></div>
+    <div class="kpi"><div class="kpi-val empty" id="k-seq">—</div><div class="kpi-lbl">Sequências</div><div class="kpi-extra">Emailer Campaigns</div></div>
+    <div class="kpi"><div class="kpi-val empty" id="k-seqativas">—</div><div class="kpi-lbl">Sequências Ativas</div><div class="kpi-extra">rodando agora</div></div>
+    <div class="kpi"><div class="kpi-val empty" id="k-ligacoes">—</div><div class="kpi-lbl">Ligações feitas</div><div class="kpi-extra">Apollo Dialer</div></div>
   </div>
 
   <!-- Funnel -->
   <div class="funnel-card">
-    <h2>🌪️ Funil Comercial (últimos 30 dias)</h2>
-    <div class="funnel-step"><span class="lbl">📧 Emails Enviados</span><span class="num">—</span></div>
-    <div class="funnel-step"><span class="lbl">👁️ Opens</span><span class="num">—</span></div>
-    <div class="funnel-step"><span class="lbl">💬 Replies</span><span class="num">—</span></div>
-    <div class="funnel-step"><span class="lbl">📅 Reuniões Agendadas</span><span class="num">—</span></div>
-    <div class="funnel-step"><span class="lbl">💰 Pipeline R$</span><span class="num">—</span></div>
+    <h2>🌪️ Funil Comercial (Apollo)</h2>
+    <div class="funnel-step"><span class="lbl">📇 Contatos na base</span><span class="num" id="f-contatos">—</span></div>
+    <div class="funnel-step"><span class="lbl">📨 Sequências cadastradas</span><span class="num" id="f-seq">—</span></div>
+    <div class="funnel-step"><span class="lbl">▶️ Sequências ativas</span><span class="num" id="f-seqativas">—</span></div>
+    <div class="funnel-step"><span class="lbl">💳 Créditos Apollo restantes</span><span class="num" id="f-creditos">—</span></div>
+    <div class="funnel-step"><span class="lbl">💰 Pipeline R$</span><span class="num" style="font-size:12px;color:var(--color-text-muted,#8aa)">⏳ precisa CRM</span></div>
   </div>
 
-  <div class="sync-info">
-    <strong>Como rodar o sync (manual por enquanto):</strong><br>
-    1. Abrir chat com Claude no Cursor/Claude Code<br>
-    2. Pedir: <code>"roda apollo_daily_sync e salva no /api/pipeline/sync"</code><br>
-    3. Claude usa as tools <code>mcp__9eac0979__apollo_*</code> pra puxar contas/contatos/sequências/analytics<br>
-    4. Resposta vira POST <code>/api/pipeline/sync</code> com token editor<br>
-    5. Dashboard atualiza imediatamente<br><br>
-    <strong>Próxima sprint:</strong> Windows Task Scheduler dispara isso automaticamente todo dia 6h.
+  <div class="sync-info" id="sync-info">
+    <strong>✅ Sync automático diário</strong> — a Tarefa Agendada <code>EPI-USE-Apollo-Sync</code> roda todo dia às 6h e atualiza estes números sozinha (sem Claude no meio).<br>
+    <span id="sync-meta"></span><br><br>
+    <span style="color:var(--color-text-muted,#8aa);font-size:12px">🟡 Contatos = base Apollo total (inclui importados/seed). 💰 Pipeline em R$ precisa de um CRM — Apollo não tem valor de oportunidade.</span>
   </div>
 </div>
 
@@ -91,15 +87,23 @@
 
 <script>
 async function carregar() {
-  const r = await fetch('/api/pipeline');
-  const d = await r.json();
-  if (!d.success) return;
-  // Se algum dado já vier, populate
-  if (d.contas_ativas) {
-    document.querySelectorAll('.kpi-val')[0].textContent = d.contas_ativas;
-    document.querySelectorAll('.kpi-val')[0].classList.remove('empty');
-  }
-  // ...mesmo pra outros campos quando sync rodar
+  try {
+    const r = await fetch('/api/pipeline');
+    const d = await r.json();
+    if (!d.success) return;
+    const fmt = n => (n == null ? '—' : Number(n).toLocaleString('pt-BR'));
+    const set = (id, v) => { const e = document.getElementById(id); if (e) { e.textContent = v; if (e.classList) e.classList.remove('empty'); } };
+    set('k-contatos', fmt(d.contatos_total));
+    set('k-seq', fmt(d.sequencias_total));
+    set('k-seqativas', fmt(d.sequencias_ativas));
+    set('k-ligacoes', fmt(d.ligacoes_feitas));
+    set('f-contatos', fmt(d.contatos_total));
+    set('f-seq', fmt(d.sequencias_total));
+    set('f-seqativas', fmt(d.sequencias_ativas));
+    set('f-creditos', fmt(d.creditos_restantes));
+    const st = document.getElementById('apollo-sync'); if (st) st.textContent = d.ultima_sync ? ('Última sync: ' + d.ultima_sync) : '';
+    const sm = document.getElementById('sync-meta'); if (sm) sm.textContent = 'Fonte: ' + (d.fonte || 'Apollo') + ' · última sync: ' + (d.ultima_sync || '—');
+  } catch (e) {}
 }
 carregar();
 </script>
