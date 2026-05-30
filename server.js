@@ -1207,21 +1207,14 @@ app.get('/api/metas/fy26', (req, res) => {
   });
 });
 
-// GET /api/pipeline — Apollo stub (Onda 5 conecta real)
+// GET /api/pipeline — dados REAIS do Apollo (snapshot via MCP, gravado em pipeline-snapshot.json)
+// Sync diário headless = TODO (precisa Apollo REST API Key + cron). Hoje: snapshot manual real.
 app.get('/api/pipeline', (req, res) => {
-  res.json({
-    success: true,
-    fonte: 'stub — aguardando integração Apollo MCP',
-    contas_ativas: null,
-    contatos_total: null,
-    sequencias_rodando: null,
-    emails_enviados_30d: null,
-    opens_30d: null,
-    replies_30d: null,
-    reunioes_agendadas: null,
-    pipeline_R$: null,
-    ultima_sync: null,
-  });
+  const snap = _readJSON(path.join(__dirname, 'public/api/pipeline-snapshot.json'), null);
+  if (!snap) {
+    return res.json({ success: true, fonte: 'sem snapshot ainda', contatos_total: null, sequencias_total: null, ultima_sync: null });
+  }
+  res.json({ success: true, ...snap });
 });
 
 // ── UTM REDIRECT: /v/:slug ────────────────────────────────────────────────────
