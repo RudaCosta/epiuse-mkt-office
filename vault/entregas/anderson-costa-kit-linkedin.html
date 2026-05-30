@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kit LinkedIn — Anderson Costa · EPI-USE Voices 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ── RESET ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── TOKENS SCREEN ── */
+    :root {
+      --radius: 12px;
+      --font: 'Inter', sans-serif;
+      --blue: #2563EB;
+      --navy: #0A2342;
+      --success: #059669;
+      --warning: #D97706;
+      --danger: #DC2626;
+      --bg: #0d1b2e;
+      --bg2: #0f2034;
+      --surface: rgba(255,255,255,0.045);
+      --surface2: rgba(255,255,255,0.075);
+      --border: rgba(255,255,255,0.08);
+      --border-blue: rgba(37,99,235,0.35);
+      --text: #e2e8f0;
+      --text-muted: #64748b;
+      --text-dim: #94a3b8;
+      --shadow: 0 4px 24px rgba(0,0,0,0.4);
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── PRINT BUTTON ── */
+    .print-bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: rgba(10,35,66,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-blue);
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .print-bar-label {
+      font-size: 12px;
+      color: var(--text-dim);
+      letter-spacing: 0.04em;
+    }
+    .btn-print {
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: var(--font);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      transition: background 0.2s;
+    }
+    .btn-print:hover { background: #1d4ed8; }
+
+    /* ── LAYOUT ── */
+    .doc {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 80px 24px 60px;
+    }
+
+    /* ── COVER ── */
+    .cover {
+      padding: 56px 0 48px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 48px;
+    }
+    .cover-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(37,99,235,0.15);
+      border: 1px solid var(--border-blue);
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #93c5fd;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+    .cover h1 {
+      font-size: 32px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.2;
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+    .cover-name {
+      font-size: 18px;
+      font-weight: 500;
+      color: #93c5fd;
+      margin-bottom: 6px;
+    }
+    .cover-role {
+      font-size: 14px;
+      color: var(--text-dim);
+      margin-bottom: 32px;
+    }
+    .cover-meta {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .cover-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+    .cover-pill strong { color: var(--text); }
+
+    /* ── PROGRESS ── */
+    .progress-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 40px;
+    }
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .progress-header span { font-size: 13px; color: var(--text-dim); }
+    .progress-header strong { font-size: 13px; color: var(--text); }
+    .progress-bar-bg {
+      background: rgba(255,255,255,0.08);
+      border-radius: 99px;
+      height: 8px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue), #60a5fa);
+      border-radius: 99px;
+      transition: width 0.4s ease;
+    }
+
+    /* ── SECTION TITLE ── */
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .step-num {
+      width: 32px;
+      height: 32px;
+      background: var(--blue);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .step-num.diag { background: rgba(37,99,235,0.2); color: #60a5fa; border: 1px solid var(--border-blue); }
+    .section-title h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      margin-bottom: 24px;
+      position: relative;
+    }
+    .card + .card { margin-top: 0; }
+
+    /* ── STATUS TABLE ── */
+    .status-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+    .status-table th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 0 12px 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .status-table td {
+      padding: 11px 12px 11px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      vertical-align: middle;
+      color: var(--text-dim);
+    }
+    .status-table td:first-child { color: var(--text); font-weight: 500; }
+    .status-table tr:last-child td { border-bottom: none; }
+
+    /* ── BADGES ── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      border-radius: 6px;
+      padding: 3px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .badge-urgent { background: rgba(220,38,38,0.15); color: #f87171; border: 1px solid rgba(220,38,38,0.3); }
+    .badge-normal { background: rgba(217,119,6,0.15); color: #fbbf24; border: 1px solid rgba(217,119,6,0.3); }
+    .badge-ok     { background: rgba(5,150,105,0.15); color: #34d399; border: 1px solid rgba(5,150,105,0.3); }
+
+    /* ── COPY BLOCK ── */
+    .copy-block {
+      background: rgba(37,99,235,0.07);
+      border: 1px solid rgba(37,99,235,0.25);
+      border-radius: 10px;
+      padding: 18px 20px;
+      margin: 16px 0;
+      position: relative;
+    }
+    .copy-block p { font-size: 14px; color: var(--text); line-height: 1.7; }
+    .copy-block p + p { margin-top: 12px; }
+    .copy-block strong { color: #93c5fd; }
+    .btn-copy {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(37,99,235,0.2);
+      border: 1px solid var(--border-blue);
+      color: #93c5fd;
+      border-radius: 6px;
+      padding: 5px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: var(--font);
+      transition: background 0.2s;
+    }
+    .btn-copy:hover { background: rgba(37,99,235,0.35); }
+    .btn-copy.copied { background: rgba(5,150,105,0.2); border-color: rgba(5,150,105,0.3); color: #34d399; }
+
+    /* ── HIGHLIGHT BOX ── */
+    .highlight-box {
+      border-radius: 10px;
+      padding: 14px 18px;
+      font-size: 13px;
+      margin: 14px 0;
+      line-height: 1.6;
+    }
+    .highlight-urgent {
+      background: rgba(220,38,38,0.1);
+      border-left: 3px solid var(--danger);
+      color: #fca5a5;
+    }
+    .highlight-info {
+      background: rgba(37,99,235,0.08);
+      border-left: 3px solid var(--blue);
+      color: #93c5fd;
+    }
+    .highlight-warning {
+      background: rgba(217,119,6,0.1);
+      border-left: 3px solid var(--warning);
+      color: #fcd34d;
+    }
+
+    /* ── HOW-TO ── */
+    .howto-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin: 20px 0 10px;
+    }
+    .howto-list {
+      list-style: none;
+      counter-reset: step;
+    }
+    .howto-list li {
+      counter-increment: step;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      font-size: 13.5px;
+      color: var(--text-dim);
+      padding: 5px 0;
+    }
+    .howto-list li::before {
+      content: counter(step);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* ── CRITERIA LIST ── */
+    .criteria-list { list-style: none; }
+    .criteria-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13.5px;
+      color: var(--text-dim);
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+    .criteria-list li:last-child { border-bottom: none; }
+    .criteria-list li::before {
+      content: '✓';
+      color: var(--success);
+      font-weight: 700;
+      font-size: 13px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* ── FIELD TABLE ── */
+    .field-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+      margin: 10px 0;
+    }
+    .field-table th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 0 0 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .field-table td {
+      padding: 10px 8px 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      vertical-align: top;
+    }
+    .field-table td:first-child {
+      color: var(--text-dim);
+      width: 36%;
+      font-weight: 500;
+    }
+    .field-table td:last-child { color: var(--text); }
+    .field-table tr:last-child td { border-bottom: none; }
+    .field-value-highlight {
+      font-weight: 600;
+      color: #93c5fd !important;
+    }
+
+    /* ── SKILLS TABLE ── */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 12px;
+    }
+    .skills-col {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+    }
+    .skills-col-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .skills-col-remove .skills-col-title { color: #f87171; }
+    .skills-col-add .skills-col-title { color: #34d399; }
+    .skill-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 500;
+      margin: 3px;
+    }
+    .skill-remove { background: rgba(220,38,38,0.1); color: #fca5a5; border: 1px solid rgba(220,38,38,0.2); }
+    .skill-add    { background: rgba(5,150,105,0.1); color: #34d399; border: 1px solid rgba(5,150,105,0.2); }
+
+    /* ── CHECKLIST ── */
+    .checklist-section { margin-bottom: 28px; }
+    .checklist-section-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 14px;
+      margin-bottom: 10px;
+    }
+    .checklist-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 4px;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      cursor: pointer;
+      transition: background 0.15s;
+      border-radius: 6px;
+    }
+    .checklist-item:hover { background: rgba(255,255,255,0.02); }
+    .checklist-item:last-child { border-bottom: none; }
+    .checklist-item input[type="checkbox"] { display: none; }
+    .check-box {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--border);
+      border-radius: 5px;
+      flex-shrink: 0;
+      margin-top: 1px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      background: transparent;
+    }
+    .checklist-item.done .check-box {
+      background: var(--success);
+      border-color: var(--success);
+    }
+    .checklist-item.done .check-box::after { content: '✓'; color: white; font-size: 12px; font-weight: 700; }
+    .checklist-item.done .check-label { color: var(--text-muted); text-decoration: line-through; }
+    .check-label { font-size: 13.5px; color: var(--text-dim); line-height: 1.5; }
+
+    /* ── URL BOX ── */
+    .url-highlight {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--surface2);
+      border: 1px solid var(--border-blue);
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #93c5fd;
+      margin: 14px 0;
+      font-family: 'Courier New', monospace;
+    }
+
+    /* ── SPACER ── */
+    .spacer { height: 8px; }
+    .label-sm {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      display: block;
+    }
+    .text-muted { color: var(--text-muted); font-size: 12px; }
+    .text-body { font-size: 13.5px; color: var(--text-dim); line-height: 1.65; }
+
+    /* ── FOOTER ── */
+    .footer {
+      border-top: 1px solid var(--border);
+      margin-top: 56px;
+      padding-top: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .footer-brand { font-size: 13px; font-weight: 600; color: var(--text-dim); }
+    .footer-sub { font-size: 12px; color: var(--text-muted); }
+
+    /* ═══════════════════════════════════════════
+       PRINT STYLES
+    ═══════════════════════════════════════════ */
+    @media print {
+      @page { size: A4; margin: 15mm 14mm 18mm; }
+
+      /* Forçar impressão de todas as cores — mantém tema escuro */
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+
+      /* Ocultar UI */
+      .print-bar, .btn-copy { display: none !important; }
+
+      /* Ocultar progress bar — vai direto ao diagnóstico */
+      .progress-wrap { display: none !important; }
+
+      .doc { padding: 0; max-width: 100%; }
+
+      /* Compactar cover — evita primeira página com espaço em branco */
+      .cover { padding: 20px 0 14px !important; margin-bottom: 16px !important; border-bottom-color: rgba(255,255,255,0.08); }
+      .cover h1 { font-size: 24px !important; }
+      .cover-meta { gap: 8px !important; }
+
+      /* Cards sem sombra — mantém dark background */
+      .card { box-shadow: none !important; break-inside: avoid; page-break-inside: avoid; margin-bottom: 12px; }
+
+      /* Não quebrar título da seção do card */
+      .section-title { page-break-after: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- PRINT BAR -->
+<div class="print-bar">
+  <span class="print-bar-label">🪪 Anderson Costa — Kit de Atualização LinkedIn · EPI-USE Voices 2026</span>
+  <button class="btn-print" onclick="window.print()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
+    Salvar como PDF
+  </button>
+</div>
+
+<div class="doc">
+
+  <!-- COVER -->
+  <div class="cover">
+    <div class="cover-badge">🎙️ EPI-USE Voices &nbsp;·&nbsp; 2026</div>
+    <h1>Kit de Atualização<br>de Perfil LinkedIn</h1>
+    <div class="cover-name">Anderson Costa</div>
+    <div class="cover-role">Delivery Strategic Account · EPI-USE Brasil · SAP HCM / SuccessFactors</div>
+    <div class="cover-meta">
+      <div class="cover-pill">📅 <strong>Gerado em:</strong>&nbsp; Maio 2026</div>
+      <div class="cover-pill">📋 <strong>Passos:</strong>&nbsp; 7 etapas</div>
+      <div class="cover-pill">✅ <strong>Checklist:</strong>&nbsp; 14 itens</div>
+      <div class="cover-pill">🐘 ERP.ngo</div>
+    </div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap">
+    <div class="progress-header">
+      <span>Progresso do kit</span>
+      <strong id="progress-label">0 / 14 concluídos</strong>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progress-fill" style="width: 0%"></div>
+    </div>
+  </div>
+
+  <!-- DIAGNÓSTICO -->
+  <div class="card">
+    <div class="section-title">
+      <div class="step-num diag">⚑</div>
+      <h2>Diagnóstico — Situação Atual</h2>
+    </div>
+    <table class="status-table">
+      <thead>
+        <tr>
+          <th style="width:24%">Elemento</th>
+          <th style="width:35%">Como está hoje</th>
+          <th>O que precisa mudar</th>
+          <th style="width:12%; text-align:right">Prioridade</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Empresa principal</td>
+          <td>STRONG Soluções em RH</td>
+          <td>Adicionar EPI-USE Brasil como cargo atual</td>
+          <td style="text-align:right"><span class="badge badge-normal">⚠ Normal</span></td>
+        </tr>
+        <tr>
+          <td>Cargo</td>
+          <td>Gerente de Operações</td>
+          <td>Atualizar para: Delivery Strategic Account</td>
+          <td style="text-align:right"><span class="badge badge-urgent">● Urgente</span></td>
+        </tr>
+        <tr>
+          <td>Seção "Sobre"</td>
+          <td>Vazia</td>
+          <td>Inserir narrativa completa (texto pronto no Passo 6)</td>
+          <td style="text-align:right"><span class="badge badge-urgent">● Urgente</span></td>
+        </tr>
+        <tr>
+          <td>Foto profissional</td>
+          <td>Presente ✓</td>
+          <td>Validar qualidade e atualidade (critérios no Passo 1)</td>
+          <td style="text-align:right"><span class="badge badge-ok">✓ Validar</span></td>
+        </tr>
+        <tr>
+          <td>Capa (banner)</td>
+          <td>Padrão LinkedIn (cinza)</td>
+          <td>Upload da capa oficial EPI-USE Brasil (Passo 2)</td>
+          <td style="text-align:right"><span class="badge badge-normal">⚠ Normal</span></td>
+        </tr>
+        <tr>
+          <td>URL do perfil</td>
+          <td>Automática — código numérico</td>
+          <td>Personalizar para /costaanderson</td>
+          <td style="text-align:right"><span class="badge badge-urgent">● Urgente</span></td>
+        </tr>
+        <tr>
+          <td>Competências</td>
+          <td>ABAP, SAP R/3 (legadas)</td>
+          <td>Remover legadas · Adicionar SAP HXM, S/4HANA, BTP</td>
+          <td style="text-align:right"><span class="badge badge-urgent">● Urgente</span></td>
+        </tr>
+        <tr>
+          <td>Publicações</td>
+          <td>Nenhuma recente</td>
+          <td>Iniciar atividade no EPI-USE Voices (2 posts/mês)</td>
+          <td style="text-align:right"><span class="badge badge-normal">⚠ Normal</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PASSO 1 -->
+  <div class="card">
+    <div class="section-title">
+      <div class="step-num">1</div>
+      <h2>Foto de Perfil</h2>
+    </div>
+    <p class="text-body">Sua foto atual é profissional. Antes de confirmar, valide os 6 critérios abaixo:</p>
+    <div class="spacer" style="height:14px"></div>
+    <ul class="criteria-list">
+      <li>Rosto centralizado e visível — ocupa ~60% do círculo</li>
+      <li>Fundo neutro ou desfocado — sem ambientes domésticos ou poluídos</li>
+      <li>Traje alinhado ao ambiente corporativo: camisa, blazer ou polo</li>
+      <li>Boa iluminação — sem sombras no rosto</li>
+      <li>Expressão natural, olhando para a câmera</li>
+      <li>Resolução mínima: 400 × 400 px</li>
+    </ul>
+    <div class="highlight-urgent" style="margin-top:16px">
+      <strong>Atenção:</strong> Se qualquer critério acima não for atendido, tire uma nova foto antes de continuar. Uma foto ruim compromete toda a credibilidade do perfil, independente do texto.
+    </div>
+    <p class="howto-title">Como trocar a foto</p>
+    <ol class="howto-list">
+      <li>Acesse seu perfil → clique na foto atual</li>
+      <li>Selecione "Alterar foto"</li>
+      <li>Faça upload do arquivo (JPG ou PNG, mín. 400×400 px)</li>
+      <li>Ajuste o enquadramento e salve</li>
+    </ol>
+  </div>
+
+  <!-- PASSO 2 -->
+  <div class="card">
+    <div class="section-title">
+      <div class="step-num">2</div>
+      <h2>Capa do Perfil — Banner</h2>
+    </div>
+    <p class="text-body">A capa oficial da EPI-USE Brasil está disponível com o time de Marketing (arquivo PNG). Ela comunica instantaneamente suas credenciais: SAP Gold Partner, ISG Leader, 40 anos de história e o propósito ERP.ngo.</p>
+    <div class="highlight-info" style="margin-top:14px">
+      <strong>Dimensão correta:</strong> 1584 × 396 px. Não redimensione o arquivo — envie exatamente como recebeu.
+    </div>
+    <p class="howto-title">Como fazer o upload</p>
+    <ol class="howto-list">
+      <li>Acesse seu perfil no LinkedIn</li>
+      <li>Passe o mouse sobre a área cinza do banner (topo do perfil)</li>
+      <li>Clique no ícone de lápis ✏ que aparece no canto superior direito do banner</li>
+      <li>Selecione "Alterar foto de capa"</li>
+      <li>Faça upload do arquivo PNG enviado pelo Marketing</li>
+      <li>Ajuste o posicionamento se necessário e clique em "Aplicar"</li>
+    </ol>
+  </div>
+
+  <!-- PASSO 3 -->
+  <div class="card">
+    <div class="section-title">
+      <div class="step-num">3</div>
+      <h2>Cargo e Empresa</h2>
+    </div>
+    <p class="text-body">Adicione a EPI-USE Brasil como experiência atual com o cargo correto. A STRONG Soluções deve ser mantida como experiência anterior — não apague.</p>
+    <div class="spacer" style="height:14px"></div>
+    <table class="field-table">
+      <thead>
+        <tr>
+          <th>Campo</th>
+          <th>O que preencher</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Empresa</td>
+          <td class="field-value-highlight">EPI-USE Brasil</td>
+        </tr>
+        <tr>
+          <td>Cargo / Título</td>
+          <td class="field-value-highlight">Delivery Strategic Account</td>
+        </tr>
+        <tr>
+          <td>Tipo de emprego</td>
+          <td>Tempo integral</td>
+        </tr>
+        <tr>
+          <td>Data de início</td>
+          <td>Mês e ano em que entrou na EPI-USE</td>
+        </tr>
+        <tr>
+          <td>Posição atual?</td>
+          <td>✓ Sim — marcar como cargo atual</td>
+        </tr>
+        <tr>
+          <td>STRONG Soluções</td>
+          <td>Manter como experiência anterior (não apagar)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PASSO 4 -->
+  <div class="card">
+    <div class="section-title">
+      <div class="step-num">4</div>
+      <h2>Headline — Título do Perfil</h2>
+    </div>
+    <p class="text-body">A headline é a primeira coisa que qualquer pessoa vê. Ela aparece nos resultados de busca, nas notificações e nos comentários. Cole exatamente o texto abaixo:</p>
+    <div class="spacer" style="height:12px"></div>
+    <div class="copy-block" id="headline-block">
+      <button class="btn-copy" onclick="copyText('headline-block', this)">Copiar</button>
+      <p><strong>27 anos em Tecnologia | 23 anos com SAP | Entrego resultados onde a complexidade assusta — de Leroy Merlin a Neoenergia</strong></p>
+    </div>
+    <p class="howto-title">Como editar</p>
+    <ol class="howto-list">
+      <li>Clique no ícone de lápis ✏ ao lado do seu nome</li>
+      <li>Localize o campo "Título" (headline)</li>
+      <li>Apague o texto atual e cole o texto acima</li>
+      <li>Salvar</li>
+    </ol>
+  </div>
+
+  <!-- PASSO 5 -->
+  <div class="card">
+    <div class="section-title">
+      <div class="step-num">5</div>
+      <h2>URL Personalizada do Perfil</h2>
+    </div>
+    <p class="text-body">Uma URL personalizada é mais profissional, fácil de compartilhar e melhora seu posicionamento em buscas do Google.</p>
+    <div class="spacer" style="height:10px"></div>
+    <span class="label-sm">URL sugerida</span>
+    <div class="url-highlight">linkedin.com/in/<strong>costaanderson</strong></div>
+    <p class="text-muted">Alternativas se o nome estiver ocupado: <code>anderson-costa-sap</code> ou <code>andersoncosta-epiuse</code></p>
+    <p class="howto-title">Como personalizar</p>
+    <ol class="howto-list">
+      <li>Acesse seu perfil → clique em "Editar perfil público e URL" (canto superior direito)</li>
+      <li>No painel direito, clique no lápis ao lado da URL atual</li>
+      <li>Digite: <strong>costaanderson</strong> (apenas este trecho, sem espaços)</li>
+      <li>Clique em "Salvar"</li>
+    </ol>
+  </div>
+
+  <!-- PASSO 6 -->
+  <div class="card">
+    <div class="section-title">
+      <div class="step-num">6</div>
+      <h2>Seção "Sobre"</h2>
+    </div>
+    <p class="text-body">O "Sobre" é seu espaço de narrativa. Cole o texto abaixo exatamente como está — não resuma, não edite:</p>
+    <div class="spacer" style="height:12px"></div>
+    <div class="copy-block" id="sobre-block">
+      <button class="btn-copy" onclick="copyText('sobre-block', this)">Copiar</button>
+      <p>Com 27 anos em tecnologia e 23 dedicados ao ecossistema SAP, aprendi que projetos de transformação não falham por falta de tecnologia — falham por falta de gestão de pessoas, conflitos mal resolvidos e relacionamentos frágeis com o cliente.</p>
+      <p>Na EPI-USE Brasil, atuo como Delivery Strategic Account de forma cross-plataforma: onde o cliente tem uma dor real e a EPI-USE tem expertise, eu estou. Já entreguei implantações de alta complexidade em empresas como Leroy Merlin, Grupo UOL, Ecorodovias e Neoenergia — cada uma com sua camada de pressão, prazo e política interna.</p>
+      <p>O que me diferencia não é o domínio técnico de uma única stack. É saber navegar a complexidade humana de um projeto: alinhar expectativas do C-Level, destravar gargalos de governança e transformar conflito em acordo.</p>
+      <p>Faço parte do programa <strong>EPI-USE Voices</strong> — uma iniciativa de líderes e especialistas que acreditam que tecnologia só gera valor quando vem acompanhada de propósito real. A EPI-USE reverte 1% de sua receita global para o <strong>ERP.ngo</strong>, programa de conservação da vida selvagem e combate à pobreza rural na África. Tecnologia de ponta com impacto que vai além do corporativo.</p>
+      <p>Se você quer conversar sobre gestão de projetos SAP, relacionamento com clientes ou como prosperar em implantações complexas — me chama.</p>
+    </div>
+    <p class="howto-title">Como editar</p>
+    <ol class="howto-list">
+      <li>Role até a seção "Sobre" no seu perfil</li>
+      <li>Clique no lápis ✏ (ou "+ Adicionar seção" se estiver vazia)</li>
+      <li>Apague o conteúdo atual e cole o texto acima</li>
+      <li>Salvar</li>
+    </ol>
+  </div>
+
+  <!-- PASSO 7 -->
+  <div class="card">
+    <div class="section-title">
+      <div class="step-num">7</div>
+      <h2>Competências</h2>
+    </div>
+    <div class="skills-grid">
+      <div class="skills-col skills-col-remove">
+        <div class="skills-col-title">● Remover ou despriorizar</div>
+        <span class="skill-tag skill-remove">ABAP</span>
+        <span class="skill-tag skill-remove">SAP R/3</span>
+      </div>
+      <div class="skills-col skills-col-add">
+        <div class="skills-col-title">✓ Adicionar / Destacar</div>
+        <span class="skill-tag skill-add">Strategic Account Management</span>
+        <span class="skill-tag skill-add">SAP HXM / SuccessFactors</span>
+        <span class="skill-tag skill-add">Delivery Management</span>
+        <span class="skill-tag skill-add">Gestão de Conflitos</span>
+        <span class="skill-tag skill-add">Customer Success</span>
+        <span class="skill-tag skill-add">SAP S/4HANA</span>
+        <span class="skill-tag skill-add">Relacionamento com Clientes</span>
+        <span class="skill-tag skill-add">Gestão de Projetos SAP</span>
+      </div>
+    </div>
+    <div class="highlight-info" style="margin-top:16px">
+      <strong>Dica:</strong> Peça recomendação de competência a pelo menos 3 colegas da EPI-USE — isso aumenta a credibilidade do perfil no algoritmo do LinkedIn.
+    </div>
+  </div>
+
+  <!-- CHECKLIST FINAL -->
+  <div class="card">
+    <div class="section-title">
+      <div class="step-num diag">☑</div>
+      <h2>Checklist Final — Antes de Concluir</h2>
+    </div>
+    <p class="text-body" style="margin-bottom:20px">Marque cada item após concluir. Só considere o perfil pronto quando todos estiverem marcados.</p>
+
+    <!-- FOTO -->
+    <div class="checklist-section">
+      <div class="checklist-section-title">FOTO</div>
+      <label class="checklist-item" onclick="toggleCheck(this)">
+        <input type="checkbox">
+        <div class="check-box"></div>
+        <span class="check-label">Foto profissional: rosto centralizado, fundo neutro</span>
+      </label>
+      <label class="checklist-item" onclick="toggleCheck(this)">
+        <input type="checkbox">
+        <div class="check-box"></div>
+        <span class="check-label">Resolução mínima 400 × 400 px confirmada</span>
+      </label>
+    </div>
+
+    <!-- CAPA -->
+    <div class="checklist-section">
+      <div class="checklist-section-title">CAPA / BANNER</div>
+      <label class="checklist-item" onclick="toggleCheck(this)">
+        <input type="checkbox">
+        <div class="check-box"></div>
+        <span class="check-label">Upload da capa EPI-USE Brasil (PNG 1584 × 396 px)</span>
+      </label>
+      <label class="checklist-item" onclick="toggleCheck(this)">
+        <input type="checkbox">
+        <div class="check-box"></div>
+        <span class="check-label">Capa exibida corretamente, sem cortes</span>
+      </label>
+    </div>
+
+    <!-- CARGO -->
+    <div class="checklist-section">
+      <div class="checklist-section-title">CARGO E EMPRESA</div>
+      <label class="checklist-item" onclick="toggleCheck(this)">
+        <input type="checkbox">
+        <div class="check-box"></div>
+        <span class="check-label">EPI-USE Brasil adicionada como empresa atual</span>
+      </label>
+      <label class="checklist-item" onclick="toggleCheck(this)">
+        <input type="checkbox">
+        <div class="check-box"></div>
+        <span class="check-label">Cargo: Delivery Strategic Account · Marcado como posição atual</span>
+      </label>
+    </div>
+
+    <!-- HEADLINE -->
+    <div class="checklist-section">
+      <div class="checklist-section-title">HEADLINE</div>
+      <label class="checklist-item" onclick="toggleCheck(this)">
+        <input type="checkbox">
+        <div class="check-box"></div>
+        <span class="check-label">Texto personalizado colado no campo "Título"</span>
+      </label>
+      <label class="checklist-item" onclick="toggleCheck(this)">
+        <input type="checkbox">
+        <div class="check-box"></div>
+        <span class="check-label">Sem usar apenas o cargo genérico como headline</span>
+      </label>
+    </div>
+
+    <!-- URL -->
+    <div class="checklist-section">
+      <div class="checklist-section-title">URL PERSONALIZADA</div>
+      <label class="checklist-item" onclick="toggleCheck(this)">
+        <input type="checkbox">
+        <div class="check-box"></div>
+        <span class="check-label">URL ajustada para linkedin.com/in/costaanderson (ou variação aprovada)</span>
+      </label>
+    </div>
+
+    <!-- SOBRE -->
+    <div class="checklist-section">
+      <div class="checklist-section-title">SEÇÃO "SOBRE"</div>
+      <label class="checklist-item" onclick="toggleCheck(this)">
+        <input type="checkbox">
+        <div class="check-box"></div>
+        <span class="check-label">Texto completo colado e salvo</span>
+      </label>
+      <label class="checklist-item" onclick="toggleCheck(this)">
+        <input type="checkbox">
+        <div class="check-box"></div>
+        <span class="check-label">ERP.ngo mencionado · EPI-USE Voices mencionado</span>
+      </label>
+    </div>
+
+    <!-- COMPETÊNCIAS -->
+    <div class="checklist-section">
+      <div class="checklist-section-title">COMPETÊNCIAS</div>
+      <label class="checklist-item" onclick="toggleCheck(this)">
+        <input type="checkbox">
+        <div class="check-box"></div>
+        <span class="check-label">Competências legadas removidas ou despriorizadas (ABAP, SAP R/3)</span>
+      </label>
+      <label class="checklist-item" onclick="toggleCheck(this)">
+        <input type="checkbox">
+        <div class="check-box"></div>
+        <span class="check-label">Novas competências adicionadas (SAP HXM, S/4HANA, Strategic Account…)</span>
+      </label>
+      <label class="checklist-item" onclick="toggleCheck(this)">
+        <input type="checkbox">
+        <div class="check-box"></div>
+        <span class="check-label">Solicitação de recomendação enviada a pelo menos 3 colegas da EPI-USE</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div>
+      <div class="footer-brand">EPI-USE Brasil · EPI-USE Voices 2026</div>
+      <div class="footer-sub">Programa de Influência Executiva · Dúvidas? Fale com o time de Marketing.</div>
+    </div>
+    <div style="text-align:right">
+      <div class="footer-sub">by Ruds · 🐘 ERP.ngo</div>
+    </div>
+  </div>
+
+</div><!-- /doc -->
+
+<script>
+  /* ── CHECKLIST INTERATIVO ── */
+  const TOTAL = 14;
+
+  function toggleCheck(label) {
+    label.classList.toggle('done');
+    updateProgress();
+    saveState();
+  }
+
+  function updateProgress() {
+    const done = document.querySelectorAll('.checklist-item.done').length;
+    const pct = Math.round((done / TOTAL) * 100);
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('progress-label').textContent = done + ' / ' + TOTAL + ' concluídos';
+  }
+
+  function saveState() {
+    const items = document.querySelectorAll('.checklist-item');
+    const state = Array.from(items).map(i => i.classList.contains('done'));
+    try { localStorage.setItem('ac-checklist', JSON.stringify(state)); } catch(_) {}
+  }
+
+  function loadState() {
+    try {
+      const saved = JSON.parse(localStorage.getItem('ac-checklist') || '[]');
+      const items = document.querySelectorAll('.checklist-item');
+      items.forEach((item, i) => {
+        if (saved[i]) item.classList.add('done');
+      });
+      updateProgress();
+    } catch(_) {}
+  }
+
+  /* ── COPY TO CLIPBOARD ── */
+  function copyText(blockId, btn) {
+    const block = document.getElementById(blockId);
+    const text = block.innerText.replace(/^Copiar\n/, '').trim();
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = '✓ Copiado!';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'Copiar';
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+
+  loadState();
+</script>
+</body>
+</html>

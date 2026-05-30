@@ -1,0 +1,831 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EPI-USE Voices | Diagnóstico gratuito de presença executiva</title>
+  <meta name="description" content="Diagnóstico gratuito de presença executiva no LinkedIn para líderes de RH, TI e transformação digital no ecossistema SAP.">
+  <style>
+    :root {
+      --navy: #001844;
+      --navy-2: #0A2342;
+      --red: #cd1543;
+      --blue: #2563EB;
+      --blue-light: #869ec3;
+      --grey: #cfd1d3;
+      --bg: #f4f7fb;
+      --ink: #111827;
+      --muted: #5b6472;
+      --white: #ffffff;
+      --line: rgba(0, 24, 68, 0.12);
+      --shadow: 0 20px 60px rgba(0, 24, 68, 0.14);
+      --radius: 8px;
+      --max: 1120px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, Avenir, "Segoe UI", Arial, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.5;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(255, 255, 255, 0.92);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(14px);
+    }
+
+    .topbar-inner {
+      width: min(var(--max), calc(100% - 32px));
+      margin: 0 auto;
+      min-height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      color: var(--navy);
+      letter-spacing: 0;
+      text-decoration: none;
+    }
+
+    .brand-mark {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      background: var(--navy);
+      color: var(--white);
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .nav {
+      display: none;
+      align-items: center;
+      gap: 20px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 650;
+    }
+
+    .nav a {
+      text-decoration: none;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 0 18px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      font-weight: 800;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: var(--red);
+      color: var(--white);
+      box-shadow: 0 10px 24px rgba(205, 21, 67, 0.25);
+    }
+
+    .btn-secondary {
+      background: var(--white);
+      color: var(--navy);
+      border-color: var(--line);
+    }
+
+    .hero {
+      background:
+        linear-gradient(135deg, rgba(0, 24, 68, 0.94), rgba(10, 35, 66, 0.88)),
+        radial-gradient(circle at 70% 20%, rgba(134, 158, 195, 0.45), transparent 34%),
+        var(--navy);
+      color: var(--white);
+      min-height: 86vh;
+      display: flex;
+      align-items: center;
+      padding: 72px 0 52px;
+      overflow: hidden;
+    }
+
+    .hero-inner {
+      width: min(var(--max), calc(100% - 32px));
+      margin: 0 auto;
+      display: grid;
+      gap: 34px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      width: fit-content;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 999px;
+      color: rgba(255, 255, 255, 0.86);
+      font-size: 13px;
+      font-weight: 750;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .hero h1 {
+      margin: 18px 0 18px;
+      max-width: 760px;
+      font-size: clamp(40px, 7vw, 76px);
+      line-height: 0.96;
+      letter-spacing: 0;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 660px;
+      color: rgba(255, 255, 255, 0.82);
+      font-size: clamp(18px, 2vw, 22px);
+    }
+
+    .hero-actions {
+      margin-top: 30px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .hero-proof {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 28px;
+      max-width: 620px;
+    }
+
+    .proof-item {
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: var(--radius);
+      padding: 14px;
+      background: rgba(255, 255, 255, 0.07);
+    }
+
+    .proof-item strong {
+      display: block;
+      font-size: 20px;
+      color: var(--white);
+    }
+
+    .proof-item span {
+      color: rgba(255, 255, 255, 0.72);
+      font-size: 13px;
+    }
+
+    .profile-visual {
+      position: relative;
+      min-height: 430px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.10);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: var(--shadow);
+      padding: 20px;
+    }
+
+    .linkedin-card {
+      position: absolute;
+      inset: 22px;
+      background: var(--white);
+      color: var(--ink);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.22);
+    }
+
+    .card-cover {
+      height: 112px;
+      background:
+        linear-gradient(135deg, var(--navy), #12386b 62%, var(--red));
+    }
+
+    .avatar {
+      width: 92px;
+      height: 92px;
+      border: 5px solid var(--white);
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--blue-light), var(--navy));
+      margin: -46px 0 0 24px;
+      display: grid;
+      place-items: center;
+      color: var(--white);
+      font-weight: 900;
+      font-size: 28px;
+    }
+
+    .card-body {
+      padding: 18px 24px 24px;
+    }
+
+    .card-body h2 {
+      margin: 0 0 6px;
+      font-size: 25px;
+      color: var(--navy);
+    }
+
+    .card-body p {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .signal-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .signal {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 10px;
+      border-radius: 8px;
+      background: #f5f7fb;
+      border: 1px solid var(--line);
+    }
+
+    .signal-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: var(--navy);
+      color: var(--white);
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+    }
+
+    section {
+      padding: 72px 0;
+    }
+
+    .wrap {
+      width: min(var(--max), calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .section-kicker {
+      margin: 0 0 10px;
+      color: var(--red);
+      font-weight: 850;
+      text-transform: uppercase;
+      font-size: 13px;
+      letter-spacing: 0;
+    }
+
+    .section-title {
+      margin: 0;
+      max-width: 760px;
+      font-size: clamp(30px, 4vw, 48px);
+      line-height: 1.05;
+      color: var(--navy);
+      letter-spacing: 0;
+    }
+
+    .section-lead {
+      margin: 18px 0 0;
+      max-width: 720px;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .grid-3 {
+      display: grid;
+      gap: 16px;
+      margin-top: 34px;
+    }
+
+    .card {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: 0 10px 34px rgba(0, 24, 68, 0.07);
+    }
+
+    .card h3 {
+      margin: 0 0 10px;
+      color: var(--navy);
+      font-size: 20px;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .split {
+      display: grid;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .steps {
+      display: grid;
+      gap: 14px;
+      margin-top: 28px;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .step-number {
+      width: 42px;
+      height: 42px;
+      border-radius: 8px;
+      background: var(--navy);
+      color: var(--white);
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+    }
+
+    .step h3 {
+      margin: 0 0 4px;
+      color: var(--navy);
+      font-size: 18px;
+    }
+
+    .step p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .diagnostic {
+      background: var(--white);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .checklist {
+      display: grid;
+      gap: 12px;
+      margin-top: 26px;
+    }
+
+    .check {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      color: var(--muted);
+    }
+
+    .check::before {
+      content: "";
+      flex: 0 0 auto;
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      background: var(--red);
+      margin-top: 1px;
+      box-shadow: inset 0 0 0 6px var(--white), 0 0 0 1px rgba(205, 21, 67, 0.4);
+    }
+
+    .form-panel {
+      background: var(--navy);
+      color: var(--white);
+      border-radius: 8px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+    }
+
+    .form-panel h2 {
+      margin: 0 0 10px;
+      font-size: 28px;
+      line-height: 1.1;
+    }
+
+    .form-panel p {
+      margin: 0 0 22px;
+      color: rgba(255, 255, 255, 0.76);
+    }
+
+    .form {
+      display: grid;
+      gap: 12px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 750;
+      font-size: 14px;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 8px;
+      padding: 13px 14px;
+      font: inherit;
+      color: var(--white);
+      background: rgba(255, 255, 255, 0.09);
+      outline: none;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    select option {
+      color: var(--ink);
+    }
+
+    textarea {
+      min-height: 104px;
+      resize: vertical;
+    }
+
+    .form-note {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.62);
+    }
+
+    .submit {
+      width: 100%;
+      margin-top: 4px;
+      border: 0;
+    }
+
+    .impact-band {
+      background: var(--navy);
+      color: var(--white);
+    }
+
+    .impact-band .section-title {
+      color: var(--white);
+    }
+
+    .impact-band .section-lead {
+      color: rgba(255, 255, 255, 0.75);
+    }
+
+    .footer {
+      padding: 34px 0;
+      background: #071326;
+      color: rgba(255, 255, 255, 0.72);
+      font-size: 14px;
+    }
+
+    .footer-inner {
+      width: min(var(--max), calc(100% - 32px));
+      margin: 0 auto;
+      display: grid;
+      gap: 10px;
+    }
+
+    .footer strong {
+      color: var(--white);
+    }
+
+    @media (min-width: 760px) {
+      .nav {
+        display: flex;
+      }
+
+      .hero-inner {
+        grid-template-columns: 1.05fr 0.95fr;
+        align-items: center;
+      }
+
+      .grid-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .split {
+        grid-template-columns: 0.95fr 1.05fr;
+      }
+
+      .footer-inner {
+        grid-template-columns: 1fr auto;
+        align-items: center;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .topbar-inner {
+        width: min(var(--max), calc(100% - 24px));
+      }
+
+      .hero,
+      section {
+        padding-left: 0;
+        padding-right: 0;
+      }
+
+      .wrap,
+      .hero-inner,
+      .footer-inner {
+        width: min(var(--max), calc(100% - 24px));
+      }
+
+      .hero-proof {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-actions .btn {
+        width: 100%;
+      }
+
+      .profile-visual {
+        min-height: 390px;
+      }
+
+      .linkedin-card {
+        inset: 12px;
+      }
+
+      .card-cover {
+        height: 92px;
+      }
+
+      .card-body {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="#top" aria-label="EPI-USE Brasil Voices">
+        <span class="brand-mark">E</span>
+        <span>EPI-USE Voices</span>
+      </a>
+      <nav class="nav" aria-label="Navegação principal">
+        <a href="#dor">Por que agora</a>
+        <a href="#diagnostico">Diagnóstico</a>
+        <a href="#formulario">Solicitar</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-inner">
+        <div>
+          <span class="eyebrow">Programa de influência executiva no ecossistema SAP</span>
+          <h1 id="hero-title">Sua autoridade já existe. Seu LinkedIn precisa mostrar isso.</h1>
+          <p>
+            Um diagnóstico gratuito para líderes de RH, TI e transformação digital entenderem como transformar experiência executiva em presença clara, confiável e relevante no LinkedIn.
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#formulario">Solicitar diagnóstico gratuito</a>
+            <a class="btn btn-secondary" href="#diagnostico">Ver como funciona</a>
+          </div>
+          <div class="hero-proof" aria-label="Credenciais EPI-USE Brasil">
+            <div class="proof-item">
+              <strong>42+ anos</strong>
+              <span>de atuação global do grupo</span>
+            </div>
+            <div class="proof-item">
+              <strong>40+ países</strong>
+              <span>com presença do grupo EPI-USE</span>
+            </div>
+            <div class="proof-item">
+              <strong>SAP Gold Partner</strong>
+              <span>especialização em transformação SAP</span>
+            </div>
+            <div class="proof-item">
+              <strong>ERP.ngo</strong>
+              <span>1% da receita global para impacto social</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-visual" aria-label="Representação visual de um perfil executivo otimizado">
+          <div class="linkedin-card">
+            <div class="card-cover"></div>
+            <div class="avatar">SAP</div>
+            <div class="card-body">
+              <h2>Liderança SAP com voz própria</h2>
+              <p>Posicionamento executivo, temas de autoridade e narrativa profissional alinhada ao negócio.</p>
+              <div class="signal-list">
+                <div class="signal">
+                  <span class="signal-icon">1</span>
+                  <span><strong>Clareza de nicho</strong><br>RH, TI, BTP, HCM, Clean Core ou transformação.</span>
+                </div>
+                <div class="signal">
+                  <span class="signal-icon">2</span>
+                  <span><strong>Autoridade sem artificialidade</strong><br>Conteúdo com experiência real, não discurso genérico.</span>
+                </div>
+                <div class="signal">
+                  <span class="signal-icon">3</span>
+                  <span><strong>Ritmo sustentável</strong><br>Presença recorrente com governança de marca.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="dor">
+      <div class="wrap">
+        <p class="section-kicker">O problema</p>
+        <h2 class="section-title">Executivos SAP têm repertório. O mercado nem sempre consegue enxergar.</h2>
+        <p class="section-lead">
+          Em RH, TI e transformação digital, a decisão de confiança acontece antes da reunião. O perfil, os posts e a narrativa pública já estão trabalhando por você ou deixando espaço para interpretações incompletas.
+        </p>
+
+        <div class="grid-3">
+          <article class="card">
+            <h3>Perfil técnico demais</h3>
+            <p>A experiência aparece como lista de cargos, projetos e siglas, mas não traduz o valor estratégico para quem decide.</p>
+          </article>
+          <article class="card">
+            <h3>Conteúdo sem linha editorial</h3>
+            <p>O executivo até posta, mas sem consistência de tema, público, prova e ponto de vista.</p>
+          </article>
+          <article class="card">
+            <h3>Marca pessoal desconectada da empresa</h3>
+            <p>A presença individual não conversa com a reputação institucional, ou parece publicidade demais.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="diagnostic" id="diagnostico">
+      <div class="wrap split">
+        <div>
+          <p class="section-kicker">O diagnóstico gratuito</p>
+          <h2 class="section-title">Uma leitura objetiva da sua presença executiva no LinkedIn.</h2>
+          <p class="section-lead">
+            O diagnóstico avalia o que já está visível, onde existe ruído e quais ajustes podem transformar sua experiência em autoridade mais clara para o mercado.
+          </p>
+          <div class="checklist">
+            <div class="check">Posicionamento do perfil e clareza de especialidade.</div>
+            <div class="check">Força do "sobre", headline e provas de experiência.</div>
+            <div class="check">Temas de conteúdo mais aderentes ao seu público.</div>
+            <div class="check">Riscos de tom, excesso de jargão e oportunidades de humanização.</div>
+            <div class="check">Próximos passos para entrar no fluxo EPI-USE Voices.</div>
+          </div>
+        </div>
+
+        <div class="steps" aria-label="Etapas do diagnóstico">
+          <div class="step">
+            <span class="step-number">1</span>
+            <div>
+              <h3>Você envia seu perfil</h3>
+              <p>Compartilhe o link do LinkedIn e seu foco profissional principal.</p>
+            </div>
+          </div>
+          <div class="step">
+            <span class="step-number">2</span>
+            <div>
+              <h3>Avaliamos presença e narrativa</h3>
+              <p>Mapeamos clareza, consistência, diferenciais e oportunidades de autoridade.</p>
+            </div>
+          </div>
+          <div class="step">
+            <span class="step-number">3</span>
+            <div>
+              <h3>Você recebe uma devolutiva</h3>
+              <p>Com recomendações práticas para evoluir perfil, pauta e posicionamento.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <p class="section-kicker">EPI-USE Voices</p>
+        <h2 class="section-title">Influência executiva com autenticidade, governança e contexto SAP.</h2>
+        <p class="section-lead">
+          O EPI-USE Voices transforma especialistas em vozes reconhecíveis: pessoas reais, repertório real e conteúdo alinhado à estratégia de marca da EPI-USE Brasil.
+        </p>
+
+        <div class="grid-3">
+          <article class="card">
+            <h3>Para líderes de RH</h3>
+            <p>Traduza experiência em HCM, folha, employee experience e transformação de pessoas em narrativa acessível para decisores.</p>
+          </article>
+          <article class="card">
+            <h3>Para líderes de TI</h3>
+            <p>Mostre visão sobre arquitetura, governança, dados, Clean Core, BTP e inovação sem virar uma lista de ferramentas.</p>
+          </article>
+          <article class="card">
+            <h3>Para transformação digital</h3>
+            <p>Conecte tecnologia, negócio, cultura e execução em uma presença que gera confiança antes da conversa comercial.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="impact-band">
+      <div class="wrap">
+        <p class="section-kicker">Além do negócio</p>
+        <h2 class="section-title">Todo Voice também carrega a história do ERP.ngo.</h2>
+        <p class="section-lead">
+          A presença executiva da EPI-USE Brasil também reflete uma escolha de impacto: 1% da receita global do grupo é destinado à conservação de elefantes e combate à pobreza rural na África por meio do ERP.ngo.
+        </p>
+      </div>
+    </section>
+
+    <section id="formulario">
+      <div class="wrap split">
+        <div>
+          <p class="section-kicker">Solicite a análise</p>
+          <h2 class="section-title">Receba seu diagnóstico gratuito de presença executiva.</h2>
+          <p class="section-lead">
+            Preencha os dados e indique o foco da sua atuação. A equipe EPI-USE Voices retorna com os próximos passos após revisão interna.
+          </p>
+        </div>
+
+        <div class="form-panel">
+          <h2>Quero meu diagnóstico</h2>
+          <p>Este formulário é uma versão de campanha. Antes da publicação, conecte RD Station, HubSpot ou Microsoft Forms.</p>
+          <form class="form" onsubmit="event.preventDefault(); alert('Pedido registrado para integração. Conectar formulário real antes de publicar.');">
+            <label>
+              Nome
+              <input type="text" name="nome" placeholder="Seu nome" required>
+            </label>
+            <label>
+              E-mail corporativo
+              <input type="email" name="email" placeholder="nome@empresa.com" required>
+            </label>
+            <label>
+              Cargo
+              <input type="text" name="cargo" placeholder="Ex: Diretor(a) de TI, CHRO, Head de Transformação" required>
+            </label>
+            <label>
+              Principal foco
+              <select name="foco" required>
+                <option value="">Selecione uma opção</option>
+                <option>RH / HCM / SuccessFactors</option>
+                <option>TI / Arquitetura / Dados</option>
+                <option>Transformação digital</option>
+                <option>SAP BTP / Clean Core</option>
+                <option>Outro foco SAP</option>
+              </select>
+            </label>
+            <label>
+              Link do LinkedIn
+              <input type="url" name="linkedin" placeholder="https://www.linkedin.com/in/seu-perfil">
+            </label>
+            <label>
+              O que você quer melhorar?
+              <textarea name="objetivo" placeholder="Ex: Quero posicionar melhor minha experiência em transformação SAP para conversas com C-level."></textarea>
+            </label>
+            <button class="btn btn-primary submit" type="submit">Solicitar diagnóstico gratuito</button>
+            <span class="form-note">Não publicar externamente sem aprovação da Duda e integração do formulário real.</span>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div><strong>EPI-USE Brasil</strong> · EPI-USE Voices · Diagnóstico de presença executiva</div>
+      <div>Versão v1 para revisão interna</div>
+    </div>
+  </footer>
+</body>
+</html>

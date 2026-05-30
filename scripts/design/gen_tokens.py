@@ -21,8 +21,10 @@ except ImportError:
     print("ERRO: pyyaml não instalado. Rode: pip install pyyaml")
     sys.exit(1)
 
-ROOT = Path(__file__).resolve().parents[2]  # modulo-a-profile-optimizer/
-DESIGN_MD = ROOT.parent / "vault" / "00-contexto" / "DESIGN.md"  # Claude MKT EUBR/vault/...
+ROOT = Path(__file__).resolve().parents[2]  # raiz do repo (epiuse-mkt-office/)
+# vault pode estar DENTRO do repo (novo, pós-migração C:\) ou irmã (legado G:\Drive)
+_cands = [ROOT / "vault" / "00-contexto" / "DESIGN.md", ROOT.parent / "vault" / "00-contexto" / "DESIGN.md"]
+DESIGN_MD = next((c for c in _cands if c.exists()), _cands[0])
 OUT_CSS = ROOT / "public" / "design-tokens.css"
 OUT_JSON = ROOT / "public" / "api" / "design-tokens.json"
 
