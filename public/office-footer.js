@@ -3,7 +3,7 @@
 // Status do sistema + versão atual + dropdown de versões anteriores
 // ════════════════════════════════════════════════════════════════════════════
 
-const OFFICE_FOOTER_VERSION = '0.6.4';
+const OFFICE_FOOTER_VERSION = '0.7.0';
 const OFFICE_FOOTER_BUILD = '2026-05-28';
 
 // Schema semver pré-1.0 — explicação em vault/00-contexto/versioning.md
@@ -11,7 +11,8 @@ const OFFICE_FOOTER_BUILD = '2026-05-28';
 // (semver indica pré-1.0 enquanto não há "release oficial"). URLs dos snapshots no
 // disco mantêm o prefixo antigo (v3.X) pra não quebrar links — só o label visual mudou.
 const OFFICE_VERSION_HISTORY = [
-  { ver: '0.6.0',  date: '28/mai/2026', label: 'DESIGN SYSTEM unificado (Google Labs DESIGN.md spec) · /design viewer Storybook lite · gen_tokens.py (52 colors · 13 type · 12 components) · 3 telas refatoradas (metas-fy26 · relatorio · dashboard) · Rule 8 (não hardcodar hex)', path: null, status: 'current' },
+  { ver: '0.7.0',  date: '30/mai/2026', label: 'ESTABILIZAÇÃO + DESIGN CODEX: localhost always-on (fix better-sqlite3 Node 24 + Tarefa Agendada Windows, aposenta PM2) · /api/health · paleta Codex oficial (#013A6A + Open Sans + surfaces claras, dark preservado) · protocolo multi-tool (Claude/Codex/Obsidian/openclaw) · backup tag v0.6.4-snapshot', path: null, status: 'current' },
+  { ver: '0.6.0',  date: '28/mai/2026', label: 'DESIGN SYSTEM unificado (Google Labs DESIGN.md spec) · /design viewer Storybook lite · gen_tokens.py (52 colors · 13 type · 12 components) · 3 telas refatoradas (metas-fy26 · relatorio · dashboard) · Rule 8 (não hardcodar hex)', path: null, status: 'snapshot' },
   { ver: '0.5.1',  date: '28/mai/2026', label: '/metas-fy26 oficial (29 metas × 6 áreas, LinkedIn 69.9% real-time) · Bug fix menu /relatorio (scrollTo shadowing) · Layout encavalado fixado · Rule 7 NO FAKE DATA · mapa-fontes-dados.md auditoria 20+ métricas · Memes-rudugues.md · Hooks lifecycle doc (manual setup)', path: null, status: 'snapshot' },
   { ver: '0.5.0',  date: '27/mai/2026', label: 'SPRINT MONSTRO: /relatorio (espelha PPT mensal) · /artigos (693 do Manus) · /jornadas (matriz LOB×etapa+gaps) · /projecoes (paid media) · /pipeline (Apollo MVP) · Skill relatorio-mensal (auto-PPT) · 5 endpoints novos · 17m história LinkedIn real', path: null, status: 'snapshot' },
   { ver: '0.4.12', date: '27/mai/2026', label: 'Optimizer split em 2 calls Sonnet (~70+70s, sem timeout) · ERP.ngo branding (logo + tokens) · Export PDF do kit (html2pdf)', path: null, status: 'snapshot' },
