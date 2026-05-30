@@ -2716,6 +2716,17 @@ app.post('/api/voices/create-from-profile', voicesVisionLimiter, upload.array('s
   }
 });
 
+// Healthcheck — usado pela Tarefa Agendada do Windows (office-health.ps1) e pelo Railway
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    service: 'epi-use-office',
+    version: (() => { try { return require('./package.json').version; } catch { return 'unknown'; } })(),
+    uptime_s: Math.round(process.uptime()),
+    ts: new Date().toISOString()
+  });
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`\n🎙️  EPI-USE Voices — Profile Optimizer`);
