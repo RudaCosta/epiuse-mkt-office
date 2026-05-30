@@ -19,8 +19,10 @@ $HealthPs  = Join-Path $ScriptDir 'office-health.ps1'
 $User      = "$env:USERDOMAIN\$env:USERNAME"
 
 function New-PwshAction($file) {
-  New-ScheduledTaskAction -Execute 'powershell.exe' `
-    -Argument ('-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "' + $file + '"')
+  # Via wscript + run-hidden.vbs = 100% oculto (sem flash de janela CMD a cada execucao)
+  $vbs = Join-Path $ScriptDir 'run-hidden.vbs'
+  New-ScheduledTaskAction -Execute 'wscript.exe' `
+    -Argument ('"' + $vbs + '" "' + $file + '"')
 }
 
 $settings = New-ScheduledTaskSettingsSet `
