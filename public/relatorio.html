@@ -284,11 +284,25 @@
   <section class="sec" id="s6">
     <div class="sec-hdr"><div class="sec-num">6</div><div class="sec-title">SDR / Pipeline (Apollo)</div></div>
     <div class="gen-card" id="pipeline-card">
-      <div style="font-size: 13px; color: var(--muted); text-align:center; padding: 24px;">
-        🔌 Integração Apollo MCP — em desenvolvimento (Onda 5 v0.5.0).<br>
-        Dados disponíveis em breve: contas ativas · contatos · sequências · reuniões · pipeline R$.
-      </div>
+      <div class="gen-row"><span class="gen-row-lbl">Contatos na base (Apollo)</span><span class="gen-row-val" id="pl-contatos">—</span></div>
+      <div class="gen-row"><span class="gen-row-lbl">Empresas na base</span><span class="gen-row-val" id="pl-empresas">—</span></div>
+      <div class="gen-row"><span class="gen-row-lbl">Sequências cadastradas (ativas)</span><span class="gen-row-val" id="pl-seq">—</span></div>
+      <div class="gen-row"><span class="gen-row-lbl">Pipeline R$</span><span class="gen-row-val" style="font-size:11px;color:var(--muted)">⏳ precisa CRM</span></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:8px" id="pl-sync"></div>
     </div>
+    <script>
+    (async function(){
+      try{
+        const r=await fetch('/api/pipeline'); const d=await r.json();
+        const fmt=n=>(n==null?'—':Number(n).toLocaleString('pt-BR'));
+        const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+        set('pl-contatos',fmt(d.contatos_total));
+        set('pl-empresas',fmt(d.contas_total));
+        set('pl-seq',fmt(d.sequencias_total)+' ('+fmt(d.sequencias_ativas)+' ativa)');
+        set('pl-sync','🟢 Apollo · sync '+(d.ultima_sync||'—'));
+      }catch(e){}
+    })();
+    </script>
   </section>
 
   <!-- 7. NEXT STEPS / CASES -->
