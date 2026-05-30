@@ -3,16 +3,23 @@
 // Status do sistema + versão atual + dropdown de versões anteriores
 // ════════════════════════════════════════════════════════════════════════════
 
-const OFFICE_FOOTER_VERSION = '0.7.0';
-const OFFICE_FOOTER_BUILD = '2026-05-28';
+const OFFICE_FOOTER_VERSION = '0.7.1';
+const OFFICE_FOOTER_BUILD = '2026-05-30';
 
 // Schema semver pré-1.0 — explicação em vault/00-contexto/versioning.md
 // Versões antigas que começavam com "v2.X" ou "v3.X" foram renumeradas pra 0.2.X / 0.3.X
 // (semver indica pré-1.0 enquanto não há "release oficial"). URLs dos snapshots no
 // disco mantêm o prefixo antigo (v3.X) pra não quebrar links — só o label visual mudou.
 const OFFICE_VERSION_HISTORY = [
-  { ver: '0.7.0',  date: '30/mai/2026', label: 'ESTABILIZAÇÃO + DESIGN CODEX: localhost always-on (fix better-sqlite3 Node 24 + Tarefa Agendada Windows, aposenta PM2) · /api/health · paleta Codex oficial (#013A6A + Open Sans + surfaces claras, dark preservado) · protocolo multi-tool (Claude/Codex/Obsidian/openclaw) · backup tag v0.6.4-snapshot', path: null, status: 'current' },
-  { ver: '0.6.0',  date: '28/mai/2026', label: 'DESIGN SYSTEM unificado (Google Labs DESIGN.md spec) · /design viewer Storybook lite · gen_tokens.py (52 colors · 13 type · 12 components) · 3 telas refatoradas (metas-fy26 · relatorio · dashboard) · Rule 8 (não hardcodar hex)', path: null, status: 'snapshot' },
+  // ─── SPRINT 7 · Estabilização + Design Codex + Dados Reais (30/mai/2026) ───
+  { ver: '0.7.1',  date: '30/mai/2026', label: 'DADOS REAIS (Regra 7): /metas KPIs despluguei o fake (era 7.844 chumbado/errado → 10.481 real via API) · auditoria DE/PARA completa (AUDITORIA-DADOS-REAIS.md) · footer history consertado (0.6.1→0.6.4 estavam sumidos)', path: null, status: 'current' },
+  { ver: '0.7.0',  date: '30/mai/2026', label: 'ESTABILIZAÇÃO + DESIGN CODEX: localhost always-on (fix better-sqlite3 Node 24 + Tarefa Agendada, aposenta PM2) · /api/health · paleta Codex oficial (#013A6A + Open Sans, dark preservado) · protocolo multi-tool · backup tag v0.6.4-snapshot', path: null, status: 'snapshot' },
+  // ─── SPRINT 6 · Design System + Brand oficial (28/mai/2026) ───
+  { ver: '0.6.4',  date: '28/mai/2026', label: 'Logos EPI-USE no nav (theme-aware) · refactor 10 telas → design-tokens.css · /design viewer com hierarquia 3 brands', path: null, status: 'snapshot' },
+  { ver: '0.6.3',  date: '28/mai/2026', label: 'Brand assets consolidados: ERP.ngo + Group Elephant + Open Sans self-hosted + GE PPT', path: null, status: 'snapshot' },
+  { ver: '0.6.2',  date: '28/mai/2026', label: 'Cores REAIS extraídas do PPT Template Jan 2026 (XML do .pptx)', path: null, status: 'snapshot' },
+  { ver: '0.6.1',  date: '28/mai/2026', label: 'DESIGN.md REAL (Brand Guide V1.1: Navy #001844 + Red) · setup PM2 · modularização /modulos/', path: null, status: 'snapshot' },
+  { ver: '0.6.0',  date: '28/mai/2026', label: 'DESIGN SYSTEM unificado (Google Labs DESIGN.md spec) · /design viewer · gen_tokens.py · Rule 8 (não hardcodar hex)', path: null, status: 'snapshot' },
   { ver: '0.5.1',  date: '28/mai/2026', label: '/metas-fy26 oficial (29 metas × 6 áreas, LinkedIn 69.9% real-time) · Bug fix menu /relatorio (scrollTo shadowing) · Layout encavalado fixado · Rule 7 NO FAKE DATA · mapa-fontes-dados.md auditoria 20+ métricas · Memes-rudugues.md · Hooks lifecycle doc (manual setup)', path: null, status: 'snapshot' },
   { ver: '0.5.0',  date: '27/mai/2026', label: 'SPRINT MONSTRO: /relatorio (espelha PPT mensal) · /artigos (693 do Manus) · /jornadas (matriz LOB×etapa+gaps) · /projecoes (paid media) · /pipeline (Apollo MVP) · Skill relatorio-mensal (auto-PPT) · 5 endpoints novos · 17m história LinkedIn real', path: null, status: 'snapshot' },
   { ver: '0.4.12', date: '27/mai/2026', label: 'Optimizer split em 2 calls Sonnet (~70+70s, sem timeout) · ERP.ngo branding (logo + tokens) · Export PDF do kit (html2pdf)', path: null, status: 'snapshot' },
