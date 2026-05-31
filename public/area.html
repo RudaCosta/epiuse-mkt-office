@@ -125,6 +125,14 @@ async function enrich(a){
       var cs = await jget('/api/cases');
       if (cs && cs.kpis){ setKpi(a,'Cases publicáveis', cs.kpis.publicaveis, 'Cases'); a._live.push('Cases'); }
     }
+    if (a.id==='eventos'){
+      var ev = await jget('/api/events.json'); var ab = (ev && ev.abas) || {};
+      var br = 0; Object.keys(ab.brasil||{}).forEach(function(y){ br += (ab.brasil[y]||[]).length; });
+      var latam = (ab.latam||[]).length;
+      setStage(a,'Eventos planejados', br, 'events.json · BR');
+      setKpi(a,'Eventos planejados FY', br, 'events.json · BR (' + latam + ' LATAM)');
+      if (br) a._live.push('Eventos');
+    }
   } catch(e){ console.warn('enrich falhou', e); }
 }
 
