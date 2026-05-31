@@ -6,22 +6,25 @@
 
 ## 🔴 BLOQUEADO POR TERCEIROS — Rudá precisa acompanhar
 
-### B1. SSO Microsoft — aguardando IT registrar app no Azure AD
+### B1. SSO Microsoft — ✅ CÓDIGO PRONTO (31/mai) · faltam passos humanos no Azure
 
-- **Quem:** IT EPI-USE Brasil (admin Azure AD)
-- **O que entregar pra mim:**
-  ```
-  AZURE_TENANT_ID=...
-  AZURE_CLIENT_ID=...
-  AZURE_CLIENT_SECRET=...
-  ```
-  + confirmação que **Admin Consent** foi dado nas 5 permissões Graph (`openid`, `profile`, `email`, `User.Read`, `offline_access`).
-- **Email enviado em:** 26/mai/2026
-- **Decisão tomada:** **Opção A** — qualquer email `@epiuse.com.br` pode logar (sem grupos restritivos). Cases & CS fica aberto pra todo M365 EPI-USE.
-- **Arquivo do email:** `vault/00-contexto/email-ti-sso-microsoft.md`
-- **Doc técnico completo:** `vault/00-contexto/sso-microsoft-plan.md`
-- **Próximo passo (quando os 3 valores chegarem):** rodar sprint v0.5.0 (~15h dev) — `@azure/msal-node` + middleware + refactor `<office-nav>` + apply `requireAuth` nas rotas sensíveis
-- **Lembrete pro Rudá:** se passar 1 semana sem retorno do IT, dar follow-up
+- **Status:** as 3 credenciais chegaram (31/mai) e o SSO foi **implementado + verificado server-side** (Opção A). Falta só configurar o app no portal Azure + testar login real.
+- **Implementado (local, commit `9f3a2c1`, ainda não em prod):**
+  - `@azure/msal-node` ConfidentialClient + `express-session` (store SQLite off-repo)
+  - rotas `/auth/login` · `/auth/callback` · `/auth/logout` · `/api/auth/status`
+  - whitelist por domínio (`epiuse.com.br, epiuselabs.com, groupelephant.com`)
+  - botão **🔐 Entrar** no nav (vira nome real + Logout após login)
+  - `SSO_ENFORCE=false` (migração segura — login disponível mas não obrigatório)
+  - credenciais SÓ no `.env` off-repo (`C:\Users\Ruds\.epiuse-optimizer\.env`), nunca no git
+  - **Verificado:** `/auth/login` → 302 pro `login.microsoftonline.com` com client_id/tenant/scope/redirect corretos; `/api/auth/status` enabled=true; nav mostra "Entrar".
+- **🙋 Passos HUMANOS que faltam (Rudá / IT no portal.azure.com → App registration `09d7c1f2…`):**
+  1. **Authentication → Redirect URIs (Web)** — adicionar AMBAS se não estiverem: `http://localhost:3000/auth/callback` + `https://epiuse-voices-optimizer.up.railway.app/auth/callback`. *(Sem isso o login dá erro AADSTS50011.)*
+  2. **API permissions** — confirmar Graph delegated `openid, profile, email, User.Read, offline_access` + clicar **Grant admin consent**.
+  3. **Testar login real:** abrir o Office → clicar 🔐 Entrar → logar com conta `@epiuse.com.br` → deve voltar logado. (precisa do passo 1 feito)
+  4. **Ao subir pro Railway:** setar nas env vars do Railway `AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET`, `SESSION_SECRET`, `SSO_ALLOWED_DOMAINS` (não vão no git).
+  5. **Quando confiar:** trocar `SSO_ENFORCE=true` pra exigir login em todo mundo.
+- **⚠️ Segurança:** o client secret foi colado em `Desktop\sso claude.txt` + chat. Recomendo **rotacionar** (Azure → Certificates & secrets → novo secret) depois de validar, e apagar o txt. (Rudá disse antes que "não tem nada comprometido aqui" — fica o registro.)
+- **Doc técnico:** `vault/00-contexto/sso-microsoft-plan.md`
 
 ### B2. Planilha Duda — Calendar editorial
 
