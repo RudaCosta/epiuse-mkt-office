@@ -247,6 +247,105 @@ app.set('trust proxy', 1);
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 
+// ── SSO MICROSOFT (Entra ID) — Opcao A: qualquer dominio em SSO_ALLOWED_DOMAINS ──
+const session = IS_LOCAL_DEV ? require(localModules + '/express-session') : require('express-session');
+let msalNode = null;
+try { msalNode = IS_LOCAL_DEV ? require(localModules + '/@azure/msal-node') : require('@azure/msal-node'); }
+catch(e){ console.warn('[sso] @azure/msal-node ausente:', e.message); }
+
+const SSO_ENABLED = !!(msalNode && process.env.AZURE_CLIENT_ID && process.env.AZURE_CLIENT_SECRET && process.env.AZURE_TENANT_ID);
+const SSO_REDIRECT = IS_LOCAL_DEV
+  ? (process.env.AZURE_REDIRECT_URI_DEV || ('http://localhost:' + PORT + '/auth/callback'))
+  : (process.env.AZURE_REDIRECT_URI || 'https://epiuse-voices-optimizer.up.railway.app/auth/callback');
+const SSO_DOMAINS = (process.env.SSO_ALLOWED_DOMAINS || 'epiuse.com.br').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+const SSO_SCOPES = ['openid', 'profile', 'email', 'User.Read', 'offline_access'];
+
+let sessionStore;
+try {
+  const SQLiteStore = (IS_LOCAL_DEV ? require(localModules + '/connect-sqlite3') : require('connect-sqlite3'))(session);
+  sessionStore = new SQLiteStore({ db: 'sessions.sqlite', dir: DB_DIR });
+} catch(e){ console.warn('[sso] connect-sqlite3 ausente, usando MemoryStore:', e.message); sessionStore = undefined; }
+
+app.use(session({
+  name: 'eubr.sid',
+  secret: process.env.SESSION_SECRET || 'dev-insecure-trocar',
+  resave: false,
+  saveUninitialized: false,
+  store: sessionStore,
+  cookie: { httpOnly: true, sameSite: 'lax', secure: !IS_LOCAL_DEV, maxAge: 1000 * 60 * 60 * 24 * 7 }
+}));
+
+let msalClient = null;
+if (SSO_ENABLED) {
+  msalClient = new msalNode.ConfidentialClientApplication({
+    auth: {
+      clientId: process.env.AZURE_CLIENT_ID,
+      authority: 'https://login.microsoftonline.com/' + process.env.AZURE_TENANT_ID,
+      clientSecret: process.env.AZURE_CLIENT_SECRET
+    }
+  });
+  console.log('[sso] Microsoft SSO ATIVO · redirect=' + SSO_REDIRECT + ' · dominios=' + SSO_DOMAINS.join(','));
+} else {
+  console.log('[sso] Microsoft SSO inativo (faltam credenciais ou modulo)');
+}
+
+app.get('/api/auth/status', (req, res) => {
+  const u = req.session && req.session.user;
+  res.json({ enabled: SSO_ENABLED, enforce: process.env.SSO_ENFORCE === 'true', authenticated: !!u, user: u || null });
+});
+
+app.get('/auth/login', async (req, res) => {
+  if (!SSO_ENABLED) return res.status(503).send('SSO Microsoft nao configurado neste ambiente.');
+  try {
+    req.session.returnTo = req.query.returnTo || '/dashboard';
+    const url = await msalClient.getAuthCodeUrl({ scopes: SSO_SCOPES, redirectUri: SSO_REDIRECT, prompt: 'select_account' });
+    res.redirect(url);
+  } catch(e){ console.error('[sso] login err', e); res.status(500).send('Erro ao iniciar login: ' + e.message); }
+});
+
+app.get('/auth/callback', async (req, res) => {
+  if (!SSO_ENABLED) return res.status(503).send('SSO nao configurado.');
+  if (req.query.error) return res.status(400).send('Login negado pelo Microsoft: ' + (req.query.error_description || req.query.error));
+  try {
+    const r = await msalClient.acquireTokenByCode({ code: req.query.code, scopes: SSO_SCOPES, redirectUri: SSO_REDIRECT });
+    const acc = r.account || {};
+    const claims = r.idTokenClaims || {};
+    const email = (acc.username || claims.preferred_username || claims.email || '').toLowerCase();
+    const domain = email.split('@')[1] || '';
+    if (SSO_DOMAINS.length && !SSO_DOMAINS.includes(domain)) {
+      return req.session.destroy(() => res.status(403).send('Acesso restrito a EPI-USE. O dominio "' + domain + '" nao esta autorizado.'));
+    }
+    req.session.user = {
+      email,
+      name: acc.name || claims.name || email,
+      given: claims.given_name || '',
+      oid: acc.homeAccountId || claims.oid || null,
+      loginAt: new Date().toISOString()
+    };
+    const back = req.session.returnTo || '/dashboard';
+    delete req.session.returnTo;
+    res.redirect(back);
+  } catch(e){ console.error('[sso] callback err', e); res.status(500).send('Erro no callback do login: ' + e.message); }
+});
+
+app.get('/auth/logout', (req, res) => {
+  const base = IS_LOCAL_DEV ? ('http://localhost:' + PORT) : (process.env.APP_BASE_URL || 'https://epiuse-voices-optimizer.up.railway.app');
+  req.session.destroy(() => {
+    if (SSO_ENABLED) {
+      res.redirect('https://login.microsoftonline.com/' + process.env.AZURE_TENANT_ID +
+        '/oauth2/v2.0/logout?post_logout_redirect_uri=' + encodeURIComponent(base + '/dashboard'));
+    } else res.redirect('/dashboard');
+  });
+});
+
+// middleware opcional — so bloqueia se SSO_ENFORCE=true (migracao segura: default off)
+function requireAuth(req, res, next) {
+  if (process.env.SSO_ENFORCE !== 'true' || !SSO_ENABLED) return next();
+  if (req.session && req.session.user) return next();
+  if (req.path.startsWith('/api/')) return res.status(401).json({ error: 'auth_required' });
+  res.redirect('/auth/login?returnTo=' + encodeURIComponent(req.originalUrl));
+}
+
 // ── RATE LIMITERS ─────────────────────────────────────────────────────────────
 // Optimizer é caro (Claude Vision tokens): 10 análises por hora por IP
 const optimizerLimiter = rateLimit({

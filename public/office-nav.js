@@ -957,3 +957,38 @@ const OfficeCommandPalette = (() => {
 
   return { open, close };
 })();
+
+/* ── SSO Microsoft · bootstrap do botao de usuario (add 31/mai/2026) ───────────
+   Aditivo: le /api/auth/status e religa o #userBtn (Shadow DOM) pra login/logout.
+   Nao trava nada — se SSO off, mantem o comportamento antigo (Visitante).        */
+;(function(){
+  function initSSO(tries){
+    tries = tries || 0;
+    var nav = document.querySelector('office-nav');
+    var sr  = nav && nav.shadowRoot;
+    var btn = sr && sr.getElementById('userBtn');
+    var nameEl = sr && sr.getElementById('userName');
+    if(!btn || !nameEl){ if(tries < 40) return setTimeout(function(){ initSSO(tries+1); }, 150); return; }
+    fetch('/api/auth/status').then(function(r){ return r.json(); }).then(function(s){
+      if(!s) return;
+      if(s.authenticated && s.user){
+        nameEl.textContent = s.user.given || (s.user.name||'').split(' ')[0] || s.user.email;
+        var nb = btn.cloneNode(true);                 // remove handler antigo (prompt)
+        btn.parentNode.replaceChild(nb, btn);
+        nb.title = s.user.email + ' · sair';
+        nb.addEventListener('click', function(){
+          if(confirm('Sair da conta ' + s.user.email + '?')) location.href = '/auth/logout';
+        });
+      } else if(s.enabled){
+        var nb = btn.cloneNode(true);
+        btn.parentNode.replaceChild(nb, btn);
+        nb.innerHTML = '🔐 <span id="userName">Entrar</span>';
+        nb.title = 'Entrar com Microsoft (EPI-USE)';
+        nb.addEventListener('click', function(){
+          location.href = '/auth/login?returnTo=' + encodeURIComponent(location.pathname + location.search);
+        });
+      }
+    }).catch(function(){});
+  }
+  if(document.readyState !== 'loading') initSSO(); else document.addEventListener('DOMContentLoaded', function(){ initSSO(); });
+})();
