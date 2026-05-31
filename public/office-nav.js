@@ -28,16 +28,17 @@ const OFFICE_NAV_VERSION = '0.7.1';
   document.head.appendChild(style);
 })();
 
-// 6 tabs principais + Pipeline/Projeções/etc movidos pro overflow menu (v0.5.1)
-// pra evitar tabs apertadas em desktop médio.
+// NAV POR AREA/DONA (v0.7.x) — cada item = 1 modulo (funil de meta + numeros + projetos + ferramentas).
+// Fonte: /api/areas.json. Telas antigas viram "ferramentas" dentro de cada modulo (deep-links seguem valendo).
 const OFFICE_NAV_TABS = [
-  { id: 'hub',       label: 'Office',     icon: '🏠', href: '/dashboard',  matches: ['hub'] },
-  { id: 'relatorio', label: 'Relatório',  icon: '📊', href: '/relatorio',  matches: ['relatorio'] },
-  { id: 'voices',    label: 'Voices',     icon: '🎙️', href: '/voices',     matches: ['voices', 'painel'] },
-  { id: 'inbound',   label: 'Inbound',    icon: '📡', href: '/inbound',    matches: ['inbound'] },
-  { id: 'cases',     label: 'Cases & CS', icon: '🤝', href: '/cases',      matches: ['cases'] },
-  { id: 'artigos',   label: 'Artigos',    icon: '📚', href: '/artigos',    matches: ['artigos', 'jornadas'] },
-  { id: 'metas',     label: 'Metas',      icon: '🎯', href: '/metas',      matches: ['metas', 'projecoes'] }
+  { id: 'hub',          label: 'Office',       icon: '🏠', href: '/dashboard',         matches: ['hub'] },
+  { id: 'intelligence', label: 'Intelligence', icon: '🧠', href: '/area/intelligence', matches: ['area-intelligence'] },
+  { id: 'growth',       label: 'Growth',       icon: '🚀', href: '/area/growth',       matches: ['area-growth','projecoes'] },
+  { id: 'eventos',      label: 'Eventos',      icon: '📅', href: '/area/eventos',      matches: ['area-eventos'] },
+  { id: 'pipeline',     label: 'Pipeline',     icon: '📞', href: '/area/pipeline',     matches: ['area-pipeline','pipeline'] },
+  { id: 'brand',        label: 'Brand/Voices', icon: '🎨', href: '/area/brand',        matches: ['area-brand','voices','inbound','cases','painel','optimizer'] },
+  { id: 'conteudo',     label: 'Conteúdo',     icon: '📣', href: '/area/conteudo',     matches: ['area-conteudo','artigos','jornadas'] },
+  { id: 'metas',        label: 'Metas FY',     icon: '🎯', href: '/metas-fy26',        matches: ['metas','metas-fy26','relatorio'] }
 ];
 
 // Breadcrumbs por rota — aparece sutil abaixo do nav em rotas profundas

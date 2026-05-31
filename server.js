@@ -292,6 +292,12 @@ app.get('/voices',     (req, res) => res.sendFile(VOICES_PATH));
 app.get('/seja-voice', (req, res) => res.sendFile(SEJA_VOICE_PATH));
 app.get('/changelog',  (req, res) => res.sendFile(CHANGELOG_PATH));
 
+// ── MODULOS POR AREA (v0.7.x — nav reorganizado por dona) ───────────────────
+// /area/<id> -> template unico area.html (le /api/areas.json por id)
+const AREA_PATH = path.join(__dirname, 'public/area.html');
+app.get('/area', (req, res) => res.sendFile(AREA_PATH));
+app.get('/area/:id', (req, res) => res.sendFile(AREA_PATH));
+
 // ── MODULE H · METAS LINKEDIN (sprint 0.4.8 — apresentação corporativa) ─────
 const METAS_PATH = path.join(__dirname, 'public/metas.html');
 app.get('/metas', (req, res) => res.sendFile(METAS_PATH));
