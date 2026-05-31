@@ -12,6 +12,10 @@
              border:1px solid var(--color-border,rgba(134,158,195,.18)); }
   .mod-ico { font-size:34px; }
   .mod-hdr h1 { margin:0; font-size:22px; }
+  .livechip { display:inline-block; font-size:11px; font-weight:700; vertical-align:middle; margin-left:10px;
+              padding:3px 9px; border-radius:99px; background:rgba(16,185,129,.14); color:#6ee7b7;
+              border:1px solid rgba(16,185,129,.3); letter-spacing:.02em; }
+  .fstage .fsrc, .card .csrc { font-size:10px; color:#6ee7b7; margin-top:6px; opacity:.85; }
   .mod-dona { font-size:13px; color:var(--color-text-muted,#869ec3); margin-top:2px; }
   .mod-foco { font-size:12px; color:var(--color-text-dim,#c0ccd9); margin-top:4px; max-width:760px; }
   .subabas { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px; }
@@ -74,6 +78,7 @@ function renderFunil(funil, cor){
       + '<div class="fval" style="color:'+(val?cor:'var(--color-text-muted,#869ec3)')+'">'+(val||'—')+'</div>'
       + '<div class="fmeta">'+metaTxt+'</div>'
       + (pct!=null ? '<div class="fbar"><i style="width:'+pct+'%;background:'+cor+'"></i></div>' : '')
+      + (s._fonte ? '<div class="fsrc">🔗 '+s._fonte+'</div>' : '')
       + (s.obs ? '<div class="fobs">'+s.obs+'</div>' : '')
       + '</div>'
     );
@@ -81,32 +86,67 @@ function renderFunil(funil, cor){
   return '<div class="funil">'+parts.join('')+'</div>';
 }
 
+// helpers de wiring: acham estágio/kpi por nome e injetam valor REAL + marcam fonte
+function setStage(a, estagio, valor, fonte){
+  (a.funil||[]).forEach(function(s){ if (s.estagio===estagio && valor!=null){ s.valor = valor; if(fonte) s._fonte = fonte; } });
+}
+function setKpi(a, label, valor, fonte){
+  (a.kpis||[]).forEach(function(k){ if (k.label===label && valor!=null){ k.valor = valor; k.fonte = 'real'; if(fonte) k._fonte = fonte; } });
+}
+async function jget(u){ return (await fetch(u + (u.indexOf('?')<0?'?':'&') + 't=' + Date.now())).json(); }
+
+// enriquecimento AO VIVO por área — só dado REAL das fontes já integradas (Regra 7)
+async function enrich(a){
+  a._live = [];
+  try {
+    if (a.id==='pipeline' || a.id==='intelligence'){
+      var pl = await jget('/api/pipeline');
+      setStage(a,'Contatos', pl.contatos_total); setStage(a,'Sequências', pl.sequencias_total);
+      setStage(a,'Base CRM (contatos)', pl.contatos_total); setStage(a,'Empresas mapeadas', pl.empresas_total);
+      setKpi(a,'Contatos na base (Apollo)', pl.contatos_total); setKpi(a,'Empresas mapeadas', pl.empresas_total);
+      setKpi(a,'Contatos na base', pl.contatos_total); setKpi(a,'Empresas', pl.empresas_total);
+      if (pl.contatos_total!=null) a._live.push('Apollo');
+    }
+    if (a.id==='growth'){
+      var li = await jget('/api/linkedin/historical');
+      var sm = li.serie_mensal||[]; var last = sm[sm.length-1] || {};
+      setStage(a,'Seguidores novos/mês', last.novos, 'LinkedIn');
+      setStage(a,'Impressões/Alcance', last.impressoes_7d, 'LinkedIn 7d');
+      setKpi(a,'Seguidores LinkedIn (total)', last.total_seguidores, 'LinkedIn');
+      if (last.total_seguidores!=null) a._live.push('LinkedIn');
+    }
+    if (a.id==='conteudo'){
+      var ar = await jget('/api/artigos');
+      setStage(a,'Publicados', ar.total, 'base artigos');
+      setKpi(a,'Artigos na base', ar.total, 'base artigos');
+      if (ar.total!=null) a._live.push('Artigos');
+    }
+    if (a.id==='brand'){
+      var cs = await jget('/api/cases');
+      if (cs && cs.kpis){ setKpi(a,'Cases publicáveis', cs.kpis.publicaveis, 'Cases'); a._live.push('Cases'); }
+    }
+  } catch(e){ console.warn('enrich falhou', e); }
+}
+
 async function init(){
   var id = getId();
-  var d = await (await fetch('/api/areas.json')).json();
+  var d = await jget('/api/areas.json');
   var a = (d.areas||[]).find(function(x){ return x.id===id; });
   var root = document.getElementById('root');
   if (!a){ root.innerHTML = '<p class="pend">Módulo "'+id+'" não encontrado.</p>'; return; }
   document.title = a.icon+' '+a.nome+' · EPI-USE Office';
 
-  // live override (pipeline puxa Apollo fresco)
-  if (a.live === 'pipeline'){
-    try {
-      var pl = await (await fetch('/api/pipeline')).json();
-      a.funil.forEach(function(s){
-        if (s.estagio==='Contatos') s.valor = pl.contatos_total;
-        if (s.estagio==='Sequências') s.valor = pl.sequencias_total;
-      });
-    } catch(e){}
-  }
+  await enrich(a);
 
+  var liveChip = (a._live && a._live.length)
+    ? ' <span class="livechip">● ao vivo · '+a._live.join(' · ')+'</span>' : '';
   var subabas = a.subabas ? ('<div class="subabas">'+a.subabas.map(function(t){
       return '<a class="subaba" href="'+t.href+'">'+t.label+'</a>'; }).join('')+'</div>') : '';
 
   root.innerHTML =
     '<div class="mod-hdr" style="border-left:4px solid '+a.cor+'">'
     + '<div class="mod-ico">'+a.icon+'</div>'
-    + '<div><h1>'+a.nome+'</h1><div class="mod-dona">👤 '+a.dona+'</div>'
+    + '<div><h1>'+a.nome+liveChip+'</h1><div class="mod-dona">👤 '+a.dona+'</div>'
     + '<div class="mod-foco">'+(a.foco||'')+'</div></div></div>'
     + subabas
     + '<div class="sec-t">🎯 Funil de meta</div>' + renderFunil(a.funil, a.cor)
@@ -115,7 +155,7 @@ async function init(){
         var v = fmt(k.valor);
         return '<div class="card"><div class="clbl">'+k.label+'</div><div class="cval">'
           + (v!=null ? v : '<span class="pend">'+(k.fonte&&k.fonte.indexOf('pending')===0?'⏳ aguarda integração':'—')+'</span>')
-          + '</div></div>'; }).join('')
+          + '</div>'+(k._fonte?'<div class="csrc">🔗 '+k._fonte+'</div>':'')+'</div>'; }).join('')
     + '</div>'
     + '<div class="sec-t">📁 Projetos</div><div>'
     + (a.projetos||[]).map(function(p){
