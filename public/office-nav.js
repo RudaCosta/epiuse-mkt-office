@@ -958,35 +958,41 @@ const OfficeCommandPalette = (() => {
   return { open, close };
 })();
 
-/* ── SSO Microsoft · bootstrap do botao de usuario (add 31/mai/2026) ───────────
-   Aditivo: le /api/auth/status e religa o #userBtn (Shadow DOM) pra login/logout.
+/* ── SSO Microsoft · bootstrap do menu de usuario (add 31/mai/2026, fix selectors)
+   Aditivo: le /api/auth/status e injeta item Entrar/Sair no #user-menu (Shadow DOM).
    Nao trava nada — se SSO off, mantem o comportamento antigo (Visitante).        */
 ;(function(){
+  function setName(sr, txt){
+    var n1 = sr.querySelector('.user-name'); if(n1) n1.textContent = txt;
+    var n2 = sr.querySelector('.um-name');   if(n2) n2.textContent = txt;
+    var av = sr.querySelector('.um-avatar'); if(av) av.textContent = (txt||'V')[0].toUpperCase();
+  }
+  function addItem(menu, html, href, onClick){
+    var el = document.createElement(href ? 'a' : 'button');
+    el.className = 'um-item'; el.innerHTML = html;
+    if(href){ el.href = href; } else { el.type = 'button'; }
+    if(onClick){ el.addEventListener('click', onClick); }
+    menu.insertBefore(el, menu.firstChild ? menu.firstChild.nextSibling : null); // logo apos o um-head
+    return el;
+  }
   function initSSO(tries){
     tries = tries || 0;
     var nav = document.querySelector('office-nav');
     var sr  = nav && nav.shadowRoot;
-    var btn = sr && sr.getElementById('userBtn');
-    var nameEl = sr && sr.getElementById('userName');
-    if(!btn || !nameEl){ if(tries < 40) return setTimeout(function(){ initSSO(tries+1); }, 150); return; }
+    var btn = sr && sr.getElementById('user-btn');
+    var menu = sr && sr.getElementById('user-menu');
+    if(!btn || !menu){ if(tries < 40) return setTimeout(function(){ initSSO(tries+1); }, 150); return; }
+    if(menu.dataset.ssoDone) return; // idempotente
     fetch('/api/auth/status').then(function(r){ return r.json(); }).then(function(s){
-      if(!s) return;
+      if(!s || !s.enabled) return;          // SSO desligado => nada muda
+      menu.dataset.ssoDone = '1';
       if(s.authenticated && s.user){
-        nameEl.textContent = s.user.given || (s.user.name||'').split(' ')[0] || s.user.email;
-        var nb = btn.cloneNode(true);                 // remove handler antigo (prompt)
-        btn.parentNode.replaceChild(nb, btn);
-        nb.title = s.user.email + ' · sair';
-        nb.addEventListener('click', function(){
-          if(confirm('Sair da conta ' + s.user.email + '?')) location.href = '/auth/logout';
-        });
-      } else if(s.enabled){
-        var nb = btn.cloneNode(true);
-        btn.parentNode.replaceChild(nb, btn);
-        nb.innerHTML = '🔐 <span id="userName">Entrar</span>';
-        nb.title = 'Entrar com Microsoft (EPI-USE)';
-        nb.addEventListener('click', function(){
-          location.href = '/auth/login?returnTo=' + encodeURIComponent(location.pathname + location.search);
-        });
+        setName(sr, s.user.given || (s.user.name||'').split(' ')[0] || s.user.email);
+        var rn = sr.getElementById('um-rename'); if(rn) rn.style.display='none'; // identidade real, sem renomear
+        addItem(menu, '🚪 Sair ('+s.user.email+')', '/auth/logout');
+      } else {
+        setName(sr, 'Entrar');
+        addItem(menu, '🔐 Entrar com Microsoft', '/auth/login?returnTo=' + encodeURIComponent(location.pathname + location.search));
       }
     }).catch(function(){});
   }
