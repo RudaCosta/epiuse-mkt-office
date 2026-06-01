@@ -488,7 +488,7 @@ body {
   <header class="hdr">
     <div class="hdr-l">
       <div class="hdr-title">EPI-USE OFFICE</div>
-      <div class="hdr-sub">WAR ROOM · MARKETING & REVOPS</div>
+      <div class="hdr-sub"><a href="/war-room" style="color:inherit;text-decoration:none;border-bottom:1px dotted currentColor">WAR ROOM</a> · MARKETING & REVOPS</div>
     </div>
     <div class="hdr-r">
       <div class="hdr-chip" id="today">23 mai 2026</div>
@@ -610,8 +610,46 @@ body {
         <a class="card-action">Usar skill ↓</a>
       </div>
 
+      <div class="card">
+        <div class="card-head">
+          <div class="card-icon">🤖</div>
+          <div class="card-status status-ok">✓ v0.8.1</div>
+        </div>
+        <div class="card-title">Escritório Virtual</div>
+        <div class="card-sub">CEO + 6 agentes área + 4 executores</div>
+        <a class="card-action" href="/agentes">Abrir mapa →</a>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div class="card-icon">⚡</div>
+          <div class="card-status status-ok" id="warroom-card-status">— pendências</div>
+        </div>
+        <div class="card-title">War Room</div>
+        <div class="card-sub">Pendências consolidadas dos agentes</div>
+        <a class="card-action" href="/war-room">Abrir →</a>
+      </div>
+
     </div>
   </section>
+  <script>
+    fetch('/api/agentes/_counters?t=' + Date.now())
+      .then(r => r.ok ? r.json() : {})
+      .then(c => {
+        var totalIn = 0;
+        Object.keys(c||{}).forEach(function(s){ totalIn += (c[s].inbox||0); });
+        var el = document.getElementById('warroom-card-status');
+        if (!el) return;
+        if (totalIn > 0) {
+          el.textContent = '📥 ' + totalIn + ' pendência(s)';
+          el.className = 'card-status status-warn';
+          el.style.background = 'rgba(251,191,36,.18)';
+          el.style.color = '#fcd34d';
+        } else {
+          el.textContent = '✓ tudo em dia';
+        }
+      }).catch(function(){});
+  </script>
 
   <!-- ══════ VOICES ══════ -->
   <section id="voices">
