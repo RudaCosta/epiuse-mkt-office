@@ -154,7 +154,8 @@ async function init(){
   root.innerHTML =
     '<div class="mod-hdr" style="border-left:4px solid '+a.cor+'">'
     + '<div class="mod-ico">'+a.icon+'</div>'
-    + '<div><h1>'+a.nome+liveChip+'</h1><div class="mod-dona">👤 '+a.dona+'</div>'
+    + '<div><h1>'+a.nome+liveChip+'</h1><div class="mod-dona">👤 '+a.dona
+    + ' · <a href="/agentes" style="color:var(--color-info-500,#60a5fa);text-decoration:none">🤖 agente da área →</a></div>'
     + '<div class="mod-foco">'+(a.foco||'')+'</div></div></div>'
     + subabas
     + '<div class="sec-t">🎯 Funil de meta</div>' + renderFunil(a.funil, a.cor)

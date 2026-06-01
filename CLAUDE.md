@@ -89,15 +89,33 @@ Em qualquer sessão nova, faça **NA ORDEM**:
 
 ---
 
-## 👥 Sub-agentes (invocáveis via Agent tool)
+## 👥 Sub-agentes (invocáveis via Agent tool) — arquitetura 3 camadas
 
-| `name` (subagent_type) | Use quando |
+> Mapa visual: tela `/agentes` no Office + `vault/agentes/_mapa-contexto.md`. Cada agente lê SÓ sua fatia do contexto mestre (escopo declarado no próprio `.claude/agents/<nome>.md`).
+
+**🎯 Orquestrador** — `ceo-mkt`: pedido envolve múltiplas áreas, priorização, ou contratar agente.
+
+**🏢 Agentes de área** (1 por dona — donos do contexto da área):
+
+| `subagent_type` | Dona | Use quando o pedido for sobre… |
+|---|---|---|
+| `area-intelligence` | Bruna | CRM, lead scoring, attribution, higiene de base, funil |
+| `area-growth` | Gui | mídia paga, SEO/pautas, LinkedIn growth, briefing agência |
+| `area-eventos` | Isabela | eventos BR/LATAM, MDF SAP, ativações, tática elefante |
+| `area-pipeline` | Marlison | outbound Apollo, prospecção C-Level, sequências |
+| `area-brand` | Duda | identidade visual, Voices, Inbound, Cases, tom |
+| `area-conteudo` | Lisiane | artigos, curadoria, jornadas de compra por LOB |
+
+**🛠️ Executores transversais** (chamados pelas áreas via inbox):
+
+| `subagent_type` | Use quando |
 |---|---|
-| `ceo-mkt` | Pedido envolve múltiplos agentes ou priorização |
 | `criativos` | Design gráfico, copy de anúncio, briefing visual |
 | `landing-pages` | Codar HTML single-file (LP, quiz, dashboard) |
 | `propostas` | Transformar transcrição em proposta comercial |
 | `campanhas` | Analisar Meta Ads ou estruturar campanha |
+
+**Roteamento:** pedido de uma área → agente de área (que aciona executores). Pedido transversal/multi-área → `ceo-mkt`. Pedido puramente de execução (ex: "codar essa LP") → executor direto.
 
 ---
 
