@@ -1,7 +1,10 @@
 {
-  "current": "0.9.0",
+  "current": "0.9.1",
   "atualizado_em": "2026-06-01",
   "releases": [
+    { "version": "0.9.1", "date": "01/jun/2026", "status": "snapshot", "path": null,
+      "title": "Optimizer ZERO TOKENS — fluxo copia-prompt → cola-JSON",
+      "summary": "Removidas TODAS chamadas API do Optimizer (não gasta mais token Anthropic) · botão 'Analisar aqui' removido · botão 'Extrair com Claude' agora abre prompt pronto pra colar em qualquer IA (Claude/ChatGPT/Gemini/Perplexity) · modal Prompt Lab ganha 2 painéis (esquerda: prompt copiável · direita: textarea pra colar JSON da resposta) · botão 'Renderizar Kit' parsea JSON e usa renderKit existente · time MKT processa em qualquer IA externa · Office vira coletor + renderizador + PDF institucional" },
     { "version": "0.9.0", "date": "01/jun/2026", "status": "snapshot", "path": null,
       "title": "SPRINT 9 — Profile Optimizer REFUNDADO (input + PDF institucional + fluxo revisão)",
       "summary": "Modo Voice cadastrado (dropdown direto pra Anderson/Furigo · pré-popula 14 campos do /api/voices) · PDF institucional via window.print (paleta light forçada · capa institucional página 1 · sumário página 2 · 1 seção por página A4 · fontes vetoriais · sem mais html2pdf rasterizando) · fluxo de revisão (rascunho→revisão→pronto · PDF só libera com kit revisado · estado persistido por Voice em localStorage)" },
