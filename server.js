@@ -377,6 +377,7 @@ const inboundGenLimiter = rateLimit({
 // ── ROTAS DO OFFICE ENGINE ────────────────────────────────────────────────────
 const OPTIMIZER_PATH = path.join(__dirname, 'public/optimizer.html');
 app.get('/optimizer', (req, res) => res.sendFile(OPTIMIZER_PATH));
+app.get('/optimizer-standalone', (req, res) => res.sendFile(path.join(__dirname, 'public/optimizer-standalone.html')));
 
 // Páginas v3.0 — servem do public/ em qualquer ambiente
 const PAINEL_PATH     = path.join(__dirname, 'public/painel.html');

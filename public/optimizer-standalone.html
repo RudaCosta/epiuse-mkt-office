@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🪪 Profile Optimizer · EPI-USE Voices · Standalone</title>
+<style>
+  * { box-sizing: border-box; }
+  :root {
+    --navy: #001844; --red: #cd1543; --blue: #004B8D;
+    --bg: #0a1525; --card: #0f1e35; --text: #e6ebf2; --muted: #869ec3; --border: rgba(134,158,195,.2);
+    --green: #10b981; --yellow: #fcd34d; --orange: #f97316;
+  }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:'Open Sans',-apple-system,system-ui,sans-serif; font-size:14px; line-height:1.5; }
+  .wrap { max-width:1280px; margin:0 auto; padding:24px 18px 80px; }
+  h1 { font-size:24px; margin:0 0 4px; color:#fff; }
+  .sub { font-size:12px; color:var(--muted); margin-bottom:20px; }
+  .badge-standalone { display:inline-block; font-size:10px; background:rgba(16,185,129,.18); color:#6ee7b7; padding:3px 10px; border-radius:99px; font-weight:700; letter-spacing:.04em; margin-left:8px; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:18px; margin-bottom:16px; }
+  .card h3 { margin:0 0 12px; font-size:14px; color:#fff; font-weight:700; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media (max-width:720px){ .grid{grid-template-columns:1fr} }
+  label { display:block; font-size:11px; font-weight:700; color:var(--muted); margin-bottom:4px; text-transform:uppercase; letter-spacing:.04em; }
+  input, select, textarea {
+    width:100%; padding:10px 12px; background:rgba(0,0,0,.20); border:1px solid var(--border);
+    border-radius:8px; color:var(--text); font-size:13px; font-family:inherit;
+  }
+  textarea { resize:vertical; line-height:1.5; }
+  .field { margin-bottom:10px; }
+  .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  button { font-family:inherit; cursor:pointer; border:none; padding:10px 16px; border-radius:8px; font-weight:700; font-size:13px; transition:opacity .15s; }
+  .btn-primary { background:linear-gradient(135deg,var(--navy),var(--blue)); color:#fff; }
+  .btn-secondary { background:rgba(96,165,250,.12); color:#93c5fd; border:1px solid rgba(96,165,250,.3); }
+  .btn-green { background:linear-gradient(135deg,#10b981,#059669); color:#fff; }
+  button:hover { opacity:.88; }
+  button:disabled { opacity:.4; cursor:not-allowed; }
+  .modal-bg { position:fixed; inset:0; background:rgba(0,0,0,.7); display:none; align-items:center; justify-content:center; z-index:100; padding:24px; }
+  .modal-bg.open { display:flex; }
+  .modal { background:var(--card); border-radius:14px; padding:20px; max-width:1100px; width:100%; max-height:90vh; display:flex; flex-direction:column; }
+  .modal-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+  .modal-body { display:grid; grid-template-columns:1fr 1fr; gap:14px; flex:1; min-height:0; }
+  @media (max-width:900px){ .modal-body{grid-template-columns:1fr} }
+  .modal-col { display:flex; flex-direction:column; gap:8px; min-height:0; }
+  .modal-col h4 { font-size:11px; margin:0; letter-spacing:.06em; text-transform:uppercase; }
+  .modal-col textarea, .modal-col pre {
+    flex:1; min-height:300px; max-height:55vh; overflow:auto; margin:0;
+    background:rgba(0,0,0,.30); border:1px solid var(--border); border-radius:8px;
+    color:var(--text); font-family:'JetBrains Mono',monospace; font-size:11px; line-height:1.5; padding:12px;
+    white-space:pre-wrap; word-break:break-word;
+  }
+  .status-line { font-size:11px; min-height:14px; }
+  .close-btn { background:transparent; color:var(--muted); padding:4px 10px; }
+  #resultado { display:none; margin-top:24px; }
+  #resultado.show { display:block; }
+  .kit-header { padding:24px; background:linear-gradient(135deg,var(--navy),var(--blue)); border-radius:12px; margin-bottom:18px; color:#fff; }
+  .kit-header h2 { margin:0 0 4px; font-size:22px; }
+  .kit-header .meta { font-size:12px; opacity:.85; }
+  .sec-block { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:18px; margin-bottom:14px; }
+  .sec-block h3 { margin:0 0 12px; color:var(--yellow); font-size:14px; letter-spacing:.04em; text-transform:uppercase; }
+  .sec-block p { margin:0 0 8px; line-height:1.6; }
+  .sec-block ul { margin:0; padding-left:20px; }
+  .sec-block li { margin-bottom:4px; }
+  .sec-block table { width:100%; border-collapse:collapse; font-size:12px; }
+  .sec-block th { text-align:left; padding:6px 8px; background:rgba(0,0,0,.2); border-bottom:1px solid var(--border); font-weight:700; color:var(--muted); }
+  .sec-block td { padding:8px; border-bottom:1px solid var(--border); vertical-align:top; }
+  .pill { display:inline-block; font-size:10px; padding:2px 8px; border-radius:99px; font-weight:700; }
+  .pill-alta { background:rgba(239,68,68,.18); color:#fca5a5; }
+  .pill-media { background:rgba(251,191,36,.18); color:#fcd34d; }
+  .pill-baixa { background:rgba(96,165,250,.18); color:#93c5fd; }
+  .vi-score { display:flex; align-items:center; gap:18px; }
+  .vi-ring { width:80px; height:80px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:22px; color:#fff; background:conic-gradient(var(--green) 0deg, var(--green) 270deg, rgba(255,255,255,.1) 270deg); }
+  .vi-pillar { background:rgba(0,0,0,.2); border-radius:8px; padding:12px; margin-bottom:8px; }
+  .vi-pillar-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+  .vi-criterio { font-size:11px; margin:3px 0; padding-left:12px; }
+  .nivel-forte { color:#6ee7b7; }
+  .nivel-ok { color:#fcd34d; }
+  .nivel-fraco { color:#fdba74; }
+  .nivel-ausente { color:#fca5a5; }
+  .nivel-na { color:var(--muted); opacity:.6; }
+  .top-actions { position:sticky; top:0; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:10px 14px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center; z-index:10; }
+  .kit-status { font-size:10px; padding:3px 9px; border-radius:99px; font-weight:700; font-family:'JetBrains Mono',monospace; }
+  .ks-rascunho { background:rgba(239,68,68,.18); color:#fca5a5; border:1px solid rgba(239,68,68,.3); }
+  .ks-revisao { background:rgba(251,191,36,.18); color:#fcd34d; border:1px solid rgba(251,191,36,.3); }
+  .ks-pronto { background:rgba(16,185,129,.18); color:#6ee7b7; border:1px solid rgba(16,185,129,.3); }
+
+  /* PDF print */
+  .print-cover, .print-toc { display:none; }
+  @media print {
+    @page { size:A4; margin:18mm 16mm 20mm; }
+    * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+    body { background:#fff !important; color:#0f172a !important; }
+    .wrap, header, .top-actions, .card:not(#resultado .card), .modal-bg, .form-shell { display:none !important; }
+    #resultado { display:block !important; }
+    .print-cover, .print-toc { display:flex !important; flex-direction:column; }
+    .print-cover { justify-content:center; align-items:center; text-align:center; min-height:240mm; page-break-after:always; }
+    .print-cover h1 { font-size:32pt; color:#001844; margin:8mm 0; }
+    .print-cover .subtitle { font-size:18pt; color:#cd1543; font-weight:700; }
+    .print-cover .voice-name { font-size:24pt; color:#0f172a; margin-top:20mm; }
+    .print-cover .voice-cargo { font-size:14pt; color:#475569; }
+    .print-cover .meta { font-size:10pt; color:#94a3b8; margin-top:auto; }
+    .print-toc { padding:16mm 0; page-break-after:always; }
+    .print-toc h2 { font-size:24pt; color:#001844; border-bottom:2px solid #cd1543; padding-bottom:4mm; }
+    .print-toc ol { list-style:none; padding:0; counter-reset:toc; }
+    .print-toc li { counter-increment:toc; padding:4mm 0; border-bottom:1px dotted #cbd5e1; font-size:13pt; }
+    .print-toc li::before { content:counter(toc)". "; font-weight:800; color:#cd1543; margin-right:8px; }
+    .kit-header { display:none !important; }
+    .sec-block { background:#fff !important; border:1px solid #e2e8f0 !important; color:#0f172a !important; page-break-inside:avoid; page-break-before:always; }
+    .sec-block:first-of-type { page-break-before:avoid; }
+    .sec-block h3 { color:#001844 !important; }
+    .sec-block * { color:#0f172a !important; }
+    .vi-pillar { background:#f8fafc !important; border:1px solid #e2e8f0 !important; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🪪 Profile Optimizer <span class="badge-standalone">STANDALONE · ZERO TOKENS</span></h1>
+  <div class="sub">EPI-USE Voices · Versão self-contained (1 arquivo HTML) · funciona offline · não chama API</div>
+
+  <div class="form-shell">
+    <div class="card">
+      <h3>1. Dados do profissional</h3>
+      <div class="grid">
+        <div class="field"><label>Nome completo</label><input type="text" id="nome" placeholder="Anderson Costa"></div>
+        <div class="field"><label>Cargo oficial EPI-USE Brasil</label><input type="text" id="cargo" placeholder="Delivery Strategic Account"></div>
+        <div class="field"><label>Área de atuação SAP</label><input type="text" id="area" placeholder="SAP HCM · SuccessFactors"></div>
+        <div class="field"><label>URL LinkedIn</label><input type="url" id="linkedin" placeholder="https://linkedin.com/in/..."></div>
+        <div class="field"><label>Anos de experiência</label><input type="text" id="anos" placeholder="12 anos"></div>
+        <div class="field"><label>Data entrada EPI-USE</label><input type="text" id="data_entrada" placeholder="2017-03"></div>
+        <div class="field"><label>Público-alvo</label><input type="text" id="publico" placeholder="CHROs · Diretores RH · Líderes Folha"></div>
+        <div class="field"><label>Tom de voz</label>
+          <select id="tom"><option>equilibrado</option><option>didático</option><option>provocador</option><option>técnico-acessível</option><option>executivo</option></select>
+        </div>
+        <div class="field"><label>SSI Score atual</label><input type="text" id="ssi" placeholder="63 / 100"></div>
+        <div class="field"><label>Seguidores</label><input type="text" id="seguidores" placeholder="2.450"></div>
+      </div>
+      <div class="field"><label>Lado humano (família · paixão · causa)</label><textarea id="humano" rows="2" placeholder="2 filhos pequenos, corre maratonas, voluntário ERP.ngo desde 2023..."></textarea></div>
+      <div class="field"><label>Resultado real #1 (com número)</label><input type="text" id="r1" placeholder="Migração SuccessFactors em 280 lojas em 14 meses"></div>
+      <div class="field"><label>Resultado real #2</label><input type="text" id="r2" placeholder="..."></div>
+      <div class="field"><label>Resultado real #3</label><input type="text" id="r3" placeholder="..."></div>
+    </div>
+
+    <div class="row">
+      <button class="btn-primary" onclick="abrirPromptLab()" style="flex:1">📋 Gerar Prompt + Renderizar Kit</button>
+      <button class="btn-secondary" onclick="limparForm()">🗑️ Limpar form</button>
+    </div>
+  </div>
+
+  <!-- Resultado -->
+  <div id="resultado"></div>
+</div>
+
+<!-- Modal Prompt Lab -->
+<div class="modal-bg" id="modal-bg" onclick="if(event.target===this)fecharModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <h3 style="margin:0">🧪 Prompt Lab · cola em qualquer IA</h3>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">Claude.ai · ChatGPT · Gemini · Perplexity — copia o prompt → cola na IA → cola JSON de volta</div>
+      </div>
+      <button class="close-btn" onclick="fecharModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-col">
+        <h4 style="color:#60a5fa">📤 Prompt pra colar na IA</h4>
+        <pre id="prompt-out"></pre>
+        <button class="btn-secondary" onclick="copiarPrompt()" id="btn-copy">📋 Copiar Prompt</button>
+      </div>
+      <div class="modal-col">
+        <h4 style="color:#10b981">📥 JSON da resposta da IA</h4>
+        <textarea id="json-in" placeholder='Cole aqui o JSON retornado pela IA.
+
+A resposta deve começar com { e terminar com }.'></textarea>
+        <button class="btn-green" onclick="renderizar()">✨ Renderizar Kit</button>
+        <div id="render-status" class="status-line"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function getFields() {
+  const f = id => (document.getElementById(id).value || '').trim();
+  return {
+    nome:f('nome'), cargo:f('cargo'), area:f('area'), linkedin:f('linkedin'),
+    anos:f('anos'), data_entrada:f('data_entrada'), publico:f('publico'),
+    tom:f('tom'), ssi:f('ssi'), seguidores:f('seguidores'), humano:f('humano'),
+    r1:f('r1'), r2:f('r2'), r3:f('r3')
+  };
+}
+function limparForm() {
+  if (!confirm('Limpar tudo?')) return;
+  document.querySelectorAll('input, textarea').forEach(el => el.value = '');
+}
+function gerarPrompt() {
+  const x = getFields();
+  const resultados = [x.r1,x.r2,x.r3].filter(Boolean).map((r,i)=>`  ${i+1}. ${r}`).join('\n') || '  (não informados — use [preencher: ex. X% de resultado])';
+  return `🛑 INSTRUÇÃO CRÍTICA — LEIA PRIMEIRO 🛑
+
+GERE O KIT AGORA, NA SUA PRÓXIMA RESPOSTA. NÃO PEÇA SCREENSHOTS, NÃO PEÇA MAIS DADOS.
+
+Se faltar informação visual (foto, banner, seguidores exatos), use \`[preencher: descrição do que falta]\` no campo correspondente. NÃO bloqueie o output esperando mais input.
+
+FORMATO: apenas o objeto JSON, começando com { e terminando com }, sem markdown, sem texto antes/depois, sem \`\`\`json. Será parseado por código.
+
+════════ CONTEXTO EPI-USE VOICES ════════
+- EPI-USE Brasil — maior consultoria SAP HCM/Payroll do Brasil
+- Grupo EPI-USE / groupelephant.com · 42+ anos · 4.500+ profissionais · 40+ países · SAP Gold Partner
+- LOBs: SAP HCM/SuccessFactors, S/4HANA, BTP, Signavio, ServiceNow
+- ERP.ngo: 1% receita global → conservação elefantes + África
+- Todo Voice é embaixador ERP.ngo
+- SEMPRE "EPI-USE Brasil" por extenso
+
+════════ DADOS DO PROFISSIONAL ════════
+- Nome: ${x.nome || '[preencher]'}
+- Cargo oficial EPI-USE Brasil: ${x.cargo || '[preencher]'}
+- Área: ${x.area || '[preencher]'}
+- LinkedIn: ${x.linkedin || '[preencher]'}
+- Anos exp: ${x.anos || '[preencher]'}
+- Data entrada EPI-USE: ${x.data_entrada || '[preencher]'}
+- Público-alvo: ${x.publico || '[preencher]'}
+- Tom de voz: ${x.tom}
+- SSI: ${x.ssi || '[preencher]'}
+- Seguidores: ${x.seguidores || '[preencher]'}
+- Lado humano: ${x.humano || '[preencher]'}
+
+Resultados reais (NUNCA inventar números):
+${resultados}
+
+════════ REGRAS ════════
+- Português Brasil
+- Headline ≤ 220 chars · contém "EPI-USE Brasil" + expertise + lado humano se houver
+- "Sobre" em 1ª pessoa · ≤ 2600 chars · menciona EPI-USE Voices E ERP.ngo
+- Competências: priorizar SAP BTP, Clean Core, S/4HANA, SuccessFactors · remover R/3, ABAP puro
+- 5 destaques variando: artigo técnico · post LI · link externo · imagem kickoff/go-live · publicação parceiro
+- Nunca citar concorrente nominalmente
+- Onde faltar dado, usar \`[preencher: ...]\`
+
+════════ SCHEMA JSON OBRIGATÓRIO ════════
+{
+  "nome": "string",
+  "cargo_atual": "string",
+  "empresa_atual": "EPI-USE Brasil",
+  "diagnostico": {
+    "pontos_positivos": ["string", "string"],
+    "problemas_encontrados": [
+      { "elemento": "Cargo/Empresa", "situacao_atual": "string", "meta": "string", "urgencia": "alta" },
+      { "elemento": "Headline", "situacao_atual": "string", "meta": "string", "urgencia": "alta" },
+      { "elemento": "Sobre", "situacao_atual": "string", "meta": "string", "urgencia": "media" },
+      { "elemento": "Foto", "situacao_atual": "string", "meta": "string", "urgencia": "media" },
+      { "elemento": "Banner", "situacao_atual": "string", "meta": "string", "urgencia": "alta" },
+      { "elemento": "Competências", "situacao_atual": "string", "meta": "string", "urgencia": "media" },
+      { "elemento": "Publicações", "situacao_atual": "string", "meta": "string", "urgencia": "alta" }
+    ]
+  },
+  "headline_sugerida": "string (≤220 chars)",
+  "url_sugerida": "linkedin.com/in/nome-sobrenome",
+  "sobre_texto": "string (1ª pessoa ≤2600 chars · menciona EPI-USE Voices + ERP.ngo)",
+  "competencias": { "adicionar": ["string"], "remover": ["string"], "manter": ["string"] },
+  "destaques": [
+    { "numero": 1, "titulo": "string", "descricao": "string", "tipo": "artigo" },
+    { "numero": 2, "titulo": "string", "descricao": "string", "tipo": "projeto" },
+    { "numero": 3, "titulo": "string", "descricao": "string", "tipo": "evento" },
+    { "numero": 4, "titulo": "string", "descricao": "string", "tipo": "conquista" },
+    { "numero": 5, "titulo": "string", "descricao": "string", "tipo": "curso" }
+  ],
+  "voice_index_score": 0,
+  "voice_index_resumo": "string",
+  "pilares_avaliacao": [
+    { "pilar": "Identidade & Posicionamento", "icone": "🪪", "score": 0, "criterios": [{ "nome": "string", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" }] },
+    { "pilar": "Autoridade & Prova Social", "icone": "🏆", "score": 0, "criterios": [] },
+    { "pilar": "Conteúdo & Atividade", "icone": "📊", "score": 0, "criterios": [] },
+    { "pilar": "Network", "icone": "🌐", "score": 0, "criterios": [] },
+    { "pilar": "SSI Index", "icone": "📈", "score": 0, "criterios": [] },
+    { "pilar": "Aderência EPI-USE Brasil", "icone": "💼", "score": 0, "criterios": [] },
+    { "pilar": "Conversão", "icone": "🎯", "score": 0, "criterios": [] }
+  ],
+  "linha_editorial": {
+    "pilares": [
+      { "percentual": "40%", "nome": "Thought Leadership", "exemplos": ["string"] },
+      { "percentual": "30%", "nome": "Cases", "exemplos": ["string"] },
+      { "percentual": "20%", "nome": "Pessoas", "exemplos": ["string"] },
+      { "percentual": "10%", "nome": "Propósito ERP.ngo", "exemplos": ["string"] }
+    ],
+    "calendario_4_semanas": [
+      { "semana": 1, "post_1": "string", "post_2": "string" },
+      { "semana": 2, "post_1": "string", "post_2": "string" },
+      { "semana": 3, "post_1": "string", "post_2": "string" },
+      { "semana": 4, "post_1": "string", "post_2": "string" }
+    ]
+  },
+  "kpis": {
+    "metas_90_dias": [
+      { "kpi": "SSI Score", "meta": "> 70" },
+      { "kpi": "Visualizações/semana", "meta": "+150%" },
+      { "kpi": "Seguidores", "meta": "+200" },
+      { "kpi": "Posts/mês", "meta": "8" }
+    ]
+  },
+  "checklist": [
+    { "item": "string", "prioridade": "urgente", "passo": "string" },
+    { "item": "string", "prioridade": "normal", "passo": "string" }
+  ]
+}
+
+🛑 LEMBRE-SE: APENAS O JSON. Sem markdown, sem texto antes/depois. NÃO PEÇA MAIS DADOS.`;
+}
+function abrirPromptLab() {
+  document.getElementById('prompt-out').textContent = gerarPrompt();
+  document.getElementById('json-in').value = '';
+  document.getElementById('render-status').textContent = '';
+  document.getElementById('btn-copy').textContent = '📋 Copiar Prompt';
+  document.getElementById('modal-bg').classList.add('open');
+}
+function fecharModal() { document.getElementById('modal-bg').classList.remove('open'); }
+function copiarPrompt() {
+  const txt = document.getElementById('prompt-out').textContent;
+  navigator.clipboard.writeText(txt).then(() => {
+    const btn = document.getElementById('btn-copy');
+    btn.textContent = '✓ Copiado! Agora cole na IA';
+    setTimeout(()=>btn.textContent='📋 Copiar Prompt', 2000);
+  });
+}
+function renderizar() {
+  const status = document.getElementById('render-status');
+  const txt = (document.getElementById('json-in').value || '').trim();
+  if (!txt) { status.textContent='❌ Cole o JSON primeiro.'; status.style.color='#fca5a5'; return; }
+  if (/^\s*<!DOCTYPE|^\s*<html/i.test(txt)) { status.textContent='❌ Isso é HTML, não JSON.'; status.style.color='#fca5a5'; return; }
+  let clean = txt.replace(/^```(json)?\s*/i,'').replace(/```\s*$/i,'').trim();
+  const a = clean.indexOf('{'), b = clean.lastIndexOf('}');
+  if (a===-1||b===-1) { status.textContent='❌ Não achei JSON ({...}).'; status.style.color='#fca5a5'; return; }
+  clean = clean.slice(a, b+1);
+  let kit;
+  try { kit = JSON.parse(clean); }
+  catch (e) { status.innerHTML='❌ JSON inválido: ' + e.message; status.style.color='#fca5a5'; return; }
+  renderKit(kit);
+  fecharModal();
+  document.getElementById('resultado').scrollIntoView({behavior:'smooth'});
+}
+function esc(s) { return String(s==null?'':s).replace(/[<>&]/g, c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c])); }
+function renderKit(k) {
+  const el = document.getElementById('resultado');
+  const nome = esc(k.nome || 'Voice');
+  const cargo = esc(k.cargo_atual || '');
+  const data = new Date().toLocaleDateString('pt-BR', { day:'2-digit', month:'long', year:'numeric' });
+  let html = '';
+
+  // Capa + sumário (só print)
+  html += `<div class="print-cover"><h1>Kit LinkedIn</h1><div class="subtitle">EPI-USE Voices · 2026</div><div class="voice-name">${nome}</div><div class="voice-cargo">${cargo}</div><div class="meta">Análise estratégica · ${data}<br>EPI-USE Brasil · Programa Voices</div></div>`;
+  html += `<div class="print-toc"><h2>Índice</h2><ol><li>Diagnóstico</li><li>Voice Index — 7 pilares</li><li>Headline & Sobre</li><li>5 Destaques</li><li>Linha editorial</li><li>KPIs 90 dias</li><li>Checklist</li></ol></div>`;
+
+  // Top actions (web)
+  html += `<div class="top-actions"><div><b>🪪 ${nome}</b> <span class="meta" style="color:var(--muted);font-size:11px">· ${cargo}</span> <span id="ks-chip" class="kit-status ks-rascunho">📝 Rascunho IA</span></div><div class="row"><button class="btn-secondary" id="btn-rev" onclick="ciclarStatus()">✍️ Marcar revisado</button><button class="btn-green" id="btn-pdf" onclick="salvarPDF()" disabled style="opacity:.4">📥 Salvar PDF</button></div></div>`;
+
+  html += `<div class="kit-header"><h2>${nome}</h2><div class="meta">${cargo} · ${data}</div></div>`;
+
+  // 1. Diagnóstico
+  if (k.diagnostico) {
+    html += `<div class="sec-block"><h3>1. Diagnóstico</h3>`;
+    if (k.diagnostico.pontos_positivos) html += '<p><b>✓ Pontos positivos:</b></p><ul>' + k.diagnostico.pontos_positivos.map(p=>`<li>${esc(p)}</li>`).join('') + '</ul>';
+    if (k.diagnostico.problemas_encontrados) {
+      html += '<table><thead><tr><th>Elemento</th><th>Hoje</th><th>Meta</th><th>Urg</th></tr></thead><tbody>';
+      k.diagnostico.problemas_encontrados.forEach(p => {
+        html += `<tr><td><b>${esc(p.elemento)}</b></td><td>${esc(p.situacao_atual)}</td><td>${esc(p.meta)}</td><td><span class="pill pill-${p.urgencia||'media'}">${esc(p.urgencia||'media')}</span></td></tr>`;
+      });
+      html += '</tbody></table>';
+    }
+    html += '</div>';
+  }
+
+  // 2. Voice Index
+  if (k.voice_index_score != null || k.pilares_avaliacao) {
+    html += '<div class="sec-block"><h3>2. Voice Index — 7 pilares</h3>';
+    if (k.voice_index_score != null) {
+      const s = Math.max(0, Math.min(100, k.voice_index_score));
+      const deg = Math.round((s/100)*360);
+      html += `<div class="vi-score"><div class="vi-ring" style="background:conic-gradient(var(--green) 0deg, var(--green) ${deg}deg, rgba(255,255,255,.1) ${deg}deg)">${s}</div><div><b>Score: ${s}/100</b><br><span style="color:var(--muted);font-size:12px">${esc(k.voice_index_resumo||'')}</span></div></div>`;
+    }
+    (k.pilares_avaliacao||[]).forEach(p => {
+      html += `<div class="vi-pillar"><div class="vi-pillar-head"><b>${esc(p.icone||'')} ${esc(p.pilar)}</b><span style="color:var(--muted);font-size:11px">score: ${p.score||0}</span></div>`;
+      (p.criterios||[]).forEach(c => {
+        const cls = 'nivel-' + (c.nivel||'na');
+        html += `<div class="vi-criterio"><span class="${cls}">●</span> <b>${esc(c.nome)}</b>: <span style="color:var(--muted)">${esc(c.observacao||'')}</span></div>`;
+      });
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+
+  // 3. Headline + Sobre
+  if (k.headline_sugerida || k.sobre_texto) {
+    html += '<div class="sec-block"><h3>3. Headline & Sobre</h3>';
+    if (k.headline_sugerida) html += `<p><b>🎯 Headline (${k.headline_sugerida.length}/220):</b><br><i>${esc(k.headline_sugerida)}</i></p>`;
+    if (k.url_sugerida) html += `<p><b>🔗 URL sugerida:</b> <code>${esc(k.url_sugerida)}</code></p>`;
+    if (k.sobre_texto) html += `<p><b>📝 Sobre (${k.sobre_texto.length}/2600):</b></p><div style="background:rgba(0,0,0,.2);padding:12px;border-radius:8px;white-space:pre-wrap;font-size:12px;line-height:1.7">${esc(k.sobre_texto)}</div>`;
+    html += '</div>';
+  }
+
+  // 4. Destaques
+  if (k.destaques && k.destaques.length) {
+    html += '<div class="sec-block"><h3>4. 5 Destaques estratégicos</h3>';
+    k.destaques.forEach(d => {
+      html += `<div style="padding:10px;border-left:3px solid var(--blue);margin-bottom:8px;background:rgba(0,0,0,.15)"><b>#${d.numero} · ${esc(d.titulo)}</b> <span class="pill pill-baixa">${esc(d.tipo)}</span><br><span style="font-size:12px;color:var(--muted)">${esc(d.descricao)}</span></div>`;
+    });
+    html += '</div>';
+  }
+
+  // 5. Linha editorial
+  if (k.linha_editorial) {
+    html += '<div class="sec-block"><h3>5. Linha editorial · 4 semanas</h3>';
+    if (k.linha_editorial.pilares) html += '<p><b>Mix:</b> ' + k.linha_editorial.pilares.map(p=>`${esc(p.percentual)} ${esc(p.nome)}`).join(' · ') + '</p>';
+    if (k.linha_editorial.calendario_4_semanas) {
+      html += '<table><thead><tr><th>Sem</th><th>Post 1</th><th>Post 2</th></tr></thead><tbody>';
+      k.linha_editorial.calendario_4_semanas.forEach(s => {
+        html += `<tr><td><b>S${s.semana}</b></td><td>${esc(s.post_1)}</td><td>${esc(s.post_2)}</td></tr>`;
+      });
+      html += '</tbody></table>';
+    }
+    html += '</div>';
+  }
+
+  // 6. KPIs
+  if (k.kpis && k.kpis.metas_90_dias) {
+    html += '<div class="sec-block"><h3>6. KPIs · metas 90 dias</h3><table><tbody>';
+    k.kpis.metas_90_dias.forEach(m => { html += `<tr><td><b>${esc(m.kpi)}</b></td><td>${esc(m.meta)}</td></tr>`; });
+    html += '</tbody></table></div>';
+  }
+
+  // 7. Checklist
+  if (k.checklist && k.checklist.length) {
+    html += '<div class="sec-block"><h3>7. Checklist</h3>';
+    k.checklist.forEach(c => {
+      html += `<div style="padding:6px;border-bottom:1px solid var(--border)"><input type="checkbox"> <b>${esc(c.item)}</b> <span class="pill pill-${c.prioridade==='urgente'?'alta':(c.prioridade==='bonus'?'baixa':'media')}">${esc(c.prioridade)}</span><br><span style="font-size:11px;color:var(--muted);margin-left:24px">${esc(c.passo)}</span></div>`;
+    });
+    html += '</div>';
+  }
+
+  el.innerHTML = html;
+  el.classList.add('show');
+  window._kit_status = 'rascunho';
+}
+function ciclarStatus() {
+  const map = { rascunho:'revisao', revisao:'pronto', pronto:'rascunho' };
+  window._kit_status = map[window._kit_status||'rascunho'];
+  const chip = document.getElementById('ks-chip');
+  const btnRev = document.getElementById('btn-rev');
+  const btnPdf = document.getElementById('btn-pdf');
+  if (!chip) return;
+  chip.className = 'kit-status ks-' + window._kit_status;
+  if (window._kit_status === 'rascunho') { chip.textContent='📝 Rascunho IA'; btnRev.textContent='✍️ Marcar revisado'; btnPdf.disabled=true; btnPdf.style.opacity='.4'; }
+  else if (window._kit_status === 'revisao') { chip.textContent='✍️ Em revisão'; btnRev.textContent='✅ Marcar pronto'; btnPdf.disabled=true; btnPdf.style.opacity='.4'; }
+  else { chip.textContent='✅ Pronto'; btnRev.textContent='↩ Voltar rascunho'; btnPdf.disabled=false; btnPdf.style.opacity='1'; }
+}
+function salvarPDF() {
+  if (window._kit_status !== 'pronto') { alert('Marque como revisado antes.'); return; }
+  window.print();
+}
+</script>
+</body>
+</html>
