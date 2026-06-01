@@ -49,6 +49,15 @@ Register-ScheduledTask -TaskName 'EPI-USE-Office-Health' -Force `
   -Description 'Checa /api/health a cada 5 min e reinicia o Office se cair.' | Out-Null
 Write-Output "[OK] Tarefa 'EPI-USE-Office-Health' registrada (a cada 5 min)."
 
+# --- Tarefa 3: sync diario Cases (Roberto OneDrive -> Office) ---
+$CasesPs = Join-Path $ScriptDir 'run-cases-sync.ps1'
+$trigCases = New-ScheduledTaskTrigger -Daily -At '07:00'
+Register-ScheduledTask -TaskName 'EPI-USE-Office-Cases-Sync' -Force `
+  -Action (New-PwshAction $CasesPs) -Trigger $trigCases `
+  -Settings $settings -Principal $principal `
+  -Description 'Sync diario 7h: le xlsx Cases do Roberto (OneDrive) e POSTa pra /api/cases/sync.' | Out-Null
+Write-Output "[OK] Tarefa 'EPI-USE-Office-Cases-Sync' registrada (diario 07:00)."
+
 # --- Sobe agora (nao espera o proximo login) ---
 & $StartPs
 Start-Sleep -Seconds 4
