@@ -2115,14 +2115,44 @@ async function gerarFromCadastrado() {
   status.style.display = 'block';
   status.innerHTML = '⏳ Carregando dados do Voice…';
   try {
-    const r = await fetch(`/api/voices/${slug}/optimizer-input`);
-    const d = await r.json();
-    if (!d.success) throw new Error(d.error || 'falha ao ler input');
+    // Tenta endpoint novo /optimizer-input; se 404 (server antigo), mapeia client-side
+    let input;
+    try {
+      const r = await fetch(`/api/voices/${slug}/optimizer-input`);
+      if (r.ok) {
+        const d = await r.json();
+        if (d.success) input = d.input;
+      }
+    } catch (_) { /* fallback */ }
+    if (!input) {
+      // Fallback: mapeia direto do voices.json em memória (já carregado em initCadastradoMode)
+      const v = (CADASTRADO_VOICES || []).find(x => x.id === slug);
+      if (!v) throw new Error('voice não encontrado na memória');
+      const r2 = Array.isArray(v.resultados) ? v.resultados : (v.resultados ? [v.resultados] : []);
+      input = {
+        voice_slug: v.id,
+        nome: v.nome || '',
+        cargo_oficial: v.cargo || '',
+        area_principal: v.nicho || '',
+        publico_alvo: Array.isArray(v.audiencia) ? v.audiencia.join(', ') : (v.audiencia || ''),
+        linkedin_url: v.linkedin || '',
+        ssi_score: v.ssi_baseline || '',
+        seguidores: v.seguidores_baseline || '',
+        tom_voz: v.tom_voz || '',
+        diferencial_humano: v.lado_humano || '',
+        resultado_1: r2[0] || '',
+        resultado_2: r2[1] || '',
+        resultado_3: r2[2] || '',
+        anos_experiencia: v.anos_experiencia || '',
+        data_entrada_epiuse: v.data_entrada_epiuse || '',
+        foto_oficial: !!v.foto,
+        foto_url: v.foto || ''
+      };
+    }
     // Preenche o form manual com os dados e dispara o fluxo manual
     selectMode('manual');
     // Aguarda render do manual
     setTimeout(() => {
-      const input = d.input;
       const set = (id, val) => { const el = document.getElementById(id); if (el && val != null) el.value = val; };
       set('linkedin-url', input.linkedin_url);
       set('f-nome', input.nome);
@@ -2733,17 +2763,28 @@ function renderizarFromJSON() {
   const status = document.getElementById('render-json-status');
   const txt = (document.getElementById('prompt-json-input').value || '').trim();
   if (!txt) { status.textContent = '❌ Cole o JSON primeiro.'; status.style.color = '#fca5a5'; return; }
-  // Limpa markdown fences se houver
+  // Detecta cola acidental de HTML
+  if (/^\s*<!DOCTYPE|^\s*<html|^\s*<\?xml/i.test(txt)) {
+    status.innerHTML = '❌ Você colou HTML, não JSON. A resposta da IA deve começar com <code>{</code>.';
+    status.style.color = '#fca5a5';
+    return;
+  }
+  // Limpa markdown fences se houver (```json ... ```)
   let clean = txt.replace(/^```(json)?\s*/i, '').replace(/```\s*$/i, '').trim();
   // Pega só do primeiro { ao último } pra ignorar texto antes/depois
   const first = clean.indexOf('{');
   const last = clean.lastIndexOf('}');
-  if (first === -1 || last === -1) { status.textContent = '❌ Não achei JSON ({...}) no texto.'; status.style.color = '#fca5a5'; return; }
+  if (first === -1 || last === -1) { status.textContent = '❌ Não achei JSON ({...}) no texto colado.'; status.style.color = '#fca5a5'; return; }
   clean = clean.slice(first, last + 1);
   let parsed;
   try { parsed = JSON.parse(clean); }
   catch (e) {
-    status.innerHTML = '❌ JSON inválido: ' + e.message + '. <br>Verifique se a IA retornou JSON puro (sem texto extra fora das chaves).';
+    // Se erro menciona '<', provavelmente tem HTML/tag no meio do JSON
+    const isTag = /Unexpected token '?<'?/.test(e.message);
+    const dica = isTag
+      ? '<br>⚠️ Detectei tag HTML no meio do JSON. Verifique se a IA não incluiu <code>&lt;br&gt;</code> ou <code>&lt;b&gt;</code> em strings — JSON puro não aceita HTML solto.'
+      : '<br>Verifique se a IA retornou JSON puro (sem texto extra fora das chaves).';
+    status.innerHTML = '❌ JSON inválido: ' + e.message + dica;
     status.style.color = '#fca5a5';
     return;
   }
