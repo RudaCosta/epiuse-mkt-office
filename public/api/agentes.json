@@ -80,6 +80,37 @@
           "escreve": "workspaces/relatorio-mensal/ + OneDrive/MARKETING/Reports/",
           "tools": ["Read","Write","Edit","Bash","Glob","Grep"], "comandos": ["skill relatorio-mensal"] }
       ]
+    },
+    {
+      "camada": "pipeline-conteudo",
+      "titulo": "🏭 Pipeline de Conteúdo (cadeia briefing → post)",
+      "agentes": [
+        { "id": "pipe-briefing", "nome": "Briefing Architect", "icon": "📋", "cor": "#a3e635",
+          "cargo": "Etapa 1/5 — estrutura pauta crua", "papel": "Recebe pauta + contexto, devolve briefing estruturado (tese · argumento · CTA · SEO · tom)",
+          "le": ["branding","empresa","projetos","artigos.json"], "nao_le": ["Apollo","propostas","código"],
+          "escreve": "workspaces/pipe-briefing/",
+          "tools": ["Read","Write","Edit","Glob","Grep"], "aciona": ["pipe-artigo"] },
+        { "id": "pipe-artigo", "nome": "Redator SEO/GEO", "icon": "✍️", "cor": "#84cc16",
+          "cargo": "Etapa 2/5 — artigo completo", "papel": "Briefing → artigo publicável com SEO técnico + GEO (citável por IAs). 600-2000 palavras.",
+          "le": ["branding","empresa","briefing recebido"], "nao_le": ["Apollo","propostas","código frontend"],
+          "escreve": "workspaces/pipe-artigo/",
+          "tools": ["Read","Write","Edit","Glob","Grep"], "aciona": ["pipe-capa","pipe-carrossel","pipe-copy-li"] },
+        { "id": "pipe-capa", "nome": "Art Director (capa)", "icon": "🖼️", "cor": "#65a30d",
+          "cargo": "Etapa 3/5 — briefing visual da capa", "papel": "Artigo → briefing visual da capa OG 1200x630 (NÃO gera imagem — gera brief)",
+          "le": ["branding","DESIGN","artigo recebido"], "nao_le": ["Apollo","backend"],
+          "escreve": "workspaces/pipe-capa/",
+          "tools": ["Read","Write","Edit","Glob","Grep"], "aciona": ["criativos"] },
+        { "id": "pipe-carrossel", "nome": "Carousel Designer", "icon": "🎠", "cor": "#4d7c0f",
+          "cargo": "Etapa 4/5 — carrossel LinkedIn", "papel": "Artigo → roteiro de carrossel LI (8 slides padrão · JSON pra /inbound/carousel)",
+          "le": ["branding","DESIGN","artigo recebido"], "nao_le": ["Apollo","dashboards"],
+          "escreve": "workspaces/pipe-carrossel/",
+          "tools": ["Read","Write","Edit","Glob","Grep"], "aciona": ["criativos","/inbound/carousel"] },
+        { "id": "pipe-copy-li", "nome": "LinkedIn Copywriter", "icon": "💬", "cor": "#365314",
+          "cargo": "Etapa 5/5 — copy do post LI", "papel": "Artigo + carrossel → copy do post (3 versões A/B/C: hook · story · pergunta) · pronto pra /inbound/calendar",
+          "le": ["branding","pessoas","artigo + carrossel recebidos"], "nao_le": ["Apollo","código"],
+          "escreve": "workspaces/pipe-copy-li/",
+          "tools": ["Read","Write","Edit","Glob","Grep"], "aciona": ["/inbound/calendar"] }
+      ]
     }
   ]
 }

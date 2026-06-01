@@ -77,7 +77,7 @@ async function init(){
     + '<div style="font-size:12px;color:var(--color-text-dim,#c0ccd9)">Verdade única do escritório. Cada agente lê só a fatia que precisa.</div>'
     + '<div class="files">'+d.mestre.arquivos.map(function(f){return '<span class="file-chip">'+f+'</span>';}).join('')+'</div></div>';
 
-  var flows = { orquestrador:'▼ orquestra ▼', areas:'▼ delega pra área dona ▼', executores:'▼ áreas acionam executores ▼' };
+  var flows = { orquestrador:'▼ orquestra ▼', areas:'▼ delega pra área dona ▼', executores:'▼ áreas acionam executores ▼', 'pipeline-conteudo':'▼ cadeia 5-etapas (cada um aciona o próximo) ▼' };
   (d.camadas||[]).forEach(function(c){
     html += '<div class="flow">'+(flows[c.camada]||'▼')+'</div>';
     html += '<div class="sec-t">'+c.titulo+' ('+c.agentes.length+')</div>';

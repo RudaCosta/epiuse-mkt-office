@@ -116,6 +116,16 @@ Em qualquer sessão nova, faça **NA ORDEM**:
 | `campanhas` | Analisar Meta Ads ou estruturar campanha |
 | `relatorio-mensal` | Gerar PPT mensal pra diretoria (skill `relatorio-mensal` + python-pptx) |
 
+**🏭 Pipeline de Conteúdo** (cadeia 5-etapas — cada agente aciona o próximo):
+
+| `subagent_type` | Etapa | Input → Output |
+|---|---|---|
+| `pipe-briefing` | 1/5 — Briefing Architect | Pauta crua → briefing estruturado (tese·CTA·SEO) |
+| `pipe-artigo` | 2/5 — Redator SEO/GEO | Briefing → artigo publicável (600-2000 palavras) |
+| `pipe-capa` | 3/5 — Art Director | Artigo → brief visual capa OG 1200×630 |
+| `pipe-carrossel` | 4/5 — Carousel Designer | Artigo → 8 slides LI (md + JSON) |
+| `pipe-copy-li` | 5/5 — LI Copywriter | Artigo+carrossel → 3 versões de copy do post |
+
 **Roteamento:** pedido de uma área → agente de área (que aciona executores). Pedido transversal/multi-área → `ceo-mkt`. Pedido puramente de execução (ex: "codar essa LP") → executor direto.
 
 ---
