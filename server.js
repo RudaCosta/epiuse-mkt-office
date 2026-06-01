@@ -397,6 +397,9 @@ const AREA_PATH = path.join(__dirname, 'public/area.html');
 app.get('/area', (req, res) => res.sendFile(AREA_PATH));
 app.get('/area/:id', (req, res) => res.sendFile(AREA_PATH));
 
+const AGENTES_PATH = path.join(__dirname, 'public/agentes.html');
+app.get('/agentes', (req, res) => res.sendFile(AGENTES_PATH));
+
 // ── MODULE H · METAS LINKEDIN (sprint 0.4.8 — apresentação corporativa) ─────
 const METAS_PATH = path.join(__dirname, 'public/metas.html');
 app.get('/metas', (req, res) => res.sendFile(METAS_PATH));

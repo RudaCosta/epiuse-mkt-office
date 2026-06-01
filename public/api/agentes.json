@@ -1,0 +1,60 @@
+{
+  "atualizado_em": "2026-05-31",
+  "obs": "Mapa real dos agentes do escritorio virtual. Fonte: .claude/agents/*.md + vault/agentes/. Escopo = fatia do contexto mestre que cada um le.",
+  "mestre": {
+    "local": "vault/00-contexto/",
+    "arquivos": ["empresa.md", "projetos.md", "branding.md", "pessoas.md", "DESIGN.md", "mapa-fontes-dados.md"]
+  },
+  "agentes": [
+    {
+      "id": "ceo-mkt", "nome": "CEO", "icon": "🎯", "cor": "#fbbf24",
+      "cargo": "CEO operacional — orquestra os 4 especialistas",
+      "papel": "Recebe pedido do humano, decompoe, delega via inbox, consolida entregas",
+      "le": ["empresa", "projetos", "branding", "pessoas", "DESIGN", "mapa-fontes-dados"],
+      "le_tudo": true,
+      "escreve": "workspaces/ceo/",
+      "tools": ["Read", "Write", "Edit", "Glob", "Grep", "Bash", "PowerShell"],
+      "comandos": ["/contratar", "/nova-oferta"]
+    },
+    {
+      "id": "criativos", "nome": "Criativos", "icon": "🎨", "cor": "#c084fc",
+      "cargo": "Diretor de Arte / Copywriter senior",
+      "papel": "Copy de anuncio, briefing visual, paleta, mockup, direcao de arte",
+      "le": ["branding", "empresa", "pessoas", "DESIGN"],
+      "nao_le": ["pipeline/Apollo", "metas financeiras", "propostas"],
+      "escreve": "workspaces/criativos/",
+      "tools": ["Read", "Write", "Edit", "Glob", "Grep"],
+      "comandos": ["/criativos"]
+    },
+    {
+      "id": "landing-pages", "nome": "Landing Pages", "icon": "💻", "cor": "#60a5fa",
+      "cargo": "Frontend Engineer senior + UX writer",
+      "papel": "Codar LP / quiz / dashboard HTML vanilla, mobile-first",
+      "le": ["branding", "DESIGN", "empresa", "pessoas"],
+      "nao_le": ["pipeline/Apollo", "propostas", "plano de midia"],
+      "escreve": "workspaces/landing-pages/ + public/",
+      "tools": ["Read", "Write", "Edit", "Glob", "Grep", "Bash", "PowerShell"],
+      "comandos": ["/lp"]
+    },
+    {
+      "id": "propostas", "nome": "Propostas", "icon": "📄", "cor": "#10b981",
+      "cargo": "Consultor de Pre-Vendas + Solution Architect",
+      "papel": "Transcricao/brief -> proposta comercial (escopo, investimento, prazos)",
+      "le": ["empresa", "projetos", "pessoas", "branding"],
+      "nao_le": ["design tokens", "criativos visuais", "plano de midia"],
+      "escreve": "workspaces/propostas/",
+      "tools": ["Read", "Write", "Edit", "Glob", "Grep"],
+      "comandos": ["/proposta"]
+    },
+    {
+      "id": "campanhas", "nome": "Campanhas", "icon": "📣", "cor": "#f87171",
+      "cargo": "Midia Paga Senior + Competitive Intelligence",
+      "papel": "Meta/LinkedIn Ads, analise de concorrentes, plano de midia, relatorio de ads",
+      "le": ["empresa", "projetos", "branding", "mapa-fontes-dados"],
+      "nao_le": ["propostas", "codigo de LP", "design tokens"],
+      "escreve": "workspaces/campanhas/",
+      "tools": ["Read", "Write", "Edit", "Glob", "Grep", "WebFetch", "WebSearch"],
+      "comandos": ["/campanha"]
+    }
+  ]
+}

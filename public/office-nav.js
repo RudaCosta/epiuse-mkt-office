@@ -56,6 +56,7 @@ const OFFICE_NAV_BREADCRUMBS = {
 };
 
 const OFFICE_NAV_OVERFLOW = [
+  { label: '🤖 Agentes & Contexto',      href: '/agentes' },
   { label: '🎨 Design System',           href: '/design' },
   { label: '🎯 Metas FY26 (oficiais)',    href: '/metas-fy26' },
   { label: '📞 Pipeline (Apollo)',       href: '/pipeline' },
