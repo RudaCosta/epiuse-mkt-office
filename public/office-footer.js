@@ -220,6 +220,7 @@ class OfficeFooter extends HTMLElement {
         <div class="ver-picker">
           <button class="ver-trigger" id="ver-trigger" type="button" title="Ver versões anteriores">
             <span>${OFFICE_FOOTER_VERSION}</span>
+            <span id="ver-status-chip" style="font-size:9px;padding:2px 6px;border-radius:99px;margin-left:6px;background:rgba(134,158,195,.12);color:#869ec3" title="status do ambiente">…</span>
             <span class="arrow">▴</span>
           </button>
           <div class="ver-menu" id="ver-menu" role="menu">
@@ -257,6 +258,27 @@ class OfficeFooter extends HTMLElement {
       menu.classList.toggle('open');
     });
     document.addEventListener('click', () => menu?.classList.remove('open'));
+    // Status chip: detecta se essa versao é prod (live) ou local (snapshot)
+    fetch('/api/changelog.json?t=' + Date.now())
+      .then(r => r && r.ok ? r.json() : null)
+      .then(cl => {
+        if (!cl || !cl.releases) return;
+        const me = cl.releases.find(r => r.version === OFFICE_FOOTER_VERSION);
+        const chip = this.shadowRoot.getElementById('ver-status-chip');
+        if (!chip || !me) return;
+        if (me.status === 'live') {
+          chip.textContent = '● live';
+          chip.style.background = 'rgba(16,185,129,.18)';
+          chip.style.color = '#6ee7b7';
+          chip.title = 'Esta versão está em produção (Railway)';
+        } else {
+          chip.textContent = '◐ local';
+          chip.style.background = 'rgba(251,191,36,.18)';
+          chip.style.color = '#fcd34d';
+          chip.title = 'Versão local — ainda não foi pra produção (commit pendente)';
+        }
+      })
+      .catch(() => {});
   }
 }
 
