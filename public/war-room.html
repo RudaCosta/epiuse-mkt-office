@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>⚡ War Room · EPI-USE Office</title>
+<link rel="stylesheet" href="/design-tokens.css">
+<style>
+  body { margin:0; background:var(--color-bg,#0a1525); color:var(--color-text,#e6ebf2); font-family:'Open Sans',Arial,sans-serif; }
+  .wrap { max-width:1280px; margin:0 auto; padding:18px 16px 60px; }
+  h1 { margin:6px 0 2px; font-size:22px; }
+  .sub { font-size:13px; color:var(--color-text-muted,#869ec3); margin-bottom:18px; }
+  .kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin-bottom:22px; }
+  .kpi { background:var(--color-surface,#0f1e35); border:1px solid var(--color-border,rgba(134,158,195,.18));
+         border-radius:12px; padding:14px 16px; border-left:4px solid var(--color-info-500,#60a5fa); }
+  .kpi .lbl { font-size:11px; color:var(--color-text-muted,#869ec3); font-weight:700; letter-spacing:.06em; text-transform:uppercase; }
+  .kpi .val { font-size:28px; font-weight:800; font-family:'JetBrains Mono',monospace; margin-top:4px; }
+  .kpi.warn { border-left-color:#fcd34d; }
+  .kpi.ok { border-left-color:#10b981; }
+  .sec-t { font-size:12px; font-weight:800; letter-spacing:.06em; text-transform:uppercase;
+           color:var(--color-text-muted,#869ec3); margin:22px 0 10px; }
+  .agente { background:var(--color-surface,#0f1e35); border:1px solid var(--color-border,rgba(134,158,195,.18));
+            border-radius:12px; padding:14px 16px; margin-bottom:10px; display:flex; align-items:center; gap:14px;
+            border-left:4px solid var(--color-info-500,#60a5fa); }
+  .agente .ico { font-size:26px; }
+  .agente .nome { font-weight:700; font-size:15px; }
+  .agente .dona { font-size:11px; color:#fcd34d; font-weight:700; }
+  .agente .badges { margin-left:auto; display:flex; gap:6px; }
+  .badge { font-size:11px; padding:3px 9px; border-radius:99px; font-weight:700; font-family:'JetBrains Mono',monospace; }
+  .badge.inbox { background:rgba(251,191,36,.18); color:#fcd34d; }
+  .badge.outbox { background:rgba(16,185,129,.16); color:#6ee7b7; }
+  .badge.zero { background:rgba(134,158,195,.08); color:#869ec3; }
+  .agente a { color:var(--color-info-500,#60a5fa); text-decoration:none; font-size:11px; margin-left:8px; }
+  .empty { font-size:12px; color:var(--color-text-muted,#869ec3); padding:14px; font-style:italic; }
+</style>
+</head>
+<body>
+<office-nav></office-nav>
+<div class="wrap">
+  <h1>⚡ War Room — Escritório ao vivo</h1>
+  <div class="sub">Pendências de todos os agentes em 1 tela. Atualizado <span id="ts">…</span></div>
+  <div id="kpis" class="kpis"></div>
+  <div class="sec-t">🏢 Por agente</div>
+  <div id="lista"></div>
+</div>
+<office-footer></office-footer>
+<script src="/office-nav.js"></script>
+<script src="/office-footer.js"></script>
+<script>
+async function init(){
+  var [ag, c] = await Promise.all([
+    fetch('/api/agentes.json?t='+Date.now()).then(r=>r.json()),
+    fetch('/api/agentes/_counters?t='+Date.now()).then(r=>r.json()).catch(function(){return{};})
+  ]);
+  // achata todos agentes
+  var todos = [];
+  (ag.camadas||[]).forEach(function(cam){ (cam.agentes||[]).forEach(function(a){ a._camada = cam.camada; todos.push(a); }); });
+
+  var totalIn = 0, totalOut = 0, comPendencia = 0;
+  todos.forEach(function(a){
+    var k = c[a.id] || {};
+    a._in = k.inbox || 0; a._out = k.outbox || 0;
+    totalIn += a._in; totalOut += a._out;
+    if (a._in > 0) comPendencia++;
+  });
+
+  document.getElementById('ts').textContent = new Date().toLocaleString('pt-BR');
+
+  var kpis = [
+    { lbl: 'Pedidos no inbox', val: totalIn, cls: totalIn ? 'warn' : 'ok' },
+    { lbl: 'Entregas no outbox', val: totalOut, cls: 'ok' },
+    { lbl: 'Agentes c/ pendência', val: comPendencia + '/' + todos.length, cls: comPendencia ? 'warn' : 'ok' },
+    { lbl: 'Total agentes', val: todos.length, cls: '' }
+  ];
+  document.getElementById('kpis').innerHTML = kpis.map(function(k){
+    return '<div class="kpi '+(k.cls||'')+'"><div class="lbl">'+k.lbl+'</div><div class="val">'+k.val+'</div></div>';
+  }).join('');
+
+  // ordena: com pendência primeiro, depois com outbox, depois resto
+  todos.sort(function(a,b){
+    if (a._in !== b._in) return b._in - a._in;
+    if (a._out !== b._out) return b._out - a._out;
+    return a.nome.localeCompare(b.nome);
+  });
+
+  document.getElementById('lista').innerHTML = todos.map(function(a){
+    var inB = a._in ? '<span class="badge inbox">📥 '+a._in+'</span>' : '<span class="badge zero">📥 0</span>';
+    var outB = a._out ? '<span class="badge outbox">📤 '+a._out+'</span>' : '<span class="badge zero">📤 0</span>';
+    return '<div class="agente" style="border-left-color:'+a.cor+'">'
+      + '<span class="ico">'+a.icon+'</span>'
+      + '<div><div class="nome">'+a.nome
+      + (a.dona ? ' · <span class="dona">'+a.dona+'</span>' : '')
+      + '</div><div style="font-size:11px;color:var(--color-text-muted,#869ec3)">'+a.cargo+'</div></div>'
+      + '<div class="badges">'+inB+outB
+      + '<a href="/agentes/'+a.id+'">abrir →</a>'
+      + (a.modulo ? '<a href="'+a.modulo+'">módulo →</a>' : '')
+      + '</div></div>';
+  }).join('') || '<div class="empty">Sem dados.</div>';
+}
+init();
+</script>
+</body>
+</html>

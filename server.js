@@ -401,6 +401,7 @@ const AGENTES_PATH = path.join(__dirname, 'public/agentes.html');
 const AGENTE_PATH  = path.join(__dirname, 'public/agente.html');
 app.get('/agentes', (req, res) => res.sendFile(AGENTES_PATH));
 app.get('/agentes/:slug', (req, res) => res.sendFile(AGENTE_PATH));
+app.get('/war-room', (req, res) => res.sendFile(path.join(__dirname, 'public/war-room.html')));
 
 // API: resumo de contadores de TODOS os workspaces (pra /agentes mostrar inbox count)
 app.get('/api/agentes/_counters', (req, res) => {
