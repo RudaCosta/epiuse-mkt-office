@@ -1,57 +1,63 @@
-# 🗺️ Mapa de Agentes × Contexto
+# 🗺️ Mapa de Agentes × Contexto (3 camadas)
 
-> Como o contexto mestre (`vault/00-contexto/`) se divide entre os agentes. Cada especialista lê SÓ sua fatia; o CEO orquestra e tem visão do todo. Atualizado 31/mai/2026.
+> Atualizado 31/mai/2026. O escritório agora espelha a organização por ÁREA/DONA. 3 camadas: CEO orquestra → 6 agentes de área (1 por dona) → 4 executores transversais. Ver tela viva em `/agentes` no Office.
 
-## Arquitetura (quem chama quem)
+## Arquitetura
 
 ```mermaid
 graph TD
     H[👤 Rudá / Duda] -->|pedido| CEO
 
     subgraph MESTRE["🧠 Contexto mestre — vault/00-contexto/"]
-        EMP[empresa.md]
-        PRJ[projetos.md]
-        BRD[branding.md]
-        PES[pessoas.md]
-        DSG[DESIGN.md]
-        MAP[mapa-fontes-dados.md]
+        EMP[empresa]; PRJ[projetos]; BRD[branding]; PES[pessoas]; DSG[DESIGN]; MAP[mapa-fontes]
     end
 
-    CEO[🎯 ceo-mkt<br/>orquestra · lê TUDO]
+    CEO[🎯 ceo-mkt · lê TUDO · orquestra]
 
-    CEO -->|delega via inbox| CRI[🎨 criativos]
-    CEO -->|delega via inbox| LP[💻 landing-pages]
-    CEO -->|delega via inbox| PRO[📄 propostas]
-    CEO -->|delega via inbox| CAM[📣 campanhas]
+    CEO --> AI[🧠 area-intelligence<br/>Bruna]
+    CEO --> AG[🚀 area-growth<br/>Gui]
+    CEO --> AE[📅 area-eventos<br/>Isabela]
+    CEO --> AP[📞 area-pipeline<br/>Marlison]
+    CEO --> AB[🎨 area-brand<br/>Duda]
+    CEO --> AC[📣 area-conteudo<br/>Lisiane]
 
-    CEO -.lê.-> EMP & PRJ & BRD & PES & DSG & MAP
+    AG --> CAM & CRI & AC
+    AE --> CRI & LP
+    AP --> PRO & AI
+    AB --> CRI & LP
+    AC --> CRI
+    AI --> CAM
 
-    CRI -.lê.-> BRD & EMP & PES & DSG
-    LP  -.lê.-> BRD & DSG & EMP & PES
-    PRO -.lê.-> EMP & PRJ & PES & BRD
-    CAM -.lê.-> EMP & PRJ & BRD & MAP
+    CRI[🎨 criativos]; LP[💻 landing-pages]; PRO[📄 propostas]; CAM[📊 campanhas]
 
-    CRI -->|outbox| ENT[📦 vault/entregas/]
-    LP  -->|outbox + public/| ENT
-    PRO -->|outbox| ENT
-    CAM -->|outbox| ENT
+    CEO -.lê.-> MESTRE
+    AI -.lê.-> EMP & PRJ & MAP
+    AG -.lê.-> EMP & PRJ & BRD & MAP
+    AE -.lê.-> EMP & PRJ & BRD
+    AP -.lê.-> EMP & PRJ & MAP
+    AB -.lê.-> BRD & PES & DSG & PRJ
+    AC -.lê.-> BRD & EMP & PRJ
 ```
 
-## Tabela de escopo
+## Camadas
 
-| Agente | Lê do mestre | NÃO lê | Workspace |
-|---|---|---|---|
-| 🎯 **ceo-mkt** | **tudo** (empresa·projetos·branding·pessoas·DESIGN·mapa-fontes) | — | `workspaces/ceo/` |
-| 🎨 **criativos** | branding · empresa · pessoas · DESIGN | pipeline, metas $, propostas | `workspaces/criativos/` |
-| 💻 **landing-pages** | branding · DESIGN · empresa · pessoas | pipeline, propostas, mídia | `workspaces/landing-pages/` |
-| 📄 **propostas** | empresa · projetos · pessoas · branding | design tokens, criativos, mídia | `workspaces/propostas/` |
-| 📣 **campanhas** | empresa · projetos · branding · mapa-fontes | propostas, código LP, design | `workspaces/campanhas/` |
+### 🎯 Orquestrador
+- **ceo-mkt** — lê o mestre todo, decompõe pedidos, delega pra área dona ou executor, consolida.
+
+### 🏢 Agentes de área (1 por dona) — donos do contexto da área
+| Agente | Dona | Lê | Módulo | Aciona |
+|---|---|---|---|---|
+| `area-intelligence` | Bruna | empresa·projetos·mapa-fontes | `/area/intelligence` | campanhas |
+| `area-growth` | Gui | empresa·projetos·branding·mapa-fontes | `/area/growth` | campanhas·criativos·conteúdo |
+| `area-eventos` | Isabela | empresa·projetos·branding | `/area/eventos` | criativos·LPs |
+| `area-pipeline` | Marlison | empresa·projetos·mapa-fontes | `/area/pipeline` | propostas·intelligence |
+| `area-brand` | Duda | branding·pessoas·DESIGN·projetos | `/area/brand` | criativos·LPs |
+| `area-conteudo` | Lisiane | branding·empresa·projetos | `/area/conteudo` | criativos |
+
+### 🛠️ Executores transversais (chamados pelas áreas)
+`criativos` · `landing-pages` · `propostas` · `campanhas` — cada um com seu escopo (ver `.claude/agents/<nome>.md`).
 
 ## Princípio (Regra 9 estendida aos agentes)
+1 fonte mestre · cada agente declara seu escopo · subagente abre fresco (herda só o que o CEO/área passa + sua fatia) → menos token, menos alucinação cruzada. CEO = única visão global.
 
-- **1 fonte mestre** (`vault/00-contexto/`) — verdade única, sem duplicar.
-- **Cada agente declara seu escopo** no próprio `.claude/agents/<nome>.md` (seção "🧭 Escopo de contexto").
-- **Subagente abre fresco** — herda só o que o CEO passa no inbox + sua fatia do mestre. Não carrega contexto de outro agente → menos token, menos alucinação cruzada.
-- **CEO é o único com visão global** — ele decompõe e distribui.
-
-Ver também: [[_index]] · cada perfil em `vault/agentes/<nome>.md`.
+Ver: [[_index]] · perfis em `vault/agentes/` · definições em `.claude/agents/`.
