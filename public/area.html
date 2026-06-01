@@ -35,6 +35,7 @@
   .fstage .fbar > i { display:block; height:100%; border-radius:99px; }
   .fstage .fobs { font-size:10px; color:var(--color-text-muted,#869ec3); margin-top:6px; }
   .farrow { align-self:center; color:var(--color-text-muted,#869ec3); font-size:18px; flex:0 0 auto; }
+  .spark { background:var(--color-surface,#0f1e35); border:1px solid var(--color-border,rgba(134,158,195,.18)); border-radius:12px; padding:8px 6px; }
   .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px; }
   .card { background:var(--color-surface,#0f1e35); border:1px solid var(--color-border,rgba(134,158,195,.18)); border-radius:12px; padding:14px; }
   .card .clbl { font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:var(--color-text-muted,#869ec3); font-weight:700; }
@@ -86,6 +87,28 @@ function renderFunil(funil, cor){
   return '<div class="funil">'+parts.join('')+'</div>';
 }
 
+function renderSpark(pts, cor){
+  var W=820, H=120, P=26;
+  var ys = pts.map(function(p){return p.y;});
+  var min=Math.min.apply(null,ys), max=Math.max.apply(null,ys);
+  var rng = (max-min)||1;
+  var n = pts.length;
+  function px(i){ return P + i*(W-2*P)/(n-1); }
+  function py(v){ return H-P - (v-min)*(H-2*P)/rng; }
+  var line = pts.map(function(p,i){ return (i?'L':'M')+px(i).toFixed(1)+' '+py(p.y).toFixed(1); }).join(' ');
+  var area = line + ' L'+px(n-1).toFixed(1)+' '+(H-P)+' L'+px(0).toFixed(1)+' '+(H-P)+' Z';
+  var dots = pts.map(function(p,i){
+    var show = (i===0 || i===n-1);
+    return show ? '<circle cx="'+px(i).toFixed(1)+'" cy="'+py(p.y).toFixed(1)+'" r="3.5" fill="'+cor+'"/>'
+      +'<text x="'+px(i).toFixed(1)+'" y="'+(py(p.y)-8).toFixed(1)+'" fill="var(--color-text,#e6ebf2)" font-size="11" text-anchor="'+(i===0?'start':'end')+'" font-family="JetBrains Mono,monospace">'+p.y.toLocaleString('pt-BR')+'</text>'
+      +'<text x="'+px(i).toFixed(1)+'" y="'+(H-8)+'" fill="var(--color-text-muted,#869ec3)" font-size="9" text-anchor="'+(i===0?'start':'end')+'">'+p.x+'</text>' : '';
+  }).join('');
+  return '<div class="spark"><svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" style="width:100%;height:120px">'
+    + '<path d="'+area+'" fill="'+cor+'" opacity="0.10"/>'
+    + '<path d="'+line+'" fill="none" stroke="'+cor+'" stroke-width="2.2"/>'
+    + dots + '</svg></div>';
+}
+
 // helpers de wiring: acham estágio/kpi por nome e injetam valor REAL + marcam fonte
 function setStage(a, estagio, valor, fonte){
   (a.funil||[]).forEach(function(s){ if (s.estagio===estagio && valor!=null){ s.valor = valor; if(fonte) s._fonte = fonte; } });
@@ -114,6 +137,8 @@ async function enrich(a){
       setStage(a,'Impressões/Alcance', last.impressoes_7d, 'LinkedIn 7d');
       setKpi(a,'Seguidores LinkedIn (total)', last.total_seguidores, 'LinkedIn');
       if (last.total_seguidores!=null) a._live.push('LinkedIn');
+      a._spark = sm.filter(function(m){return m.total_seguidores!=null;})
+                   .map(function(m){return {x:m.mes, y:m.total_seguidores};});
     }
     if (a.id==='conteudo'){
       var ar = await jget('/api/artigos');
@@ -159,6 +184,7 @@ async function init(){
     + '<div class="mod-foco">'+(a.foco||'')+'</div></div></div>'
     + subabas
     + '<div class="sec-t">🎯 Funil de meta</div>' + renderFunil(a.funil, a.cor)
+    + (a._spark && a._spark.length>1 ? '<div class="sec-t">📈 Evolução (LinkedIn · '+a._spark.length+' meses reais)</div>'+renderSpark(a._spark, a.cor) : '')
     + '<div class="sec-t">📊 Números</div><div class="grid">'
     + (a.kpis||[]).map(function(k){
         var v = fmt(k.valor);
