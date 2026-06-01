@@ -7,7 +7,7 @@
 // Versão atual exposta no chip ao lado do logomark.
 // Schema semver pré-1.0 — explicação completa em vault/00-contexto/versioning.md
 // Manter em sincronia com office-footer.js (OFFICE_FOOTER_VERSION).
-const OFFICE_NAV_VERSION = '0.8.1';
+const OFFICE_NAV_VERSION = '0.8.2';
 
 // Tokens CSS globais ERP.ngo (v0.4.12) — injetados em document.head pra ficar
 // disponíveis em todas as páginas. Cores oficiais do brand guide ERP.ngo v1.0.
@@ -55,19 +55,30 @@ const OFFICE_NAV_BREADCRUMBS = {
   'cases': ['🤝 Cases & CS']
 };
 
+// Overflow agrupado por seção (Sprint 11.2 — UX/UI melhor)
+// Cada item com `section` vira separador. Itens sem section são extras.
 const OFFICE_NAV_OVERFLOW = [
+  { section: '🤖 Escritório Virtual' },
   { label: '🤖 Agentes & Contexto',      href: '/agentes' },
   { label: '⚡ War Room (pendências)',    href: '/war-room' },
-  { label: '🎨 Design System',           href: '/design' },
-  { label: '🎯 Metas FY26 (oficiais)',    href: '/metas-fy26' },
-  { label: '📞 Pipeline (Apollo)',       href: '/pipeline' },
+
+  { section: '📊 Reports & Análises' },
+  { label: '📈 Relatório Mensal',        href: '/relatorio' },
   { label: '💰 Projeções (paid media)',  href: '/projecoes' },
   { label: '🗺️ Jornadas de Compra',      href: '/jornadas' },
-  { label: '🎯 Painel da Duda',          href: '/voices/painel' },
+  { label: '📚 Artigos do Blog',         href: '/artigos' },
+
+  { section: '🎙️ Voices & Optimizer' },
   { label: '🪪 Profile Optimizer',       href: '/optimizer' },
+  { label: '🎯 Painel da Duda',          href: '/voices/painel' },
   { label: '📨 Seja um Voice (LP)',      href: '/seja-voice' },
-  { label: '🎮 Modo Game',               href: '/game' },
+
+  { section: '🎨 Design & Sistema' },
+  { label: '🎨 Design System',           href: '/design' },
   { label: '📜 Histórico de versões',   href: '/changelog' },
+
+  { section: '🎮 Extras' },
+  { label: '🎮 Modo Game',               href: '/game' },
   { label: '🐘 ERP.ngo',                 href: 'https://erp.ngo', external: true }
 ];
 
@@ -301,6 +312,18 @@ class OfficeNav extends HTMLElement {
           transition: background .12s;
         }
         .overflow-item:hover { background: var(--nav-hover-bg); }
+        .overflow-section {
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: .08em;
+          text-transform: uppercase;
+          color: var(--nav-text-muted, #869ec3);
+          padding: 10px 12px 4px;
+          margin-top: 4px;
+          border-top: 1px solid rgba(134,158,195,.12);
+          opacity: .75;
+        }
+        .overflow-section:first-child { border-top: none; margin-top: 0; padding-top: 4px; }
 
         /* ── Breadcrumb sutil ── */
         .crumbs {
@@ -534,6 +557,9 @@ class OfficeNav extends HTMLElement {
             <button class="ctrl-btn" id="more-btn" title="Mais opções" type="button">⋯</button>
             <div class="overflow-menu" id="overflow-menu">
               ${OFFICE_NAV_OVERFLOW.map(it => {
+                if (it.section) {
+                  return `<div class="overflow-section">${it.section}</div>`;
+                }
                 const tgt = it.external ? ' target="_blank" rel="noopener"' : '';
                 return `<a class="overflow-item" href="${it.href}"${tgt}>${it.label}</a>`;
               }).join('')}
