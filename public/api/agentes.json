@@ -73,7 +73,12 @@
         { "id": "campanhas", "nome": "Campanhas", "icon": "📊", "cor": "#f87171",
           "cargo": "Mídia Paga + Competitive Intelligence", "papel": "Meta/LinkedIn Ads, análise de concorrentes, plano de mídia, relatório de ads",
           "le": ["empresa","projetos","branding","mapa-fontes-dados"], "nao_le": ["propostas","código de LP","design tokens"],
-          "escreve": "workspaces/campanhas/", "tools": ["Read","Write","Edit","Glob","Grep","WebFetch","WebSearch"], "comandos": ["/campanha"] }
+          "escreve": "workspaces/campanhas/", "tools": ["Read","Write","Edit","Glob","Grep","WebFetch","WebSearch"], "comandos": ["/campanha"] },
+        { "id": "relatorio-mensal", "nome": "Relatório Mensal", "icon": "📊", "cor": "#60a5fa",
+          "cargo": "Diretor de Reporting Executivo", "papel": "Gera o PPT mensal pra diretoria (Roberto/Duda) replicando template dos 13 reports históricos. Roda skill relatorio-mensal + python-pptx + OneDrive.",
+          "le": ["empresa","projetos","branding","mapa-fontes-dados"], "nao_le": ["código frontend","conteúdo individual Voices"],
+          "escreve": "workspaces/relatorio-mensal/ + OneDrive/MARKETING/Reports/",
+          "tools": ["Read","Write","Edit","Bash","Glob","Grep"], "comandos": ["skill relatorio-mensal"] }
       ]
     }
   ]

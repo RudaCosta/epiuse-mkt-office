@@ -58,6 +58,18 @@ Register-ScheduledTask -TaskName 'EPI-USE-Office-Cases-Sync' -Force `
   -Description 'Sync diario 7h: le xlsx Cases do Roberto (OneDrive) e POSTa pra /api/cases/sync.' | Out-Null
 Write-Output "[OK] Tarefa 'EPI-USE-Office-Cases-Sync' registrada (diario 07:00)."
 
+# --- Tarefa 4: relatorio mensal automatico (dia 1 as 8h) ---
+$ReportPs = Join-Path $ScriptDir 'run-relatorio-mensal.ps1'
+$trigReport = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Monday -At '08:00'
+# (Trigger mensal exato precisa COM-object — aproximacao: rodar toda segunda 8h, script ignora se nao for dia 1-7)
+# Alternativa simples: rodar todo dia 8h checando se eh dia 1
+$trigReportMensal = New-ScheduledTaskTrigger -Daily -At '08:05'
+Register-ScheduledTask -TaskName 'EPI-USE-Office-Report-Mensal' -Force `
+  -Action (New-PwshAction $ReportPs) -Trigger $trigReportMensal `
+  -Settings $settings -Principal $principal `
+  -Description 'Roda diariamente 08:05 — gera report do mes anterior se hoje for dia 1 (script checa).' | Out-Null
+Write-Output "[OK] Tarefa 'EPI-USE-Office-Report-Mensal' registrada (diario 08:05 — script roda se hoje for dia 1)."
+
 # --- Sobe agora (nao espera o proximo login) ---
 & $StartPs
 Start-Sleep -Seconds 4

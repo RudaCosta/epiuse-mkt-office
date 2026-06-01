@@ -114,6 +114,7 @@ Em qualquer sessão nova, faça **NA ORDEM**:
 | `landing-pages` | Codar HTML single-file (LP, quiz, dashboard) |
 | `propostas` | Transformar transcrição em proposta comercial |
 | `campanhas` | Analisar Meta Ads ou estruturar campanha |
+| `relatorio-mensal` | Gerar PPT mensal pra diretoria (skill `relatorio-mensal` + python-pptx) |
 
 **Roteamento:** pedido de uma área → agente de área (que aciona executores). Pedido transversal/multi-área → `ceo-mkt`. Pedido puramente de execução (ex: "codar essa LP") → executor direto.
 
