@@ -496,6 +496,35 @@ body {
     </div>
   </header>
 
+  <!-- ══════ WAR ROOM WIDGET (só aparece se houver pendência) ══════ -->
+  <section id="warroom-widget" style="display:none;margin:14px 0;">
+    <a href="/war-room" id="warroom-link" style="display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:12px;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.3);border-left:5px solid #fcd34d;text-decoration:none;color:inherit;transition:background .15s">
+      <span style="font-size:26px">⚡</span>
+      <div style="flex:1">
+        <div style="font-weight:800;font-size:14px;color:#fcd34d">War Room — você tem pedidos esperando</div>
+        <div id="warroom-detail" style="font-size:12px;color:var(--color-text-muted,#869ec3);margin-top:2px">…</div>
+      </div>
+      <span style="font-size:11px;color:#fcd34d;font-weight:700">abrir →</span>
+    </a>
+  </section>
+  <script>
+    fetch('/api/agentes/_counters?t=' + Date.now())
+      .then(r => r.ok ? r.json() : {})
+      .then(c => {
+        var totalIn = 0, agentes = [];
+        Object.keys(c).forEach(function(slug){
+          var k = c[slug] || {};
+          if (k.inbox) { totalIn += k.inbox; agentes.push(slug + ' (' + k.inbox + ')'); }
+        });
+        if (totalIn > 0) {
+          document.getElementById('warroom-widget').style.display = '';
+          document.getElementById('warroom-detail').textContent =
+            totalIn + ' pedido(s) em ' + agentes.length + ' agente(s): ' + agentes.slice(0,4).join(' · ') + (agentes.length > 4 ? ' …' : '');
+        }
+      })
+      .catch(function(){});
+  </script>
+
   <!-- ══════ PROJETOS ══════ -->
   <section>
     <div class="sec-hdr"><h2>Projetos & Status</h2><div class="line"></div></div>
