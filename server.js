@@ -1509,6 +1509,53 @@ app.get('/api/applications', requireEditorToken, (req, res) => {
 // VOICE EDITOR — atualiza voices.json e .md de cada Voice via token auth
 // ─────────────────────────────────────────────────────────────────────────────
 
+// GET /api/voices/:slug/optimizer-input — JSON pronto pra alimentar /api/analisar-perfil/p1
+// SPRINT 9 Bloco A — Voice cadastrado vira input direto, sem digitar nada
+app.get('/api/voices/:slug/optimizer-input', (req, res) => {
+  const slug = String(req.params.slug || '').replace(/[^a-z0-9-]/g, '').slice(0, 60);
+  if (!slug) return res.status(400).json({ success: false, error: 'slug inválido' });
+  let data;
+  try { data = JSON.parse(fs.readFileSync(VOICES_JSON_PATH, 'utf8')); }
+  catch (e) { return res.status(500).json({ success: false, error: 'falha ao ler voices.json: ' + e.message }); }
+  const v = (data.voices || []).find(x => x.id === slug);
+  if (!v) return res.status(404).json({ success: false, error: 'voice nao encontrado' });
+  // Mapeamento: campos do voices.json -> campos esperados pelo /api/analisar-perfil/p1
+  const r = Array.isArray(v.resultados) ? v.resultados : (v.resultados ? [v.resultados] : []);
+  const input = {
+    voice_slug: v.id,
+    nome: v.nome || '',
+    cargo_oficial: v.cargo || '',
+    area_principal: v.nicho || '',
+    publico_alvo: Array.isArray(v.audiencia) ? v.audiencia.join(', ') : (v.audiencia || ''),
+    linkedin_url: v.linkedin || '',
+    ssi_score: v.ssi_baseline || '',
+    seguidores: v.seguidores_baseline || '',
+    tom_voz: v.tom_voz || '',
+    diferencial_humano: v.lado_humano || '',
+    resultado_1: r[0] || '',
+    resultado_2: r[1] || '',
+    resultado_3: r[2] || '',
+    anos_experiencia: v.anos_experiencia || '',
+    data_entrada_epiuse: v.data_entrada_epiuse || '',
+    foto_oficial: !!v.foto,
+    foto_url: v.foto || '',
+    // _fonte (Bloco B): marca cada campo como REAL/INFERIDO baseado em ter dado salvo
+    _fontes: {
+      nome: v.nome ? 'REAL' : 'PLACEHOLDER',
+      cargo_oficial: v.cargo ? 'REAL' : 'PLACEHOLDER',
+      area_principal: v.nicho ? 'REAL' : 'PLACEHOLDER',
+      linkedin_url: v.linkedin ? 'REAL' : 'PLACEHOLDER',
+      ssi_score: v.ssi_baseline ? 'REAL' : 'PLACEHOLDER',
+      tom_voz: v.tom_voz ? 'REAL' : 'PLACEHOLDER',
+      diferencial_humano: v.lado_humano ? 'REAL' : 'PLACEHOLDER',
+      resultados: r.length > 0 ? 'REAL' : 'PLACEHOLDER'
+    },
+    _campos_faltando: (v.dados_a_confirmar || []),
+    _voice_status: v.status || 'unknown'
+  };
+  res.json({ success: true, input });
+});
+
 // POST /api/voices/:slug/duplicate — duplica um Voice existente com novo slug
 app.post('/api/voices/:slug/duplicate', requireEditorToken, (req, res) => {
   const srcSlug = String(req.params.slug || '').replace(/[^a-z0-9-]/g, '').slice(0, 60);

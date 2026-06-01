@@ -1395,33 +1395,102 @@
     .kpi-baseline { color: var(--text-muted); font-size: 12px; }
     .kpi-instrucao { background: rgba(5,150,105,0.1); border: 1px solid rgba(5,150,105,0.25); border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #6ee7b7; line-height: 1.6; margin-bottom: 14px; }
 
-    @media print {
-      @page { size: A4; margin: 15mm 14mm 18mm; }
+    /* ════════ SPRINT 9 BLOCO D — Chip de estado do kit ════════ */
+    .kit-status { font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 99px; margin-left: 8px; font-family: 'JetBrains Mono', monospace; }
+    .kit-status-rascunho { background: rgba(239,68,68,.18); color: #fca5a5; border: 1px solid rgba(239,68,68,.3); }
+    .kit-status-revisao { background: rgba(251,191,36,.18); color: #fcd34d; border: 1px solid rgba(251,191,36,.3); }
+    .kit-status-pronto { background: rgba(16,185,129,.18); color: #6ee7b7; border: 1px solid rgba(16,185,129,.3); }
 
-      /* Forçar impressão de todas as cores e backgrounds */
+    /* ════════ SPRINT 9 BLOCO C — PDF INSTITUCIONAL (paleta light forçada) ════════ */
+    /* Capa e sumário só visíveis na impressão */
+    .print-cover, .print-toc { display: none; }
+
+    @media print {
+      @page { size: A4; margin: 18mm 16mm 20mm; }
+
+      /* Forçar impressão de cores e backgrounds */
       * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 
-      /* Ocultar elementos de interface */
-      .header, #form-section, #loading-state,
-      .rk-print-bar, .prompt-modal, .no-print,
-      .btn-copy, .btn-reset-bar, .btn-pdf { display: none !important; }
+      /* Paleta LIGHT forçada — institucional pra diretoria */
+      :root,
+      [data-theme="dark"],
+      [data-theme="light"] {
+        --bg: #ffffff !important;
+        --bg-2: #f8fafc !important;
+        --card: #ffffff !important;
+        --card-2: #f8fafc !important;
+        --text: #0f172a !important;
+        --text-dim: #334155 !important;
+        --text-muted: #64748b !important;
+        --border: #e2e8f0 !important;
+        --primary: #001844 !important; /* navy brand */
+        --primary-light: #004B8D !important;
+        --accent: #cd1543 !important; /* red brand */
+      }
+      body { background: #ffffff !important; color: #0f172a !important; font-family: 'Maven Pro', 'Open Sans', system-ui, sans-serif !important; }
 
-      /* Ocultar progresso — vai direto ao diagnóstico */
+      /* Esconde TUDO que não é o kit */
+      office-nav, office-footer, .header, #form-section, #loading-state,
+      .rk-print-bar, .prompt-modal, .no-print,
+      .btn-copy, .btn-reset-bar, .btn-pdf, .btn-primary, .btn-secondary,
+      #mode-selector-card, #mode-cadastrado-container, #mode-transcript-container,
+      #mode-roteiro-container, #mode-manual-container,
       .rk-progress { display: none !important; }
 
       #resultado { display: block !important; }
-      .container { padding: 0 !important; }
+      .container { padding: 0 !important; max-width: 100% !important; }
 
-      /* Compactar cover — evita página em branco */
-      .rk-cover { padding: 20px 0 14px !important; margin-bottom: 16px !important; }
-      .rk-cover-title { font-size: 24px !important; }
-      .rk-cover-meta { gap: 8px !important; }
+      /* Mostra capa + sumário */
+      .print-cover, .print-toc { display: flex !important; }
 
-      /* Cards sem sombra mas mantém background escuro */
-      .card { box-shadow: none !important; break-inside: avoid; page-break-inside: avoid; margin-bottom: 12px; }
+      /* CAPA — página 1 sozinha */
+      .print-cover {
+        flex-direction: column; justify-content: center; align-items: center;
+        text-align: center; min-height: 240mm; page-break-after: always;
+      }
+      .print-cover img { max-width: 240px; margin-bottom: 28mm; }
+      .print-cover h1 { font-size: 32pt; color: #001844; margin: 0 0 8mm; font-weight: 800; letter-spacing: -0.5px; }
+      .print-cover .subtitle { font-size: 18pt; color: #cd1543; margin: 0 0 16mm; font-weight: 700; }
+      .print-cover .voice-name { font-size: 24pt; color: #0f172a; margin: 0 0 4mm; font-weight: 700; }
+      .print-cover .voice-cargo { font-size: 14pt; color: #475569; margin: 0 0 12mm; }
+      .print-cover .meta { font-size: 10pt; color: #94a3b8; margin-top: auto; }
 
-      /* Seções não quebram do título */
-      .section-title { page-break-after: avoid; }
+      /* SUMÁRIO — página 2 */
+      .print-toc {
+        flex-direction: column; padding: 16mm 0; page-break-after: always;
+      }
+      .print-toc h2 { font-size: 24pt; color: #001844; margin: 0 0 12mm; border-bottom: 2px solid #cd1543; padding-bottom: 4mm; }
+      .print-toc ol { list-style: none; padding: 0; margin: 0; counter-reset: toc; }
+      .print-toc li { counter-increment: toc; padding: 4mm 0; border-bottom: 1px dotted #cbd5e1; font-size: 13pt; display: flex; align-items: baseline; gap: 8px; }
+      .print-toc li::before { content: counter(toc) "."; font-weight: 800; color: #cd1543; min-width: 24px; }
+
+      /* CARDS — fundo branco, borda fina, sem sombra */
+      .card {
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        box-shadow: none !important;
+        break-inside: avoid; page-break-inside: avoid;
+        margin-bottom: 8mm !important;
+        padding: 8mm !important;
+        color: #0f172a !important;
+      }
+      .card * { color: inherit; }
+      .card-title { color: #001844 !important; font-weight: 800; }
+      .section-title { page-break-before: always; page-break-after: avoid; color: #001844 !important; font-size: 18pt; margin: 0 0 8mm; padding-bottom: 4mm; border-bottom: 1px solid #e2e8f0; }
+      .section-title:first-of-type { page-break-before: avoid; }
+
+      /* Ocultar progresso e cover web — já tem capa print */
+      .rk-cover { display: none !important; }
+
+      /* Code/mono mantém legível */
+      code, pre, .mono { background: #f1f5f9 !important; color: #0f172a !important; border-color: #e2e8f0 !important; }
+
+      /* Links sem underline gritante */
+      a { color: #001844 !important; text-decoration: none; }
+
+      /* Voice Index — barras coloridas mantêm em print */
+      .vi-pillar, .vi-criterio { background: #f8fafc !important; border: 1px solid #e2e8f0 !important; color: #0f172a !important; }
+      .vi-score-ring { background: #ffffff !important; }
     }
   </style>
 </head>
@@ -1431,15 +1500,16 @@
 <!-- RESULT PRINT BAR (aparece só quando kit está visível) -->
 <div class="rk-print-bar" id="rk-print-bar">
   <span class="rk-print-bar-label" id="rk-bar-label">🪪 Kit LinkedIn · EPI-USE Voices 2026</span>
+  <!-- SPRINT 9 BLOCO D — chip de estado do kit (rascunho/revisão/pronto) -->
+  <span id="kit-status-chip" class="kit-status kit-status-rascunho" title="Estado atual do kit">📝 Rascunho IA</span>
   <div class="rk-print-bar-actions">
     <button class="btn-reset-bar" onclick="resetarAnalise()">↩ Nova análise</button>
-    <button class="btn-pdf" onclick="exportarPDFDireto()" title="Baixa o PDF direto sem abrir dialog do browser">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      Baixar PDF
+    <button class="btn-pdf" id="btn-mark-reviewed" onclick="markKitReviewed()" title="Marca como revisado por humano — libera export PDF">
+      ✍️ Marcar revisado
     </button>
-    <button class="btn-pdf" onclick="window.print()" style="background:rgba(96,165,250,.10);border-color:rgba(96,165,250,.30);color:#60a5fa" title="Abre dialog do browser pra escolher destino">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
-      Imprimir
+    <button class="btn-pdf" id="btn-export-pdf" onclick="exportarPDFInstitucional()" disabled title="Salva como PDF institucional (precisa estar revisado)" style="opacity:.4">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Salvar PDF
     </button>
   </div>
 </div>
@@ -1499,12 +1569,17 @@
       <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.55">
         O Optimizer agora aceita 3 modos de input. <b style="color:#60a5fa">Recomendado:</b> cola transcrição de entrevista com o Voice — Claude extrai TUDO automaticamente. Sem formulário pra preencher.
       </p>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px">
-        <button type="button" class="mode-btn mode-btn-active" data-mode="transcript" onclick="selectMode('transcript')">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px">
+        <button type="button" class="mode-btn mode-btn-active" data-mode="cadastrado" onclick="selectMode('cadastrado')">
+          <div style="font-size:24px;margin-bottom:6px">⭐</div>
+          <div style="font-weight:700;font-size:13px;margin-bottom:4px">Voice cadastrado</div>
+          <div style="font-size:11px;color:var(--text-muted);line-height:1.4">Anderson · Furigo · vagas — dados já no Office, 2 cliques pra kit</div>
+          <div style="margin-top:8px;font-size:10px;background:rgba(16,185,129,0.20);color:#10b981;padding:2px 8px;border-radius:99px;display:inline-block;font-weight:700">⭐ mais rápido</div>
+        </button>
+        <button type="button" class="mode-btn" data-mode="transcript" onclick="selectMode('transcript')">
           <div style="font-size:24px;margin-bottom:6px">🎙️</div>
           <div style="font-weight:700;font-size:13px;margin-bottom:4px">Transcrição</div>
           <div style="font-size:11px;color:var(--text-muted);line-height:1.4">Cola conversa/reunião → Claude extrai tudo</div>
-          <div style="margin-top:8px;font-size:10px;background:rgba(96,165,250,0.20);color:#60a5fa;padding:2px 8px;border-radius:99px;display:inline-block;font-weight:700">⭐ recomendado</div>
         </button>
         <button type="button" class="mode-btn" data-mode="roteiro" onclick="selectMode('roteiro')">
           <div style="font-size:24px;margin-bottom:6px">📋</div>
@@ -1514,7 +1589,7 @@
         <button type="button" class="mode-btn" data-mode="manual" onclick="selectMode('manual')">
           <div style="font-size:24px;margin-bottom:6px">✏️</div>
           <div style="font-weight:700;font-size:13px;margin-bottom:4px">Preencher manual</div>
-          <div style="font-size:11px;color:var(--text-muted);line-height:1.4">Form clássico (URL + screenshots + 14 campos)</div>
+          <div style="font-size:11px;color:var(--text-muted);line-height:1.4">Form clássico — pra Voice novo do zero</div>
         </button>
       </div>
     </div>
@@ -1525,8 +1600,39 @@
       .mode-btn.mode-btn-active { border-color:#60a5fa; background:rgba(96,165,250,0.08); box-shadow:0 0 0 1px rgba(96,165,250,0.3) inset; }
     </style>
 
+    <!-- ════════ MODO 0 (NOVO Sprint 9): VOICE CADASTRADO ════════ -->
+    <div id="mode-cadastrado-container">
+      <div class="card" style="background:linear-gradient(135deg,rgba(16,185,129,0.04),rgba(96,165,250,0.04));border:1px solid rgba(16,185,129,0.25)">
+        <div class="card-title">
+          <div class="step-num" style="background:linear-gradient(135deg,#10b981,#60a5fa)">⭐</div>
+          Selecionar Voice já cadastrado
+        </div>
+        <p style="font-size:13px;color:var(--text-muted);margin:8px 0 14px;line-height:1.55">
+          Dados (nome · cargo · área · LinkedIn · tom · resultados) já vêm do <code>/api/voices</code>. Claude só processa, não inventa — chip 🟢 REAL em cada campo. Adiciona screenshots se quiser atualizar com prints recentes.
+        </p>
+        <div class="field">
+          <label for="cad-voice-select">Voice</label>
+          <select id="cad-voice-select" style="width:100%;padding:11px 14px;background:rgba(0,0,0,0.20);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;font-family:inherit">
+            <option value="">— carregando —</option>
+          </select>
+          <div class="input-hint" id="cad-voice-meta" style="margin-top:6px;font-size:11px;color:var(--text-muted);min-height:14px"></div>
+        </div>
+        <div class="field" style="margin-top:14px">
+          <label for="cad-screenshots">📸 Screenshots recentes (opcional · 1-3 prints)</label>
+          <input type="file" id="cad-screenshots" accept="image/*" multiple
+            style="display:block;width:100%;padding:9px;background:rgba(0,0,0,0.20);border:1px dashed var(--border);border-radius:8px;color:var(--text);font-size:12px">
+          <div class="input-hint">Se enviar, Claude reanalisa o perfil atual. Sem screenshots, gera a partir dos dados cadastrados.</div>
+        </div>
+        <button class="btn-primary" id="btn-from-cadastrado" style="margin-top:16px" disabled>
+          <span>✨</span>
+          <span id="from-cadastrado-label">Selecione um Voice acima</span>
+        </button>
+        <div id="from-cadastrado-status" style="margin-top:10px;font-size:12px;color:var(--text-muted);display:none"></div>
+      </div>
+    </div>
+
     <!-- ════════ MODO A: TRANSCRIÇÃO ════════ -->
-    <div id="mode-transcript-container">
+    <div id="mode-transcript-container" style="display:none">
       <div class="card">
         <div class="card-title">
           <div class="step-num" style="background:linear-gradient(135deg,#60a5fa,#c084fc)">🎙️</div>
@@ -1921,10 +2027,112 @@ let currentMode = 'transcript';
 function selectMode(mode) {
   currentMode = mode;
   document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('mode-btn-active', b.dataset.mode === mode));
+  document.getElementById('mode-cadastrado-container').style.display = mode === 'cadastrado' ? 'block' : 'none';
   document.getElementById('mode-transcript-container').style.display = mode === 'transcript' ? 'block' : 'none';
   document.getElementById('mode-roteiro-container').style.display    = mode === 'roteiro'    ? 'block' : 'none';
   document.getElementById('mode-manual-container').style.display     = mode === 'manual'     ? 'block' : 'none';
   if (mode === 'roteiro') renderRoteiro();
+  if (mode === 'cadastrado') initCadastradoMode();
+}
+
+// ════════ SPRINT 9 BLOCO A — MODO VOICE CADASTRADO ════════
+let CADASTRADO_LOADED = false;
+let CADASTRADO_VOICES = [];
+async function initCadastradoMode() {
+  if (CADASTRADO_LOADED) return;
+  const sel = document.getElementById('cad-voice-select');
+  const meta = document.getElementById('cad-voice-meta');
+  const btn = document.getElementById('btn-from-cadastrado');
+  const label = document.getElementById('from-cadastrado-label');
+  try {
+    const r = await fetch('/api/voices.json?t=' + Date.now());
+    const data = await r.json();
+    CADASTRADO_VOICES = (data.voices || []).slice();
+    // Ordem: piloto/ativo primeiro, depois onboarding, depois vagas
+    const rank = (v) => {
+      const s = (v.status || '').toLowerCase();
+      if (s === 'ativo' || s === 'piloto') return 0;
+      if (s === 'onboarding') return 1;
+      if (v.nome && v.nome.toLowerCase().indexOf('vaga') >= 0) return 3;
+      return 2;
+    };
+    CADASTRADO_VOICES.sort((a, b) => rank(a) - rank(b));
+    sel.innerHTML = '<option value="">— selecione um Voice —</option>' +
+      CADASTRADO_VOICES.map(v => {
+        const status = v.status_label || v.status || '';
+        return `<option value="${v.id}">${v.nome} · ${v.cargo || '(sem cargo)'}${status ? ' · ' + status : ''}</option>`;
+      }).join('');
+    CADASTRADO_LOADED = true;
+    sel.addEventListener('change', onCadastradoSelect);
+    btn.addEventListener('click', gerarFromCadastrado);
+  } catch (e) {
+    sel.innerHTML = '<option value="">erro ao carregar /api/voices.json</option>';
+    console.error(e);
+  }
+}
+function onCadastradoSelect() {
+  const sel = document.getElementById('cad-voice-select');
+  const meta = document.getElementById('cad-voice-meta');
+  const btn = document.getElementById('btn-from-cadastrado');
+  const label = document.getElementById('from-cadastrado-label');
+  const slug = sel.value;
+  if (!slug) { meta.textContent = ''; btn.disabled = true; label.textContent = 'Selecione um Voice acima'; return; }
+  const v = CADASTRADO_VOICES.find(x => x.id === slug);
+  if (!v) return;
+  const faltando = (v.dados_a_confirmar || []).length;
+  const aviso = faltando > 0
+    ? `⚠️ ${faltando} campo(s) sem dado salvo: ${(v.dados_a_confirmar || []).join(', ')}. Claude vai marcar como 🔴 PLACEHOLDER no kit.`
+    : `🟢 Todos os campos críticos têm dado real cadastrado.`;
+  meta.innerHTML = aviso;
+  btn.disabled = false;
+  label.textContent = `Gerar kit do ${v.nome.split(' ')[0]} →`;
+}
+async function gerarFromCadastrado() {
+  const sel = document.getElementById('cad-voice-select');
+  const status = document.getElementById('from-cadastrado-status');
+  const btn = document.getElementById('btn-from-cadastrado');
+  const slug = sel.value;
+  if (!slug) return;
+  btn.disabled = true;
+  status.style.display = 'block';
+  status.innerHTML = '⏳ Carregando dados do Voice…';
+  try {
+    const r = await fetch(`/api/voices/${slug}/optimizer-input`);
+    const d = await r.json();
+    if (!d.success) throw new Error(d.error || 'falha ao ler input');
+    // Preenche o form manual com os dados e dispara o fluxo manual
+    selectMode('manual');
+    // Aguarda render do manual
+    setTimeout(() => {
+      const input = d.input;
+      const set = (id, val) => { const el = document.getElementById(id); if (el && val != null) el.value = val; };
+      set('linkedin-url', input.linkedin_url);
+      set('f-nome', input.nome);
+      set('f-area', input.area_principal);
+      set('f-anos', input.anos_experiencia);
+      set('f-publico', input.publico_alvo);
+      set('f-tom', input.tom_voz);
+      set('f-diferencial', input.diferencial_humano);
+      set('f-resultado-1', input.resultado_1);
+      set('f-resultado-2', input.resultado_2);
+      set('f-resultado-3', input.resultado_3);
+      set('f-ssi', input.ssi_score);
+      set('f-seguidores', input.seguidores);
+      set('f-cargo-oficial', input.cargo_oficial);
+      set('f-data-entrada', input.data_entrada_epiuse);
+      // Marca foto oficial se disponível
+      const foto = document.getElementById('f-foto-oficial');
+      if (foto && input.foto_oficial) foto.checked = true;
+      status.innerHTML = `✅ Dados de <b>${input.nome}</b> carregados no formulário manual. Revise os campos amarelos (sem dado), adicione screenshots e clique <b>Gerar kit</b>.`;
+      // Scroll para o form
+      const target = document.getElementById('context-section') || document.getElementById('mode-manual-container');
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      btn.disabled = false;
+    }, 100);
+  } catch (e) {
+    status.innerHTML = `❌ ${e.message}`;
+    btn.disabled = false;
+  }
 }
 
 const ROTEIRO_PERGUNTAS = `# 🎙️ Entrevista EPI-USE Voices — Profile Optimizer
@@ -2703,10 +2911,36 @@ function renderKit(k) {
   const bar = document.getElementById('rk-print-bar');
   bar.style.display = 'flex';
   document.getElementById('rk-bar-label').textContent = `🪪 ${k.nome || 'Kit'} · EPI-USE Brasil Voices 2026`;
+  // SPRINT 9 BLOCO D — sempre começa como rascunho ao gerar novo kit
+  setKitStatus('rascunho');
 
   resultadoEl.innerHTML = `
 
-    <!-- COVER -->
+    <!-- ════════ SPRINT 9 BLOCO C — CAPA INSTITUCIONAL (só impressão) ════════ -->
+    <div class="print-cover">
+      <img src="/assets/logo-epiuse-color.svg" alt="EPI-USE Brasil" onerror="this.style.display='none'">
+      <h1>Kit LinkedIn</h1>
+      <div class="subtitle">EPI-USE Voices · 2026</div>
+      <div class="voice-name">${nome}</div>
+      <div class="voice-cargo">${cargo}${cargo && empresa ? ' · ' : ''}${empresa}</div>
+      <div class="meta">Análise estratégica gerada em ${mesAno}<br>EPI-USE Brasil · Programa Voices</div>
+    </div>
+
+    <!-- ════════ SUMÁRIO (só impressão) ════════ -->
+    <div class="print-toc">
+      <h2>Índice</h2>
+      <ol>
+        <li>Diagnóstico do perfil atual</li>
+        <li>Voice Index — 7 pilares de avaliação</li>
+        <li>Headline + Sobre (versão recomendada)</li>
+        <li>5 Destaques estratégicos</li>
+        <li>Linha editorial — calendário 4 semanas</li>
+        <li>KPIs e metas 90 dias</li>
+        <li>Checklist de execução</li>
+      </ol>
+    </div>
+
+    <!-- COVER (web — escondida no print) -->
     <div class="rk-cover">
       <div class="rk-cover-badge">🎙️ EPI-USE Voices &nbsp;·&nbsp; 2026</div>
       <div class="rk-cover-title">Kit de Atualização<br>de Perfil LinkedIn</div>
@@ -3268,40 +3502,67 @@ function copiar(id, btn) {
 // Usa o resultado renderizado + media print CSS pra layout limpo.
 // Fallback: se html2pdf não carregou (sem rede), cai pro window.print().
 // ════════════════════════════════════════════════════════════════════════════
-async function exportarPDFDireto() {
-  if (typeof html2pdf === 'undefined') {
-    alert('html2pdf não carregou (offline?). Abrindo dialog de impressão como fallback.');
-    window.print();
+// SPRINT 9 BLOCO C+D — PDF institucional via window.print() (vetorial)
+// Browser print respeita o @media print (paleta light + capa + sumário + 1 seção/página).
+// Dialog do browser permite "Salvar como PDF" nativo — qualidade superior ao html2canvas.
+function exportarPDFInstitucional() {
+  const status = getKitStatus();
+  if (status !== 'pronto') {
+    alert('⚠️ Marque o kit como revisado antes de exportar.\nClique em "✍️ Marcar revisado" primeiro.');
     return;
   }
+  // Atualiza filename via title antes do print
   const kit = document.getElementById('resultado');
-  if (!kit) { alert('Nenhum kit pra exportar.'); return; }
-  const bar = document.getElementById('rk-print-bar');
-  const oldBarHTML = bar?.innerHTML;
-  if (bar) bar.innerHTML = '<span style="color:#60a5fa;font-size:12px">⏳ Gerando PDF...</span>';
-
-  // Tenta extrair nome do kit pra usar como filename
-  const nomeEl = kit.querySelector('.rk-cover-title, h1, h2');
+  const nomeEl = kit && kit.querySelector('.print-cover .voice-name, .rk-cover-name');
   const nome = (nomeEl ? nomeEl.textContent : 'voice').trim().toLowerCase()
     .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'voice';
   const data = new Date().toISOString().slice(0, 10);
-  const filename = `kit-${nome}-${data}.pdf`;
+  const oldTitle = document.title;
+  document.title = `kit-${nome}-${data}`;
+  window.print();
+  setTimeout(() => { document.title = oldTitle; }, 1000);
+}
 
-  try {
-    await html2pdf().set({
-      margin: [12, 10, 14, 10],
-      filename,
-      image: { type: 'jpeg', quality: 0.92 },
-      html2canvas: { scale: 2, useCORS: true, logging: false, backgroundColor: '#0a1525' },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true },
-      pagebreak: { mode: ['css', 'legacy'], avoid: ['.card', '.vi-pillar', '.rk-cover'] }
-    }).from(kit).save();
-  } catch (e) {
-    alert('Erro ao gerar PDF: ' + e.message + '\n\nTentando dialog do browser como fallback.');
-    window.print();
-  } finally {
-    if (bar && oldBarHTML) bar.innerHTML = oldBarHTML;
+// SPRINT 9 BLOCO D — Fluxo de revisão: rascunho → revisão → pronto
+function getKitStatus() {
+  // Identifica slug do voice atual (pra persistir por kit)
+  const slug = (document.getElementById('cad-voice-select') || {}).value
+    || (document.getElementById('voice-selector') || {}).value
+    || 'default';
+  try { return localStorage.getItem('optimizer.kit.' + slug + '.status') || 'rascunho'; }
+  catch { return 'rascunho'; }
+}
+function setKitStatus(status) {
+  const slug = (document.getElementById('cad-voice-select') || {}).value
+    || (document.getElementById('voice-selector') || {}).value
+    || 'default';
+  try { localStorage.setItem('optimizer.kit.' + slug + '.status', status); } catch {}
+  applyKitStatusUI(status);
+}
+function applyKitStatusUI(status) {
+  const chip = document.getElementById('kit-status-chip');
+  const btnReview = document.getElementById('btn-mark-reviewed');
+  const btnPdf = document.getElementById('btn-export-pdf');
+  if (!chip) return;
+  chip.className = 'kit-status kit-status-' + status;
+  if (status === 'rascunho') {
+    chip.textContent = '📝 Rascunho IA';
+    if (btnReview) { btnReview.textContent = '✍️ Marcar revisado'; btnReview.style.display = ''; }
+    if (btnPdf) { btnPdf.disabled = true; btnPdf.style.opacity = '0.4'; btnPdf.title = 'Marque como revisado primeiro'; }
+  } else if (status === 'revisao') {
+    chip.textContent = '✍️ Em revisão';
+    if (btnReview) { btnReview.textContent = '✅ Marcar como pronto'; btnReview.style.display = ''; }
+    if (btnPdf) { btnPdf.disabled = true; btnPdf.style.opacity = '0.4'; }
+  } else if (status === 'pronto') {
+    chip.textContent = '✅ Pronto pra entregar';
+    if (btnReview) { btnReview.textContent = '↩ Voltar pra rascunho'; }
+    if (btnPdf) { btnPdf.disabled = false; btnPdf.style.opacity = '1'; btnPdf.title = 'Salvar como PDF institucional'; }
   }
+}
+function markKitReviewed() {
+  const cur = getKitStatus();
+  const next = cur === 'rascunho' ? 'revisao' : (cur === 'revisao' ? 'pronto' : 'rascunho');
+  setKitStatus(next);
 }
 
 function copiarTexto(texto, btn) {
