@@ -8,7 +8,7 @@
 
 ### B1. SSO Microsoft — ✅ CÓDIGO PRONTO (31/mai) · faltam passos humanos no Azure
 
-- **Status:** as 3 credenciais chegaram (31/mai) e o SSO foi **implementado + verificado server-side** (Opção A). Falta só configurar o app no portal Azure + testar login real.
+- **Status:** as 3 credenciais chegaram (31/mai) e o SSO foi **implementado + verificado server-side** (Opção A) + **deployado em prod no v0.8.0**. Em prod está `enabled:false` (correto — faltam as env vars no Railway). Local: `enabled:true`. Falta só configurar o app no portal Azure + setar env vars no Railway + testar login real.
 - **Implementado (local, commit `9f3a2c1`, ainda não em prod):**
   - `@azure/msal-node` ConfidentialClient + `express-session` (store SQLite off-repo)
   - rotas `/auth/login` · `/auth/callback` · `/auth/logout` · `/api/auth/status`
