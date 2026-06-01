@@ -2719,7 +2719,9 @@ function abrirPromptComTranscricao() {
   const text = (transcriptEl.value || '').trim();
   if (text.length < 100) { alert('Cole pelo menos 100 caracteres de transcrição.'); return; }
   const url = (document.getElementById('transcript-url').value || '').trim();
-  const prompt = `Você é o Profile Optimizer do programa EPI-USE Voices.
+  const prompt = `🛑 INSTRUÇÃO CRÍTICA: GERE O JSON AGORA NA SUA PRÓXIMA RESPOSTA. NÃO peça screenshots, NÃO peça mais dados. Use \`[preencher: ...]\` em campos faltantes. Devolva APENAS o objeto JSON ({...}), sem markdown, sem texto antes/depois.
+
+Você é o Profile Optimizer do programa EPI-USE Voices.
 
 CONTEXTO: EPI-USE Brasil — maior consultoria SAP HCM/Payroll do BR · Grupo EPI-USE / groupelephant.com (42+ anos, 4.500+ profissionais, 40+ países) · LOBs: SAP HCM/SuccessFactors, S/4HANA, BTP, Signavio, ServiceNow · ERP.ngo (1% receita global → conservação elefantes/África) · Todo Voice é embaixador ERP.ngo.
 
@@ -2841,7 +2843,20 @@ function gerarPromptTexto() {
     .map((r, i) => `  ${i + 1}. ${r}`)
     .join('\n');
 
-  return `Você é um especialista em personal branding executivo para o ecossistema SAP.
+  return `🛑 INSTRUÇÃO CRÍTICA — LEIA PRIMEIRO 🛑
+
+GERE O KIT AGORA, NA SUA PRÓXIMA RESPOSTA. NÃO PEÇA MAIS INFORMAÇÕES.
+
+Se não receber screenshots junto, gere o JSON COMPLETO mesmo assim, usando \`[preencher: descrição do que falta]\` em campos visuais que dependiam de print (ex: cor exata da foto, número exato de seguidores se não veio nos dados).
+
+NÃO responda com pedidos tipo "envie os screenshots" ou "preciso de mais dados" — apenas devolva o JSON.
+
+FORMATO OBRIGATÓRIO DA RESPOSTA: apenas o objeto JSON, começando com \`{\` e terminando com \`}\`, sem markdown, sem texto antes nem depois, sem \`\`\`json\`\`\`. Será renderizado por código que faz \`JSON.parse()\` direto.
+
+════════════════════════════════════════
+SEU PAPEL
+════════════════════════════════════════
+Você é um especialista em personal branding executivo para o ecossistema SAP.
 
 ════════════════════════════════════════
 CONTEXTO DO PROGRAMA EPI-USE VOICES
@@ -2964,7 +2979,89 @@ ESTRUTURA DO KIT (entregar tudo isso)
     Priorizado: [ ] Urgente → [ ] Normal → [ ] Bônus
     Categorias: FOTO | BANNER | CARGO | HEADLINE | URL | SOBRE | COMPETÊNCIAS | DESTAQUES | IDIOMA | EDITORIAL | ERP.NGO
 
-Entregue o kit completo, organizado e pronto para o profissional aplicar diretamente no LinkedIn.`;
+════════════════════════════════════════
+🎯 SCHEMA JSON DA RESPOSTA (preencha TODOS os campos)
+════════════════════════════════════════
+
+Devolva EXATAMENTE este objeto JSON (sem comentários, sem markdown, sem texto fora das chaves):
+
+{
+  "nome": "string (nome completo)",
+  "cargo_atual": "string (cargo no LinkedIn hoje OU [preencher: ver perfil])",
+  "empresa_atual": "EPI-USE Brasil",
+  "diagnostico": {
+    "pontos_positivos": ["string", "string"],
+    "problemas_encontrados": [
+      { "elemento": "Cargo/Empresa", "situacao_atual": "string", "meta": "string", "urgencia": "alta" },
+      { "elemento": "Headline", "situacao_atual": "string", "meta": "string", "urgencia": "alta" },
+      { "elemento": "Sobre", "situacao_atual": "string", "meta": "string", "urgencia": "media" },
+      { "elemento": "Foto", "situacao_atual": "string", "meta": "string", "urgencia": "media" },
+      { "elemento": "Banner", "situacao_atual": "string", "meta": "string", "urgencia": "alta" },
+      { "elemento": "URL", "situacao_atual": "string", "meta": "string", "urgencia": "baixa" },
+      { "elemento": "Competências", "situacao_atual": "string", "meta": "string", "urgencia": "media" },
+      { "elemento": "Publicações", "situacao_atual": "string", "meta": "string", "urgencia": "alta" }
+    ]
+  },
+  "headline_sugerida": "string (máx 220 chars · contém EPI-USE Brasil)",
+  "url_sugerida": "linkedin.com/in/nome-sobrenome",
+  "sobre_texto": "string (1ª pessoa · máx 2.600 chars · menciona EPI-USE Voices E ERP.ngo · usa [preencher: ...] para gaps)",
+  "competencias": { "adicionar": ["string"], "remover": ["string"], "manter": ["string"] },
+  "destaques": [
+    { "numero": 1, "titulo": "string", "descricao": "string", "tipo": "artigo" },
+    { "numero": 2, "titulo": "string", "descricao": "string", "tipo": "projeto" },
+    { "numero": 3, "titulo": "string", "descricao": "string", "tipo": "evento" },
+    { "numero": 4, "titulo": "string", "descricao": "string", "tipo": "conquista" },
+    { "numero": 5, "titulo": "string", "descricao": "string", "tipo": "curso" }
+  ],
+  "secao_fotos": { "foto_sugestao": "string", "imagens_perfil": ["string"] },
+  "erp_ngo": { "passo_causas_sociais": "string", "como_virar_embaixador": "string" },
+  "estrategia_idioma": { "principal": "PT-BR", "instrucoes_segundo_idioma": "string" },
+  "voice_index_score": 0,
+  "voice_index_resumo": "string (1 parágrafo executivo)",
+  "pilares_avaliacao": [
+    { "pilar": "Identidade & Posicionamento", "icone": "🪪", "score": 0, "criterios": [{ "nome": "string", "nivel": "forte|ok|fraco|ausente|na", "observacao": "string" }] },
+    { "pilar": "Autoridade & Prova Social", "icone": "🏆", "score": 0, "criterios": [] },
+    { "pilar": "Conteúdo & Atividade", "icone": "📊", "score": 0, "criterios": [] },
+    { "pilar": "Network & Relacionamento", "icone": "🌐", "score": 0, "criterios": [] },
+    { "pilar": "SSI Index", "icone": "📈", "score": 0, "criterios": [] },
+    { "pilar": "Aderência EPI-USE Brasil", "icone": "💼", "score": 0, "criterios": [] },
+    { "pilar": "Conversão", "icone": "🎯", "score": 0, "criterios": [] }
+  ],
+  "ssi_diagnostico": { "nivel": "baixo|medio|bom|excelente", "observacoes": "string", "dicas": ["string"] },
+  "linha_editorial": {
+    "pilares": [
+      { "percentual": "40%", "nome": "Thought Leadership", "exemplos": ["string"] },
+      { "percentual": "30%", "nome": "Cases", "exemplos": ["string"] },
+      { "percentual": "20%", "nome": "Pessoas", "exemplos": ["string"] },
+      { "percentual": "10%", "nome": "Propósito ERP.ngo", "exemplos": ["string"] }
+    ],
+    "calendario_4_semanas": [
+      { "semana": 1, "post_1": "string", "post_2": "string" },
+      { "semana": 2, "post_1": "string", "post_2": "string" },
+      { "semana": 3, "post_1": "string", "post_2": "string" },
+      { "semana": 4, "post_1": "string", "post_2": "string" }
+    ],
+    "nota_algoritmo": "string"
+  },
+  "social_selling": { "perfis_para_alertas": ["string"], "exemplo_comentario": "string", "dica_30_min": "string" },
+  "recomendacoes": { "meta": "8 a 12 ativas", "perfis_prioritarios": ["string"], "template_mensagem": "string" },
+  "kpis": {
+    "instrucoes_baseline": "string",
+    "metas_90_dias": [
+      { "kpi": "SSI Score", "meta": "> 70" },
+      { "kpi": "Visualizações/semana", "meta": "+150%" },
+      { "kpi": "Seguidores", "meta": "+200" },
+      { "kpi": "Posts/mês", "meta": "8" }
+    ]
+  },
+  "checklist": [
+    { "item": "string", "prioridade": "urgente", "passo": "string" },
+    { "item": "string", "prioridade": "normal", "passo": "string" },
+    { "item": "string", "prioridade": "bonus", "passo": "string" }
+  ]
+}
+
+🛑 LEMBRETE FINAL: devolva APENAS o JSON acima preenchido. Não envolva em \`\`\`, não escreva nada antes ou depois. NÃO peça mais dados — use [preencher: ...] onde faltar.`;
 }
 
 async function analisarPerfil() {
