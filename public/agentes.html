@@ -63,7 +63,13 @@ async function init(){
   var total = (d.camadas||[]).reduce(function(n,c){return n+c.agentes.length;},0);
 
   var html = '<h1>🤖 Agentes & Contexto</h1>'
-    + '<div class="sub">'+total+' agentes em 3 camadas · contexto mestre dividido por área · atualizado '+d.atualizado_em+'</div>';
+    + '<div class="sub">'+total+' agentes em 3 camadas · contexto mestre dividido por área · atualizado '+d.atualizado_em+'</div>'
+    + '<div style="margin:14px 0 4px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">'
+    + '<input id="agq" type="text" placeholder="🔎 buscar agente, dona, área…" '
+    + 'style="flex:1;min-width:240px;padding:8px 12px;border-radius:8px;background:var(--color-surface,#0f1e35);'
+    + 'border:1px solid var(--color-border,rgba(134,158,195,.18));color:var(--color-text,#e6ebf2);font-size:13px">'
+    + '<span id="agcount" style="font-size:11px;color:var(--color-text-muted,#869ec3)"></span>'
+    + '</div>';
 
   // MESTRE
   html += '<div class="sec-t">🧠 Contexto mestre (fonte única)</div>'
@@ -82,6 +88,24 @@ async function init(){
 
   root.innerHTML = html;
   document.title = '🤖 Agentes & Contexto · EPI-USE Office';
+
+  // Filtro/busca
+  var q = document.getElementById('agq');
+  var cnt = document.getElementById('agcount');
+  function applyFilter(){
+    var term = (q.value||'').toLowerCase().trim();
+    var cards = root.querySelectorAll('.ag');
+    var shown = 0;
+    cards.forEach(function(el){
+      var txt = el.textContent.toLowerCase();
+      var match = !term || txt.indexOf(term) !== -1;
+      el.style.display = match ? '' : 'none';
+      if (match) shown++;
+    });
+    cnt.textContent = term ? (shown + '/' + cards.length + ' visíveis') : '';
+  }
+  q.addEventListener('input', applyFilter);
+  q.focus();
 }
 function card(a){
   var le = (a.le||[]).map(function(x){return '<span class="tag le">'+x+'</span>';}).join('');

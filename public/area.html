@@ -180,6 +180,16 @@ async function init(){
 
   await enrich(a);
 
+  // Contadores do agente da área (inbox/outbox)
+  var agSlug = 'area-' + a.id;
+  var agentBadges = '';
+  try {
+    var counters = await jget('/api/agentes/_counters');
+    var k = (counters && counters[agSlug]) || {};
+    if (k.inbox) agentBadges += ' <span style="font-size:10px;background:rgba(251,191,36,.18);color:#fcd34d;padding:2px 7px;border-radius:99px;font-weight:700">📥 '+k.inbox+'</span>';
+    if (k.outbox) agentBadges += ' <span style="font-size:10px;background:rgba(16,185,129,.16);color:#6ee7b7;padding:2px 7px;border-radius:99px;font-weight:700">📤 '+k.outbox+'</span>';
+  } catch(e){}
+
   var liveChip = (a._live && a._live.length)
     ? ' <span class="livechip">● ao vivo · '+a._live.join(' · ')+'</span>' : '';
   var subabas = a.subabas ? ('<div class="subabas">'+a.subabas.map(function(t){
@@ -189,7 +199,7 @@ async function init(){
     '<div class="mod-hdr" style="border-left:4px solid '+a.cor+'">'
     + '<div class="mod-ico">'+a.icon+'</div>'
     + '<div><h1>'+a.nome+liveChip+'</h1><div class="mod-dona">👤 '+a.dona
-    + ' · <a href="/agentes/area-'+a.id+'" style="color:var(--color-info-500,#60a5fa);text-decoration:none">🤖 agente da área →</a></div>'
+    + ' · <a href="/agentes/area-'+a.id+'" style="color:var(--color-info-500,#60a5fa);text-decoration:none">🤖 agente da área →</a>'+agentBadges+'</div>'
     + '<div class="mod-foco">'+(a.foco||'')+'</div></div></div>'
     + subabas
     + '<div class="sec-t">🎯 Funil de meta</div>' + renderFunil(a.funil, a.cor)
