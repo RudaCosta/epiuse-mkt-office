@@ -139,6 +139,7 @@ async function enrich(a){
       if (last.total_seguidores!=null) a._live.push('LinkedIn');
       a._spark = sm.filter(function(m){return m.total_seguidores!=null;})
                    .map(function(m){return {x:m.mes, y:m.total_seguidores};});
+      a._spark_label = 'Evolução LinkedIn (' + a._spark.length + ' meses reais)';
     }
     if (a.id==='conteudo'){
       var ar = await jget('/api/artigos');
@@ -152,10 +153,18 @@ async function enrich(a){
     }
     if (a.id==='eventos'){
       var ev = await jget('/api/events.json'); var ab = (ev && ev.abas) || {};
-      var br    = ((ab.brasil && ab.brasil.eventos) || []).length;
-      var latam = ((ab.latam  && ab.latam.eventos)  || []).length;
+      var brEv = (ab.brasil && ab.brasil.eventos) || [];
+      var ltEv = (ab.latam  && ab.latam.eventos)  || [];
+      var br    = brEv.length;
+      var latam = ltEv.length;
       setStage(a,'Eventos planejados', br, 'events.json · BR');
       setKpi(a,'Eventos planejados FY', br, 'events.json · ' + br + ' BR + ' + latam + ' LATAM');
+      // sparkline mensal (BR + LATAM combinados)
+      var meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+      var counts = new Array(12).fill(0);
+      brEv.concat(ltEv).forEach(function(e){ if(e.m>=1 && e.m<=12) counts[e.m-1]++; });
+      a._spark = counts.map(function(c,i){ return { x: meses[i], y: c }; });
+      a._spark_label = 'Distribuição mensal FY (BR + LATAM)';
       if (br) a._live.push('Eventos');
     }
   } catch(e){ console.warn('enrich falhou', e); }
@@ -184,7 +193,7 @@ async function init(){
     + '<div class="mod-foco">'+(a.foco||'')+'</div></div></div>'
     + subabas
     + '<div class="sec-t">🎯 Funil de meta</div>' + renderFunil(a.funil, a.cor)
-    + (a._spark && a._spark.length>1 ? '<div class="sec-t">📈 Evolução (LinkedIn · '+a._spark.length+' meses reais)</div>'+renderSpark(a._spark, a.cor) : '')
+    + (a._spark && a._spark.length>1 ? '<div class="sec-t">📈 '+(a._spark_label || ('Evolução (LinkedIn · '+a._spark.length+' meses reais)'))+'</div>'+renderSpark(a._spark, a.cor) : '')
     + '<div class="sec-t">📊 Números</div><div class="grid">'
     + (a.kpis||[]).map(function(k){
         var v = fmt(k.valor);
