@@ -120,8 +120,13 @@ class OfficeNav extends HTMLElement {
   }
 
   getTheme() {
-    try { return localStorage.getItem('office.theme') || 'dark'; }
-    catch { return 'dark'; }
+    try {
+      const saved = localStorage.getItem('office.theme');
+      if (saved === 'dark' || saved === 'light') return saved;
+      // F10: auto-detect OS preference (default fallback = dark)
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) return 'light';
+      return 'dark';
+    } catch { return 'dark'; }
   }
 
   render() {

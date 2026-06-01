@@ -1508,6 +1508,39 @@ app.get('/api/applications', requireEditorToken, (req, res) => {
 // VOICE EDITOR — atualiza voices.json e .md de cada Voice via token auth
 // ─────────────────────────────────────────────────────────────────────────────
 
+// POST /api/voices/:slug/duplicate — duplica um Voice existente com novo slug
+app.post('/api/voices/:slug/duplicate', requireEditorToken, (req, res) => {
+  const srcSlug = String(req.params.slug || '').replace(/[^a-z0-9-]/g, '').slice(0, 60);
+  if (!srcSlug) return res.status(400).json({ success: false, error: 'slug inválido' });
+  let data;
+  try { data = JSON.parse(fs.readFileSync(VOICES_JSON_PATH, 'utf8')); }
+  catch (e) { return res.status(500).json({ success: false, error: 'falha ao ler voices.json: ' + e.message }); }
+  data.voices = data.voices || [];
+  const src = data.voices.find(v => v.id === srcSlug);
+  if (!src) return res.status(404).json({ success: false, error: 'voice origem nao encontrado' });
+  // gera slug novo (slug-copia, slug-copia-2, ...)
+  let newSlug = (req.body && req.body.novo_slug) || (srcSlug + '-copia');
+  newSlug = String(newSlug).toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 60);
+  let i = 2;
+  while (data.voices.find(v => v.id === newSlug)) {
+    newSlug = srcSlug + '-copia-' + i;
+    i++;
+  }
+  const copy = JSON.parse(JSON.stringify(src));
+  copy.id = newSlug;
+  copy.nome = 'Cópia de ' + (src.nome || src.id);
+  copy.status = 'onboarding';
+  copy.duplicado_de = srcSlug;
+  copy.duplicado_em = new Date().toISOString();
+  // limpa contadores específicos
+  delete copy.posts_publicados;
+  delete copy.ultimo_post;
+  data.voices.push(copy);
+  try { fs.writeFileSync(VOICES_JSON_PATH, JSON.stringify(data, null, 2)); }
+  catch (e) { return res.status(500).json({ success: false, error: 'falha ao gravar: ' + e.message }); }
+  res.json({ success: true, slug: newSlug, voice: copy });
+});
+
 // PUT /api/voices/:slug — atualiza campos editáveis do Voice em voices.json
 app.put('/api/voices/:slug', requireEditorToken, (req, res) => {
   const slug = String(req.params.slug || '').replace(/[^a-z0-9-]/g, '').slice(0, 60);

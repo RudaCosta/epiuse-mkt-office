@@ -774,6 +774,27 @@ async function renderProfile(slug) {
       editLink.href = `/voices?v=${slug}&edit=1&token=${editToken}`;
       editLink.innerHTML = '🛠️ Editar este perfil';
       metaWrap.appendChild(editLink);
+      const dupLink = document.createElement('a');
+      dupLink.className = 'editor-link-pill';
+      dupLink.href = '#';
+      dupLink.style.marginLeft = '8px';
+      dupLink.innerHTML = '📋 Duplicar';
+      dupLink.onclick = async (e) => {
+        e.preventDefault();
+        if (!confirm('Duplicar este Voice? Novo perfil será criado como "Cópia de '+slug+'".')) return;
+        try {
+          const r = await fetch(`/api/voices/${slug}/duplicate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Editor-Token': editToken }
+          });
+          const j = await r.json();
+          if (j.success) {
+            alert('✅ Duplicado como: ' + j.slug);
+            location.href = `/voices?v=${j.slug}&edit=1&token=${editToken}`;
+          } else alert('❌ ' + (j.error || 'erro'));
+        } catch (err) { alert('❌ ' + err.message); }
+      };
+      metaWrap.appendChild(dupLink);
     }
   }
 
