@@ -255,6 +255,68 @@
         </div>
       </div>
 
+      <!-- 📚 BIBLIOTECA DE CONTEÚDOS (Sprint 11.4) -->
+      <div class="pcard">
+        <h3>📚 Biblioteca (importar artigo)</h3>
+        <div class="field">
+          <label>Buscar nos 693 artigos do blog</label>
+          <input type="text" id="biblioteca-q" placeholder="ex: clean core, succession planning, RPA…" />
+        </div>
+        <div id="biblioteca-results" style="max-height:200px;overflow:auto;font-size:12px;display:none;background:rgba(0,0,0,.12);border-radius:8px;padding:6px"></div>
+        <div id="biblioteca-selected" style="display:none;margin-top:8px;padding:8px;background:rgba(96,165,250,.1);border-radius:8px;font-size:11px;color:#93c5fd"></div>
+      </div>
+      <script>
+        (function(){
+          var q = document.getElementById('biblioteca-q');
+          var results = document.getElementById('biblioteca-results');
+          var selected = document.getElementById('biblioteca-selected');
+          var ARTIGOS = null;
+          var timer = null;
+          function loadOnce(){
+            if (ARTIGOS) return Promise.resolve(ARTIGOS);
+            return fetch('/api/artigos').then(function(r){return r.json();}).then(function(d){
+              ARTIGOS = (d && d.artigos) || []; return ARTIGOS;
+            }).catch(function(){ return []; });
+          }
+          function busca(){
+            var term = (q.value||'').trim().toLowerCase();
+            if (term.length < 3) { results.style.display='none'; return; }
+            loadOnce().then(function(arts){
+              var matches = arts.filter(function(a){
+                return (a.titulo||'').toLowerCase().indexOf(term) !== -1
+                  || (a.linha_de_negocio||'').toLowerCase().indexOf(term) !== -1
+                  || (a.linhas_de_negocio_multi||'').toLowerCase().indexOf(term) !== -1;
+              }).slice(0,10);
+              if (!matches.length) { results.innerHTML = '<div style="padding:8px;color:#869ec3">Nenhum artigo encontrado</div>'; results.style.display=''; return; }
+              results.innerHTML = matches.map(function(a){
+                var lob = a.linha_de_negocio||'—';
+                var etapa = a.etapa_funil||'';
+                var score = a.score_relevancia_2026 != null ? ('· 📊 '+a.score_relevancia_2026) : '';
+                return '<div data-slug="'+a.slug_atual+'" data-titulo="'+(a.titulo||'').replace(/"/g,'&quot;')+'" data-lob="'+lob+'" class="bib-item" style="padding:6px 8px;border-bottom:1px solid rgba(134,158,195,.1);cursor:pointer">'
+                  + '<div style="font-weight:600">'+(a.titulo||'(sem título)')+'</div>'
+                  + '<div style="font-size:10px;color:#869ec3;margin-top:2px">'+lob+' · '+etapa+' '+score+'</div></div>';
+              }).join('');
+              results.style.display='';
+              // hook click
+              results.querySelectorAll('.bib-item').forEach(function(el){
+                el.onclick = function(){
+                  var t = el.getAttribute('data-titulo');
+                  var slug = el.getAttribute('data-slug');
+                  var lob = el.getAttribute('data-lob');
+                  document.getElementById('topic').value = t;
+                  document.getElementById('brief').value = 'Base: artigo "'+t+'" (slug: '+slug+', LOB: '+lob+')\n\nAdapte pro formato carrossel — destrinche os 3 argumentos centrais em slides 3-6, mantenha tom e LOB.';
+                  selected.innerHTML = '✅ Base: <b>'+t+'</b><br><span style="opacity:.7">slug: '+slug+' · LOB: '+lob+'</span>';
+                  selected.style.display = '';
+                  results.style.display = 'none';
+                  q.value = '';
+                };
+              });
+            });
+          }
+          q && q.addEventListener('input', function(){ clearTimeout(timer); timer = setTimeout(busca, 250); });
+        })();
+      </script>
+
       <div class="pcard">
         <h3>Configuração</h3>
         <div class="field">
