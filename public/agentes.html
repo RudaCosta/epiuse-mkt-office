@@ -52,8 +52,13 @@
 <script src="/office-nav.js"></script>
 <script src="/office-footer.js"></script>
 <script>
+var COUNTERS = {};
 async function init(){
-  var d = await (await fetch('/api/agentes.json?t='+Date.now())).json();
+  var [d, c] = await Promise.all([
+    fetch('/api/agentes.json?t='+Date.now()).then(r=>r.json()),
+    fetch('/api/agentes/_counters?t='+Date.now()).then(r=>r.json()).catch(function(){return{};})
+  ]);
+  COUNTERS = c || {};
   var root = document.getElementById('root');
   var total = (d.camadas||[]).reduce(function(n,c){return n+c.agentes.length;},0);
 
@@ -87,7 +92,9 @@ function card(a){
   var modBtn = a.modulo ? '<a class="modbtn" href="'+a.modulo+'">ver módulo '+a.modulo+' →</a>' : '';
   return '<div class="ag" style="border-left-color:'+a.cor+'">'
     + '<div class="ag-hdr"><span class="ag-ico">'+a.icon+'</span>'
-    + '<div><div class="ag-nome"><a href="/agentes/'+a.id+'" style="color:inherit;text-decoration:none">'+a.nome+' →</a></div><div class="ag-cargo">'+a.cargo+'</div></div>'
+    + '<div><div class="ag-nome"><a href="/agentes/'+a.id+'" style="color:inherit;text-decoration:none">'+a.nome+' →</a>'
+    + (function(){ var k=COUNTERS[a.id]||{}; var b=''; if(k.inbox)b+=' <span style="font-size:10px;background:rgba(251,191,36,.18);color:#fcd34d;padding:2px 7px;border-radius:99px;font-weight:700">📥 '+k.inbox+'</span>'; if(k.outbox)b+=' <span style="font-size:10px;background:rgba(16,185,129,.16);color:#6ee7b7;padding:2px 7px;border-radius:99px;font-weight:700">📤 '+k.outbox+'</span>'; return b; })()
+    + '</div><div class="ag-cargo">'+a.cargo+'</div></div>'
     + (a.le_tudo?'<span class="pill-tudo">lê o mestre todo</span>':'')+'</div>'
     + (a.dona?'<div class="ag-dona">👤 dona: '+a.dona+'</div>':'')
     + '<div class="ag-papel">'+a.papel+'</div>'

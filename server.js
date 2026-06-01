@@ -402,6 +402,28 @@ const AGENTE_PATH  = path.join(__dirname, 'public/agente.html');
 app.get('/agentes', (req, res) => res.sendFile(AGENTES_PATH));
 app.get('/agentes/:slug', (req, res) => res.sendFile(AGENTE_PATH));
 
+// API: resumo de contadores de TODOS os workspaces (pra /agentes mostrar inbox count)
+app.get('/api/agentes/_counters', (req, res) => {
+  try {
+    const wsRoot = path.join(__dirname, 'vault/workspaces');
+    if (!fs.existsSync(wsRoot)) return res.json({});
+    const out = {};
+    fs.readdirSync(wsRoot).forEach(slug => {
+      const dir = path.join(wsRoot, slug);
+      if (!fs.statSync(dir).isDirectory()) return;
+      const count = (sub) => {
+        const d = path.join(dir, sub);
+        if (!fs.existsSync(d)) return 0;
+        return fs.readdirSync(d).filter(f => !f.startsWith('.') && !f.startsWith('_') && f.endsWith('.md')).length;
+      };
+      out[slug] = { inbox: count('inbox'), outbox: count('outbox') };
+    });
+    res.json(out);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // POST pedido no inbox do agente
 app.post('/api/agentes/:slug/inbox', express.json(), (req, res) => {
   try {
