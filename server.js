@@ -402,6 +402,29 @@ const AGENTE_PATH  = path.join(__dirname, 'public/agente.html');
 app.get('/agentes', (req, res) => res.sendFile(AGENTES_PATH));
 app.get('/agentes/:slug', (req, res) => res.sendFile(AGENTE_PATH));
 
+// POST pedido no inbox do agente
+app.post('/api/agentes/:slug/inbox', express.json(), (req, res) => {
+  try {
+    const slug = String(req.params.slug || '').replace(/[^a-z0-9-]/gi,'').toLowerCase();
+    const { titulo, pedido, autor } = req.body || {};
+    if (!titulo || !pedido) return res.status(400).json({ error: 'titulo e pedido sao obrigatorios' });
+    const inboxDir = path.join(__dirname, 'vault/workspaces', slug, 'inbox');
+    if (!fs.existsSync(inboxDir)) return res.status(404).json({ error: 'agente nao tem workspace' });
+    const now = new Date();
+    const stamp = now.toISOString().slice(0,10);
+    const safeSlug = String(titulo).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40);
+    const filename = stamp + '-' + safeSlug + '.md';
+    const md = '# ' + titulo + '\n\n'
+      + '> Pedido criado em ' + now.toISOString() + (autor?' por ' + autor:'') + '\n'
+      + '> Status: 📥 inbox · aguardando agente `' + slug + '`\n\n'
+      + '## Pedido\n\n' + pedido + '\n';
+    fs.writeFileSync(path.join(inboxDir, filename), md, 'utf8');
+    res.json({ ok: true, arquivo: filename, slug });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // API: workspace de um agente (inbox/outbox/_vt + entregas filtradas)
 app.get('/api/agentes/:slug/workspace', (req, res) => {
   try {

@@ -80,7 +80,8 @@ async function init(){
     + (found.dona?'<div class="dona">👤 dona: '+esc(found.dona)+'</div>':'')
     + '</div>' + modBtn;
   var html = '';
-  html += '<div class="sec-t">📁 Workspace · vault/workspaces/'+slug+'/</div>';
+  html += '<div class="sec-t">📁 Workspace · vault/workspaces/'+slug+'/'
+        + ' <button onclick="abrirNovo()" style="float:right;font-size:11px;font-weight:700;background:rgba(96,165,250,.12);color:#93c5fd;border:1px solid rgba(96,165,250,.3);padding:5px 11px;border-radius:7px;cursor:pointer">+ Novo pedido pro inbox</button></div>';
   html += '<div class="grid">';
   html += '<div class="box"><div style="font-weight:700;font-size:13px;margin-bottom:6px">📥 Inbox <span class="count">'+(ws.inbox?ws.inbox.length:0)+'</span></div>'+renderList(ws.inbox,'Sem pedidos no inbox.')+'</div>';
   html += '<div class="box"><div style="font-weight:700;font-size:13px;margin-bottom:6px">📤 Outbox <span class="count">'+(ws.outbox?ws.outbox.length:0)+'</span></div>'+renderList(ws.outbox,'Sem entregas pendentes.')+'</div>';
@@ -93,6 +94,21 @@ async function init(){
     : '<div class="empty">Nenhuma entrega arquivada ainda.</div>')+'</div>';
   html += '<div class="sec-t">📖 Papel</div><div class="box" style="font-size:13px;line-height:1.5">'+esc(found.papel)+'</div>';
   document.getElementById('content').innerHTML = html;
+}
+function abrirNovo(){
+  var slug = location.pathname.split('/').pop();
+  var titulo = prompt('Título do pedido (curto):');
+  if (!titulo) return;
+  var pedido = prompt('Descreva o pedido em detalhe:');
+  if (!pedido) return;
+  var autor = prompt('Seu nome (autor):', 'Rudá') || '';
+  fetch('/api/agentes/'+slug+'/inbox', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ titulo: titulo, pedido: pedido, autor: autor })
+  }).then(r=>r.json()).then(function(j){
+    if (j.ok) { alert('✅ Pedido criado: '+j.arquivo); location.reload(); }
+    else alert('❌ '+(j.error||'erro'));
+  }).catch(function(e){ alert('❌ '+e.message); });
 }
 init();
 </script>
