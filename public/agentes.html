@@ -84,7 +84,7 @@ async function init(){
     html += '<div class="grid">'+c.agentes.map(card).join('')+'</div>';
   });
 
-  html += '<div class="note"><b>Princípio:</b> 1 fonte mestre · CEO orquestra · cada <b>agente de área</b> é dono do contexto da sua dona (lê só sua fatia + seu módulo <code>/area/&lt;id&gt;</code>) · <b>executores</b> (criativos·LPs·propostas·campanhas) são transversais, acionados pelas áreas via inbox. Subagente abre fresco → menos token, menos alucinação cruzada.</div>';
+  html += '<div class="note"><b>Princípio:</b> 1 fonte mestre · CEO orquestra · cada <b>agente de área</b> é dono do contexto da sua dona (lê só sua fatia + seu módulo <code>/area/&lt;id&gt;</code>) · <b>executores</b> (criativos·LPs·propostas·campanhas) são transversais, acionados pelas áreas via inbox. Subagente abre fresco → menos token, menos alucinação cruzada. <br><br>📖 <b>Guia operacional completo:</b> <a href="https://github.com/RodaCosta/epiuse-mkt-office/blob/master/vault/00-contexto/operacao-agentes.md" target="_blank" style="color:#60a5fa">vault/00-contexto/operacao-agentes.md</a> (como criar pedido, fluxo, FAQ) · ⚡ <a href="/war-room" style="color:#60a5fa">War Room</a> mostra pendências consolidadas.</div>';
 
   root.innerHTML = html;
   document.title = '🤖 Agentes & Contexto · EPI-USE Office';
