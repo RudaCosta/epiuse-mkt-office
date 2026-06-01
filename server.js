@@ -398,7 +398,57 @@ app.get('/area', (req, res) => res.sendFile(AREA_PATH));
 app.get('/area/:id', (req, res) => res.sendFile(AREA_PATH));
 
 const AGENTES_PATH = path.join(__dirname, 'public/agentes.html');
+const AGENTE_PATH  = path.join(__dirname, 'public/agente.html');
 app.get('/agentes', (req, res) => res.sendFile(AGENTES_PATH));
+app.get('/agentes/:slug', (req, res) => res.sendFile(AGENTE_PATH));
+
+// API: workspace de um agente (inbox/outbox/_vt + entregas filtradas)
+app.get('/api/agentes/:slug/workspace', (req, res) => {
+  try {
+    const slug = String(req.params.slug || '').replace(/[^a-z0-9-]/gi,'').toLowerCase();
+    const wsDir = path.join(__dirname, 'vault/workspaces', slug);
+    const out = { slug, inbox: [], outbox: [], vt: null, entregas: [] };
+    if (!fs.existsSync(wsDir)) return res.status(404).json({ error: 'workspace nao encontrado', slug });
+    const listDir = (sub) => {
+      const dir = path.join(wsDir, sub);
+      if (!fs.existsSync(dir)) return [];
+      return fs.readdirSync(dir).filter(f => !f.startsWith('.') && !f.startsWith('_'))
+        .map(f => {
+          const st = fs.statSync(path.join(dir, f));
+          return { nome: f, tamanho: st.size, modificado: st.mtime };
+        }).sort((a,b) => new Date(b.modificado) - new Date(a.modificado));
+    };
+    out.inbox = listDir('inbox');
+    out.outbox = listDir('outbox');
+    const vtPath = path.join(wsDir, '_vt.md');
+    if (fs.existsSync(vtPath)) {
+      out.vt = fs.readFileSync(vtPath, 'utf8');
+    }
+    // entregas: filtrar por subdir que case com slug (criativos/lps/propostas/campanhas) OU prefixo do slug
+    const entregasDir = path.join(__dirname, 'vault/entregas');
+    if (fs.existsSync(entregasDir)) {
+      const slugShort = slug.replace(/^area-/, '');
+      const tryDirs = [slug, slugShort, slug.replace('-','')];
+      for (const d of tryDirs) {
+        const full = path.join(entregasDir, d);
+        if (fs.existsSync(full) && fs.statSync(full).isDirectory()) {
+          out.entregas = fs.readdirSync(full).filter(f => !f.startsWith('.'))
+            .map(f => ({ nome: f, subdir: d }));
+          break;
+        }
+      }
+      // tambem busca arquivos na raiz que tenham o slug no nome
+      const raiz = fs.readdirSync(entregasDir).filter(f => {
+        const full = path.join(entregasDir, f);
+        return fs.statSync(full).isFile() && f.toLowerCase().includes(slug.replace('area-',''));
+      }).map(f => ({ nome: f, subdir: '(raiz)' }));
+      out.entregas = out.entregas.concat(raiz);
+    }
+    res.json(out);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
 
 // ── MODULE H · METAS LINKEDIN (sprint 0.4.8 — apresentação corporativa) ─────
 const METAS_PATH = path.join(__dirname, 'public/metas.html');

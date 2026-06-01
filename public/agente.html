@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agente · EPI-USE Office</title>
+<link rel="stylesheet" href="/design-tokens.css">
+<style>
+  body { margin:0; background:var(--color-bg,#0a1525); color:var(--color-text,#e6ebf2); font-family:'Open Sans',Arial,sans-serif; }
+  .wrap { max-width:1100px; margin:0 auto; padding:18px 16px 60px; }
+  .crumb { font-size:11px; color:var(--color-text-muted,#869ec3); margin-bottom:8px; }
+  .crumb a { color:var(--color-info-500,#60a5fa); text-decoration:none; }
+  .hdr { display:flex; align-items:center; gap:14px; padding:18px; border-radius:14px;
+         background:var(--color-surface,#0f1e35); border:1px solid var(--color-border,rgba(134,158,195,.18));
+         border-left-width:5px; margin-bottom:18px; }
+  .hdr .ico { font-size:42px; }
+  .hdr h1 { margin:0 0 2px; font-size:22px; }
+  .hdr .cargo { font-size:12px; color:var(--color-text-muted,#869ec3); }
+  .hdr .dona { font-size:12px; color:#fcd34d; margin-top:4px; font-weight:700; }
+  .hdr .mod { margin-left:auto; }
+  .mod a { font-size:12px; font-weight:700; text-decoration:none; color:var(--color-info-500,#60a5fa);
+           padding:7px 12px; border-radius:8px; border:1px solid rgba(96,165,250,.3); }
+  .sec-t { font-size:12px; font-weight:800; letter-spacing:.06em; text-transform:uppercase;
+           color:var(--color-text-muted,#869ec3); margin:18px 0 8px; }
+  .box { background:var(--color-surface,#0f1e35); border:1px solid var(--color-border,rgba(134,158,195,.18));
+         border-radius:12px; padding:14px; margin-bottom:12px; }
+  .row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px dashed var(--color-border,rgba(134,158,195,.14)); font-size:13px; }
+  .row:last-child { border-bottom:none; }
+  .row .nome { font-family:'JetBrains Mono',monospace; font-size:12px; }
+  .row .meta { font-size:11px; color:var(--color-text-muted,#869ec3); }
+  .empty { font-size:12px; color:var(--color-text-muted,#869ec3); font-style:italic; padding:6px 0; }
+  .vt { font-family:'JetBrains Mono',monospace; font-size:12px; white-space:pre-wrap; line-height:1.5;
+        background:rgba(0,0,0,.18); padding:12px; border-radius:8px; max-height:340px; overflow:auto; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media (max-width:720px){ .grid{grid-template-columns:1fr} }
+  .count { font-size:11px; background:rgba(96,165,250,.12); color:#93c5fd; padding:2px 8px; border-radius:99px; margin-left:6px; }
+</style>
+</head>
+<body>
+<office-nav></office-nav>
+<div class="wrap">
+  <div class="crumb"><a href="/agentes">🤖 Agentes</a> · <span id="crumb-nome">…</span></div>
+  <div id="hdr" class="hdr"><span class="ico">⏳</span><div><h1>Carregando…</h1></div></div>
+  <div id="content"></div>
+</div>
+<office-footer></office-footer>
+<script src="/office-nav.js"></script>
+<script src="/office-footer.js"></script>
+<script>
+function esc(s){ return String(s||'').replace(/[<>&]/g, c=>({ '<':'&lt;','>':'&gt;','&':'&amp;'}[c])); }
+function fmtDate(d){ try{ return new Date(d).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}); } catch(e){ return ''; } }
+function renderList(items, vazio){
+  if (!items || !items.length) return '<div class="empty">'+vazio+'</div>';
+  return items.map(i =>
+    '<div class="row"><span class="nome">📄 '+esc(i.nome)+'</span>'
+    + '<span class="meta">'+ (i.modificado?fmtDate(i.modificado):'') +'</span></div>'
+  ).join('');
+}
+async function init(){
+  var slug = location.pathname.split('/').pop();
+  var [ag, ws] = await Promise.all([
+    fetch('/api/agentes.json?t='+Date.now()).then(r=>r.json()),
+    fetch('/api/agentes/'+slug+'/workspace?t='+Date.now()).then(r=>r.json())
+  ]);
+  // find agent in agentes.json
+  var found = null;
+  (ag.camadas||[]).forEach(function(c){ (c.agentes||[]).forEach(function(a){ if(a.id===slug) found=a; }); });
+  if (!found){
+    document.getElementById('hdr').innerHTML = '<span class="ico">❓</span><div><h1>Agente '+esc(slug)+' não encontrado</h1><div class="cargo">Verifique <a href="/agentes" style="color:#60a5fa">/agentes</a></div></div>';
+    return;
+  }
+  document.title = found.icon+' '+found.nome+' · Agente';
+  document.getElementById('crumb-nome').textContent = found.nome;
+  var modBtn = found.modulo ? '<div class="mod"><a href="'+found.modulo+'">ver módulo '+found.modulo+' →</a></div>' : '';
+  document.getElementById('hdr').style.borderLeftColor = found.cor;
+  document.getElementById('hdr').innerHTML =
+    '<span class="ico">'+found.icon+'</span>'
+    + '<div><h1>'+esc(found.nome)+'</h1>'
+    + '<div class="cargo">'+esc(found.cargo)+'</div>'
+    + (found.dona?'<div class="dona">👤 dona: '+esc(found.dona)+'</div>':'')
+    + '</div>' + modBtn;
+  var html = '';
+  html += '<div class="sec-t">📁 Workspace · vault/workspaces/'+slug+'/</div>';
+  html += '<div class="grid">';
+  html += '<div class="box"><div style="font-weight:700;font-size:13px;margin-bottom:6px">📥 Inbox <span class="count">'+(ws.inbox?ws.inbox.length:0)+'</span></div>'+renderList(ws.inbox,'Sem pedidos no inbox.')+'</div>';
+  html += '<div class="box"><div style="font-weight:700;font-size:13px;margin-bottom:6px">📤 Outbox <span class="count">'+(ws.outbox?ws.outbox.length:0)+'</span></div>'+renderList(ws.outbox,'Sem entregas pendentes.')+'</div>';
+  html += '</div>';
+  html += '<div class="sec-t">🧠 Memória de trabalho (_vt.md)</div>';
+  html += '<div class="box"><div class="vt">'+esc(ws.vt||'(vazio)')+'</div></div>';
+  html += '<div class="sec-t">✅ Entregas finais <span class="count">'+(ws.entregas?ws.entregas.length:0)+'</span></div>';
+  html += '<div class="box">'+(ws.entregas&&ws.entregas.length
+    ? ws.entregas.map(function(e){return '<div class="row"><span class="nome">📦 '+esc(e.nome)+'</span><span class="meta">'+esc(e.subdir)+'</span></div>';}).join('')
+    : '<div class="empty">Nenhuma entrega arquivada ainda.</div>')+'</div>';
+  html += '<div class="sec-t">📖 Papel</div><div class="box" style="font-size:13px;line-height:1.5">'+esc(found.papel)+'</div>';
+  document.getElementById('content').innerHTML = html;
+}
+init();
+</script>
+</body>
+</html>
