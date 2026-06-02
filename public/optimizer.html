@@ -166,17 +166,27 @@ let SELECTED_VOICE = null;
 const TRANSCRICAO_MARKER = '[Cole aqui a transcrição completa da conversa com o Voice. Pode ser:';
 
 async function init() {
-  // Template canônico
-  try {
-    const r = await fetch('/api/optimizer/template?t=' + Date.now());
-    if (r.ok) {
-      TEMPLATE_RAW = await r.text();
-      document.getElementById('tpl-preview').textContent = TEMPLATE_RAW;
-    } else {
-      document.getElementById('tpl-preview').textContent = '⚠️ Endpoint /api/optimizer/template retornou ' + r.status + '. Servidor precisa restart? Verifique vault/00-contexto/prompts/kit-voice-template.md';
-    }
-  } catch (e) {
-    document.getElementById('tpl-preview').textContent = '⚠️ Erro: ' + e.message;
+  // Template canônico — tenta 2 fontes (estático primeiro = funciona sem restart do server)
+  const fontes = [
+    '/api/kit-voice-template.md',       // estático em public/api/ — sempre funciona
+    '/api/optimizer/template',          // endpoint dinâmico (lê do vault) — precisa server novo
+  ];
+  for (const url of fontes) {
+    try {
+      const r = await fetch(url + '?t=' + Date.now());
+      if (r.ok) {
+        const txt = await r.text();
+        // sanity check: tem que ser markdown do template (não HTML 404)
+        if (txt && txt.length > 500 && !txt.startsWith('<')) {
+          TEMPLATE_RAW = txt;
+          document.getElementById('tpl-preview').textContent = TEMPLATE_RAW;
+          break;
+        }
+      }
+    } catch (e) { /* tenta próxima */ }
+  }
+  if (!TEMPLATE_RAW) {
+    document.getElementById('tpl-preview').textContent = '⚠️ Não consegui carregar o template. Tente recarregar a página (Ctrl+F5). Se persistir, verifique se existe o arquivo public/api/kit-voice-template.md';
   }
 
   // Voices cadastrados
