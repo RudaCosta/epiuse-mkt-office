@@ -7,7 +7,7 @@
 // Versão atual exposta no chip ao lado do logomark.
 // Schema semver pré-1.0 — explicação completa em vault/00-contexto/versioning.md
 // Manter em sincronia com office-footer.js (OFFICE_FOOTER_VERSION).
-const OFFICE_NAV_VERSION = '0.9.3';
+const OFFICE_NAV_VERSION = '0.9.4';
 
 // Tokens CSS globais ERP.ngo (v0.4.12) — injetados em document.head pra ficar
 // disponíveis em todas as páginas. Cores oficiais do brand guide ERP.ngo v1.0.
@@ -69,7 +69,8 @@ const OFFICE_NAV_OVERFLOW = [
   { label: '📚 Artigos do Blog',         href: '/artigos' },
 
   { section: '🎙️ Voices & Optimizer' },
-  { label: '🪪 Profile Optimizer',       href: '/optimizer' },
+  { label: '🪪 Profile Optimizer (V1)',   href: '/optimizer' },
+  { label: '🪪 Profile Optimizer V2 (findskill)', href: '/optimizer-v2' },
   { label: '🎯 Painel da Duda',          href: '/voices/painel' },
   { label: '📨 Seja um Voice (LP)',      href: '/seja-voice' },
 

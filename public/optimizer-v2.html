@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🪪 Profile Optimizer V2 · findskill framework · EPI-USE Voices</title>
+<link rel="stylesheet" href="/design-tokens.css">
+<style>
+  :root {
+    --bg: #0a1525; --card: #0f1e35; --text: #e6ebf2; --muted: #869ec3;
+    --border: rgba(134,158,195,.22); --primary: #2563eb; --primary-light: #60a5fa;
+    --navy: #001844; --red: #cd1543; --green: #10b981; --yellow: #fcd34d;
+  }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:'Open Sans',-apple-system,system-ui,sans-serif; font-size:14px; line-height:1.6; }
+  .wrap { max-width:1100px; margin:0 auto; padding:24px 18px 80px; }
+  h1 { font-size:26px; margin:6px 0 4px; color:#fff; font-weight:800; letter-spacing:-0.02em; }
+  .sub { font-size:13px; color:var(--muted); margin-bottom:14px; }
+  .badge { display:inline-block; font-size:10px; background:rgba(192,132,252,.18); color:#d8b4fe; padding:3px 10px; border-radius:99px; font-weight:700; letter-spacing:.04em; margin-left:8px; }
+  .v1-link { display:inline-block; font-size:11px; color:var(--muted); margin-bottom:20px; padding:6px 10px; background:rgba(96,165,250,.08); border:1px solid rgba(96,165,250,.2); border-radius:6px; text-decoration:none; }
+  .v1-link:hover { color:var(--primary-light); }
+
+  .hero { background:linear-gradient(135deg, rgba(192,132,252,0.08), rgba(205,21,67,0.05)); border:1px solid rgba(192,132,252,0.25); border-radius:14px; padding:22px 24px; margin-bottom:22px; }
+  .hero h2 { margin:0 0 14px; font-size:15px; color:#fff; font-weight:700; }
+  .hero p { margin:0 0 10px; font-size:12.5px; color:var(--muted); line-height:1.6; }
+  .hero strong { color:#d8b4fe; }
+
+  .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:18px 20px; margin-bottom:14px; }
+  .card-h { font-size:14px; font-weight:700; color:#fff; margin:0 0 6px; display:flex; align-items:center; gap:8px; }
+  .card-sub { font-size:12px; color:var(--muted); margin:0 0 14px; line-height:1.55; }
+
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media (max-width:720px){ .grid-2{grid-template-columns:1fr} }
+
+  label { display:block; font-size:11px; font-weight:700; color:var(--muted); margin-bottom:5px; text-transform:uppercase; letter-spacing:.04em; }
+  .label-hint { font-size:10px; color:var(--muted); font-weight:400; margin-left:6px; opacity:.7; text-transform:none; letter-spacing:0; }
+  textarea, select, input[type=text], input[type=url] {
+    width:100%; padding:10px 12px; background:rgba(0,0,0,.22); border:1px solid var(--border);
+    border-radius:8px; color:var(--text); font-size:13px; font-family:inherit; line-height:1.5;
+  }
+  textarea { resize:vertical; min-height:120px; font-family:'JetBrains Mono','Consolas',monospace; font-size:12px; }
+  .field { margin-bottom:12px; }
+
+  .btn { font-family:inherit; cursor:pointer; border:none; padding:11px 18px; border-radius:8px; font-weight:700; font-size:13px; transition:opacity .15s; display:inline-flex; align-items:center; gap:8px; }
+  .btn:hover { opacity:.9; }
+  .btn-primary { background:linear-gradient(135deg,var(--navy),#7c3aed); color:#fff; }
+  .btn-secondary { background:rgba(192,132,252,.12); color:#d8b4fe; border:1px solid rgba(192,132,252,.3); }
+  .btn-row { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+
+  /* CAREER GOAL — 3 cards */
+  .goal-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-top:6px; }
+  @media (max-width:720px){ .goal-grid{grid-template-columns:1fr} }
+  .goal-card { background:rgba(0,0,0,.18); border:2px solid var(--border); border-radius:10px; padding:14px; cursor:pointer; transition:all .15s; text-align:center; }
+  .goal-card:hover { border-color:#d8b4fe; }
+  .goal-card.selected { border-color:#d8b4fe; background:rgba(192,132,252,.10); }
+  .goal-card .ic { font-size:24px; margin-bottom:6px; }
+  .goal-card .gt { font-weight:700; font-size:13px; margin-bottom:4px; color:#fff; }
+  .goal-card .gd { font-size:11px; color:var(--muted); line-height:1.4; }
+
+  /* VOICE CHIPS */
+  .voices-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+  .voice-chip { background:rgba(0,0,0,.2); border:1px solid var(--border); border-radius:99px; padding:6px 12px; font-size:12px; cursor:pointer; color:var(--text); transition:all .15s; }
+  .voice-chip:hover { border-color:#d8b4fe; }
+  .voice-chip.active { background:rgba(192,132,252,.2); border-color:#d8b4fe; color:#fff; }
+
+  details { margin-top:14px; }
+  summary { cursor:pointer; font-size:12px; color:#d8b4fe; padding:8px 0; user-select:none; }
+  pre.tpl-preview { background:rgba(0,0,0,.30); border:1px solid var(--border); border-radius:8px; padding:14px; font-family:'JetBrains Mono',monospace; font-size:11px; line-height:1.55; max-height:340px; overflow:auto; white-space:pre-wrap; word-break:break-word; color:var(--text); }
+
+  .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#7c3aed; color:#fff; padding:12px 22px; border-radius:8px; font-weight:700; font-size:13px; box-shadow:0 8px 24px rgba(0,0,0,.3); display:none; z-index:300; }
+  .toast.show { display:block; animation: slideUp .25s ease-out; }
+  @keyframes slideUp { from{ opacity:0; transform:translate(-50%,12px); } to{ opacity:1; transform:translate(-50%,0); } }
+</style>
+</head>
+<body data-route="voices">
+<office-nav></office-nav>
+
+<div class="wrap">
+  <h1>🪪 Profile Optimizer <span class="badge">V2 · framework findskill.ai</span></h1>
+  <div class="sub">Versão alternativa baseada no <a href="https://findskill.ai" target="_blank" style="color:#d8b4fe">findskill.ai · LinkedIn Profile Optimizer</a> adaptado pra EPI-USE Voices. <b>5 variáveis estruturadas</b> + transcrição opcional → kit em <b>10 páginas A4</b> (Quick Wins · Headline · Sobre · Experiência · Skills · Featured · Foto/Banner · Keywords · URL/ERP.ngo).</div>
+  <a class="v1-link" href="/optimizer">← Voltar pra V1 (transcrição livre · 7 páginas)</a>
+
+  <!-- HERO -->
+  <div class="hero">
+    <h2>🎯 Diferença vs V1</h2>
+    <p><strong>V1 (/optimizer):</strong> cola transcrição livre · IA extrai tudo · kit em 7 páginas focado em Voice Index.</p>
+    <p><strong>V2 (você está aqui):</strong> 5 variáveis estruturadas (current_role · target_audience · key_skills · unique_value · career_goal) + transcrição opcional · kit em 10 páginas com <b>Quick Wins na pág 1</b> + Headline/Sobre/Experiência/Skills detalhados (framework findskill.ai).</p>
+    <p style="margin-bottom:0">Use V2 quando souber o <strong>objetivo de carreira específico</strong> (thought leadership / atração de clientes / recrutamento) e tiver as variáveis claras. Use V1 quando só tem a transcrição.</p>
+  </div>
+
+  <!-- VOICE QUICK PICK -->
+  <div class="card">
+    <div class="card-h"><span>⭐</span>Voice (opcional — pré-popula campos)</div>
+    <div class="voices-row" id="voices-row">
+      <span class="voice-chip active" onclick="selecionarVoice(null,this)" data-id=""><span>📝</span> Voice novo</span>
+    </div>
+  </div>
+
+  <!-- VARIÁVEIS findskill -->
+  <div class="card">
+    <div class="card-h"><span>📋</span>5 variáveis do framework findskill</div>
+    <p class="card-sub">Preencha pelo menos as 5 abaixo. IA usa elas pra montar todo o kit.</p>
+
+    <div class="grid-2">
+      <div class="field">
+        <label>Nome do Voice <span class="label-hint">(quem é)</span></label>
+        <input type="text" id="voice_name" placeholder="Ex: Anderson Costa">
+      </div>
+      <div class="field">
+        <label>{{current_role}} <span class="label-hint">(cargo oficial EPI-USE)</span></label>
+        <input type="text" id="current_role" placeholder="Ex: Delivery Strategic Account">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>{{target_audience}} <span class="label-hint">(quem o Voice quer atrair)</span></label>
+      <input type="text" id="target_audience" placeholder="Ex: CHROs de varejo + Diretores RH com SAP em transição pro SuccessFactors">
+    </div>
+
+    <div class="field">
+      <label>{{key_skills}} <span class="label-hint">(3-5 skills/expertise principais)</span></label>
+      <input type="text" id="key_skills" placeholder="Ex: SAP HCM, SuccessFactors, Gestão Estratégica de Conta, Folha de Pagamento">
+    </div>
+
+    <div class="field">
+      <label>{{unique_value}} <span class="label-hint">(o que diferencia este Voice)</span></label>
+      <input type="text" id="unique_value" placeholder="Ex: 14+ anos SAP HCM com migração de 280 lojas em 14 meses (Drogaria Venancio)">
+    </div>
+
+    <div class="field" style="margin-bottom:6px">
+      <label>{{career_goal}} <span class="label-hint">(escolha 1 objetivo principal)</span></label>
+    </div>
+    <div class="goal-grid">
+      <div class="goal-card" onclick="selecionarGoal('Thought Leadership',this)" data-goal="Thought Leadership">
+        <div class="ic">🎓</div>
+        <div class="gt">Thought Leadership</div>
+        <div class="gd">Autoridade técnica no nicho SAP. Foco em conteúdo recorrente.</div>
+      </div>
+      <div class="goal-card" onclick="selecionarGoal('Atração de Clientes',this)" data-goal="Atração de Clientes">
+        <div class="ic">💼</div>
+        <div class="gt">Atração de Clientes</div>
+        <div class="gd">Gerar pipeline B2B EPI-USE Brasil. Foco em prova social + cases.</div>
+      </div>
+      <div class="goal-card" onclick="selecionarGoal('Recrutamento',this)" data-goal="Recrutamento">
+        <div class="ic">🤝</div>
+        <div class="gt">Recrutamento</div>
+        <div class="gd">Atrair talentos SAP. Foco em cultura EPI-USE + ERP.ngo.</div>
+      </div>
+    </div>
+    <input type="hidden" id="career_goal" value="">
+  </div>
+
+  <!-- DADOS COMPLEMENTARES -->
+  <div class="card">
+    <div class="card-h"><span>🔢</span>Dados complementares (opcionais)</div>
+    <p class="card-sub">Pra IA ter mais material e não gerar `[preencher: ...]` em tudo.</p>
+
+    <div class="grid-2">
+      <div class="field">
+        <label>URL LinkedIn</label>
+        <input type="url" id="linkedin_url" placeholder="https://linkedin.com/in/...">
+      </div>
+      <div class="field">
+        <label>SSI Score atual (0-100)</label>
+        <input type="text" id="ssi_score" placeholder="62 ou 'não medido'">
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="field">
+        <label>Seguidores hoje</label>
+        <input type="text" id="seguidores" placeholder="2.450 ou 'não informado'">
+      </div>
+      <div class="field">
+        <label>Lado humano <span class="label-hint">(família · paixões · causas)</span></label>
+        <input type="text" id="lado_humano" placeholder="Ex: 2 filhos pequenos, corre maratonas, voluntário ERP.ngo">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>3 resultados quantitativos reais <span class="label-hint">(separa por · ou nova linha)</span></label>
+      <textarea id="resultados" rows="3" placeholder="1. Migração SuccessFactors em 280 lojas em 14 meses (Drogaria Venancio)
+2. 99,8% uptime no go-live
+3. R$ 4M de economia anual em payroll automation"></textarea>
+    </div>
+  </div>
+
+  <!-- TRANSCRIÇÃO -->
+  <div class="card">
+    <div class="card-h"><span>🎙️</span>Transcrição da reunião <span style="font-size:10px;color:var(--muted);font-weight:400;margin-left:6px">(opcional · enriquece a geração)</span></div>
+    <p class="card-sub">Se tem a reunião gravada/transcrita, cola aqui. IA combina com as variáveis acima pra dados ainda mais ricos. Se não tem, deixa em branco — as 5 variáveis bastam.</p>
+    <textarea id="transcricao" rows="8" placeholder="Cola aqui o texto da entrevista/conversa com o Voice (opcional)."></textarea>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="copiarPromptV2()">📋 Copiar prompt V2 com variáveis</button>
+    <button class="btn btn-secondary" onclick="abrirClaudeAi()">🚀 Abrir Claude.ai</button>
+  </div>
+  <p style="font-size:11px;color:var(--muted);margin:10px 0 0">💡 Depois de colar no Claude.ai, escreve: <b>"renderiza como artifact"</b>.</p>
+
+  <!-- PREVIEW -->
+  <div class="card" style="margin-top:18px">
+    <details>
+      <summary>👁️ Ver o template completo V2 que vai pro Claude.ai</summary>
+      <pre class="tpl-preview" id="tpl-preview">Carregando…</pre>
+    </details>
+  </div>
+</div>
+
+<div class="toast" id="toast">✓ Prompt copiado!</div>
+
+<office-footer></office-footer>
+<script src="/office-nav.js"></script>
+<script src="/office-footer.js"></script>
+<script>
+let TEMPLATE_RAW = null;
+let VOICES = [];
+
+async function init() {
+  // Template V2 - estatico em public/api/
+  const fontes = ['/api/kit-voice-template-v2.md', '/api/optimizer/template-v2'];
+  for (const url of fontes) {
+    try {
+      const r = await fetch(url + '?t=' + Date.now());
+      if (r.ok) {
+        const txt = await r.text();
+        if (txt && txt.length > 500 && !txt.startsWith('<')) {
+          TEMPLATE_RAW = txt;
+          document.getElementById('tpl-preview').textContent = TEMPLATE_RAW;
+          break;
+        }
+      }
+    } catch (e) {}
+  }
+  if (!TEMPLATE_RAW) {
+    document.getElementById('tpl-preview').textContent = '⚠️ Não consegui carregar template-v2. Verifique se public/api/kit-voice-template-v2.md existe.';
+  }
+
+  // Voices
+  try {
+    const r = await fetch('/api/voices.json?t=' + Date.now());
+    const data = await r.json();
+    VOICES = (data.voices || []).slice();
+    renderVoiceChips();
+  } catch (e) {}
+}
+
+function renderVoiceChips() {
+  const row = document.getElementById('voices-row');
+  const chips = [`<span class="voice-chip active" onclick="selecionarVoice(null,this)" data-id=""><span>📝</span> Voice novo</span>`];
+  VOICES.forEach(v => {
+    chips.push(`<span class="voice-chip" onclick="selecionarVoice('${v.id}',this)" data-id="${v.id}"><span>⭐</span> ${esc(v.nome)}</span>`);
+  });
+  row.innerHTML = chips.join('');
+}
+
+function esc(s) { return String(s == null ? '' : s).replace(/[<>&"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c])); }
+
+function selecionarVoice(slug, el) {
+  document.querySelectorAll('.voice-chip').forEach(c => c.classList.remove('active'));
+  if (el) el.classList.add('active');
+  const v = slug ? VOICES.find(x => x.id === slug) : null;
+  if (!v) return;
+  // Pré-popula campos
+  const set = (id, val) => { const e = document.getElementById(id); if (e && val) e.value = val; };
+  set('voice_name', v.nome);
+  set('current_role', v.cargo);
+  set('target_audience', Array.isArray(v.audiencia) ? v.audiencia.join(' · ') : v.audiencia);
+  set('key_skills', Array.isArray(v.tags) ? v.tags.join(', ') : v.nicho);
+  set('linkedin_url', v.linkedin);
+  set('ssi_score', v.ssi_baseline);
+  set('seguidores', v.seguidores_baseline);
+  set('lado_humano', v.lado_humano);
+  const r = Array.isArray(v.resultados) ? v.resultados : (v.resultados ? [v.resultados] : []);
+  if (r.length) document.getElementById('resultados').value = r.map((x,i) => `${i+1}. ${x}`).join('\n');
+}
+
+function selecionarGoal(goal, el) {
+  document.querySelectorAll('.goal-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('career_goal').value = goal;
+}
+
+function copiarPromptV2() {
+  if (!TEMPLATE_RAW) { alert('Template ainda não carregou (Ctrl+F5).'); return; }
+  // Coleta valores
+  const get = (id) => (document.getElementById(id).value || '').trim();
+  const vars = {
+    voice_name: get('voice_name') || '[preencher: nome do Voice]',
+    current_role: get('current_role') || '[preencher: cargo oficial]',
+    linkedin_url: get('linkedin_url') || '[preencher: URL LinkedIn]',
+    key_skills: get('key_skills') || '[preencher: 3-5 skills]',
+    target_audience: get('target_audience') || '[preencher: público-alvo]',
+    unique_value: get('unique_value') || '[preencher: diferencial]',
+    career_goal: get('career_goal') || '[preencher: objetivo de carreira]',
+    ssi_score: get('ssi_score') || '[preencher: SSI]',
+    seguidores: get('seguidores') || '[preencher: seguidores]',
+    lado_humano: get('lado_humano') || '[preencher: lado humano]',
+    resultados: get('resultados') || '[preencher: 3 resultados quantitativos]',
+    transcricao_opcional: get('transcricao') || '(sem transcrição — usar apenas as variáveis acima)',
+  };
+  // Substitui {{vars}} no template
+  let prompt = TEMPLATE_RAW;
+  Object.keys(vars).forEach(k => {
+    const re = new RegExp('\\{\\{\\s*' + k + '\\s*\\}\\}', 'g');
+    prompt = prompt.replace(re, vars[k]);
+  });
+  navigator.clipboard.writeText(prompt).then(() => {
+    mostrarToast('✓ Prompt V2 copiado! Cola no Claude.ai e diz "renderiza como artifact".');
+  }).catch(err => alert('Erro ao copiar: ' + err.message));
+}
+
+function abrirClaudeAi() { window.open('https://claude.ai/new', '_blank'); }
+
+function mostrarToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 4000);
+}
+
+init();
+</script>
+</body>
+</html>
