@@ -8,7 +8,7 @@
 <style>
   :root {
     --bg: #0a1525; --card: #0f1e35; --text: #e6ebf2; --muted: #869ec3;
-    --border: rgba(134,158,195,.2); --primary: #2563eb; --primary-light: #60a5fa;
+    --border: rgba(134,158,195,.22); --primary: #2563eb; --primary-light: #60a5fa;
     --navy: #001844; --red: #cd1543; --green: #10b981; --yellow: #fcd34d;
   }
   body { margin:0; background:var(--bg); color:var(--text); font-family:'Open Sans',-apple-system,system-ui,sans-serif; font-size:14px; line-height:1.6; }
@@ -20,7 +20,7 @@
   /* HERO — passos */
   .hero { background:linear-gradient(135deg, rgba(0,75,141,0.08), rgba(205,21,67,0.06)); border:1px solid rgba(96,165,250,0.25); border-radius:14px; padding:22px 24px; margin-bottom:22px; }
   .hero h2 { margin:0 0 14px; font-size:16px; color:#fff; font-weight:700; }
-  .steps { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; }
+  .steps { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; }
   .step { background:rgba(0,0,0,0.18); border:1px solid var(--border); border-radius:10px; padding:14px; }
   .step-n { display:inline-block; width:24px; height:24px; line-height:24px; text-align:center; background:var(--navy); color:#fff; border-radius:50%; font-weight:800; font-size:12px; margin-bottom:8px; font-family:'JetBrains Mono',monospace; }
   .step-t { font-weight:700; font-size:13px; margin-bottom:4px; }
@@ -30,6 +30,18 @@
   .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:18px 20px; margin-bottom:14px; }
   .card-h { font-size:14px; font-weight:700; color:#fff; margin:0 0 12px; display:flex; align-items:center; gap:8px; }
   .card-h .ico { font-size:18px; }
+  .card-sub { font-size:12px; color:var(--muted); margin:0 0 12px; line-height:1.55; }
+
+  /* INPUTS */
+  label { display:block; font-size:11px; font-weight:700; color:var(--muted); margin-bottom:5px; text-transform:uppercase; letter-spacing:.04em; }
+  textarea, select, input[type=text], input[type=url] {
+    width:100%; padding:12px 14px; background:rgba(0,0,0,.22); border:1px solid var(--border);
+    border-radius:8px; color:var(--text); font-size:13px; font-family:inherit; line-height:1.55;
+  }
+  textarea { resize:vertical; min-height:200px; font-family:'JetBrains Mono','Consolas',monospace; font-size:12px; }
+  textarea:focus, select:focus, input:focus { outline:2px solid rgba(96,165,250,.5); outline-offset:1px; }
+  .char-counter { font-size:10px; color:var(--muted); margin-top:4px; text-align:right; }
+  .char-counter.ok { color:#6ee7b7; }
 
   /* BOTÕES */
   .btn { font-family:inherit; cursor:pointer; border:none; padding:11px 18px; border-radius:8px; font-weight:700; font-size:13px; transition:opacity .15s, transform .1s; display:inline-flex; align-items:center; gap:8px; }
@@ -38,53 +50,33 @@
   .btn-primary { background:linear-gradient(135deg,var(--navy),var(--primary)); color:#fff; }
   .btn-secondary { background:rgba(96,165,250,.12); color:var(--primary-light); border:1px solid rgba(96,165,250,.3); }
   .btn-success { background:linear-gradient(135deg,var(--green),#059669); color:#fff; }
+  .btn-row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:14px; }
   .btn:disabled { opacity:.4; cursor:not-allowed; }
 
-  /* VOICES LIST */
-  .voices-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:10px; }
-  .voice-card { background:rgba(0,0,0,.18); border:1px solid var(--border); border-radius:10px; padding:14px; cursor:pointer; transition:border-color .15s; }
-  .voice-card:hover { border-color:var(--primary-light); }
-  .voice-card.gerando { border-color:var(--green); background:rgba(16,185,129,.06); }
-  .voice-card .vc-head { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
-  .voice-card .vc-avatar { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:14px; font-family:'Maven Pro','Inter',sans-serif; }
-  .voice-card .vc-name { font-weight:700; font-size:14px; color:#fff; }
-  .voice-card .vc-cargo { font-size:11px; color:var(--muted); }
-  .voice-card .vc-status { display:inline-block; font-size:9px; font-weight:700; padding:2px 7px; border-radius:99px; text-transform:uppercase; letter-spacing:.04em; margin-top:6px; }
-  .vc-status-piloto { background:rgba(251,191,36,.18); color:var(--yellow); }
-  .vc-status-onboarding { background:rgba(96,165,250,.18); color:var(--primary-light); }
-  .vc-status-vaga { background:rgba(134,158,195,.12); color:var(--muted); }
-  .voice-card .vc-pendencias { font-size:10px; color:var(--muted); margin-top:6px; opacity:.85; }
-
-  /* PREVIEW DO TEMPLATE */
-  details { margin-top:14px; }
-  summary { cursor:pointer; font-size:12px; color:var(--primary-light); padding:8px 0; user-select:none; }
-  summary:hover { color:#93c5fd; }
-  pre.tpl-preview { background:rgba(0,0,0,.30); border:1px solid var(--border); border-radius:8px; padding:14px; font-family:'JetBrains Mono',monospace; font-size:11px; line-height:1.55; max-height:400px; overflow:auto; white-space:pre-wrap; word-break:break-word; color:var(--text); }
-
-  /* MODAL */
-  .modal-bg { position:fixed; inset:0; background:rgba(0,0,0,.75); display:none; align-items:center; justify-content:center; z-index:200; padding:24px; }
-  .modal-bg.open { display:flex; }
-  .modal { background:var(--card); border-radius:14px; padding:24px; max-width:680px; width:100%; max-height:88vh; overflow:auto; }
-  .modal h3 { margin:0 0 8px; font-size:18px; color:#fff; }
-  .modal .modal-sub { font-size:13px; color:var(--muted); margin-bottom:18px; }
-  .modal .field { background:rgba(0,0,0,.20); border:1px solid var(--border); border-radius:8px; padding:10px 12px; margin-bottom:8px; font-size:12px; }
-  .modal .field-label { font-weight:700; color:var(--primary-light); margin-bottom:3px; font-size:11px; text-transform:uppercase; letter-spacing:.04em; }
-  .modal .field-value { color:var(--text); font-family:'JetBrains Mono',monospace; font-size:11.5px; word-break:break-word; }
-  .modal .field-empty { color:var(--yellow); font-style:italic; opacity:.8; }
-  .modal-actions { display:flex; gap:10px; margin-top:18px; flex-wrap:wrap; }
+  /* VOICES quick-pick */
+  .voices-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+  .voice-chip { background:rgba(0,0,0,.2); border:1px solid var(--border); border-radius:99px; padding:6px 12px; font-size:12px; cursor:pointer; color:var(--text); transition:all .15s; }
+  .voice-chip:hover { border-color:var(--primary-light); background:rgba(96,165,250,.12); }
+  .voice-chip .ico { margin-right:4px; }
+  .voice-chip.active { background:rgba(96,165,250,.2); border-color:var(--primary-light); color:#fff; }
 
   /* TOAST */
   .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--green); color:#fff; padding:12px 22px; border-radius:8px; font-weight:700; font-size:13px; box-shadow:0 8px 24px rgba(0,0,0,.3); display:none; z-index:300; }
   .toast.show { display:block; animation: slideUp .25s ease-out; }
   @keyframes slideUp { from{ opacity:0; transform:translate(-50%,12px); } to{ opacity:1; transform:translate(-50%,0); } }
+
+  /* PREVIEW */
+  details { margin-top:14px; }
+  summary { cursor:pointer; font-size:12px; color:var(--primary-light); padding:8px 0; user-select:none; }
+  pre.tpl-preview { background:rgba(0,0,0,.30); border:1px solid var(--border); border-radius:8px; padding:14px; font-family:'JetBrains Mono',monospace; font-size:11px; line-height:1.55; max-height:360px; overflow:auto; white-space:pre-wrap; word-break:break-word; color:var(--text); }
 </style>
 </head>
 <body data-route="voices">
 <office-nav></office-nav>
 
 <div class="wrap">
-  <h1>🪪 Profile Optimizer <span class="badge">ZERO TOKENS · 3 PASSOS</span></h1>
-  <div class="sub">Gera o Kit LinkedIn do Voice via <b>artifact do Claude.ai</b> — sem API, sem render local, sem PDF rasterizado. PDF sai institucional direto do artifact.</div>
+  <h1>🪪 Profile Optimizer <span class="badge">v2 · cola transcrição · IA faz tudo</span></h1>
+  <div class="sub">Cola a transcrição da reunião com o Voice abaixo, copia o prompt completo e cola no <b>Claude.ai</b>. A IA extrai os dados, gera o kit já formatado como artifact, com <b>Página 1 = Resumo Executivo</b> (Voice Index 0-100 + tabela de status). PDF sai direto do artifact.</div>
 
   <!-- HERO 3 PASSOS -->
   <div class="hero">
@@ -92,41 +84,59 @@
     <div class="steps">
       <div class="step">
         <div class="step-n">1</div>
-        <div class="step-t">Copia o template</div>
-        <div class="step-d">Clica num Voice abaixo (pré-preenche) OU em "Template em branco".</div>
+        <div class="step-t">Cola a transcrição</div>
+        <div class="step-d">Reunião Teams/Meet/Zoom, notas, áudio transcrito, respostas de roteiro — tudo serve. Mesmo bagunçado, IA separa.</div>
       </div>
       <div class="step">
         <div class="step-n">2</div>
-        <div class="step-t">Cola no Claude.ai</div>
-        <div class="step-d">Abre <a href="https://claude.ai" target="_blank" style="color:var(--primary-light)">claude.ai</a> num chat novo, cola, e diga: <i>"renderiza como artifact"</i>.</div>
+        <div class="step-t">Copia o prompt + cola no Claude.ai</div>
+        <div class="step-d">1 clique copia tudo (template + transcrição). Abre <a href="https://claude.ai/new" target="_blank" style="color:var(--primary-light)">claude.ai</a>, cola, e diz: <i>"renderiza como artifact"</i>.</div>
       </div>
       <div class="step">
         <div class="step-n">3</div>
-        <div class="step-t">Salva PDF</div>
-        <div class="step-d">Claude.ai gera o kit já formatado. Clica em <b>📥 Salvar como PDF</b> dentro do artifact.</div>
+        <div class="step-t">Salva PDF do artifact</div>
+        <div class="step-d">IA gera kit visual com Pág 1 = Voice Index + Resumo + tabela 🔴🟡🟢 de todas mudanças. Botão <b>📥 Salvar PDF</b> está dentro do próprio artifact.</div>
       </div>
     </div>
   </div>
 
-  <!-- VOICES CADASTRADOS -->
+  <!-- VOICE QUICK-PICK -->
   <div class="card">
-    <div class="card-h"><span class="ico">⭐</span>Voices cadastrados — clica pra copiar template pré-preenchido</div>
-    <div class="voices-grid" id="voices-grid">
-      <div style="grid-column:1/-1;text-align:center;color:var(--muted);font-size:12px;padding:14px">Carregando voices…</div>
+    <div class="card-h"><span class="ico">⭐</span>Voice (opcional — pré-popula nome/cargo se cadastrado)</div>
+    <div class="voices-row" id="voices-row">
+      <span class="voice-chip" onclick="selecionarVoice(null,this)"><span class="ico">📝</span>Voice novo (não cadastrado)</span>
     </div>
   </div>
 
-  <!-- TEMPLATE EM BRANCO -->
+  <!-- TRANSCRIÇÃO -->
   <div class="card">
-    <div class="card-h"><span class="ico">📋</span>Voice novo (template em branco)</div>
-    <p style="font-size:13px;color:var(--muted);margin:0 0 14px">Pra Voices que ainda não estão no Office. Você preenche os <code style="background:rgba(0,0,0,.2);padding:1px 6px;border-radius:4px;color:#fcd34d">[CAMPOS]</code> manualmente depois de colar.</p>
-    <button class="btn btn-secondary" onclick="copiarTemplate(null)">📋 Copiar template em branco</button>
+    <div class="card-h"><span class="ico">🎙️</span>Transcrição da reunião com o Voice</div>
+    <p class="card-sub">Cola aqui o texto integral da entrevista/conversa. Se ainda não tem reunião feita: deixa em branco — a IA gera o template com <code style="background:rgba(0,0,0,.25);padding:1px 5px;border-radius:3px;color:#fcd34d">[preencher: ...]</code> em todos os campos pra você completar manual depois.</p>
+    <label for="transcricao">Transcrição</label>
+    <textarea id="transcricao" placeholder="Exemplo:
+
+[Rudá] E aí Anderson, conta um pouco sobre você...
+[Anderson] Cara, eu tô na EPI-USE Brasil desde 2018, sou Delivery Strategic Account, foco em SAP HCM e SuccessFactors. Tenho 2 filhos pequenos, corro maratonas.
+[Rudá] Algum resultado recente que te orgulha?
+[Anderson] Liderei migração SuccessFactors em 280 lojas da Drogaria Venancio em 14 meses, com 99,8% de uptime no go-live...
+[Rudá] SSI hoje?
+[Anderson] 62, vi semana passada.
+...
+
+(quanto mais natural, melhor — IA captura tom, lado humano e resultados)"></textarea>
+    <div class="char-counter" id="char-counter">0 caracteres · cola algo (recomendado +500)</div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="copiarPromptCompleto()">📋 Copiar prompt completo + transcrição</button>
+      <button class="btn btn-secondary" onclick="abrirClaudeAi()">🚀 Abrir Claude.ai</button>
+    </div>
+    <p style="font-size:11px;color:var(--muted);margin:10px 0 0">💡 Depois de colar no Claude.ai, escreve: <b>"renderiza como artifact"</b>. Não precisa anexar nada.</p>
   </div>
 
-  <!-- PREVIEW DO TEMPLATE -->
+  <!-- PREVIEW -->
   <div class="card">
     <details>
-      <summary>👁️ Ver o template completo (pra entender o que vai pro Claude.ai)</summary>
+      <summary>👁️ Ver o template completo que vai pro Claude.ai (sem a transcrição)</summary>
       <pre class="tpl-preview" id="tpl-preview">Carregando…</pre>
     </details>
   </div>
@@ -135,177 +145,129 @@
   <div class="card" style="background:rgba(251,191,36,.04);border-color:rgba(251,191,36,.2)">
     <div class="card-h" style="color:var(--yellow)"><span class="ico">💡</span>Dicas pra um kit melhor</div>
     <ul style="margin:0;padding-left:22px;font-size:13px;line-height:1.7;color:var(--text)">
-      <li><b>Onde tem <code style="background:rgba(0,0,0,.2);padding:1px 5px;border-radius:3px;color:var(--yellow)">[preencher: ...]</code> no kit gerado</b> = dado que faltou. Preencha à mão antes de mandar pro Voice.</li>
-      <li><b>SSI Score:</b> peça pro Voice abrir <a href="https://www.linkedin.com/sales/ssi" target="_blank" style="color:var(--primary-light)">linkedin.com/sales/ssi</a> antes — sem isso o diagnóstico fica genérico.</li>
-      <li><b>Resultados quantitativos:</b> 3 números reais (R$, % ou horas) fazem o kit deixar de parecer template.</li>
-      <li><b>Lado humano:</b> família · maratona · voluntariado — humaniza muito (a IA usa no Sobre).</li>
-      <li><b>Se ChatGPT/Gemini:</b> também funciona, mas exporte o HTML manualmente (não tem artifact nativo).</li>
+      <li><b>Resultados quantitativos</b> (R$, %, horas, # clientes) fazem o kit deixar de parecer template.</li>
+      <li><b>SSI Score:</b> peça pro Voice abrir <a href="https://www.linkedin.com/sales/ssi" target="_blank" style="color:var(--primary-light)">linkedin.com/sales/ssi</a> antes da reunião — sem isso o diagnóstico fica genérico.</li>
+      <li><b>Lado humano</b> (família · maratona · voluntariado · paixão) é o que humaniza o Sobre. Pergunte SEMPRE.</li>
+      <li>Onde tiver <code style="background:rgba(0,0,0,.25);padding:1px 5px;border-radius:3px;color:var(--yellow)">[preencher: ...]</code> no kit gerado = dado que faltou. Edita à mão antes de mandar pro Voice.</li>
+      <li>Se ChatGPT/Gemini em vez de Claude.ai: também funciona, mas o artifact é nativo só do Claude — em outras IAs, salva o HTML em arquivo `.html` local e abre no browser.</li>
     </ul>
   </div>
 </div>
 
-<!-- MODAL DE PREVIEW DO VOICE -->
-<div class="modal-bg" id="modal-bg" onclick="if(event.target===this)fecharModal()">
-  <div class="modal">
-    <h3 id="modal-title">Voice</h3>
-    <div class="modal-sub" id="modal-sub">Estes campos vão pro template. Campos em amarelo viram <code>[preencher: ...]</code> no kit.</div>
-    <div id="modal-fields"></div>
-    <div class="modal-actions">
-      <button class="btn btn-success" id="btn-copy-modal" onclick="copiarTemplateModal()">📋 Copiar template pré-preenchido</button>
-      <button class="btn btn-secondary" onclick="abrirClaudeAi()">🚀 Abrir Claude.ai</button>
-      <button class="btn" style="background:transparent;color:var(--muted)" onclick="fecharModal()">Cancelar</button>
-    </div>
-  </div>
-</div>
-
-<div class="toast" id="toast">✓ Template copiado!</div>
+<div class="toast" id="toast">✓ Prompt copiado!</div>
 
 <office-footer></office-footer>
 <script src="/office-nav.js"></script>
 <script src="/office-footer.js"></script>
 <script>
-// ── ESTADO ─────────────────────────────────────────────
 let TEMPLATE_RAW = null;
 let VOICES = [];
 let SELECTED_VOICE = null;
+const TRANSCRICAO_MARKER = '[Cole aqui a transcrição completa da conversa com o Voice. Pode ser:';
 
-// ── CARREGA TEMPLATE + VOICES ─────────────────────────
 async function init() {
-  // Template
+  // Template canônico
   try {
     const r = await fetch('/api/optimizer/template?t=' + Date.now());
     if (r.ok) {
       TEMPLATE_RAW = await r.text();
       document.getElementById('tpl-preview').textContent = TEMPLATE_RAW;
     } else {
-      document.getElementById('tpl-preview').textContent = '⚠️ Erro ao carregar template — verifique se o servidor tem o endpoint /api/optimizer/template ou se o arquivo vault/00-contexto/prompts/kit-voice-template.md existe.';
+      document.getElementById('tpl-preview').textContent = '⚠️ Endpoint /api/optimizer/template retornou ' + r.status + '. Servidor precisa restart? Verifique vault/00-contexto/prompts/kit-voice-template.md';
     }
   } catch (e) {
     document.getElementById('tpl-preview').textContent = '⚠️ Erro: ' + e.message;
   }
 
-  // Voices
+  // Voices cadastrados
   try {
     const r = await fetch('/api/voices.json?t=' + Date.now());
     const data = await r.json();
     VOICES = (data.voices || []).slice();
-    const vagas = (data.vagas_abertas || []).map(v => ({
-      id: 'vaga-' + v.numero,
-      nome: 'Vaga #' + v.numero,
-      cargo: v.nicho,
-      empresa: 'EPI-USE Brasil',
-      nicho: v.nicho,
-      audiencia: v.audiencia_alvo,
-      status: 'vaga',
-      status_label: 'Vaga aberta',
-      _vaga: true,
-      _perfil_ideal: v.perfil_ideal,
-      avatar_grad: ['#64748b', '#475569']
-    }));
-    renderVoices(VOICES.concat(vagas));
+    renderVoiceChips();
   } catch (e) {
-    document.getElementById('voices-grid').innerHTML = '<div style="color:#fca5a5;font-size:12px">Erro ao carregar voices: ' + e.message + '</div>';
+    console.warn('Falha voices:', e);
   }
+
+  // Counter
+  const ta = document.getElementById('transcricao');
+  ta.addEventListener('input', updateCounter);
+  updateCounter();
 }
 
-function renderVoices(list) {
-  const grid = document.getElementById('voices-grid');
-  if (!list.length) { grid.innerHTML = '<div style="color:var(--muted);font-size:12px">Nenhum voice cadastrado.</div>'; return; }
-  grid.innerHTML = list.map((v, i) => {
-    const grad = (v.avatar_grad || ['#2563eb','#a855f7']).join(', ');
+function updateCounter() {
+  const ta = document.getElementById('transcricao');
+  const len = ta.value.length;
+  const el = document.getElementById('char-counter');
+  el.textContent = len.toLocaleString('pt-BR') + ' caracteres' + (len >= 500 ? ' · ✓ bom volume pra IA extrair' : (len > 0 ? ' · ⚠️ recomendado 500+' : ' · cola algo (recomendado 500+)'));
+  el.classList.toggle('ok', len >= 500);
+}
+
+function renderVoiceChips() {
+  const row = document.getElementById('voices-row');
+  const chips = [`<span class="voice-chip active" onclick="selecionarVoice(null,this)" data-id=""><span class="ico">📝</span>Voice novo (não cadastrado)</span>`];
+  VOICES.forEach(v => {
     const iniciais = (v.nome || '?').split(/\s+/).slice(0,2).map(x => x[0] || '').join('').toUpperCase();
-    const statusCls = v._vaga ? 'vc-status-vaga' : (v.status === 'piloto' ? 'vc-status-piloto' : 'vc-status-onboarding');
-    const pendencias = (v.dados_a_confirmar || []).length;
-    return `<div class="voice-card" onclick="abrirVoice(${i}, ${JSON.stringify(v._vaga||false)})" data-idx="${i}">
-      <div class="vc-head">
-        <div class="vc-avatar" style="background:linear-gradient(135deg, ${grad})">${iniciais}</div>
-        <div style="flex:1">
-          <div class="vc-name">${escapeHtml(v.nome)}</div>
-          <div class="vc-cargo">${escapeHtml(v.cargo || v.nicho || '')}</div>
-        </div>
-      </div>
-      <span class="vc-status ${statusCls}">${escapeHtml(v.status_label || v.status || '')}</span>
-      ${pendencias ? `<div class="vc-pendencias">⚠️ ${pendencias} campo(s) sem dado salvo</div>` : ''}
-    </div>`;
-  }).join('');
-  window._VOICES_LIST = list;
+    chips.push(`<span class="voice-chip" onclick="selecionarVoice('${v.id}',this)" data-id="${v.id}"><span class="ico">⭐</span>${escapeHtml(v.nome)}</span>`);
+  });
+  row.innerHTML = chips.join('');
 }
 
 function escapeHtml(s) { return String(s == null ? '' : s).replace(/[<>&"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c])); }
 
-// ── MODAL ──────────────────────────────────────────────
-function abrirVoice(idx) {
-  const v = window._VOICES_LIST[idx];
-  if (!v) return;
-  SELECTED_VOICE = v;
-  const r = Array.isArray(v.resultados) ? v.resultados : (v.resultados ? [v.resultados] : []);
-  const fields = [
-    ['Nome', v.nome],
-    ['Cargo oficial', v.cargo || v.nicho],
-    ['Área SAP', v.nicho],
-    ['URL LinkedIn', v.linkedin],
-    ['Anos experiência', v.anos_experiencia],
-    ['Data entrada EPI-USE', v.data_entrada_epiuse],
-    ['SSI Score', v.ssi_baseline],
-    ['Seguidores', v.seguidores_baseline],
-    ['Público-alvo', Array.isArray(v.audiencia) ? v.audiencia.join(' · ') : v.audiencia],
-    ['Tom de voz', v.tom_voz],
-    ['Lado humano', v.lado_humano],
-    ['Resultado #1', r[0]],
-    ['Resultado #2', r[1]],
-    ['Resultado #3', r[2]],
-  ];
-  document.getElementById('modal-title').textContent = '🪪 ' + (v.nome || 'Voice');
-  document.getElementById('modal-fields').innerHTML = fields.map(([lbl, val]) => {
-    const empty = !val || val === '';
-    return `<div class="field">
-      <div class="field-label">${escapeHtml(lbl)}</div>
-      <div class="field-value ${empty ? 'field-empty' : ''}">${empty ? '⚠️ vazio · vai virar [preencher: ' + lbl.toLowerCase() + '] no template' : escapeHtml(val)}</div>
-    </div>`;
-  }).join('');
-  document.getElementById('modal-bg').classList.add('open');
+function selecionarVoice(slug, el) {
+  document.querySelectorAll('.voice-chip').forEach(c => c.classList.remove('active'));
+  if (el) el.classList.add('active');
+  SELECTED_VOICE = slug ? VOICES.find(v => v.id === slug) : null;
+  // Auto-prepara um cabeçalho na transcrição se Voice cadastrado e textarea vazia
+  const ta = document.getElementById('transcricao');
+  if (SELECTED_VOICE && !ta.value.trim()) {
+    const v = SELECTED_VOICE;
+    const r = Array.isArray(v.resultados) ? v.resultados : [];
+    ta.value = `=== DADOS JÁ CADASTRADOS NO OFFICE ===
+Nome: ${v.nome || '[preencher]'}
+Cargo: ${v.cargo || '[preencher]'}
+Área SAP: ${v.nicho || '[preencher]'}
+LinkedIn: ${v.linkedin || '[preencher]'}
+SSI atual: ${v.ssi_baseline || '[a coletar]'}
+Seguidores: ${v.seguidores_baseline || '[a coletar]'}
+Público-alvo: ${Array.isArray(v.audiencia) ? v.audiencia.join(' · ') : (v.audiencia || '[preencher]')}
+Tom de voz: ${v.tom_voz || '[a definir na reunião]'}
+Lado humano: ${v.lado_humano || '[a coletar]'}
+Resultados:
+${r.length ? r.map((x,i)=>`  ${i+1}. ${x}`).join('\n') : '  [a coletar na reunião]'}
+
+=== TRANSCRIÇÃO DA REUNIÃO ===
+[cole aqui a conversa com o Voice — quanto mais natural, melhor]
+`;
+    updateCounter();
+  }
 }
 
-function fecharModal() { document.getElementById('modal-bg').classList.remove('open'); }
-
-// ── COPIAR TEMPLATE ────────────────────────────────────
-function preencherTemplate(v) {
-  if (!TEMPLATE_RAW) return null;
-  let t = TEMPLATE_RAW;
-  const r = v ? (Array.isArray(v.resultados) ? v.resultados : (v.resultados ? [v.resultados] : [])) : [];
-  const sub = (placeholder, val) => {
-    const replacement = (val && String(val).trim()) ? String(val).trim() : `[preencher: ${placeholder.toLowerCase()}]`;
-    t = t.replace('[' + placeholder + ']', replacement);
-  };
-  sub('NOME', v && v.nome);
-  sub('CARGO NA EPI-USE BRASIL — ex: Delivery Strategic Account', v && (v.cargo || v.nicho));
-  sub('HCM/SuccessFactors | S/4HANA | BTP | Signavio | ServiceNow | Cross', v && v.nicho);
-  sub('https://linkedin.com/in/...', v && v.linkedin);
-  sub('N anos', v && v.anos_experiencia);
-  sub('YYYY-MM ou ano aproximado', v && v.data_entrada_epiuse);
-  sub('0-100 ou "não medido — pedir ao Voice verificar em linkedin.com/sales/ssi"', v && v.ssi_baseline);
-  sub('número ou "não informado"', v && v.seguidores_baseline);
-  sub('CHROs · CIOs · Diretores RH · etc', v && (Array.isArray(v.audiencia) ? v.audiencia.join(' · ') : v.audiencia));
-  sub('didático | provocador | executivo | técnico-acessível | equilibrado', v && v.tom_voz);
-  sub('família · paixões · causas — ou "não informado"', v && v.lado_humano);
-  sub('Ex: Migração SuccessFactors em 280 lojas em 14 meses na Drogaria Venancio', r[0]);
-  sub('...', r[1]);  // 1ª ocorrência
-  sub('...', r[2]);  // 2ª ocorrência
-  return t;
-}
-
-function copiarTemplate(v) {
-  if (!TEMPLATE_RAW) { alert('Template ainda não carregou. Recarrega a página.'); return; }
-  const txt = v ? preencherTemplate(v) : TEMPLATE_RAW;
-  navigator.clipboard.writeText(txt).then(() => {
-    mostrarToast(v ? `✓ Template do ${v.nome} copiado! Agora cole no Claude.ai.` : '✓ Template em branco copiado!');
+function copiarPromptCompleto() {
+  if (!TEMPLATE_RAW) {
+    alert('Template ainda não carregou. Recarrega a página (Ctrl+F5).');
+    return;
+  }
+  const transcricao = document.getElementById('transcricao').value.trim();
+  // Injeta a transcrição no template (substitui o bloco placeholder)
+  let prompt = TEMPLATE_RAW;
+  const blocoPlaceholder = /```\s*\n\[Cole aqui a transcrição completa[\s\S]*?manualmente depois com o Voice\.\s*\n```/;
+  if (blocoPlaceholder.test(prompt)) {
+    if (transcricao) {
+      prompt = prompt.replace(blocoPlaceholder, '```\n' + transcricao + '\n```');
+    }
+    // Se transcrição vazia, mantém o placeholder original (IA gera template em branco)
+  } else {
+    // Fallback: anexa no final
+    prompt += '\n\n## TRANSCRIÇÃO (cola aqui)\n\n```\n' + transcricao + '\n```\n';
+  }
+  navigator.clipboard.writeText(prompt).then(() => {
+    const msg = transcricao
+      ? '✓ Prompt + transcrição copiados! Agora cola no Claude.ai e diz "renderiza como artifact".'
+      : '✓ Template em branco copiado (sem transcrição — IA vai gerar com [preencher: ...] em tudo).';
+    mostrarToast(msg);
   }).catch(err => alert('Erro ao copiar: ' + err.message));
-}
-
-function copiarTemplateModal() {
-  if (!SELECTED_VOICE) return;
-  copiarTemplate(SELECTED_VOICE);
-  fecharModal();
 }
 
 function abrirClaudeAi() { window.open('https://claude.ai/new', '_blank'); }
@@ -314,7 +276,7 @@ function mostrarToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
+  setTimeout(() => t.classList.remove('show'), 4000);
 }
 
 init();
