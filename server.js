@@ -377,7 +377,17 @@ const inboundGenLimiter = rateLimit({
 // ── ROTAS DO OFFICE ENGINE ────────────────────────────────────────────────────
 const OPTIMIZER_PATH = path.join(__dirname, 'public/optimizer.html');
 app.get('/optimizer', (req, res) => res.sendFile(OPTIMIZER_PATH));
-app.get('/optimizer-standalone', (req, res) => res.sendFile(path.join(__dirname, 'public/optimizer-standalone.html')));
+
+// SPRINT 9.1 — serve o template canônico do prompt (fonte da verdade no vault)
+app.get('/api/optimizer/template', (req, res) => {
+  try {
+    const tplPath = path.join(__dirname, 'vault/00-contexto/prompts/kit-voice-template.md');
+    if (!fs.existsSync(tplPath)) return res.status(404).type('text/plain').send('Template não encontrado em ' + tplPath);
+    res.type('text/markdown; charset=utf-8').sendFile(tplPath);
+  } catch (e) {
+    res.status(500).type('text/plain').send('Erro: ' + e.message);
+  }
+});
 
 // Páginas v3.0 — servem do public/ em qualquer ambiente
 const PAINEL_PATH     = path.join(__dirname, 'public/painel.html');

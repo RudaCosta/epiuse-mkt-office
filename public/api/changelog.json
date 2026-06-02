@@ -1,7 +1,10 @@
 {
-  "current": "0.9.1",
-  "atualizado_em": "2026-06-01",
+  "current": "0.9.2",
+  "atualizado_em": "2026-06-02",
   "releases": [
+    { "version": "0.9.2", "date": "02/jun/2026", "status": "snapshot", "path": null,
+      "title": "Optimizer SIMPLIFICADO — 1 template .md · IA gera artifact final",
+      "summary": "Refundação inteira do Optimizer pra ficar fácil: 1 template canônico em vault/00-contexto/prompts/kit-voice-template.md · Office /optimizer vira página com 3 passos (copia → cola no Claude.ai → salva PDF) · clica num Voice cadastrado e copia template já pré-preenchido · IA gera o HTML artifact JÁ formatado (navy #001844 + red #cd1543) · PDF sai do próprio artifact via window.print · ZERO JSON · ZERO render local · ZERO chamada API · de 3.500 linhas pra ~400 no optimizer.html · removido optimizer-standalone.html (não funcionava)" },
     { "version": "0.9.1", "date": "01/jun/2026", "status": "snapshot", "path": null,
       "title": "Optimizer ZERO TOKENS — fluxo copia-prompt → cola-JSON",
       "summary": "Removidas TODAS chamadas API do Optimizer (não gasta mais token Anthropic) · botão 'Analisar aqui' removido · botão 'Extrair com Claude' agora abre prompt pronto pra colar em qualquer IA (Claude/ChatGPT/Gemini/Perplexity) · modal Prompt Lab ganha 2 painéis (esquerda: prompt copiável · direita: textarea pra colar JSON da resposta) · botão 'Renderizar Kit' parsea JSON e usa renderKit existente · time MKT processa em qualquer IA externa · Office vira coletor + renderizador + PDF institucional" },
