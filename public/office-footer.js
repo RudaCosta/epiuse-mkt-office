@@ -3,7 +3,7 @@
 // Status do sistema + versão atual + dropdown de versões anteriores
 // ════════════════════════════════════════════════════════════════════════════
 
-const OFFICE_FOOTER_VERSION = '0.9.4';
+const OFFICE_FOOTER_VERSION = '0.9.5';
 const OFFICE_FOOTER_BUILD = '2026-06-02';
 
 // Schema semver pré-1.0 — explicação em vault/00-contexto/versioning.md
