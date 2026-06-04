@@ -575,8 +575,9 @@ app.post('/api/workflows/:slug/run', express.json(), (req, res) => {
       const titulo = fillTpl(step.titulo_template, vars);
       const pedido = fillTpl(step.pedido_template, vars);
       const inboxDir = path.join(__dirname, 'vault/workspaces', step.agente, 'inbox');
-      if (!fs.existsSync(inboxDir)) {
-        erros.push({ step: step.id, agente: step.agente, motivo: 'workspace inexistente' });
+      try { fs.mkdirSync(inboxDir, { recursive: true }); }
+      catch (e) {
+        erros.push({ step: step.id, agente: step.agente, motivo: 'mkdir falhou: ' + e.message });
         continue;
       }
       const safeSlug = (titulo || step.id).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40);
