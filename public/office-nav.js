@@ -60,6 +60,7 @@ const OFFICE_NAV_BREADCRUMBS = {
 const OFFICE_NAV_OVERFLOW = [
   { section: '🤖 Escritório Virtual' },
   { label: '🤖 Agentes & Contexto',      href: '/agentes' },
+  { label: '🤝 Cowork (workflows)',      href: '/cowork' },
   { label: '⚡ War Room (pendências)',    href: '/war-room' },
 
   { section: '📊 Reports & Análises' },

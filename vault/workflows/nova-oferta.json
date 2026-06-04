@@ -1,0 +1,41 @@
+{
+  "slug": "nova-oferta",
+  "nome": "Nova oferta: criativos + LP + plano de mídia",
+  "descricao": "Lançamento de oferta/campanha: criativos + landing page + plano de mídia em paralelo, depois proposta comercial",
+  "categoria": "campanha",
+  "estimativa_min": 90,
+  "owner_humano": "Rudá",
+  "inputs": [
+    { "key": "oferta", "label": "Nome da oferta", "tipo": "text", "obrigatorio": true },
+    { "key": "publico", "label": "Público-alvo", "tipo": "textarea", "obrigatorio": true },
+    { "key": "promessa", "label": "Promessa central", "tipo": "textarea", "obrigatorio": true },
+    { "key": "url_ref", "label": "URL referência (concorrente/inspiração)", "tipo": "text", "obrigatorio": false }
+  ],
+  "steps": [
+    {
+      "id": "criativos",
+      "agente": "criativos",
+      "titulo_template": "Criativos oferta: {{oferta}}",
+      "pedido_template": "## Oferta\n{{oferta}}\n\n## Público\n{{publico}}\n\n## Promessa\n{{promessa}}\n\nEntregar: 3 copies (curto/médio/longo) + briefing visual de 2 estáticos + 1 vídeo 15s."
+    },
+    {
+      "id": "lp",
+      "agente": "landing-pages",
+      "titulo_template": "LP oferta: {{oferta}}",
+      "pedido_template": "LP single-file (HTML/CSS/JS vanilla) para a oferta `{{oferta}}`.\n\nPúblico: {{publico}}\nPromessa: {{promessa}}\n\nSeções: hero · prova social · benefícios · objeções · formulário · footer.\nMobile-first. Paleta EPI-USE."
+    },
+    {
+      "id": "campanha",
+      "agente": "campanhas",
+      "titulo_template": "Plano de mídia: {{oferta}}",
+      "pedido_template": "Plano de mídia paga pra oferta `{{oferta}}`.\n\nPúblico: {{publico}}\nReferência (se houver): {{url_ref}}\n\nEntregar: estrutura de funil · canais sugeridos (Meta/LinkedIn) · budget mínimo viável · KPIs."
+    },
+    {
+      "id": "proposta",
+      "agente": "propostas",
+      "depende_de": ["criativos", "lp", "campanha"],
+      "titulo_template": "Proposta lançamento: {{oferta}}",
+      "pedido_template": "Proposta comercial consolidada da oferta `{{oferta}}`, integrando entregas de `criativos`, `landing-pages` e `campanhas` do workflow `{{workflow_run_id}}`.\n\nEstrutura: escopo · investimento · prazo · diferenciais EPI-USE."
+    }
+  ]
+}

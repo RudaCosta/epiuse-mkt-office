@@ -1,7 +1,10 @@
 {
-  "current": "0.9.5",
-  "atualizado_em": "2026-06-03",
+  "current": "0.10.0",
+  "atualizado_em": "2026-06-04",
   "releases": [
+    { "version": "0.10.0", "date": "04/jun/2026", "status": "snapshot", "path": null,
+      "title": "SPRINT 14 — Cowork + workflows dinâmicos entre agentes",
+      "summary": "Nova área /cowork onde agentes trabalham em cadeia · workflows definidos em JSON (vault/workflows/*.json) com inputs tipados + steps + dependências (`depende_de`) · POST /api/workflows/:slug/run cria pedidos encadeados em cada inbox com run_id compartilhado · feed unificado /api/cowork/atividade (todos inboxes+outboxes ordenados por mtime) · histórico em /api/cowork/runs · UI com 3 tabs (Workflows · Atividade · Em andamento) · 2 workflows seed: `criar-artigo` (pipe-briefing → pipe-artigo → pipe-capa+carrossel+copy-li paralelos) e `nova-oferta` (criativos+lp+campanhas → propostas) · link no overflow nav · runs gravados em vault/cowork-runs/" },
     { "version": "0.9.5", "date": "03/jun/2026", "status": "snapshot", "path": null,
       "title": "Padrão visual Anderson Costa aplicado nos 2 Optimizers (V1 + V2)",
       "summary": "Templates V1 (transcrição livre) e V2 (findskill) agora geram HTML seguindo EXATO o padrão visual do kit Anderson Costa: tema dark navy #0d1b2e · fonte Inter · print-bar fixa com botão Salvar PDF · cover com badge + h1 + meta-pills · progress-wrap · cards com section-title + step-num · status-table com badges urgent/normal/ok · copy-block azul com btn-copy · highlight-urgent/info/warning · howto-list numerada · criteria-list com ✓ · field-table · skills-grid 2 cols (remove/add) · checklist interativo com localStorage · footer · @media print A4 mantendo dark. CSS inteiro embedded nos templates como referência obrigatória. Referência preservada em vault/00-contexto/prompts/PADRAO-VISUAL-anderson-costa-kit-linkedin.html" },

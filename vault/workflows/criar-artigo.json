@@ -1,0 +1,50 @@
+{
+  "slug": "criar-artigo",
+  "nome": "Criar artigo + carrossel + copy LinkedIn",
+  "descricao": "Pipeline editorial completa: briefing estruturado → artigo blog → capa + carrossel + copy LI em paralelo",
+  "categoria": "conteudo",
+  "estimativa_min": 45,
+  "owner_humano": "Duda",
+  "inputs": [
+    { "key": "tema", "label": "Tema central do artigo", "tipo": "text", "obrigatorio": true, "exemplo": "Clean Core em S/4HANA — armadilhas comuns" },
+    { "key": "lob", "label": "LOB / linha de negócio", "tipo": "select", "opcoes": ["SAP HCM", "SAP S/4HANA", "BTP", "ERP.ngo", "Cross"], "obrigatorio": true },
+    { "key": "voice", "label": "Voice protagonista (opcional)", "tipo": "text", "obrigatorio": false },
+    { "key": "angulo", "label": "Ângulo / opinião forte", "tipo": "textarea", "obrigatorio": true }
+  ],
+  "steps": [
+    {
+      "id": "briefing",
+      "agente": "pipe-briefing",
+      "titulo_template": "Briefing: {{tema}}",
+      "pedido_template": "## Tema\n{{tema}}\n\n## LOB\n{{lob}}\n\n## Voice protagonista\n{{voice}}\n\n## Ângulo\n{{angulo}}\n\n## Entregar\nBriefing estruturado (audience, dor, promessa, 5 H2, fontes sugeridas, CTA)."
+    },
+    {
+      "id": "artigo",
+      "agente": "pipe-artigo",
+      "depende_de": ["briefing"],
+      "titulo_template": "Artigo blog: {{tema}}",
+      "pedido_template": "Escrever artigo blog (~1.200 palavras) baseado no briefing entregue por `pipe-briefing` no workflow `{{workflow_run_id}}`.\n\nTema: {{tema}}\nLOB: {{lob}}\n\nEntregar:\n- Título H1 + 2 alternativas\n- Lead (50-80 palavras)\n- Corpo com 5 H2\n- CTA final EPI-USE Voices"
+    },
+    {
+      "id": "capa",
+      "agente": "pipe-capa",
+      "depende_de": ["artigo"],
+      "titulo_template": "Capa blog: {{tema}}",
+      "pedido_template": "Briefing visual da capa do artigo `{{tema}}` (LOB {{lob}}).\n\nFormato: 1200x630 (blog hero).\nPaleta: Navy #001844 + Red #cd1543.\nReferenciar entrega de `pipe-artigo` no workflow `{{workflow_run_id}}`."
+    },
+    {
+      "id": "carrossel",
+      "agente": "pipe-carrossel",
+      "depende_de": ["artigo"],
+      "titulo_template": "Carrossel LI: {{tema}}",
+      "pedido_template": "Adaptar artigo `{{tema}}` em carrossel LinkedIn 10 slides (1080x1350).\n\nLOB: {{lob}}\nFonte: entrega de `pipe-artigo` no workflow `{{workflow_run_id}}`."
+    },
+    {
+      "id": "copy-li",
+      "agente": "pipe-copy-li",
+      "depende_de": ["artigo"],
+      "titulo_template": "Copy LI: {{tema}}",
+      "pedido_template": "Copy de post LinkedIn pra ancorar o carrossel `{{tema}}`.\n\n3 variações: (1) hook provocador, (2) história/case, (3) dado/insight.\nVoice: {{voice}}\nLOB: {{lob}}"
+    }
+  ]
+}

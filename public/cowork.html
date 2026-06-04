@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🤝 Cowork · Workflows entre agentes · EPI-USE Office</title>
+<link rel="stylesheet" href="/design-tokens.css">
+<style>
+  body { margin:0; background:var(--color-bg,#0a1525); color:var(--color-text,#e6ebf2); font-family:'Open Sans',Arial,sans-serif; }
+  .wrap { max-width:1280px; margin:0 auto; padding:18px 16px 60px; }
+  h1 { font-size:22px; margin:6px 0 2px; }
+  .sub { font-size:13px; color:var(--color-text-muted,#869ec3); margin-bottom:18px; }
+  .tabs { display:flex; gap:6px; margin:14px 0 18px; border-bottom:1px solid var(--color-border,rgba(134,158,195,.18)); }
+  .tab { padding:9px 16px; font-size:13px; font-weight:700; cursor:pointer; color:var(--color-text-muted,#869ec3); border-bottom:2px solid transparent; }
+  .tab.active { color:var(--color-info-500,#60a5fa); border-bottom-color:var(--color-info-500,#60a5fa); }
+  .tab .badge { display:inline-block; margin-left:6px; background:rgba(96,165,250,.18); color:#93c5fd; padding:1px 7px; border-radius:99px; font-size:10px; font-family:'JetBrains Mono',monospace; }
+  .pane { display:none; }
+  .pane.active { display:block; }
+  /* workflow card */
+  .wf-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(360px,1fr)); gap:14px; }
+  .wf { background:var(--color-surface,#0f1e35); border:1px solid var(--color-border,rgba(134,158,195,.18)); border-radius:14px; padding:16px; }
+  .wf h3 { margin:0 0 6px; font-size:15px; }
+  .wf .desc { font-size:12.5px; color:var(--color-text-dim,#c0ccd9); line-height:1.5; margin-bottom:10px; }
+  .wf .meta { display:flex; gap:8px; flex-wrap:wrap; font-size:10.5px; font-family:'JetBrains Mono',monospace; color:var(--color-text-muted,#869ec3); margin-bottom:12px; }
+  .wf .meta span { background:rgba(134,158,195,.08); padding:3px 8px; border-radius:6px; }
+  .wf .steps { font-size:11px; color:var(--color-text-muted,#869ec3); margin-bottom:14px; }
+  .wf .step-pill { display:inline-block; background:rgba(96,165,250,.1); color:#93c5fd; padding:3px 8px; border-radius:99px; margin:2px 4px 2px 0; font-family:'JetBrains Mono',monospace; font-size:10px; }
+  .btn { display:inline-block; cursor:pointer; padding:8px 16px; font-size:12px; font-weight:700; border-radius:8px; border:none; background:var(--color-info-500,#60a5fa); color:#0a1525; }
+  .btn.ghost { background:transparent; border:1px solid var(--color-border,rgba(134,158,195,.3)); color:var(--color-text,#e6ebf2); }
+  .btn:hover { opacity:.85; }
+  /* feed atividade */
+  .feed { display:flex; flex-direction:column; gap:6px; }
+  .ev { display:flex; align-items:center; gap:10px; padding:10px 12px; background:var(--color-surface,#0f1e35); border:1px solid var(--color-border,rgba(134,158,195,.14)); border-radius:8px; font-size:12px; }
+  .ev .tipo { font-size:10px; font-family:'JetBrains Mono',monospace; padding:2px 7px; border-radius:5px; font-weight:700; }
+  .ev .tipo.inbox { background:rgba(251,191,36,.14); color:#fcd34d; }
+  .ev .tipo.outbox { background:rgba(16,185,129,.14); color:#6ee7b7; }
+  .ev .ag { font-family:'JetBrains Mono',monospace; font-size:11px; color:#93c5fd; min-width:140px; }
+  .ev .arq { flex:1; color:var(--color-text-dim,#c0ccd9); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .ev .when { font-size:10.5px; color:var(--color-text-muted,#869ec3); font-family:'JetBrains Mono',monospace; }
+  /* runs */
+  .run { background:var(--color-surface,#0f1e35); border:1px solid var(--color-border,rgba(134,158,195,.18)); border-radius:12px; padding:14px; margin-bottom:10px; }
+  .run .hdr { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .run .id { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--color-text-muted,#869ec3); }
+  .run .steps-row { display:flex; flex-wrap:wrap; gap:5px; margin-top:8px; }
+  /* modal */
+  .modal { position:fixed; inset:0; background:rgba(0,0,0,.7); display:none; align-items:center; justify-content:center; z-index:9999; padding:20px; }
+  .modal.open { display:flex; }
+  .modal-box { background:var(--color-bg,#0a1525); border:1px solid var(--color-border,rgba(134,158,195,.3)); border-radius:14px; padding:20px; max-width:540px; width:100%; max-height:90vh; overflow:auto; }
+  .modal-box h2 { margin:0 0 14px; font-size:17px; }
+  .field { margin-bottom:12px; }
+  .field label { display:block; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--color-text-muted,#869ec3); margin-bottom:5px; }
+  .field label .req { color:#fca5a5; }
+  .field input, .field textarea, .field select { width:100%; box-sizing:border-box; padding:9px 11px; font-size:13px; font-family:inherit; background:var(--color-surface,#0f1e35); border:1px solid var(--color-border,rgba(134,158,195,.2)); border-radius:7px; color:var(--color-text,#e6ebf2); }
+  .field textarea { min-height:70px; resize:vertical; }
+  .field .help { font-size:11px; color:var(--color-text-muted,#869ec3); margin-top:4px; }
+  .actions { display:flex; gap:8px; justify-content:flex-end; margin-top:16px; }
+  .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#10b981; color:white; padding:12px 20px; border-radius:8px; font-size:13px; font-weight:700; z-index:10000; display:none; box-shadow:0 6px 20px rgba(0,0,0,.3); }
+  .toast.show { display:block; }
+  .toast.err { background:#ef4444; }
+  .empty { padding:40px 20px; text-align:center; color:var(--color-text-muted,#869ec3); font-size:13px; }
+</style>
+</head>
+<body>
+<office-nav></office-nav>
+<div class="wrap">
+  <h1>🤝 Cowork</h1>
+  <p class="sub">Espaço onde os agentes trabalham juntos. Workflows pré-definidos disparam pedidos em cadeia nos inboxes corretos · feed unificado de atividade em tempo real.</p>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="workflows">Workflows</div>
+    <div class="tab" data-tab="atividade">Atividade <span class="badge" id="badgeAtiv">·</span></div>
+    <div class="tab" data-tab="runs">Em andamento <span class="badge" id="badgeRuns">·</span></div>
+  </div>
+
+  <div id="pane-workflows" class="pane active">
+    <div class="wf-grid" id="wfGrid"><p class="sub">Carregando workflows…</p></div>
+  </div>
+  <div id="pane-atividade" class="pane">
+    <div class="feed" id="feed"><p class="sub">Carregando feed…</p></div>
+  </div>
+  <div id="pane-runs" class="pane">
+    <div id="runsList"><p class="sub">Carregando runs…</p></div>
+  </div>
+</div>
+
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <h2 id="modalTitle">Disparar workflow</h2>
+    <div id="modalFields"></div>
+    <div class="actions">
+      <button class="btn ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn" id="btnRun">🚀 Disparar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<office-footer></office-footer>
+<script src="/office-nav.js"></script>
+<script src="/office-footer.js"></script>
+<script>
+var WORKFLOWS = [];
+var CURRENT_WF = null;
+
+function showToast(msg, err){
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (err ? ' err' : '');
+  setTimeout(function(){ t.className = 'toast'; }, 3500);
+}
+
+function esc(s){ return String(s||'').replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+
+function tab(name){
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.toggle('active', t.dataset.tab === name); });
+  document.querySelectorAll('.pane').forEach(function(p){ p.classList.toggle('active', p.id === 'pane-' + name); });
+  if (name === 'atividade') loadAtividade();
+  if (name === 'runs') loadRuns();
+}
+document.querySelectorAll('.tab').forEach(function(t){ t.addEventListener('click', function(){ tab(t.dataset.tab); }); });
+
+async function loadWorkflows(){
+  try {
+    var r = await fetch('/api/workflows?t=' + Date.now());
+    WORKFLOWS = await r.json();
+    var grid = document.getElementById('wfGrid');
+    if (!WORKFLOWS.length) { grid.innerHTML = '<p class="empty">Nenhum workflow definido em <code>vault/workflows/</code></p>'; return; }
+    grid.innerHTML = WORKFLOWS.map(function(wf){
+      var stepsHtml = (wf.steps || []).map(function(s){
+        var dep = s.depende_de && s.depende_de.length ? ' ⛓️' : '';
+        return '<span class="step-pill">' + esc(s.agente) + dep + '</span>';
+      }).join('');
+      return '<div class="wf">'
+        + '<h3>' + esc(wf.nome) + '</h3>'
+        + '<div class="desc">' + esc(wf.descricao || '') + '</div>'
+        + '<div class="meta">'
+          + '<span>📂 ' + esc(wf.categoria || '-') + '</span>'
+          + '<span>⏱️ ~' + (wf.estimativa_min || '?') + ' min</span>'
+          + '<span>👤 ' + esc(wf.owner_humano || '-') + '</span>'
+          + '<span>🔢 ' + (wf.steps || []).length + ' steps</span>'
+        + '</div>'
+        + '<div class="steps">' + stepsHtml + '</div>'
+        + '<button class="btn" onclick="openModal(\'' + wf.slug + '\')">🚀 Disparar workflow</button>'
+        + '</div>';
+    }).join('');
+  } catch (e) {
+    document.getElementById('wfGrid').innerHTML = '<p class="empty">Erro ao carregar workflows: ' + esc(e.message) + '</p>';
+  }
+}
+
+function openModal(slug){
+  var wf = WORKFLOWS.find(function(w){ return w.slug === slug; });
+  if (!wf) return;
+  CURRENT_WF = wf;
+  document.getElementById('modalTitle').textContent = '🚀 ' + wf.nome;
+  document.getElementById('modalFields').innerHTML = (wf.inputs || []).map(function(inp){
+    var req = inp.obrigatorio ? ' <span class="req">*</span>' : '';
+    var help = inp.exemplo ? '<div class="help">Ex: ' + esc(inp.exemplo) + '</div>' : '';
+    var input;
+    if (inp.tipo === 'textarea') input = '<textarea data-key="' + inp.key + '"></textarea>';
+    else if (inp.tipo === 'select') input = '<select data-key="' + inp.key + '"><option value="">— escolha —</option>' + (inp.opcoes || []).map(function(o){ return '<option>' + esc(o) + '</option>'; }).join('') + '</select>';
+    else input = '<input type="text" data-key="' + inp.key + '">';
+    return '<div class="field"><label>' + esc(inp.label) + req + '</label>' + input + help + '</div>';
+  }).join('');
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal(){ document.getElementById('modal').classList.remove('open'); CURRENT_WF = null; }
+window.openModal = openModal;
+window.closeModal = closeModal;
+
+document.getElementById('btnRun').addEventListener('click', async function(){
+  if (!CURRENT_WF) return;
+  var inputs = {};
+  document.querySelectorAll('#modalFields [data-key]').forEach(function(el){ inputs[el.dataset.key] = el.value.trim(); });
+  try {
+    var r = await fetch('/api/workflows/' + CURRENT_WF.slug + '/run', {
+      method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(inputs)
+    });
+    var data = await r.json();
+    if (!r.ok) { showToast('Erro: ' + (data.error || 'falhou') + (data.faltam ? ' (' + data.faltam.join(', ') + ')' : ''), true); return; }
+    showToast('✓ Workflow disparado · ' + data.criados.length + ' pedidos criados');
+    closeModal();
+    setTimeout(function(){ tab('runs'); }, 800);
+  } catch (e) {
+    showToast('Erro de rede: ' + e.message, true);
+  }
+});
+
+async function loadAtividade(){
+  try {
+    var r = await fetch('/api/cowork/atividade?t=' + Date.now());
+    var evs = await r.json();
+    document.getElementById('badgeAtiv').textContent = evs.length;
+    var feed = document.getElementById('feed');
+    if (!evs.length) { feed.innerHTML = '<p class="empty">Nenhuma atividade nos workspaces ainda. Dispare um workflow na aba ao lado.</p>'; return; }
+    feed.innerHTML = evs.map(function(e){
+      var when = new Date(e.modificado);
+      var hora = when.toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+      return '<div class="ev">'
+        + '<span class="tipo ' + e.tipo + '">' + (e.tipo === 'inbox' ? '📥' : '📤') + ' ' + e.tipo + '</span>'
+        + '<span class="ag">' + esc(e.agente) + '</span>'
+        + '<span class="arq">' + esc(e.arquivo) + '</span>'
+        + '<span class="when">' + hora + '</span>'
+        + '</div>';
+    }).join('');
+  } catch (e) {
+    document.getElementById('feed').innerHTML = '<p class="empty">Erro: ' + esc(e.message) + '</p>';
+  }
+}
+
+async function loadRuns(){
+  try {
+    var r = await fetch('/api/cowork/runs?t=' + Date.now());
+    var runs = await r.json();
+    document.getElementById('badgeRuns').textContent = runs.length;
+    var list = document.getElementById('runsList');
+    if (!runs.length) { list.innerHTML = '<p class="empty">Nenhum workflow disparado ainda.</p>'; return; }
+    list.innerHTML = runs.map(function(run){
+      var stepsRow = (run.criados || []).map(function(c){
+        return '<span class="step-pill">' + esc(c.agente) + ' · ' + esc(c.step) + '</span>';
+      }).join('');
+      var when = new Date(run.criado_em).toLocaleString('pt-BR');
+      return '<div class="run">'
+        + '<div class="hdr"><strong>' + esc(run.workflow_nome) + '</strong><span class="id">' + esc(run.run_id) + '</span></div>'
+        + '<div style="font-size:11.5px;color:var(--color-text-muted,#869ec3)">disparado em ' + when + ' · ' + (run.criados || []).length + ' pedidos criados' + ((run.erros && run.erros.length) ? ' · <span style="color:#fca5a5">' + run.erros.length + ' erros</span>' : '') + '</div>'
+        + '<div class="steps-row">' + stepsRow + '</div>'
+        + '</div>';
+    }).join('');
+  } catch (e) {
+    document.getElementById('runsList').innerHTML = '<p class="empty">Erro: ' + esc(e.message) + '</p>';
+  }
+}
+
+loadWorkflows();
+loadAtividade();
+loadRuns();
+setInterval(function(){
+  var active = document.querySelector('.tab.active').dataset.tab;
+  if (active === 'atividade') loadAtividade();
+  if (active === 'runs') loadRuns();
+}, 8000);
+</script>
+</body>
+</html>

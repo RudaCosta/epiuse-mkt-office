@@ -519,6 +519,144 @@ app.get('/api/agentes/:slug/workspace', (req, res) => {
   }
 });
 
+// ── MODULE COWORK · workflows dinâmicos entre agentes (sprint 14 · 0.10.0) ──
+const COWORK_PATH = path.join(__dirname, 'public/cowork.html');
+app.get('/cowork', (req, res) => res.sendFile(COWORK_PATH));
+
+const WORKFLOWS_DIR = path.join(__dirname, 'vault/workflows');
+const COWORK_RUNS_DIR = path.join(__dirname, 'vault/cowork-runs');
+if (!fs.existsSync(COWORK_RUNS_DIR)) fs.mkdirSync(COWORK_RUNS_DIR, { recursive: true });
+
+function loadWorkflows() {
+  if (!fs.existsSync(WORKFLOWS_DIR)) return [];
+  return fs.readdirSync(WORKFLOWS_DIR)
+    .filter(f => f.endsWith('.json'))
+    .map(f => {
+      try { return JSON.parse(fs.readFileSync(path.join(WORKFLOWS_DIR, f), 'utf8')); }
+      catch (e) { return null; }
+    })
+    .filter(Boolean);
+}
+
+app.get('/api/workflows', (req, res) => {
+  try { res.json(loadWorkflows()); }
+  catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.get('/api/workflows/:slug', (req, res) => {
+  try {
+    const wf = loadWorkflows().find(w => w.slug === req.params.slug);
+    if (!wf) return res.status(404).json({ error: 'workflow nao encontrado' });
+    res.json(wf);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+function fillTpl(tpl, vars) {
+  return String(tpl || '').replace(/\{\{(\w+)\}\}/g, (_, k) => vars[k] != null ? vars[k] : '');
+}
+
+// POST dispara workflow: cria pedidos em cada inbox + grava run log
+app.post('/api/workflows/:slug/run', express.json(), (req, res) => {
+  try {
+    const wf = loadWorkflows().find(w => w.slug === req.params.slug);
+    if (!wf) return res.status(404).json({ error: 'workflow nao encontrado' });
+    const inputs = req.body || {};
+    // valida inputs obrigatorios
+    const faltam = (wf.inputs || []).filter(i => i.obrigatorio && !inputs[i.key]).map(i => i.key);
+    if (faltam.length) return res.status(400).json({ error: 'inputs obrigatorios faltando', faltam });
+
+    const now = new Date();
+    const runId = wf.slug + '-' + now.toISOString().replace(/[:.]/g,'-').slice(0,19);
+    const vars = { ...inputs, workflow_run_id: runId, workflow_slug: wf.slug };
+    const criados = [];
+    const erros = [];
+
+    for (const step of (wf.steps || [])) {
+      const titulo = fillTpl(step.titulo_template, vars);
+      const pedido = fillTpl(step.pedido_template, vars);
+      const inboxDir = path.join(__dirname, 'vault/workspaces', step.agente, 'inbox');
+      if (!fs.existsSync(inboxDir)) {
+        erros.push({ step: step.id, agente: step.agente, motivo: 'workspace inexistente' });
+        continue;
+      }
+      const safeSlug = (titulo || step.id).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40);
+      const filename = now.toISOString().slice(0,10) + '-' + safeSlug + '.md';
+      const depMd = step.depende_de && step.depende_de.length
+        ? '> ⛓️ Depende de: ' + step.depende_de.map(d => '`' + d + '`').join(', ') + '\n'
+        : '';
+      const md = '# ' + titulo + '\n\n'
+        + '> 🤝 Workflow: `' + wf.slug + '` · run `' + runId + '`\n'
+        + '> Step: `' + step.id + '` · Agente: `' + step.agente + '`\n'
+        + depMd
+        + '> Status: 📥 inbox · ' + now.toISOString() + '\n\n'
+        + '## Pedido\n\n' + pedido + '\n';
+      fs.writeFileSync(path.join(inboxDir, filename), md, 'utf8');
+      criados.push({ step: step.id, agente: step.agente, arquivo: filename });
+    }
+
+    // grava run log
+    const runLog = {
+      run_id: runId,
+      workflow_slug: wf.slug,
+      workflow_nome: wf.nome,
+      criado_em: now.toISOString(),
+      inputs,
+      criados,
+      erros
+    };
+    fs.writeFileSync(path.join(COWORK_RUNS_DIR, runId + '.json'), JSON.stringify(runLog, null, 2), 'utf8');
+
+    res.json({ ok: true, run_id: runId, criados, erros });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// GET runs (workflows disparados — historico)
+app.get('/api/cowork/runs', (req, res) => {
+  try {
+    if (!fs.existsSync(COWORK_RUNS_DIR)) return res.json([]);
+    const runs = fs.readdirSync(COWORK_RUNS_DIR)
+      .filter(f => f.endsWith('.json'))
+      .map(f => {
+        try { return JSON.parse(fs.readFileSync(path.join(COWORK_RUNS_DIR, f), 'utf8')); }
+        catch (e) { return null; }
+      })
+      .filter(Boolean)
+      .sort((a,b) => new Date(b.criado_em) - new Date(a.criado_em));
+    res.json(runs);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// GET feed unificado de atividade (todos inboxes + outboxes)
+app.get('/api/cowork/atividade', (req, res) => {
+  try {
+    const wsRoot = path.join(__dirname, 'vault/workspaces');
+    if (!fs.existsSync(wsRoot)) return res.json([]);
+    const eventos = [];
+    fs.readdirSync(wsRoot).forEach(slug => {
+      const dir = path.join(wsRoot, slug);
+      if (!fs.statSync(dir).isDirectory()) return;
+      ['inbox','outbox'].forEach(sub => {
+        const subDir = path.join(dir, sub);
+        if (!fs.existsSync(subDir)) return;
+        fs.readdirSync(subDir).filter(f => !f.startsWith('.') && !f.startsWith('_') && f.endsWith('.md')).forEach(f => {
+          const st = fs.statSync(path.join(subDir, f));
+          eventos.push({
+            agente: slug,
+            tipo: sub,
+            arquivo: f,
+            modificado: st.mtime,
+            tamanho: st.size
+          });
+        });
+      });
+    });
+    eventos.sort((a,b) => new Date(b.modificado) - new Date(a.modificado));
+    res.json(eventos.slice(0, 200));
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 // ── MODULE H · METAS LINKEDIN (sprint 0.4.8 — apresentação corporativa) ─────
 const METAS_PATH = path.join(__dirname, 'public/metas.html');
 app.get('/metas', (req, res) => res.sendFile(METAS_PATH));
