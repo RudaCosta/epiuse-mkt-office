@@ -519,6 +519,112 @@ app.get('/api/agentes/:slug/workspace', (req, res) => {
   }
 });
 
+// ── MODULE PAINEL DA DUDA (sprint 15 · módulo 10 · 0.11.0) ─────────────────
+// Áreas/agentes que a Duda toca (aprova, opera ou é dona)
+const AREAS_DUDA = ['area-brand', 'criativos', 'landing-pages', 'pipe-capa', 'pipe-carrossel'];
+
+function _listInboxOutbox(slug) {
+  const dir = path.join(__dirname, 'vault/workspaces', slug);
+  const out = { inbox: [], outbox: [] };
+  ['inbox','outbox'].forEach(sub => {
+    const subDir = path.join(dir, sub);
+    if (!fs.existsSync(subDir)) return;
+    out[sub] = fs.readdirSync(subDir)
+      .filter(f => !f.startsWith('.') && !f.startsWith('_') && f.endsWith('.md'))
+      .map(f => {
+        const st = fs.statSync(path.join(subDir, f));
+        return { agente: slug, tipo: sub, arquivo: f, modificado: st.mtime, tamanho: st.size };
+      });
+  });
+  return out;
+}
+
+// Inbox Duda — feed dos workspaces das áreas dela
+app.get('/api/painel/inbox-duda', (req, res) => {
+  try {
+    const out = { inbox: [], outbox: [], areas: AREAS_DUDA };
+    AREAS_DUDA.forEach(slug => {
+      const io = _listInboxOutbox(slug);
+      out.inbox = out.inbox.concat(io.inbox);
+      out.outbox = out.outbox.concat(io.outbox);
+    });
+    out.inbox.sort((a,b) => new Date(b.modificado) - new Date(a.modificado));
+    out.outbox.sort((a,b) => new Date(b.modificado) - new Date(a.modificado));
+    res.json(out);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Daily Digest — o que a Duda precisa olhar HOJE
+app.get('/api/painel/digest', (req, res) => {
+  try {
+    const now = new Date();
+    const startOfDay = new Date(now); startOfDay.setHours(0,0,0,0);
+    const sevenAgo = new Date(now); sevenAgo.setDate(sevenAgo.getDate() - 7);
+
+    // pega voices
+    let voicesData = { voices: [], programa: {} };
+    try {
+      voicesData = JSON.parse(fs.readFileSync(path.join(__dirname, 'public/api/voices.json'), 'utf8'));
+    } catch (e) {}
+
+    const voices = voicesData.voices || [];
+    const pendentes = voices.filter(v => v.pendencia || (v.dados_a_confirmar||[]).length > 0);
+    const semBaseline = voices.filter(v => v.ssi_baseline == null);
+    const sem_kit = voices.filter(v => !v.kit_pronto && !v.kit_status);
+
+    // pega inboxes das áreas dela
+    const inboxAreas = { hoje: 0, semana: 0, total: 0, novos_hoje: [] };
+    AREAS_DUDA.forEach(slug => {
+      const io = _listInboxOutbox(slug);
+      io.inbox.forEach(item => {
+        const m = new Date(item.modificado);
+        inboxAreas.total++;
+        if (m >= startOfDay) { inboxAreas.hoje++; inboxAreas.novos_hoje.push(item); }
+        if (m >= sevenAgo) inboxAreas.semana++;
+      });
+    });
+    inboxAreas.novos_hoje = inboxAreas.novos_hoje.slice(0, 8);
+
+    // workflows ativos
+    let workflowsAtivos = 0;
+    try {
+      if (fs.existsSync(COWORK_RUNS_DIR)) {
+        const runs = fs.readdirSync(COWORK_RUNS_DIR).filter(f => f.endsWith('.json'));
+        workflowsAtivos = runs.filter(f => {
+          try { const r = JSON.parse(fs.readFileSync(path.join(COWORK_RUNS_DIR, f), 'utf8'));
+                return new Date(r.criado_em) >= sevenAgo; }
+          catch (e) { return false; }
+        }).length;
+      }
+    } catch (e) {}
+
+    res.json({
+      gerado_em: now.toISOString(),
+      cumprimento: _saudacao(now),
+      voices_ativos: voices.length,
+      voices_meta: voicesData.programa?.vagas_total || 5,
+      pendencias: {
+        total: pendentes.length + semBaseline.length,
+        com_dados_provisorios: pendentes.length,
+        sem_ssi_baseline: semBaseline.length,
+        sem_kit: sem_kit.length,
+        lista: pendentes.slice(0, 5).map(v => ({ id: v.id, nome: v.nome, motivo: v.pendencia || 'dados provisórios' }))
+      },
+      inbox_areas: inboxAreas,
+      workflows_ativos_7d: workflowsAtivos,
+      areas_duda: AREAS_DUDA
+    });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+function _saudacao(d) {
+  const h = d.getHours();
+  if (h < 6) return 'Boa madrugada';
+  if (h < 12) return 'Bom dia';
+  if (h < 18) return 'Boa tarde';
+  return 'Boa noite';
+}
+
 // ── MODULE COWORK · workflows dinâmicos entre agentes (sprint 14 · 0.10.0) ──
 const COWORK_PATH = path.join(__dirname, 'public/cowork.html');
 app.get('/cowork', (req, res) => res.sendFile(COWORK_PATH));

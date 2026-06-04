@@ -1,7 +1,13 @@
 {
-  "current": "0.10.0",
+  "current": "0.11.0",
   "atualizado_em": "2026-06-04",
   "releases": [
+    { "version": "0.11.0", "date": "04/jun/2026", "status": "snapshot", "path": null,
+      "title": "SPRINT 15 — Módulo C · Painel da Duda real (Daily Digest + Inbox por área)",
+      "summary": "Painel da Duda ganha 2 seções novas no topo: 🌅 Daily Digest (saudação contextual + resumo do que merece atenção hoje · pills com Voices ativos/inbox total/semana · ações pendentes com link RESOLVER/ABRIR direto pra agente) · 📥 Inbox por área (feed unificado dos workspaces que a Duda toca: area-brand · criativos · landing-pages · pipe-capa · pipe-carrossel). Novas APIs: GET /api/painel/digest (cumprimento + voices_ativos + pendencias + inbox_areas + workflows_ativos_7d) · GET /api/painel/inbox-duda (filtra cowork por AREAS_DUDA). Auto-refresh 60s. /painel evolui sem quebrar o existente (KPIs · tabela voices · performance · kanban · ações rápidas todos preservados)." },
+    { "version": "0.10.1", "date": "04/jun/2026", "status": "snapshot", "path": null,
+      "title": "Cowork — auto-cria pasta inbox se workspace inexistente",
+      "summary": "Fix: workspaces dos pipe-* não existiam no Railway (eram só locais) → workflows falhavam com 5 erros. mkdirSync recursive antes de gravar. Testado em prod via browser: criar-artigo dispara 5/5 inboxes em prod." },
     { "version": "0.10.0", "date": "04/jun/2026", "status": "snapshot", "path": null,
       "title": "SPRINT 14 — Cowork + workflows dinâmicos entre agentes",
       "summary": "Nova área /cowork onde agentes trabalham em cadeia · workflows definidos em JSON (vault/workflows/*.json) com inputs tipados + steps + dependências (`depende_de`) · POST /api/workflows/:slug/run cria pedidos encadeados em cada inbox com run_id compartilhado · feed unificado /api/cowork/atividade (todos inboxes+outboxes ordenados por mtime) · histórico em /api/cowork/runs · UI com 3 tabs (Workflows · Atividade · Em andamento) · 2 workflows seed: `criar-artigo` (pipe-briefing → pipe-artigo → pipe-capa+carrossel+copy-li paralelos) e `nova-oferta` (criativos+lp+campanhas → propostas) · link no overflow nav · runs gravados em vault/cowork-runs/" },
