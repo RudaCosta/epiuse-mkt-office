@@ -91,14 +91,109 @@ body {
 <office-footer></office-footer>
 
 <script>
-// Esquema de versionamento adotado em 25/mai/2026: semver pré-1.0 (0.X.Y).
-// Antes usávamos vX.Y (cosmético) — agora indica explicitamente que estamos em dev,
-// sem release "estável" oficial ainda. 1.0.0 fica reservado pra quando bater SSO
-// + adoção do time medida + estabilidade em produção por X semanas seguidas.
-// Detalhes em vault/00-contexto/versioning.md.
+// Semver pré-1.0 (0.X.Y) enquanto integrações de dados reais estiverem pendentes.
+// 1.0.0 fica reservado para quando: SSO ativo + dados reais plugados + Railway estável.
+// Detalhes dos critérios em vault/00-contexto/versioning.md.
 const RELEASES = [
   {
-    version: '0.7.1', date: '30/mai/2026', current: true, status: 'live',
+    version: '0.11.0', date: '04/jun/2026', current: true, status: 'snapshot',
+    title: 'SPRINT 15 — Módulo C · Painel da Duda real (Daily Digest + Inbox por área)',
+    body: `<ul>
+      <li><b>Daily Digest</b>: saudação contextual + resumo do que merece atenção hoje · pills com Voices ativos / inbox total / semana · ações pendentes com link RESOLVER/ABRIR direto pra agente.</li>
+      <li><b>Inbox por área</b>: feed unificado dos workspaces que a Duda toca (area-brand · criativos · landing-pages · pipe-capa · pipe-carrossel).</li>
+      <li><b>APIs novas:</b> <code>GET /api/painel/digest</code> · <code>GET /api/painel/inbox-duda</code>. Auto-refresh 60s. KPIs, tabela Voices, kanban e ações rápidas preservados.</li>
+    </ul>`
+  },
+  {
+    version: '0.10.1', date: '04/jun/2026', status: 'snapshot',
+    title: 'Fix Cowork — auto-cria pasta inbox em workspaces inexistentes',
+    body: `<ul>
+      <li>Workspaces dos <code>pipe-*</code> não existiam no Railway (eram só locais) → workflows falhavam com 5 erros.</li>
+      <li>Fix: <code>mkdirSync</code> recursive antes de gravar. Testado em prod: criar-artigo dispara 5/5 inboxes.</li>
+    </ul>`
+  },
+  {
+    version: '0.10.0', date: '04/jun/2026', status: 'snapshot',
+    title: 'SPRINT 14 — Cowork + workflows dinâmicos entre agentes',
+    body: `<ul>
+      <li>Nova área <code>/cowork</code> onde agentes trabalham em cadeia.</li>
+      <li>Workflows definidos em JSON (<code>vault/workflows/*.json</code>) com inputs tipados + steps + dependências (<code>depende_de</code>).</li>
+      <li><code>POST /api/workflows/:slug/run</code> cria pedidos encadeados em cada inbox com <code>run_id</code> compartilhado.</li>
+      <li>Feed unificado <code>/api/cowork/atividade</code> (todos inboxes+outboxes ordenados por mtime).</li>
+      <li>2 workflows seed: <code>criar-artigo</code> (5 agentes em cadeia) e <code>nova-oferta</code> (criativos+lp+campanhas → propostas).</li>
+    </ul>`
+  },
+  {
+    version: '0.9.5', date: '03/jun/2026', status: 'snapshot',
+    title: 'Padrão visual Anderson Costa — aplicado nos 2 Optimizers (V1 + V2)',
+    body: `<ul>
+      <li>Templates V1 e V2 geram HTML seguindo o padrão do kit Anderson Costa: tema dark navy <code>#0d1b2e</code> · fonte Inter · print-bar fixa com botão Salvar PDF · cover com badge + h1 + meta-pills · cards com step-num · status-table com badges · copy-block azul · checklist interativo com localStorage.</li>
+      <li>CSS inteiro embedded nos templates como referência obrigatória. Padrão visual preservado em <code>vault/00-contexto/prompts/</code>.</li>
+    </ul>`
+  },
+  {
+    version: '0.9.4', date: '02/jun/2026', status: 'snapshot',
+    title: 'Optimizer V2 — framework findskill.ai (mantém V1)',
+    body: `<ul>
+      <li>Nova rota <code>/optimizer-v2</code> baseada no LinkedIn Profile Optimizer da findskill.ai.</li>
+      <li>5 variáveis estruturadas + transcrição opcional · kit em 10 páginas A4 · 3 career goals (Thought Leadership / Clientes / Recrutamento).</li>
+      <li>Voice chip pré-popula 8 campos. V1 (<code>/optimizer</code>) mantida intacta.</li>
+    </ul>`
+  },
+  {
+    version: '0.9.3 → 0.9.1', date: '01-02/jun/2026', status: 'snapshot',
+    title: 'Optimizer refundações: transcrição direto → zero tokens → artifact IA',
+    body: `<ul>
+      <li><b>0.9.3</b> — Input transcrição direto (sem formulário) · Pág 1 com Voice Index + Resumo executivo · Voice chip pré-popula header.</li>
+      <li><b>0.9.2</b> — 1 template <code>.md</code> canônico · IA gera artifact HTML já formatado · PDF via window.print · ZERO chamada API · 3.500 linhas → ~400.</li>
+      <li><b>0.9.1</b> — ZERO tokens Anthropic · prompt copiável pra qualquer IA (Claude/ChatGPT/Gemini) · modal Prompt Lab com textarea pra colar JSON da resposta.</li>
+    </ul>`
+  },
+  {
+    version: '0.9.0', date: '01/jun/2026', status: 'snapshot',
+    title: 'SPRINT 9 — Optimizer refundado (Voice dropdown + PDF institucional + fluxo revisão)',
+    body: `<ul>
+      <li>Modo Voice cadastrado (dropdown direto pra Anderson/Furigo · pré-popula 14 campos).</li>
+      <li>PDF institucional via window.print (capa institucional pág 1 · sumário pág 2 · 1 seção por página A4 · fontes vetoriais).</li>
+      <li>Fluxo de revisão (rascunho → revisão → pronto · PDF só libera com kit revisado · estado persistido por Voice em localStorage).</li>
+    </ul>`
+  },
+  {
+    version: '0.8.3', date: '01/jun/2026', status: 'snapshot',
+    title: 'Pipeline 5 agentes (briefing → artigo → capa + carrossel + copy) + biblioteca carrossel',
+    body: `<ul>
+      <li>5 agentes em cadeia na 4ª camada do <code>/agentes</code> · 17 agentes totais no escritório.</li>
+      <li>Carrossel ganha busca nos 693 artigos do blog (importa título + slug + LOB pro brief).</li>
+    </ul>`
+  },
+  {
+    version: '0.8.2', date: '01/jun/2026', status: 'snapshot',
+    title: 'Agente relatorio-mensal + overflow nav reorganizado em 5 seções',
+    body: `<ul>
+      <li>Agente <code>relatorio-mensal</code> completo: skill + workspace + cron mensal dia 1 às 08:05.</li>
+      <li>Overflow do nav agrupado em 5 seções (Escritório Virtual · Reports · Voices · Design · Extras) · duplicatas removidas.</li>
+    </ul>`
+  },
+  {
+    version: '0.8.1', date: '01/jun/2026', status: 'snapshot',
+    title: 'Arquitetura agentes 3-camadas + ciclo inbox/outbox real',
+    body: `<ul>
+      <li>6 agentes de área (1 por dona) + tela <code>/agentes/:slug</code> com workspace real (inbox · outbox · _vt · entregas).</li>
+      <li><code>POST inbox</code> cria pedidos no vault · badges 📥📤 no /agentes · sparkline Growth (LinkedIn 14m).</li>
+      <li>F9 duplicar Voice · F10 dark mode auto OS.</li>
+    </ul>`
+  },
+  {
+    version: '0.8.0', date: '31/mai/2026', status: 'snapshot',
+    title: 'SSO Microsoft + 6 módulos por área com dado real ao vivo',
+    body: `<ul>
+      <li>Login Microsoft (Entra ID) com botão Entrar no nav e whitelist de domínios EPI-USE.</li>
+      <li>6 módulos por área (Intelligence · Growth · Eventos · Pipeline · Brand · Conteúdo) puxando dado REAL ao vivo de Apollo/LinkedIn/Artigos/Cases.</li>
+      <li>Chip "ao vivo" + marca de fonte por número · pendências honestas (⏳ aguarda integração).</li>
+    </ul>`
+  },
+  {
+    version: '0.7.1', date: '30/mai/2026', status: 'snapshot',
     title: 'Estabilização + Migração C:\\ + Dados reais (Apollo diário · LinkedIn)',
     body: `Fundação estabilizada + dados reais que se atualizam sozinhos.
     <ul>

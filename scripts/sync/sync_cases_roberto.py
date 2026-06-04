@@ -4,7 +4,24 @@ from datetime import datetime
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
-f = r"C:/Users/Ruds/OneDrive - EPI USE BRASIL SERVIÇOS EM SISTEMAS LTDA/MARKETING/Customer Reference/Empresas Transformadoras/Controle de Cases Cliente Referência Empresas Transformadoras 2025.xlsx"
+import os
+_user = os.environ.get('USERNAME', 'rudac')
+_od = f"C:/Users/{_user}/OneDrive - EPI USE BRASIL SERVICOS EM SISTEMAS LTDA"
+f = f"{_od}/MARKETING/Customer Reference/Empresas Transformadoras/Controle de Cases Cliente Referencia Empresas Transformadoras 2025.xlsx"
+# Fallback: tenta caminhos alternativos se o principal nao existir
+if not os.path.exists(f):
+    _candidates = [
+        f"C:/Users/rudac/OneDrive - EPI USE BRASIL SERVICOS EM SISTEMAS LTDA/MARKETING/Customer Reference/Empresas Transformadoras/Controle de Cases Cliente Referencia Empresas Transformadoras 2025.xlsx",
+        f"C:/Users/Ruds/OneDrive - EPI USE BRASIL SERVICOS EM SISTEMAS LTDA/MARKETING/Customer Reference/Empresas Transformadoras/Controle de Cases Cliente Referencia Empresas Transformadoras 2025.xlsx",
+        r"C:/Users/rudac/OneDrive - EPI USE BRASIL SERVIÇOS EM SISTEMAS LTDA/MARKETING/Customer Reference/Empresas Transformadoras/Controle de Cases Cliente Referência Empresas Transformadoras 2025.xlsx",
+    ]
+    for c in _candidates:
+        if os.path.exists(c):
+            f = c
+            break
+    else:
+        print(json.dumps({"error": f"Arquivo nao encontrado. Candidatos tentados: {_candidates}"}, ensure_ascii=False))
+        sys.exit(1)
 
 df_cases = pd.read_excel(f, sheet_name='Cases')
 df_perg  = pd.read_excel(f, sheet_name='Perguntas Referência')

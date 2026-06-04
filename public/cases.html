@@ -103,7 +103,7 @@ body { background: var(--bg); font-family: 'Inter', sans-serif; color: var(--tex
   <div class="hdr">
     <div class="hdr-l">
       <h1>🤝 CASES &amp; CS HUB · EPI-USE Brasil</h1>
-      <div class="sub">Módulo G · Customer Reference + CS · 22 clientes na base</div>
+      <div class="sub">Módulo G · Customer Reference + CS · <span id="hdr-total">…</span> clientes na base</div>
     </div>
     <div class="hdr-r">
       <span class="sync-info" id="sync-info">— sem sync —</span>
@@ -191,6 +191,9 @@ async function load() {
     ALL_CLIENTES = data.clientes || [];
 
     // KPIs — agora refletem cycle Customer Reference (Publicado → Em edição → Negociação → Declinado)
+    const hdrTotal = document.getElementById('hdr-total');
+    if (hdrTotal) hdrTotal.textContent = data.kpis.total ?? 0;
+
     const kpiEls = document.querySelectorAll('#kpis .value');
     kpiEls[0].textContent = data.kpis.total ?? 0;
     kpiEls[1].textContent = data.kpis.case_publicado ?? 0;

@@ -6,11 +6,19 @@ const path = require('path');
 
 let KEY = process.env.APOLLO_API_KEY;
 if (!KEY) {
-  try {
-    const t = fs.readFileSync('C:/Users/Ruds/.epiuse-optimizer/.env', 'utf8');
-    const m = t.match(/APOLLO_API_KEY=(.+)/);
-    if (m) KEY = m[1].trim();
-  } catch {}
+  // Tenta caminhos conhecidos do .env off-repo (Windows dev)
+  const envCandidates = [
+    'C:/Users/rudac/.epiuse-optimizer/.env',
+    'C:/Users/Ruds/.epiuse-optimizer/.env',
+    path.resolve(__dirname, '../../.env'),
+  ];
+  for (const p of envCandidates) {
+    try {
+      const t = fs.readFileSync(p, 'utf8');
+      const m = t.match(/APOLLO_API_KEY=(.+)/);
+      if (m) { KEY = m[1].trim(); break; }
+    } catch {}
+  }
 }
 if (!KEY) { console.error('APOLLO_API_KEY ausente (.env off-repo)'); process.exit(1); }
 

@@ -3,16 +3,32 @@
 // Status do sistema + versão atual + dropdown de versões anteriores
 // ════════════════════════════════════════════════════════════════════════════
 
-const OFFICE_FOOTER_VERSION = '0.9.5';
-const OFFICE_FOOTER_BUILD = '2026-06-02';
+const OFFICE_FOOTER_VERSION = '0.11.0';
+const OFFICE_FOOTER_BUILD = '2026-06-04';
 
-// Schema semver pré-1.0 — explicação em vault/00-contexto/versioning.md
-// Versões antigas que começavam com "v2.X" ou "v3.X" foram renumeradas pra 0.2.X / 0.3.X
-// (semver indica pré-1.0 enquanto não há "release oficial"). URLs dos snapshots no
-// disco mantêm o prefixo antigo (v3.X) pra não quebrar links — só o label visual mudou.
+// SemVer real a partir de v1.0.0 (jun/2026). Versões 0.x eram pré-release.
+// Bug fix → 1.0.1 | Feature nova → 1.1.0 | Refactor grande → 2.0.0
+// Histórico pré-1.0 preservado abaixo para referência.
 const OFFICE_VERSION_HISTORY = [
+  // ─── v1.0 · Lançamento oficial (04/jun/2026) ───
+  // ─── SPRINT 15 · Módulo C Painel (04/jun/2026) ───
+  { ver: '0.11.0', date: '04/jun/2026', label: 'SPRINT 15 — Módulo C · Daily Digest + Inbox por área no Painel da Duda. APIs /api/painel/digest + /api/painel/inbox-duda. Auto-refresh 60s. Versionamento sincronizado (nav · footer · changelog · package.json).', path: null, status: 'current' },
+  { ver: '0.10.1', date: '04/jun/2026', label: 'Fix cowork — auto-cria pasta inbox em workspaces inexistentes. Correção de 5 erros nos pipe-* no Railway.', path: null, status: 'snapshot' },
+  // ─── SPRINT 14 · Cowork (04/jun/2026) ───
+  { ver: '0.10.0', date: '04/jun/2026', label: 'SPRINT 14 — Cowork + workflows dinâmicos entre agentes. /cowork · workflows JSON · feed unificado · 2 workflows seed (criar-artigo · nova-oferta).', path: null, status: 'snapshot' },
+  // ─── SPRINT 9-13 · Optimizer + Agentes (01-03/jun/2026) ───
+  { ver: '0.9.5',  date: '03/jun/2026', label: 'Padrão visual Anderson Costa aplicado nos 2 Optimizers (V1+V2) — tema dark navy #0d1b2e · Inter · print A4.', path: null, status: 'snapshot' },
+  { ver: '0.9.4',  date: '02/jun/2026', label: 'Optimizer V2 — framework findskill.ai (mantém V1). 5 variáveis + 10 páginas A4 + 3 career goals.', path: null, status: 'snapshot' },
+  { ver: '0.9.3',  date: '02/jun/2026', label: 'Optimizer refundado — input transcrição direto + Pág 1 com Voice Index + Resumo executivo.', path: null, status: 'snapshot' },
+  { ver: '0.9.2',  date: '02/jun/2026', label: 'Optimizer simplificado — 1 template .md · IA gera artifact final. 3.500 linhas → ~400.', path: null, status: 'snapshot' },
+  { ver: '0.9.1',  date: '01/jun/2026', label: 'Optimizer ZERO TOKENS — fluxo copia-prompt → cola-JSON. Office vira coletor + renderizador.', path: null, status: 'snapshot' },
+  { ver: '0.9.0',  date: '01/jun/2026', label: 'SPRINT 9 — Optimizer refundado (Voice dropdown · PDF institucional por área A4 · fluxo rascunho→revisão→pronto).', path: null, status: 'snapshot' },
+  { ver: '0.8.3',  date: '01/jun/2026', label: 'Pipeline 5 agentes (briefing→artigo→capa+carrossel+copy) · 17 agentes totais · Carrossel busca nos 693 artigos.', path: null, status: 'snapshot' },
+  { ver: '0.8.2',  date: '01/jun/2026', label: 'Agente relatorio-mensal completo (skill + workspace + cron dia 1 08:05) · overflow nav agrupado em 5 seções.', path: null, status: 'snapshot' },
+  { ver: '0.8.1',  date: '01/jun/2026', label: 'Arquitetura agentes 3-camadas + ciclo inbox/outbox real · 6 agentes de área · F9 duplicar Voice · F10 dark auto OS.', path: null, status: 'snapshot' },
+  { ver: '0.8.0',  date: '31/mai/2026', label: 'SSO Microsoft (Entra ID) + 6 módulos por área com dado REAL ao vivo de Apollo/LinkedIn/Artigos/Cases.', path: null, status: 'snapshot' },
   // ─── SPRINT 7 · Estabilização + Design Codex + Dados Reais (30/mai/2026) ───
-  { ver: '0.7.1',  date: '30/mai/2026', label: 'DADOS REAIS (Regra 7): /metas KPIs despluguei o fake (era 7.844 chumbado/errado → 10.481 real via API) · auditoria DE/PARA completa (AUDITORIA-DADOS-REAIS.md) · footer history consertado (0.6.1→0.6.4 estavam sumidos)', path: null, status: 'current' },
+  { ver: '0.7.1',  date: '30/mai/2026', label: 'DADOS REAIS (Regra 7): /metas KPIs despluguei o fake (era 7.844 chumbado/errado → 10.481 real via API) · auditoria DE/PARA completa (AUDITORIA-DADOS-REAIS.md) · footer history consertado (0.6.1→0.6.4 estavam sumidos)', path: null, status: 'snapshot' },
   { ver: '0.7.0',  date: '30/mai/2026', label: 'ESTABILIZAÇÃO + DESIGN CODEX: localhost always-on (fix better-sqlite3 Node 24 + Tarefa Agendada, aposenta PM2) · /api/health · paleta Codex oficial (#013A6A + Open Sans, dark preservado) · protocolo multi-tool · backup tag v0.6.4-snapshot', path: null, status: 'snapshot' },
   // ─── SPRINT 6 · Design System + Brand oficial (28/mai/2026) ───
   { ver: '0.6.4',  date: '28/mai/2026', label: 'Logos EPI-USE no nav (theme-aware) · refactor 10 telas → design-tokens.css · /design viewer com hierarquia 3 brands', path: null, status: 'snapshot' },

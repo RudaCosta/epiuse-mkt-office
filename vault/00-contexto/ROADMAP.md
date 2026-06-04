@@ -2,44 +2,57 @@
 
 > Fonte única do backlog. TODAS as ferramentas (Claude/Codex/Obsidian/openclaw) leem antes de pegar tarefa.
 > Trava de quem-mexe-em-quê: `_LOCK.md`. Protocolo: `multi-tool-protocol.md`.
-> Última atualização: 30/mai/2026 (v0.7.0, Opus 4.8).
+> Última atualização: 04/jun/2026 (v0.11.0).
 
 ---
 
-## 🟢 Agora no ar (local)
-- **v0.6.4** rodando em `http://localhost:3000` (sobe sozinho ao logar · auto-restart 5min)
-- Produção Railway: **v0.4.6** (defasada — precisa redeploy quando Rudá autorizar)
+## 🟢 Agora no ar
+- **v0.11.0** rodando em `http://localhost:3000` (sobe sozinho ao logar · auto-restart 5min)
+- Produção Railway: versão anterior (defasada — aguarda push autorizado por Rudá)
 
 ---
 
-## 🚀 Sprint v0.7.0 — Estabilização + Design Codex + Multi-tool (EM ANDAMENTO)
+## ✅ Sprints concluídas (S1 → S16)
 
-| Bloco | O quê | Status |
+| Sprint | Versões | Entrega principal |
 |---|---|---|
-| 0 | Backup local (tag `v0.6.4-snapshot`) | ✅ feito |
-| A | Localhost always-on (fix better-sqlite3 Node 24 + Tarefa Agendada) | ✅ feito |
-| E | Multi-tool "livre com trava" (_LOCK + protocolo + este ROADMAP) | ✅ feito |
-| B | **Migração design → paleta Codex oficial** (#013A6A + Open Sans) | ⏳ aguarda OK Rudá + olho da Duda |
-| C | Varredura de bugs (smoke 18 rotas) | 🟡 parcial (8 rotas OK) |
-| D | Railway P0 persistência SQLite (DATA_DIR já no código) | ⏳ Rudá cria Volume no dashboard |
-| F | Bump v0.7.0 + changelog + push | ⏳ aguarda ordem de push |
+| S1-S3 | 0.2.x–0.3.x | Game 2D · Voices · Painel Duda · Inbound · SQLite |
+| S4 | 0.4.0–0.4.12 | Optimizer Vision · Voice Index · PDF · Cases reais |
+| S5 | 0.5.0–0.5.1 | /relatorio · /artigos · /jornadas · /projecoes · /pipeline · Regra 7 |
+| S6 | 0.6.0–0.6.4 | Design System (DESIGN.md + gen_tokens) · Brand oficial · logos |
+| S7 | 0.7.0–0.7.1 | Localhost always-on · paleta Codex · dados reais · migração C:\ |
+| S8 | 0.8.0 | SSO Microsoft + 6 módulos por área com dado real |
+| S9-S11 | 0.8.1–0.8.3 | Arquitetura 3-camadas · relatorio-mensal · pipeline 5 agentes |
+| S12-S13 | 0.9.0–0.9.5 | Optimizer refundado (zero tokens · V2 findskill · padrão Anderson) |
+| S14 | 0.10.0–0.10.1 | Cowork + workflows dinâmicos entre agentes |
+| S15 | 0.11.0 | Módulo C · Daily Digest + Inbox por área no Painel da Duda |
+| S16 | 1.0.0 | Lançamento oficial · SemVer real · versionamento sincronizado |
 
 ---
 
-## 🔮 Próxima leva (pós-v0.7.0)
-- **SSO Microsoft** (login @epiuse) — credenciais em mãos, mas **secret precisa ser rotacionado** (foi colado no chat). ~11-15h. Doc: `sso-microsoft-plan.md`.
-- **openclaw** — integrar quando Rudá explicar o que é.
-- Refactor final: hex hardcoded → tokens nas telas restantes + Shadow DOM (office-nav/footer).
+## 🚀 Próximas prioridades (pós-v1.0.0)
 
----
+### 🔴 P0 — Bloqueado por ação humana
+- **Railway Volume SQLite** — Rudá cria Volume no dashboard (30min) → sem isso cases reais somem a cada deploy
+- **Push v1.0.0 para Railway** — aguarda ordem explícita de Rudá
 
-## 📋 Backlog herdado (do plano antigo, ainda válido)
-- **P0** Railway Volume SQLite (= Bloco D)
-- **P3** Validar Voice Index em produção (1 kit real)
-- **F9/F10** Duplicar Voice · dark auto pelo OS
-- **F2** Editor token via session cookie (pré-SSO)
-- **GA4 + Search Console** — aguarda Service Account JSON + Property ID (Teams DM)
-- **Trello API** — aguarda Key + Token + Board IDs (Teams DM)
-- Integrações pendentes: Instagram Graph · RD Personal Token · CRM oficial (qual?)
+### 🟡 P1 — Dados reais (desbloqueios em aberto)
+- Apollo → /pipeline já roda com dado real
+- GA4 + Search Console → aguarda Service Account JSON + Property ID (Teams DM)
+- Instagram Graph → aguarda Business + FB App
+- LinkedIn → atualizar xls mensal
+- Planilha Duda (calendar editorial) → Rudá cobrar Duda
 
-> Detalhe técnico de cada item: `C:\Users\Ruds\.claude\plans\...dreamy-adleman.md` (plano mestre Claude).
+### 🟡 P2 — SSO Microsoft (código pronto, faltam 5 passos no Azure)
+- Ver `vault/00-contexto/pendencias.md` → B1 para checklist completo
+
+### 🟢 P3 — Qualidade
+- Smoke test das 10 rotas restantes (8/18 validadas até agora)
+- Remover botão "📤 Sync RD" do /inbound/calendar (RD Station dropado 26/mai)
+- Shadow DOM no office-nav/footer (isolamento de estilos)
+
+### 🔵 Backlog futuro
+- Cron diário Cases OneDrive → Railway prod (1h de trabalho, já spec em pendencias.md P2)
+- Report PDF automático (pós dados reais)
+- Office Engine 2D (spec pronta em `EPI-USE-OFFICE-MASTER-BRIEF.md`)
+- openclaw — integrar quando Rudá explicar o que é

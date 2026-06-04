@@ -1,7 +1,7 @@
 # 🗂️ SPRINTS — EPI-USE Office (fonte única, organizada)
 
-> Re-grounding 30/mai/2026. Substitui o histórico espalhado. Toda ferramenta lê isto + `ROADMAP.md` + `_LOCK.md`.
-> Versão atual: **0.7.1** · Prod Railway: **0.7.0** (0.7.1 aguarda push).
+> Atualizado 04/jun/2026. Toda ferramenta lê isto + `ROADMAP.md` + `_LOCK.md`.
+> Versão atual: **1.0.0** · Prod Railway: desatualizada (aguarda push autorizado por Rudá).
 
 ---
 
@@ -23,30 +23,31 @@
 | **S5** Dados+Telas | 0.5.0–0.5.1 | /relatorio · /artigos (693) · /jornadas · /projecoes · /pipeline · /metas-fy26 (29 metas) · Rule 7 · skill relatorio-mensal |
 | **S6** Design System | 0.6.0–0.6.4 | DESIGN.md + gen_tokens · /design viewer · Brand Guides oficiais · logos · Open Sans · modularização |
 | **S7** Estabiliza+Codex+Real | 0.7.0–0.7.1 | **localhost always-on** (fix Node24/better-sqlite3 + Tarefa Agendada) · /api/health · **paleta Codex** · multi-tool protocol · **/metas dado real** · auditoria dados · footer consertado |
+| **S8** SSO + Módulos área | 0.8.0 | SSO Microsoft (Entra ID) + 6 módulos por área com dado REAL ao vivo (Apollo/LinkedIn/Artigos/Cases) |
+| **S9-S11** Agentes 3 camadas | 0.8.1–0.8.3 | Arquitetura 3-camadas (6 áreas + executores + pipeline) · relatorio-mensal · 5 agentes pipeline conteúdo · 17 agentes totais |
+| **S12-S13** Optimizer refundado | 0.9.0–0.9.5 | Optimizer V1 zero tokens · V2 findskill.ai · padrão visual Anderson Costa |
+| **S14** Cowork | 0.10.0–0.10.1 | /cowork · workflows JSON dinâmicos · feed unificado · fix inbox Railway |
+| **S15** Módulo C Painel | 0.11.0 | Daily Digest + Inbox por área no Painel da Duda · APIs /api/painel/digest e /inbox-duda |
+| **S16** v1.0 Lançamento | 1.0.0 | SemVer real · todos os contadores sincronizados · ROADMAP e SPRINTS atualizados |
 
 ---
 
-## 🚀 PRÓXIMAS SPRINTS (a fazer — uma de cada vez, pós /compact)
+## 🚀 PRÓXIMAS SPRINTS
 
-### Sprint 8 · DADOS REAIS de verdade (prioridade MÁXIMA do Rudá)
-> Objetivo: tirar TODO `—`/placeholder e plugar plataforma por plataforma.
-- **8.1 Apollo → /pipeline** (✅ desbloqueado, faço sozinho) — R$/MQL/SQL/reuniões reais
-- **8.2 GA4 + Search Console** (aguarda: Service Account JSON + Property ID do Rudá) — site/SEO real
-- **8.3 RD Station** (aguarda: Personal API Token) — email/newsletter real
-- **8.4 Trello** (aguarda: Key+Token+BoardIDs) — tarefas reais
-- **8.5 Instagram Graph** (aguarda: Business+FB App) — IG real
-- **8.6 LinkedIn** — atualizar xls mensal OU Company API
+### S17 · Railway persistência + push v1.0.0
+- Rudá cria Volume no dashboard → fix SQLite persistente
+- Rudá autoriza push → v1.0.0 em produção
 
-### Sprint 9 · Report PDF automático (igual ao PPT)
-- Agente lê dados reais (pós S8) → preenche template do PPT → exporta PDF idêntico
+### S18 · Dados reais (integrações pendentes)
+- Apollo /pipeline já OK · GA4 (aguarda JSON+Property ID) · Instagram Graph (aguarda FB App) · LinkedIn xls mensal
+- Planilha Duda → calendar editorial real
 
-### Sprint 10 · SSO Microsoft
-- @azure/msal-node · /auth/* · flag DISABLE_AUTH · login @epiuse (creds em mãos)
+### S19 · SSO Microsoft ativo em prod
+- 5 passos humanos no Azure (ver pendencias.md B1) → testar login @epiuse.com.br em prod
 
-### Sprint 11 · Design visível + infra
-- **Decisão pendente:** Codex só aparece no LIGHT (dark foi preservado). Opções: (a) light vira default, (b) aplicar Codex no dark também. **Rudá decide.**
-- Mover repo pra disco local `C:\` (resolve clobber do Drive)
-- Railway Volume (Rudá cria) + re-sync cases
+### S20 · Qualidade + backlog
+- Smoke test 10 rotas restantes · remover botão Sync RD · Shadow DOM nav/footer
+- Cron diário Cases OneDrive → Railway
 
 ---
 

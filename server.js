@@ -1,16 +1,40 @@
 // ── AMBIENTE ──────────────────────────────────────────────────────────────────
-// Local Windows dev: carrega módulos e .env de fora do Google Drive
+// Local Windows dev: carrega modulos e .env de fora do OneDrive (evita clobber)
 // Railway Linux: usa node_modules normais instalados pelo npm install
-const localModules = 'C:/Users/Ruds/.epiuse-optimizer/node_modules';
+// Detecta o usuario atual automaticamente (Ruds, rudac, ou qualquer outro)
 const fs0 = require('fs');
-const IS_LOCAL_DEV = process.platform === 'win32' && fs0.existsSync(localModules);
+const os0 = require('os');
+const _winUser = os0.userInfo().username; // rudac, Ruds, etc.
+const _localCandidates = [
+  `C:/Users/${_winUser}/.epiuse-optimizer/node_modules`,
+  'C:/Users/Ruds/.epiuse-optimizer/node_modules',
+];
+const localModules = _localCandidates.find(p => fs0.existsSync(p)) || '';
+const IS_LOCAL_DEV = process.platform === 'win32' && !!localModules;
 
+// Carrega .env off-repo (API keys nao vao no git)
+const _envCandidates = [
+  `C:/Users/${_winUser}/.epiuse-optimizer/.env`,
+  'C:/Users/Ruds/.epiuse-optimizer/.env',
+  require('path').resolve(__dirname, '.env'),
+];
+for (const _ep of _envCandidates) {
+  if (fs0.existsSync(_ep)) {
+    try {
+      const _lines = fs0.readFileSync(_ep, 'utf8').split('\n');
+      _lines.forEach(l => {
+        const m = l.match(/^([A-Z_][A-Z0-9_]*)=(.*)$/);
+        if (m && !process.env[m[1]]) process.env[m[1]] = m[2].trim().replace(/^["']|["']$/g, '');
+      });
+      console.log(`[boot] .env carregado: ${_ep}`);
+    } catch {}
+    break;
+  }
+}
 if (IS_LOCAL_DEV) {
   require('module').Module._nodeModulePaths = () => [localModules, 'node_modules'];
-  const _dotenvParsed = require(localModules + '/dotenv').config({ path: 'C:/Users/Ruds/.epiuse-optimizer/.env' }).parsed || {};
-  Object.keys(_dotenvParsed).forEach(k => { process.env[k] = _dotenvParsed[k]; });
 }
-// Railway: ANTHROPIC_API_KEY vem direto das env vars do projeto (sem .env)
+// Railway: variaveis de ambiente vem das env vars do projeto (sem .env)
 
 const express   = IS_LOCAL_DEV ? require(localModules + '/express')            : require('express');
 const multer    = IS_LOCAL_DEV ? require(localModules + '/multer')             : require('multer');
@@ -45,7 +69,7 @@ const Database = (() => {
 })();
 
 const DB_DIR = IS_LOCAL_DEV
-  ? 'C:/Users/Ruds/.epiuse-optimizer'
+  ? localModules.replace(/[\\/]node_modules$/, '')  // ex: C:/Users/rudac/.epiuse-optimizer
   : (process.env.DATA_DIR || path.join(__dirname, 'data'));
 if (!fs0.existsSync(DB_DIR)) fs0.mkdirSync(DB_DIR, { recursive: true });
 
@@ -970,7 +994,7 @@ app.post('/api/cases/sync', requireEditorToken, (req, res) => {
     { sharepoint_id: 'seed-2', conta: 'EUBR-2025-007', cliente_nome: 'Cliente Cloud LATAM', contato_principal: '— (anonimizado)', contato_email: '', csm: 'Marlison Estrela', lob: 'Cloud', status: 'onboarding', nps: null, valor_anual: null, ultimo_contato: '2026-05-10', observacoes: 'Em onboarding · projeto BTP/Joule. Não publicar sem aprovação Roberto.', case_publicavel: 0, case_resumo: '' },
     { sharepoint_id: 'seed-3', conta: 'EUBR-2024-019', cliente_nome: 'Renner Group', contato_principal: '— (anonimizado)', contato_email: '', csm: 'Bruna Yamagami', lob: 'ERP', status: 'live', nps: 8, valor_anual: null, ultimo_contato: '2026-05-20', observacoes: 'S/4HANA Cloud · contrato anual confirmado renewal 2026.', case_publicavel: 0, case_resumo: '' }
   ];
-  const ins = db.prepare(`INSERT INTO cs_clientes (sharepoint_id, conta, cliente_nome, contato_principal, contato_email, csm, lob, status, nps, valor_anual, ultimo_contato, observacoes, case_publicavel, case_resumo, synced_at) VALUES (@sharepoint_id, @conta, @cliente_nome, @contato_principal, @contato_email, @csm, @lob, @status, @nps, @valor_anual, @ultimo_contato, @observacoes, @case_publicavel, @case_resumo, datetime('now'))`);
+  const ins = db.prepare(`INSERT OR IGNORE INTO cs_clientes (sharepoint_id, conta, cliente_nome, contato_principal, contato_email, csm, lob, status, nps, valor_anual, ultimo_contato, observacoes, case_publicavel, case_resumo, synced_at) VALUES (@sharepoint_id, @conta, @cliente_nome, @contato_principal, @contato_email, @csm, @lob, @status, @nps, @valor_anual, @ultimo_contato, @observacoes, @case_publicavel, @case_resumo, datetime('now'))`);
   db.transaction(() => { seed.forEach(s => ins.run(s)); })();
   console.log(`[seed] ${seed.length} cliente(s) anonimizado(s) carregado(s) em cs_clientes. Substitua via /api/cases/sync.`);
 })();
