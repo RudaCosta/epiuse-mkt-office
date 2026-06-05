@@ -85,8 +85,49 @@ body {
     <p class="page-sub">Todas as versões do EPI-USE Office, em ordem cronológica reversa. Cada release tem snapshot completo em <code>_versoes-office/</code>.</p>
   </header>
 
+  <!-- ROADMAP PM (planilha do Rudá lida ao vivo) -->
+  <section id="pm-board" style="margin-bottom:48px">
+    <h2 style="font-size:18px;margin:0 0 6px;color:var(--primary-light)">🗂️ Roadmap PM — sprints (planilha viva)</h2>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px">
+      Fonte: <code>public/api/sprints-pm.xlsx</code> · controlada pelo Rudá no Desktop · atualizada via commit.
+    </p>
+    <div id="pm-table"><p style="color:var(--text-muted);font-size:13px">Carregando…</p></div>
+  </section>
+
   <div class="timeline" id="timeline"></div>
 </div>
+
+<script>
+(async function loadPMSprints(){
+  try {
+    const r = await fetch('/api/sprints?t=' + Date.now());
+    const d = await r.json();
+    if (!d.sprints || !d.sprints.length) {
+      document.getElementById('pm-table').innerHTML = '<p style="color:var(--text-muted);font-size:13px">Planilha vazia.</p>';
+      return;
+    }
+    const updated = new Date(d.atualizado_em).toLocaleString('pt-BR');
+    const headers = Object.keys(d.sprints[0]);
+    const html = `
+      <div style="overflow-x:auto;background:var(--bg-card);border:1px solid var(--border-light);border-radius:12px">
+        <table style="width:100%;border-collapse:collapse;font-size:12.5px">
+          <thead><tr style="background:rgba(255,255,255,0.03)">
+            ${headers.map(h => `<th style="text-align:left;padding:10px 14px;font-size:10px;letter-spacing:.08em;color:var(--text-muted);text-transform:uppercase;border-bottom:1px solid var(--border-light)">${h}</th>`).join('')}
+          </tr></thead>
+          <tbody>
+            ${d.sprints.map(s => `<tr style="border-bottom:1px solid var(--border-light)">
+              ${headers.map(h => `<td style="padding:9px 14px;color:var(--text-dim);vertical-align:top">${s[h] || ''}</td>`).join('')}
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:10.5px;color:var(--text-muted);margin-top:8px;text-align:right">${d.total} sprints · atualizado em ${updated}</p>`;
+    document.getElementById('pm-table').innerHTML = html;
+  } catch(e) {
+    document.getElementById('pm-table').innerHTML = '<p style="color:#fca5a5;font-size:12px">Erro: ' + e.message + '</p>';
+  }
+})();
+</script>
 
 <office-footer></office-footer>
 

@@ -483,6 +483,31 @@ app.get('/voices',     (req, res) => res.sendFile(VOICES_PATH));
 app.get('/seja-voice', (req, res) => res.sendFile(SEJA_VOICE_PATH));
 app.get('/changelog',  (req, res) => res.sendFile(CHANGELOG_PATH));
 
+// ── /api/sprints — le a planilha PM do Ruda (Roadmap PM - Office MKT App.xlsx) ──
+app.get('/api/sprints', (req, res) => {
+  try {
+    const XLSX = IS_LOCAL_DEV ? require(localModules + '/xlsx') : require('xlsx');
+    const sprintsPath = path.join(__dirname, 'public/api/sprints-pm.xlsx');
+    const wb = XLSX.readFile(sprintsPath);
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+    let headerIdx = rows.findIndex(r => String(r[0] || '').trim() === '#');
+    if (headerIdx < 0) headerIdx = 1;
+    const headers = (rows[headerIdx] || []).map(h => String(h || '').trim());
+    const sprints = rows.slice(headerIdx + 1)
+      .filter(r => r[0] && String(r[0]).trim())
+      .map(r => Object.fromEntries(headers.map((h, i) => [h.toLowerCase(), String(r[i] || '').trim()])));
+    res.json({
+      fonte: 'planilha PM do Ruda (atualizada via commit)',
+      atualizado_em: fs.statSync(sprintsPath).mtime,
+      total: sprints.length,
+      sprints
+    });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // ── MODULOS POR AREA (v0.7.x — nav reorganizado por dona) ───────────────────
 // /area/<id> -> template unico area.html (le /api/areas.json por id)
 const AREA_PATH = path.join(__dirname, 'public/area.html');
