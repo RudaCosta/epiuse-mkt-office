@@ -191,6 +191,7 @@
   <!-- AGENDA -->
   <div class="agenda">
     <div class="agenda-item" onclick="scrollToSec('s1')"><span class="agenda-num">1</span> KPIs Digitais</div>
+    <div class="agenda-item" onclick="scrollToSec('s1b')"><span class="agenda-num">1b</span> Site — Top Páginas</div>
     <div class="agenda-item" onclick="scrollToSec('s2')"><span class="agenda-num">2</span> LinkedIn</div>
     <div class="agenda-item" onclick="scrollToSec('s3')"><span class="agenda-num">3</span> Conteúdo</div>
     <div class="agenda-item" onclick="scrollToSec('s4')"><span class="agenda-num">4</span> Eventos</div>
@@ -207,6 +208,18 @@
     <div class="sec-hdr"><div class="sec-num">1</div><div class="sec-title">KPIs Digitais</div></div>
     <div class="kpi-grid" id="kpis-grid">
       <!-- 4 cards: Site · LinkedIn · Instagram · E-mail -->
+    </div>
+  </section>
+
+  <!-- 1B. SITE — TOP PÁGINAS (GA4) -->
+  <section class="sec" id="s1b" style="display:none">
+    <div class="sec-hdr"><div class="sec-num">1b</div><div class="sec-title">Site — Top Páginas</div></div>
+    <div class="gen-card" id="site-detail-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <h4 style="font-size: 12px; color: var(--muted); margin: 0; letter-spacing: .08em; text-transform: uppercase">🔝 Páginas mais acessadas</h4>
+        <span id="site-detail-period" style="font-size: 10px; color: var(--dim)"></span>
+      </div>
+      <div id="top-pages-rows"></div>
     </div>
   </section>
 
@@ -333,21 +346,33 @@ function fmtMomBadge(pct) {
 
 async function carregar(mes) {
   mesAtual = mes;
+  const isFY = typeof mes === 'string' && mes.startsWith('fy:');
+  const qs = isFY ? `fy=${mes.slice(3)}` : `mes=${mes}`;
   document.getElementById('rep-subtitle').textContent = `${mes} · agregado de /api/relatorio/snapshot · gerado em tempo real`;
-  const r = await fetch(`/api/relatorio/snapshot?mes=${mes}`);
+  const r = await fetch(`/api/relatorio/snapshot?${qs}`);
   const d = await r.json();
   if (!d.success) { alert('Falha ao carregar: ' + d.error); return; }
 
   // Header
-  const [y, m] = mes.split('-');
-  const NOMES = ['','Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-  document.querySelector('.rep-title').firstChild.textContent = `📊 Monthly Report — Marketing · ${NOMES[+m]} de ${y}`;
+  if (isFY) {
+    document.querySelector('.rep-title').firstChild.textContent = `📊 ${d.label} — Annual Report · Marketing`;
+    const cob = d.meses_com_dado?.length ? `${d.meses_com_dado.length} de ${d.meses_total_fy || d.meses?.length || 12} meses com dados` : 'sem dados ainda';
+    const status = d.em_andamento ? ' · 🟡 em andamento' : ' · ✅ fechado';
+    document.getElementById('rep-subtitle').textContent = `${cob}${status} · ${d.meses_elegiveis?.length || 0} meses elegíveis`;
+  } else {
+    const [y, m] = mes.split('-');
+    const NOMES = ['','Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+    document.querySelector('.rep-title').firstChild.textContent = `📊 Monthly Report — Marketing · ${NOMES[+m]} de ${y}`;
+  }
 
   // Alertas
   renderAlertas(d.alertas);
 
   // KPIs Digitais (4 colunas)
-  renderKPIs(d.linkedin);
+  renderKPIs(d.linkedin, d.site, isFY ? d : null, d.email);
+
+  // Top páginas (GA4) — só mostra se houver dado
+  renderTopPages(d.site, isFY ? d.label : mes);
 
   // LinkedIn detalhe
   document.getElementById('li-total').textContent = fmt(d.linkedin.total_atual);
@@ -355,7 +380,13 @@ async function carregar(mes) {
   document.getElementById('li-posts').textContent = fmt(d.linkedin.posts_mes);
   document.getElementById('li-impressoes').textContent = fmt(d.linkedin.impressoes);
   const dEl = document.getElementById('li-delta');
-  dEl.innerHTML = `+${fmt(d.linkedin.novos)} novos ${fmtMomBadge(d.linkedin.novos_mom_pct)}`;
+  if (isFY) {
+    const ganho = d.linkedin.ganho_total;
+    const pct = d.linkedin.ganho_pct;
+    dEl.innerHTML = `+${fmt(d.linkedin.novos)} novos no FY · ganho total ${ganho != null ? '+' + fmt(ganho) : '—'} ${pct != null ? `(${pct > 0 ? '+' : ''}${pct}%)` : ''}`;
+  } else {
+    dEl.innerHTML = `+${fmt(d.linkedin.novos)} novos ${fmtMomBadge(d.linkedin.novos_mom_pct)}`;
+  }
 
   renderChart12m(d.linkedin.serie_12m);
   renderDemo(d.linkedin.demografia);
@@ -389,36 +420,104 @@ function renderAlertas(alertas) {
     alertas.map(a => `<div class="alert ${a.tipo}">${a.tipo === 'warn' ? '⚠️' : 'ℹ️'} ${a.msg}</div>`).join('');
 }
 
-function renderKPIs(li) {
+function fmtDur(s) {
+  if (s == null) return '—';
+  const m = Math.floor(s / 60), sec = s % 60;
+  return m > 0 ? `${m}m ${sec}s` : `${sec}s`;
+}
+
+function renderTopPages(site, periodo) {
+  const sec = document.getElementById('s1b');
+  const rows = document.getElementById('top-pages-rows');
+  const periodEl = document.getElementById('site-detail-period');
+  if (!site || !site.top_pages || site.top_pages.length === 0) {
+    sec.style.display = 'none';
+    return;
+  }
+  sec.style.display = '';
+  periodEl.textContent = `🟢 GA4 · ${periodo}`;
+  const maxViews = Math.max(...site.top_pages.map(p => p.visualizacoes || 0));
+  rows.innerHTML = site.top_pages.map((p, i) => {
+    const pct = maxViews > 0 ? Math.round(100 * p.visualizacoes / maxViews) : 0;
+    const title = (p.title || p.path || '—').slice(0, 60);
+    const path = p.path && p.path !== p.title ? `<div style="color:var(--dim);font-size:10px;font-family:'JetBrains Mono',monospace;margin-top:2px">${p.path}</div>` : '';
+    return `
+      <div style="padding:8px 0;border-bottom:1px dashed rgba(148,163,184,.10)">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px">
+          <div style="flex:1;min-width:0">
+            <span style="display:inline-block;width:22px;color:var(--muted);font-size:11px">${i+1}.</span>
+            <span style="font-size:13px;color:var(--text)">${title}</span>
+            ${path}
+          </div>
+          <div style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:12px">
+            <div style="font-weight:700;color:var(--accent)">${fmt(p.visualizacoes)} views</div>
+            <div style="color:var(--muted);font-size:11px">${fmt(p.usuarios)} usuários</div>
+          </div>
+        </div>
+        <div style="height:3px;background:rgba(96,165,250,.08);border-radius:2px;margin-top:6px;overflow:hidden">
+          <div style="height:100%;background:linear-gradient(90deg,#60a5fa,#3b82f6);width:${pct}%"></div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderKPIs(li, site, fyCtx, email) {
   const grid = document.getElementById('kpis-grid');
+  const isFY = !!fyCtx;
+  const labelNovos = isFY ? 'Novos no FY' : 'Novos no mês';
+  const labelUsuarios = isFY ? 'Usuários (12m soma)' : 'Usuários';
+  const labelViews = isFY ? 'Visualizações (12m soma)' : 'Visualizações';
+  const cobertura = isFY && site ? `<div class="kpi-row" style="color:var(--dim);font-size:10px"><span>🟢 GA4 · ${site.meses_com_dado}/${site.meses_elegiveis} meses agregados</span></div>` : '';
+  const fonteSite = isFY ? '' : `<div class="kpi-row" style="color:var(--dim);font-size:10px"><span>🟢 GA4 · ${(site?.atualizado_em||'').slice(0,10)}</span></div>`;
+
+  // Card Site: real se houver snapshot GA4, senão etiqueta honesta (Regra 7)
+  const siteCard = (site && site.usuarios != null) ? `
+    <div class="kpi-canal">
+      <h3>🌐 Site</h3>
+      <div class="kpi-row"><span class="kpi-label">${labelUsuarios}</span><span class="kpi-val">${fmt(site.usuarios)} ${isFY ? '' : fmtMomBadge(site.usuarios_mom_pct)}</span></div>
+      <div class="kpi-row"><span class="kpi-label">${labelViews}</span><span class="kpi-val">${fmt(site.visualizacoes)} ${isFY ? '' : fmtMomBadge(site.visualizacoes_mom_pct)}</span></div>
+      <div class="kpi-row"><span class="kpi-label">Sessões</span><span class="kpi-val">${fmt(site.sessoes)}</span></div>
+      <div class="kpi-row"><span class="kpi-label">Duração sessão${isFY ? ' (média ponderada)' : ''}</span><span class="kpi-val">${fmtDur(site.duracao_sessao_s)} ${isFY ? '' : fmtMomBadge(site.duracao_sessao_mom_pct)}</span></div>
+      ${cobertura}${fonteSite}
+    </div>` : `
+    <div class="kpi-canal">
+      <h3>🌐 Site</h3>
+      <div class="kpi-row"><span class="kpi-label">Usuários</span><span class="kpi-val">—</span></div>
+      <div class="kpi-row"><span class="kpi-label">Visualizações</span><span class="kpi-val">—</span></div>
+      <div class="kpi-row"><span class="kpi-label">Duração sessão</span><span class="kpi-val">—</span></div>
+      <div class="kpi-row" style="color:var(--dim);font-size:10px"><span>⏳ ${isFY ? 'Rode POST /api/relatorio/ga4-refresh-fy?fy=' + fyCtx.fy : 'Aguarda sync GA4 (rodar ga4_fetch)'}</span></div>
+    </div>`;
   grid.innerHTML = `
     <div class="kpi-canal">
       <h3>💼 LinkedIn</h3>
       <div class="kpi-row"><span class="kpi-label">Seguidores totais</span><span class="kpi-val">${fmt(li.total_atual)}</span></div>
-      <div class="kpi-row"><span class="kpi-label">Novos no mês</span><span class="kpi-val">+${fmt(li.novos)} ${fmtMomBadge(li.novos_mom_pct)}</span></div>
+      <div class="kpi-row"><span class="kpi-label">${labelNovos}</span><span class="kpi-val">+${fmt(li.novos)} ${isFY ? '' : fmtMomBadge(li.novos_mom_pct)}</span></div>
       <div class="kpi-row"><span class="kpi-label">Impressões</span><span class="kpi-val">${fmt(li.impressoes)}</span></div>
       <div class="kpi-row"><span class="kpi-label">Posts</span><span class="kpi-val">${fmt(li.posts_mes)}</span></div>
+      ${isFY && li.ganho_total != null ? `<div class="kpi-row" style="color:var(--dim);font-size:10px"><span>Saldo FY: ${li.ganho_total > 0 ? '+' : ''}${fmt(li.ganho_total)} (${li.ganho_pct > 0 ? '+' : ''}${li.ganho_pct}%)</span></div>` : ''}
     </div>
-    <div class="kpi-canal">
-      <h3>🌐 Site</h3>
-      <div class="kpi-row"><span class="kpi-label">Usuários</span><span class="kpi-val">— ${fmtMomBadge(null)}</span></div>
-      <div class="kpi-row"><span class="kpi-label">Visualizações</span><span class="kpi-val">—</span></div>
-      <div class="kpi-row"><span class="kpi-label">Duração sessão</span><span class="kpi-val">—</span></div>
-      <div class="kpi-row" style="color:var(--dim);font-size:10px"><span>⚠️ Aguarda integração GA4 API</span></div>
-    </div>
+    ${siteCard}
     <div class="kpi-canal">
       <h3>📷 Instagram</h3>
       <div class="kpi-row"><span class="kpi-label">Seguidores</span><span class="kpi-val">— ${fmtMomBadge(null)}</span></div>
       <div class="kpi-row"><span class="kpi-label">Alcance</span><span class="kpi-val">—</span></div>
       <div class="kpi-row" style="color:var(--dim);font-size:10px"><span>⚠️ Aguarda Instagram Graph API</span></div>
     </div>
+    ${email ? `
     <div class="kpi-canal">
       <h3>✉️ E-mail (RD Station)</h3>
-      <div class="kpi-row"><span class="kpi-label">Taxa abertura</span><span class="kpi-val">—</span></div>
-      <div class="kpi-row"><span class="kpi-label">Taxa cliques</span><span class="kpi-val">—</span></div>
-      <div class="kpi-row"><span class="kpi-label">Leads</span><span class="kpi-val">—</span></div>
-      <div class="kpi-row" style="color:var(--dim);font-size:10px"><span>⚠️ Personal API Token RD pendente</span></div>
-    </div>
+      <div class="kpi-row"><span class="kpi-label">Base de leads</span><span class="kpi-val">${email.base_leads != null ? fmt(email.base_leads) + (email.base_leads_aprox ? '+' : '') : '—'}</span></div>
+      <div class="kpi-row"><span class="kpi-label">Enviados no mês ${email.mes_atual ? `(${email.mes_atual})` : ''}</span><span class="kpi-val">${fmt(email.enviados_mes_atual)}</span></div>
+      <div class="kpi-row"><span class="kpi-label">Workflows ativos</span><span class="kpi-val">${fmt(email.workflows_ativos)}</span></div>
+      <div class="kpi-row"><span class="kpi-label">LPs publicadas</span><span class="kpi-val">${fmt(email.landing_pages_publicadas)}</span></div>
+      <div class="kpi-row" style="color:var(--dim);font-size:10px"><span>🟢 RD Station · ${(email.atualizado_em||'').slice(0,10)}</span></div>
+    </div>` : `
+    <div class="kpi-canal">
+      <h3>✉️ E-mail (RD Station)</h3>
+      <div class="kpi-row"><span class="kpi-label">Base de leads</span><span class="kpi-val">—</span></div>
+      <div class="kpi-row"><span class="kpi-label">Enviados no mês</span><span class="kpi-val">—</span></div>
+      <div class="kpi-row" style="color:var(--dim);font-size:10px"><span>⏳ Aguarda RD sync (rodar rd_fetch)</span></div>
+    </div>`}
   `;
 }
 
@@ -502,14 +601,20 @@ function renderProxEventos(ev) {
   `).join('');
 }
 
-// ── Navegação de mês
+// ── Navegação de mês / FY
 async function inicializarSelect() {
   const r = await fetch('/api/linkedin/historical');
   const d = await r.json();
   if (!d.success) return;
   const meses = (d.serie_mensal || []).map(m => m.mes).sort();
   const sel = document.getElementById('mes-select');
-  sel.innerHTML = meses.map(m => `<option value="${m}">${m}</option>`).join('');
+  // FY26 (jul/25→jun/26) e FY27 (jul/26→jun/27) no topo, depois meses individuais
+  const fyOpts = [
+    '<option value="fy:26">📅 FY26 — Resumo Anual (jul/25 → jun/26)</option>',
+    '<option value="fy:27">📅 FY27 — Em andamento (jul/26 → jun/27)</option>',
+    '<option disabled>──────── meses ────────</option>',
+  ].join('');
+  sel.innerHTML = fyOpts + meses.map(m => `<option value="${m}">${m}</option>`).join('');
   const ultimoMes = meses[meses.length - 1] || new Date().toISOString().slice(0, 7);
   sel.value = ultimoMes;
   carregar(ultimoMes);
@@ -518,7 +623,7 @@ async function inicializarSelect() {
 function setMes(m) { carregar(m); }
 function navMes(delta) {
   const sel = document.getElementById('mes-select');
-  const opts = Array.from(sel.options).map(o => o.value);
+  const opts = Array.from(sel.options).filter(o => !o.disabled).map(o => o.value);
   const i = opts.indexOf(sel.value);
   const novo = opts[Math.max(0, Math.min(opts.length-1, i + delta))];
   sel.value = novo; carregar(novo);

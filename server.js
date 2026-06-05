@@ -1,16 +1,40 @@
 // ── AMBIENTE ──────────────────────────────────────────────────────────────────
-// Local Windows dev: carrega módulos e .env de fora do Google Drive
+// Local Windows dev: carrega modulos e .env de fora do OneDrive (evita clobber)
 // Railway Linux: usa node_modules normais instalados pelo npm install
-const localModules = 'C:/Users/Ruds/.epiuse-optimizer/node_modules';
+// Detecta o usuario atual automaticamente (Ruds, rudac, ou qualquer outro)
 const fs0 = require('fs');
-const IS_LOCAL_DEV = process.platform === 'win32' && fs0.existsSync(localModules);
+const os0 = require('os');
+const _winUser = os0.userInfo().username; // rudac, Ruds, etc.
+const _localCandidates = [
+  `C:/Users/${_winUser}/.epiuse-optimizer/node_modules`,
+  'C:/Users/Ruds/.epiuse-optimizer/node_modules',
+];
+const localModules = _localCandidates.find(p => fs0.existsSync(p)) || '';
+const IS_LOCAL_DEV = process.platform === 'win32' && !!localModules;
 
+// Carrega .env off-repo (API keys nao vao no git)
+const _envCandidates = [
+  `C:/Users/${_winUser}/.epiuse-optimizer/.env`,
+  'C:/Users/Ruds/.epiuse-optimizer/.env',
+  require('path').resolve(__dirname, '.env'),
+];
+for (const _ep of _envCandidates) {
+  if (fs0.existsSync(_ep)) {
+    try {
+      const _lines = fs0.readFileSync(_ep, 'utf8').split('\n');
+      _lines.forEach(l => {
+        const m = l.match(/^([A-Z_][A-Z0-9_]*)=(.*)$/);
+        if (m && !process.env[m[1]]) process.env[m[1]] = m[2].trim().replace(/^["']|["']$/g, '');
+      });
+      console.log(`[boot] .env carregado: ${_ep}`);
+    } catch {}
+    break;
+  }
+}
 if (IS_LOCAL_DEV) {
   require('module').Module._nodeModulePaths = () => [localModules, 'node_modules'];
-  const _dotenvParsed = require(localModules + '/dotenv').config({ path: 'C:/Users/Ruds/.epiuse-optimizer/.env' }).parsed || {};
-  Object.keys(_dotenvParsed).forEach(k => { process.env[k] = _dotenvParsed[k]; });
 }
-// Railway: ANTHROPIC_API_KEY vem direto das env vars do projeto (sem .env)
+// Railway: variaveis de ambiente vem das env vars do projeto (sem .env)
 
 const express   = IS_LOCAL_DEV ? require(localModules + '/express')            : require('express');
 const multer    = IS_LOCAL_DEV ? require(localModules + '/multer')             : require('multer');
@@ -45,7 +69,7 @@ const Database = (() => {
 })();
 
 const DB_DIR = IS_LOCAL_DEV
-  ? 'C:/Users/Ruds/.epiuse-optimizer'
+  ? localModules.replace(/[\\/]node_modules$/, '')  // ex: C:/Users/rudac/.epiuse-optimizer
   : (process.env.DATA_DIR || path.join(__dirname, 'data'));
 if (!fs0.existsSync(DB_DIR)) fs0.mkdirSync(DB_DIR, { recursive: true });
 
@@ -326,6 +350,51 @@ app.get('/auth/callback', async (req, res) => {
     delete req.session.returnTo;
     res.redirect(back);
   } catch(e){ console.error('[sso] callback err', e); res.status(500).send('Erro no callback do login: ' + e.message); }
+});
+
+// RD Station OAuth2 callback — captura ?code= e troca por refresh_token (1x)
+app.get('/auth/rd-callback', async (req, res) => {
+  const code = req.query.code;
+  if (!code) return res.status(400).send('faltou ?code= na URL');
+  if (!process.env.RD_CLIENT_ID || !process.env.RD_CLIENT_SECRET) {
+    return res.status(503).send('RD_CLIENT_ID/RD_CLIENT_SECRET nao definidos no servidor');
+  }
+  try {
+    const rd = require(path.join(__dirname, 'scripts/integrations/rd_fetch.js'));
+    const tokens = await rd.exchangeCodeForTokens(code);
+    rd.writeTokens({
+      refresh_token: tokens.refresh_token,
+      access_token: tokens.access_token,
+      expires_in: tokens.expires_in,
+      atualizado_em: new Date().toISOString(),
+    });
+    res.send(`<h1>RD conectado OK</h1>
+      <p>refresh_token salvo em <code>${rd.TOKENS_PATH}</code>.</p>
+      <p><b>Importante:</b> copie o refresh_token abaixo e adicione como env var <code>RD_REFRESH_TOKEN</code> no Railway (depois disso o token salvo em arquivo deixa de ser necessario):</p>
+      <pre style="background:#f4f4f4;padding:12px;border-radius:6px;word-wrap:break-word;white-space:pre-wrap">${tokens.refresh_token}</pre>
+      <p>Em seguida, rode <code>POST /api/relatorio/rd-refresh</code> com X-Editor-Token pra popular o snapshot.</p>`);
+  } catch (e) {
+    res.status(500).send('Erro trocando code por token: ' + e.message);
+  }
+});
+
+// POST /api/relatorio/rd-refresh — dispara fetch real e atualiza rd-snapshot.json
+app.post('/api/relatorio/rd-refresh', requireEditorToken, async (req, res) => {
+  try {
+    const rd = require(path.join(__dirname, 'scripts/integrations/rd_fetch.js'));
+    const out = await rd.fetchRD();
+    res.json({
+      success: true,
+      segmentations: out.segmentations?.total ?? null,
+      workflows: out.workflows?.total ?? null,
+      workflows_ativos: out.workflows?.ativos ?? null,
+      forms: out.forms?.total ?? null,
+      landing_pages: out.landing_pages?.total ?? null,
+      emails: out.emails?.total ?? null,
+      atualizado_em: out.atualizado_em,
+      errors: out.errors || [],
+    });
+  } catch (e) { res.status(500).json({ success: false, error: e.message }); }
 });
 
 app.get('/auth/logout', (req, res) => {
@@ -970,7 +1039,7 @@ app.post('/api/cases/sync', requireEditorToken, (req, res) => {
     { sharepoint_id: 'seed-2', conta: 'EUBR-2025-007', cliente_nome: 'Cliente Cloud LATAM', contato_principal: '— (anonimizado)', contato_email: '', csm: 'Marlison Estrela', lob: 'Cloud', status: 'onboarding', nps: null, valor_anual: null, ultimo_contato: '2026-05-10', observacoes: 'Em onboarding · projeto BTP/Joule. Não publicar sem aprovação Roberto.', case_publicavel: 0, case_resumo: '' },
     { sharepoint_id: 'seed-3', conta: 'EUBR-2024-019', cliente_nome: 'Renner Group', contato_principal: '— (anonimizado)', contato_email: '', csm: 'Bruna Yamagami', lob: 'ERP', status: 'live', nps: 8, valor_anual: null, ultimo_contato: '2026-05-20', observacoes: 'S/4HANA Cloud · contrato anual confirmado renewal 2026.', case_publicavel: 0, case_resumo: '' }
   ];
-  const ins = db.prepare(`INSERT INTO cs_clientes (sharepoint_id, conta, cliente_nome, contato_principal, contato_email, csm, lob, status, nps, valor_anual, ultimo_contato, observacoes, case_publicavel, case_resumo, synced_at) VALUES (@sharepoint_id, @conta, @cliente_nome, @contato_principal, @contato_email, @csm, @lob, @status, @nps, @valor_anual, @ultimo_contato, @observacoes, @case_publicavel, @case_resumo, datetime('now'))`);
+  const ins = db.prepare(`INSERT OR IGNORE INTO cs_clientes (sharepoint_id, conta, cliente_nome, contato_principal, contato_email, csm, lob, status, nps, valor_anual, ultimo_contato, observacoes, case_publicavel, case_resumo, synced_at) VALUES (@sharepoint_id, @conta, @cliente_nome, @contato_principal, @contato_email, @csm, @lob, @status, @nps, @valor_anual, @ultimo_contato, @observacoes, @case_publicavel, @case_resumo, datetime('now'))`);
   db.transaction(() => { seed.forEach(s => ins.run(s)); })();
   console.log(`[seed] ${seed.length} cliente(s) anonimizado(s) carregado(s) em cs_clientes. Substitua via /api/cases/sync.`);
 })();
@@ -1466,8 +1535,157 @@ app.post('/api/linkedin/update-today', requireEditorToken, (req, res) => {
   res.json({ success: true, mes, total_seguidores: total, novos: entry.novos });
 });
 
+// GET /api/relatorio/snapshot?fy=26|27 — agregado anual fiscal (jul→jun)
+// Mantém retrocompat com ?mes=YYYY-MM (mensal).
+function _fyMonths(fy) {
+  const startYear = 2000 + fy - 1;
+  const meses = [];
+  for (let m = 7; m <= 12; m++) meses.push(`${startYear}-${String(m).padStart(2, '0')}`);
+  for (let m = 1; m <= 6; m++) meses.push(`${startYear + 1}-${String(m).padStart(2, '0')}`);
+  return meses;
+}
+
+function _snapshotFY(req, res) {
+  const fy = parseInt(req.query.fy, 10);
+  if (![26, 27].includes(fy)) return res.status(400).json({ success: false, error: 'FY invalido. Use 26 ou 27.' });
+  const meses = _fyMonths(fy);
+  const hoje = new Date().toISOString().slice(0, 7);
+  const elegiveis = meses.filter(m => m <= hoje);
+
+  const linkedin = _readJSON(LINKEDIN_HIST_PATH, { serie_mensal: [], demografia: {}, resumo: {}, eventos: [] });
+  const sm = (linkedin.serie_mensal || []).filter(x => meses.includes(x.mes)).sort((a,b) => a.mes.localeCompare(b.mes));
+  const seg_ini = sm[0]?.total_seguidores ?? null;
+  const seg_fim = sm[sm.length - 1]?.total_seguidores ?? null;
+  const novos_fy = sm.reduce((a, x) => a + (x.novos ?? x.novos_diario ?? 0), 0);
+  const posts_fy = sm.reduce((a, x) => a + (x.posts_mes ?? 0), 0);
+  const impr_fy = sm.reduce((a, x) => a + (x.impressoes ?? 0), 0);
+
+  // GA4 agregado FY (real data only — só meses com cache)
+  let site = null;
+  try {
+    const ga4 = _readJSON(path.join(__dirname, 'public/api/ga4-snapshot.json'), { meses: {} });
+    const obtidos = meses.filter(m => ga4.meses && ga4.meses[m] && ga4.meses[m].usuarios != null);
+    if (obtidos.length) {
+      const sum = (k) => obtidos.reduce((a, m) => a + (ga4.meses[m][k] || 0), 0);
+      // Duração média ponderada por sessões (mais correta que média simples)
+      const tot_sess = sum('sessoes');
+      const tot_segs = obtidos.reduce((a, m) => a + (ga4.meses[m].duracao_sessao_s || 0) * (ga4.meses[m].sessoes || 0), 0);
+      const duracao_avg = tot_sess > 0 ? Math.round(tot_segs / tot_sess) : null;
+      // Top pages agregadas no FY (soma visualizações por path)
+      const pagesMap = new Map();
+      obtidos.forEach(m => {
+        (ga4.meses[m].top_pages || []).forEach(p => {
+          const key = p.path;
+          const cur = pagesMap.get(key) || { path: p.path, title: p.title, visualizacoes: 0, usuarios: 0 };
+          cur.visualizacoes += p.visualizacoes || 0;
+          cur.usuarios += p.usuarios || 0;
+          if (p.title && !cur.title) cur.title = p.title;
+          pagesMap.set(key, cur);
+        });
+      });
+      const top_pages_fy = Array.from(pagesMap.values())
+        .sort((a, b) => b.visualizacoes - a.visualizacoes)
+        .slice(0, 10);
+      site = {
+        usuarios: sum('usuarios'),
+        visualizacoes: sum('visualizacoes'),
+        sessoes: sum('sessoes'),
+        duracao_sessao_s: duracao_avg,
+        top_pages: top_pages_fy,
+        meses_com_dado: obtidos.length,
+        meses_elegiveis: elegiveis.length,
+        meses_total_fy: meses.length,
+        fonte: 'GA4 Data API (agregado FY)',
+        atualizado_em: ga4.atualizado_em || null,
+      };
+    }
+  } catch (e) { console.warn('[relatorio FY] ga4 fail:', e.message); }
+
+  // Email FY (RD Station) — estado atual da base + histórico de envios
+  let email = null;
+  try {
+    const rd = _readJSON(path.join(__dirname, 'public/api/rd-snapshot.json'), null);
+    if (rd && rd.emails) {
+      email = {
+        total_enviados_historico: rd.emails.total_enviados ?? null,
+        enviados_mes_atual: rd.emails.enviados_mes_atual ?? null,
+        mes_atual: rd.emails.mes_atual ?? null,
+        total_na_conta: rd.emails.total ?? null,
+        segmentacoes_total: rd.segmentations?.total ?? null,
+        workflows_ativos: rd.workflows?.ativos ?? null,
+        landing_pages_publicadas: rd.landing_pages?.publicadas ?? null,
+        base_leads: (rd.segmentations?.top || []).find(s => /todos os contatos/i.test(s.name))?.contatos ?? null,
+        base_leads_aprox: (rd.segmentations?.top || []).find(s => /todos os contatos/i.test(s.name))?.contatos_aprox || false,
+        fonte: rd.fonte || 'RD Station Marketing API',
+        atualizado_em: rd.atualizado_em || null,
+      };
+    }
+  } catch (e) { console.warn('[relatorio FY] rd fail:', e.message); }
+
+  // Cases — estado atual (não tem histórico mensal)
+  let cases = { live: 0, publicado: 0, em_edicao: 0, negociacao: 0, declinado: 0 };
+  try {
+    const cs = db.prepare('SELECT status, COUNT(*) as n FROM cs_clientes GROUP BY status').all();
+    cs.forEach(r => {
+      const k = (r.status || '').replace('case-', '').replace('-', '_');
+      if (k in cases) cases[k] = r.n;
+    });
+  } catch (e) { console.warn('[relatorio FY] cases fail:', e.message); }
+
+  // Voices
+  let voices = [];
+  try {
+    const vd = _readJSON(path.join(__dirname, 'public/api/voices.json'), { voices: [] });
+    voices = (vd.voices || []).map(v => ({ id: v.id, nome: v.nome, status: v.status, area: v.area, ssi: v.ssi_baseline || null, seg: v.seguidores_baseline || null }));
+  } catch {}
+
+  // Eventos do FY
+  const eventos_fy = (linkedin.eventos || []).filter(e => meses.includes((e.data || '').slice(0, 7)));
+
+  res.json({
+    success: true,
+    modo: 'fy',
+    fy,
+    label: `FY${fy} (jul/${String(2000 + fy - 1).slice(-2)} → jun/${String(2000 + fy).slice(-2)})`,
+    meses,
+    meses_elegiveis: elegiveis,
+    meses_com_dado: sm.map(x => x.mes),
+    em_andamento: elegiveis.length < meses.length,
+    site,
+    email,
+    linkedin: {
+      total_atual: seg_fim,
+      total_inicio: seg_ini,
+      ganho_total: (seg_ini != null && seg_fim != null) ? (seg_fim - seg_ini) : null,
+      ganho_pct: (seg_ini && seg_fim) ? Math.round(100 * (seg_fim - seg_ini) / seg_ini * 100) / 100 : null,
+      novos: novos_fy,
+      posts_mes: posts_fy,
+      impressoes: impr_fy,
+      newsletter: sm[sm.length - 1]?.newsletter ?? null,
+      serie_12m: sm,
+      eventos_mes: eventos_fy,
+      tatica_elefante: {
+        eventos_no_periodo: eventos_fy.length,
+        seguidores_via_eventos: linkedin.resumo?.total_via_eventos || 0,
+        pct_eventos: linkedin.resumo?.pct_eventos || 0,
+      },
+      demografia: linkedin.demografia,
+    },
+    cases,
+    voices: {
+      ativos: voices.filter(v => v.status === 'ativo' || v.status === 'onboarding').length,
+      total: voices.length,
+      lista: voices,
+    },
+    eventos_proximos: [],
+    alertas: [],
+    gerado_em: new Date().toISOString(),
+  });
+}
+
 // GET /api/relatorio/snapshot?mes=YYYY-MM — agrega TUDO pra o relatório mensal
 app.get('/api/relatorio/snapshot', (req, res) => {
+  if (req.query.fy) return _snapshotFY(req, res);
   const mes = req.query.mes || new Date().toISOString().slice(0, 7);
   const linkedin = _readJSON(LINKEDIN_HIST_PATH, { serie_mensal: [], demografia: {}, resumo: {}, eventos: [] });
 
@@ -1507,9 +1725,54 @@ app.get('/api/relatorio/snapshot', (req, res) => {
     eventos_proximos = all.filter(e => (e.data_inicio || e.data || '') >= hoje).slice(0, 5);
   } catch {}
 
+  // Site (GA4) — lê snapshot gravado por scripts/integrations/ga4_fetch.js (quota-safe)
+  // Se não houver snapshot do mês → site:null (relatorio.html mostra etiqueta ⏳ aguarda GA4)
+  let site = null;
+  try {
+    const ga4 = _readJSON(path.join(__dirname, 'public/api/ga4-snapshot.json'), { meses: {} });
+    const s = ga4.meses && ga4.meses[mes];
+    if (s && s.usuarios != null) {
+      site = {
+        usuarios: s.usuarios,
+        visualizacoes: s.visualizacoes,
+        sessoes: s.sessoes,
+        duracao_sessao_s: s.duracao_sessao_s,
+        usuarios_mom_pct: s.usuarios_mom_pct ?? null,
+        visualizacoes_mom_pct: s.visualizacoes_mom_pct ?? null,
+        duracao_sessao_mom_pct: s.duracao_sessao_mom_pct ?? null,
+        top_pages: s.top_pages || [],
+        fonte: s.fonte || 'GA4 Data API',
+        atualizado_em: s.atualizado_em || ga4.atualizado_em || null,
+      };
+    }
+  } catch (e) { console.warn('[relatorio] ga4 fail:', e.message); }
+
+  // Email (RD Station) — lê snapshot gravado por scripts/integrations/rd_fetch.js
+  let email = null;
+  try {
+    const rd = _readJSON(path.join(__dirname, 'public/api/rd-snapshot.json'), null);
+    if (rd && rd.emails) {
+      email = {
+        total_enviados_historico: rd.emails.total_enviados ?? null,
+        enviados_mes_atual: rd.emails.enviados_mes_atual ?? null,
+        mes_atual: rd.emails.mes_atual ?? null,
+        total_na_conta: rd.emails.total ?? null,
+        segmentacoes_total: rd.segmentations?.total ?? null,
+        workflows_ativos: rd.workflows?.ativos ?? null,
+        landing_pages_publicadas: rd.landing_pages?.publicadas ?? null,
+        base_leads: (rd.segmentations?.top || []).find(s => /todos os contatos/i.test(s.name))?.contatos ?? null,
+        base_leads_aprox: (rd.segmentations?.top || []).find(s => /todos os contatos/i.test(s.name))?.contatos_aprox || false,
+        fonte: rd.fonte || 'RD Station Marketing API',
+        atualizado_em: rd.atualizado_em || null,
+      };
+    }
+  } catch (e) { console.warn('[relatorio] rd fail:', e.message); }
+
   res.json({
     success: true,
     mes,
+    site,
+    email,
     linkedin: {
       total_atual: atual?.total_seguidores ?? null,
       novos: atual?.novos ?? atual?.novos_diario ?? null,
@@ -1536,6 +1799,33 @@ app.get('/api/relatorio/snapshot', (req, res) => {
     alertas: _gerarAlertas(linkedin, atual, anterior),
     gerado_em: new Date().toISOString(),
   });
+});
+
+// POST /api/relatorio/ga4-refresh?mes=YYYY-MM — dispara fetch real do GA4 e atualiza snapshot
+// Protegido por EDITOR_TOKEN. Usado manualmente ou por cron diário.
+app.post('/api/relatorio/ga4-refresh', requireEditorToken, async (req, res) => {
+  try {
+    const ga4 = require(path.join(__dirname, 'scripts/integrations/ga4_fetch.js'));
+    const mes = req.query.mes || new Date().toISOString().slice(0, 7);
+    const result = await ga4.refreshAndCache(mes);
+    res.json({ success: true, mes: result.mes, usuarios: result.usuarios, atualizado_em: result.atualizado_em });
+  } catch (e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+// POST /api/relatorio/ga4-refresh-fy?fy=26&force=1 — busca todos os meses do FY
+app.post('/api/relatorio/ga4-refresh-fy', requireEditorToken, async (req, res) => {
+  try {
+    const ga4 = require(path.join(__dirname, 'scripts/integrations/ga4_fetch.js'));
+    const fy = parseInt(req.query.fy, 10);
+    if (![26, 27].includes(fy)) return res.status(400).json({ success: false, error: 'FY invalido. Use 26 ou 27.' });
+    const force = req.query.force === '1' || req.query.force === 'true';
+    const result = await ga4.refreshFY(fy, { force });
+    res.json({ success: true, ...result });
+  } catch (e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
 });
 
 function _gerarAlertas(linkedin, atual, anterior) {

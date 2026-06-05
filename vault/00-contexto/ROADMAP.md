@@ -2,44 +2,67 @@
 
 > Fonte única do backlog. TODAS as ferramentas (Claude/Codex/Obsidian/openclaw) leem antes de pegar tarefa.
 > Trava de quem-mexe-em-quê: `_LOCK.md`. Protocolo: `multi-tool-protocol.md`.
-> Última atualização: 30/mai/2026 (v0.7.0, Opus 4.8).
+> Última atualização: 04/jun/2026 (v0.11.0 — NÃO é 1.0.0; critérios de 1.0.0 no fim).
 
 ---
 
-## 🟢 Agora no ar (local)
-- **v0.6.4** rodando em `http://localhost:3000` (sobe sozinho ao logar · auto-restart 5min)
-- Produção Railway: **v0.4.6** (defasada — precisa redeploy quando Rudá autorizar)
+## 🟢 Agora no ar
+- **v0.11.0** rodando em `http://localhost:3000` (sobe sozinho ao logar · auto-restart 5min)
+- Produção Railway: versão anterior (defasada — aguarda push autorizado por Rudá)
 
 ---
 
-## 🚀 Sprint v0.7.0 — Estabilização + Design Codex + Multi-tool (EM ANDAMENTO)
+## ✅ Sprints concluídas (S1 → S16)
 
-| Bloco | O quê | Status |
+| Sprint | Versões | Entrega principal |
 |---|---|---|
-| 0 | Backup local (tag `v0.6.4-snapshot`) | ✅ feito |
-| A | Localhost always-on (fix better-sqlite3 Node 24 + Tarefa Agendada) | ✅ feito |
-| E | Multi-tool "livre com trava" (_LOCK + protocolo + este ROADMAP) | ✅ feito |
-| B | **Migração design → paleta Codex oficial** (#013A6A + Open Sans) | ⏳ aguarda OK Rudá + olho da Duda |
-| C | Varredura de bugs (smoke 18 rotas) | 🟡 parcial (8 rotas OK) |
-| D | Railway P0 persistência SQLite (DATA_DIR já no código) | ⏳ Rudá cria Volume no dashboard |
-| F | Bump v0.7.0 + changelog + push | ⏳ aguarda ordem de push |
+| S1-S3 | 0.2.x–0.3.x | Game 2D · Voices · Painel Duda · Inbound · SQLite |
+| S4 | 0.4.0–0.4.12 | Optimizer Vision · Voice Index · PDF · Cases reais |
+| S5 | 0.5.0–0.5.1 | /relatorio · /artigos · /jornadas · /projecoes · /pipeline · Regra 7 |
+| S6 | 0.6.0–0.6.4 | Design System (DESIGN.md + gen_tokens) · Brand oficial · logos |
+| S7 | 0.7.0–0.7.1 | Localhost always-on · paleta Codex · dados reais · migração C:\ |
+| S8 | 0.8.0 | SSO Microsoft + 6 módulos por área com dado real |
+| S9-S11 | 0.8.1–0.8.3 | Arquitetura 3-camadas · relatorio-mensal · pipeline 5 agentes |
+| S12-S13 | 0.9.0–0.9.5 | Optimizer refundado (zero tokens · V2 findskill · padrão Anderson) |
+| S14 | 0.10.0–0.10.1 | Cowork + workflows dinâmicos entre agentes |
+| S15 | 0.11.0 | Módulo C · Daily Digest + Inbox por área no Painel da Duda |
+| S16 | 0.11.x | Infra: Railway Volume `/data` · SSO Microsoft ativo · sync cases Node.js · domínio office.epiuse.com.br |
 
 ---
 
-## 🔮 Próxima leva (pós-v0.7.0)
-- **SSO Microsoft** (login @epiuse) — credenciais em mãos, mas **secret precisa ser rotacionado** (foi colado no chat). ~11-15h. Doc: `sso-microsoft-plan.md`.
-- **openclaw** — integrar quando Rudá explicar o que é.
-- Refactor final: hex hardcoded → tokens nas telas restantes + Shadow DOM (office-nav/footer).
+## 🚀 Sequência de execução (S17 →) — roadmap real aprovado 04/jun
+
+> Decisões do Rudá: 1ª build = GA4 · CRM = Zoho (deals source=SDR; Apollo faz volume) · Instagram ADIADO (foco LinkedIn).
+
+| Sprint | Entrega | Status |
+|---|---|---|
+| **S17** | **GA4 + relatório real** — `ga4_fetch.js` + bloco `site` no /relatorio | 🔵 em construção (código pronto; falta Service Account do Rudá) |
+| S18 | Apollo cron automático (Tarefa Windows diária 6h) | ⏳ |
+| S19 | Zoho CRM (pipeline R$ — deals Opportunity Source=SDR) | ⏳ |
+| S20 | Events Cockpit (deadlines + checklist + alertas, sem API) | ⏳ |
+| S21 | Voices performance (form rápido + rollup por voicer + cases→pauta) | ⏳ |
+| S22 | Search Console / SEO (reusa Service Account do S17) | ⏳ |
+
+### 🔑 Verdade dura LinkedIn (sem ilusão)
+- Seguidores da **página** = já temos (manter xls Sergio).
+- Posts de **perfil pessoal por voicer** = LinkedIn NÃO expõe via API a terceiros. Mantemos form manual, só reduzimos fricção.
+
+### 💡 Metas sugeridas por área (validar com Rudá)
+- **Intelligence/Bruna:** % base higienizada · MQL→SQL · cobertura UTM
+- **Growth/Gui:** seguidores LinkedIn +120/mês → stretch +200 · sessões orgânicas (GA4) · CPL
+- **Eventos/Isabela:** nº eventos c/ stand · leads/evento · slots de speaker
+- **SDR/Marlison:** reuniões agendadas · sequências ativas (Apollo) · deals SDR R$ (Zoho)
+- **Brand/Duda:** Voices ativos (5) · posts/mês por voicer (2) · engajamento
+- **Conteúdo/Lisiane:** artigos publicados · cobertura pilares · conteúdo→Voice
+
+### 🪦 Backlog "Rudá do Futuro"™ (meme)
+- `08-Agosto.pptx` · `playbook_eventos_b2b v1.docx` · `cronograma_gantt_eventos v1.xlsx` → problema de outro sprint, hehehe 😎
 
 ---
 
-## 📋 Backlog herdado (do plano antigo, ainda válido)
-- **P0** Railway Volume SQLite (= Bloco D)
-- **P3** Validar Voice Index em produção (1 kit real)
-- **F9/F10** Duplicar Voice · dark auto pelo OS
-- **F2** Editor token via session cookie (pré-SSO)
-- **GA4 + Search Console** — aguarda Service Account JSON + Property ID (Teams DM)
-- **Trello API** — aguarda Key + Token + Board IDs (Teams DM)
-- Integrações pendentes: Instagram Graph · RD Personal Token · CRM oficial (qual?)
-
-> Detalhe técnico de cada item: `C:\Users\Ruds\.claude\plans\...dreamy-adleman.md` (plano mestre Claude).
+## 🏁 Critérios para 1.0.0 (ainda não chegamos)
+- [ ] SSO ativo em prod com login real @epiuse (código+Azure ok; falta `SSO_ENFORCE` + uso real)
+- [ ] GA4 + Zoho plugados (site e R$ reais)
+- [ ] Railway estável 14 dias (Volume criado; contar os dias)
+- [ ] 4 das 5 áreas usando o Office 2+ semanas
+- [ ] Runbook + backup p/ Roberto/IT

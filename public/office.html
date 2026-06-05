@@ -140,9 +140,10 @@ body { background: #060e1a; overflow: hidden; font-family: 'Inter', sans-serif; 
       <button class="sg-btn sg-btn-primary" onclick="enterOffice()">🎮 Modo Game<small>WASD · pixel art 2D</small></button>
       <button class="sg-btn sg-btn-secondary" onclick="window.location.href='/dashboard'">📊 Dashboard<small>cards · roadmap</small></button>
     </div>
+    <div id="sso-area" style="margin-top:10px"></div>
   </div>
   <div class="sg-note">WASD ou ↑↓←→ · E para interagir · ESC para fechar modal</div>
-  <div class="sg-ver">v3.0 · 23 MAI 2026 · MAXIMALIST</div>
+  <div class="sg-ver">v0.11.0 · JUN 2026 · MAXIMALIST</div>
 </div>
 
 <!-- Game Canvas -->
@@ -1153,6 +1154,39 @@ function loop(ts) {
     requestAnimationFrame(frame);
   }
   frame();
+})();
+
+// ── SSO MICROSOFT — botao dinamico na tela de entrada ──────────────
+(async function initSSOButton() {
+  const area = document.getElementById('sso-area');
+  if (!area) return;
+  try {
+    const res  = await fetch('/api/auth/status');
+    const data = await res.json();
+    if (!data.enabled) return; // SSO desligado neste ambiente
+
+    if (data.authenticated && data.user) {
+      // Ja logado — mostra usuario e link de logout
+      const u = data.user;
+      area.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(52,211,153,.10);border:1px solid rgba(52,211,153,.30);border-radius:8px;padding:8px 12px;font-size:12px">
+          <span style="color:#34d399">✓ ${u.name || u.email}</span>
+          <a href="/auth/logout" style="color:#94a3b8;text-decoration:none;font-size:11px">Sair</a>
+        </div>`;
+      // Pre-preenche o nome com o nome da conta Microsoft
+      const nameInput = document.getElementById('player-name');
+      if (nameInput && !nameInput.value) nameInput.value = (u.name || '').split(' ')[0];
+    } else {
+      // Nao logado — botao de login Microsoft
+      area.innerHTML = `
+        <div style="text-align:center;margin-bottom:4px;font-size:10px;color:#64748b;letter-spacing:.05em">— ou acesse com —</div>
+        <a href="/auth/login?returnTo=/dashboard" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:10px 12px;background:rgba(37,99,235,.15);border:1px solid rgba(37,99,235,.5);border-radius:8px;color:#93c5fd;font-size:13px;font-weight:600;text-decoration:none;font-family:inherit;cursor:pointer;transition:background .15s;box-sizing:border-box"
+           onmouseover="this.style.background='rgba(37,99,235,.28)'" onmouseout="this.style.background='rgba(37,99,235,.15)'">
+          <svg width="16" height="16" viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="9" height="9" fill="#f25022"/><rect x="11" y="1" width="9" height="9" fill="#7fba00"/><rect x="1" y="11" width="9" height="9" fill="#00a4ef"/><rect x="11" y="11" width="9" height="9" fill="#ffb900"/></svg>
+          Entrar com Microsoft @epiuse.com.br
+        </a>`;
+    }
+  } catch(e) { /* SSO indisponivel — ignora silenciosamente */ }
 })();
 
 // ── SPAWN GATE LOGIC ───────────────────────────────────────────────

@@ -217,7 +217,6 @@
     </div>
     <div class="nav-month">
       <button class="btn btn--ghost" id="btn-add">+ Novo post</button>
-      <button class="btn btn--ghost" id="btn-sync-rd" title="Puxar posts agendados/publicados do RD Station">📤 Sync RD</button>
       <div style="width: 1px; height: 28px; background: var(--d-border); margin: 0 8px;"></div>
       <button class="month-btn" id="prev">‹</button>
       <span class="month-label" id="month-label">Maio · 2026</span>
@@ -632,34 +631,6 @@
     openModal(null, fmtDate(current.y, current.m, 15));
   });
 
-  // RD Station sync — puxa posts/landing pages/popups agendados ou publicados
-  document.getElementById('btn-sync-rd').addEventListener('click', async function(){
-    var btn = this;
-    var orig = btn.textContent;
-    var token = localStorage.getItem('editor-token') || prompt('Editor token (pra autorizar sync):');
-    if (!token) return;
-    localStorage.setItem('editor-token', token);
-    btn.textContent = '⏳ Sincronizando...';
-    btn.disabled = true;
-    try {
-      var res = await fetch('/api/inbound/sync-rd', {
-        method: 'POST',
-        headers: { 'X-Editor-Token': token, 'Content-Type': 'application/json' }
-      });
-      var data = await res.json();
-      if (!data.success) {
-        alert('❌ Sync RD falhou: ' + (data.error || 'erro desconhecido') + '\n\nEndpoints testados:\n' + JSON.stringify(data.tried || [], null, 2));
-      } else {
-        alert('✅ Sync RD OK!\n\nPuxados: ' + data.fetched_total + '\nUpserted: ' + data.upserted + '\nFontes OK: ' + data.sources_ok + '/' + data.sources_total);
-        location.reload();
-      }
-    } catch (e) {
-      alert('❌ Erro: ' + e.message);
-    } finally {
-      btn.textContent = orig;
-      btn.disabled = false;
-    }
-  });
   document.getElementById('m-cancel').addEventListener('click', closeModal);
   modal.addEventListener('click', function(e){ if (e.target === modal) closeModal(); });
   document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeModal(); });
