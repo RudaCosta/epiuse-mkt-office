@@ -96,7 +96,18 @@ body {
 // Detalhes dos critérios em vault/00-contexto/versioning.md.
 const RELEASES = [
   {
-    version: '0.12.0', date: '04/jun/2026', current: true, status: 'current',
+    version: '0.13.0', date: '04/jun/2026', current: true, status: 'current',
+    title: 'SPRINT 17 — Relatório FY (anual fiscal) + GA4 12 meses',
+    body: `<ul>
+      <li><b>Visão anual fiscal</b>: /relatorio ganha <code>FY26</code> (jul/25→jun/26) e <code>FY27</code> (jul/26→jun/27) no seletor de mês.</li>
+      <li><b>Backend FY</b>: <code>GET /api/relatorio/snapshot?fy=26|27</code> agrega site (soma 12m), LinkedIn (ganho total + saldo FY), eventos do FY, cases atuais e voices.</li>
+      <li><b>GA4 multi-mês</b>: <code>ga4_fetch.js</code> ganha <code>fyMonths(fy)</code> + <code>refreshFY(fy)</code> que popula 12 meses do cache. <code>POST /api/relatorio/ga4-refresh-fy?fy=26</code> protegido por token.</li>
+      <li><b>FY26 confirmado</b>: 32.142 usuários · 50.404 visualizações · 36.365 sessões agregadas reais.</li>
+      <li><b>Render adaptado</b>: modo FY mostra cobertura X/12 meses, saldo total (+/-N seguidores), labels "no FY" ao invés de "no mês". Sem MoM no modo anual.</li>
+    </ul>`
+  },
+  {
+    version: '0.12.0', date: '04/jun/2026', status: 'snapshot',
     title: 'SPRINT 16 — Infra de produção + GA4 Data API',
     body: `<ul>
       <li><b>SSO Microsoft ATIVO</b>: login com conta @epiuse.com.br (Entra ID) · botão "Entrar com Microsoft" na tela de entrada · <code>/api/auth/status</code> retorna enabled.</li>

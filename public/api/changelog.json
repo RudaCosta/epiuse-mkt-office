@@ -1,8 +1,11 @@
 {
-  "current": "0.12.0",
+  "current": "0.13.0",
   "atualizado_em": "2026-06-04",
   "releases": [
-    { "version": "0.12.0", "date": "04/jun/2026", "status": "current", "path": null,
+    { "version": "0.13.0", "date": "04/jun/2026", "status": "current", "path": null,
+      "title": "SPRINT 17 — Relatório FY (anual fiscal jul→jun) + GA4 12 meses",
+      "summary": "/relatorio ganha visão anual fiscal (FY26 jul/25→jun/26 e FY27 jul/26→jun/27) no seletor de mês. Backend: GET /api/relatorio/snapshot?fy=26|27 agrega site (soma 12m), LinkedIn (ganho total + saldo FY), eventos do FY, cases atuais e voices. ga4_fetch.js ganha fyMonths(fy) + refreshFY(fy) (popula 12 meses do cache). POST /api/relatorio/ga4-refresh-fy?fy=26 protegido por token. Frontend: render adaptado pra modo FY (sem MoM, com saldo total, cobertura X/12 meses). FY26 já populado: 32.142 usuários · 50.404 visualizações · 36.365 sessões agregadas de jul/25 a jun/26." },
+    { "version": "0.12.0", "date": "04/jun/2026", "status": "snapshot", "path": null,
       "title": "SPRINT 16 — Infra de produção + GA4 Data API",
       "summary": "Marco de produção: SSO Microsoft ATIVO (login @epiuse.com.br via Entra ID · botão na tela de entrada · /api/auth/status enabled) · Railway Volume montado em /data (SQLite agora PERSISTE entre deploys, fim do reset de cases) · domínio oficial office.epiuse.com.br (CNAME no cPanel) · sync de cases reescrito em Node.js (sync_cases_roberto.js — não depende mais de Python, roda em qualquer máquina) com suporte multi-target (local · Railway · site) · integração Google Analytics 4: novo scripts/integrations/ga4_fetch.js (Railway-safe via GA4_SA_JSON, runReport mês+anterior com MoM, cache em ga4-snapshot.json) + bloco site no GET /api/relatorio/snapshot + card Site real no /relatorio (mostra ⏳ só até o Service Account ser configurado) + POST /api/relatorio/ga4-refresh protegido por token. Regra de ouro 13 registrada: dados automatizados, zero planilha manual." },
     { "version": "0.11.0", "date": "04/jun/2026", "status": "snapshot", "path": null,

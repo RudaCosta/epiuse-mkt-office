@@ -1490,8 +1490,114 @@ app.post('/api/linkedin/update-today', requireEditorToken, (req, res) => {
   res.json({ success: true, mes, total_seguidores: total, novos: entry.novos });
 });
 
+// GET /api/relatorio/snapshot?fy=26|27 — agregado anual fiscal (jul→jun)
+// Mantém retrocompat com ?mes=YYYY-MM (mensal).
+function _fyMonths(fy) {
+  const startYear = 2000 + fy - 1;
+  const meses = [];
+  for (let m = 7; m <= 12; m++) meses.push(`${startYear}-${String(m).padStart(2, '0')}`);
+  for (let m = 1; m <= 6; m++) meses.push(`${startYear + 1}-${String(m).padStart(2, '0')}`);
+  return meses;
+}
+
+function _snapshotFY(req, res) {
+  const fy = parseInt(req.query.fy, 10);
+  if (![26, 27].includes(fy)) return res.status(400).json({ success: false, error: 'FY invalido. Use 26 ou 27.' });
+  const meses = _fyMonths(fy);
+  const hoje = new Date().toISOString().slice(0, 7);
+  const elegiveis = meses.filter(m => m <= hoje);
+
+  const linkedin = _readJSON(LINKEDIN_HIST_PATH, { serie_mensal: [], demografia: {}, resumo: {}, eventos: [] });
+  const sm = (linkedin.serie_mensal || []).filter(x => meses.includes(x.mes)).sort((a,b) => a.mes.localeCompare(b.mes));
+  const seg_ini = sm[0]?.total_seguidores ?? null;
+  const seg_fim = sm[sm.length - 1]?.total_seguidores ?? null;
+  const novos_fy = sm.reduce((a, x) => a + (x.novos ?? x.novos_diario ?? 0), 0);
+  const posts_fy = sm.reduce((a, x) => a + (x.posts_mes ?? 0), 0);
+  const impr_fy = sm.reduce((a, x) => a + (x.impressoes ?? 0), 0);
+
+  // GA4 agregado FY (real data only — só meses com cache)
+  let site = null;
+  try {
+    const ga4 = _readJSON(path.join(__dirname, 'public/api/ga4-snapshot.json'), { meses: {} });
+    const obtidos = meses.filter(m => ga4.meses && ga4.meses[m] && ga4.meses[m].usuarios != null);
+    if (obtidos.length) {
+      const sum = (k) => obtidos.reduce((a, m) => a + (ga4.meses[m][k] || 0), 0);
+      site = {
+        usuarios: sum('usuarios'),
+        visualizacoes: sum('visualizacoes'),
+        sessoes: sum('sessoes'),
+        meses_com_dado: obtidos.length,
+        meses_elegiveis: elegiveis.length,
+        meses_total_fy: meses.length,
+        fonte: 'GA4 Data API (agregado FY)',
+        atualizado_em: ga4.atualizado_em || null,
+      };
+    }
+  } catch (e) { console.warn('[relatorio FY] ga4 fail:', e.message); }
+
+  // Cases — estado atual (não tem histórico mensal)
+  let cases = { live: 0, publicado: 0, em_edicao: 0, negociacao: 0, declinado: 0 };
+  try {
+    const cs = db.prepare('SELECT status, COUNT(*) as n FROM cs_clientes GROUP BY status').all();
+    cs.forEach(r => {
+      const k = (r.status || '').replace('case-', '').replace('-', '_');
+      if (k in cases) cases[k] = r.n;
+    });
+  } catch (e) { console.warn('[relatorio FY] cases fail:', e.message); }
+
+  // Voices
+  let voices = [];
+  try {
+    const vd = _readJSON(path.join(__dirname, 'public/api/voices.json'), { voices: [] });
+    voices = (vd.voices || []).map(v => ({ id: v.id, nome: v.nome, status: v.status, area: v.area, ssi: v.ssi_baseline || null, seg: v.seguidores_baseline || null }));
+  } catch {}
+
+  // Eventos do FY
+  const eventos_fy = (linkedin.eventos || []).filter(e => meses.includes((e.data || '').slice(0, 7)));
+
+  res.json({
+    success: true,
+    modo: 'fy',
+    fy,
+    label: `FY${fy} (jul/${String(2000 + fy - 1).slice(-2)} → jun/${String(2000 + fy).slice(-2)})`,
+    meses,
+    meses_elegiveis: elegiveis,
+    meses_com_dado: sm.map(x => x.mes),
+    em_andamento: elegiveis.length < meses.length,
+    site,
+    linkedin: {
+      total_atual: seg_fim,
+      total_inicio: seg_ini,
+      ganho_total: (seg_ini != null && seg_fim != null) ? (seg_fim - seg_ini) : null,
+      ganho_pct: (seg_ini && seg_fim) ? Math.round(100 * (seg_fim - seg_ini) / seg_ini * 100) / 100 : null,
+      novos: novos_fy,
+      posts_mes: posts_fy,
+      impressoes: impr_fy,
+      newsletter: sm[sm.length - 1]?.newsletter ?? null,
+      serie_12m: sm,
+      eventos_mes: eventos_fy,
+      tatica_elefante: {
+        eventos_no_periodo: eventos_fy.length,
+        seguidores_via_eventos: linkedin.resumo?.total_via_eventos || 0,
+        pct_eventos: linkedin.resumo?.pct_eventos || 0,
+      },
+      demografia: linkedin.demografia,
+    },
+    cases,
+    voices: {
+      ativos: voices.filter(v => v.status === 'ativo' || v.status === 'onboarding').length,
+      total: voices.length,
+      lista: voices,
+    },
+    eventos_proximos: [],
+    alertas: [],
+    gerado_em: new Date().toISOString(),
+  });
+}
+
 // GET /api/relatorio/snapshot?mes=YYYY-MM — agrega TUDO pra o relatório mensal
 app.get('/api/relatorio/snapshot', (req, res) => {
+  if (req.query.fy) return _snapshotFY(req, res);
   const mes = req.query.mes || new Date().toISOString().slice(0, 7);
   const linkedin = _readJSON(LINKEDIN_HIST_PATH, { serie_mensal: [], demografia: {}, resumo: {}, eventos: [] });
 
@@ -1591,6 +1697,20 @@ app.post('/api/relatorio/ga4-refresh', requireEditorToken, async (req, res) => {
     const mes = req.query.mes || new Date().toISOString().slice(0, 7);
     const result = await ga4.refreshAndCache(mes);
     res.json({ success: true, mes: result.mes, usuarios: result.usuarios, atualizado_em: result.atualizado_em });
+  } catch (e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+// POST /api/relatorio/ga4-refresh-fy?fy=26&force=1 — busca todos os meses do FY
+app.post('/api/relatorio/ga4-refresh-fy', requireEditorToken, async (req, res) => {
+  try {
+    const ga4 = require(path.join(__dirname, 'scripts/integrations/ga4_fetch.js'));
+    const fy = parseInt(req.query.fy, 10);
+    if (![26, 27].includes(fy)) return res.status(400).json({ success: false, error: 'FY invalido. Use 26 ou 27.' });
+    const force = req.query.force === '1' || req.query.force === 'true';
+    const result = await ga4.refreshFY(fy, { force });
+    res.json({ success: true, ...result });
   } catch (e) {
     res.status(500).json({ success: false, error: e.message });
   }

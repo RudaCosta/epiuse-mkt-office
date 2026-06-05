@@ -144,7 +144,64 @@ async function refreshAndCache(mes) {
   return result;
 }
 
-module.exports = { fetchGA4, refreshAndCache, readSnapshot, SNAPSHOT_PATH };
+// ── FY helpers (EPI-USE: ano fiscal jul→jun) ───────────────────────────────
+// FY26 = jul/2025 → jun/2026 · FY27 = jul/2026 → jun/2027
+function fyMonths(fy) {
+  const startYear = 2000 + fy - 1;
+  const meses = [];
+  for (let m = 7; m <= 12; m++) meses.push(`${startYear}-${String(m).padStart(2, '0')}`);
+  for (let m = 1; m <= 6; m++) meses.push(`${startYear + 1}-${String(m).padStart(2, '0')}`);
+  return meses;
+}
+
+// Busca todos os meses do FY (pula meses futuros) e popula o cache.
+// Retorna { fy, label, meses_fy, meses_obtidos, totais, erros }
+async function refreshFY(fy, { force = false } = {}) {
+  const meses = fyMonths(fy);
+  const hoje = new Date().toISOString().slice(0, 7);
+  const elegiveis = meses.filter(m => m <= hoje);
+  const snap = readSnapshot();
+  snap.meses = snap.meses || {};
+  const obtidos = [];
+  const erros = [];
+  for (const m of elegiveis) {
+    if (!force && snap.meses[m] && snap.meses[m].usuarios != null) {
+      obtidos.push(m);
+      continue;
+    }
+    try {
+      const r = await fetchGA4(m);
+      snap.meses[m] = r;
+      obtidos.push(m);
+    } catch (e) {
+      erros.push({ mes: m, erro: e.message });
+    }
+  }
+  snap.atualizado_em = new Date().toISOString();
+  writeSnapshot(snap);
+  // Totais agregados do FY (real data only — soma só dos meses obtidos)
+  const sumKey = (k) => obtidos.reduce((a, m) => a + (snap.meses[m]?.[k] ?? 0), 0);
+  const totais = {
+    usuarios: sumKey('usuarios'),
+    visualizacoes: sumKey('visualizacoes'),
+    sessoes: sumKey('sessoes'),
+    meses_com_dado: obtidos.length,
+    meses_total_fy: meses.length,
+    meses_elegiveis: elegiveis.length,
+    fonte: 'GA4 Data API',
+    atualizado_em: snap.atualizado_em,
+  };
+  return {
+    fy,
+    label: `FY${fy} (jul/${String(2000 + fy - 1).slice(-2)} → jun/${String(2000 + fy).slice(-2)})`,
+    meses_fy: meses,
+    meses_obtidos: obtidos,
+    totais,
+    erros,
+  };
+}
+
+module.exports = { fetchGA4, refreshAndCache, readSnapshot, SNAPSHOT_PATH, fyMonths, refreshFY };
 
 // ── CLI ───────────────────────────────────────────────────────────────────────────
 if (require.main === module) {
