@@ -96,7 +96,19 @@ body {
 // Detalhes dos critérios em vault/00-contexto/versioning.md.
 const RELEASES = [
   {
-    version: '0.11.0', date: '04/jun/2026', current: true, status: 'snapshot',
+    version: '0.12.0', date: '04/jun/2026', current: true, status: 'current',
+    title: 'SPRINT 16 — Infra de produção + GA4 Data API',
+    body: `<ul>
+      <li><b>SSO Microsoft ATIVO</b>: login com conta @epiuse.com.br (Entra ID) · botão "Entrar com Microsoft" na tela de entrada · <code>/api/auth/status</code> retorna enabled.</li>
+      <li><b>Railway Volume /data</b>: SQLite agora PERSISTE entre deploys — fim do reset de cases a cada push.</li>
+      <li><b>Domínio oficial</b>: <code>office.epiuse.com.br</code> (CNAME no cPanel apontando pro Railway).</li>
+      <li><b>Sync de cases em Node.js</b>: <code>sync_cases_roberto.js</code> substitui o Python (roda em qualquer máquina) · multi-target (local · Railway · site).</li>
+      <li><b>Integração GA4</b>: <code>ga4_fetch.js</code> (Railway-safe via GA4_SA_JSON · runReport mês+anterior com MoM · cache ga4-snapshot.json) + bloco <code>site</code> no <code>/api/relatorio/snapshot</code> + card Site real no /relatorio + <code>POST /api/relatorio/ga4-refresh</code>.</li>
+      <li><b>Regra de ouro 13</b>: dados automatizados, zero planilha manual (API → browser logado → manual só em último caso).</li>
+    </ul>`
+  },
+  {
+    version: '0.11.0', date: '04/jun/2026', status: 'snapshot',
     title: 'SPRINT 15 — Módulo C · Painel da Duda real (Daily Digest + Inbox por área)',
     body: `<ul>
       <li><b>Daily Digest</b>: saudação contextual + resumo do que merece atenção hoje · pills com Voices ativos / inbox total / semana · ações pendentes com link RESOLVER/ABRIR direto pra agente.</li>

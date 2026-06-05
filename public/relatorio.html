@@ -347,7 +347,7 @@ async function carregar(mes) {
   renderAlertas(d.alertas);
 
   // KPIs Digitais (4 colunas)
-  renderKPIs(d.linkedin);
+  renderKPIs(d.linkedin, d.site);
 
   // LinkedIn detalhe
   document.getElementById('li-total').textContent = fmt(d.linkedin.total_atual);
@@ -389,8 +389,31 @@ function renderAlertas(alertas) {
     alertas.map(a => `<div class="alert ${a.tipo}">${a.tipo === 'warn' ? '⚠️' : 'ℹ️'} ${a.msg}</div>`).join('');
 }
 
-function renderKPIs(li) {
+function fmtDur(s) {
+  if (s == null) return '—';
+  const m = Math.floor(s / 60), sec = s % 60;
+  return m > 0 ? `${m}m ${sec}s` : `${sec}s`;
+}
+
+function renderKPIs(li, site) {
   const grid = document.getElementById('kpis-grid');
+  // Card Site: real se houver snapshot GA4, senão etiqueta honesta (Regra 7)
+  const siteCard = (site && site.usuarios != null) ? `
+    <div class="kpi-canal">
+      <h3>🌐 Site</h3>
+      <div class="kpi-row"><span class="kpi-label">Usuários</span><span class="kpi-val">${fmt(site.usuarios)} ${fmtMomBadge(site.usuarios_mom_pct)}</span></div>
+      <div class="kpi-row"><span class="kpi-label">Visualizações</span><span class="kpi-val">${fmt(site.visualizacoes)} ${fmtMomBadge(site.visualizacoes_mom_pct)}</span></div>
+      <div class="kpi-row"><span class="kpi-label">Sessões</span><span class="kpi-val">${fmt(site.sessoes)}</span></div>
+      <div class="kpi-row"><span class="kpi-label">Duração sessão</span><span class="kpi-val">${fmtDur(site.duracao_sessao_s)}</span></div>
+      <div class="kpi-row" style="color:var(--dim);font-size:10px"><span>🟢 GA4 · ${(site.atualizado_em||'').slice(0,10)}</span></div>
+    </div>` : `
+    <div class="kpi-canal">
+      <h3>🌐 Site</h3>
+      <div class="kpi-row"><span class="kpi-label">Usuários</span><span class="kpi-val">—</span></div>
+      <div class="kpi-row"><span class="kpi-label">Visualizações</span><span class="kpi-val">—</span></div>
+      <div class="kpi-row"><span class="kpi-label">Duração sessão</span><span class="kpi-val">—</span></div>
+      <div class="kpi-row" style="color:var(--dim);font-size:10px"><span>⏳ Aguarda sync GA4 (rodar ga4_fetch)</span></div>
+    </div>`;
   grid.innerHTML = `
     <div class="kpi-canal">
       <h3>💼 LinkedIn</h3>
@@ -399,13 +422,7 @@ function renderKPIs(li) {
       <div class="kpi-row"><span class="kpi-label">Impressões</span><span class="kpi-val">${fmt(li.impressoes)}</span></div>
       <div class="kpi-row"><span class="kpi-label">Posts</span><span class="kpi-val">${fmt(li.posts_mes)}</span></div>
     </div>
-    <div class="kpi-canal">
-      <h3>🌐 Site</h3>
-      <div class="kpi-row"><span class="kpi-label">Usuários</span><span class="kpi-val">— ${fmtMomBadge(null)}</span></div>
-      <div class="kpi-row"><span class="kpi-label">Visualizações</span><span class="kpi-val">—</span></div>
-      <div class="kpi-row"><span class="kpi-label">Duração sessão</span><span class="kpi-val">—</span></div>
-      <div class="kpi-row" style="color:var(--dim);font-size:10px"><span>⚠️ Aguarda integração GA4 API</span></div>
-    </div>
+    ${siteCard}
     <div class="kpi-canal">
       <h3>📷 Instagram</h3>
       <div class="kpi-row"><span class="kpi-label">Seguidores</span><span class="kpi-val">— ${fmtMomBadge(null)}</span></div>

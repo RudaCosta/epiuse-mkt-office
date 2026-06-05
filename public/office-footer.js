@@ -3,16 +3,17 @@
 // Status do sistema + versão atual + dropdown de versões anteriores
 // ════════════════════════════════════════════════════════════════════════════
 
-const OFFICE_FOOTER_VERSION = '0.11.0';
+const OFFICE_FOOTER_VERSION = '0.12.0';
 const OFFICE_FOOTER_BUILD = '2026-06-04';
 
 // SemVer real a partir de v1.0.0 (jun/2026). Versões 0.x eram pré-release.
 // Bug fix → 1.0.1 | Feature nova → 1.1.0 | Refactor grande → 2.0.0
 // Histórico pré-1.0 preservado abaixo para referência.
 const OFFICE_VERSION_HISTORY = [
-  // ─── v1.0 · Lançamento oficial (04/jun/2026) ───
+  // ─── SPRINT 16 · Infra prod + GA4 (04/jun/2026) ───
+  { ver: '0.12.0', date: '04/jun/2026', label: 'SPRINT 16 — Infra de produção + GA4. SSO Microsoft ATIVO (login @epiuse) · Railway Volume /data (SQLite persiste) · domínio office.epiuse.com.br · sync cases reescrito em Node.js (sem Python) · integração GA4 Data API (ga4_fetch.js + bloco site no /relatorio, aguarda Service Account). Botão login Microsoft na tela de entrada.', path: null, status: 'current' },
   // ─── SPRINT 15 · Módulo C Painel (04/jun/2026) ───
-  { ver: '0.11.0', date: '04/jun/2026', label: 'SPRINT 15 — Módulo C · Daily Digest + Inbox por área no Painel da Duda. APIs /api/painel/digest + /api/painel/inbox-duda. Auto-refresh 60s. Versionamento sincronizado (nav · footer · changelog · package.json).', path: null, status: 'current' },
+  { ver: '0.11.0', date: '04/jun/2026', label: 'SPRINT 15 — Módulo C · Daily Digest + Inbox por área no Painel da Duda. APIs /api/painel/digest + /api/painel/inbox-duda. Auto-refresh 60s. Versionamento sincronizado (nav · footer · changelog · package.json).', path: null, status: 'snapshot' },
   { ver: '0.10.1', date: '04/jun/2026', label: 'Fix cowork — auto-cria pasta inbox em workspaces inexistentes. Correção de 5 erros nos pipe-* no Railway.', path: null, status: 'snapshot' },
   // ─── SPRINT 14 · Cowork (04/jun/2026) ───
   { ver: '0.10.0', date: '04/jun/2026', label: 'SPRINT 14 — Cowork + workflows dinâmicos entre agentes. /cowork · workflows JSON · feed unificado · 2 workflows seed (criar-artigo · nova-oferta).', path: null, status: 'snapshot' },

@@ -1531,9 +1531,30 @@ app.get('/api/relatorio/snapshot', (req, res) => {
     eventos_proximos = all.filter(e => (e.data_inicio || e.data || '') >= hoje).slice(0, 5);
   } catch {}
 
+  // Site (GA4) — lê snapshot gravado por scripts/integrations/ga4_fetch.js (quota-safe)
+  // Se não houver snapshot do mês → site:null (relatorio.html mostra etiqueta ⏳ aguarda GA4)
+  let site = null;
+  try {
+    const ga4 = _readJSON(path.join(__dirname, 'public/api/ga4-snapshot.json'), { meses: {} });
+    const s = ga4.meses && ga4.meses[mes];
+    if (s && s.usuarios != null) {
+      site = {
+        usuarios: s.usuarios,
+        visualizacoes: s.visualizacoes,
+        sessoes: s.sessoes,
+        duracao_sessao_s: s.duracao_sessao_s,
+        usuarios_mom_pct: s.usuarios_mom_pct ?? null,
+        visualizacoes_mom_pct: s.visualizacoes_mom_pct ?? null,
+        fonte: s.fonte || 'GA4 Data API',
+        atualizado_em: s.atualizado_em || ga4.atualizado_em || null,
+      };
+    }
+  } catch (e) { console.warn('[relatorio] ga4 fail:', e.message); }
+
   res.json({
     success: true,
     mes,
+    site,
     linkedin: {
       total_atual: atual?.total_seguidores ?? null,
       novos: atual?.novos ?? atual?.novos_diario ?? null,
@@ -1560,6 +1581,19 @@ app.get('/api/relatorio/snapshot', (req, res) => {
     alertas: _gerarAlertas(linkedin, atual, anterior),
     gerado_em: new Date().toISOString(),
   });
+});
+
+// POST /api/relatorio/ga4-refresh?mes=YYYY-MM — dispara fetch real do GA4 e atualiza snapshot
+// Protegido por EDITOR_TOKEN. Usado manualmente ou por cron diário.
+app.post('/api/relatorio/ga4-refresh', requireEditorToken, async (req, res) => {
+  try {
+    const ga4 = require(path.join(__dirname, 'scripts/integrations/ga4_fetch.js'));
+    const mes = req.query.mes || new Date().toISOString().slice(0, 7);
+    const result = await ga4.refreshAndCache(mes);
+    res.json({ success: true, mes: result.mes, usuarios: result.usuarios, atualizado_em: result.atualizado_em });
+  } catch (e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
 });
 
 function _gerarAlertas(linkedin, atual, anterior) {

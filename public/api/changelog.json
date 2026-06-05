@@ -1,7 +1,10 @@
 {
-  "current": "0.11.0",
+  "current": "0.12.0",
   "atualizado_em": "2026-06-04",
   "releases": [
+    { "version": "0.12.0", "date": "04/jun/2026", "status": "current", "path": null,
+      "title": "SPRINT 16 — Infra de produção + GA4 Data API",
+      "summary": "Marco de produção: SSO Microsoft ATIVO (login @epiuse.com.br via Entra ID · botão na tela de entrada · /api/auth/status enabled) · Railway Volume montado em /data (SQLite agora PERSISTE entre deploys, fim do reset de cases) · domínio oficial office.epiuse.com.br (CNAME no cPanel) · sync de cases reescrito em Node.js (sync_cases_roberto.js — não depende mais de Python, roda em qualquer máquina) com suporte multi-target (local · Railway · site) · integração Google Analytics 4: novo scripts/integrations/ga4_fetch.js (Railway-safe via GA4_SA_JSON, runReport mês+anterior com MoM, cache em ga4-snapshot.json) + bloco site no GET /api/relatorio/snapshot + card Site real no /relatorio (mostra ⏳ só até o Service Account ser configurado) + POST /api/relatorio/ga4-refresh protegido por token. Regra de ouro 13 registrada: dados automatizados, zero planilha manual." },
     { "version": "0.11.0", "date": "04/jun/2026", "status": "snapshot", "path": null,
       "title": "SPRINT 15 — Módulo C · Painel da Duda real (Daily Digest + Inbox por área)",
       "summary": "Painel da Duda ganha 2 seções novas no topo: 🌅 Daily Digest (saudação contextual + resumo do que merece atenção hoje · pills com Voices ativos/inbox total/semana · ações pendentes com link RESOLVER/ABRIR direto pra agente) · 📥 Inbox por área (feed unificado dos workspaces que a Duda toca: area-brand · criativos · landing-pages · pipe-capa · pipe-carrossel). Novas APIs: GET /api/painel/digest (cumprimento + voices_ativos + pendencias + inbox_areas + workflows_ativos_7d) · GET /api/painel/inbox-duda (filtra cowork por AREAS_DUDA). Auto-refresh 60s. /painel evolui sem quebrar o existente (KPIs · tabela voices · performance · kanban · ações rápidas todos preservados)." },
