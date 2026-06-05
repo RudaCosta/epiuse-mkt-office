@@ -1,6 +1,6 @@
 {
-  "atualizado_em": "2026-05-30",
-  "obs": "Fonte unica dos modulos por area. Funil: cada estagio tem valor (realizado real) + meta (⏳ ate Ruda enviar). Metas entram aqui no campo 'meta'.",
+  "atualizado_em": "2026-06-04",
+  "obs": "Fonte unica dos modulos por area. Funil: cada estagio tem valor (realizado real) + meta. Ferramentas: cada uma com icon + desc (sprint 16).",
   "areas": [
     {
       "id": "intelligence",
@@ -10,10 +10,10 @@
       "cor": "#60a5fa",
       "foco": "Inteligência de mercado, CRM, lead scoring, attribution, dashboards de funil",
       "funil": [
-        { "estagio": "Base CRM (contatos)", "valor": 39166, "fonte": "apollo", "meta": null },
-        { "estagio": "Empresas mapeadas", "valor": 14027, "fonte": "apollo", "meta": null },
-        { "estagio": "Leads enriquecidos/mês", "valor": null, "meta": null },
-        { "estagio": "MQLs qualificados", "valor": null, "meta": null }
+        { "estagio": "Base CRM (contatos)", "valor": 39166, "fonte": "apollo", "meta": 50000 },
+        { "estagio": "Empresas mapeadas", "valor": 14027, "fonte": "apollo", "meta": 20000 },
+        { "estagio": "Leads enriquecidos/mês", "valor": null, "meta": 500 },
+        { "estagio": "MQLs qualificados", "valor": null, "meta": 80 }
       ],
       "kpis": [
         { "label": "Contatos na base (Apollo)", "valor": 39166, "fonte": "real" },
@@ -25,8 +25,8 @@
         { "nome": "Lead scoring + attribution", "status": "planejado" }
       ],
       "ferramentas": [
-        { "label": "Pipeline (Apollo)", "href": "/pipeline" },
-        { "label": "Relatório mensal", "href": "/relatorio" }
+        { "label": "Pipeline (Apollo)", "href": "/pipeline", "icon": "📞", "desc": "39k contatos · 14k empresas · sequências ativas" },
+        { "label": "Relatório mensal", "href": "/relatorio", "icon": "📈", "desc": "KPIs consolidados do mês corrente" }
       ]
     },
     {
@@ -37,10 +37,10 @@
       "cor": "#10b981",
       "foco": "Mídia paga, SEO/pautas B2B, LinkedIn growth, briefing pra agências, otimização de funil",
       "funil": [
-        { "estagio": "Impressões/Alcance", "valor": null, "meta": null },
-        { "estagio": "Cliques", "valor": null, "meta": null },
-        { "estagio": "Seguidores novos/mês", "valor": 159, "fonte": "linkedin", "meta": null },
-        { "estagio": "Engajamento", "valor": null, "meta": null }
+        { "estagio": "Impressões/Alcance", "valor": null, "meta": 500000 },
+        { "estagio": "Cliques", "valor": null, "meta": 8000 },
+        { "estagio": "Seguidores novos/mês", "valor": 159, "fonte": "linkedin", "meta": 250 },
+        { "estagio": "Engajamento", "valor": null, "meta": 4.5 }
       ],
       "kpis": [
         { "label": "Seguidores LinkedIn (total)", "valor": 10640, "fonte": "real" },
@@ -52,8 +52,9 @@
         { "nome": "Pautas SEO/GEO", "status": "planejado" }
       ],
       "ferramentas": [
-        { "label": "Projeções paid media", "href": "/projecoes" },
-        { "label": "Metas LinkedIn", "href": "/metas" }
+        { "label": "Projeções paid media", "href": "/projecoes", "icon": "💰", "desc": "Cenários de investimento + CAC + ROI" },
+        { "label": "Metas LinkedIn", "href": "/metas", "icon": "🎯", "desc": "Metas 30d/90d por área" },
+        { "label": "Jornadas de compra", "href": "/jornadas", "icon": "🗺️", "desc": "Mapeamento por LOB e persona" }
       ]
     },
     {
@@ -64,10 +65,10 @@
       "cor": "#fbbf24",
       "foco": "30+ eventos/ano (BR + LATAM), Business Plans SAP MDF, ativações presenciais, tática elefante",
       "funil": [
-        { "estagio": "Eventos planejados", "valor": null, "meta": null, "obs": "30+ BR · 86 LATAM (team.json)" },
-        { "estagio": "Executados", "valor": null, "meta": null },
-        { "estagio": "Leads capturados", "valor": null, "meta": null },
-        { "estagio": "Reuniões pós-evento", "valor": null, "meta": null }
+        { "estagio": "Eventos planejados", "valor": null, "meta": 30, "obs": "30+ BR · 86 LATAM (team.json)" },
+        { "estagio": "Executados", "valor": null, "meta": 30 },
+        { "estagio": "Leads capturados", "valor": null, "meta": 600 },
+        { "estagio": "Reuniões pós-evento", "valor": null, "meta": 90 }
       ],
       "kpis": [
         { "label": "Eventos planejados FY", "valor": null, "fonte": "events.json" },
@@ -78,7 +79,7 @@
         { "nome": "Tática do elefante (ROI por evento)", "status": "ativo" }
       ],
       "ferramentas": [
-        { "label": "Relatório (eventos do mês)", "href": "/relatorio" }
+        { "label": "Relatório de eventos", "href": "/relatorio", "icon": "📈", "desc": "Eventos do mês corrente + próximos 30d" }
       ]
     },
     {
@@ -90,11 +91,11 @@
       "foco": "Outbound via Apollo.io, prospecção C-Level (CIO/CFO/CHRO), bridge marketing → vendas",
       "live": "pipeline",
       "funil": [
-        { "estagio": "Contatos", "valor": 39166, "fonte": "apollo", "meta": null },
-        { "estagio": "Sequências", "valor": 15, "fonte": "apollo", "meta": null },
-        { "estagio": "Reuniões", "valor": null, "meta": null, "obs": "precisa CRM" },
-        { "estagio": "Oportunidades", "valor": null, "meta": null, "obs": "precisa CRM" },
-        { "estagio": "Vendas origem MKT", "valor": null, "meta": null, "obs": "precisa CRM" }
+        { "estagio": "Contatos", "valor": 39166, "fonte": "apollo", "meta": 50000 },
+        { "estagio": "Sequências", "valor": 15, "fonte": "apollo", "meta": 25 },
+        { "estagio": "Reuniões", "valor": null, "meta": 40, "obs": "precisa CRM" },
+        { "estagio": "Oportunidades", "valor": null, "meta": 20, "obs": "precisa CRM" },
+        { "estagio": "Vendas origem MKT", "valor": null, "meta": 6, "obs": "precisa CRM" }
       ],
       "kpis": [
         { "label": "Contatos na base", "valor": 39166, "fonte": "real" },
@@ -106,7 +107,8 @@
         { "nome": "Definir CRM oficial (R$ pipeline)", "status": "pendente" }
       ],
       "ferramentas": [
-        { "label": "Pipeline completo (Apollo)", "href": "/pipeline" }
+        { "label": "Pipeline completo", "href": "/pipeline", "icon": "📞", "desc": "Apollo · contatos · empresas · sequências" },
+        { "label": "Relatório mensal", "href": "/relatorio", "icon": "📈", "desc": "Performance outbound do mês" }
       ]
     },
     {
@@ -124,9 +126,9 @@
       ],
       "funil": [
         { "estagio": "Voices recrutados", "valor": 2, "meta": 5, "obs": "MVP 2/5" },
-        { "estagio": "Ativos", "valor": 2, "meta": null },
-        { "estagio": "Posts/mês", "valor": null, "meta": null },
-        { "estagio": "Seguidores ganhos atribuídos", "valor": null, "meta": null }
+        { "estagio": "Ativos", "valor": 2, "meta": 5 },
+        { "estagio": "Posts/mês", "valor": null, "meta": 40, "obs": "2/sem × 5 Voices" },
+        { "estagio": "Seguidores ganhos atribuídos", "valor": null, "meta": 800 }
       ],
       "kpis": [
         { "label": "Voices ativos / MVP", "valor": "2/5", "fonte": "real" },
@@ -139,12 +141,12 @@
         { "nome": "Cases & CS Hub", "status": "ativo" }
       ],
       "ferramentas": [
-        { "label": "Voices", "href": "/voices" },
-        { "label": "Painel da Duda", "href": "/painel" },
-        { "label": "Profile Optimizer", "href": "/optimizer" },
-        { "label": "Inbound", "href": "/inbound" },
-        { "label": "Cases & CS", "href": "/cases" },
-        { "label": "Design System", "href": "/design" }
+        { "label": "Painel da Duda", "href": "/painel", "icon": "🎯", "desc": "Daily digest · inbox por área · KPIs Voices" },
+        { "label": "Voices", "href": "/voices", "icon": "🎙️", "desc": "Hub de cada Voice ativo" },
+        { "label": "Profile Optimizer V2", "href": "/optimizer-v2", "icon": "🪪", "desc": "Kit LinkedIn findskill em 5 min" },
+        { "label": "Inbound", "href": "/inbound", "icon": "📨", "desc": "Brief → Artigo → Carrossel pipeline" },
+        { "label": "Cases & CS", "href": "/cases", "icon": "🤝", "desc": "Banco de cases publicáveis" },
+        { "label": "Design System", "href": "/design", "icon": "🎨", "desc": "Tokens · cores · tipografia · componentes" }
       ]
     },
     {
@@ -155,10 +157,10 @@
       "cor": "#a37d57",
       "foco": "20 artigos/mês a partir de briefings do Gui, curadoria, tom de voz",
       "funil": [
-        { "estagio": "Pautas", "valor": null, "meta": null },
+        { "estagio": "Pautas", "valor": null, "meta": 25 },
         { "estagio": "Artigos produzidos", "valor": null, "meta": 20, "obs": "meta 20/mês" },
         { "estagio": "Publicados", "valor": 693, "fonte": "artigos", "obs": "base histórica" },
-        { "estagio": "Tráfego (site)", "valor": null, "meta": null, "obs": "aguarda GA4" }
+        { "estagio": "Tráfego (site)", "valor": null, "meta": 15000, "obs": "aguarda GA4" }
       ],
       "kpis": [
         { "label": "Artigos na base", "valor": 693, "fonte": "real" },
@@ -170,8 +172,9 @@
         { "nome": "Jornadas de compra por LOB", "status": "ativo" }
       ],
       "ferramentas": [
-        { "label": "Artigos (693)", "href": "/artigos" },
-        { "label": "Jornadas de compra", "href": "/jornadas" }
+        { "label": "Artigos do Blog", "href": "/artigos", "icon": "📚", "desc": "Base de 693 artigos pesquisáveis" },
+        { "label": "Jornadas de compra", "href": "/jornadas", "icon": "🗺️", "desc": "Buyer journey por LOB" },
+        { "label": "Cowork (workflows)", "href": "/cowork", "icon": "🤝", "desc": "Disparar pipeline editorial em 1 clique" }
       ]
     }
   ]

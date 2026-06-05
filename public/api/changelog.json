@@ -1,7 +1,10 @@
 {
-  "current": "0.11.0",
+  "current": "0.12.0",
   "atualizado_em": "2026-06-04",
   "releases": [
+    { "version": "0.12.0", "date": "04/jun/2026", "status": "snapshot", "path": null,
+      "title": "SPRINT 16 — Módulos /area/:id remodelados (metas dashboard + ferramentas vibrantes + agente + workflows)",
+      "summary": "Reforma visual + funcional de cada módulo /area/:id. (1) 🎯 Dashboard de metas: substitui o funil flat por cards individuais com barra de progresso colorida (verde ≥75% · amarelo ≥50% · vermelho <50%) + status textual (on track/atrás/longe/pendente) + meta visível ao lado do realizado. (2) 🔧 Ferramentas: chips apagadas viram cards GRANDES com ícone 30px + descrição contextual + cor de fundo gradient da área + hover lift. Cada ferramenta no areas.json ganha `icon` + `desc`. (3) 🤝 Atividade do agente: feed do inbox/outbox do area-<id> via /api/agentes/:slug/workspace · link pro workspace completo. (4) 🚀 Workflows: lista todos workflows com badge ⭐ relevante pros que envolvem agentes da área (mapa WF_RELEV) · botão Abrir Cowork. Versão atualizada de areas.json com metas REAIS em todos os funis (50k contatos · 250 seguidores/mês · 30 eventos · 20 artigos/mês · 5 voices etc)." },
     { "version": "0.11.0", "date": "04/jun/2026", "status": "snapshot", "path": null,
       "title": "SPRINT 15 — Módulo C · Painel da Duda real (Daily Digest + Inbox por área)",
       "summary": "Painel da Duda ganha 2 seções novas no topo: 🌅 Daily Digest (saudação contextual + resumo do que merece atenção hoje · pills com Voices ativos/inbox total/semana · ações pendentes com link RESOLVER/ABRIR direto pra agente) · 📥 Inbox por área (feed unificado dos workspaces que a Duda toca: area-brand · criativos · landing-pages · pipe-capa · pipe-carrossel). Novas APIs: GET /api/painel/digest (cumprimento + voices_ativos + pendencias + inbox_areas + workflows_ativos_7d) · GET /api/painel/inbox-duda (filtra cowork por AREAS_DUDA). Auto-refresh 60s. /painel evolui sem quebrar o existente (KPIs · tabela voices · performance · kanban · ações rápidas todos preservados)." },

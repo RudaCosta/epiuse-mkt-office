@@ -23,31 +23,77 @@
             color:var(--color-text,#e6ebf2); text-decoration:none; font-size:13px; font-weight:600; }
   .subaba:hover { background:var(--color-surface-2,#142547); }
   .sec-t { font-size:12px; font-weight:800; letter-spacing:.06em; text-transform:uppercase;
-           color:var(--color-text-muted,#869ec3); margin:22px 0 10px; }
-  /* FUNIL */
-  .funil { display:flex; gap:8px; align-items:stretch; overflow-x:auto; padding-bottom:6px; }
-  .fstage { flex:1; min-width:150px; background:var(--color-surface,#0f1e35); border:1px solid var(--color-border,rgba(134,158,195,.18));
-            border-radius:12px; padding:14px; position:relative; }
-  .fstage .fname { font-size:11px; font-weight:700; text-transform:uppercase; color:var(--color-text-muted,#869ec3); letter-spacing:.04em; }
-  .fstage .fval { font-size:26px; font-weight:800; font-family:'JetBrains Mono',monospace; margin:6px 0 2px; }
-  .fstage .fmeta { font-size:11px; color:var(--color-text-dim,#c0ccd9); }
-  .fstage .fbar { height:6px; border-radius:99px; background:rgba(134,158,195,.15); margin-top:8px; overflow:hidden; }
-  .fstage .fbar > i { display:block; height:100%; border-radius:99px; }
-  .fstage .fobs { font-size:10px; color:var(--color-text-muted,#869ec3); margin-top:6px; }
-  .farrow { align-self:center; color:var(--color-text-muted,#869ec3); font-size:18px; flex:0 0 auto; }
+           color:var(--color-text-muted,#869ec3); margin:26px 0 12px; display:flex; align-items:center; gap:10px; }
+  .sec-t::after { content:''; flex:1; height:1px; background:linear-gradient(90deg, var(--color-border,rgba(134,158,195,.2)), transparent); }
+  /* DASHBOARD DE METAS (upgrade do funil) */
+  .metas-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
+  .meta-card { background:var(--color-surface,#0f1e35); border:1px solid var(--color-border,rgba(134,158,195,.18));
+               border-radius:14px; padding:16px 18px; position:relative; overflow:hidden; transition:transform .15s; }
+  .meta-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--cor,#60a5fa); opacity:.6; }
+  .meta-card .estagio { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--color-text-muted,#869ec3); margin-bottom:8px; }
+  .meta-card .vals { display:flex; align-items:baseline; gap:6px; margin-bottom:10px; }
+  .meta-card .real { font-size:28px; font-weight:800; font-family:'JetBrains Mono',monospace; color:var(--cor,#60a5fa); }
+  .meta-card .real.dim { color:var(--color-text-muted,#869ec3); font-size:22px; }
+  .meta-card .slash { color:var(--color-text-muted,#869ec3); font-size:18px; }
+  .meta-card .meta { font-size:15px; color:var(--color-text-dim,#c0ccd9); font-family:'JetBrains Mono',monospace; }
+  .meta-card .bar { height:8px; background:rgba(134,158,195,.12); border-radius:99px; overflow:hidden; margin-bottom:8px; }
+  .meta-card .bar > i { display:block; height:100%; border-radius:99px; transition:width .5s; }
+  .meta-card .status { font-size:11px; font-weight:700; }
+  .meta-card .status.ok { color:#6ee7b7; }
+  .meta-card .status.warn { color:#fcd34d; }
+  .meta-card .status.off { color:#fca5a5; }
+  .meta-card .status.pend { color:var(--color-text-muted,#869ec3); }
+  .meta-card .obs { font-size:10.5px; color:var(--color-text-muted,#869ec3); margin-top:6px; }
+  .meta-card .fonte { font-size:10px; color:#6ee7b7; margin-top:4px; opacity:.85; }
+  /* SPARKLINE */
   .spark { background:var(--color-surface,#0f1e35); border:1px solid var(--color-border,rgba(134,158,195,.18)); border-radius:12px; padding:8px 6px; }
+  /* KPIs */
   .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px; }
   .card { background:var(--color-surface,#0f1e35); border:1px solid var(--color-border,rgba(134,158,195,.18)); border-radius:12px; padding:14px; }
   .card .clbl { font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:var(--color-text-muted,#869ec3); font-weight:700; }
   .card .cval { font-size:24px; font-weight:800; font-family:'JetBrains Mono',monospace; margin-top:6px; }
   .pend { font-size:12px; color:var(--color-text-muted,#869ec3); }
+  /* PROJETOS */
   .proj { display:flex; align-items:center; gap:8px; padding:9px 12px; background:var(--color-surface,#0f1e35);
           border:1px solid var(--color-border,rgba(134,158,195,.18)); border-radius:10px; margin-bottom:7px; font-size:13px; }
   .pstatus { margin-left:auto; font-size:11px; padding:3px 8px; border-radius:99px; background:rgba(134,158,195,.12); }
-  .tools { display:flex; gap:8px; flex-wrap:wrap; }
-  .tool { padding:9px 14px; border-radius:9px; background:var(--color-surface,#0f1e35); border:1px solid var(--color-border,rgba(134,158,195,.18));
-          color:var(--color-text,#e6ebf2); text-decoration:none; font-size:13px; font-weight:600; }
-  .tool:hover { background:var(--color-surface-2,#142547); }
+  .pstatus.feito { background:rgba(16,185,129,.16); color:#6ee7b7; }
+  .pstatus.ativo, .pstatus.rodando { background:rgba(96,165,250,.16); color:#93c5fd; }
+  .pstatus.pendente { background:rgba(248,113,113,.14); color:#fca5a5; }
+  /* FERRAMENTAS — NOVO CARD GRANDE COM ÍCONE */
+  .tools-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px; }
+  .tool-card { display:flex; gap:14px; align-items:flex-start; padding:16px 18px;
+               background:linear-gradient(135deg, var(--cor-bg, rgba(96,165,250,.05)), var(--color-surface,#0f1e35));
+               border:1px solid var(--cor-border, rgba(96,165,250,.25));
+               border-radius:14px; text-decoration:none; color:var(--color-text,#e6ebf2);
+               transition:transform .15s, border-color .15s; }
+  .tool-card:hover { transform:translateY(-2px); border-color:var(--cor,#60a5fa); }
+  .tool-card .ti { font-size:30px; line-height:1; flex:0 0 auto; }
+  .tool-card .tt { font-size:14px; font-weight:700; margin-bottom:4px; color:var(--color-text,#e6ebf2); }
+  .tool-card .td { font-size:11.5px; color:var(--color-text-muted,#869ec3); line-height:1.45; }
+  .tool-card .ta { font-size:11px; color:var(--cor,#60a5fa); font-weight:700; margin-top:8px; }
+  /* ATIVIDADE AGENTE */
+  .ag-feed { display:flex; flex-direction:column; gap:0; background:var(--color-surface,#0f1e35);
+             border:1px solid var(--color-border,rgba(134,158,195,.18)); border-radius:12px; overflow:hidden; }
+  .ag-row { display:flex; align-items:center; gap:10px; padding:10px 14px; font-size:12.5px;
+            border-bottom:1px solid var(--color-border,rgba(134,158,195,.1)); }
+  .ag-row:last-child { border-bottom:none; }
+  .ag-row .tipo { font-size:10px; padding:2px 7px; border-radius:5px; font-weight:700; font-family:'JetBrains Mono',monospace; }
+  .ag-row .tipo.inbox { background:rgba(251,191,36,.14); color:#fcd34d; }
+  .ag-row .tipo.outbox { background:rgba(16,185,129,.14); color:#6ee7b7; }
+  .ag-row .nome { flex:1; text-transform:capitalize; }
+  .ag-row .when { font-size:10.5px; color:var(--color-text-muted,#869ec3); font-family:'JetBrains Mono',monospace; }
+  .ag-empty { padding:18px; text-align:center; color:var(--color-text-muted,#869ec3); font-size:12px; }
+  /* WORKFLOWS */
+  .wf-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:12px; }
+  .wf-mini { background:var(--color-surface,#0f1e35); border:1px solid var(--color-border,rgba(134,158,195,.18));
+             border-radius:12px; padding:14px 16px; }
+  .wf-mini h4 { margin:0 0 4px; font-size:13px; }
+  .wf-mini .wd { font-size:11.5px; color:var(--color-text-muted,#869ec3); margin-bottom:10px; line-height:1.4; }
+  .wf-mini .btn { display:inline-block; cursor:pointer; padding:6px 12px; font-size:11px; font-weight:700; border-radius:7px;
+                  background:var(--cor,#60a5fa); color:#0a1525; text-decoration:none; }
+  .wf-mini .relev { display:inline-block; font-size:9.5px; padding:2px 7px; border-radius:99px;
+                    background:rgba(168,85,247,.12); color:#c4b5fd; margin-left:6px; font-weight:700; }
 </style>
 </head>
 <body>
@@ -64,27 +110,42 @@ function getId(){
   if (last && last !== 'area' && last !== 'area.html') return last;
   return new URLSearchParams(location.search).get('id') || 'pipeline';
 }
+function esc(s){ return String(s||'').replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
 var fmt = function(n){ return (n==null||n==='') ? null : (typeof n==='number' ? n.toLocaleString('pt-BR') : n); };
 
-function renderFunil(funil, cor){
-  var parts = [];
-  funil.forEach(function(s, i){
-    if (i>0) parts.push('<div class="farrow">→</div>');
-    var val = fmt(s.valor);
-    var pct = (s.valor!=null && s.meta) ? Math.min(100, Math.round(100*s.valor/s.meta)) : null;
-    var metaTxt = s.meta ? ('meta: '+fmt(s.meta)+(pct!=null?(' · '+pct+'%'):'')) : '⏳ meta validando';
-    parts.push(
-      '<div class="fstage">'
-      + '<div class="fname">'+s.estagio+'</div>'
-      + '<div class="fval" style="color:'+(val?cor:'var(--color-text-muted,#869ec3)')+'">'+(val||'—')+'</div>'
-      + '<div class="fmeta">'+metaTxt+'</div>'
-      + (pct!=null ? '<div class="fbar"><i style="width:'+pct+'%;background:'+cor+'"></i></div>' : '')
-      + (s._fonte ? '<div class="fsrc">🔗 '+s._fonte+'</div>' : '')
-      + (s.obs ? '<div class="fobs">'+s.obs+'</div>' : '')
+// MAPA workflows ↔ areas (qual workflow é relevante pra qual area)
+var WF_RELEV = {
+  'criar-artigo': ['conteudo','brand','growth'],
+  'nova-oferta':  ['brand','growth','pipeline','intelligence']
+};
+
+// DASHBOARD METAS (upgrade do funil) — cada estágio vira card com progresso
+function renderMetasDashboard(funil, cor){
+  return '<div class="metas-grid" style="--cor:'+cor+'">' + funil.map(function(s){
+    var pct = (s.valor!=null && s.meta) ? Math.round(100*s.valor/s.meta) : null;
+    var statusTxt = '⏳ pendente'; var statusCls = 'pend';
+    if (pct != null) {
+      if (pct >= 100) { statusTxt = '✅ meta batida'; statusCls = 'ok'; }
+      else if (pct >= 75) { statusTxt = '🟢 on track ('+pct+'%)'; statusCls = 'ok'; }
+      else if (pct >= 50) { statusTxt = '🟡 atrás ('+pct+'%)'; statusCls = 'warn'; }
+      else { statusTxt = '🔴 longe ('+pct+'%)'; statusCls = 'off'; }
+    } else if (s.valor != null && !s.meta) {
+      statusTxt = '📊 sem meta'; statusCls = 'pend';
+    }
+    var barCor = (pct >= 75) ? '#10b981' : (pct >= 50) ? '#f59e0b' : (pct != null ? '#ef4444' : '#6b7280');
+    var barW = (pct == null) ? 0 : Math.min(100, pct);
+    return '<div class="meta-card" style="--cor:'+cor+'">'
+      + '<div class="estagio">'+esc(s.estagio)+'</div>'
+      + '<div class="vals">'
+        + '<span class="real'+(s.valor==null?' dim':'')+'">'+(s.valor!=null?fmt(s.valor):'—')+'</span>'
+        + (s.meta ? '<span class="slash">/</span><span class="meta">'+fmt(s.meta)+'</span>' : '')
       + '</div>'
-    );
-  });
-  return '<div class="funil">'+parts.join('')+'</div>';
+      + '<div class="bar"><i style="width:'+barW+'%;background:'+barCor+'"></i></div>'
+      + '<div class="status '+statusCls+'">'+statusTxt+'</div>'
+      + (s.obs ? '<div class="obs">💬 '+esc(s.obs)+'</div>' : '')
+      + (s._fonte ? '<div class="fonte">🔗 '+esc(s._fonte)+'</div>' : '')
+      + '</div>';
+  }).join('') + '</div>';
 }
 
 function renderSpark(pts, cor){
@@ -109,7 +170,77 @@ function renderSpark(pts, cor){
     + dots + '</svg></div>';
 }
 
-// helpers de wiring: acham estágio/kpi por nome e injetam valor REAL + marcam fonte
+// FERRAMENTAS — cards grandes com ícone + descrição + cor da área
+function renderFerramentas(tools, cor){
+  if (!tools || !tools.length) return '<p class="pend">Nenhuma ferramenta cadastrada pra esta área.</p>';
+  // converte hex em rgba pra background suave
+  var corBg = hexToRgba(cor, .08);
+  var corBd = hexToRgba(cor, .28);
+  return '<div class="tools-grid">' + tools.map(function(t){
+    return '<a class="tool-card" href="'+esc(t.href)+'" style="--cor:'+cor+';--cor-bg:'+corBg+';--cor-border:'+corBd+'">'
+      + '<div class="ti">'+(t.icon||'🔗')+'</div>'
+      + '<div style="flex:1">'
+        + '<div class="tt">'+esc(t.label)+'</div>'
+        + (t.desc ? '<div class="td">'+esc(t.desc)+'</div>' : '')
+        + '<div class="ta">Abrir →</div>'
+      + '</div>'
+      + '</a>';
+  }).join('') + '</div>';
+}
+
+function hexToRgba(hex, a){
+  var h = hex.replace('#','');
+  if (h.length === 3) h = h.split('').map(function(c){return c+c;}).join('');
+  var r=parseInt(h.slice(0,2),16), g=parseInt(h.slice(2,4),16), b=parseInt(h.slice(4,6),16);
+  return 'rgba('+r+','+g+','+b+','+a+')';
+}
+
+// ATIVIDADE DO AGENTE — últimos itens do inbox/outbox de area-<id>
+async function renderAtividadeAgente(slug){
+  try {
+    var ws = await jget('/api/agentes/'+slug+'/workspace');
+    var rows = [];
+    (ws.inbox||[]).slice(0,4).forEach(function(it){ rows.push(_agRow(it, 'inbox')); });
+    (ws.outbox||[]).slice(0,3).forEach(function(it){ rows.push(_agRow(it, 'outbox')); });
+    if (!rows.length) {
+      return '<div class="ag-feed"><div class="ag-empty">📭 Inbox e outbox vazios pra <code>'+slug+'</code>. <a href="/cowork" style="color:#93c5fd">Disparar workflow →</a></div></div>';
+    }
+    return '<div class="ag-feed">'+rows.join('')+'</div>'
+      + '<div style="margin-top:8px;font-size:11px;color:var(--color-text-muted,#869ec3)">→ <a href="/agentes/'+slug+'" style="color:#93c5fd">Workspace completo do agente</a></div>';
+  } catch(e) {
+    return '<div class="ag-feed"><div class="ag-empty">Agente <code>'+slug+'</code> sem workspace ainda.</div></div>';
+  }
+}
+
+function _agRow(it, tipo){
+  var ico = tipo==='inbox' ? '📥' : '📤';
+  var nome = it.nome.replace(/^\d{4}-\d{2}-\d{2}-/,'').replace(/\.md$/,'').replace(/-/g,' ');
+  var when = new Date(it.modificado).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+  return '<div class="ag-row">'
+    + '<span class="tipo '+tipo+'">'+ico+' '+tipo+'</span>'
+    + '<span class="nome">'+esc(nome)+'</span>'
+    + '<span class="when">'+when+'</span>'
+    + '</div>';
+}
+
+// WORKFLOWS — disponíveis + marca relevância pra esta área
+async function renderWorkflows(areaId, cor){
+  try {
+    var wfs = await jget('/api/workflows');
+    if (!wfs.length) return '';
+    return '<div class="wf-grid">' + wfs.map(function(w){
+      var relevante = (WF_RELEV[w.slug] || []).indexOf(areaId) >= 0;
+      var relevBadge = relevante ? '<span class="relev">⭐ relevante</span>' : '';
+      return '<div class="wf-mini" style="--cor:'+cor+'">'
+        + '<h4>'+esc(w.nome)+relevBadge+'</h4>'
+        + '<div class="wd">'+esc(w.descricao||'')+' · <strong>'+(w.steps||[]).length+'</strong> steps · ~'+(w.estimativa_min||'?')+' min</div>'
+        + '<a class="btn" href="/cowork">🚀 Abrir Cowork</a>'
+        + '</div>';
+    }).join('') + '</div>';
+  } catch(e) { return ''; }
+}
+
+// helpers de wiring
 function setStage(a, estagio, valor, fonte){
   (a.funil||[]).forEach(function(s){ if (s.estagio===estagio && valor!=null){ s.valor = valor; if(fonte) s._fonte = fonte; } });
 }
@@ -118,7 +249,6 @@ function setKpi(a, label, valor, fonte){
 }
 async function jget(u){ return (await fetch(u + (u.indexOf('?')<0?'?':'&') + 't=' + Date.now())).json(); }
 
-// enriquecimento AO VIVO por área — só dado REAL das fontes já integradas (Regra 7)
 async function enrich(a){
   a._live = [];
   try {
@@ -159,7 +289,6 @@ async function enrich(a){
       var latam = ltEv.length;
       setStage(a,'Eventos planejados', br, 'events.json · BR');
       setKpi(a,'Eventos planejados FY', br, 'events.json · ' + br + ' BR + ' + latam + ' LATAM');
-      // sparkline mensal (BR + LATAM combinados)
       var meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
       var counts = new Array(12).fill(0);
       brEv.concat(ltEv).forEach(function(e){ if(e.m>=1 && e.m<=12) counts[e.m-1]++; });
@@ -180,7 +309,6 @@ async function init(){
 
   await enrich(a);
 
-  // Contadores do agente da área (inbox/outbox)
   var agSlug = 'area-' + a.id;
   var agentBadges = '';
   try {
@@ -195,6 +323,7 @@ async function init(){
   var subabas = a.subabas ? ('<div class="subabas">'+a.subabas.map(function(t){
       return '<a class="subaba" href="'+t.href+'">'+t.label+'</a>'; }).join('')+'</div>') : '';
 
+  // Renderiza skeleton inicial (síncrono)
   root.innerHTML =
     '<div class="mod-hdr" style="border-left:4px solid '+a.cor+'">'
     + '<div class="mod-ico">'+a.icon+'</div>'
@@ -202,8 +331,9 @@ async function init(){
     + ' · <a href="/agentes/area-'+a.id+'" style="color:var(--color-info-500,#60a5fa);text-decoration:none">🤖 agente da área →</a>'+agentBadges+'</div>'
     + '<div class="mod-foco">'+(a.foco||'')+'</div></div></div>'
     + subabas
-    + '<div class="sec-t">🎯 Funil de meta</div>' + renderFunil(a.funil, a.cor)
-    + (a._spark && a._spark.length>1 ? '<div class="sec-t">📈 '+(a._spark_label || ('Evolução (LinkedIn · '+a._spark.length+' meses reais)'))+'</div>'+renderSpark(a._spark, a.cor) : '')
+    + '<div class="sec-t">🎯 Dashboard de metas</div>' + renderMetasDashboard(a.funil, a.cor)
+    + (a._spark && a._spark.length>1 ? '<div class="sec-t">📈 '+(a._spark_label || ('Evolução ('+a._spark.length+' meses)'))+'</div>'+renderSpark(a._spark, a.cor) : '')
+    + '<div class="sec-t">🔧 Ferramentas</div>' + renderFerramentas(a.ferramentas, a.cor)
     + '<div class="sec-t">📊 Números</div><div class="grid">'
     + (a.kpis||[]).map(function(k){
         var v = fmt(k.valor);
@@ -213,12 +343,15 @@ async function init(){
     + '</div>'
     + '<div class="sec-t">📁 Projetos</div><div>'
     + (a.projetos||[]).map(function(p){
-        return '<div class="proj">📌 '+p.nome+'<span class="pstatus">'+p.status+'</span></div>'; }).join('')
+        var cls = (p.status||'').toLowerCase();
+        return '<div class="proj">📌 '+esc(p.nome)+'<span class="pstatus '+cls+'">'+esc(p.status)+'</span></div>'; }).join('')
     + '</div>'
-    + '<div class="sec-t">🔗 Ferramentas</div><div class="tools">'
-    + (a.ferramentas||[]).map(function(t){
-        return '<a class="tool" href="'+t.href+'">'+t.label+' →</a>'; }).join('')
-    + '</div>';
+    + '<div class="sec-t">🤝 Atividade do agente · <code style="font-size:11px;color:#93c5fd;background:rgba(96,165,250,.1);padding:2px 8px;border-radius:5px">'+agSlug+'</code></div><div id="ag-activity"><p class="pend">Carregando…</p></div>'
+    + '<div class="sec-t">🚀 Workflows · disparar no Cowork</div><div id="wf-list"><p class="pend">Carregando…</p></div>';
+
+  // carrega async
+  renderAtividadeAgente(agSlug).then(function(html){ document.getElementById('ag-activity').innerHTML = html; });
+  renderWorkflows(a.id, a.cor).then(function(html){ document.getElementById('wf-list').innerHTML = html; });
 }
 init();
 </script>
