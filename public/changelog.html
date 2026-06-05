@@ -96,7 +96,18 @@ body {
 // Detalhes dos critérios em vault/00-contexto/versioning.md.
 const RELEASES = [
   {
-    version: '0.13.0', date: '04/jun/2026', current: true, status: 'current',
+    version: '0.14.0', date: '05/jun/2026', current: true, status: 'current',
+    title: 'SPRINT 18 — RD Station integrado (OAuth2) + KPIs de e-mail reais',
+    body: `<ul>
+      <li><b>RD Station OAuth2</b>: <code>scripts/integrations/rd_fetch.js</code> + <code>/auth/rd-callback</code> troca code por refresh_token permanente.</li>
+      <li><b>Dados puxados</b>: 25 segmentações (com tamanho real via paginação), 9 workflows ativos, 19 LPs publicadas, 73 emails enviados (histórico).</li>
+      <li><b>Card e-mail no /relatorio</b>: fim do ⏳ — agora mostra base de leads, enviados no mês, workflows ativos, LPs publicadas (modo mensal e FY).</li>
+      <li><b>POST /api/relatorio/rd-refresh</b>: protegido por EDITOR_TOKEN, atualiza snapshot sob demanda ou via cron.</li>
+      <li><b>Bonus desta sprint</b>: top páginas GA4 (com seção 1b no /relatorio) e duração média ponderada por sessões no modo FY.</li>
+    </ul>`
+  },
+  {
+    version: '0.13.0', date: '04/jun/2026', status: 'snapshot',
     title: 'SPRINT 17 — Relatório FY (anual fiscal) + GA4 12 meses',
     body: `<ul>
       <li><b>Visão anual fiscal</b>: /relatorio ganha <code>FY26</code> (jul/25→jun/26) e <code>FY27</code> (jul/26→jun/27) no seletor de mês.</li>

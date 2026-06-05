@@ -68,8 +68,34 @@ function prevMonth(mes) {
 
 const SNAPSHOT_PATH = path.join(__dirname, '..', '..', 'public', 'api', 'ga4-snapshot.json');
 
+// ── Fetch top pages (paginas mais acessadas no mes) ──────────────────────────
+async function fetchTopPages(mes, limit = 10) {
+  const google = resolveGoogle();
+  const auth = buildAuth(google);
+  const data = google.analyticsdata({ version: 'v1beta', auth });
+  const property = propertyResource();
+  const cur = monthRange(mes);
+  const res = await data.properties.runReport({
+    property,
+    requestBody: {
+      dateRanges: [{ startDate: cur.start, endDate: cur.end }],
+      dimensions: [{ name: 'pagePath' }, { name: 'pageTitle' }],
+      metrics: [{ name: 'screenPageViews' }, { name: 'activeUsers' }, { name: 'averageSessionDuration' }],
+      orderBys: [{ metric: { metricName: 'screenPageViews' }, desc: true }],
+      limit,
+    },
+  });
+  return (res.data.rows || []).map(r => ({
+    path: r.dimensionValues?.[0]?.value || '',
+    title: r.dimensionValues?.[1]?.value || '',
+    visualizacoes: Number(r.metricValues?.[0]?.value || 0),
+    usuarios: Number(r.metricValues?.[1]?.value || 0),
+    duracao_sessao_s: Math.round(Number(r.metricValues?.[2]?.value || 0)),
+  }));
+}
+
 // ── Fetch principal ──────────────────────────────────────────────────────────────
-async function fetchGA4(mes) {
+async function fetchGA4(mes, { withTopPages = true } = {}) {
   mes = mes || new Date().toISOString().slice(0, 7);
   const google = resolveGoogle();
   const auth = buildAuth(google);
@@ -109,6 +135,13 @@ async function fetchGA4(mes) {
   const anterior = grab(1);
   const mom = (a, b) => (a != null && b) ? Math.round(100 * (a - b) / b * 100) / 100 : null;
 
+  // Top pages (best effort — não falha se der erro de quota)
+  let top_pages = [];
+  if (withTopPages) {
+    try { top_pages = await fetchTopPages(mes, 10); }
+    catch (e) { console.warn('[ga4] top_pages fail:', e.message); }
+  }
+
   return {
     mes,
     property_id: property,
@@ -119,7 +152,9 @@ async function fetchGA4(mes) {
     usuarios_mom_pct: mom(atual.usuarios, anterior.usuarios),
     visualizacoes_mom_pct: mom(atual.visualizacoes, anterior.visualizacoes),
     sessoes_mom_pct: mom(atual.sessoes, anterior.sessoes),
+    duracao_sessao_mom_pct: mom(atual.duracao_sessao_s, anterior.duracao_sessao_s),
     anterior,
+    top_pages,
     fonte: 'GA4 Data API',
     atualizado_em: new Date().toISOString(),
   };
@@ -201,7 +236,7 @@ async function refreshFY(fy, { force = false } = {}) {
   };
 }
 
-module.exports = { fetchGA4, refreshAndCache, readSnapshot, SNAPSHOT_PATH, fyMonths, refreshFY };
+module.exports = { fetchGA4, fetchTopPages, refreshAndCache, readSnapshot, SNAPSHOT_PATH, fyMonths, refreshFY };
 
 // ── CLI ───────────────────────────────────────────────────────────────────────────
 if (require.main === module) {

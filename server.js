@@ -352,6 +352,51 @@ app.get('/auth/callback', async (req, res) => {
   } catch(e){ console.error('[sso] callback err', e); res.status(500).send('Erro no callback do login: ' + e.message); }
 });
 
+// RD Station OAuth2 callback — captura ?code= e troca por refresh_token (1x)
+app.get('/auth/rd-callback', async (req, res) => {
+  const code = req.query.code;
+  if (!code) return res.status(400).send('faltou ?code= na URL');
+  if (!process.env.RD_CLIENT_ID || !process.env.RD_CLIENT_SECRET) {
+    return res.status(503).send('RD_CLIENT_ID/RD_CLIENT_SECRET nao definidos no servidor');
+  }
+  try {
+    const rd = require(path.join(__dirname, 'scripts/integrations/rd_fetch.js'));
+    const tokens = await rd.exchangeCodeForTokens(code);
+    rd.writeTokens({
+      refresh_token: tokens.refresh_token,
+      access_token: tokens.access_token,
+      expires_in: tokens.expires_in,
+      atualizado_em: new Date().toISOString(),
+    });
+    res.send(`<h1>RD conectado OK</h1>
+      <p>refresh_token salvo em <code>${rd.TOKENS_PATH}</code>.</p>
+      <p><b>Importante:</b> copie o refresh_token abaixo e adicione como env var <code>RD_REFRESH_TOKEN</code> no Railway (depois disso o token salvo em arquivo deixa de ser necessario):</p>
+      <pre style="background:#f4f4f4;padding:12px;border-radius:6px;word-wrap:break-word;white-space:pre-wrap">${tokens.refresh_token}</pre>
+      <p>Em seguida, rode <code>POST /api/relatorio/rd-refresh</code> com X-Editor-Token pra popular o snapshot.</p>`);
+  } catch (e) {
+    res.status(500).send('Erro trocando code por token: ' + e.message);
+  }
+});
+
+// POST /api/relatorio/rd-refresh — dispara fetch real e atualiza rd-snapshot.json
+app.post('/api/relatorio/rd-refresh', requireEditorToken, async (req, res) => {
+  try {
+    const rd = require(path.join(__dirname, 'scripts/integrations/rd_fetch.js'));
+    const out = await rd.fetchRD();
+    res.json({
+      success: true,
+      segmentations: out.segmentations?.total ?? null,
+      workflows: out.workflows?.total ?? null,
+      workflows_ativos: out.workflows?.ativos ?? null,
+      forms: out.forms?.total ?? null,
+      landing_pages: out.landing_pages?.total ?? null,
+      emails: out.emails?.total ?? null,
+      atualizado_em: out.atualizado_em,
+      errors: out.errors || [],
+    });
+  } catch (e) { res.status(500).json({ success: false, error: e.message }); }
+});
+
 app.get('/auth/logout', (req, res) => {
   const base = IS_LOCAL_DEV ? ('http://localhost:' + PORT) : (process.env.APP_BASE_URL || 'https://epiuse-voices-optimizer.up.railway.app');
   req.session.destroy(() => {
@@ -1522,10 +1567,31 @@ function _snapshotFY(req, res) {
     const obtidos = meses.filter(m => ga4.meses && ga4.meses[m] && ga4.meses[m].usuarios != null);
     if (obtidos.length) {
       const sum = (k) => obtidos.reduce((a, m) => a + (ga4.meses[m][k] || 0), 0);
+      // Duração média ponderada por sessões (mais correta que média simples)
+      const tot_sess = sum('sessoes');
+      const tot_segs = obtidos.reduce((a, m) => a + (ga4.meses[m].duracao_sessao_s || 0) * (ga4.meses[m].sessoes || 0), 0);
+      const duracao_avg = tot_sess > 0 ? Math.round(tot_segs / tot_sess) : null;
+      // Top pages agregadas no FY (soma visualizações por path)
+      const pagesMap = new Map();
+      obtidos.forEach(m => {
+        (ga4.meses[m].top_pages || []).forEach(p => {
+          const key = p.path;
+          const cur = pagesMap.get(key) || { path: p.path, title: p.title, visualizacoes: 0, usuarios: 0 };
+          cur.visualizacoes += p.visualizacoes || 0;
+          cur.usuarios += p.usuarios || 0;
+          if (p.title && !cur.title) cur.title = p.title;
+          pagesMap.set(key, cur);
+        });
+      });
+      const top_pages_fy = Array.from(pagesMap.values())
+        .sort((a, b) => b.visualizacoes - a.visualizacoes)
+        .slice(0, 10);
       site = {
         usuarios: sum('usuarios'),
         visualizacoes: sum('visualizacoes'),
         sessoes: sum('sessoes'),
+        duracao_sessao_s: duracao_avg,
+        top_pages: top_pages_fy,
         meses_com_dado: obtidos.length,
         meses_elegiveis: elegiveis.length,
         meses_total_fy: meses.length,
@@ -1534,6 +1600,27 @@ function _snapshotFY(req, res) {
       };
     }
   } catch (e) { console.warn('[relatorio FY] ga4 fail:', e.message); }
+
+  // Email FY (RD Station) — estado atual da base + histórico de envios
+  let email = null;
+  try {
+    const rd = _readJSON(path.join(__dirname, 'public/api/rd-snapshot.json'), null);
+    if (rd && rd.emails) {
+      email = {
+        total_enviados_historico: rd.emails.total_enviados ?? null,
+        enviados_mes_atual: rd.emails.enviados_mes_atual ?? null,
+        mes_atual: rd.emails.mes_atual ?? null,
+        total_na_conta: rd.emails.total ?? null,
+        segmentacoes_total: rd.segmentations?.total ?? null,
+        workflows_ativos: rd.workflows?.ativos ?? null,
+        landing_pages_publicadas: rd.landing_pages?.publicadas ?? null,
+        base_leads: (rd.segmentations?.top || []).find(s => /todos os contatos/i.test(s.name))?.contatos ?? null,
+        base_leads_aprox: (rd.segmentations?.top || []).find(s => /todos os contatos/i.test(s.name))?.contatos_aprox || false,
+        fonte: rd.fonte || 'RD Station Marketing API',
+        atualizado_em: rd.atualizado_em || null,
+      };
+    }
+  } catch (e) { console.warn('[relatorio FY] rd fail:', e.message); }
 
   // Cases — estado atual (não tem histórico mensal)
   let cases = { live: 0, publicado: 0, em_edicao: 0, negociacao: 0, declinado: 0 };
@@ -1565,6 +1652,7 @@ function _snapshotFY(req, res) {
     meses_com_dado: sm.map(x => x.mes),
     em_andamento: elegiveis.length < meses.length,
     site,
+    email,
     linkedin: {
       total_atual: seg_fim,
       total_inicio: seg_ini,
@@ -1651,16 +1739,40 @@ app.get('/api/relatorio/snapshot', (req, res) => {
         duracao_sessao_s: s.duracao_sessao_s,
         usuarios_mom_pct: s.usuarios_mom_pct ?? null,
         visualizacoes_mom_pct: s.visualizacoes_mom_pct ?? null,
+        duracao_sessao_mom_pct: s.duracao_sessao_mom_pct ?? null,
+        top_pages: s.top_pages || [],
         fonte: s.fonte || 'GA4 Data API',
         atualizado_em: s.atualizado_em || ga4.atualizado_em || null,
       };
     }
   } catch (e) { console.warn('[relatorio] ga4 fail:', e.message); }
 
+  // Email (RD Station) — lê snapshot gravado por scripts/integrations/rd_fetch.js
+  let email = null;
+  try {
+    const rd = _readJSON(path.join(__dirname, 'public/api/rd-snapshot.json'), null);
+    if (rd && rd.emails) {
+      email = {
+        total_enviados_historico: rd.emails.total_enviados ?? null,
+        enviados_mes_atual: rd.emails.enviados_mes_atual ?? null,
+        mes_atual: rd.emails.mes_atual ?? null,
+        total_na_conta: rd.emails.total ?? null,
+        segmentacoes_total: rd.segmentations?.total ?? null,
+        workflows_ativos: rd.workflows?.ativos ?? null,
+        landing_pages_publicadas: rd.landing_pages?.publicadas ?? null,
+        base_leads: (rd.segmentations?.top || []).find(s => /todos os contatos/i.test(s.name))?.contatos ?? null,
+        base_leads_aprox: (rd.segmentations?.top || []).find(s => /todos os contatos/i.test(s.name))?.contatos_aprox || false,
+        fonte: rd.fonte || 'RD Station Marketing API',
+        atualizado_em: rd.atualizado_em || null,
+      };
+    }
+  } catch (e) { console.warn('[relatorio] rd fail:', e.message); }
+
   res.json({
     success: true,
     mes,
     site,
+    email,
     linkedin: {
       total_atual: atual?.total_seguidores ?? null,
       novos: atual?.novos ?? atual?.novos_diario ?? null,

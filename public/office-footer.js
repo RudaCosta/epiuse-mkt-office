@@ -3,15 +3,17 @@
 // Status do sistema + versão atual + dropdown de versões anteriores
 // ════════════════════════════════════════════════════════════════════════════
 
-const OFFICE_FOOTER_VERSION = '0.13.0';
+const OFFICE_FOOTER_VERSION = '0.14.0';
 const OFFICE_FOOTER_BUILD = '2026-06-04';
 
 // SemVer real a partir de v1.0.0 (jun/2026). Versões 0.x eram pré-release.
 // Bug fix → 1.0.1 | Feature nova → 1.1.0 | Refactor grande → 2.0.0
 // Histórico pré-1.0 preservado abaixo para referência.
 const OFFICE_VERSION_HISTORY = [
+  // ─── SPRINT 18 · RD Station OAuth2 + KPIs e-mail reais (05/jun/2026) ───
+  { ver: '0.14.0', date: '05/jun/2026', label: 'SPRINT 18 — RD Station integrado (OAuth2). scripts/integrations/rd_fetch.js + /auth/rd-callback + POST /api/relatorio/rd-refresh. Snapshot popula segmentações com tamanho real (paginação até 1000), workflows ativos, LPs publicadas, emails enviados. Card e-mail no /relatorio mostra: base de leads, enviados no mês, workflows ativos, LPs publicadas (fim do ⏳ "RD pendente"). Top páginas GA4 + duração média ponderada no FY também.', path: null, status: 'current' },
   // ─── SPRINT 17 · Relatório FY + GA4 anual (04/jun/2026) ───
-  { ver: '0.13.0', date: '04/jun/2026', label: 'SPRINT 17 — Relatório FY (jul→jun) e GA4 12 meses. /relatorio ganha FY26 + FY27 no seletor · /api/relatorio/snapshot?fy=26|27 agrega site/linkedin/eventos/voices do ano fiscal · ga4_fetch.js ganha refreshFY(fy) (popula 12 meses) · POST /api/relatorio/ga4-refresh-fy. FY26 confirmado: 32.142 usuários · 50.404 visualizações · 36.365 sessões reais agregados do GA4. Regra de ouro 13 (dados automatizados, zero planilha) memorizada.', path: null, status: 'current' },
+  { ver: '0.13.0', date: '04/jun/2026', label: 'SPRINT 17 — Relatório FY (jul→jun) e GA4 12 meses. /relatorio ganha FY26 + FY27 no seletor · /api/relatorio/snapshot?fy=26|27 agrega site/linkedin/eventos/voices do ano fiscal · ga4_fetch.js ganha refreshFY(fy) (popula 12 meses) · POST /api/relatorio/ga4-refresh-fy. FY26 confirmado: 32.142 usuários · 50.404 visualizações · 36.365 sessões reais agregados do GA4. Regra de ouro 13 (dados automatizados, zero planilha) memorizada.', path: null, status: 'snapshot' },
   // ─── SPRINT 16 · Infra prod + GA4 (04/jun/2026) ───
   { ver: '0.12.0', date: '04/jun/2026', label: 'SPRINT 16 — Infra de produção + GA4. SSO Microsoft ATIVO (login @epiuse) · Railway Volume /data (SQLite persiste) · domínio office.epiuse.com.br · sync cases reescrito em Node.js (sem Python) · integração GA4 Data API (ga4_fetch.js + bloco site no /relatorio, aguarda Service Account). Botão login Microsoft na tela de entrada.', path: null, status: 'snapshot' },
   // ─── SPRINT 15 · Módulo C Painel (04/jun/2026) ───

@@ -1,8 +1,11 @@
 {
-  "current": "0.13.0",
-  "atualizado_em": "2026-06-04",
+  "current": "0.14.0",
+  "atualizado_em": "2026-06-05",
   "releases": [
-    { "version": "0.13.0", "date": "04/jun/2026", "status": "current", "path": null,
+    { "version": "0.14.0", "date": "05/jun/2026", "status": "current", "path": null,
+      "title": "SPRINT 18 — RD Station integrado (OAuth2) + KPIs de e-mail reais",
+      "summary": "Nova integração: scripts/integrations/rd_fetch.js usa OAuth2 do RD Station Marketing pra puxar segmentações (com tamanho real via paginação até 1000), workflows ativos, LPs publicadas e emails enviados. Novo endpoint /auth/rd-callback troca code OAuth por refresh_token permanente. POST /api/relatorio/rd-refresh popula rd-snapshot.json. /api/relatorio/snapshot agora retorna bloco 'email' com base de leads (1000+), workflows ativos (9), LPs publicadas (19), emails enviados no mês. Card e-mail no /relatorio deixa de mostrar ⏳ — fim do bloqueio histórico. Funcionou também no modo FY. Top páginas GA4 e duração média ponderada no FY também adicionados nesta sprint." },
+    { "version": "0.13.0", "date": "04/jun/2026", "status": "snapshot", "path": null,
       "title": "SPRINT 17 — Relatório FY (anual fiscal jul→jun) + GA4 12 meses",
       "summary": "/relatorio ganha visão anual fiscal (FY26 jul/25→jun/26 e FY27 jul/26→jun/27) no seletor de mês. Backend: GET /api/relatorio/snapshot?fy=26|27 agrega site (soma 12m), LinkedIn (ganho total + saldo FY), eventos do FY, cases atuais e voices. ga4_fetch.js ganha fyMonths(fy) + refreshFY(fy) (popula 12 meses do cache). POST /api/relatorio/ga4-refresh-fy?fy=26 protegido por token. Frontend: render adaptado pra modo FY (sem MoM, com saldo total, cobertura X/12 meses). FY26 já populado: 32.142 usuários · 50.404 visualizações · 36.365 sessões agregadas de jul/25 a jun/26." },
     { "version": "0.12.0", "date": "04/jun/2026", "status": "snapshot", "path": null,

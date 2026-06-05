@@ -191,6 +191,7 @@
   <!-- AGENDA -->
   <div class="agenda">
     <div class="agenda-item" onclick="scrollToSec('s1')"><span class="agenda-num">1</span> KPIs Digitais</div>
+    <div class="agenda-item" onclick="scrollToSec('s1b')"><span class="agenda-num">1b</span> Site — Top Páginas</div>
     <div class="agenda-item" onclick="scrollToSec('s2')"><span class="agenda-num">2</span> LinkedIn</div>
     <div class="agenda-item" onclick="scrollToSec('s3')"><span class="agenda-num">3</span> Conteúdo</div>
     <div class="agenda-item" onclick="scrollToSec('s4')"><span class="agenda-num">4</span> Eventos</div>
@@ -207,6 +208,18 @@
     <div class="sec-hdr"><div class="sec-num">1</div><div class="sec-title">KPIs Digitais</div></div>
     <div class="kpi-grid" id="kpis-grid">
       <!-- 4 cards: Site · LinkedIn · Instagram · E-mail -->
+    </div>
+  </section>
+
+  <!-- 1B. SITE — TOP PÁGINAS (GA4) -->
+  <section class="sec" id="s1b" style="display:none">
+    <div class="sec-hdr"><div class="sec-num">1b</div><div class="sec-title">Site — Top Páginas</div></div>
+    <div class="gen-card" id="site-detail-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <h4 style="font-size: 12px; color: var(--muted); margin: 0; letter-spacing: .08em; text-transform: uppercase">🔝 Páginas mais acessadas</h4>
+        <span id="site-detail-period" style="font-size: 10px; color: var(--dim)"></span>
+      </div>
+      <div id="top-pages-rows"></div>
     </div>
   </section>
 
@@ -356,7 +369,10 @@ async function carregar(mes) {
   renderAlertas(d.alertas);
 
   // KPIs Digitais (4 colunas)
-  renderKPIs(d.linkedin, d.site, isFY ? d : null);
+  renderKPIs(d.linkedin, d.site, isFY ? d : null, d.email);
+
+  // Top páginas (GA4) — só mostra se houver dado
+  renderTopPages(d.site, isFY ? d.label : mes);
 
   // LinkedIn detalhe
   document.getElementById('li-total').textContent = fmt(d.linkedin.total_atual);
@@ -410,7 +426,42 @@ function fmtDur(s) {
   return m > 0 ? `${m}m ${sec}s` : `${sec}s`;
 }
 
-function renderKPIs(li, site, fyCtx) {
+function renderTopPages(site, periodo) {
+  const sec = document.getElementById('s1b');
+  const rows = document.getElementById('top-pages-rows');
+  const periodEl = document.getElementById('site-detail-period');
+  if (!site || !site.top_pages || site.top_pages.length === 0) {
+    sec.style.display = 'none';
+    return;
+  }
+  sec.style.display = '';
+  periodEl.textContent = `🟢 GA4 · ${periodo}`;
+  const maxViews = Math.max(...site.top_pages.map(p => p.visualizacoes || 0));
+  rows.innerHTML = site.top_pages.map((p, i) => {
+    const pct = maxViews > 0 ? Math.round(100 * p.visualizacoes / maxViews) : 0;
+    const title = (p.title || p.path || '—').slice(0, 60);
+    const path = p.path && p.path !== p.title ? `<div style="color:var(--dim);font-size:10px;font-family:'JetBrains Mono',monospace;margin-top:2px">${p.path}</div>` : '';
+    return `
+      <div style="padding:8px 0;border-bottom:1px dashed rgba(148,163,184,.10)">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px">
+          <div style="flex:1;min-width:0">
+            <span style="display:inline-block;width:22px;color:var(--muted);font-size:11px">${i+1}.</span>
+            <span style="font-size:13px;color:var(--text)">${title}</span>
+            ${path}
+          </div>
+          <div style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:12px">
+            <div style="font-weight:700;color:var(--accent)">${fmt(p.visualizacoes)} views</div>
+            <div style="color:var(--muted);font-size:11px">${fmt(p.usuarios)} usuários</div>
+          </div>
+        </div>
+        <div style="height:3px;background:rgba(96,165,250,.08);border-radius:2px;margin-top:6px;overflow:hidden">
+          <div style="height:100%;background:linear-gradient(90deg,#60a5fa,#3b82f6);width:${pct}%"></div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderKPIs(li, site, fyCtx, email) {
   const grid = document.getElementById('kpis-grid');
   const isFY = !!fyCtx;
   const labelNovos = isFY ? 'Novos no FY' : 'Novos no mês';
@@ -426,7 +477,7 @@ function renderKPIs(li, site, fyCtx) {
       <div class="kpi-row"><span class="kpi-label">${labelUsuarios}</span><span class="kpi-val">${fmt(site.usuarios)} ${isFY ? '' : fmtMomBadge(site.usuarios_mom_pct)}</span></div>
       <div class="kpi-row"><span class="kpi-label">${labelViews}</span><span class="kpi-val">${fmt(site.visualizacoes)} ${isFY ? '' : fmtMomBadge(site.visualizacoes_mom_pct)}</span></div>
       <div class="kpi-row"><span class="kpi-label">Sessões</span><span class="kpi-val">${fmt(site.sessoes)}</span></div>
-      ${isFY ? '' : `<div class="kpi-row"><span class="kpi-label">Duração sessão</span><span class="kpi-val">${fmtDur(site.duracao_sessao_s)}</span></div>`}
+      <div class="kpi-row"><span class="kpi-label">Duração sessão${isFY ? ' (média ponderada)' : ''}</span><span class="kpi-val">${fmtDur(site.duracao_sessao_s)} ${isFY ? '' : fmtMomBadge(site.duracao_sessao_mom_pct)}</span></div>
       ${cobertura}${fonteSite}
     </div>` : `
     <div class="kpi-canal">
@@ -452,13 +503,21 @@ function renderKPIs(li, site, fyCtx) {
       <div class="kpi-row"><span class="kpi-label">Alcance</span><span class="kpi-val">—</span></div>
       <div class="kpi-row" style="color:var(--dim);font-size:10px"><span>⚠️ Aguarda Instagram Graph API</span></div>
     </div>
+    ${email ? `
     <div class="kpi-canal">
       <h3>✉️ E-mail (RD Station)</h3>
-      <div class="kpi-row"><span class="kpi-label">Taxa abertura</span><span class="kpi-val">—</span></div>
-      <div class="kpi-row"><span class="kpi-label">Taxa cliques</span><span class="kpi-val">—</span></div>
-      <div class="kpi-row"><span class="kpi-label">Leads</span><span class="kpi-val">—</span></div>
-      <div class="kpi-row" style="color:var(--dim);font-size:10px"><span>⚠️ Personal API Token RD pendente</span></div>
-    </div>
+      <div class="kpi-row"><span class="kpi-label">Base de leads</span><span class="kpi-val">${email.base_leads != null ? fmt(email.base_leads) + (email.base_leads_aprox ? '+' : '') : '—'}</span></div>
+      <div class="kpi-row"><span class="kpi-label">Enviados no mês ${email.mes_atual ? `(${email.mes_atual})` : ''}</span><span class="kpi-val">${fmt(email.enviados_mes_atual)}</span></div>
+      <div class="kpi-row"><span class="kpi-label">Workflows ativos</span><span class="kpi-val">${fmt(email.workflows_ativos)}</span></div>
+      <div class="kpi-row"><span class="kpi-label">LPs publicadas</span><span class="kpi-val">${fmt(email.landing_pages_publicadas)}</span></div>
+      <div class="kpi-row" style="color:var(--dim);font-size:10px"><span>🟢 RD Station · ${(email.atualizado_em||'').slice(0,10)}</span></div>
+    </div>` : `
+    <div class="kpi-canal">
+      <h3>✉️ E-mail (RD Station)</h3>
+      <div class="kpi-row"><span class="kpi-label">Base de leads</span><span class="kpi-val">—</span></div>
+      <div class="kpi-row"><span class="kpi-label">Enviados no mês</span><span class="kpi-val">—</span></div>
+      <div class="kpi-row" style="color:var(--dim);font-size:10px"><span>⏳ Aguarda RD sync (rodar rd_fetch)</span></div>
+    </div>`}
   `;
 }
 
