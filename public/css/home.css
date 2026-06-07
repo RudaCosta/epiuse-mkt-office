@@ -94,7 +94,7 @@
 @keyframes pulse { 0%,100% { opacity:1 } 50% { opacity:.5 } }
 
 /* ── SEÇÕES ─────────────────────────────────────────────────────── */
-.home-section { margin-bottom: 26px; }
+.home-section { margin-bottom: 36px; }
 .home-section-title {
   font-size: 11px; font-weight: 800; letter-spacing: .08em;
   text-transform: uppercase; color: var(--home-text-muted);
@@ -519,9 +519,10 @@ html { scroll-behavior: smooth; }
 .home-area-card strong, .home-meta-cell .pct, .home-digest-card .value,
 .home-evt-day, .home-bday-date { font-variant-numeric: tabular-nums; }
 
-/* SECTION FADE-IN no scroll · IntersectionObserver via attribute */
-.home-section { opacity: 0; transform: translateY(12px); transition: opacity .5s ease-out, transform .5s ease-out; }
-.home-section.visible { opacity: 1; transform: none; }
+/* SECTION FADE-IN no scroll · só ativa se JS carregar (html.js-loaded), senão visivel default */
+.home-section { transition: opacity .5s ease-out, transform .5s ease-out; }
+html.js-loaded .home-section { opacity: 0; transform: translateY(12px); }
+html.js-loaded .home-section.visible { opacity: 1; transform: none; }
 
 /* SKELETON loader (substitui "Carregando…" feio) */
 .home-empty.skel {
@@ -532,8 +533,7 @@ html { scroll-behavior: smooth; }
 }
 @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
-/* PREMIUM SPACING — section gap maior */
-.home-section { margin-bottom: 36px; }
+/* PREMIUM SPACING — wrap padding (section margin esta no .home-section unico abaixo) */
 .home-wrap { padding: 28px 22px 80px; }
 
 /* HERO premium — mais alto + light source */

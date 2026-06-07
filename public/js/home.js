@@ -4,6 +4,8 @@
 
 (function() {
   'use strict';
+  // marca JS carregado — fallback sem JS mantem sections visiveis (CSS rule)
+  document.documentElement.classList.add('js-loaded');
 
   // ── HELPERS ─────────────────────────────────────────────────────
   const $ = id => document.getElementById(id);
