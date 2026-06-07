@@ -509,9 +509,47 @@
 }
 
 /* ════════════════════════════════════════════════════════════════════
-   POLISH UI/UX PRO MAX · S20.1
-   Inspirado em Glassmorphism + B2B Service (skill ui-ux-pro-max)
-   Brand EPI-USE preservado · só refinamento de hierarquia + micro-interações
+   POLISH v2 · UI/UX Pro Max (skill ui-ux-pro-max + baoyu)
+   SaaS B2B pattern · Glassmorphism + Flat · premium spacing + smooth scroll
+   ════════════════════════════════════════════════════════════════════ */
+
+html { scroll-behavior: smooth; }
+
+/* TABULAR NUMBERS — números alinham coluna */
+.home-area-card strong, .home-meta-cell .pct, .home-digest-card .value,
+.home-evt-day, .home-bday-date { font-variant-numeric: tabular-nums; }
+
+/* SECTION FADE-IN no scroll · IntersectionObserver via attribute */
+.home-section { opacity: 0; transform: translateY(12px); transition: opacity .5s ease-out, transform .5s ease-out; }
+.home-section.visible { opacity: 1; transform: none; }
+
+/* SKELETON loader (substitui "Carregando…" feio) */
+.home-empty.skel {
+  background: linear-gradient(90deg, transparent, rgba(134,158,195,.08), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 1.8s infinite linear;
+  border-radius: 8px; min-height: 40px;
+}
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+/* PREMIUM SPACING — section gap maior */
+.home-section { margin-bottom: 36px; }
+.home-wrap { padding: 28px 22px 80px; }
+
+/* HERO premium — mais alto + light source */
+.home-hero { padding: 28px 32px; min-height: 130px; }
+.home-hero::after {
+  content: ''; position: absolute; top: -50%; right: -10%;
+  width: 60%; height: 200%;
+  background: radial-gradient(ellipse, rgba(205,21,67,.18) 0%, transparent 60%);
+  pointer-events: none; opacity: .7;
+}
+
+/* SCROLL-MARGIN pra sticky nav não cobrir titulo */
+.home-section { scroll-margin-top: 80px; }
+
+/* ════════════════════════════════════════════════════════════════════
+   POLISH UI/UX PRO MAX · S20.1 (hover ja existente)
    ════════════════════════════════════════════════════════════════════ */
 
 /* TIPOGRAFIA · letter-spacing + line-height premium */

@@ -368,6 +368,18 @@
     }
   }
 
+  // ── FADE-IN SECTIONS ────────────────────────────────────────────
+  function initSectionFadeIn() {
+    if (!('IntersectionObserver' in window)) {
+      document.querySelectorAll('.home-section').forEach(s => s.classList.add('visible'));
+      return;
+    }
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+    }, { threshold: 0.05, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.home-section').forEach(s => io.observe(s));
+  }
+
   // ── INIT ────────────────────────────────────────────────────────
   function init() {
     renderHero();
@@ -378,6 +390,7 @@
     renderBdays();
     renderTeam();
     renderAlertas();
+    initSectionFadeIn();
     setInterval(() => { renderDigest(); renderAlertas(); }, 60000);
   }
 
