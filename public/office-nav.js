@@ -7,7 +7,7 @@
 // Versão atual exposta no chip ao lado do logomark.
 // Schema semver pré-1.0 — explicação completa em vault/00-contexto/versioning.md
 // Manter em sincronia com office-footer.js (OFFICE_FOOTER_VERSION).
-const OFFICE_NAV_VERSION = '0.14.0';
+const OFFICE_NAV_VERSION = '0.18.0';
 
 // Tokens CSS globais ERP.ngo (v0.4.12) — injetados em document.head pra ficar
 // disponíveis em todas as páginas. Cores oficiais do brand guide ERP.ngo v1.0.
@@ -31,7 +31,7 @@ const OFFICE_NAV_VERSION = '0.14.0';
 // NAV POR AREA/DONA (v0.7.x) — cada item = 1 modulo (funil de meta + numeros + projetos + ferramentas).
 // Fonte: /api/areas.json. Telas antigas viram "ferramentas" dentro de cada modulo (deep-links seguem valendo).
 const OFFICE_NAV_TABS = [
-  { id: 'hub',          label: 'Office',       icon: '🏠', href: '/dashboard',         matches: ['hub'] },
+  { id: 'hub',          label: 'Home',         icon: '🏠', href: '/',                  matches: ['hub','home'] },
   { id: 'intelligence', label: 'Intelligence', icon: '🧠', href: '/area/intelligence', matches: ['area-intelligence'] },
   { id: 'growth',       label: 'Growth',       icon: '🚀', href: '/area/growth',       matches: ['area-growth','projecoes'] },
   { id: 'eventos',      label: 'Eventos',      icon: '📅', href: '/area/eventos',      matches: ['area-eventos'] },
@@ -515,7 +515,7 @@ class OfficeNav extends HTMLElement {
       <a href="#main" class="skip-link">Pular pro conteúdo</a>
 
       <nav class="nav-bar" role="navigation" aria-label="Office navigation">
-        <a class="logo" href="/dashboard" aria-label="Voltar ao Office" title="EPI-USE Brasil Office">
+        <a class="logo" href="/" aria-label="Voltar ao Office" title="EPI-USE Brasil Office">
           <img src="/assets/logos-epi-use/epi-use-logo-rgb.svg" alt="EPI-USE" height="20" style="display:block">
         </a>
         <a class="ver-chip" href="/changelog" title="Versão atual — clique para ver histórico">${OFFICE_NAV_VERSION}</a>
@@ -790,7 +790,8 @@ const OfficeCommandPalette = (() => {
   function baseItems() {
     return [
       // Rotas
-      { group:'Rotas', icon:'🏠', label:'Hub (War Room)',       hint:'/dashboard',  action:'/dashboard' },
+      { group:'Rotas', icon:'🏠', label:'Home',                 hint:'/',           action:'/' },
+      { group:'Rotas', icon:'📜', label:'Dashboard legado',     hint:'/dashboard',  action:'/dashboard' },
       { group:'Rotas', icon:'🎮', label:'Modo Game (mapa 2D)',  hint:'/game',       action:'/game' },
       { group:'Rotas', icon:'🎙️', label:'Voice Agents',         hint:'/voices',     action:'/voices' },
       { group:'Rotas', icon:'📡', label:'Inbound Engine',       hint:'/inbound',    action:'/inbound' },

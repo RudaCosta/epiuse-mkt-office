@@ -1,8 +1,11 @@
 {
-  "current": "0.17.1",
+  "current": "0.18.0",
   "atualizado_em": "2026-06-07",
   "releases": [
-    { "version": "0.17.1", "date": "07/jun/2026", "status": "current", "path": null,
+    { "version": "0.18.0", "date": "07/jun/2026", "status": "current", "path": null,
+      "title": "HOME oficial · dashboard antigo vira legado + nav/footer sincronizados (0.18.0)",
+      "summary": "Rudá aprovou HOME nova como oficial. Logo do nav agora aponta pra `/` (era `/dashboard`). Tab 'Office' renomeada 'Home'. Banner amarelo no /dashboard avisando que é legado + link pra HOME. Versão chip do nav/footer atualizada (estava em 0.14.0 desde a S18, agora sincronizada com prod 0.18.0). Cmd+K ganha entrada 'Dashboard legado' separado de 'Home'. Marco oficial da rebrand — todas rotas internas continuam funcionando, só a entrada principal mudou." },
+    { "version": "0.17.1", "date": "07/jun/2026", "status": "snapshot", "path": null,
       "title": "HOME ganha Agenda (BR+LATAM+TODOS), Aniversários e Time MKT (vindos do /dashboard)",
       "summary": "Rudá aprovou a HOME nova mas pediu trazer 3 blocos do /dashboard antigo: (1) 📅 Agenda EPI-USE/SAP 2026 com tabs BR/LATAM/TODOS · grid mensal · mês atual destacado verde · meses passados em opacity reduzida · cores por LOB (HCM/ERP/BTP/Cloud/Cross etc) · contagem dinâmica nas tabs. (2) 🎂 Próximos aniversários · ordenado por dias até próxima ocorrência · badge HOJE / em Xd · avatar com gradient da área. (3) 👥 Time MKT · 6 áreas com responsáveis · cards mostram ícone + nome + foto/avatar do responsável + foco da área + Voices conectados. Usa /api/events.json e /api/team.json (já existentes, zero endpoint novo). CSS isolado em .home-evt-*, .home-bday-*, .home-team-* (sem vazar). Bump patch 0.17.1." },
     { "version": "0.17.0", "date": "07/jun/2026", "status": "snapshot", "path": null,
