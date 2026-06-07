@@ -1,0 +1,30 @@
+{
+  "name": "epiuse-office-remotion-engine",
+  "version": "1.0.0",
+  "description": "Engine Remotion do EPI-USE Office · gera todos os videos do app (heros, voice reels, daily digest, aniversarios)",
+  "private": true,
+  "scripts": {
+    "start": "remotion studio",
+    "build:home": "remotion render HomeHero ../public/videos/home-hero.mp4 --codec=h264-mkv --pixel-format=yuv420p",
+    "build:home-webm": "remotion render HomeHero ../public/videos/home-hero.webm --codec=vp8",
+    "build:voice-reel": "remotion render VoiceReel ../public/videos/voice-reel-template.mp4 --codec=h264",
+    "build:aniversario": "remotion render AniversarioCard ../public/videos/aniversario-template.mp4 --codec=h264",
+    "build:daily": "remotion render DailyDigest ../public/videos/daily-digest.mp4 --codec=h264",
+    "build:relatorio-intro": "remotion render RelatorioIntro ../public/videos/relatorio-intro.mp4 --codec=h264",
+    "build:all": "npm run build:home-webm && npm run build:voice-reel && npm run build:aniversario && npm run build:daily && npm run build:relatorio-intro",
+    "render:voice": "remotion render VoiceReel ../public/videos/voice-$VOICE_ID.mp4 --props=./props/$VOICE_ID.json",
+    "render:bday": "remotion render AniversarioCard ../public/videos/bday-$PERSON_ID.mp4 --props=./props/$PERSON_ID.json"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.0",
+    "@remotion/media-utils": "^4.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "remotion": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/web": "^0.0.180",
+    "typescript": "^5.4.0"
+  }
+}

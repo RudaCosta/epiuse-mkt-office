@@ -89,12 +89,65 @@
   </section>
 
   <!-- INFO BANNER -->
-  <div class="info-banner">
-    <span class="i">📦</span>
+  <div class="info-banner" style="background:linear-gradient(135deg, rgba(16,185,129,.12), rgba(15,30,53,.5));border-color:rgba(16,185,129,.3)">
+    <span class="i">🎬</span>
     <div>
-      <h3>Status no projeto</h3>
-      <p>Skill instalada em <code>.claude/skills/remotion/</code> · Projeto demo em <code>C:/Users/Ruds/Desktop/remotion-hover-demo/</code></p>
-      <p>Pra rodar: <code>cd remotion-hover-demo && npm install && npm start</code> (1ª vez baixa ~150MB)</p>
+      <h3 style="color:#6ee7b7">Remotion Engine integrado · v0.19.0 · S20</h3>
+      <p>Engine versionada no repo em <code>remotion-engine/</code> · 5 compositions prontas: HomeHero · VoiceReel · AniversarioCard · DailyDigest · RelatorioIntro</p>
+      <p><strong>Pra renderizar tudo:</strong> <code>cd remotion-engine && npm install && npm run build:all</code> · MP4s vão pra <code>public/videos/</code> e ficam embedados em <code>/</code>, <code>/painel</code>, <code>/relatorio</code></p>
+    </div>
+  </div>
+
+  <!-- ASSETS GERADOS · preview -->
+  <div class="sec-t">📺 Assets do Office · onde aparecem</div>
+  <div class="preview-grid">
+    <div class="preview-card">
+      <div class="vid" style="aspect-ratio:1920/400">
+        <video autoplay loop muted playsinline style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<div class=play>▶</div>'">
+          <source src="/videos/home-hero.webm" type="video/webm">
+          <source src="/videos/home-hero.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="label"><h4>🏠 HomeHero · 12s loop · 1920x400</h4><p>Embedado no banner topo da <code>/</code></p></div>
+    </div>
+    <div class="preview-card">
+      <div class="vid" style="aspect-ratio:1/1">
+        <video autoplay loop muted playsinline style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<div class=play>▶</div>'">
+          <source src="/videos/daily-digest.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="label"><h4>🌅 DailyDigest · 15s loop · 1:1</h4><p>Sticky no canto direito da <code>/painel</code></p></div>
+    </div>
+    <div class="preview-card">
+      <div class="vid" style="aspect-ratio:16/9">
+        <video autoplay loop muted playsinline style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<div class=play>▶</div>'">
+          <source src="/videos/relatorio-intro.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="label"><h4>📊 RelatorioIntro · 8s · 16:9</h4><p>Topo do <code>/relatorio</code> antes dos cards</p></div>
+    </div>
+    <div class="preview-card">
+      <div class="vid" style="aspect-ratio:9/16;max-height:400px">
+        <video autoplay loop muted playsinline style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<div class=play>▶</div>'">
+          <source src="/videos/voice-reel-template.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="label"><h4>🪪 VoiceReel · 30s · 9:16</h4><p>Template pra LinkedIn de cada Voice</p></div>
+    </div>
+    <div class="preview-card">
+      <div class="vid" style="aspect-ratio:1/1">
+        <video autoplay loop muted playsinline style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<div class=play>▶</div>'">
+          <source src="/videos/aniversario-template.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="label"><h4>🎂 AniversarioCard · 6s · 1:1</h4><p>Auto-gerado quando alguém do time faz aniversário</p></div>
+    </div>
+    <div class="preview-card" style="display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#001844,#395170);color:#fff;text-align:center;padding:40px">
+      <div>
+        <div style="font-size:48px;margin-bottom:14px">⏳</div>
+        <h4 style="margin:0 0 8px;color:#fff">Renderiza local</h4>
+        <p style="margin:0;color:rgba(255,255,255,.7);font-size:13px">Os MP4s precisam ser gerados 1x na sua máquina · ver banner verde acima</p>
+      </div>
     </div>
   </div>
 
