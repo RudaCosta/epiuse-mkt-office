@@ -1,8 +1,11 @@
 {
-  "current": "0.19.0",
+  "current": "0.20.0",
   "atualizado_em": "2026-06-07",
   "releases": [
-    { "version": "0.19.0", "date": "07/jun/2026", "status": "current", "path": null,
+    { "version": "0.20.0", "date": "07/jun/2026", "status": "current", "path": null,
+      "title": "SPRINT 20.1 — UI/UX Pro Max polish + Remotion em hold (laboratório)",
+      "summary": "Rudá: 'ta mto cara de IA padrao' + 'Remotion confundi, era pra ser skill UI/UX'. Decisões: (1) Remotion movido pra _laboratorio/remotion-engine/ (preservado, pode retomar depois com `cd _laboratorio/remotion-engine && npm install`). (2) Vídeos removidos das pages (/painel, /relatorio, /home). (3) Skill UI/UX Pro Max instalada em .claude/skills/ui-ux-pro-max/ (67 estilos, 161 paletas, 99 UX guidelines, 25 charts) + baoyu-cover-image + baoyu-infographic. (4) Polish na HOME inspirado em Glassmorphism + B2B Service (paleta EPI-USE preservada — Navy+Red): tipografia premium (letter-spacing -0.025em em h1, +0.14em em section titles), sombras elegantes em inset+drop, hover REFINADO só em botões e áreas principais (Quick actions têm shimmer red, scale icon 1.15+rotate-3deg, drop-shadow; Áreas têm glow radial no top + ring colorido; Team cards lift -2px; Tabs eventos hover red; Bday/Digest lift sutil; Alertas e itens só darken background). (5) /remotion banner virou amarelo 'HOLD' explicando arquivamento. Backup: git checkout v0.18.1-backup." },
+    { "version": "0.19.0", "date": "07/jun/2026", "status": "snapshot", "path": null,
       "title": "SPRINT 20 (rebuild) — Remotion Engine integrado · 5 compositions embedadas no app",
       "summary": "BACKUP: tag git v0.18.1-backup pra reverter (`git checkout v0.18.1-backup`). Engine Remotion versionado em /remotion-engine/ com 5 compositions: (1) HomeHero 12s loop 1920x400 embedado no banner da /, (2) VoiceReel 30s 9:16 template pra LinkedIn dos Voices, (3) AniversarioCard 6s 1:1 auto-gerado pro time, (4) DailyDigest 15s loop 1:1 sticky no canto direito da /painel, (5) RelatorioIntro 8s 16:9 topo do /relatorio. Brand Guide V1.1 codificado em src/lib/brand.ts (cores · fontes · Easing premium). Scripts: npm run build:all renderiza tudo pra public/videos/. Restrição: render é local (Railway sem Chromium) — MP4s ficam pré-renderizados no repo. Página /remotion atualizada mostrando 5 previews ao vivo + status do engine. Fallback gracioso quando MP4 não existe (onerror=hide). Roadmap: S21 cron mensal regenera quando dados mudam · S22 endpoint /api/videos/render pra outros agentes · S23 Relatório Semanal Animado · S24 TTS voiceover automático." },
     { "version": "0.18.1", "date": "07/jun/2026", "status": "snapshot", "path": null,
