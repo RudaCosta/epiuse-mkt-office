@@ -208,14 +208,176 @@
     }
   }
 
+  // ── EVENTOS BR/LATAM/TODOS (grid mensal) ────────────────────────
+  const MES_NOMES = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
+  const LOB_CORES = {
+    HCM:'#60a5fa', ERP:'#34d399', Cross:'#c084fc', BTP:'#fb923c', Cloud:'#22d3ee',
+    Branding:'#f472b6', Institucional:'#f87171', WFS:'#fbbf24', SN:'#818cf8', BTM:'#2dd4bf'
+  };
+  let EV_BR = [], EV_LATAM = [], EV_TAB = 'brasil';
+
+  function evGetActive() {
+    if (EV_TAB === 'brasil') return EV_BR;
+    if (EV_TAB === 'latam') return EV_LATAM;
+    return [...EV_BR, ...EV_LATAM];
+  }
+
+  function renderEvtMonth(m, eventos, mode) {
+    const evs = eventos.filter(e => e.m === m).sort((a,b) => String(a.d).localeCompare(String(b.d)));
+    const isEmpty = evs.length === 0;
+    const cls = mode === 'past' ? 'past' : mode === 'current' ? 'current' : (isEmpty ? 'empty' : '');
+    const curBadge = mode === 'current' ? ' <span style="font-size:8px;color:#34d399;background:rgba(16,185,129,.18);padding:3px 5px;border-radius:4px;margin-left:6px;letter-spacing:.1em">AGORA</span>' : '';
+    const countTxt = mode === 'past' ? 'passou' : `${evs.length} ${evs.length === 1 ? 'evento' : 'eventos'}`;
+    let body = isEmpty ? '<div class="home-evt-empty">— sem eventos —</div>' : evs.map(e => {
+      const cor = LOB_CORES[e.lob] || '#94a3b8';
+      const flag = e.flag ? `<span style="margin-right:4px">${e.flag}</span>` : '';
+      const country = e.country && e.country !== 'BR' ? ` · ${esc(e.country)}` : '';
+      return `<div class="home-evt-item">
+        <div class="home-evt-day">${esc(e.d)}</div>
+        <div class="home-evt-info">
+          <div class="nome">${flag}${esc(e.n)}<span class="lob" style="background:${cor}22;color:${cor}">${esc(e.lob||'')}</span></div>
+          <div class="who">${esc(e.who||'')}${country}</div>
+        </div>
+      </div>`;
+    }).join('');
+    return `<div class="home-evt-month ${cls}">
+      <div class="home-evt-month-head">
+        <span class="home-evt-month-name">${MES_NOMES[m-1]}${curBadge}</span>
+        <span class="home-evt-month-count">${countTxt}</span>
+      </div>
+      ${body}
+    </div>`;
+  }
+
+  function renderEventos() {
+    const grid = $('evt-grid');
+    const evs = evGetActive();
+    $('evt-count').textContent = `${evs.length} eventos`;
+    const cur = new Date().getMonth() + 1;
+    const start = Math.max(1, cur - 1);
+    let html = '';
+    for (let m = start; m <= 12; m++) {
+      html += renderEvtMonth(m, evs, m === cur ? 'current' : 'future');
+    }
+    if (start > 1) {
+      html += `<div class="home-evt-divider"><span></span><span class="txt">↓ Já passou ↓</span><span></span></div>`;
+      for (let m = 1; m < start; m++) html += renderEvtMonth(m, evs, 'past');
+    }
+    grid.innerHTML = html;
+  }
+
+  async function initEventos() {
+    try {
+      const r = await fetch('/api/events.json'); const data = await r.json();
+      EV_BR    = (data?.abas?.brasil?.eventos) || data.eventos || [];
+      EV_LATAM = (data?.abas?.latam?.eventos)  || [];
+      // labels
+      document.querySelectorAll('.home-evt-tab').forEach(btn => {
+        const tab = btn.dataset.tab;
+        if (tab === 'brasil') btn.textContent = `🇧🇷 BRASIL (${EV_BR.length})`;
+        else if (tab === 'latam') btn.textContent = `🌎 LATAM (${EV_LATAM.length})`;
+        else btn.textContent = `TODOS (${EV_BR.length + EV_LATAM.length})`;
+        btn.addEventListener('click', () => {
+          EV_TAB = tab;
+          document.querySelectorAll('.home-evt-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+          renderEventos();
+        });
+      });
+      renderEventos();
+    } catch (e) {
+      $('evt-grid').innerHTML = '<div class="home-empty">Falha ao carregar agenda</div>';
+    }
+  }
+
+  // ── ANIVERSÁRIOS ────────────────────────────────────────────────
+  async function renderBdays() {
+    const target = $('bday-grid');
+    try {
+      const r = await fetch('/api/team.json'); const team = await r.json();
+      const all = [
+        ...(team.lideranca || []).map(p => ({ nome: p.nome, papel: p.cargo, icon: p.icon, color: '#34d399', aniversario: p.aniversario })),
+        ...(team.areas || []).map(a => ({ nome: a.responsavel.nome, papel: a.nome, icon: a.icon, color: a.color, aniversario: a.responsavel.aniversario, avatar_grad: a.responsavel.avatar_grad }))
+      ].filter(p => p.aniversario);
+
+      const today = new Date(); const Y = today.getFullYear();
+      const nextOcc = ddmm => {
+        const [d, m] = ddmm.split('/').map(n => parseInt(n, 10));
+        let next = new Date(Y, m-1, d);
+        if (next < new Date(Y, today.getMonth(), today.getDate())) next = new Date(Y+1, m-1, d);
+        return next;
+      };
+      const daysUntil = date => Math.floor((date - new Date(Y, today.getMonth(), today.getDate())) / 86400000);
+      const sorted = all.map(p => ({...p, _date: nextOcc(p.aniversario), _days: daysUntil(nextOcc(p.aniversario))}))
+        .sort((a, b) => a._days - b._days);
+      const MESES = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+
+      target.innerHTML = sorted.map(p => {
+        const isToday = p._days === 0;
+        const isSoon = p._days > 0 && p._days <= 30;
+        const badge = isToday ? `<span class="home-bday-badge today">🎉 HOJE</span>`
+          : isSoon ? `<span class="home-bday-badge soon">em ${p._days}d</span>`
+          : `<span class="home-bday-badge future">em ${p._days}d</span>`;
+        const grad = p.avatar_grad ? `linear-gradient(135deg,${p.avatar_grad[0]},${p.avatar_grad[1]})` : `linear-gradient(135deg,${p.color},${p.color}88)`;
+        return `<div class="home-bday-card${isToday ? ' today' : ''}">
+          <div class="home-bday-head">
+            <div class="home-bday-person">
+              <div class="home-bday-avatar" style="background:${grad}">${isToday ? '🎂' : '👤'}</div>
+              <div class="home-bday-info">
+                <div class="nome">${esc(p.nome)}</div>
+                <div class="papel">${esc(p.papel||'')}</div>
+              </div>
+            </div>
+            ${badge}
+          </div>
+          <div class="home-bday-date">🎂 ${p._date.getDate().toString().padStart(2,'0')} ${MESES[p._date.getMonth()].toUpperCase()}</div>
+        </div>`;
+      }).join('') || '<div class="home-empty">Nenhum aniversário cadastrado.</div>';
+    } catch {
+      target.innerHTML = '<div class="home-empty">Erro ao carregar aniversários.</div>';
+    }
+  }
+
+  // ── TIME · 6 ÁREAS (responsáveis) ───────────────────────────────
+  async function renderTeam() {
+    const target = $('team-grid');
+    try {
+      const r = await fetch('/api/team.json'); const team = await r.json();
+      target.innerHTML = (team.areas || []).map(a => {
+        const respGrad = a.responsavel?.avatar_grad
+          ? `linear-gradient(135deg,${a.responsavel.avatar_grad[0]},${a.responsavel.avatar_grad[1]})`
+          : `linear-gradient(135deg,${a.color},${a.color}88)`;
+        const voicesLine = a.voices_connect ? `<div class="home-team-voices">🎙️ Voices: ${esc(a.voices_connect)}</div>` : '';
+        return `<div class="home-team-card" style="--team-color:${a.color};--team-bg:${a.color_bg}">
+          <div class="home-team-head">
+            <div class="home-team-icon">${esc(a.icon||'📂')}</div>
+            <div class="home-team-name">${esc(a.nome)}</div>
+          </div>
+          <div class="home-team-resp">
+            <div class="home-team-resp-avatar" style="background:${respGrad}">👤</div>
+            <div class="home-team-resp-info">
+              <div class="home-team-resp-name">${esc(a.responsavel?.nome||'—')}${a.responsavel?.apelido ? ` <span style="opacity:.7">(${esc(a.responsavel.apelido)})</span>` : ''}</div>
+              <div class="home-team-resp-tag">Responsável</div>
+            </div>
+          </div>
+          <div class="home-team-foco">${esc(a.foco||'')}</div>
+          ${voicesLine}
+        </div>`;
+      }).join('');
+    } catch {
+      target.innerHTML = '<div class="home-empty">Erro ao carregar time.</div>';
+    }
+  }
+
   // ── INIT ────────────────────────────────────────────────────────
   function init() {
     renderHero();
     renderDigest();
     renderMetas();
     renderAreas();
+    initEventos();
+    renderBdays();
+    renderTeam();
     renderAlertas();
-    // auto-refresh a cada 60s
     setInterval(() => { renderDigest(); renderAlertas(); }, 60000);
   }
 

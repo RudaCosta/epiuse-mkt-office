@@ -1,8 +1,11 @@
 {
-  "current": "0.17.0",
+  "current": "0.17.1",
   "atualizado_em": "2026-06-07",
   "releases": [
-    { "version": "0.17.0", "date": "07/jun/2026", "status": "current", "path": null,
+    { "version": "0.17.1", "date": "07/jun/2026", "status": "current", "path": null,
+      "title": "HOME ganha Agenda (BR+LATAM+TODOS), Aniversários e Time MKT (vindos do /dashboard)",
+      "summary": "Rudá aprovou a HOME nova mas pediu trazer 3 blocos do /dashboard antigo: (1) 📅 Agenda EPI-USE/SAP 2026 com tabs BR/LATAM/TODOS · grid mensal · mês atual destacado verde · meses passados em opacity reduzida · cores por LOB (HCM/ERP/BTP/Cloud/Cross etc) · contagem dinâmica nas tabs. (2) 🎂 Próximos aniversários · ordenado por dias até próxima ocorrência · badge HOJE / em Xd · avatar com gradient da área. (3) 👥 Time MKT · 6 áreas com responsáveis · cards mostram ícone + nome + foto/avatar do responsável + foco da área + Voices conectados. Usa /api/events.json e /api/team.json (já existentes, zero endpoint novo). CSS isolado em .home-evt-*, .home-bday-*, .home-team-* (sem vazar). Bump patch 0.17.1." },
+    { "version": "0.17.0", "date": "07/jun/2026", "status": "snapshot", "path": null,
       "title": "SPRINT 20 — Rebrand HOME (Command Center · pipeline V2 com 3 checkpoints)",
       "summary": "Primeira sprint rodada no pipeline V2 (PM Técnico → Arquiteto Frontend → Revisor QA → código). HOME `/` agora é command center pessoal do Rudá (game vai pra /game). Estrutura: hero com saudação contextual + chip online + elefante ERP.ngo · Daily Digest (Voices ativos · Eventos próximos · Pendências) · Top metas FY26 strip (5 metas com % progresso) · Grid 6 áreas com hover cards (aspect-ratio 3/4 + box-shadow flutuante + backdrop-filter blur, padrão CSS do print Rudá) · SAP Competitor 7º card disabled com selo 🔜 em breve · Acessos rápidos (Optimizer V2, Cowork, Painel, Relatório) · Alertas & Bloqueios (substitui War Room, parsea pendencias.md em 5 buckets via /api/pendencias). Arquivos novos: public/home.html · public/css/home.css · public/js/home.js. Endpoint novo: GET /api/pendencias (5 buckets: bloqueadas · dropadas · achados · pendentes · entregues). CSS isolado em .home-* (Ressalva R2 do review). Toggle de tema continua via office-nav (Ressalva R4 — sem duplicar). Mobile breakpoint 480px (Ressalva R2). Light + Dark mode com Brand Guide V1.1 (Navy #001844, Red #cd1543, Blue Light #869ec3)." },
     { "version": "0.16.0", "date": "05/jun/2026", "status": "snapshot", "path": null,
