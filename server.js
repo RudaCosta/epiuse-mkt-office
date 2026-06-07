@@ -483,6 +483,8 @@ app.get('/voices',     (req, res) => res.sendFile(VOICES_PATH));
 app.get('/seja-voice', (req, res) => res.sendFile(SEJA_VOICE_PATH));
 app.get('/changelog',  (req, res) => res.sendFile(CHANGELOG_PATH));
 app.get('/planilhas', (req, res) => res.sendFile(path.join(__dirname, 'public/planilhas.html')));
+app.get('/remotion', (req, res) => res.sendFile(path.join(__dirname, 'public/remotion.html')));
+app.get('/remotion-demo', (req, res) => res.redirect(301, '/remotion'));
 
 // ── PLANILHAS REGISTRY — todas as XLSX/XLS como API em tempo real ────────────
 // Le do arquivo origem (Desktop/OneDrive/vault) on-demand · cache invalidado por mtime

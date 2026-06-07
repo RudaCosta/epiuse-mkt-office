@@ -82,6 +82,7 @@ const OFFICE_NAV_OVERFLOW = [
 
   { section: '🎮 Extras' },
   { label: '🎮 Modo Game',               href: '/game' },
+  { label: '🎬 Remotion (vídeos)',       href: '/remotion' },
   { label: '🐘 ERP.ngo',                 href: 'https://erp.ngo', external: true }
 ];
 
