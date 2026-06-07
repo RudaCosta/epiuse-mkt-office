@@ -68,6 +68,7 @@ const OFFICE_NAV_OVERFLOW = [
   { label: '💰 Projeções (paid media)',  href: '/projecoes' },
   { label: '🗺️ Jornadas de Compra',      href: '/jornadas' },
   { label: '📚 Artigos do Blog',         href: '/artigos' },
+  { label: '📊 Planilhas (Live API)',    href: '/planilhas' },
 
   { section: '🎙️ Voices & Optimizer' },
   { label: '🪪 Profile Optimizer (V1)',   href: '/optimizer' },

@@ -1,0 +1,112 @@
+{
+  "_obs": "Registry de planilhas — cada item vira endpoint /api/planilhas/<slug>. Server le on-demand do path origem (Desktop/OneDrive). Quando o usuario edita o arquivo, proxima request ja pega versao nova (cache 60s).",
+  "atualizado_em": "2026-06-05",
+  "planilhas": [
+    {
+      "slug": "roadmap-pm",
+      "nome": "Roadmap PM — Office MKT App",
+      "dona": "Rudá",
+      "categoria": "PM",
+      "descricao": "Controle de sprints (S0→S23) · status real · o que falta",
+      "paths": [
+        "C:/Users/Ruds/Desktop/Roadmap PM - Office MKT App.xlsx",
+        "C:/epiuse-mkt-office/public/api/sprints-pm.xlsx"
+      ],
+      "sheet": 0,
+      "endpoint_alias": "/api/sprints"
+    },
+    {
+      "slug": "metas-equipe-revops",
+      "nome": "Metas Equipe EUBR RevOps v2",
+      "dona": "Rudá",
+      "categoria": "Metas",
+      "descricao": "Metas individuais do time RevOps · usado no /metas-fy26",
+      "paths": [
+        "C:/Users/Ruds/Desktop/Metas_Equipe_EUBR_RevOps_v2.xlsx"
+      ],
+      "sheet": 0
+    },
+    {
+      "slug": "linkedin-followers",
+      "nome": "LinkedIn followers (mai 2025 → mai 2026)",
+      "dona": "Sergio",
+      "categoria": "LinkedIn",
+      "descricao": "Histórico mensal de seguidores · usado em /metas + /relatorio + /area/growth",
+      "paths": [
+        "C:/Users/Ruds/Desktop/ROADMAP MKT OFFICE JUN 2026/03 LinkedIn Boost/Linkedin followers_maio 2025 ate maio 2026.xls",
+        "C:/epiuse-mkt-office/vault/00-contexto/metas/linkedin-followers-mai2025-mai2026.xls"
+      ],
+      "sheet": 0
+    },
+    {
+      "slug": "clientes-ativos",
+      "nome": "Clientes ativos 05/2026",
+      "dona": "Roberto",
+      "categoria": "Cases",
+      "descricao": "Lista de clientes ativos EPI-USE Brasil · alimenta /cases",
+      "paths": [
+        "C:/Users/Ruds/Desktop/ROADMAP MKT OFFICE JUN 2026/04 Cases/Clientes ativos_05.2026.xlsx"
+      ],
+      "sheet": 0
+    },
+    {
+      "slug": "clientes-global-sap",
+      "nome": "Clientes EPI-USE SAP (Brasil + global)",
+      "dona": "Roberto",
+      "categoria": "Cases",
+      "descricao": "Base global de clientes SAP · todos países inputados",
+      "paths": [
+        "C:/Users/Ruds/Desktop/ROADMAP MKT OFFICE JUN 2026/04 Cases/clientes epiuse sap 4 me - tem brasil e todos inputados dos outros paises.xlsx"
+      ],
+      "sheet": 0
+    },
+    {
+      "slug": "cronograma-eventos",
+      "nome": "Cronograma Gantt — Eventos FY26",
+      "dona": "Isabela",
+      "categoria": "Eventos",
+      "descricao": "Cronograma Gantt visual dos eventos BR/LATAM · vai pra /area/eventos",
+      "paths": [
+        "C:/Users/Ruds/Desktop/ROADMAP MKT OFFICE JUN 2026/07 Field Marketing/cronograma_gantt_eventos v1.xlsx"
+      ],
+      "sheet": 0
+    },
+    {
+      "slug": "artigos-blog",
+      "nome": "Conteúdos Blog EUBR 2026 (via manus)",
+      "dona": "Lisiane",
+      "categoria": "Conteúdo",
+      "descricao": "693 artigos do blog · alimenta /artigos",
+      "paths": [
+        "C:/Users/Ruds/OneDrive - EPI USE BRASIL SERVIÇOS EM SISTEMAS LTDA/MARKETING/Projetos/EPI-USE Voices/estudo/Conteudos Blog EUBR 2026 (via manus).xlsx",
+        "C:/epiuse-mkt-office/vault/00-contexto/artigos/Conteudos Blog EUBR 2026 (via manus).xlsx"
+      ],
+      "sheet": 0,
+      "endpoint_alias": "/api/artigos"
+    },
+    {
+      "slug": "cases-referencia",
+      "nome": "Controle de Cases Cliente Referência (Roberto)",
+      "dona": "Roberto",
+      "categoria": "Cases",
+      "descricao": "Cases cliente publicáveis · sync diário · alimenta /cases",
+      "paths": [
+        "C:/Users/Ruds/OneDrive - EPI USE BRASIL SERVIÇOS EM SISTEMAS LTDA/MARKETING/Customer Reference/Empresas Transformadoras/Controle de Cases Cliente Referência Empresas Transformadoras 2025.xlsx",
+        "C:/Users/rudac/OneDrive - EPI USE BRASIL SERVIÇOS EM SISTEMAS LTDA/MARKETING/Customer Reference/Empresas Transformadoras/Controle de Cases Cliente Referência Empresas Transformadoras 2025.xlsx"
+      ],
+      "sheet": 0,
+      "endpoint_alias": "/api/cases"
+    },
+    {
+      "slug": "metas-smart-fy26",
+      "nome": "Template Metas SMART FY26 (gerado)",
+      "dona": "Rudá",
+      "categoria": "Metas",
+      "descricao": "Template SMART em branco + Gantt automático · gerado pelo script gerar_planilha_smart.py",
+      "paths": [
+        "C:/epiuse-mkt-office/vault/00-contexto/metas/template-metas-fy26-smart.xlsx"
+      ],
+      "sheet": 0
+    }
+  ]
+}

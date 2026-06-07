@@ -1,8 +1,11 @@
 {
-  "current": "0.15.0",
+  "current": "0.16.0",
   "atualizado_em": "2026-06-05",
   "releases": [
-    { "version": "0.15.0", "date": "05/jun/2026", "status": "current", "path": null,
+    { "version": "0.16.0", "date": "05/jun/2026", "status": "current", "path": null,
+      "title": "SPRINT 20.1 — Planilhas como Live API (9 XLSX como endpoints)",
+      "summary": "Registry unificado em vault/00-contexto/planilhas-registry.json mapeia 9 planilhas (Roadmap PM · Metas Equipe RevOps · LinkedIn followers · Clientes ativos · Clientes Global SAP · Cronograma Eventos · Artigos Blog · Cases Referência · Template SMART). Cada uma vira /api/planilhas/<slug>. Cache invalidado automaticamente quando mtime do arquivo muda — usuário edita XLSX no Desktop/OneDrive → próxima request já pega versão nova, zero ação manual. /api/planilhas lista status (online/offline) + mtime + tamanho. Nova página /planilhas com dashboard visual (verde = online, vermelho = arquivo não encontrado). Endpoint genérico funciona pra qualquer XLSX/XLS — adiciona no registry e tá no ar."  },
+    { "version": "0.15.0", "date": "05/jun/2026", "status": "snapshot", "path": null,
       "title": "SPRINT 19 — Sync notebook + PC (consolidação infra 0.14.0 + área redesign + abertura roadmap v2)",
       "summary": "Marco de consolidação: branch notebook (SSO + Railway Volume + GA4 + RD Station + relatório FY · v0.12-0.14) mergeada com mudanças locais do PC (área redesign Sprint 16 — tool cards vibrantes + dashboard de metas com progresso colorido + atividade do agente + workflows relevantes · commit d81fa24 já no histórico). Conflitos em .gitignore (RD tokens + cowork-runs juntos), package.json (0.15.0) e changelog.json (todas releases preservadas). Abertura oficial do roadmap v2 com 6 sprints planejadas: 19 (sync) · 20 (rebrand HOME) · 21 (brindes URGENTE) · 22 (importar pasta ROADMAP MKT JUN 2026) · 23 (export Microsoft To Do) · 24 (cron cases + reembolsos). Plan file em ~/.claude/plans/deep-booping-crown.md." },
     { "version": "0.14.0", "date": "05/jun/2026", "status": "snapshot", "path": null,

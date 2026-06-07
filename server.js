@@ -482,8 +482,91 @@ app.get('/voices/painel', (req, res) => res.redirect(301, '/painel'));
 app.get('/voices',     (req, res) => res.sendFile(VOICES_PATH));
 app.get('/seja-voice', (req, res) => res.sendFile(SEJA_VOICE_PATH));
 app.get('/changelog',  (req, res) => res.sendFile(CHANGELOG_PATH));
+app.get('/planilhas', (req, res) => res.sendFile(path.join(__dirname, 'public/planilhas.html')));
 
-// ── /api/sprints — le a planilha PM do Ruda (Roadmap PM - Office MKT App.xlsx) ──
+// ── PLANILHAS REGISTRY — todas as XLSX/XLS como API em tempo real ────────────
+// Le do arquivo origem (Desktop/OneDrive/vault) on-demand · cache invalidado por mtime
+// Cada planilha tem slug + lista de paths (primeiro que existir vence)
+const PLANILHAS_REGISTRY_PATH = path.join(__dirname, 'vault/00-contexto/planilhas-registry.json');
+const _planilhasCache = new Map(); // key: path · val: { mtime, json, parsedAt }
+
+function _loadPlanilhasRegistry() {
+  try { return JSON.parse(fs.readFileSync(PLANILHAS_REGISTRY_PATH, 'utf8')); }
+  catch (e) { return { planilhas: [] }; }
+}
+
+function _resolvePath(paths) {
+  if (!Array.isArray(paths)) return null;
+  for (const p of paths) { if (fs.existsSync(p)) return p; }
+  return null;
+}
+
+function _parsePlanilha(filePath, sheetIdx) {
+  const XLSX = IS_LOCAL_DEV ? require(localModules + '/xlsx') : require('xlsx');
+  const st = fs.statSync(filePath);
+  const cached = _planilhasCache.get(filePath);
+  if (cached && cached.mtime === st.mtimeMs) return cached.json;
+  const wb = XLSX.readFile(filePath);
+  const sheetName = wb.SheetNames[sheetIdx || 0];
+  const ws = wb.Sheets[sheetName];
+  const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+  const json = {
+    sheet: sheetName,
+    sheets_disponiveis: wb.SheetNames,
+    total_linhas: rows.length,
+    rows,
+    arquivo: filePath,
+    modificado_em: st.mtime,
+    parseado_em: new Date().toISOString()
+  };
+  _planilhasCache.set(filePath, { mtime: st.mtimeMs, json, parsedAt: Date.now() });
+  return json;
+}
+
+// GET /api/planilhas — lista todas + status de cada uma
+app.get('/api/planilhas', (req, res) => {
+  try {
+    const reg = _loadPlanilhasRegistry();
+    const status = reg.planilhas.map(p => {
+      const resolved = _resolvePath(p.paths);
+      const exists = !!resolved;
+      let mtime = null, size = null;
+      if (exists) { const st = fs.statSync(resolved); mtime = st.mtime; size = st.size; }
+      return {
+        slug: p.slug, nome: p.nome, dona: p.dona, categoria: p.categoria,
+        descricao: p.descricao, endpoint: '/api/planilhas/' + p.slug,
+        endpoint_alias: p.endpoint_alias || null,
+        status: exists ? 'ok' : 'fora-do-ar',
+        arquivo_resolvido: resolved,
+        paths_tentados: p.paths,
+        modificado_em: mtime, tamanho_bytes: size
+      };
+    });
+    res.json({
+      total: status.length,
+      online: status.filter(s => s.status === 'ok').length,
+      offline: status.filter(s => s.status === 'fora-do-ar').length,
+      planilhas: status,
+      obs: 'Cache invalidado automaticamente quando mtime do arquivo muda. Edita o XLSX no Desktop/OneDrive → proxima request ja pega versao nova.'
+    });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// GET /api/planilhas/:slug — retorna o JSON parsed da planilha
+app.get('/api/planilhas/:slug', (req, res) => {
+  try {
+    const reg = _loadPlanilhasRegistry();
+    const p = reg.planilhas.find(x => x.slug === req.params.slug);
+    if (!p) return res.status(404).json({ error: 'planilha nao encontrada no registry', slug: req.params.slug });
+    const resolved = _resolvePath(p.paths);
+    if (!resolved) return res.status(404).json({ error: 'arquivo fora-do-ar', slug: p.slug, paths_tentados: p.paths });
+    const sheetParam = req.query.sheet != null ? parseInt(req.query.sheet, 10) : (p.sheet || 0);
+    const data = _parsePlanilha(resolved, sheetParam);
+    res.json({ slug: p.slug, nome: p.nome, dona: p.dona, ...data });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// GET /api/sprints — alias historico para /api/planilhas/roadmap-pm (mantem compat /changelog)
 app.get('/api/sprints', (req, res) => {
   try {
     const XLSX = IS_LOCAL_DEV ? require(localModules + '/xlsx') : require('xlsx');
