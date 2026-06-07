@@ -1526,10 +1526,57 @@ app.post('/api/inbound/generate', inboundGenLimiter, async (req, res) => {
 // (Antes o local lia de G:/Meu Drive/.../dashboard-classic.html que ficou stale.
 // Agora qualquer edição em public/ aparece imediatamente nos 2 ambientes.)
 const OFFICE_HTML    = path.join(__dirname, 'public/office.html');
+const HOME_HTML      = path.join(__dirname, 'public/home.html');
 const DASHBOARD_HTML = path.join(__dirname, 'public/dashboard.html');
 const HUB_HTML       = path.join(__dirname, 'public/hub.html');
-app.get('/',          (req, res) => res.sendFile(OFFICE_HTML));
+app.get('/',          (req, res) => res.sendFile(HOME_HTML));
 app.get('/game',      (req, res) => res.sendFile(OFFICE_HTML));
+
+// ── /api/pendencias — parsea vault/00-contexto/pendencias.md em 5 buckets ──
+app.get('/api/pendencias', (req, res) => {
+  try {
+    const md = fs.readFileSync(path.join(__dirname, 'vault/00-contexto/pendencias.md'), 'utf8');
+    // splita por ## (level 2 headings)
+    const sections = md.split(/^## /m).slice(1); // remove preamble
+    const buckets = { bloqueadas: [], dropadas: [], achados: [], pendentes: [], entregues: [] };
+    const bucketMap = {
+      '🔴': 'bloqueadas', '🟡': 'dropadas', '⚠️': 'achados',
+      '🟢': 'pendentes', '✅': 'entregues'
+    };
+    for (const sec of sections) {
+      const firstLine = sec.split('\n')[0];
+      let bucket = null;
+      for (const [emoji, key] of Object.entries(bucketMap)) {
+        if (firstLine.includes(emoji)) { bucket = key; break; }
+      }
+      if (!bucket) continue;
+      // parsea sub-items (### B1. ... ou ### P0. ...)
+      const items = sec.split(/^### /m).slice(1);
+      for (const item of items) {
+        const lines = item.split('\n');
+        const titulo = (lines[0] || '').replace(/\s*$/, '').trim();
+        // pega 1-3 primeiras linhas com conteudo apos o titulo
+        const corpo = lines.slice(1).filter(l => l.trim()).slice(0, 5).join(' ').slice(0, 300);
+        if (titulo) items_collect(buckets[bucket], titulo, corpo, sec);
+      }
+      // se a secao nao tem subheadings, captura o body geral
+      if (items.length === 0) {
+        const corpo = sec.split('\n').slice(1, 4).filter(l => l.trim()).join(' ').slice(0, 300);
+        if (corpo) buckets[bucket].push({ titulo: firstLine.trim(), descricao: corpo, secao: firstLine.trim() });
+      }
+    }
+    res.json({
+      gerado_em: new Date().toISOString(),
+      fonte: 'vault/00-contexto/pendencias.md',
+      total: Object.values(buckets).reduce((a, b) => a + b.length, 0),
+      buckets
+    });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+function items_collect(arr, titulo, descricao, secao) {
+  arr.push({ titulo, descricao, secao: (secao.split('\n')[0] || '').trim().slice(0, 80) });
+}
+
 app.get('/dashboard', (req, res) => res.sendFile(DASHBOARD_HTML));
 app.get('/hub',       (req, res) => res.sendFile(HUB_HTML));
 // v0.5.0 — Novas rotas (Onda 2-6)
