@@ -1,8 +1,11 @@
 {
-  "current": "0.24.0",
+  "current": "0.25.0",
   "atualizado_em": "2026-06-08",
   "releases": [
-    { "version": "0.24.0", "date": "08/jun/2026", "status": "current", "path": null,
+    { "version": "0.25.0", "date": "08/jun/2026", "status": "current", "path": null,
+      "title": "Limpeza: remove Remotion + Projecoes, desabilita Cowork, desinstala 4 skills",
+      "summary": "Remove /remotion (rota + public/remotion.html + skill remotion). Remove /projecoes (rota + public/projecoes.html + /api/projecoes). Desabilita Cowork por hora (rota + 5 endpoints de API retornam 503, arquivos preservados). Desinstala skills: baoyu-cover-image, baoyu-infographic, baoyu-image-gen, remotion. Skills restantes: relatorio-mensal + ui-ux-pro-max. office-nav.js limpo (removidos links cowork/projecoes/remotion do overflow + projecoes do activeRoute)." },
+    { "version": "0.24.0", "date": "08/jun/2026", "status": "snapshot", "path": null,
       "title": "Polish global em TODAS paginas + light mode fix WCAG AAA",
       "summary": "(1) office-nav.js agora injeta automaticamente Lexend+Source Sans 3+Fira Code fonts + polish-pro.css + consulting-dark.css em TODAS paginas (sem precisar editar HTML uma por uma). (2) Light mode rewrite WCAG AAA: bg #f4f7fb, cards white com border navy .12, h1/h2/h3 navy #001844, body text #0f1e35 (contraste 14:1), muted #475569 (8.6:1), grid bg sutil 48px navy .025. (3) Glass cards light: white .95 + border navy + shadow real (não invisivel). (4) Trust bar light: white com check verde escuro #047857 (visivel). (5) Live indicator light: green escuro #047857. (6) Numbers light: navy #001844 (sem glow). (7) Footer + header text legivel light. (8) KPI cards genericos: bg white, val navy, lbl slate-600." },
     { "version": "0.23.0", "date": "08/jun/2026", "status": "snapshot", "path": null,

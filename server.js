@@ -483,8 +483,6 @@ app.get('/voices',     (req, res) => res.sendFile(VOICES_PATH));
 app.get('/seja-voice', (req, res) => res.sendFile(SEJA_VOICE_PATH));
 app.get('/changelog',  (req, res) => res.sendFile(CHANGELOG_PATH));
 app.get('/planilhas', (req, res) => res.sendFile(path.join(__dirname, 'public/planilhas.html')));
-app.get('/remotion', (req, res) => res.sendFile(path.join(__dirname, 'public/remotion.html')));
-app.get('/remotion-demo', (req, res) => res.redirect(301, '/remotion'));
 
 // ── PLANILHAS REGISTRY — todas as XLSX/XLS como API em tempo real ────────────
 // Le do arquivo origem (Desktop/OneDrive/vault) on-demand · cache invalidado por mtime
@@ -806,7 +804,7 @@ function _saudacao(d) {
 
 // ── MODULE COWORK · workflows dinâmicos entre agentes (sprint 14 · 0.10.0) ──
 const COWORK_PATH = path.join(__dirname, 'public/cowork.html');
-app.get('/cowork', (req, res) => res.sendFile(COWORK_PATH));
+app.get('/cowork', (req, res) => res.status(503).send('<!DOCTYPE html><html><body style="font-family:sans-serif;padding:40px"><h2>Cowork temporariamente desabilitado</h2><p><a href="/">← Voltar</a></p></body></html>'));
 
 const WORKFLOWS_DIR = path.join(__dirname, 'vault/workflows');
 const COWORK_RUNS_DIR = path.join(__dirname, 'vault/cowork-runs');
@@ -823,125 +821,19 @@ function loadWorkflows() {
     .filter(Boolean);
 }
 
-app.get('/api/workflows', (req, res) => {
-  try { res.json(loadWorkflows()); }
-  catch (e) { res.status(500).json({ error: e.message }); }
-});
+app.get('/api/workflows', (req, res) => res.status(503).json({ error: 'cowork desabilitado' }));
 
-app.get('/api/workflows/:slug', (req, res) => {
-  try {
-    const wf = loadWorkflows().find(w => w.slug === req.params.slug);
-    if (!wf) return res.status(404).json({ error: 'workflow nao encontrado' });
-    res.json(wf);
-  } catch (e) { res.status(500).json({ error: e.message }); }
-});
+app.get('/api/workflows/:slug', (req, res) => res.status(503).json({ error: 'cowork desabilitado' }));
 
 function fillTpl(tpl, vars) {
   return String(tpl || '').replace(/\{\{(\w+)\}\}/g, (_, k) => vars[k] != null ? vars[k] : '');
 }
 
-// POST dispara workflow: cria pedidos em cada inbox + grava run log
-app.post('/api/workflows/:slug/run', express.json(), (req, res) => {
-  try {
-    const wf = loadWorkflows().find(w => w.slug === req.params.slug);
-    if (!wf) return res.status(404).json({ error: 'workflow nao encontrado' });
-    const inputs = req.body || {};
-    // valida inputs obrigatorios
-    const faltam = (wf.inputs || []).filter(i => i.obrigatorio && !inputs[i.key]).map(i => i.key);
-    if (faltam.length) return res.status(400).json({ error: 'inputs obrigatorios faltando', faltam });
+app.post('/api/workflows/:slug/run', (req, res) => res.status(503).json({ error: 'cowork desabilitado' }));
 
-    const now = new Date();
-    const runId = wf.slug + '-' + now.toISOString().replace(/[:.]/g,'-').slice(0,19);
-    const vars = { ...inputs, workflow_run_id: runId, workflow_slug: wf.slug };
-    const criados = [];
-    const erros = [];
+app.get('/api/cowork/runs', (req, res) => res.status(503).json({ error: 'cowork desabilitado' }));
 
-    for (const step of (wf.steps || [])) {
-      const titulo = fillTpl(step.titulo_template, vars);
-      const pedido = fillTpl(step.pedido_template, vars);
-      const inboxDir = path.join(__dirname, 'vault/workspaces', step.agente, 'inbox');
-      try { fs.mkdirSync(inboxDir, { recursive: true }); }
-      catch (e) {
-        erros.push({ step: step.id, agente: step.agente, motivo: 'mkdir falhou: ' + e.message });
-        continue;
-      }
-      const safeSlug = (titulo || step.id).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40);
-      const filename = now.toISOString().slice(0,10) + '-' + safeSlug + '.md';
-      const depMd = step.depende_de && step.depende_de.length
-        ? '> ⛓️ Depende de: ' + step.depende_de.map(d => '`' + d + '`').join(', ') + '\n'
-        : '';
-      const md = '# ' + titulo + '\n\n'
-        + '> 🤝 Workflow: `' + wf.slug + '` · run `' + runId + '`\n'
-        + '> Step: `' + step.id + '` · Agente: `' + step.agente + '`\n'
-        + depMd
-        + '> Status: 📥 inbox · ' + now.toISOString() + '\n\n'
-        + '## Pedido\n\n' + pedido + '\n';
-      fs.writeFileSync(path.join(inboxDir, filename), md, 'utf8');
-      criados.push({ step: step.id, agente: step.agente, arquivo: filename });
-    }
-
-    // grava run log
-    const runLog = {
-      run_id: runId,
-      workflow_slug: wf.slug,
-      workflow_nome: wf.nome,
-      criado_em: now.toISOString(),
-      inputs,
-      criados,
-      erros
-    };
-    fs.writeFileSync(path.join(COWORK_RUNS_DIR, runId + '.json'), JSON.stringify(runLog, null, 2), 'utf8');
-
-    res.json({ ok: true, run_id: runId, criados, erros });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
-// GET runs (workflows disparados — historico)
-app.get('/api/cowork/runs', (req, res) => {
-  try {
-    if (!fs.existsSync(COWORK_RUNS_DIR)) return res.json([]);
-    const runs = fs.readdirSync(COWORK_RUNS_DIR)
-      .filter(f => f.endsWith('.json'))
-      .map(f => {
-        try { return JSON.parse(fs.readFileSync(path.join(COWORK_RUNS_DIR, f), 'utf8')); }
-        catch (e) { return null; }
-      })
-      .filter(Boolean)
-      .sort((a,b) => new Date(b.criado_em) - new Date(a.criado_em));
-    res.json(runs);
-  } catch (e) { res.status(500).json({ error: e.message }); }
-});
-
-// GET feed unificado de atividade (todos inboxes + outboxes)
-app.get('/api/cowork/atividade', (req, res) => {
-  try {
-    const wsRoot = path.join(__dirname, 'vault/workspaces');
-    if (!fs.existsSync(wsRoot)) return res.json([]);
-    const eventos = [];
-    fs.readdirSync(wsRoot).forEach(slug => {
-      const dir = path.join(wsRoot, slug);
-      if (!fs.statSync(dir).isDirectory()) return;
-      ['inbox','outbox'].forEach(sub => {
-        const subDir = path.join(dir, sub);
-        if (!fs.existsSync(subDir)) return;
-        fs.readdirSync(subDir).filter(f => !f.startsWith('.') && !f.startsWith('_') && f.endsWith('.md')).forEach(f => {
-          const st = fs.statSync(path.join(subDir, f));
-          eventos.push({
-            agente: slug,
-            tipo: sub,
-            arquivo: f,
-            modificado: st.mtime,
-            tamanho: st.size
-          });
-        });
-      });
-    });
-    eventos.sort((a,b) => new Date(b.modificado) - new Date(a.modificado));
-    res.json(eventos.slice(0, 200));
-  } catch (e) { res.status(500).json({ error: e.message }); }
-});
+app.get('/api/cowork/atividade', (req, res) => res.status(503).json({ error: 'cowork desabilitado' }));
 
 // ── MODULE H · METAS LINKEDIN (sprint 0.4.8 — apresentação corporativa) ─────
 const METAS_PATH = path.join(__dirname, 'public/metas.html');
@@ -1585,7 +1477,6 @@ app.get('/hub',       (req, res) => res.sendFile(HUB_HTML));
 app.get('/relatorio', (req, res) => res.sendFile(path.join(__dirname, 'public/relatorio.html')));
 app.get('/artigos',   (req, res) => res.sendFile(path.join(__dirname, 'public/artigos.html')));
 app.get('/jornadas',  (req, res) => res.sendFile(path.join(__dirname, 'public/jornadas.html')));
-app.get('/projecoes', (req, res) => res.sendFile(path.join(__dirname, 'public/projecoes.html')));
 app.get('/metas-fy26', (req, res) => res.sendFile(path.join(__dirname, 'public/metas-fy26.html')));
 app.get('/metas/fy26', (req, res) => res.redirect(301, '/metas-fy26'));
 app.get('/design', (req, res) => res.sendFile(path.join(__dirname, 'public/design.html')));
@@ -2007,87 +1898,6 @@ function _gerarAlertas(linkedin, atual, anterior) {
   return a;
 }
 
-// GET /api/projecoes?budget_linkedin=5000&budget_google=2000&budget_meta=2000 — paid media
-app.get('/api/projecoes', (req, res) => {
-  // Premissas conservadoras B2B SAP (atualizar com base em campanhas reais)
-  const PREMISSAS = {
-    linkedin_sponsored: { cpm: 60, ctr: 0.012, conv_follow: 0.04, label: 'LinkedIn Sponsored Content' },
-    linkedin_inmail:    { cpm: 200, ctr: 0.05, conv_follow: 0.08, label: 'LinkedIn Sponsored InMail (decision-makers)' },
-    google_display:     { cpm: 8,  ctr: 0.003, conv_follow: 0.01, label: 'Google Display Network' },
-    meta_remarketing:   { cpm: 15, ctr: 0.008, conv_follow: 0.02, label: 'Meta Ads (B2B remarketing)' },
-  };
-  function projetar(budget, p) {
-    if (!budget || budget <= 0) return { impressoes: 0, cliques: 0, followers_mes: 0, followers_ano: 0 };
-    const imp = (budget / p.cpm) * 1000;
-    const cli = imp * p.ctr;
-    const fol = cli * p.conv_follow;
-    return { impressoes: Math.round(imp), cliques: Math.round(cli), followers_mes: Math.round(fol), followers_ano: Math.round(fol * 12) };
-  }
-  const linkedin = _readJSON(LINKEDIN_HIST_PATH, { resumo: {} });
-  const baseline_organico_ano = 1800; // 5/dia * 30 * 12
-  const baseline_eventos_ano = Math.round((linkedin.resumo?.total_via_eventos || 227) * 12 / 10); // extrapola
-  const budgets = {
-    linkedin: parseFloat(req.query.budget_linkedin) || 0,
-    linkedin_inmail: parseFloat(req.query.budget_linkedin_inmail) || 0,
-    google: parseFloat(req.query.budget_google) || 0,
-    meta: parseFloat(req.query.budget_meta) || 0,
-  };
-  const canais = {
-    linkedin_sponsored: { ...projetar(budgets.linkedin, PREMISSAS.linkedin_sponsored), budget: budgets.linkedin, premissas: PREMISSAS.linkedin_sponsored },
-    linkedin_inmail: { ...projetar(budgets.linkedin_inmail, PREMISSAS.linkedin_inmail), budget: budgets.linkedin_inmail, premissas: PREMISSAS.linkedin_inmail },
-    google_display: { ...projetar(budgets.google, PREMISSAS.google_display), budget: budgets.google, premissas: PREMISSAS.google_display },
-    meta_remarketing: { ...projetar(budgets.meta, PREMISSAS.meta_remarketing), budget: budgets.meta, premissas: PREMISSAS.meta_remarketing },
-  };
-  const paid_total_mes = Object.values(canais).reduce((s, c) => s + c.followers_mes, 0);
-  const paid_total_ano = paid_total_mes * 12;
-  const budget_total_mes = Object.values(canais).reduce((s, c) => s + c.budget, 0);
-
-  // Helper: cenários pre-definidos usando a mesma fórmula (transparência)
-  function cenario(label, budget, split) {
-    // split: % de cada canal {li, liim, go, me}
-    const b = {
-      linkedin: budget * (split.li || 0),
-      linkedin_inmail: budget * (split.liim || 0),
-      google: budget * (split.go || 0),
-      meta: budget * (split.me || 0),
-    };
-    const c = {
-      linkedin_sponsored: projetar(b.linkedin, PREMISSAS.linkedin_sponsored),
-      linkedin_inmail: projetar(b.linkedin_inmail, PREMISSAS.linkedin_inmail),
-      google_display: projetar(b.google, PREMISSAS.google_display),
-      meta_remarketing: projetar(b.meta, PREMISSAS.meta_remarketing),
-    };
-    const paid_ano = Object.values(c).reduce((s, x) => s + x.followers_ano, 0);
-    return {
-      label, budget, organico: baseline_organico_ano, eventos: baseline_eventos_ano,
-      paid: paid_ano, total: baseline_organico_ano + baseline_eventos_ano + paid_ano,
-    };
-  }
-  const cenarios_predefinidos = [
-    cenario('Hoje (0 paid)', 0, {}),
-    cenario('Conservador R$5k/mês', 5000, { li: 0.50, liim: 0.20, go: 0.15, me: 0.15 }),
-    cenario('Moderado R$12k/mês', 12000, { li: 0.42, liim: 0.25, go: 0.17, me: 0.16 }),
-    cenario('Agressivo R$30k/mês', 30000, { li: 0.45, liim: 0.25, go: 0.15, me: 0.15 }),
-  ];
-
-  res.json({
-    success: true,
-    cenarios_predefinidos,
-    custom: {
-      canais,
-      paid_total_mes,
-      paid_total_ano,
-      budget_total_mes,
-      total_combinado_ano: baseline_organico_ano + baseline_eventos_ano + paid_total_ano,
-      multiplicador_vs_hoje: baseline_organico_ano > 0 ? +((baseline_organico_ano + baseline_eventos_ano + paid_total_ano) / (baseline_organico_ano + baseline_eventos_ano)).toFixed(2) : null,
-    },
-    baseline: {
-      organico_ano: baseline_organico_ano,
-      eventos_ano: baseline_eventos_ano,
-      total_ano: baseline_organico_ano + baseline_eventos_ano,
-    },
-  });
-});
 
 // GET /api/metas/fy26 — Metas oficiais FY26 + realizado real cruzado
 app.get('/api/metas/fy26', (req, res) => {

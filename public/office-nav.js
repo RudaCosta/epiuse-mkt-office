@@ -67,7 +67,7 @@ const OFFICE_NAV_VERSION = '0.24.0';
 const OFFICE_NAV_TABS = [
   { id: 'hub',          label: 'Home',         icon: '🏠', href: '/',                  matches: ['hub','home'] },
   { id: 'intelligence', label: 'Intelligence', icon: '🧠', href: '/area/intelligence', matches: ['area-intelligence'] },
-  { id: 'growth',       label: 'Growth',       icon: '🚀', href: '/area/growth',       matches: ['area-growth','projecoes'] },
+  { id: 'growth',       label: 'Growth',       icon: '🚀', href: '/area/growth',       matches: ['area-growth'] },
   { id: 'eventos',      label: 'Eventos',      icon: '📅', href: '/area/eventos',      matches: ['area-eventos'] },
   { id: 'pipeline',     label: 'Pipeline',     icon: '📞', href: '/area/pipeline',     matches: ['area-pipeline','pipeline'] },
   { id: 'brand',        label: 'Brand/Voices', icon: '🎨', href: '/area/brand',        matches: ['area-brand','voices','inbound','cases','painel','optimizer'] },
@@ -94,12 +94,10 @@ const OFFICE_NAV_BREADCRUMBS = {
 const OFFICE_NAV_OVERFLOW = [
   { section: '🤖 Escritório Virtual' },
   { label: '🤖 Agentes & Contexto',      href: '/agentes' },
-  { label: '🤝 Cowork (workflows)',      href: '/cowork' },
   { label: '⚡ War Room (pendências)',    href: '/war-room' },
 
   { section: '📊 Reports & Análises' },
   { label: '📈 Relatório Mensal',        href: '/relatorio' },
-  { label: '💰 Projeções (paid media)',  href: '/projecoes' },
   { label: '🗺️ Jornadas de Compra',      href: '/jornadas' },
   { label: '📚 Artigos do Blog',         href: '/artigos' },
   { label: '📊 Planilhas (Live API)',    href: '/planilhas' },
@@ -116,7 +114,6 @@ const OFFICE_NAV_OVERFLOW = [
 
   { section: '🎮 Extras' },
   { label: '🎮 Modo Game',               href: '/game' },
-  { label: '🎬 Remotion (vídeos)',       href: '/remotion' },
   { label: '🐘 ERP.ngo',                 href: 'https://erp.ngo', external: true }
 ];
 
@@ -149,7 +146,7 @@ class OfficeNav extends HTMLElement {
     if (path.startsWith('/cases')) return 'cases';
     if (path.startsWith('/relatorio')) return 'relatorio';
     if (path.startsWith('/artigos') || path.startsWith('/jornadas')) return 'artigos';
-    if (path.startsWith('/metas') || path.startsWith('/projecoes')) return 'metas';
+    if (path.startsWith('/metas')) return 'metas';
     if (path.startsWith('/pipeline')) return 'pipeline';
     if (path.startsWith('/hub')) return 'hub-mkt';
     if (path.startsWith('/changelog')) return 'changelog';
