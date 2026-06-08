@@ -1,6 +1,6 @@
 {
   "_obs": "Registry de planilhas — cada item vira endpoint /api/planilhas/<slug>. Server le on-demand do path origem (Desktop/OneDrive). Quando o usuario edita o arquivo, proxima request ja pega versao nova (cache 60s).",
-  "atualizado_em": "2026-06-05",
+  "atualizado_em": "2026-06-08",
   "planilhas": [
     {
       "slug": "roadmap-pm",
@@ -96,6 +96,21 @@
       ],
       "sheet": 0,
       "endpoint_alias": "/api/cases"
+    },
+    {
+      "slug": "cronograma-redatoria",
+      "nome": "Cronograma EPI-USE Brasil 2025-2026 (Redatoria)",
+      "dona": "Lisiane",
+      "categoria": "Conteúdo",
+      "descricao": "Planejamento editorial mensal — temas, keywords, volumetria, links de entrega. 19 abas: Divisões, Palavras-chave, Jan–Dez 2025, Jan–Jun 2026.",
+      "google_sheets_id": "1KfnsRY_gDTSLx3w-SDvFuJtIzkW6kMgNfbsYt_EJ2uM",
+      "google_sheets_view": "https://docs.google.com/spreadsheets/d/1KfnsRY_gDTSLx3w-SDvFuJtIzkW6kMgNfbsYt_EJ2uM/edit",
+      "paths": [
+        "C:/epiuse-mkt-office/vault/00-contexto/conteudo/cronograma-redatoria-2025.xlsx"
+      ],
+      "sheet": 2,
+      "_obs": "sheet 2 = Janeiro (índice 0-based: 0=Divisões, 1=Palavras-chave, 2..13=meses 2025, 14..18=2026). Sync: node scripts/sync/sync_cronograma_redatoria.js",
+      "abas": ["Divisões de temáticas","Palavras-chave","Janeiro","Fevereiro","Abril","Março","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro","Jan26","Mar26","Fev26","Abr26","Jun26"]
     },
     {
       "slug": "metas-smart-fy26",
