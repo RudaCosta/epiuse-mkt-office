@@ -1,0 +1,125 @@
+/* ════════════════════════════════════════════════════════════════════
+   polish-pro.css · v0.21.0
+   Aplica ui-ux-pro-max skill em telas existentes (metas, relatorio, etc)
+   Brand EPI-USE: Navy #001844 + Red #cd1543 + Blue Light #869ec3
+   Pattern: Modern Professional typography + Glassmorphism + Flat
+   ════════════════════════════════════════════════════════════════════ */
+
+/* TYPOGRAPHY (Modern Professional · skill recommended) */
+:root {
+  --pro-font-heading: 'Poppins', 'Inter', -apple-system, system-ui, sans-serif;
+  --pro-font-body: 'Inter', -apple-system, system-ui, sans-serif;
+  --pro-font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+  --pro-navy: #001844;
+  --pro-red: #cd1543;
+  --pro-blue-light: #869ec3;
+  --pro-grey: #cfd1d3;
+  --pro-easing: cubic-bezier(0.16, 1, 0.3, 1);
+  --pro-shadow-1: 0 1px 3px rgba(0,0,0,.12), 0 1px 2px rgba(0,0,0,.06);
+  --pro-shadow-2: 0 4px 12px -2px rgba(0,0,0,.18), 0 2px 4px -1px rgba(0,0,0,.08);
+  --pro-shadow-3: 0 12px 32px -8px rgba(0,0,0,.35), 0 4px 8px -2px rgba(0,0,0,.15);
+  --pro-glass-bg-dark: linear-gradient(160deg, rgba(15,30,53,.85), rgba(20,37,71,.65));
+  --pro-glass-bg-light: linear-gradient(160deg, rgba(255,255,255,.92), rgba(255,255,255,.7));
+  --pro-glass-border-dark: rgba(255,255,255,.08);
+  --pro-glass-border-light: rgba(0,24,68,.1);
+}
+
+body, .container, .wrap, main {
+  font-family: var(--pro-font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, .page-title, .rep-title, .meta-title, .sec-title {
+  font-family: var(--pro-font-heading);
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+/* Big numbers tabular */
+.kpi-val, .stat-val, .big-number, .metric-value, .pct, [data-numeric] {
+  font-family: var(--pro-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* GLASSMORPHISM cards (aplica em qualquer .card, .stat, .kpi-card, .meta-card) */
+.pro-glass,
+.kpi-card.pro,
+.meta-card.pro,
+.stat.pro {
+  background: var(--pro-glass-bg-dark);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--pro-glass-border-dark);
+  border-radius: 14px;
+  box-shadow: var(--pro-shadow-2);
+  transition: transform .25s var(--pro-easing), box-shadow .25s var(--pro-easing), border-color .25s var(--pro-easing);
+}
+[data-theme="light"] .pro-glass,
+[data-theme="light"] .kpi-card.pro,
+[data-theme="light"] .meta-card.pro,
+[data-theme="light"] .stat.pro {
+  background: var(--pro-glass-bg-light);
+  border-color: var(--pro-glass-border-light);
+}
+
+/* Hover refinado */
+.pro-glass:hover, .kpi-card.pro:hover, .meta-card.pro:hover, .stat.pro:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--pro-shadow-3);
+  border-color: rgba(205,21,67,.4);
+}
+
+/* SECTION TITLE com border-left brand red (B2B Feature reveal) */
+.pro-section-title, .sec-hdr h2.pro {
+  font-family: var(--pro-font-heading);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding-left: 14px;
+  border-left: 3px solid var(--pro-red);
+  margin: 24px 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* HEAT MAP bar (Analytics Dashboard pattern) */
+.pro-heat-bar {
+  height: 6px;
+  background: rgba(134,158,195,.15);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.pro-heat-bar > i {
+  display: block; height: 100%; border-radius: 99px;
+  background-image: linear-gradient(90deg, #ef4444 0%, #f59e0b 50%, #10b981 100%);
+  background-size: 100% 100%;
+  transition: width .5s var(--pro-easing);
+}
+
+/* Touch targets 44x44 (CRITICAL skill rule) */
+button, .btn, [role="button"], a.btn, .action-btn {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 10px 16px;
+}
+button:focus-visible, .btn:focus-visible, a:focus-visible {
+  outline: 2px solid var(--pro-red);
+  outline-offset: 2px;
+}
+
+/* Reduced motion (skill a11y rule) */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
