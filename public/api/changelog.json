@@ -1,8 +1,14 @@
 {
-  "current": "0.25.0",
+  "current": "0.27.0",
   "atualizado_em": "2026-06-08",
   "releases": [
-    { "version": "0.25.0", "date": "08/jun/2026", "status": "current", "path": null,
+    { "version": "0.27.0", "date": "08/jun/2026", "status": "current", "path": null,
+      "title": "Pipeline MKT — Integração Zoho CRM",
+      "summary": "Nova tela /inbound/zoho-pipeline: dashboard de oportunidades geradas pelo Marketing (campo Opportunity Source = MKT (EPI-USE) ou SDR). SQLite: nova tabela zoho_deals (deal_id, conta, nome_deal, valor, stage, campanha, solution, deal_scope, opportunity_source, data_criacao, data_fechamento). Server: GET /api/zoho/pipeline (agrega kpis por 4 períodos, por campanha, por solution, por deal_scope, por mês) + POST /api/zoho/sync (upsert com editor token). Script: scripts/sync/sync_zoho_deals.js (REST API OAuth2 ou --from-file payload JSON gerado via MCP). UI: filtro MKT/SDR/Todos, KPI cards 4 períodos, tabela campanha com barra proporcional, 2 charts horizontais (solution + deal scope), tendência mensal 24 meses. Sync via MCP Zoho já conectado (Claude Directory) — sem credenciais adicionais para uso manual." },
+    { "version": "0.26.0", "date": "08/jun/2026", "status": "snapshot", "path": null,
+      "title": "Calendário Mestre — 6 camadas de dados unificadas",
+      "summary": "Novo /inbound/calendar: calendário unificado com 8 layers filtraveis (Feriados BR, Datas Comemorativas, Copa/Esporte, Efemérides, Premiações, Eventos EPI-USE, Redatoria, Editorial Duda). Data sources: (1) public/api/datas-especiais-2026.json — 40 itens estáticos (feriados nacionais 2026, Copa do Mundo Jun11-Jul19, GPTW, SAP Pinnacle, Davos, SXSW, Black Friday, etc.). (2) /api/inbound/calendar SQLite — Editorial Duda (18 itens Jun) + Redatoria (80 itens 2026 via sync novo). (3) /api/events.json — Eventos EPI-USE BR+LATAM com TBC no painel lateral. UI: grid 7 colunas (Seg-Dom), chips coloridos por layer, day detail panel, month stats, TBC panel, nav por teclado (← →). Novo script scripts/sync/sync_redatoria_to_calendar.js — parseia abas 2026 do XLSX Redatoria (Jan26/Fev26/Mar26/Abr26/Jun26 = 80 itens sincronizados). Fix: sync_calendario_duda.js usa require absoluto (Node v24 não aceita Module._nodeModulePaths patch)." },
+    { "version": "0.25.0", "date": "08/jun/2026", "status": "snapshot", "path": null,
       "title": "Limpeza: remove Remotion + Projecoes, desabilita Cowork, desinstala 4 skills",
       "summary": "Remove /remotion (rota + public/remotion.html + skill remotion). Remove /projecoes (rota + public/projecoes.html + /api/projecoes). Desabilita Cowork por hora (rota + 5 endpoints de API retornam 503, arquivos preservados). Desinstala skills: baoyu-cover-image, baoyu-infographic, baoyu-image-gen, remotion. Skills restantes: relatorio-mensal + ui-ux-pro-max. office-nav.js limpo (removidos links cowork/projecoes/remotion do overflow + projecoes do activeRoute)." },
     { "version": "0.24.0", "date": "08/jun/2026", "status": "snapshot", "path": null,

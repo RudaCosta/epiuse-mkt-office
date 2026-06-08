@@ -26,12 +26,13 @@
 - **⚠️ Segurança:** o client secret foi colado em `Desktop\sso claude.txt` + chat. Recomendo **rotacionar** (Azure → Certificates & secrets → novo secret) depois de validar, e apagar o txt. (Rudá disse antes que "não tem nada comprometido aqui" — fica o registro.)
 - **Doc técnico:** `vault/00-contexto/sso-microsoft-plan.md`
 
-### B2. Planilha Duda — Calendar editorial
+### ✅ B2. Planilha Duda — Calendar editorial — RESOLVIDO (08/jun/2026)
 
-- **Quem:** Duda (Brand Experience)
-- **O que entregar:** link SharePoint da planilha de planejamento editorial da semana, com colunas mínimas: Data · Canal · Voice/Autor · Pilar · Título · Status · URL final
-- **Status:** Duda ainda não criou. Rudá precisa cobrar (msg pronta no item D das instruções do dia 26/mai)
-- **Quando chegar:** plugo em ~1h. Endpoint `/api/inbound/calendar` já existe + tabela SQLite `editorial_calendar` pronta. Falta só o script que lê o xlsx do OneDrive sincronizado e POSTa pro endpoint (igual o `sync_cases_roberto.py`)
+- **Arquivo:** `CALENDÁRIO EDITORIAL EPI-USE (1).xlsx` — OneDrive Duda, sincronizado em `C:/Users/Ruds/OneDrive - EPI USE BRASIL SERVIÇOS EM SISTEMAS LTDA/MARKETING/Inbound/Conteúdo/`
+- **Script:** `scripts/sync/sync_calendario_duda.js` — parser de grid visual mensal → 18 itens Junho/2026 sincronizados
+- **Endpoint:** `/api/inbound/calendar` — 18 itens no SQLite `editorial_calendar`
+- **Como re-sync:** `node scripts/sync/sync_calendario_duda.js` (roda de qualquer lugar, resolve modules automaticamente)
+- **Cópia vault:** `vault/00-contexto/conteudo/calendario-editorial-duda.xlsx`
 
 ---
 

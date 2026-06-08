@@ -155,6 +155,24 @@ db.exec(`
     acoes           TEXT DEFAULT '',
     updated_at      TEXT DEFAULT (datetime('now'))
   );
+
+  CREATE TABLE IF NOT EXISTS zoho_deals (
+    deal_id          TEXT PRIMARY KEY,
+    conta            TEXT,
+    nome_deal        TEXT,
+    valor            REAL DEFAULT 0,
+    stage            TEXT,
+    campanha         TEXT,
+    solution         TEXT,
+    deal_scope       TEXT,
+    opportunity_source TEXT,
+    data_criacao     TEXT,
+    data_fechamento  TEXT,
+    synced_at        TEXT DEFAULT (datetime('now'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_zoho_source ON zoho_deals(opportunity_source);
+  CREATE INDEX IF NOT EXISTS idx_zoho_criacao ON zoho_deals(data_criacao);
+  CREATE INDEX IF NOT EXISTS idx_zoho_campanha ON zoho_deals(campanha);
 `);
 
 // Migra JSONL legado → SQLite (roda só uma vez se as tabelas estiverem vazias)
@@ -1057,7 +1075,8 @@ app.get('/inbound/calendar',  (req, res) => res.sendFile(path.join(INBOUND_DIR, 
 // Studio foi mergeado no Carrossel via mode=single (v0.4.4) — preserva URL antiga via 301
 app.get('/inbound/studio',    (req, res) => res.redirect(301, '/inbound/carousel?mode=single'));
 app.get('/inbound/carousel',  (req, res) => res.sendFile(path.join(INBOUND_DIR, 'carousel.html')));
-app.get('/inbound/playbook',  (req, res) => res.sendFile(path.join(INBOUND_DIR, 'playbook.html')));
+app.get('/inbound/playbook',       (req, res) => res.sendFile(path.join(INBOUND_DIR, 'playbook.html')));
+app.get('/inbound/zoho-pipeline', (req, res) => res.sendFile(path.join(INBOUND_DIR, 'zoho-pipeline.html')));
 
 // ── INBOUND CALENDAR API (sprint 0.4.0) ─────────────────────────────────────
 // GET retorna posts agendados; POST faz upsert (usado pelo frontend e pelo cron de sync)
@@ -1215,6 +1234,112 @@ app.post('/api/inbound/sync-rd', requireEditorToken, async (req, res) => {
     sources_total: tried.length,
     tried
   });
+});
+
+// ── MODULE ZOHO PIPELINE (v0.27.0) ──────────────────────────────────────────
+// GET  /api/zoho/pipeline   — agregações por período/dimensão (sem auth)
+// POST /api/zoho/sync       — upsert de deals (editor token)
+
+app.get('/api/zoho/pipeline', (req, res) => {
+  try {
+    const src = req.query.source || 'all'; // mkt | sdr | all
+    const srcFilter = src === 'mkt' ? "AND opportunity_source = 'MKT (EPI-USE)'"
+                    : src === 'sdr' ? "AND opportunity_source = 'SDR'"
+                    : '';
+
+    const now = new Date();
+    const y   = now.getUTCFullYear();
+    const m   = now.getUTCMonth(); // 0-based
+
+    // período helpers
+    const iso = (d) => d.toISOString().slice(0,10);
+    const thisMthStart  = iso(new Date(Date.UTC(y, m, 1)));
+    const lastMthStart  = iso(new Date(Date.UTC(y, m-1, 1)));
+    const lastMthEnd    = iso(new Date(Date.UTC(y, m, 0)));
+    const qStart = iso(new Date(Date.UTC(y, Math.floor(m/3)*3 - 3, 1)));
+    const qEnd   = iso(new Date(Date.UTC(y, Math.floor(m/3)*3, 0)));
+    const fyStart = iso(new Date(Date.UTC(y-1, 0, 1))); // último FY = ano ant completo
+    const fyEnd   = iso(new Date(Date.UTC(y-1, 11, 31)));
+    const since24 = iso(new Date(Date.UTC(y, m-24, 1)));
+
+    const sumQ = (from, to) =>
+      db.prepare(`SELECT COALESCE(SUM(valor),0) as s FROM zoho_deals WHERE data_criacao >= ? AND data_criacao <= ? ${srcFilter}`).get(from, to)?.s || 0;
+
+    const kpis = {
+      este_mes:     { label: 'Este mês',        valor: sumQ(thisMthStart, iso(now)) },
+      ultimo_mes:   { label: 'Último mês',       valor: sumQ(lastMthStart, lastMthEnd) },
+      ultimo_q:     { label: 'Último quarter',   valor: sumQ(qStart, qEnd) },
+      ultimo_fy:    { label: 'Último FY',        valor: sumQ(fyStart, fyEnd) },
+    };
+
+    const porCampanha = db.prepare(
+      `SELECT campanha, SUM(valor) as total, COUNT(*) as deals
+       FROM zoho_deals WHERE data_criacao >= ? ${srcFilter}
+       GROUP BY campanha ORDER BY total DESC LIMIT 20`
+    ).all(since24);
+
+    const porSolution = db.prepare(
+      `SELECT solution, SUM(valor) as total, COUNT(*) as deals
+       FROM zoho_deals WHERE solution IS NOT NULL AND solution != '' ${srcFilter}
+       GROUP BY solution ORDER BY deals DESC LIMIT 15`
+    ).all();
+
+    const porDealScope = db.prepare(
+      `SELECT deal_scope, SUM(valor) as total, COUNT(*) as deals
+       FROM zoho_deals WHERE deal_scope IS NOT NULL AND deal_scope != '' ${srcFilter}
+       GROUP BY deal_scope ORDER BY deals DESC LIMIT 20`
+    ).all();
+
+    const porMes = db.prepare(
+      `SELECT substr(data_criacao,1,7) as mes, SUM(valor) as total, COUNT(*) as deals
+       FROM zoho_deals WHERE data_criacao >= ? ${srcFilter}
+       GROUP BY mes ORDER BY mes ASC`
+    ).all(since24);
+
+    const lastSync = db.prepare('SELECT MAX(synced_at) as s FROM zoho_deals').get()?.s || null;
+    const totalDeals = db.prepare(`SELECT COUNT(*) as n FROM zoho_deals WHERE 1=1 ${srcFilter}`).get()?.n || 0;
+
+    res.json({ kpis, por_campanha: porCampanha, por_solution: porSolution, por_deal_scope: porDealScope, por_mes: porMes, last_sync: lastSync, total_deals: totalDeals, source_filter: src });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post('/api/zoho/sync', requireEditorToken, (req, res) => {
+  const items = Array.isArray(req.body?.deals) ? req.body.deals : [];
+  if (!items.length) return res.status(400).json({ success: false, error: 'deals[] vazio.' });
+  const upsert = db.prepare(`
+    INSERT INTO zoho_deals (deal_id, conta, nome_deal, valor, stage, campanha, solution, deal_scope, opportunity_source, data_criacao, data_fechamento, synced_at)
+    VALUES (@deal_id, @conta, @nome_deal, @valor, @stage, @campanha, @solution, @deal_scope, @opportunity_source, @data_criacao, @data_fechamento, datetime('now'))
+    ON CONFLICT(deal_id) DO UPDATE SET
+      conta=excluded.conta, nome_deal=excluded.nome_deal, valor=excluded.valor,
+      stage=excluded.stage, campanha=excluded.campanha, solution=excluded.solution,
+      deal_scope=excluded.deal_scope, opportunity_source=excluded.opportunity_source,
+      data_criacao=excluded.data_criacao, data_fechamento=excluded.data_fechamento,
+      synced_at=datetime('now')
+  `);
+  let n = 0;
+  db.transaction((arr) => {
+    for (const it of arr) {
+      try {
+        upsert.run({
+          deal_id:            String(it.deal_id || it.id || '').slice(0,100),
+          conta:              String(it.conta || '').slice(0,200),
+          nome_deal:          String(it.nome_deal || it.Deal_Name || '').slice(0,300),
+          valor:              parseFloat(it.valor ?? it.Amount ?? 0) || 0,
+          stage:              String(it.stage || it.Stage || '').slice(0,100),
+          campanha:           String(it.campanha || it.Lead_Source || '').slice(0,200),
+          solution:           String(it.solution || '').slice(0,200),
+          deal_scope:         String(it.deal_scope || '').slice(0,200),
+          opportunity_source: String(it.opportunity_source || '').slice(0,100),
+          data_criacao:       String(it.data_criacao || it.Created_Time || '').slice(0,10),
+          data_fechamento:    String(it.data_fechamento || it.Closing_Date || '').slice(0,10),
+        });
+        n++;
+      } catch (e) { console.warn('[zoho-sync] upsert falhou:', e.message); }
+    }
+  })(items);
+  res.json({ success: true, upserted: n, total: items.length });
 });
 
 // ── /api/alerts: feed unificado pro sino de notificação do office-nav ──
@@ -1480,6 +1605,7 @@ app.get('/jornadas',  (req, res) => res.sendFile(path.join(__dirname, 'public/jo
 app.get('/metas-fy26', (req, res) => res.sendFile(path.join(__dirname, 'public/metas-fy26.html')));
 app.get('/metas/fy26', (req, res) => res.redirect(301, '/metas-fy26'));
 app.get('/design', (req, res) => res.sendFile(path.join(__dirname, 'public/design.html')));
+app.get('/erp-impacto', (req, res) => res.sendFile(path.join(__dirname, 'public/erp-impacto.html')));
 app.get('/pipeline',  (req, res) => res.sendFile(path.join(__dirname, 'public/pipeline.html')));
 
 // ════════════════════════════════════════════════════════════════════════════

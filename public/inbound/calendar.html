@@ -1,685 +1,563 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>EUBR Inbound · Calendário Editorial</title>
-<link rel="stylesheet" href="/inbound/inbound-shell.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Calendário Mestre — EPI-USE Office</title>
 <link rel="stylesheet" href="/design-tokens.css">
-<script type="module" src="/office-nav.js"></script>
-<script type="module" src="/office-footer.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400;500;600;700&display=swap">
 <style>
-  /* ============ Layout ============ */
-  .toolbar {
-    display: flex; align-items: center; justify-content: space-between; gap: 24px;
-    padding: 12px 0 20px; border-bottom: 1px solid var(--d-border);
-    margin-bottom: 24px;
-  }
-  .toolbar .title-block h1 {
-    font-family: var(--eu-font-display); font-size: 36px; font-weight: 700; margin: 0;
-    color: var(--d-ink); letter-spacing: -.02em;
-  }
-  .toolbar .title-block h1 em { color: var(--d-accent); font-style: normal; }
-  .toolbar .title-block .sub {
-    font-size: 14px; color: var(--d-ink-2); margin-top: 4px;
-  }
-  .toolbar .nav-month {
-    display: flex; align-items: center; gap: 8px;
-  }
-  .month-btn {
-    width: 32px; height: 32px; border-radius: 4px;
-    background: rgba(255,255,255,.04); border: 1px solid var(--d-border-2);
-    color: var(--d-ink); font-family: var(--eu-font-mono); font-size: 14px;
-    cursor: pointer; transition: all .15s;
-  }
-  .month-btn:hover { border-color: var(--d-accent); color: var(--d-accent); }
-  .month-label {
-    font-family: var(--eu-font-mono); font-size: 13px; font-weight: 700;
-    letter-spacing: .12em; text-transform: uppercase; color: var(--d-accent);
-    min-width: 220px; text-align: center;
-  }
+/* ── BASE ─────────────────────────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Maven Pro',sans-serif;background:#f4f7fb;color:#1e293b;min-height:100vh;display:flex;flex-direction:column}
+office-nav{flex-shrink:0}
 
-  /* ============ Main grid ============ */
-  .cal-grid {
-    display: grid; grid-template-columns: 1fr 320px; gap: 20px;
-    align-items: start;
-  }
+/* ── PAGE LAYOUT ──────────────────────────────────────────────────────────── */
+.cal-page{flex:1;display:flex;flex-direction:column;overflow:hidden;height:calc(100vh - 60px)}
+.cal-topbar{background:#fff;border-bottom:1px solid #e2e8f0;padding:14px 20px 10px;flex-shrink:0}
+.cal-title-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.cal-title{font-size:18px;font-weight:700;color:#001844}
+.cal-nav-group{display:flex;align-items:center;gap:6px}
+.nav-btn{width:32px;height:32px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;cursor:pointer;font-size:16px;color:#374151;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.nav-btn:hover{background:#f1f5f9;border-color:#cbd5e1}
+#monthLabel{font-size:15px;font-weight:600;color:#001844;min-width:150px;text-align:center}
+.today-btn{padding:5px 12px;border:1px solid #001844;border-radius:8px;background:#fff;color:#001844;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
+.today-btn:hover{background:#001844;color:#fff}
+.sync-btn{padding:5px 12px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;color:#64748b;font-family:inherit;font-size:12px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:5px}
+.sync-btn:hover{border-color:#94a3b8;color:#374151}
+.sync-btn.spinning svg{animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-  /* ============ Calendar ============ */
-  .cal {
-    background: var(--d-card); border: 1px solid var(--d-border);
-    border-radius: 10px; padding: 18px;
-  }
-  .weekdays {
-    display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px;
-    margin-bottom: 6px;
-  }
-  .weekdays div {
-    font-family: var(--eu-font-mono); font-size: 10px; font-weight: 700;
-    letter-spacing: .14em; text-transform: uppercase; color: var(--d-ink-3);
-    text-align: center; padding: 6px 0;
-  }
-  .days {
-    display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px;
-  }
-  .day {
-    background: rgba(0,0,0,.18); border: 1px solid var(--d-border);
-    border-radius: 6px; min-height: 110px;
-    padding: 8px; position: relative;
-    display: flex; flex-direction: column; gap: 4px;
-    transition: background .15s, border-color .15s;
-  }
-  .day.other { opacity: 0.35; }
-  .day.today { border-color: var(--d-accent); box-shadow: 0 0 0 1px var(--d-accent) inset; }
-  .day.weekend { background: rgba(0,0,0,.32); }
-  .day.drop-target { background: rgba(91, 188, 235, .14); border-color: var(--d-accent); }
-  .day-num {
-    font-family: var(--eu-font-mono); font-size: 11px; font-weight: 700;
-    color: var(--d-ink-2); letter-spacing: .04em;
-  }
-  .day.today .day-num { color: var(--d-accent); }
-  .day-num .lbl {
-    font-size: 9px; color: var(--d-ink-3); margin-left: 4px; text-transform: uppercase;
-  }
-  .day .post {
-    background: var(--eu-navy); color: #fff;
-    border-radius: 4px; padding: 5px 7px;
-    font-size: 11px; line-height: 1.25;
-    cursor: grab; user-select: none;
-    border-left: 3px solid var(--d-accent);
-    display: flex; align-items: center; gap: 5px;
-    transition: transform .15s;
-  }
-  .day .post:active { cursor: grabbing; }
-  .day .post.dragging { opacity: .4; transform: scale(.96); }
-  .day .post .lob-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-  .day .post .ttl { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .day .post .cat-mark {
-    font-family: var(--eu-font-mono); font-size: 8px; font-weight: 700;
-    letter-spacing: .04em; color: rgba(255,255,255,.6); flex-shrink: 0;
-  }
-  .day .add-btn {
-    margin-top: auto; align-self: flex-start;
-    font-family: var(--eu-font-mono); font-size: 9px; font-weight: 700;
-    letter-spacing: .08em; color: var(--d-ink-3);
-    background: transparent; border: 1px dashed var(--d-border-2);
-    border-radius: 3px; padding: 2px 6px; cursor: pointer;
-    text-transform: uppercase; transition: all .15s;
-  }
-  .day .add-btn:hover { color: var(--d-accent); border-color: var(--d-accent); }
-  .day:hover .add-btn { color: var(--d-ink-2); border-color: var(--d-border-2); }
+.cal-filters{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.layer-btn{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;border:1.5px solid var(--lc);background:#fff;cursor:pointer;font-family:inherit;font-size:11px;font-weight:600;color:var(--lc);transition:all .15s;white-space:nowrap}
+.layer-btn:hover{opacity:.85}
+.layer-btn.active{background:var(--lc);color:#fff}
+.layer-btn .ldot{width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0}
 
-  /* ============ Right panel — balance & forms ============ */
-  .side-panel { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 72px; }
-  .side-card {
-    background: var(--d-card); border: 1px solid var(--d-border);
-    border-radius: 10px; padding: 20px;
-  }
-  .side-card h3 {
-    font-family: var(--eu-font-mono); font-size: 11px; font-weight: 700;
-    letter-spacing: .16em; text-transform: uppercase; color: var(--d-accent);
-    margin: 0 0 16px;
-    display: flex; justify-content: space-between; align-items: center;
-  }
-  .side-card h3 .meta { color: var(--d-ink-3); font-weight: 600; }
+/* ── BODY: GRID + SIDE ────────────────────────────────────────────────────── */
+.cal-body{flex:1;display:flex;overflow:hidden}
+.cal-main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
 
-  /* balance bars */
-  .bal { display: flex; flex-direction: column; gap: 8px; }
-  .bal-row {
-    display: grid; grid-template-columns: 100px 1fr 24px; align-items: center; gap: 10px;
-    font-size: 11px;
-  }
-  .bal-row .name { color: var(--d-ink); font-weight: 600; }
-  .bal-row .track { height: 6px; background: rgba(255,255,255,.06); border-radius: 3px; overflow: hidden; }
-  .bal-row .fill { height: 100%; border-radius: 3px; }
-  .bal-row .v {
-    font-family: var(--eu-font-mono); font-size: 11px; font-weight: 700;
-    text-align: right; color: var(--d-ink-2);
-  }
-  .bal-row.warn .v { color: var(--d-warn); }
-  .bal-row.ok .v { color: var(--d-ok); }
+.weekday-row{display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid #e2e8f0;background:#f8fafc;flex-shrink:0}
+.wd-label{text-align:center;padding:7px 4px;font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em}
+.wd-label.weekend{color:#94a3b8}
 
-  /* legend */
-  .legend { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; }
-  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--d-ink-2); }
-  .legend-item .sw { width: 12px; height: 12px; border-radius: 3px; }
+.cal-days-wrap{flex:1;overflow-y:auto}
+.cal-days{display:grid;grid-template-columns:repeat(7,1fr);grid-auto-rows:auto}
 
-  /* alerts */
-  .alert {
-    background: rgba(245, 187, 92, .08);
-    border: 1px solid rgba(245, 187, 92, .25);
-    border-radius: 6px; padding: 10px 12px;
-    font-size: 12px; line-height: 1.45; color: var(--d-ink);
-    margin-bottom: 8px;
-  }
-  .alert::before { content: "⚠ "; color: var(--d-warn); font-weight: 700; }
-  .alert.ok {
-    background: rgba(77, 230, 130, .08);
-    border-color: rgba(77, 230, 130, .25);
-  }
-  .alert.ok::before { content: "✓ "; color: var(--d-ok); }
+/* ── DAY CELLS ────────────────────────────────────────────────────────────── */
+.cal-day{border-right:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;padding:6px 5px 4px;min-height:88px;cursor:pointer;transition:background .1s;position:relative}
+.cal-day:hover{background:#f8fafc}
+.cal-day.other-month{opacity:.3;cursor:default;pointer-events:none}
+.cal-day.is-weekend{background:#fafafa}
+.cal-day.has-feriado{background:#fff5f5}
+.cal-day.is-selected{background:#eff6ff;outline:2px solid #0369a1;outline-offset:-2px;z-index:1}
+.cal-day:nth-child(7n){border-right:none}
 
-  /* modal */
-  .modal-bg {
-    position: fixed; inset: 0; background: rgba(0,0,0,.7);
-    z-index: 200; display: none; align-items: center; justify-content: center;
-    backdrop-filter: blur(4px);
-  }
-  .modal-bg.open { display: flex; }
-  .modal {
-    background: var(--d-card); border: 1px solid var(--d-border-2);
-    border-radius: 10px; padding: 28px;
-    width: 520px; max-width: 92vw;
-    box-shadow: 0 30px 80px rgba(0,0,0,.5);
-  }
-  .modal h3 {
-    font-family: var(--eu-font-display); font-size: 22px; font-weight: 700;
-    margin: 0 0 16px; color: var(--d-ink); letter-spacing: -.01em;
-  }
-  .modal .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .modal-actions {
-    display: flex; justify-content: space-between; gap: 12px;
-    margin-top: 8px; padding-top: 16px; border-top: 1px solid var(--d-border);
-  }
-  .modal-actions .left { display: flex; gap: 8px; }
+.day-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px}
+.day-num{width:24px;height:24px;border-radius:50%;font-size:12px;font-weight:600;color:#374151;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cal-day.is-today .day-num{background:#001844;color:#fff}
+.day-feriado-dot{width:5px;height:5px;border-radius:50%;background:#dc2626;flex-shrink:0}
+
+.day-events{display:flex;flex-direction:column;gap:2px}
+.event-chip{display:flex;align-items:center;gap:3px;padding:2px 4px;border-radius:3px;font-size:10px;line-height:1.3;overflow:hidden;cursor:pointer;transition:opacity .1s;background:color-mix(in srgb,var(--cc) 12%,transparent)}
+.event-chip:hover{opacity:.8}
+.chip-dot{width:6px;height:6px;border-radius:50%;background:var(--cc);flex-shrink:0}
+.chip-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#1e293b;flex:1;font-size:10px}
+.overflow-chip{font-size:10px;color:#64748b;padding:1px 4px;margin-top:1px}
+
+/* Loading */
+.cal-loading{display:flex;align-items:center;justify-content:center;padding:60px 0}
+.spinner{width:28px;height:28px;border:3px solid #e2e8f0;border-top-color:#001844;border-radius:50%;animation:spin .7s linear infinite}
+#calLoadingBar{height:3px;background:linear-gradient(90deg,#001844,#cd1543);position:fixed;top:60px;left:0;right:0;z-index:100;transform:scaleX(0);transform-origin:left;transition:transform .4s ease;display:none}
+
+/* ── SIDE PANEL ───────────────────────────────────────────────────────────── */
+.cal-side{width:272px;flex-shrink:0;border-left:1px solid #e2e8f0;background:#fff;display:flex;flex-direction:column;overflow:hidden}
+.side-header{padding:14px 16px 10px;border-bottom:1px solid #e2e8f0;flex-shrink:0}
+.side-header h3{font-size:13px;font-weight:700;color:#001844}
+.side-header p{font-size:11px;color:#64748b;margin-top:2px}
+.side-body{flex:1;overflow-y:auto;padding:12px 16px}
+.side-empty{text-align:center;padding:32px 0;color:#94a3b8;font-size:12px}
+.side-empty svg{display:block;margin:0 auto 8px;opacity:.4}
+
+.day-event-item{display:flex;gap:8px;padding:8px 0;border-bottom:1px solid #f1f5f9}
+.day-event-item:last-child{border-bottom:none}
+.dei-bar{width:3px;border-radius:2px;background:var(--cc);flex-shrink:0;min-height:36px}
+.dei-body{flex:1;min-width:0}
+.dei-title{font-size:12px;font-weight:600;color:#1e293b;line-height:1.3}
+.dei-meta{font-size:10px;color:#64748b;margin-top:2px}
+.dei-badge{display:inline-block;padding:1px 6px;border-radius:10px;font-size:9px;font-weight:700;color:#fff;background:var(--cc);margin-top:3px;text-transform:uppercase;letter-spacing:.04em}
+
+.side-section-label{font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em;margin:12px 0 6px}
+.side-section-label:first-child{margin-top:0}
+.tbc-item{padding:6px 8px;border-radius:6px;background:#f8fafc;margin-bottom:4px;font-size:11px}
+.tbc-name{font-weight:600;color:#374151}
+.tbc-meta{color:#64748b;font-size:10px;margin-top:1px}
+
+/* ── STATS BAR ────────────────────────────────────────────────────────────── */
+.month-stats{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.stat-pill{display:flex;align-items:center;gap:4px;font-size:10px;color:#64748b;background:#f8fafc;padding:3px 8px;border-radius:12px}
+.stat-dot{width:6px;height:6px;border-radius:50%}
+
+/* ── RESPONSIVE ───────────────────────────────────────────────────────────── */
+@media(max-width:960px){.cal-side{width:220px}}
+@media(max-width:768px){
+  .cal-side{display:none}
+  .cal-day{min-height:64px}
+  .chip-text{display:none}
+  .event-chip{padding:2px 3px}
+}
+@media(max-width:480px){
+  .cal-day{min-height:48px;padding:4px 3px}
+  .day-num{font-size:11px;width:20px;height:20px}
+}
+office-footer{flex-shrink:0}
 </style>
 </head>
-<body data-route="inbound" data-tab="calendar">
-
+<body>
 <office-nav></office-nav>
+<div id="calLoadingBar"></div>
 
-<!-- ============ INBOUND SUB-NAV ============ -->
-<nav class="inbound-nav">
-  <a class="brand" href="/inbound">
-    <span class="logomark">EPI-USE</span>
-    <span class="lbl"><b>Inbound Engine</b>v1.0 · módulo F</span>
-  </a>
-  <div class="tabs">
-    <a href="/inbound" data-tab-id="hub"><span class="ico">⌂</span> Hub</a>
-    <a href="/inbound/brief" data-tab-id="brief"><span class="ico">✎</span> Brief→Post</a>
-    <a href="/inbound/carousel" data-tab-id="carousel"><span class="ico">▥</span> Carrossel</a>
-    <a href="/inbound/calendar" data-tab-id="calendar"><span class="ico">▦</span> Calendar</a>
-    <a href="/inbound/carousel?mode=single" data-tab-id="studio"><span class="ico">◇</span> Post Único</a>
-    <a href="/inbound/playbook" data-tab-id="playbook"><span class="ico">▤</span> Playbook</a>
-  </div>
-  <div class="right">
-    <span class="pill ok">Auto-save</span>
-  </div>
-</nav>
+<div class="cal-page">
+  <div class="cal-topbar">
+    <div class="cal-title-row">
+      <span class="cal-title">Calendário Mestre</span>
 
-<main class="inbound-page" style="max-width: 1600px;">
-
-  <div class="toolbar">
-    <div class="title-block">
-      <div class="section-label" style="margin: 0 0 8px;">Tool 02 · Planning</div>
-      <h1>Calendário <em>Editorial</em></h1>
-      <div class="sub">Arraste posts entre dias. Balance bar mostra distribuição de LOBs e categorias no mês.</div>
-    </div>
-    <div class="nav-month">
-      <button class="btn btn--ghost" id="btn-add">+ Novo post</button>
-      <div style="width: 1px; height: 28px; background: var(--d-border); margin: 0 8px;"></div>
-      <button class="month-btn" id="prev">‹</button>
-      <span class="month-label" id="month-label">Maio · 2026</span>
-      <button class="month-btn" id="next">›</button>
-      <button class="month-btn" id="today" title="Hoje" style="width:auto; padding: 0 10px;">Hoje</button>
-    </div>
-  </div>
-
-  <div class="cal-grid">
-
-    <!-- ====== CALENDAR ====== -->
-    <div class="cal">
-      <div class="weekdays">
-        <div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div><div>Dom</div>
+      <div class="cal-nav-group">
+        <button class="nav-btn" id="prevBtn" title="Mês anterior">&#8249;</button>
+        <span id="monthLabel">Junho 2026</span>
+        <button class="nav-btn" id="nextBtn" title="Próximo mês">&#8250;</button>
+        <button class="today-btn" id="todayBtn">Hoje</button>
       </div>
-      <div class="days" id="days"></div>
+
+      <button class="sync-btn" id="syncBtn" title="Recarregar todos os dados">
+        <svg id="syncIcon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M23 4v6h-6M1 20v-6h6"/>
+          <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+        </svg>
+        Atualizar
+      </button>
     </div>
 
-    <!-- ====== SIDE PANEL ====== -->
-    <aside class="side-panel">
+    <div class="cal-filters" id="filtersRow"></div>
+  </div>
 
-      <div class="side-card">
-        <h3>Saúde do mês <span class="meta" id="month-count">0 posts</span></h3>
-        <div id="alerts"></div>
+  <div class="cal-body">
+    <div class="cal-main">
+      <div class="weekday-row">
+        <div class="wd-label">Seg</div>
+        <div class="wd-label">Ter</div>
+        <div class="wd-label">Qua</div>
+        <div class="wd-label">Qui</div>
+        <div class="wd-label">Sex</div>
+        <div class="wd-label weekend">Sáb</div>
+        <div class="wd-label weekend">Dom</div>
       </div>
-
-      <div class="side-card">
-        <h3>Balanço · LOB</h3>
-        <div class="bal" id="bal-lob"></div>
+      <div class="cal-days-wrap">
+        <div class="cal-days" id="calDays">
+          <div class="cal-loading" style="grid-column:1/-1"><div class="spinner"></div></div>
+        </div>
       </div>
+    </div>
 
-      <div class="side-card">
-        <h3>Balanço · Categoria</h3>
-        <div class="bal" id="bal-cat"></div>
+    <aside class="cal-side" id="calSide">
+      <div class="side-header">
+        <h3 id="sideTitle">Selecione um dia</h3>
+        <p id="sideSubtitle">Clique em qualquer dia do calendário</p>
       </div>
-
-      <div class="side-card">
-        <h3>Legenda</h3>
-        <div class="legend" id="legend"></div>
+      <div class="side-body" id="sideBody">
+        <div class="side-empty">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="4" width="18" height="18" rx="2"/>
+            <path d="M16 2v4M8 2v4M3 10h18"/>
+          </svg>
+          Clique em um dia para ver os detalhes
+        </div>
       </div>
-
-      <div class="side-card" style="background: rgba(91, 188, 235, .05);">
-        <h3>Próximas integrações</h3>
-        <ul style="margin: 0; padding-left: 18px; font-size: 12px; line-height: 1.5; color: var(--d-ink-2);">
-          <li>Sync com SharePoint da Comunicação</li>
-          <li>Export ICS / CSV</li>
-          <li>Importar do Plausible (engajamento real)</li>
-          <li>Sugerir slot ótimo via Claude</li>
-        </ul>
-      </div>
-
     </aside>
-
-  </div>
-
-</main>
-
-<!-- modal de novo post -->
-<div class="modal-bg" id="modal">
-  <div class="modal">
-    <h3 id="modal-title">Novo post</h3>
-    <div class="field">
-      <label>Título / headline curto</label>
-      <input type="text" id="m-title" placeholder="Ex: Case Drogaria Venancio — go-live" />
-    </div>
-    <div class="row-2">
-      <div class="field">
-        <label>Data</label>
-        <input type="date" id="m-date" />
-      </div>
-      <div class="field">
-        <label>Categoria</label>
-        <select id="m-cat">
-          <option value="case">Case de Sucesso</option>
-          <option value="event">Evento / Feira</option>
-          <option value="award">Premiação</option>
-          <option value="kickoff">Kickoff / Go-Live</option>
-          <option value="product">Carrossel Produto</option>
-          <option value="video">Vídeo</option>
-          <option value="inst">Institucional / GE</option>
-        </select>
-      </div>
-    </div>
-    <div class="row-2">
-      <div class="field">
-        <label>LOB</label>
-        <select id="m-lob">
-          <option value="sfsf">HCM · SuccessFactors</option>
-          <option value="erp">Cloud ERP</option>
-          <option value="btm">BTP</option>
-          <option value="sig">Signavio</option>
-          <option value="sn">ServiceNow</option>
-          <option value="wfs">Workforce</option>
-          <option value="cloud">Cloud · AWS</option>
-          <option value="inst">Institucional</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Owner</label>
-        <input type="text" id="m-owner" placeholder="Marlison · Lisiane · Gui…" />
-      </div>
-    </div>
-    <div class="field">
-      <label>Notas (opcional)</label>
-      <textarea id="m-notes" placeholder="Quem compartilha? Texto pronto? Aprovado pelo cliente?"></textarea>
-    </div>
-    <div class="modal-actions">
-      <div class="left">
-        <button class="btn btn--ghost" id="m-delete" style="display:none;">Excluir</button>
-      </div>
-      <div style="display:flex; gap: 10px;">
-        <button class="btn btn--ghost" id="m-cancel">Cancelar</button>
-        <button class="btn btn--primary" id="m-save">Salvar</button>
-      </div>
-    </div>
   </div>
 </div>
 
-<script>
-  // ===== nav active =====
-  (function(){
-    var t = document.body.dataset.tab;
-    if (!t) return;
-    var a = document.querySelector('[data-tab-id="' + t + '"]');
-    if (a) a.classList.add('active');
-  })();
-
-  // ===== LOB & category maps =====
-  var LOB_MAP = {
-    sfsf:  { name:'HCM',  color:'#FFC700', label:'HCM' },
-    erp:   { name:'ERP',  color:'#5BBCEB', label:'CLOUD ERP' },
-    btm:   { name:'BTP',  color:'#B6238D', label:'BTP' },
-    sig:   { name:'SIG',  color:'#00857C', label:'SIGNAVIO' },
-    sn:    { name:'SN',   color:'#62BE5C', label:'SERVICENOW' },
-    wfs:   { name:'WFS',  color:'#C8262E', label:'WORKFORCE' },
-    cloud: { name:'CLD',  color:'#F5841F', label:'CLOUD' },
-    inst:  { name:'INST', color:'#E2E8F4', label:'INSTITUCIONAL' }
-  };
-  var CAT_MAP = {
-    case:'Case', event:'Evento', award:'Award',
-    kickoff:'Kickoff', product:'Carrossel', video:'Vídeo', inst:'Institucional'
-  };
-  var CAT_TARGETS = { // target posts per category per month
-    case: 4, event: 2, award: 1, kickoff: 2, product: 3, video: 4, inst: 2
-  };
-
-  // ===== seed posts (replace with real data later) =====
-  var SEED = [
-    { id:'p1', date:'2026-05-26', cat:'kickoff', lob:'erp',  title:'Case Drogaria Venancio — go-live', owner:'Marlison', notes:'Share pelo Sales Manager' },
-    { id:'p2', date:'2026-05-28', cat:'product', lob:'sfsf', title:'5 ways HR ensures AI succeeds',     owner:'Lisiane',  notes:'Adapt BR da matriz' },
-    { id:'p3', date:'2026-06-03', cat:'event',   lob:'inst', title:'SAP NOW 2026 — convite',            owner:'Isabela',  notes:'Stand parceiro' },
-    { id:'p4', date:'2026-06-10', cat:'video',   lob:'sig',  title:'Process mapping em 8 semanas',      owner:'Bruna',    notes:'Depoimento Diretor' },
-    { id:'p5', date:'2026-05-14', cat:'event',   lob:'erp',  title:'SAP Inside Track Goiânia',           owner:'Rudá',     notes:'Anúncio prévio' },
-    { id:'p6', date:'2026-05-12', cat:'event',   lob:'wfs',  title:'Vision WFS · Salt Lake recap',       owner:'Marlison', notes:'' },
-    { id:'p7', date:'2026-05-20', cat:'case',    lob:'sfsf', title:'Embraer · ciclo de avaliação',       owner:'Lisiane',  notes:'Carrossel · número 38%' },
-    { id:'p8', date:'2026-06-17', cat:'product', lob:'btm',  title:'Joule Studio — overview',           owner:'Gui',      notes:'' },
-    { id:'p9', date:'2026-06-24', cat:'inst',    lob:'inst', title:'ERP.ngo · 1% do faturamento',       owner:'Duda',     notes:'Beyond Corporate Purpose' }
-  ];
-
-  // ===== state =====
-  var posts = [];
-  function load(){
-    var raw = localStorage.getItem('inbound.calendar');
-    posts = raw ? JSON.parse(raw) : SEED.slice();
-  }
-  function save(){
-    localStorage.setItem('inbound.calendar', JSON.stringify(posts));
-  }
-  load();
-
-  // ===== current month state =====
-  // anchor to May 2026 (we're "today = 24 mai 2026")
-  var current = { y: 2026, m: 4 }; // 0-indexed → May
-
-  function monthName(m){
-    return ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'][m];
-  }
-  function fmtDate(y,m,d){
-    return y + '-' + String(m+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
-  }
-  function parseDate(s){
-    var p = s.split('-');
-    return { y: +p[0], m: +p[1]-1, d: +p[2] };
-  }
-
-  // ===== render calendar =====
-  function render(){
-    document.getElementById('month-label').textContent = monthName(current.m) + ' · ' + current.y;
-    var grid = document.getElementById('days');
-    grid.innerHTML = '';
-
-    var first = new Date(current.y, current.m, 1);
-    // monday-first index: getDay() returns 0=Sun → convert to 0=Mon
-    var startCol = (first.getDay() + 6) % 7;
-
-    var daysInMonth = new Date(current.y, current.m + 1, 0).getDate();
-    var prevDays = new Date(current.y, current.m, 0).getDate();
-    // also pad end so we have 6 rows
-    var cells = startCol + daysInMonth;
-    var rows = Math.ceil(cells / 7);
-    var totalCells = rows * 7;
-
-    var today = new Date();
-    // Force "today" to be May 24, 2026 (matches the system info)
-    today = new Date(2026, 4, 24);
-
-    for (var i=0; i<totalCells; i++) {
-      var dnum, dy, dm, isOther = false;
-      if (i < startCol) {
-        dnum = prevDays - (startCol - i - 1);
-        var p = current.m === 0 ? { y: current.y - 1, m: 11 } : { y: current.y, m: current.m - 1 };
-        dy = p.y; dm = p.m; isOther = true;
-      } else if (i >= startCol + daysInMonth) {
-        dnum = i - (startCol + daysInMonth) + 1;
-        var n = current.m === 11 ? { y: current.y + 1, m: 0 } : { y: current.y, m: current.m + 1 };
-        dy = n.y; dm = n.m; isOther = true;
-      } else {
-        dnum = i - startCol + 1;
-        dy = current.y; dm = current.m;
-      }
-
-      var dow = (i % 7);
-      var isWeekend = (dow === 5 || dow === 6);
-      var iso = fmtDate(dy, dm, dnum);
-      var isToday = (dy === today.getFullYear() && dm === today.getMonth() && dnum === today.getDate());
-
-      var dayPosts = posts.filter(function(p){ return p.date === iso; });
-
-      var classes = ['day'];
-      if (isOther) classes.push('other');
-      if (isWeekend) classes.push('weekend');
-      if (isToday) classes.push('today');
-
-      var div = document.createElement('div');
-      div.className = classes.join(' ');
-      div.dataset.iso = iso;
-      div.innerHTML =
-        '<div class="day-num">' + String(dnum).padStart(2,'0') + (isToday ? ' <span class="lbl">hoje</span>' : '') + '</div>';
-
-      dayPosts.forEach(function(p){
-        var lob = LOB_MAP[p.lob] || { color:'#888', label:'?' };
-        var post = document.createElement('div');
-        post.className = 'post';
-        post.dataset.id = p.id;
-        post.draggable = true;
-        post.style.borderLeftColor = lob.color;
-        post.innerHTML =
-          '<span class="lob-dot" style="background:'+lob.color+'"></span>'+
-          '<span class="ttl">'+ escapeHtml(p.title) +'</span>'+
-          '<span class="cat-mark">'+ (CAT_MAP[p.cat]||'').slice(0,3).toUpperCase() +'</span>';
-        post.addEventListener('click', function(e){ e.stopPropagation(); editPost(p.id); });
-        post.addEventListener('dragstart', function(e){
-          e.dataTransfer.setData('text/plain', p.id);
-          e.dataTransfer.effectAllowed = 'move';
-          post.classList.add('dragging');
-        });
-        post.addEventListener('dragend', function(){ post.classList.remove('dragging'); });
-        div.appendChild(post);
-      });
-
-      var addBtn = document.createElement('button');
-      addBtn.className = 'add-btn';
-      addBtn.textContent = '+ post';
-      addBtn.addEventListener('click', function(){ openModal(null, iso); });
-      div.appendChild(addBtn);
-
-      // drop target
-      div.addEventListener('dragover', function(e){ e.preventDefault(); div.classList.add('drop-target'); });
-      div.addEventListener('dragleave', function(){ div.classList.remove('drop-target'); });
-      div.addEventListener('drop', function(e){
-        e.preventDefault();
-        div.classList.remove('drop-target');
-        var id = e.dataTransfer.getData('text/plain');
-        var post = posts.find(function(p){ return p.id === id; });
-        if (post) {
-          post.date = iso;
-          save(); render();
-        }
-      });
-
-      grid.appendChild(div);
-    }
-
-    renderSidePanel();
-  }
-
-  function escapeHtml(s){
-    return String(s||'').replace(/[&<>"]/g, function(c){
-      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c];
-    });
-  }
-
-  // ===== side panel =====
-  function renderSidePanel(){
-    var monthPosts = posts.filter(function(p){
-      var d = parseDate(p.date);
-      return d.y === current.y && d.m === current.m;
-    });
-
-    document.getElementById('month-count').textContent = monthPosts.length + ' posts';
-
-    // alerts
-    var alertsHtml = '';
-    var lobCounts = {};
-    var catCounts = {};
-    monthPosts.forEach(function(p){
-      lobCounts[p.lob] = (lobCounts[p.lob]||0) + 1;
-      catCounts[p.cat] = (catCounts[p.cat]||0) + 1;
-    });
-
-    if (monthPosts.length === 0) {
-      alertsHtml += '<div class="alert">Nenhum post agendado neste mês.</div>';
-    } else {
-      if (monthPosts.length < 8) alertsHtml += '<div class="alert">Menos de 8 posts no mês — meta é 8-12.</div>';
-      if (monthPosts.length > 14) alertsHtml += '<div class="alert">Mais de 14 posts no mês — risco de saturação.</div>';
-
-      // LOBs sub-representados
-      var underLobs = ['sfsf','erp','btm','sig','sn','wfs','inst'].filter(function(l){
-        return (lobCounts[l]||0) === 0;
-      });
-      if (underLobs.length > 2) {
-        alertsHtml += '<div class="alert">'+ underLobs.length +' LOBs sem nenhum post: '+ underLobs.map(function(l){ return LOB_MAP[l]?.name; }).join(', ') +'.</div>';
-      }
-
-      // categoria balance
-      if (!catCounts.case && monthPosts.length > 5) alertsHtml += '<div class="alert">Mês sem case de sucesso — a categoria com mais engajamento.</div>';
-      if ((catCounts.product||0) > monthPosts.length / 2) alertsHtml += '<div class="alert">Mais de 50% são carrosséis — falta variedade.</div>';
-
-      if (!alertsHtml) alertsHtml = '<div class="alert ok">Mês balanceado. Boa cadência editorial.</div>';
-    }
-    document.getElementById('alerts').innerHTML = alertsHtml;
-
-    // LOB bars
-    var lobHtml = '';
-    var maxLob = Math.max(1, ...Object.values(lobCounts), 4);
-    ['sfsf','erp','btm','sig','sn','wfs','inst'].forEach(function(lob){
-      var l = LOB_MAP[lob];
-      var n = lobCounts[lob] || 0;
-      var pct = Math.round((n / maxLob) * 100);
-      var cls = '';
-      if (n === 0 && monthPosts.length > 4) cls = 'warn';
-      else if (n >= 2) cls = 'ok';
-      lobHtml +=
-        '<div class="bal-row '+cls+'">'+
-        '<div class="name">'+ l.name +'</div>'+
-        '<div class="track"><div class="fill" style="width:'+pct+'%; background:'+l.color+'"></div></div>'+
-        '<div class="v">'+ n +'</div>'+
-        '</div>';
-    });
-    document.getElementById('bal-lob').innerHTML = lobHtml;
-
-    // Category bars
-    var catHtml = '';
-    Object.keys(CAT_MAP).forEach(function(cat){
-      var n = catCounts[cat] || 0;
-      var target = CAT_TARGETS[cat] || 2;
-      var pct = Math.min(100, Math.round((n / target) * 100));
-      var cls = '';
-      if (n === 0) cls = 'warn';
-      else if (n >= target) cls = 'ok';
-      catHtml +=
-        '<div class="bal-row '+cls+'">'+
-        '<div class="name">'+ CAT_MAP[cat] +'</div>'+
-        '<div class="track"><div class="fill" style="width:'+pct+'%; background: var(--d-accent);"></div></div>'+
-        '<div class="v">'+ n +'/'+ target +'</div>'+
-        '</div>';
-    });
-    document.getElementById('bal-cat').innerHTML = catHtml;
-
-    // legend
-    var legendHtml = '';
-    Object.keys(LOB_MAP).forEach(function(lob){
-      var l = LOB_MAP[lob];
-      legendHtml += '<div class="legend-item"><span class="sw" style="background:'+l.color+'"></span>'+ l.name +'</div>';
-    });
-    document.getElementById('legend').innerHTML = legendHtml;
-  }
-
-  // ===== modal =====
-  var modal = document.getElementById('modal');
-  var editingId = null;
-  function openModal(id, defaultDate){
-    editingId = id;
-    if (id) {
-      var p = posts.find(function(x){ return x.id === id; });
-      if (!p) return;
-      document.getElementById('modal-title').textContent = 'Editar post';
-      document.getElementById('m-title').value = p.title;
-      document.getElementById('m-date').value = p.date;
-      document.getElementById('m-cat').value = p.cat;
-      document.getElementById('m-lob').value = p.lob;
-      document.getElementById('m-owner').value = p.owner || '';
-      document.getElementById('m-notes').value = p.notes || '';
-      document.getElementById('m-delete').style.display = '';
-    } else {
-      document.getElementById('modal-title').textContent = 'Novo post';
-      document.getElementById('m-title').value = '';
-      document.getElementById('m-date').value = defaultDate || fmtDate(current.y, current.m, 15);
-      document.getElementById('m-cat').value = 'case';
-      document.getElementById('m-lob').value = 'sfsf';
-      document.getElementById('m-owner').value = '';
-      document.getElementById('m-notes').value = '';
-      document.getElementById('m-delete').style.display = 'none';
-    }
-    modal.classList.add('open');
-    setTimeout(function(){ document.getElementById('m-title').focus(); }, 50);
-  }
-  function closeModal(){ modal.classList.remove('open'); }
-  function editPost(id){ openModal(id); }
-
-  document.getElementById('btn-add').addEventListener('click', function(){
-    openModal(null, fmtDate(current.y, current.m, 15));
-  });
-
-  document.getElementById('m-cancel').addEventListener('click', closeModal);
-  modal.addEventListener('click', function(e){ if (e.target === modal) closeModal(); });
-  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeModal(); });
-
-  document.getElementById('m-save').addEventListener('click', function(){
-    var title = document.getElementById('m-title').value.trim();
-    if (!title) { alert('Adicione um título.'); return; }
-    var data = {
-      title: title,
-      date: document.getElementById('m-date').value,
-      cat: document.getElementById('m-cat').value,
-      lob: document.getElementById('m-lob').value,
-      owner: document.getElementById('m-owner').value.trim(),
-      notes: document.getElementById('m-notes').value.trim()
-    };
-    if (editingId) {
-      var p = posts.find(function(x){ return x.id === editingId; });
-      Object.assign(p, data);
-    } else {
-      data.id = 'p' + Date.now();
-      posts.push(data);
-    }
-    save(); render(); closeModal();
-  });
-  document.getElementById('m-delete').addEventListener('click', function(){
-    if (!editingId) return;
-    if (!confirm('Excluir este post?')) return;
-    posts = posts.filter(function(x){ return x.id !== editingId; });
-    save(); render(); closeModal();
-  });
-
-  // ===== month navigation =====
-  document.getElementById('prev').addEventListener('click', function(){
-    current.m--; if (current.m < 0) { current.m = 11; current.y--; }
-    render();
-  });
-  document.getElementById('next').addEventListener('click', function(){
-    current.m++; if (current.m > 11) { current.m = 0; current.y++; }
-    render();
-  });
-  document.getElementById('today').addEventListener('click', function(){
-    current = { y: 2026, m: 4 };
-    render();
-  });
-
-  render();
-</script>
-
 <office-footer></office-footer>
 
+<script src="/office-nav.js"></script>
+<script src="/office-footer.js"></script>
+<script>
+// ── CONSTANTS ─────────────────────────────────────────────────────────────
+const MONTHS_PT = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+const LAYERS = [
+  { id:'feriado',      label:'Feriados',          color:'#dc2626' },
+  { id:'comemorativa', label:'Datas Esp.',         color:'#d97706' },
+  { id:'copa',         label:'Copa / Esporte',     color:'#16a34a' },
+  { id:'efemeride',    label:'Efemérides',         color:'#7c3aed' },
+  { id:'premiacao',    label:'Premiações',         color:'#ca8a04' },
+  { id:'epiuse',       label:'Eventos EPI-USE',    color:'#cd1543' },
+  { id:'redatoria',    label:'Redatoria',          color:'#001844' },
+  { id:'duda',         label:'Editorial (Duda)',   color:'#0369a1' },
+];
+
+// ── STATE ──────────────────────────────────────────────────────────────────
+const state = {
+  year:  new Date().getFullYear(),
+  month: new Date().getMonth(),
+  dayMap: {},       // 'YYYY-MM-DD' -> [event, ...]
+  tbcByMonth: {},   // 'YYYY-MM'    -> [event, ...]
+  activeLayers: new Set(LAYERS.map(l => l.id)),
+  selectedDay: null,
+};
+
+// ── UTILS ──────────────────────────────────────────────────────────────────
+function toISO(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function fmtDateFull(iso) {
+  const [y,m,d] = iso.split('-');
+  const DOW = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+  const dow = new Date(`${iso}T12:00:00`).getDay();
+  return `${DOW[dow]}, ${parseInt(d)} de ${MONTHS_PT[parseInt(m)-1]} de ${y}`;
+}
+
+// ── DATA ───────────────────────────────────────────────────────────────────
+function addToMap(dateStr, evt) {
+  if (!dateStr || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return;
+  if (!state.dayMap[dateStr]) state.dayMap[dateStr] = [];
+  state.dayMap[dateStr].push(evt);
+}
+
+async function loadAllData() {
+  showLoadingBar();
+  const year = state.year;
+
+  const [especiais, eventsRaw, editorial] = await Promise.all([
+    fetch('/api/datas-especiais-2026.json').then(r=>r.json()).catch(()=>({itens:[]})),
+    fetch('/api/events.json').then(r=>r.json()).catch(()=>({abas:{}})),
+    fetch(`/api/inbound/calendar?from=${year}-01-01&to=${year}-12-31`).then(r=>r.json()).catch(()=>({posts:[]})),
+  ]);
+
+  state.dayMap = {};
+  state.tbcByMonth = {};
+
+  // 1 — Datas especiais (JSON estático)
+  for (const item of (especiais.itens || [])) {
+    if (!item.data) continue;
+    addToMap(item.data, {
+      id: item.id,
+      data: item.data,
+      data_fim: item.data_fim || null,
+      layerId: item.tipo,
+      nome: item.nome,
+      desc: item.descricao || '',
+      color: item.cor || '#64748b',
+      paises: item.paises || [],
+    });
+  }
+
+  // 2 — Eventos EPI-USE (events.json)
+  for (const [, aba] of Object.entries(eventsRaw.abas || {})) {
+    for (const evt of (aba.eventos || [])) {
+      if (!evt.m) continue;
+      // TBC → painel lateral do mês
+      if (!evt.d || evt.d === 'TBC') {
+        const key = `${year}-${String(evt.m).padStart(2,'0')}`;
+        if (!state.tbcByMonth[key]) state.tbcByMonth[key] = [];
+        state.tbcByMonth[key].push({
+          nome: evt.n,
+          desc: `${evt.lob} · ${evt.who} · ${evt.flag||evt.country||''}`,
+          color: '#cd1543',
+        });
+        continue;
+      }
+      const parts  = String(evt.d).split('-');
+      const day0   = parseInt(parts[0]);
+      const dayEnd = parts[1] ? parseInt(parts[1]) : null;
+      const mPad   = String(evt.m).padStart(2,'0');
+      const iso    = `${year}-${mPad}-${String(day0).padStart(2,'0')}`;
+      const isoEnd = dayEnd ? `${year}-${mPad}-${String(dayEnd).padStart(2,'0')}` : null;
+      addToMap(iso, {
+        id: `epiuse-${evt.m}-${evt.d}-${evt.n}`.replace(/\s+/g,'-').slice(0,60),
+        data: iso,
+        data_fim: isoEnd,
+        layerId: 'epiuse',
+        nome: evt.n,
+        desc: `${evt.lob} · ${evt.who} · ${evt.flag||evt.country||''}`,
+        color: '#cd1543',
+      });
+    }
+  }
+
+  // 3 — Editorial calendar (SQLite: Duda + Redatoria)
+  for (const post of (editorial.posts || [])) {
+    const layerId = post.fonte === 'redatoria' ? 'redatoria' : 'duda';
+    addToMap(post.data, {
+      id: `ec-${post.id}`,
+      data: post.data,
+      layerId,
+      nome: post.titulo,
+      desc: [post.canal, post.pilar, post.autor].filter(Boolean).join(' · '),
+      color: layerId === 'redatoria' ? '#001844' : '#0369a1',
+      canal: post.canal,
+      pilar: post.pilar,
+      autor: post.autor,
+      status: post.status,
+      fonte: post.fonte,
+    });
+  }
+
+  hideLoadingBar();
+  renderMonth();
+}
+
+function getEventsForDay(iso) {
+  return (state.dayMap[iso] || []).filter(e => state.activeLayers.has(e.layerId));
+}
+
+// ── RENDER: FILTERS ────────────────────────────────────────────────────────
+function renderFilters() {
+  const row = document.getElementById('filtersRow');
+  row.innerHTML = LAYERS.map(l => `
+    <button class="layer-btn${state.activeLayers.has(l.id)?' active':''}"
+      data-layer="${l.id}" style="--lc:${l.color}">
+      <span class="ldot"></span>${esc(l.label)}
+    </button>
+  `).join('');
+  row.querySelectorAll('.layer-btn').forEach(btn =>
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.layer;
+      state.activeLayers.has(id) ? state.activeLayers.delete(id) : state.activeLayers.add(id);
+      renderFilters();
+      renderMonth();
+      if (state.selectedDay) showDayPanel(state.selectedDay);
+    })
+  );
+}
+
+// ── RENDER: MONTH GRID ─────────────────────────────────────────────────────
+function renderMonth() {
+  const { year, month } = state;
+  document.getElementById('monthLabel').textContent = `${MONTHS_PT[month]} ${year}`;
+
+  const firstDay    = new Date(year, month, 1);
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const startDow    = (firstDay.getDay() + 6) % 7; // Mon=0
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  const todayISO = toISO(today);
+
+  // Build cell array
+  const cells = [];
+  for (let i = startDow - 1; i >= 0; i--)  cells.push({ d: new Date(year, month, -i), cur: false });
+  for (let d = 1; d <= daysInMonth; d++)    cells.push({ d: new Date(year, month, d), cur: true });
+  const rem = (7 - cells.length % 7) % 7;
+  for (let i = 1; i <= rem; i++)            cells.push({ d: new Date(year, month+1, i), cur: false });
+
+  const container = document.getElementById('calDays');
+  container.innerHTML = '';
+
+  for (const { d, cur } of cells) {
+    const iso     = toISO(d);
+    const events  = cur ? getEventsForDay(iso) : [];
+    const isToday = iso === todayISO;
+    const isSel   = iso === state.selectedDay;
+    const isWE    = d.getDay() === 0 || d.getDay() === 6;
+    const hasFer  = events.some(e => e.layerId === 'feriado');
+
+    const cls = ['cal-day',
+      !cur && 'other-month',
+      isToday && 'is-today',
+      isSel   && 'is-selected',
+      isWE    && 'is-weekend',
+      hasFer  && 'has-feriado',
+    ].filter(Boolean).join(' ');
+
+    const cell = document.createElement('div');
+    cell.className = cls;
+
+    const MAX = 3;
+    const shown = events.slice(0, MAX);
+    const over  = events.length - MAX;
+
+    cell.innerHTML = `
+      <div class="day-header">
+        <span class="day-num">${d.getDate()}</span>
+        ${hasFer ? '<span class="day-feriado-dot" title="Feriado"></span>' : ''}
+      </div>
+      <div class="day-events">
+        ${shown.map(e => `
+          <div class="event-chip" style="--cc:${e.color}" title="${esc(e.nome)}">
+            <span class="chip-dot"></span>
+            <span class="chip-text">${esc(e.nome)}</span>
+          </div>
+        `).join('')}
+        ${over > 0 ? `<div class="overflow-chip">+${over} mais</div>` : ''}
+      </div>
+    `;
+
+    if (cur) {
+      cell.addEventListener('click', () => {
+        state.selectedDay = iso;
+        renderMonth();
+        showDayPanel(iso);
+      });
+    }
+    container.appendChild(cell);
+  }
+
+  // Refresh side panel
+  if (state.selectedDay) showDayPanel(state.selectedDay);
+  else showMonthPanel();
+}
+
+// ── RENDER: SIDE PANEL ─────────────────────────────────────────────────────
+function showDayPanel(iso) {
+  const events = getEventsForDay(iso);
+  document.getElementById('sideTitle').textContent = fmtDateFull(iso);
+  document.getElementById('sideSubtitle').textContent =
+    events.length === 0 ? 'Nenhum item' : `${events.length} item${events.length>1?'s':''}`;
+
+  if (!events.length) {
+    document.getElementById('sideBody').innerHTML = `
+      <div class="side-empty">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+        </svg>
+        Dia livre
+      </div>`;
+    return;
+  }
+
+  // Group by layer order
+  const grouped = {};
+  for (const e of events) { if (!grouped[e.layerId]) grouped[e.layerId] = []; grouped[e.layerId].push(e); }
+
+  let html = '';
+  for (const layer of LAYERS) {
+    const grp = grouped[layer.id];
+    if (!grp) continue;
+    html += `<div class="side-section-label">${esc(layer.label)}</div>`;
+    for (const e of grp) {
+      html += `
+        <div class="day-event-item">
+          <div class="dei-bar" style="--cc:${e.color}"></div>
+          <div class="dei-body">
+            <div class="dei-title">${esc(e.nome)}</div>
+            ${e.desc ? `<div class="dei-meta">${esc(e.desc)}</div>` : ''}
+            ${e.data_fim ? `<div class="dei-meta">Até ${esc(e.data_fim)}</div>` : ''}
+            ${e.status && e.status !== 'planned' ? `<div class="dei-meta">Status: ${esc(e.status)}</div>` : ''}
+            <span class="dei-badge" style="--cc:${e.color}">${esc(layer.label)}</span>
+          </div>
+        </div>`;
+    }
+  }
+
+  // Append TBC for the selected month
+  const { year, month } = state;
+  const tbcKey = `${year}-${String(month+1).padStart(2,'0')}`;
+  const tbc = state.tbcByMonth[tbcKey] || [];
+  if (tbc.length) {
+    html += `<div class="side-section-label">Eventos sem data este mês</div>`;
+    for (const t of tbc) {
+      html += `<div class="tbc-item"><div class="tbc-name">${esc(t.nome)}</div><div class="tbc-meta">${esc(t.desc)}</div></div>`;
+    }
+  }
+
+  document.getElementById('sideBody').innerHTML = html;
+}
+
+function showMonthPanel() {
+  const { year, month } = state;
+  const key = `${year}-${String(month+1).padStart(2,'0')}`;
+  const tbc = state.tbcByMonth[key] || [];
+
+  document.getElementById('sideTitle').textContent = `${MONTHS_PT[month]} ${year}`;
+  document.getElementById('sideSubtitle').textContent = 'Selecione um dia para detalhes';
+
+  // Month stats
+  const allEvents = Object.entries(state.dayMap)
+    .filter(([d]) => d.startsWith(key))
+    .flatMap(([,evts]) => evts)
+    .filter(e => state.activeLayers.has(e.layerId));
+
+  const counts = {};
+  for (const e of allEvents) counts[e.layerId] = (counts[e.layerId]||0) + 1;
+
+  let html = '';
+  if (Object.keys(counts).length) {
+    html += `<div class="side-section-label">Este mês</div>
+    <div class="month-stats">
+      ${LAYERS.filter(l => counts[l.id]).map(l =>
+        `<span class="stat-pill"><span class="stat-dot" style="background:${l.color}"></span>${counts[l.id]} ${esc(l.label)}</span>`
+      ).join('')}
+    </div>`;
+  }
+
+  if (tbc.length) {
+    html += `<div class="side-section-label" style="margin-top:16px">Sem data confirmada (TBC)</div>`;
+    for (const t of tbc) {
+      html += `<div class="tbc-item"><div class="tbc-name">${esc(t.nome)}</div><div class="tbc-meta">${esc(t.desc)}</div></div>`;
+    }
+  }
+
+  if (!html) {
+    html = `<div class="side-empty">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+      </svg>
+      Clique em um dia
+    </div>`;
+  }
+
+  document.getElementById('sideBody').innerHTML = html;
+}
+
+// ── LOADING BAR ────────────────────────────────────────────────────────────
+function showLoadingBar() {
+  const b = document.getElementById('calLoadingBar');
+  b.style.display = 'block'; b.style.transform = 'scaleX(.3)';
+  setTimeout(() => b.style.transform = 'scaleX(.7)', 200);
+}
+function hideLoadingBar() {
+  const b = document.getElementById('calLoadingBar');
+  b.style.transform = 'scaleX(1)';
+  setTimeout(() => { b.style.transform = 'scaleX(0)'; b.style.display = 'none'; }, 400);
+}
+
+// ── NAVIGATION ─────────────────────────────────────────────────────────────
+document.getElementById('prevBtn').addEventListener('click', () => {
+  if (state.month === 0) { state.month = 11; state.year--; } else state.month--;
+  state.selectedDay = null;
+  loadAllData();
+});
+document.getElementById('nextBtn').addEventListener('click', () => {
+  if (state.month === 11) { state.month = 0; state.year++; } else state.month++;
+  state.selectedDay = null;
+  loadAllData();
+});
+document.getElementById('todayBtn').addEventListener('click', () => {
+  const n = new Date();
+  state.year = n.getFullYear(); state.month = n.getMonth();
+  state.selectedDay = null;
+  loadAllData();
+});
+document.getElementById('syncBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('syncBtn');
+  btn.classList.add('spinning');
+  await loadAllData();
+  btn.classList.remove('spinning');
+});
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  if (e.key === 'ArrowLeft')  document.getElementById('prevBtn').click();
+  if (e.key === 'ArrowRight') document.getElementById('nextBtn').click();
+});
+
+// ── INIT ───────────────────────────────────────────────────────────────────
+renderFilters();
+loadAllData();
+</script>
 </body>
 </html>

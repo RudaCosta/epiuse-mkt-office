@@ -112,6 +112,9 @@ const OFFICE_NAV_OVERFLOW = [
   { label: '🎨 Design System',           href: '/design' },
   { label: '📜 Histórico de versões',   href: '/changelog' },
 
+  { section: '🐘 ERP.ngo' },
+  { label: '🐘 Impacto FY26 (ERP.ngo)',  href: '/erp-impacto' },
+
   { section: '🎮 Extras' },
   { label: '🎮 Modo Game',               href: '/game' },
   { label: '🐘 ERP.ngo',                 href: 'https://erp.ngo', external: true }
