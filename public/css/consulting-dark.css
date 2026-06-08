@@ -1,0 +1,190 @@
+/* ════════════════════════════════════════════════════════════════════
+   consulting-dark.css · v0.23.0
+   Enterprise Gateway + Dark Mode OLED (ui-ux-pro-max audit oficial)
+   Foco: SAP consulting · security · trust · real-time
+   Fonts: Lexend (heading trustworthy) + Source Sans 3 (body accessible)
+   ════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --dk-bg-oled: #050a14;
+  --dk-bg-surface: #0a1525;
+  --dk-bg-elev: #0f1e35;
+  --dk-bg-elev2: #142547;
+  --dk-navy: #001844;
+  --dk-red: #cd1543;
+  --dk-blue-light: #869ec3;
+  --dk-grey: #cfd1d3;
+  --dk-mint: #14B8A6;
+  --dk-green: #10b981;
+  --dk-amber: #fbbf24;
+  --dk-text: #e8eef5;
+  --dk-text-dim: #c0ccd9;
+  --dk-text-muted: #7d96b8;
+  --dk-glow-red: 0 0 16px rgba(205,21,67,.4);
+  --dk-glow-green: 0 0 10px rgba(16,185,129,.6);
+  --dk-glow-blue: 0 0 12px rgba(134,158,195,.5);
+  --dk-grid: rgba(134,158,195,.04);
+  --dk-easing: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* GRID background sutil (modern tech feel) */
+body[data-route="home"],
+body[data-route="relatorio"] {
+  background:
+    linear-gradient(var(--dk-grid) 1px, transparent 1px) 0 0/48px 48px,
+    linear-gradient(90deg, var(--dk-grid) 1px, transparent 1px) 0 0/48px 48px,
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(205,21,67,.12), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 100% 100%, rgba(20,184,166,.05), transparent 60%),
+    var(--dk-bg-oled);
+  background-attachment: fixed;
+}
+
+/* FONT consulting (Lexend + Source Sans 3) */
+body[data-route="home"],
+body[data-route="relatorio"] {
+  font-family: 'Source Sans 3', 'Source Sans Pro', system-ui, sans-serif;
+  color: var(--dk-text);
+  -webkit-font-smoothing: antialiased;
+}
+body[data-route="home"] h1, body[data-route="home"] h2, body[data-route="home"] h3,
+body[data-route="relatorio"] h1, body[data-route="relatorio"] h2, body[data-route="relatorio"] h3 {
+  font-family: 'Lexend', 'Source Sans 3', sans-serif;
+  letter-spacing: -0.012em;
+  font-weight: 600;
+}
+
+/* GLASSMORPHISM DEEP (cards principais) */
+.dk-glass {
+  background: linear-gradient(160deg, rgba(15,30,53,.7), rgba(20,37,71,.5));
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(134,158,195,.12);
+  border-radius: 16px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color .25s var(--dk-easing), transform .25s var(--dk-easing), box-shadow .25s var(--dk-easing);
+}
+.dk-glass::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.15), transparent);
+}
+.dk-glass:hover {
+  transform: translateY(-2px);
+  border-color: rgba(205,21,67,.4);
+  box-shadow: 0 16px 40px -8px rgba(0,0,0,.5), var(--dk-glow-red);
+}
+
+/* TRUST BAR (Enterprise Gateway trust signals prominent) */
+.dk-trust-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  background: rgba(15,30,53,.4);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(134,158,195,.1);
+  border-radius: 14px;
+  padding: 14px 18px;
+  margin-bottom: 24px;
+}
+.dk-trust-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 4px;
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 12px; font-weight: 500;
+}
+.dk-trust-item .ico {
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(16,185,129,.14);
+  border: 1px solid rgba(16,185,129,.3);
+  border-radius: 8px;
+  color: var(--dk-green);
+  flex: 0 0 auto;
+}
+.dk-trust-item .label { font-weight: 700; color: var(--dk-text); display: block; line-height: 1.2; }
+.dk-trust-item .sub { font-size: 10.5px; color: var(--dk-text-muted); display: block; }
+.dk-trust-item.warn .ico { background: rgba(251,191,36,.12); border-color: rgba(251,191,36,.3); color: var(--dk-amber); }
+
+/* LIVE indicator (pulsing dot · real-time) */
+.dk-live {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 5px 12px; border-radius: 99px;
+  background: rgba(16,185,129,.14);
+  border: 1px solid rgba(16,185,129,.4);
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 11px; font-weight: 700; color: var(--dk-green);
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+.dk-live::before {
+  content: ''; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--dk-green);
+  box-shadow: var(--dk-glow-green);
+  animation: dk-pulse 1.6s ease-in-out infinite;
+}
+@keyframes dk-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: .5; transform: scale(.75); }
+}
+
+/* NUMBERS com minimal glow (skill effect) */
+.dk-num {
+  font-family: 'Lexend', sans-serif;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.025em;
+  text-shadow: 0 0 10px rgba(255,255,255,.08);
+}
+.dk-num.red { color: #fca5a5; text-shadow: var(--dk-glow-red); }
+.dk-num.green { color: #6ee7b7; text-shadow: 0 0 12px rgba(16,185,129,.4); }
+.dk-num.blue { color: #93c5fd; text-shadow: var(--dk-glow-blue); }
+
+/* SECURITY badges (SSO Microsoft, OAuth, etc) */
+.dk-sec-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 9px; border-radius: 6px;
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 10px; font-weight: 700;
+  background: rgba(20,184,166,.12);
+  border: 1px solid rgba(20,184,166,.3);
+  color: var(--dk-mint);
+  letter-spacing: 0.04em;
+}
+.dk-sec-badge svg { width: 12px; height: 12px; }
+
+/* CHART PREVIEW (real-time sparkline · skill effect) */
+.dk-chart-preview {
+  position: relative;
+  height: 80px;
+  background: linear-gradient(180deg, transparent, rgba(205,21,67,.04));
+  border-radius: 8px;
+  overflow: hidden;
+}
+.dk-chart-preview svg { width: 100%; height: 100%; }
+.dk-chart-preview .line {
+  fill: none;
+  stroke: var(--dk-red);
+  stroke-width: 1.5;
+  filter: drop-shadow(0 0 6px rgba(205,21,67,.6));
+}
+.dk-chart-preview .area {
+  fill: url(#dk-area-grad);
+  opacity: .35;
+}
+.dk-chart-preview .pulse-dot {
+  fill: var(--dk-red);
+  filter: drop-shadow(0 0 8px rgba(205,21,67,.9));
+}
+
+/* FOCUS visible (WCAG AAA) */
+body[data-route="home"] *:focus-visible,
+body[data-route="relatorio"] *:focus-visible {
+  outline: 2px solid var(--dk-red);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .dk-live::before { animation: none; }
+  .dk-glass:hover { transform: none; }
+}
