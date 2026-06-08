@@ -183,6 +183,115 @@ body[data-route="relatorio"] *:focus-visible {
   border-radius: 6px;
 }
 
+/* ════════════════════════════════════════════════════════════════════
+   LIGHT MODE FIX (WCAG AAA contrast)
+   Skill rule: light mode text 4.5:1 minimum · glass elements visible · borders visible
+   ════════════════════════════════════════════════════════════════════ */
+
+html[data-theme="light"] {
+  --dk-bg-oled: #f4f7fb;
+  --dk-bg-surface: #ffffff;
+  --dk-bg-elev: #ffffff;
+  --dk-bg-elev2: #f8fafc;
+  --dk-text: #0f1e35;
+  --dk-text-dim: #1e3a5f;
+  --dk-text-muted: #475569;
+  --dk-grid: rgba(0,24,68,.04);
+  --dk-glow-red: 0 0 12px rgba(205,21,67,.18);
+  --dk-glow-green: 0 0 8px rgba(16,185,129,.25);
+  --dk-glow-blue: 0 0 8px rgba(0,102,178,.18);
+}
+
+html[data-theme="light"] body[data-route="home"],
+html[data-theme="light"] body[data-route="relatorio"] {
+  background:
+    linear-gradient(rgba(0,24,68,.025) 1px, transparent 1px) 0 0/48px 48px,
+    linear-gradient(90deg, rgba(0,24,68,.025) 1px, transparent 1px) 0 0/48px 48px,
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(205,21,67,.06), transparent 60%),
+    #f4f7fb;
+  background-attachment: fixed;
+  color: #0f1e35;
+}
+
+html[data-theme="light"] body[data-route="home"] h1,
+html[data-theme="light"] body[data-route="home"] h2,
+html[data-theme="light"] body[data-route="home"] h3,
+html[data-theme="light"] body[data-route="relatorio"] h1,
+html[data-theme="light"] body[data-route="relatorio"] h2,
+html[data-theme="light"] body[data-route="relatorio"] h3 {
+  color: #001844;
+}
+
+html[data-theme="light"] .dk-glass {
+  background: rgba(255,255,255,.95);
+  border: 1px solid rgba(0,24,68,.12);
+  box-shadow: 0 1px 3px rgba(0,24,68,.08), 0 4px 12px -4px rgba(0,24,68,.06);
+}
+html[data-theme="light"] .dk-glass::before { background: linear-gradient(90deg, transparent, rgba(0,24,68,.08), transparent); }
+html[data-theme="light"] .dk-glass:hover {
+  border-color: rgba(205,21,67,.5);
+  box-shadow: 0 16px 32px -8px rgba(0,24,68,.15), 0 0 0 1px rgba(205,21,67,.1);
+}
+
+html[data-theme="light"] .dk-trust-bar {
+  background: rgba(255,255,255,.95);
+  border: 1px solid rgba(0,24,68,.1);
+  box-shadow: 0 1px 3px rgba(0,24,68,.08);
+}
+html[data-theme="light"] .dk-trust-item .label { color: #0f1e35; }
+html[data-theme="light"] .dk-trust-item .sub { color: #475569; }
+html[data-theme="light"] .dk-trust-item .ico {
+  background: rgba(16,185,129,.12);
+  border-color: rgba(16,185,129,.4);
+  color: #047857;
+}
+
+html[data-theme="light"] .dk-num {
+  color: #001844;
+  text-shadow: none;
+}
+html[data-theme="light"] .dk-num.red { color: #b91c3c; text-shadow: 0 0 4px rgba(205,21,67,.15); }
+html[data-theme="light"] .dk-num.green { color: #047857; }
+html[data-theme="light"] .dk-num.blue { color: #1e40af; }
+
+html[data-theme="light"] .dk-sec-badge {
+  background: rgba(15,118,110,.1);
+  border-color: rgba(15,118,110,.4);
+  color: #0f766e;
+}
+
+html[data-theme="light"] .dk-live {
+  background: rgba(16,185,129,.12);
+  border-color: rgba(16,185,129,.45);
+  color: #047857;
+}
+
+/* HEADER (office-nav) light fix — texto legivel */
+html[data-theme="light"] office-nav,
+html[data-theme="light"] body { color: #0f1e35; }
+
+/* FOOTER (office-footer) light fix */
+html[data-theme="light"] office-footer { color: #0f1e35; }
+
+/* Cards do dashboard generico light */
+html[data-theme="light"] .kpi-card,
+html[data-theme="light"] .stat,
+html[data-theme="light"] .meta-card {
+  background: #ffffff;
+  border: 1px solid rgba(0,24,68,.1);
+  color: #0f1e35;
+  box-shadow: 0 1px 3px rgba(0,24,68,.06);
+}
+html[data-theme="light"] .kpi-card .kpi-val,
+html[data-theme="light"] .stat-val,
+html[data-theme="light"] .meta-card .pct {
+  color: #001844;
+}
+html[data-theme="light"] .kpi-card .kpi-lbl,
+html[data-theme="light"] .kpi-card .kpi-sub {
+  color: #475569;
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .dk-live::before { animation: none; }

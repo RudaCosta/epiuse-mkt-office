@@ -7,7 +7,7 @@
 // Versão atual exposta no chip ao lado do logomark.
 // Schema semver pré-1.0 — explicação completa em vault/00-contexto/versioning.md
 // Manter em sincronia com office-footer.js (OFFICE_FOOTER_VERSION).
-const OFFICE_NAV_VERSION = '0.23.0';
+const OFFICE_NAV_VERSION = '0.24.0';
 
 // Tokens CSS globais ERP.ngo (v0.4.12) — injetados em document.head pra ficar
 // disponíveis em todas as páginas. Cores oficiais do brand guide ERP.ngo v1.0.
@@ -26,6 +26,40 @@ const OFFICE_NAV_VERSION = '0.23.0';
     }
   `;
   document.head.appendChild(style);
+})();
+
+// GLOBAL polish stylesheets (v0.24.0) — injeta em TODAS paginas que carregam office-nav.js
+// Inclui Lexend + Source Sans 3 (consulting fonts) + polish-pro.css + consulting-dark.css
+(function injectGlobalPolish() {
+  if (document.getElementById('global-polish-loader')) return;
+  const marker = document.createElement('meta');
+  marker.id = 'global-polish-loader'; marker.name = 'global-polish'; marker.content = 'loaded';
+  document.head.appendChild(marker);
+
+  // Preconnect Google Fonts
+  ['https://fonts.googleapis.com', 'https://fonts.gstatic.com'].forEach((href, i) => {
+    if (document.querySelector(`link[href="${href}"]`)) return;
+    const l = document.createElement('link');
+    l.rel = 'preconnect'; l.href = href;
+    if (i === 1) l.crossOrigin = '';
+    document.head.appendChild(l);
+  });
+
+  // Google Fonts CSS (Lexend + Source Sans 3 + Fira Code)
+  if (!document.querySelector('link[href*="Lexend"]')) {
+    const fontsLink = document.createElement('link');
+    fontsLink.rel = 'stylesheet';
+    fontsLink.href = 'https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&family=Fira+Code:wght@500;600;700&display=swap';
+    document.head.appendChild(fontsLink);
+  }
+
+  // polish-pro.css + consulting-dark.css
+  ['/css/polish-pro.css', '/css/consulting-dark.css'].forEach(href => {
+    if (document.querySelector(`link[href="${href}"]`)) return;
+    const l = document.createElement('link');
+    l.rel = 'stylesheet'; l.href = href;
+    document.head.appendChild(l);
+  });
 })();
 
 // NAV POR AREA/DONA (v0.7.x) — cada item = 1 modulo (funil de meta + numeros + projetos + ferramentas).

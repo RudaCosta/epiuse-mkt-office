@@ -64,9 +64,20 @@ h1, h2, h3, h4, .page-title, .rep-title, .meta-title, .sec-title {
 [data-theme="light"] .kpi-card.pro,
 [data-theme="light"] .meta-card.pro,
 [data-theme="light"] .stat.pro {
-  background: var(--pro-glass-bg-light);
-  border-color: var(--pro-glass-border-light);
+  background: rgba(255,255,255,.95);
+  border-color: rgba(0,24,68,.12);
+  color: #0f1e35;
+  box-shadow: 0 1px 3px rgba(0,24,68,.08), 0 4px 12px -4px rgba(0,24,68,.06);
 }
+
+/* LIGHT MODE base text fix WCAG AAA */
+html[data-theme="light"] body { color: #0f1e35; }
+html[data-theme="light"] h1, html[data-theme="light"] h2, html[data-theme="light"] h3,
+html[data-theme="light"] .page-title, html[data-theme="light"] .rep-title { color: #001844; }
+html[data-theme="light"] .kpi-val, html[data-theme="light"] .stat-val, html[data-theme="light"] .big-number,
+html[data-theme="light"] .metric-value, html[data-theme="light"] .pct { color: #001844; }
+html[data-theme="light"] .kpi-lbl, html[data-theme="light"] .stat-lbl, html[data-theme="light"] .label { color: #475569; }
+html[data-theme="light"] .kpi-sub, html[data-theme="light"] .stat-sub, .sub-text { color: #64748b; }
 
 /* Hover refinado */
 .pro-glass:hover, .kpi-card.pro:hover, .meta-card.pro:hover, .stat.pro:hover {
