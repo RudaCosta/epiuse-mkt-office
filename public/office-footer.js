@@ -3,8 +3,8 @@
 // Status do sistema + versão atual + dropdown de versões anteriores
 // ════════════════════════════════════════════════════════════════════════════
 
-const OFFICE_FOOTER_VERSION = '0.21.0';
-const OFFICE_FOOTER_BUILD = '2026-06-07';
+const OFFICE_FOOTER_VERSION = '0.22.0';
+const OFFICE_FOOTER_BUILD = '2026-06-08';
 
 // SemVer real a partir de v1.0.0 (jun/2026). Versões 0.x eram pré-release.
 // Bug fix → 1.0.1 | Feature nova → 1.1.0 | Refactor grande → 2.0.0

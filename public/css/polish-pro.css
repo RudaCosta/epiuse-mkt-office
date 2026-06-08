@@ -5,11 +5,12 @@
    Pattern: Modern Professional typography + Glassmorphism + Flat
    ════════════════════════════════════════════════════════════════════ */
 
-/* TYPOGRAPHY (Modern Professional · skill recommended) */
+/* TYPOGRAPHY (Data-Dense Dashboard · Fira Sans+Code · skill official rec) */
 :root {
-  --pro-font-heading: 'Poppins', 'Inter', -apple-system, system-ui, sans-serif;
-  --pro-font-body: 'Inter', -apple-system, system-ui, sans-serif;
-  --pro-font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+  --pro-font-heading: 'Fira Sans', 'Inter', -apple-system, system-ui, sans-serif;
+  --pro-font-body: 'Fira Sans', 'Inter', -apple-system, system-ui, sans-serif;
+  --pro-font-mono: 'Fira Code', 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+  --pro-font-display: 'Poppins', 'Fira Sans', sans-serif; /* hero only */
   --pro-navy: #001844;
   --pro-red: #cd1543;
   --pro-blue-light: #869ec3;
@@ -113,6 +114,73 @@ button:focus-visible, .btn:focus-visible, a:focus-visible {
   outline: 2px solid var(--pro-red);
   outline-offset: 2px;
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   DATA-DENSE DASHBOARD additions (skill official recommendation)
+   Effects: tooltips · row highlighting · filter anim · spinners
+   ════════════════════════════════════════════════════════════════════ */
+
+/* TOOLTIP nativo CSS (hover sobre [data-tip]) */
+[data-tip] { position: relative; cursor: help; }
+[data-tip]::before, [data-tip]::after {
+  position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+  opacity: 0; pointer-events: none;
+  transition: opacity .2s var(--pro-easing);
+}
+[data-tip]::before {
+  content: attr(data-tip);
+  background: var(--pro-navy); color: #fff;
+  padding: 6px 10px; border-radius: 6px;
+  font-size: 12px; font-family: var(--pro-font-body); font-weight: 500;
+  white-space: nowrap; max-width: 260px;
+  margin-bottom: 8px; z-index: 1000;
+  box-shadow: var(--pro-shadow-2);
+}
+[data-tip]::after {
+  content: ''; margin-bottom: 2px;
+  border: 5px solid transparent; border-top-color: var(--pro-navy);
+}
+[data-tip]:hover::before, [data-tip]:hover::after { opacity: 1; }
+
+/* ROW HIGHLIGHTING (tabelas data-dense · Analytics Dashboard pattern) */
+table.pro tbody tr, .pro-row {
+  transition: background .15s var(--pro-easing);
+}
+table.pro tbody tr:hover, .pro-row:hover {
+  background: rgba(205,21,67,.06);
+  cursor: pointer;
+}
+[data-theme="light"] table.pro tbody tr:hover { background: rgba(205,21,67,.04); }
+
+/* FILTER ANIMATION (smooth show/hide) */
+.pro-filter-enter { opacity: 0; transform: translateY(-4px); }
+.pro-filter-active { opacity: 1; transform: none; transition: opacity .2s var(--pro-easing), transform .2s var(--pro-easing); }
+
+/* DATA LOADING SPINNER inline */
+.pro-spinner {
+  display: inline-block; width: 14px; height: 14px;
+  border: 2px solid rgba(205,21,67,.2);
+  border-top-color: var(--pro-red);
+  border-radius: 50%;
+  animation: pro-spin 0.8s linear infinite;
+}
+@keyframes pro-spin { to { transform: rotate(360deg); } }
+
+/* COMPACT DATA-DENSE — reduz padding em telas analytics (metas, relatorio) */
+body[data-route="relatorio"] .kpi-card,
+body[data-route="metas-fy26"] .meta-card,
+body[data-route="metas"] .meta-card {
+  padding: 14px 16px;
+}
+body[data-route="relatorio"] .kpi-row,
+body[data-route="metas-fy26"] .meta-row {
+  padding: 8px 14px;
+}
+
+/* SVG ICON helper (skill rule: no emoji as icons) */
+.pro-icon { width: 20px; height: 20px; vertical-align: middle; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.pro-icon-sm { width: 14px; height: 14px; }
+.pro-icon-lg { width: 24px; height: 24px; }
 
 /* Reduced motion (skill a11y rule) */
 @media (prefers-reduced-motion: reduce) {
