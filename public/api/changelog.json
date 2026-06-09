@@ -1,10 +1,16 @@
 {
-  "current": "0.33.0",
+  "current": "0.34.0",
   "atualizado_em": "2026-06-09",
   "next": [
-    { "version": "—", "sprint": "PEND-1", "status": "blocked",
-      "title": "🔴 D1 Railway Volume — validar persistência",
-      "summary": "Rudá configurou DATA_DIR=/data + volume montado em /data (09/jun). Falta confirmar que o DB persiste entre deploys (testar: push → dados sobrevivem sem re-sync). /api/version agora expõe persistencia.status (volume-persistente vs efemero). Se volume novo subiu vazio, rodar resync-railway-all.ps1 UMA vez — depois nunca mais." },
+    { "version": "0.35.0", "sprint": "S35", "status": "planned",
+      "title": "Refactor telas legadas pro padrão dark + aposentar mortas",
+      "summary": "~13 telas divergentes (metas com data-theme=light, voices/cases/painel/inbound/* light/sem-theme). Padronizar pro dark moderno. Aposentar telas mortas: dashboard, hub (=home), inbound/studio (=carousel), zoho-pipeline (réplica)." },
+    { "version": "0.36.0", "sprint": "S36", "status": "planned",
+      "title": "Dados: fechar buracos + atualizar mapa-fontes",
+      "summary": "mapa-fontes-dados.md desatualizado (28/mai, sem Zoho/SAP4ME/Field/Content/DF/Calendar). Etiquetar dados vazios (field captura, content corpo). LinkedIn jun. /api/health lê versão real (hoje fixo 0.24.0)." },
+    { "version": "0.37.0", "sprint": "S37", "status": "planned",
+      "title": "server.js modularização",
+      "summary": "2750 linhas num arquivo só. Quebrar em routes/ (pages, api-dados, api-content, api-field, api-df) + db.js. Saúde de longo prazo." },
     { "version": "—", "sprint": "PEND-2", "status": "blocked",
       "title": "🟡 SSO Microsoft — admin consent + ativar",
       "summary": "Env vars já no Railway (AZURE_TENANT_ID/CLIENT_ID/CLIENT_SECRET/REDIRECT_URI visíveis). Falta: (1) Azure portal → API permissions → Grant admin consent (Graph: openid/profile/email/User.Read/offline_access); (2) confirmar Redirect URIs (localhost + Railway); (3) testar login real @epiuse.com.br; (4) quando confiar, SSO_ENFORCE=true." },
@@ -16,7 +22,10 @@
       "summary": "Agenda unificada pronta (v0.33.0). Para dados mais frescos, Rudá vai mandar: planilha cronograma Redatoria atualizada + planilha posts Duda (redes) + lista de ações internas com prazos. Estrutura já consome essas fontes." }
   ],
   "releases": [
-    { "version": "0.33.0", "date": "09/jun/2026", "status": "current", "path": null,
+    { "version": "0.34.0", "date": "09/jun/2026", "status": "current", "path": null,
+      "title": "S34 Design System unificado + aposenta telas mortas + roadmap revisão",
+      "summary": "Revisão completa do app (avaliação de saúde/UI-UX/dados no plano). EXECUTADO: (1) Design System — novo public/css/office-theme.css (vars dark canônicas --bg/--card/--accent... + utilitários .kpi/.panel/.btn/.tag/.tbl/.bar/.flag) + public/js/office-utils.js (esc/brl/fmt/fmtDate/scoreCls/expCls). 4 telas migradas pra consumir (clientes-sap-4me, field-marketing, content-pipeline, development-funds) removendo :root local duplicado — base pra padronizar as legadas. (2) Telas mortas aposentadas: dashboard + hub (redirect 301 → /, substituídas pela home), inbound/studio (segue redirect → carousel), inbound/zoho-pipeline (réplica, removida); arquivos deletados, SSO returnTo e logout apontam pra / agora, entradas removidas do Cmd+K. (3) Roadmap S34-S37 registrado (planilha + changelog) + mapa-fontes-dados.md atualizado com Zoho/SAP4ME/Field/Content/DF/Calendar. Próximas: S35 refactor telas legadas light→dark, S36 fechar buracos de dados, S37 modularizar server.js." },
+    { "version": "0.33.0", "date": "09/jun/2026", "status": "snapshot", "path": null,
       "title": "Home: agenda unificada — eventos + posts + artigos + MDF/deadlines + datas em 1 lugar",
       "summary": "Unificação dos 2 blocos de calendário da home num só, no layout de cards por mês (preferido pelo Rudá). A seção 'Agenda EPI-USE / SAP' agora agrega TODAS as camadas, não só eventos: (1) Eventos EPI-USE/SAP BR+LATAM (events.json), (2) Artigos Redatoria + Posts Duda (/api/inbound/calendar), (3) Deadlines MDF (deadlines-2026.json), (4) Claims DF a reclamar por expiração (/api/development-funds, exclui derrubados), (5) Datas comemorativas/premiações/efemérides. Tabs BR/LATAM/TODOS substituídas por FILTROS DE CAMADA toggláveis (🔴 Eventos · 📰 Artigos · 📝 Posts Duda · 💶 MDF/Deadlines · 🎉 Datas) com contadores. Cada item tem border-color + tag da camada. Agrupamento por mês mantido (mês atual destacado AGORA, passados ao final). Widget duplicado 'Calendário — próximos itens' removido — tudo num só local. Link 'Ver calendário completo' aponta pro /inbound/calendar (visão grade)." },
     { "version": "0.32.1", "date": "09/jun/2026", "status": "snapshot", "path": null,

@@ -1,0 +1,94 @@
+/* ════════════════════════════════════════════════════════════════════════
+   office-theme.css — tema dark canônico do EPI-USE Office (v0.34.0 · S34)
+   Fonte ÚNICA das CSS vars dark + utilitários. Telas consomem via <link>
+   em vez de redefinir :root local (eliminou 14 duplicações).
+   Convive com design-tokens.css (que define --color-*); aqui são as vars
+   curtas do "office app" (--bg, --card, --accent...).
+   ════════════════════════════════════════════════════════════════════════ */
+:root {
+  --bg:#061020; --bg-2:#0a1525; --card:#0f1e35;
+  --border:rgba(96,165,250,.15); --border-soft:rgba(148,163,184,.08);
+  --text:#e2e8f0; --dim:#94a3b8; --muted:#64748b;
+  --accent:#60a5fa; --navy:#001844; --red:#cd1543;
+  --green:#10b981; --yellow:#fbbf24; --purple:#a78bfa; --orange:#ea580c; --pink:#f472b6;
+}
+
+/* ── BASE ───────────────────────────────────────────────────────────────── */
+.office-body {
+  background:linear-gradient(180deg,var(--bg) 0%,var(--bg-2) 100%);
+  color:var(--text); font-family:'Inter',sans-serif; min-height:100vh;
+  margin:0; padding-bottom:60px;
+}
+.office-container { max-width:1320px; margin:0 auto; padding:24px; }
+
+/* ── HEADER ─────────────────────────────────────────────────────────────── */
+.office-hdr { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-bottom:18px; }
+.office-hdr h1 { font-size:24px; font-weight:700; }
+.office-hdr .sub { color:var(--dim); font-size:13px; margin-top:4px; }
+
+/* ── BOTÕES ─────────────────────────────────────────────────────────────── */
+.btn { background:rgba(96,165,250,.10); border:1px solid rgba(96,165,250,.30); color:var(--accent);
+  padding:8px 14px; border-radius:8px; font-family:inherit; font-size:12px; cursor:pointer;
+  text-decoration:none; display:inline-block; transition:background .15s; }
+.btn:hover { background:rgba(96,165,250,.2); }
+.btn.primary { background:var(--accent); color:#0a1525; font-weight:700; }
+.btn.primary:hover { background:#93c5fd; }
+.btn.red { background:var(--red); color:#fff; border-color:var(--red); }
+
+/* ── FLAG / BANNER ──────────────────────────────────────────────────────── */
+.flag { font-size:11px; color:var(--yellow); background:rgba(251,191,36,.08);
+  border:1px solid rgba(251,191,36,.25); border-radius:8px; padding:8px 12px; margin-bottom:18px; line-height:1.5; }
+.flag code { background:rgba(255,255,255,.05); padding:1px 5px; border-radius:3px; }
+
+/* ── KPI CARDS ──────────────────────────────────────────────────────────── */
+.kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; margin-bottom:22px; }
+.kpi { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; }
+.kpi-val { font-size:28px; font-weight:800; font-family:'JetBrains Mono',monospace; line-height:1; }
+.kpi-lbl { font-size:10px; color:var(--dim); letter-spacing:.06em; text-transform:uppercase; margin-top:8px; }
+.kpi-extra { font-size:10px; color:var(--muted); margin-top:5px; font-family:'JetBrains Mono',monospace; }
+
+/* ── PAINÉIS ────────────────────────────────────────────────────────────── */
+.panel { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px; }
+.panel h2 { font-size:12px; color:var(--dim); letter-spacing:.08em; text-transform:uppercase; margin-bottom:12px; }
+.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:22px; }
+@media (max-width:900px){ .grid-2{ grid-template-columns:1fr; } }
+
+/* ── TABS ───────────────────────────────────────────────────────────────── */
+.tabs { display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap; }
+.tab { padding:8px 16px; border-radius:8px; border:1px solid var(--border); background:transparent;
+  color:var(--dim); cursor:pointer; font-family:inherit; font-size:13px; font-weight:600; transition:all .15s; }
+.tab:hover { background:rgba(96,165,250,.06); }
+.tab.active { background:rgba(96,165,250,.18); color:var(--accent); border-color:rgba(96,165,250,.4); }
+
+/* ── TABELA ─────────────────────────────────────────────────────────────── */
+.tbl-wrap { background:var(--card); border:1px solid var(--border); border-radius:14px; overflow-x:auto; }
+table.tbl { width:100%; border-collapse:collapse; font-size:12.5px; }
+table.tbl th { text-align:left; padding:10px 14px; font-size:10px; letter-spacing:.06em; color:var(--muted);
+  text-transform:uppercase; border-bottom:1px solid var(--border); background:rgba(96,165,250,.03); }
+table.tbl td { padding:8px 14px; color:var(--dim); border-bottom:1px solid var(--border-soft); vertical-align:top; }
+table.tbl tr:hover td { background:rgba(96,165,250,.04); }
+
+/* ── BADGES / TAGS ──────────────────────────────────────────────────────── */
+.tag { font-size:9px; padding:2px 8px; border-radius:10px; font-weight:700; white-space:nowrap; }
+.tag-green { background:rgba(16,185,129,.15); color:#34d399; }
+.tag-red { background:rgba(205,21,67,.15); color:#fca5a5; }
+.tag-yellow { background:rgba(251,191,36,.15); color:var(--yellow); }
+.tag-blue { background:rgba(96,165,250,.12); color:var(--accent); }
+.tag-purple { background:rgba(167,139,250,.15); color:#c4b5fd; }
+.tag-muted { background:rgba(100,116,139,.15); color:var(--dim); }
+
+/* ── BARRAS PROPORCIONAIS ───────────────────────────────────────────────── */
+.bar-row { display:flex; align-items:center; gap:10px; padding:6px 0; font-size:12px; }
+.bar-lbl { flex:1; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.bar-track { width:120px; height:6px; background:rgba(96,165,250,.1); border-radius:3px; flex-shrink:0; }
+.bar-fill { height:100%; border-radius:3px; background:var(--accent); }
+.bar-fill.navy { background:linear-gradient(90deg,#869ec3,#001844); }
+.bar-fill.red { background:var(--red); }
+.bar-val { font-family:'JetBrains Mono',monospace; font-weight:700; color:var(--accent); min-width:36px; text-align:right; }
+
+/* ── ESTADOS ────────────────────────────────────────────────────────────── */
+.loading { text-align:center; padding:50px; color:var(--muted); font-size:13px; }
+.toast { position:fixed; bottom:20px; right:20px; background:var(--card); border:1px solid var(--green);
+  color:var(--text); padding:12px 18px; border-radius:10px; font-size:13px; z-index:300; display:none; }
+.load-bar { height:3px; background:linear-gradient(90deg,var(--navy),var(--red)); position:fixed; top:60px;
+  left:0; right:0; z-index:100; transform:scaleX(0); transform-origin:left; transition:transform .4s; display:none; }

@@ -448,7 +448,7 @@ app.get('/api/auth/status', (req, res) => {
 app.get('/auth/login', async (req, res) => {
   if (!SSO_ENABLED) return res.status(503).send('SSO Microsoft nao configurado neste ambiente.');
   try {
-    req.session.returnTo = req.query.returnTo || '/dashboard';
+    req.session.returnTo = req.query.returnTo || '/';
     const url = await msalClient.getAuthCodeUrl({ scopes: SSO_SCOPES, redirectUri: SSO_REDIRECT, prompt: 'select_account' });
     res.redirect(url);
   } catch(e){ console.error('[sso] login err', e); res.status(500).send('Erro ao iniciar login: ' + e.message); }
@@ -473,7 +473,7 @@ app.get('/auth/callback', async (req, res) => {
       oid: acc.homeAccountId || claims.oid || null,
       loginAt: new Date().toISOString()
     };
-    const back = req.session.returnTo || '/dashboard';
+    const back = req.session.returnTo || '/';
     delete req.session.returnTo;
     res.redirect(back);
   } catch(e){ console.error('[sso] callback err', e); res.status(500).send('Erro no callback do login: ' + e.message); }
@@ -529,8 +529,8 @@ app.get('/auth/logout', (req, res) => {
   req.session.destroy(() => {
     if (SSO_ENABLED) {
       res.redirect('https://login.microsoftonline.com/' + process.env.AZURE_TENANT_ID +
-        '/oauth2/v2.0/logout?post_logout_redirect_uri=' + encodeURIComponent(base + '/dashboard'));
-    } else res.redirect('/dashboard');
+        '/oauth2/v2.0/logout?post_logout_redirect_uri=' + encodeURIComponent(base + '/'));
+    } else res.redirect('/');
   });
 });
 
@@ -1207,7 +1207,6 @@ app.get('/inbound/calendar',  (req, res) => res.sendFile(path.join(INBOUND_DIR, 
 app.get('/inbound/studio',    (req, res) => res.redirect(301, '/inbound/carousel?mode=single'));
 app.get('/inbound/carousel',  (req, res) => res.sendFile(path.join(INBOUND_DIR, 'carousel.html')));
 app.get('/inbound/playbook',       (req, res) => res.sendFile(path.join(INBOUND_DIR, 'playbook.html')));
-app.get('/inbound/zoho-pipeline', (req, res) => res.sendFile(path.join(INBOUND_DIR, 'zoho-pipeline.html')));
 app.get('/clientes-sap-4me', (req, res) => res.sendFile(path.join(__dirname, 'public/clientes-sap-4me.html')));
 app.get('/field-marketing', (req, res) => res.sendFile(path.join(__dirname, 'public/field-marketing.html')));
 app.get('/content-pipeline', (req, res) => res.sendFile(path.join(__dirname, 'public/content-pipeline.html')));
@@ -2045,8 +2044,6 @@ app.post('/api/inbound/generate', inboundGenLimiter, async (req, res) => {
 // Agora qualquer edição em public/ aparece imediatamente nos 2 ambientes.)
 const OFFICE_HTML    = path.join(__dirname, 'public/office.html');
 const HOME_HTML      = path.join(__dirname, 'public/home.html');
-const DASHBOARD_HTML = path.join(__dirname, 'public/dashboard.html');
-const HUB_HTML       = path.join(__dirname, 'public/hub.html');
 app.get('/',          (req, res) => res.sendFile(HOME_HTML));
 app.get('/game',      (req, res) => res.sendFile(OFFICE_HTML));
 
@@ -2095,8 +2092,10 @@ function items_collect(arr, titulo, descricao, secao) {
   arr.push({ titulo, descricao, secao: (secao.split('\n')[0] || '').trim().slice(0, 80) });
 }
 
-app.get('/dashboard', (req, res) => res.sendFile(DASHBOARD_HTML));
-app.get('/hub',       (req, res) => res.sendFile(HUB_HTML));
+// Aposentados (v0.34.0): dashboard e hub foram substituídos pela home (/).
+// Redirect 301 pra não quebrar links antigos nem o returnTo do SSO.
+app.get('/dashboard', (req, res) => res.redirect(301, '/'));
+app.get('/hub',       (req, res) => res.redirect(301, '/'));
 // v0.5.0 — Novas rotas (Onda 2-6)
 app.get('/relatorio', (req, res) => res.sendFile(path.join(__dirname, 'public/relatorio.html')));
 app.get('/artigos',   (req, res) => res.sendFile(path.join(__dirname, 'public/artigos.html')));

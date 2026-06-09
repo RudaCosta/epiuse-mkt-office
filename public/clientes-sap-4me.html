@@ -6,18 +6,15 @@
 <title>Clientes SAP 4 ME · EPI-USE Office</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="/design-tokens.css">
+<link rel="stylesheet" href="/css/office-theme.css">
 <script type="module" src="/office-nav.js"></script>
 <script type="module" src="/office-footer.js"></script>
+<script src="/js/office-utils.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after { box-sizing:border-box; margin:0; padding:0 }
-:root {
-  --bg:#061020; --card:#0f1e35; --border:rgba(96,165,250,.15);
-  --text:#e2e8f0; --dim:#94a3b8; --muted:#64748b;
-  --accent:#60a5fa; --navy:#001844; --red:#cd1543;
-  --green:#10b981; --yellow:#fbbf24; --purple:#a78bfa;
-}
+/* Vars dark + utils vêm de /css/office-theme.css (S34) */
 body { background:linear-gradient(180deg,#061020 0%,#0a1525 100%); color:var(--text); font-family:'Inter',sans-serif; min-height:100vh; padding-bottom:60px }
 .container { max-width:1320px; margin:0 auto; padding:24px }
 

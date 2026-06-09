@@ -8,7 +8,7 @@
 // Fonte ÚNICA da verdade: public/api/changelog.json#current via /api/version
 // Fallback hardcoded usado SÓ se fetch falhar (offline, etc).
 // Sincronização automática — não editar manualmente, basta bumpar changelog.json.
-let OFFICE_NAV_VERSION = '0.33.0';
+let OFFICE_NAV_VERSION = '0.34.0';
 // Promise compartilhada — nav + footer reaproveitam o mesmo fetch
 window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/version')
   .then(r => r.ok ? r.json() : null)
@@ -846,16 +846,13 @@ const OfficeCommandPalette = (() => {
     return [
       // Rotas
       { group:'Rotas', icon:'🏠', label:'Home',                 hint:'/',           action:'/' },
-      { group:'Rotas', icon:'📜', label:'Dashboard legado',     hint:'/dashboard',  action:'/dashboard' },
       { group:'Rotas', icon:'🎮', label:'Modo Game (mapa 2D)',  hint:'/game',       action:'/game' },
       { group:'Rotas', icon:'🎙️', label:'Voice Agents',         hint:'/voices',     action:'/voices' },
       { group:'Rotas', icon:'📡', label:'Inbound Engine',       hint:'/inbound',    action:'/inbound' },
       { group:'Rotas', icon:'✎',  label:'Brief → Post',         hint:'/inbound/brief',    action:'/inbound/brief' },
       { group:'Rotas', icon:'▥',  label:'Carrossel Hub',        hint:'/inbound/carousel', action:'/inbound/carousel' },
       { group:'Rotas', icon:'▦',  label:'Calendário Editorial', hint:'/inbound/calendar', action:'/inbound/calendar' },
-      { group:'Rotas', icon:'◇',  label:'Template Studio',      hint:'/inbound/studio',   action:'/inbound/studio' },
       { group:'Rotas', icon:'▤',  label:'Playbook (deck 19 slides)', hint:'/inbound/playbook', action:'/inbound/playbook' },
-      { group:'Rotas', icon:'📈', label:'Marketing Hub',        hint:'/hub',        action:'/hub' },
       { group:'Rotas', icon:'⚙️', label:'Painel da Duda',       hint:'/painel',     action:'/painel' },
       { group:'Rotas', icon:'🪪', label:'Profile Optimizer',    hint:'/optimizer',  action:'/optimizer' },
       { group:'Rotas', icon:'📨', label:'LP Seja um Voice',     hint:'/seja-voice', action:'/seja-voice' },

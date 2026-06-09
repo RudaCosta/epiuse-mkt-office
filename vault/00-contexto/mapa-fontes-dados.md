@@ -4,7 +4,23 @@
 > Este documento é a **fonte da verdade** do que tá real e o que falta integrar.
 > Atualizar TODA vez que rolar nova integração ou novo dado entrar no Office.
 
-**Última atualização:** 28/mai/2026
+**Última atualização:** 09/jun/2026
+
+---
+
+## 🆕 DATASETS NOVOS (jun/2026 — sprints S27-S32)
+
+| Dado | Telas | Fonte | Estado | Obs |
+|---|---|---|---|---|
+| **Zoho CRM deals** (141: 98 MKT + 43 SDR) | `/relatorio` §6, `/inbound/zoho-pipeline` (fora do menu) | Zoho MCP `executeCOQLQuery` → `zoho_deals` SQLite | 🟢 REAL | sync manual via sessão Claude; dados até abr/2026 |
+| **SAP 4 ME** (705 projetos globais) | `/clientes-sap-4me`, `/relatorio` §8 | XLSX Roberto → `clientes_sap_4me` SQLite | 🟢 REAL | `sync_clientes_sap_4me.js`; 455 Live |
+| **Field Marketing** (92 eventos) | `/field-marketing` | events.json + `field_events` SQLite | 🟡 PARCIAL | eventos reais; captura (leads/deals/custo) VAZIA — aguarda Isabela preencher pós-evento |
+| **Content pipeline** (80 itens) | `/content-pipeline` | Redatoria via calendar → `content_pipeline` SQLite | 🟡 PARCIAL | só TÍTULO importado; corpo vazio → SEO/GEO score baixo. Falta corpo real |
+| **Development Funds** (18 proposals + 9 requests) | `/development-funds`, calendar layer MDF | espelho portal SAP PartnerEdge → `development-funds.json` | 🟢 REAL | manual do portal; regra derrubados (5VVWA2SLEO+66IJWEAE2B não contam) |
+| **Calendar editorial** (Duda 18 + Redatoria 80) | `/inbound/calendar`, home agenda | planilhas Duda/Redatoria → `editorial_calendar` SQLite | 🟢 REAL | `sync_calendario_duda.js` + `sync_redatoria_to_calendar.js` |
+| **Deadlines MDF** | calendar, war-room, agenda | `deadlines-2026.json` (email SAP) | 🟢 REAL | manual; treinamento 1/abr, EDF/DDF 1/jul |
+
+**Infra:** Railway Volume `/data` montado (persistência OK desde 09/jun). `/api/version` diagnostica persistência. Handlers globais de erro (v0.32.1).
 
 ---
 
