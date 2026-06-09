@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clientes SAP 4 ME · EPI-USE Office</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="/design-tokens.css">
+<script type="module" src="/office-nav.js"></script>
+<script type="module" src="/office-footer.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0 }
+:root {
+  --bg:#061020; --card:#0f1e35; --border:rgba(96,165,250,.15);
+  --text:#e2e8f0; --dim:#94a3b8; --muted:#64748b;
+  --accent:#60a5fa; --navy:#001844; --red:#cd1543;
+  --green:#10b981; --yellow:#fbbf24; --purple:#a78bfa;
+}
+body { background:linear-gradient(180deg,#061020 0%,#0a1525 100%); color:var(--text); font-family:'Inter',sans-serif; min-height:100vh; padding-bottom:60px }
+.container { max-width:1320px; margin:0 auto; padding:24px }
+
+/* HEADER */
+.hdr { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-bottom:18px }
+.hdr h1 { font-size:24px; font-weight:700 }
+.hdr .sub { color:var(--dim); font-size:13px; margin-top:4px }
+.hdr-actions { display:flex; gap:8px; align-items:center }
+.btn { background:rgba(96,165,250,.10); border:1px solid rgba(96,165,250,.30); color:var(--accent); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:12px; cursor:pointer; transition:background .15s; white-space:nowrap }
+.btn:hover { background:rgba(96,165,250,.2) }
+.btn.primary { background:var(--accent); color:#0a1525; font-weight:700 }
+
+.flag { font-size:11px; color:var(--yellow); background:rgba(251,191,36,.08); border:1px solid rgba(251,191,36,.25); border-radius:8px; padding:8px 12px; margin-bottom:18px; line-height:1.5 }
+
+/* KPI */
+.kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; margin-bottom:22px }
+.kpi { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:18px; position:relative }
+.kpi.live { border-left:3px solid var(--green) }
+.kpi.impl { border-left:3px solid var(--accent) }
+.kpi.ns { border-left:3px solid var(--muted) }
+.kpi.hold { border-left:3px solid var(--yellow) }
+.kpi-val { font-size:30px; font-weight:800; font-family:'JetBrains Mono',monospace; line-height:1 }
+.kpi-lbl { font-size:11px; color:var(--dim); letter-spacing:.06em; text-transform:uppercase; margin-top:8px }
+.kpi-extra { font-size:10px; color:var(--muted); margin-top:6px; font-family:'JetBrains Mono',monospace }
+
+/* TABS */
+.tabs { display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap }
+.tab { padding:8px 16px; border-radius:8px; border:1px solid var(--border); background:transparent; color:var(--dim); cursor:pointer; font-family:inherit; font-size:13px; font-weight:600; transition:all .15s }
+.tab:hover { background:rgba(96,165,250,.06) }
+.tab.active { background:rgba(96,165,250,.18); color:var(--accent); border-color:rgba(96,165,250,.4) }
+
+/* 2-COL GRID */
+.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:22px }
+@media (max-width:880px) { .grid-2 { grid-template-columns:1fr } }
+.panel { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px }
+.panel h2 { font-size:13px; color:var(--dim); letter-spacing:.08em; text-transform:uppercase; margin-bottom:14px }
+
+/* BAR ROWS */
+.bar-row { display:flex; align-items:center; gap:10px; padding:6px 0; font-size:12px }
+.bar-lbl { flex:1; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+.bar-track { width:120px; height:6px; background:rgba(96,165,250,.1); border-radius:3px; flex-shrink:0 }
+.bar-fill { height:100%; border-radius:3px; background:var(--accent) }
+.bar-fill.navy { background:linear-gradient(90deg,#869ec3,#001844) }
+.bar-fill.red { background:var(--red) }
+.bar-val { font-family:'JetBrains Mono',monospace; font-weight:700; color:var(--accent); min-width:36px; text-align:right }
+
+/* LISTAS GO-LIVE / KICKOFF */
+.evt-row { display:flex; align-items:center; gap:10px; padding:7px 0; border-bottom:1px dashed rgba(148,163,184,.08); font-size:12px }
+.evt-row:last-child { border-bottom:0 }
+.evt-date { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--accent); white-space:nowrap; min-width:74px }
+.evt-name { flex:1; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+.evt-meta { font-size:10px; color:var(--muted); white-space:nowrap }
+
+/* TABELA */
+.filters { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px }
+.filters select, .filters input { background:rgba(96,165,250,.06); border:1px solid var(--border); color:var(--text); padding:7px 10px; border-radius:8px; font-family:inherit; font-size:12px }
+.filters input { flex:1; min-width:160px }
+.tbl-wrap { background:var(--card); border:1px solid var(--border); border-radius:14px; overflow-x:auto }
+table { width:100%; border-collapse:collapse; font-size:12.5px }
+th { text-align:left; padding:10px 14px; font-size:10px; letter-spacing:.06em; color:var(--muted); text-transform:uppercase; border-bottom:1px solid var(--border); background:rgba(96,165,250,.03); position:sticky; top:0 }
+td { padding:8px 14px; color:var(--dim); border-bottom:1px solid rgba(148,163,184,.06); vertical-align:top }
+tr:hover td { background:rgba(96,165,250,.04) }
+.etapa-badge { font-size:10px; padding:2px 8px; border-radius:10px; font-weight:700; white-space:nowrap }
+.etapa-live { background:rgba(16,185,129,.12); color:var(--green) }
+.etapa-impl { background:rgba(96,165,250,.12); color:var(--accent) }
+.etapa-ns { background:rgba(100,116,139,.15); color:var(--dim) }
+.etapa-hold { background:rgba(251,191,36,.12); color:var(--yellow) }
+.tbl-count { font-size:11px; color:var(--muted); margin-top:8px; text-align:right }
+
+.loading { text-align:center; padding:50px; color:var(--muted); font-size:13px }
+#loadBar { height:3px; background:linear-gradient(90deg,#001844,#cd1543); position:fixed; top:60px; left:0; right:0; z-index:100; transform:scaleX(0); transform-origin:left; transition:transform .4s; }
+@media print {
+  office-nav, office-footer, .hdr-actions, .filters, #loadBar { display:none !important }
+  body { background:white; color:#1e293b }
+  .panel, .kpi, .tbl-wrap { background:white !important; border-color:#e2e8f0 !important; break-inside:avoid }
+  .kpi-val, .bar-val, .evt-date { color:#001844 !important }
+}
+</style>
+</head>
+<body data-route="clientes-sap-4me">
+<office-nav></office-nav>
+<div id="loadBar"></div>
+
+<div class="container" id="root">
+  <div class="hdr">
+    <div>
+      <h1>🌐 Clientes SAP 4 ME</h1>
+      <div class="sub">Projetos de nuvem SAP em todos os países EPI-USE · <span id="total-lbl">—</span></div>
+    </div>
+    <div class="hdr-actions">
+      <button class="btn" onclick="location.href='/relatorio'">📊 Relatório</button>
+      <button class="btn primary" onclick="exportPDF()">⬇ PDF</button>
+    </div>
+  </div>
+
+  <div class="flag">
+    🟢 <b>Dado real</b> — espelho da planilha "clientes epiuse sap 4 me" (SAP 4 ME global). Sync via <code>node scripts/sync/sync_clientes_sap_4me.js</code>. <span id="sync-lbl"></span>
+  </div>
+
+  <div id="content"><div class="loading">Carregando 705 projetos…</div></div>
+</div>
+
+<office-footer></office-footer>
+
+<script>
+let DATA = null;
+const state = { tab: 'brasil', fPais: '', fEtapa: '', fArea: '', q: '' };
+
+function showBar(){ const b=document.getElementById('loadBar'); b.style.display='block'; b.style.transform='scaleX(.4)'; setTimeout(()=>b.style.transform='scaleX(.7)',150); }
+function hideBar(){ const b=document.getElementById('loadBar'); b.style.transform='scaleX(1)'; setTimeout(()=>{b.style.transform='scaleX(0)';b.style.display='none';},400); }
+
+function etapaBadge(e) {
+  const map = { 'Live':'etapa-live', 'Implementing':'etapa-impl', 'Not Started':'etapa-ns', 'On hold':'etapa-hold' };
+  return `<span class="etapa-badge ${map[e]||'etapa-ns'}">${e||'—'}</span>`;
+}
+
+async function load() {
+  showBar();
+  try {
+    DATA = await fetch('/api/clientes-sap-4me').then(r => r.json());
+    document.getElementById('total-lbl').textContent = `${DATA.total} projetos`;
+    document.getElementById('sync-lbl').textContent = DATA.last_sync ? `Última sync: ${DATA.last_sync.slice(0,16)}` : '';
+    if (!DATA.total) {
+      document.getElementById('content').innerHTML = '<div class="loading">⏳ Sem dados — rode <code>node scripts/sync/sync_clientes_sap_4me.js</code></div>';
+      hideBar(); return;
+    }
+    render();
+  } catch(e) {
+    document.getElementById('content').innerHTML = '<div class="loading" style="color:#fca5a5">Erro: '+e.message+'</div>';
+  }
+  hideBar();
+}
+
+function render() {
+  const k = DATA.kpis;
+  const maxPais = Math.max(1, ...DATA.by_pais.map(p => p.count));
+  const maxArea = Math.max(1, ...DATA.by_area.map(a => a.count));
+
+  document.getElementById('content').innerHTML = `
+    <div class="kpi-grid">
+      <div class="kpi live"><div class="kpi-val" style="color:var(--green)">${k.live}</div><div class="kpi-lbl">Live</div><div class="kpi-extra">em operação</div></div>
+      <div class="kpi impl"><div class="kpi-val" style="color:var(--accent)">${k.implementing}</div><div class="kpi-lbl">Implementing</div><div class="kpi-extra">em projeto</div></div>
+      <div class="kpi ns"><div class="kpi-val" style="color:var(--dim)">${k.not_started}</div><div class="kpi-lbl">Not Started</div><div class="kpi-extra">não iniciado</div></div>
+      <div class="kpi hold"><div class="kpi-val" style="color:var(--yellow)">${k.on_hold}</div><div class="kpi-lbl">On Hold</div><div class="kpi-extra">pausado</div></div>
+      <div class="kpi" style="border-left:3px solid var(--red)"><div class="kpi-val" style="color:var(--red)">${k.brasil}</div><div class="kpi-lbl">🇧🇷 Brasil</div><div class="kpi-extra">projetos BR</div></div>
+      <div class="kpi"><div class="kpi-val" style="color:var(--purple)">${k.golive_90d}</div><div class="kpi-lbl">Go-lives 90d</div><div class="kpi-extra">próximos</div></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <h2>🌍 Projetos por país</h2>
+        ${DATA.by_pais.slice(0,12).map(p => `
+          <div class="bar-row">
+            <span class="bar-lbl">${p.label}</span>
+            <div class="bar-track"><div class="bar-fill navy" style="width:${Math.max(4,Math.round(p.count/maxPais*100))}%"></div></div>
+            <span class="bar-val">${p.count}</span>
+          </div>`).join('')}
+      </div>
+      <div class="panel">
+        <h2>🧩 Por área de subsolução</h2>
+        ${DATA.by_area.map(a => `
+          <div class="bar-row">
+            <span class="bar-lbl" title="${a.label}">${a.label}</span>
+            <div class="bar-track"><div class="bar-fill" style="width:${Math.max(4,Math.round(a.count/maxArea*100))}%"></div></div>
+            <span class="bar-val">${a.count}</span>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <h2>🚀 Próximos go-lives (90 dias)</h2>
+        ${DATA.proximos_golive.length ? DATA.proximos_golive.map(e => `
+          <div class="evt-row">
+            <span class="evt-date">${e.golive}</span>
+            <span class="evt-name" title="${e.nome_cliente}">${e.nome_cliente}</span>
+            <span class="evt-meta">${e.pais}</span>
+          </div>`).join('') : '<div style="color:var(--muted);font-size:12px;padding:8px 0">Nenhum go-live planejado nos próximos 90 dias.</div>'}
+      </div>
+      <div class="panel">
+        <h2>📅 Kick-offs recentes (90 dias)</h2>
+        ${DATA.kickoffs_recentes.length ? DATA.kickoffs_recentes.map(e => `
+          <div class="evt-row">
+            <span class="evt-date">${e.kickoff}</span>
+            <span class="evt-name" title="${e.nome_cliente}">${e.nome_cliente}</span>
+            <span class="evt-meta">${e.pais}</span>
+          </div>`).join('') : '<div style="color:var(--muted);font-size:12px;padding:8px 0">Nenhum kick-off nos últimos 90 dias.</div>'}
+      </div>
+    </div>
+
+    <div class="panel" style="padding:18px">
+      <h2 style="margin-bottom:12px">📋 Lista de projetos</h2>
+      <div class="tabs">
+        <button class="tab ${state.tab==='brasil'?'active':''}" onclick="setTab('brasil')">🇧🇷 Brasil</button>
+        <button class="tab ${state.tab==='global'?'active':''}" onclick="setTab('global')">🌎 Global</button>
+        <button class="tab ${state.tab==='golive'?'active':''}" onclick="setTab('golive')">🚀 Go-live 90d</button>
+      </div>
+      <div class="filters">
+        <input id="f-q" type="text" placeholder="🔎 Buscar cliente…" oninput="state.q=this.value;renderTable()">
+        <select id="f-pais" onchange="state.fPais=this.value;renderTable()"><option value="">Todos países</option></select>
+        <select id="f-etapa" onchange="state.fEtapa=this.value;renderTable()">
+          <option value="">Todas etapas</option><option>Live</option><option>Implementing</option><option>Not Started</option><option>On hold</option>
+        </select>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Cliente</th><th>País</th><th>Área</th><th>Etapa</th><th>Kick-off</th><th>Go-live</th><th>Gerente</th></tr></thead>
+          <tbody id="tbl-body"></tbody>
+        </table>
+      </div>
+      <div class="tbl-count" id="tbl-count"></div>
+    </div>
+  `;
+
+  // Popular select de país
+  const sel = document.getElementById('f-pais');
+  DATA.by_pais.forEach(p => { const o=document.createElement('option'); o.value=p.label; o.textContent=`${p.label} (${p.count})`; sel.appendChild(o); });
+  renderTable();
+}
+
+function setTab(t) { state.tab = t; state.fPais=''; state.fEtapa=''; state.q='';
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  const fp=document.getElementById('f-pais'); if(fp) fp.value='';
+  const fe=document.getElementById('f-etapa'); if(fe) fe.value='';
+  const fq=document.getElementById('f-q'); if(fq) fq.value='';
+  renderTable();
+}
+
+function renderTable() {
+  let rows = DATA.list.slice();
+  if (state.tab === 'brasil') rows = rows.filter(r => r.pais === 'Brazil');
+  else if (state.tab === 'golive') {
+    const hoje = new Date().toISOString().slice(0,10);
+    const em90 = new Date(Date.now()+90*86400000).toISOString().slice(0,10);
+    rows = rows.filter(r => r.golive && r.golive >= hoje && r.golive <= em90 && r.etapa !== 'Live');
+  }
+  if (state.fPais)  rows = rows.filter(r => r.pais === state.fPais);
+  if (state.fEtapa) rows = rows.filter(r => r.etapa === state.fEtapa);
+  if (state.q) { const q = state.q.toLowerCase(); rows = rows.filter(r => (r.nome_cliente||'').toLowerCase().includes(q)); }
+  rows.sort((a,b) => (a.nome_cliente||'').localeCompare(b.nome_cliente||''));
+
+  document.getElementById('tbl-body').innerHTML = rows.slice(0, 300).map(r => `
+    <tr>
+      <td style="color:var(--text);font-weight:500">${r.nome_cliente||'—'}</td>
+      <td>${r.pais||'—'}</td>
+      <td style="font-size:11px">${r.area||'—'}</td>
+      <td>${etapaBadge(r.etapa)}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:11px">${r.kickoff||'—'}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:11px">${r.golive||'—'}</td>
+      <td style="font-size:11px">${r.gerente||'—'}</td>
+    </tr>`).join('');
+  document.getElementById('tbl-count').textContent = `${rows.length} projeto(s)${rows.length>300?' — mostrando 300':''}`;
+}
+
+function exportPDF() {
+  if (typeof html2pdf === 'undefined') { window.print(); return; }
+  html2pdf().set({
+    margin:[10,8,12,8], filename:'clientes-sap-4me.pdf',
+    image:{type:'jpeg',quality:.92},
+    html2canvas:{scale:1.5,useCORS:true,backgroundColor:'#0a1525'},
+    jsPDF:{unit:'mm',format:'a4',orientation:'landscape',compress:true},
+    pagebreak:{mode:['css','legacy'],avoid:['.panel','.kpi']}
+  }).from(document.getElementById('root')).save();
+}
+
+load();
+</script>
+</body>
+</html>

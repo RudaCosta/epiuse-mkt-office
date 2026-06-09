@@ -202,6 +202,7 @@
     <div class="agenda-item" onclick="scrollToSec('s6')"><span class="agenda-num">6</span> Pipeline Zoho</div>
     <div class="agenda-item" onclick="scrollToSec('s6b')"><span class="agenda-num">6b</span> SDR/Apollo</div>
     <div class="agenda-item" onclick="scrollToSec('s7')"><span class="agenda-num">7</span> Cases</div>
+    <div class="agenda-item" onclick="scrollToSec('s8')"><span class="agenda-num">8</span> SAP 4 ME</div>
   </div>
 
   <!-- ALERTAS -->
@@ -391,6 +392,32 @@
     <div class="gen-card">
       <h4 style="font-size:12px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px">Accounts no programa</h4>
       <div id="cases-list-rows"></div>
+    </div>
+  </section>
+
+  <!-- 8. SAP 4 ME — FUNIL GLOBAL -->
+  <section class="sec" id="s8">
+    <div class="sec-hdr"><div class="sec-num">8</div><div class="sec-title">SAP 4 ME — Funil global de projetos</div></div>
+    <div class="kpi-grid" style="margin-bottom:16px">
+      <div class="kpi-canal">
+        <h3>🌍 Global</h3>
+        <div class="kpi-row"><span class="kpi-label">Total de projetos</span><span class="kpi-val" id="s4-total">—</span></div>
+        <div class="kpi-row"><span class="kpi-label">Live (em operação)</span><span class="kpi-val" id="s4-live">—</span></div>
+        <div class="kpi-row"><span class="kpi-label">Implementing</span><span class="kpi-val" id="s4-impl">—</span></div>
+      </div>
+      <div class="kpi-canal" style="border-left:3px solid var(--red)">
+        <h3>🇧🇷 Brasil</h3>
+        <div class="kpi-row"><span class="kpi-label">Projetos BR</span><span class="kpi-val" id="s4-br">—</span></div>
+        <div class="kpi-row"><span class="kpi-label">Go-lives próximos 90d</span><span class="kpi-val" id="s4-golive">—</span></div>
+        <div class="kpi-row"><span class="kpi-label">Kick-offs últimos 90d</span><span class="kpi-val" id="s4-kickoff">—</span></div>
+      </div>
+    </div>
+    <div class="gen-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+        <h4 style="font-size:12px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin:0">Cruzamento Cases × Clientes ativos</h4>
+        <a href="/clientes-sap-4me" style="font-size:10px;color:var(--accent);text-decoration:none">Ver dashboard completo →</a>
+      </div>
+      <div id="s4-match-rows"><div style="color:var(--muted);font-size:12px">Carregando…</div></div>
     </div>
   </section>
 </div>
@@ -792,9 +819,68 @@ async function loadCasesList() {
   } catch(e) {}
 }
 
+// ── SAP 4 ME funil global + match com Cases (seção 8) ─────────────────
+function normNome(s) {
+  return String(s||'').toLowerCase()
+    .replace(/\b(ltda|s\.?a\.?|inc|llc|gmbh|plc|limited|servicos|serviços|do brasil|brasil)\b/g,'')
+    .replace(/[^a-z0-9]/g,'').trim();
+}
+async function loadSap4me() {
+  try {
+    const [s4, casesResp] = await Promise.all([
+      fetch('/api/clientes-sap-4me').then(r => r.json()),
+      fetch('/api/cases').then(r => r.json()).catch(() => ({})),
+    ]);
+    const set = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+    if (!s4 || !s4.total) {
+      set('s4-total','—');
+      const mr = document.getElementById('s4-match-rows');
+      if (mr) mr.innerHTML = '<div style="color:var(--muted);font-size:12px">⏳ Sem dados — rode <code>node scripts/sync/sync_clientes_sap_4me.js</code></div>';
+      return;
+    }
+    const k = s4.kpis;
+    set('s4-total', fmt(s4.total));
+    set('s4-live', fmt(k.live));
+    set('s4-impl', fmt(k.implementing));
+    set('s4-br', fmt(k.brasil));
+    set('s4-golive', fmt(k.golive_90d));
+    set('s4-kickoff', fmt(k.kickoffs_90d));
+
+    // Match Cases (Roberto) × Clientes SAP 4 ME ativos
+    const cases = Array.isArray(casesResp) ? casesResp : (casesResp.clientes || casesResp.cases || []);
+    const sapByNome = {};
+    for (const c of (s4.list||[])) { const n = normNome(c.nome_cliente); if (n) sapByNome[n] = c; }
+    const matched = [], orphanCases = [];
+    for (const cs of cases) {
+      const nome = cs.conta || cs.cliente_nome || '';
+      const n = normNome(nome);
+      const hit = n && Object.keys(sapByNome).find(k2 => k2.includes(n) || n.includes(k2));
+      if (hit) matched.push({ nome, status: cs.status, sap: sapByNome[hit] });
+      else orphanCases.push({ nome, status: cs.status });
+    }
+    const mr = document.getElementById('s4-match-rows');
+    if (mr) {
+      let html = '';
+      if (matched.length) {
+        html += `<div style="font-size:11px;color:var(--green);margin-bottom:6px;font-weight:600">✅ ${matched.length} cases que são clientes SAP 4 ME ativos</div>`;
+        html += matched.slice(0,10).map(m => `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:12px;border-bottom:1px dashed rgba(148,163,184,.06)">
+          <span style="flex:1;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${m.nome}</span>
+          <span style="font-size:10px;color:var(--muted)">${m.sap.pais} · ${m.sap.etapa}</span>
+        </div>`).join('');
+      }
+      if (orphanCases.length) {
+        html += `<div style="font-size:11px;color:var(--yellow);margin:10px 0 6px;font-weight:600">🟡 ${orphanCases.length} cases sem match na base SAP 4 ME (revisar naming)</div>`;
+        html += `<div style="font-size:11px;color:var(--muted)">${orphanCases.slice(0,8).map(o => o.nome).join(' · ')}</div>`;
+      }
+      mr.innerHTML = html || '<div style="color:var(--muted);font-size:12px">Sem cruzamento disponível.</div>';
+    }
+  } catch(e) { console.warn('loadSap4me error:', e); }
+}
+
 inicializarSelect();
 loadZoho('all');
 loadCasesList();
+loadSap4me();
 </script>
 </body>
 </html>

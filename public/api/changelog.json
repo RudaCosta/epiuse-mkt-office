@@ -1,10 +1,7 @@
 {
-  "current": "0.28.1",
+  "current": "0.29.0",
   "atualizado_em": "2026-06-09",
   "next": [
-    { "version": "0.29.0", "sprint": "S29", "status": "planned",
-      "title": "Base SAP 4 ME + Relatório visão Duda",
-      "summary": "Juntar base mapping de clientes globais SAP 4 ME com lista de clientes EPI-USE Brasil. Relatório deve ter visão de Duda (brand/conteúdo) além da visão do Rudá (pipeline/metas). Integrar spreadsheet clientes-sap-4-me com /api/cases e /relatorio." },
     { "version": "0.30.0", "sprint": "S30", "status": "planned",
       "title": "Field Marketing integrado ao app",
       "summary": "Adicionar processo de field marketing ao app. Entender como o calendário de eventos pode ajudar nas datas, gerar briefings de ativação pré-evento, controle de materiais/brindes por evento, relatório de capturas por ativação. Integrar com /inbound/calendar e módulo eventos." },
@@ -13,7 +10,10 @@
       "summary": "Remodelagem completa: briefing → artigo → revisão SEO/GEO → publicação automática. Integrar checklist SEO/GEO, preview LinkedIn, agendamento real via API LinkedIn (quando disponível), notificação pós-publicação. Substituir o Cowork atual pela nova cadeia." }
   ],
   "releases": [
-    { "version": "0.28.1", "date": "09/jun/2026", "status": "current", "path": null,
+    { "version": "0.29.0", "date": "09/jun/2026", "status": "current", "path": null,
+      "title": "S29 — Clientes SAP 4 ME: dashboard global + funil no relatório (visão Duda)",
+      "summary": "Nova tela /clientes-sap-4me: dashboard dos 705 projetos de nuvem SAP em todos os países EPI-USE (espelho da planilha SAP 4 ME do Roberto). SQLite: tabela clientes_sap_4me (projeto_id, conta_parceiro, nome_cliente, pais, area_subsolucao, etapa, kickoff, golive_planejado/confirmado, relevante_nivel, gerente). Server: GET /api/clientes-sap-4me (KPIs por etapa Live/Implementing/Not Started/On hold + by_pais + by_area + próximos go-lives 90d + kick-offs recentes 90d + lista completa) + POST /api/clientes-sap-4me/sync (editor token). Script: sync_clientes_sap_4me.js (Node, localModules pattern, trata datas Excel serial + placeholder 9999-12-31 → null, --dry-run + --target local/railway/all). UI: 6 KPI cards, barras por país (12) e área de subsolução, painéis go-lives + kick-offs, tabela filtrável (tabs Brasil/Global/Go-live 90d + busca + filtros país/etapa), export PDF landscape. Integração /relatorio seção 8: funil global + Brasil + cruzamento Cases (Roberto) × Clientes SAP 4 ME ativos (match por nome normalizado — mostra cases que são clientes ativos + cases sem match pra revisar naming). Dados reais: 705 projetos (455 Live, 139 Implementing, 89 Not Started, 22 On hold), 77 Brasil, 24 países. Link no nav (Reports & Análises) + alias no planilhas-registry." },
+    { "version": "0.28.1", "date": "09/jun/2026", "status": "snapshot", "path": null,
       "title": "Fase 0 débito técnico — automação de syncs (Cases + LinkedIn) + persistência Railway",
       "summary": "Sprint de débito técnico antes das S29-S31. (1) Cron Cases: tarefa Windows EPI-USE-Office-Cases-Sync (diário 07:00) corrigida e registrada — bugs resolvidos: $root hardcoded no run-cases-sync.ps1 (agora dinâmico via PSScriptRoot), sync_cases_roberto.js não resolvia xlsx no Node v24 (localModules pattern), path Ruds com acento faltando. Testado end-to-end (19 cases → Railway). (2) LinkedIn sync: tarefa EPI-USE-Office-LinkedIn-Sync (diário 08:30) regenera linkedin-historical.json do XLS da Bruna + reports PPTX. Merge defensivo (Regra 7) preserva entradas 'manual (Rudá)' como o 10640 de mai/26 + cumulativos (newsletter/total) dos reports — não regride dado bom. Não faz push (Regra 3). (3) Railway Volume: server.js agora lê process.env.DATA_DIR pro DB_PATH com boot log que avisa se volume não montado (⚠️ DATA_DIR não setado → SQLite reseta a cada deploy). Falta só config humana no Railway dashboard (mount /data + DATA_DIR=/data). install-task.ps1 atualizado idempotente com as 5 tarefas." },
     { "version": "0.28.0", "date": "08/jun/2026", "status": "snapshot", "path": null,
