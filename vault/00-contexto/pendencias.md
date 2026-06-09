@@ -60,7 +60,18 @@
 - **Fix definitivo (próxima sprint):** verificar se Railway tem volume montado em `/data` ou ajustar `DB_PATH` pra apontar pro volume persistente. Doc Railway: https://docs.railway.com/reference/volumes
 - **Outras tabelas afetadas:** `editorial_calendar`, `posts`, `recruitment_applications`, `users` (futuro SSO) — TUDO reseta no deploy hoje
 
+## ✅ SPRINTS S29-S31 ENTREGUES (09/jun/2026)
+
+- **S29 (v0.29.0)** — Clientes SAP 4 ME: dashboard `/clientes-sap-4me` (705 projetos globais, KPIs, heat país/área, go-lives/kick-offs, tabela filtrável, PDF) + seção 8 no relatório (funil global + cruzamento Cases × SAP 4 ME).
+- **S30 (v0.30.0)** — Field Marketing: tela `/field-marketing` (92 eventos, status, briefing do template Isabela com 5 fases/56 tarefas/checklist/planos B, captura pós-evento + ROI por evento).
+- **S31 (v0.31.0)** — Pipeline de Conteúdo: `/content-pipeline` kanban 7 estados + `seo_checker.js` (SEO clássico + GEO/AIO/AEO/LLMO determinístico) + import Redatoria (80 itens). Publicação WordPress segue manual (credenciais TI).
+- **Home calendar Railway** — corrigido: estava vazio (DB resetava sem volume + nunca re-sincronizado). Agora `resync-railway-all.ps1` cobre cases + sap4me + calendar (Duda 18 + Redatoria 80).
+
 ## 🟢 PENDENTE DE EXECUÇÃO (não-bloqueado, dá pra fazer quando quiser)
+
+### ⭐ resync-railway-all.ps1 (workaround D1) — usar após CADA push até montar volume
+- `powershell -ExecutionPolicy Bypass -File scripts/lifecycle/resync-railway-all.ps1`
+- Re-sincroniza os 4 datasets de uma vez (cases · SAP 4 ME · calendar Duda · Redatoria). Some quando D1 (volume) for feito.
 
 ### P0. URGENTE — Volume persistente Railway pro SQLite — 🟡 CÓDIGO PRONTO (09/jun), falta config humana
 - **Esforço:** 5min (só dashboard)
