@@ -58,6 +58,30 @@
     </div>
   </div>
 
+  <!-- ZOHO CRM PIPELINE -->
+  <div style="background:#0f1e35;border:1px solid rgba(96,165,250,.15);border-radius:14px;padding:20px;margin-bottom:18px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px">
+      <div>
+        <h2 style="font-size:16px;margin:0">Pipeline CRM — Zoho (MKT + SDR)</h2>
+        <p style="font-size:11px;color:#94a3b8;margin-top:4px">141 deals reais · dados até abr/2026 · sync via sessão Claude</p>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <button id="zp-src-all" onclick="setZohoSrc('all')" style="font-size:10px;padding:4px 10px;border-radius:6px;border:1px solid rgba(96,165,250,.3);background:rgba(96,165,250,.15);color:#60a5fa;cursor:pointer">Todos</button>
+        <button id="zp-src-mkt" onclick="setZohoSrc('mkt')" style="font-size:10px;padding:4px 10px;border-radius:6px;border:1px solid rgba(96,165,250,.15);background:transparent;color:#94a3b8;cursor:pointer">MKT</button>
+        <button id="zp-src-sdr" onclick="setZohoSrc('sdr')" style="font-size:10px;padding:4px 10px;border-radius:6px;border:1px solid rgba(96,165,250,.15);background:transparent;color:#94a3b8;cursor:pointer">SDR</button>
+        <a href="/inbound/zoho-pipeline" style="font-size:10px;color:#64748b;text-decoration:none;padding:4px 10px;border:1px solid rgba(96,165,250,.1);border-radius:6px">Dashboard →</a>
+      </div>
+    </div>
+    <div class="kpi-grid" id="zoho-kpis" style="margin-bottom:14px">
+      <div class="kpi"><div class="kpi-val" id="zp-mes">—</div><div class="kpi-lbl">Este mês</div></div>
+      <div class="kpi"><div class="kpi-val" id="zp-lmes">—</div><div class="kpi-lbl">Último mês</div></div>
+      <div class="kpi"><div class="kpi-val" id="zp-q">—</div><div class="kpi-lbl">Último quarter</div></div>
+      <div class="kpi"><div class="kpi-val" id="zp-fy">—</div><div class="kpi-lbl">Último FY</div></div>
+    </div>
+    <div id="zp-campanha-rows"></div>
+    <div style="font-size:11px;color:#64748b;margin-top:10px" id="zp-sync-lbl"></div>
+  </div>
+
   <!-- KPIs principais (dados REAIS Apollo) -->
   <div class="kpi-grid" id="kpis">
     <div class="kpi"><div class="kpi-val empty" id="k-contatos">—</div><div class="kpi-lbl">Contatos na base</div><div class="kpi-extra">Apollo Contacts</div></div>
@@ -109,6 +133,55 @@ async function carregar() {
   } catch (e) {}
 }
 carregar();
+
+// ── Zoho CRM pipeline ────────────────────────────────────────────────
+function brl(v) {
+  if (!v) return 'R$ 0';
+  if (v >= 1e6) return 'R$ ' + (v/1e6).toFixed(1) + 'M';
+  if (v >= 1e3) return 'R$ ' + (v/1e3).toFixed(0) + 'k';
+  return 'R$ ' + v.toLocaleString('pt-BR');
+}
+
+async function setZohoSrc(src) {
+  ['all','mkt','sdr'].forEach(s => {
+    const btn = document.getElementById('zp-src-'+s);
+    if (!btn) return;
+    btn.style.background = s === src ? 'rgba(96,165,250,.15)' : 'transparent';
+    btn.style.color      = s === src ? '#60a5fa' : '#94a3b8';
+    btn.style.borderColor = s === src ? 'rgba(96,165,250,.3)' : 'rgba(96,165,250,.15)';
+  });
+  try {
+    const d = await fetch(`/api/zoho/pipeline?source=${src}`).then(r => r.json());
+    if (!d || d.error) return;
+    const k = d.kpis || {};
+    const set = (id, v) => { const e = document.getElementById(id); if (e) { e.textContent = v; e.classList.remove('empty'); } };
+    set('zp-mes',  brl(k.este_mes?.valor));
+    set('zp-lmes', brl(k.ultimo_mes?.valor));
+    set('zp-q',    brl(k.ultimo_q?.valor));
+    set('zp-fy',   brl(k.ultimo_fy?.valor));
+
+    // Top 5 campanhas
+    const camp = (d.por_campanha || []).slice(0, 5);
+    const maxV = Math.max(1, ...camp.map(c => c.total || 0));
+    const rows = document.getElementById('zp-campanha-rows');
+    if (rows && camp.length) {
+      rows.innerHTML = camp.map(c => {
+        const pct = Math.max(4, Math.round((c.total||0)/maxV*100));
+        return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:12px">
+          <span style="flex:1;color:#e2e8f0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.campanha||'—'}</span>
+          <div style="width:80px;height:5px;background:rgba(96,165,250,.1);border-radius:3px">
+            <div style="height:100%;background:#60a5fa;border-radius:3px;width:${pct}%"></div>
+          </div>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#60a5fa;min-width:60px;text-align:right">${brl(c.total)}</span>
+        </div>`;
+      }).join('');
+    }
+
+    const lbl = document.getElementById('zp-sync-lbl');
+    if (lbl) lbl.textContent = `🟢 Zoho · ${d.total_deals||0} deals · sync ${(d.last_sync||'').slice(0,16)||'—'}`;
+  } catch(e) {}
+}
+setZohoSrc('all');
 </script>
 </body>
 </html>

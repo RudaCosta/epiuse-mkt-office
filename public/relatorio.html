@@ -47,25 +47,23 @@
   .rep-controls button.primary { background: var(--accent); color: #0a1525; font-weight: 700; }
   .rep-controls button.primary:hover { background: #93c5fd }
 
-  /* AGENDA */
+  /* AGENDA / NAV STICKY */
   .agenda {
-    display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px;
-    padding: 14px; background: rgba(15,30,53,.4); border:1px solid var(--border);
-    border-radius: 12px; margin-bottom: 24px;
-  }
-  @media (max-width: 1024px) {
-    .agenda { grid-template-columns: repeat(4, 1fr); }
-  }
-  @media (max-width: 640px) {
-    .agenda { grid-template-columns: repeat(2, 1fr); }
+    display: flex; flex-wrap: wrap; gap: 4px;
+    padding: 10px 14px; background: rgba(6,16,32,.85); border:1px solid var(--border);
+    border-bottom: 1px solid rgba(96,165,250,.15);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    position: sticky; top: 60px; z-index: 40;
+    margin-bottom: 24px; border-radius: 10px;
   }
   .agenda-item {
-    display:flex; align-items:center; gap:8px; padding: 8px 12px;
-    background: rgba(96,165,250,.05); border-radius: 6px; font-size: 12px;
-    color: var(--muted); cursor: pointer; transition: all .15s;
+    display:flex; align-items:center; gap:6px; padding: 6px 12px;
+    background: rgba(96,165,250,.05); border-radius: 6px; font-size: 11px;
+    color: var(--muted); cursor: pointer; transition: all .15s; white-space: nowrap;
   }
-  .agenda-item:hover { background: rgba(96,165,250,.15); color: var(--text); transform: translateY(-1px) }
-  .agenda-num { font-family: 'JetBrains Mono', monospace; font-weight:700; color: var(--accent); }
+  .agenda-item:hover { background: rgba(96,165,250,.15); color: var(--text); }
+  .agenda-item.active { background: rgba(96,165,250,.2); color: var(--accent); border: 1px solid rgba(96,165,250,.3); }
+  .agenda-num { font-family: 'JetBrains Mono', monospace; font-weight:700; color: var(--accent); font-size: 10px; }
 
   /* SECTIONS */
   .sec { margin-bottom: 36px; }
@@ -201,8 +199,9 @@
     <div class="agenda-item" onclick="scrollToSec('s3')"><span class="agenda-num">3</span> Conteúdo</div>
     <div class="agenda-item" onclick="scrollToSec('s4')"><span class="agenda-num">4</span> Eventos</div>
     <div class="agenda-item" onclick="scrollToSec('s5')"><span class="agenda-num">5</span> Voices</div>
-    <div class="agenda-item" onclick="scrollToSec('s6')"><span class="agenda-num">6</span> SDR/Pipeline</div>
-    <div class="agenda-item" onclick="scrollToSec('s7')"><span class="agenda-num">7</span> Next Steps</div>
+    <div class="agenda-item" onclick="scrollToSec('s6')"><span class="agenda-num">6</span> Pipeline Zoho</div>
+    <div class="agenda-item" onclick="scrollToSec('s6b')"><span class="agenda-num">6b</span> SDR/Apollo</div>
+    <div class="agenda-item" onclick="scrollToSec('s7')"><span class="agenda-num">7</span> Cases</div>
   </div>
 
   <!-- ALERTAS -->
@@ -298,14 +297,57 @@
     </div>
   </section>
 
-  <!-- 6. SDR/PIPELINE -->
+  <!-- 6. PIPELINE CRM (ZOHO) -->
   <section class="sec" id="s6">
-    <div class="sec-hdr"><div class="sec-num">6</div><div class="sec-title">SDR / Pipeline (Apollo)</div></div>
+    <div class="sec-hdr"><div class="sec-num">6</div><div class="sec-title">Pipeline CRM — Zoho MKT + SDR</div></div>
+
+    <!-- KPI 4 cards -->
+    <div class="kpi-grid" style="margin-bottom:16px" id="zoho-kpi-grid">
+      <div class="kpi-canal" style="border-left:3px solid var(--red)">
+        <h3>Este Mês</h3>
+        <div class="kpi-row"><span class="kpi-label">Pipeline gerado</span><span class="kpi-val" id="zk-mes">—</span></div>
+        <div class="kpi-row"><span class="kpi-label">Deals</span><span class="kpi-val" id="zk-mes-n">—</span></div>
+      </div>
+      <div class="kpi-canal">
+        <h3>Último Mês</h3>
+        <div class="kpi-row"><span class="kpi-label">Pipeline gerado</span><span class="kpi-val" id="zk-lmes">—</span></div>
+        <div class="kpi-row"><span class="kpi-label">Deals</span><span class="kpi-val" id="zk-lmes-n">—</span></div>
+      </div>
+      <div class="kpi-canal">
+        <h3>Último Quarter</h3>
+        <div class="kpi-row"><span class="kpi-label">Pipeline gerado</span><span class="kpi-val" id="zk-q">—</span></div>
+        <div class="kpi-row"><span class="kpi-label">Deals</span><span class="kpi-val" id="zk-q-n">—</span></div>
+      </div>
+      <div class="kpi-canal" style="border-left:3px solid var(--accent)">
+        <h3>Último FY</h3>
+        <div class="kpi-row"><span class="kpi-label">Pipeline gerado</span><span class="kpi-val" id="zk-fy">—</span></div>
+        <div class="kpi-row"><span class="kpi-label">Deals</span><span class="kpi-val" id="zk-fy-n">—</span></div>
+      </div>
+    </div>
+
+    <!-- Top campanhas -->
+    <div class="gen-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+        <h4 style="font-size:12px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin:0">Pipeline por Campanha (Top 8)</h4>
+        <div style="display:flex;gap:6px">
+          <button id="z-src-all" onclick="loadZoho('all')" style="font-size:10px;padding:3px 8px;border-radius:4px;border:1px solid var(--border);background:rgba(96,165,250,.2);color:var(--accent);cursor:pointer">Todos</button>
+          <button id="z-src-mkt" onclick="loadZoho('mkt')" style="font-size:10px;padding:3px 8px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer">MKT</button>
+          <button id="z-src-sdr" onclick="loadZoho('sdr')" style="font-size:10px;padding:3px 8px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer">SDR</button>
+        </div>
+        <a href="/inbound/zoho-pipeline" style="font-size:10px;color:var(--muted);text-decoration:none">Ver dashboard completo →</a>
+      </div>
+      <div id="zoho-campanha-rows"></div>
+      <div style="font-size:10px;color:var(--dim);margin-top:8px" id="zoho-sync-label"></div>
+    </div>
+  </section>
+
+  <!-- 6B. SDR/APOLLO -->
+  <section class="sec" id="s6b">
+    <div class="sec-hdr"><div class="sec-num">6b</div><div class="sec-title">SDR / Prospecção (Apollo)</div></div>
     <div class="gen-card" id="pipeline-card">
       <div class="gen-row"><span class="gen-row-lbl">Contatos na base (Apollo)</span><span class="gen-row-val" id="pl-contatos">—</span></div>
       <div class="gen-row"><span class="gen-row-lbl">Empresas na base</span><span class="gen-row-val" id="pl-empresas">—</span></div>
       <div class="gen-row"><span class="gen-row-lbl">Sequências cadastradas (ativas)</span><span class="gen-row-val" id="pl-seq">—</span></div>
-      <div class="gen-row"><span class="gen-row-lbl">Pipeline R$</span><span class="gen-row-val" style="font-size:11px;color:var(--muted)">⏳ precisa CRM</span></div>
       <div style="font-size:11px;color:var(--muted);margin-top:8px" id="pl-sync"></div>
     </div>
     <script>
@@ -323,14 +365,32 @@
     </script>
   </section>
 
-  <!-- 7. NEXT STEPS / CASES -->
+  <!-- 7. CASES & CS HIGHLIGHTS -->
   <section class="sec" id="s7">
     <div class="sec-hdr"><div class="sec-num">7</div><div class="sec-title">Cases & CS Highlights</div></div>
-    <div class="gen-card" id="cases-card">
-      <div class="gen-row"><span class="gen-row-lbl">Case publicado</span><span class="gen-row-val" id="cs-pub">—</span></div>
-      <div class="gen-row"><span class="gen-row-lbl">Em edição</span><span class="gen-row-val" id="cs-edit">—</span></div>
-      <div class="gen-row"><span class="gen-row-lbl">Em negociação</span><span class="gen-row-val" id="cs-neg">—</span></div>
-      <div class="gen-row"><span class="gen-row-lbl">Declinado</span><span class="gen-row-val" id="cs-dec">—</span></div>
+    <!-- Resumo status -->
+    <div class="kpi-grid" style="margin-bottom:16px">
+      <div class="kpi-canal">
+        <h3>Publicados</h3>
+        <div class="kpi-row"><span class="kpi-label">Cases aprovados</span><span class="kpi-val" id="cs-pub">—</span></div>
+      </div>
+      <div class="kpi-canal">
+        <h3>Em Edição</h3>
+        <div class="kpi-row"><span class="kpi-label">Em produção</span><span class="kpi-val" id="cs-edit">—</span></div>
+      </div>
+      <div class="kpi-canal">
+        <h3>Negociação</h3>
+        <div class="kpi-row"><span class="kpi-label">Aguardando OK</span><span class="kpi-val" id="cs-neg">—</span></div>
+      </div>
+      <div class="kpi-canal">
+        <h3>Declinados</h3>
+        <div class="kpi-row"><span class="kpi-label">Não autorizado</span><span class="kpi-val" id="cs-dec">—</span></div>
+      </div>
+    </div>
+    <!-- Lista de cases -->
+    <div class="gen-card">
+      <h4 style="font-size:12px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px">Accounts no programa</h4>
+      <div id="cases-list-rows"></div>
     </div>
   </section>
 </div>
@@ -410,11 +470,13 @@ async function carregar(mes) {
       <div style="font-family:'JetBrains Mono',monospace; color: var(--accent); margin-top: 4px; font-size:11px">SSI ${v.ssi || '?'} · ${fmt(v.seg)} seg</div>
     </div>`).join('');
 
-  // Cases
-  document.getElementById('cs-pub').textContent = fmt(d.cases.publicado);
-  document.getElementById('cs-edit').textContent = fmt(d.cases.em_edicao);
-  document.getElementById('cs-neg').textContent = fmt(d.cases.negociacao);
-  document.getElementById('cs-dec').textContent = fmt(d.cases.declinado);
+  // Cases — contadores (sumário do snapshot)
+  const cs = d.cases || {};
+  const set2 = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = fmt(v); };
+  set2('cs-pub', cs.publicado);
+  set2('cs-edit', cs.em_edicao);
+  set2('cs-neg', cs.negociacao);
+  set2('cs-dec', cs.declinado);
 }
 
 function renderAlertas(alertas) {
@@ -649,7 +711,90 @@ function exportarPDF() {
   }).from(root).save();
 }
 
+// ── Zoho Pipeline (seção 6) ───────────────────────────────────────────
+function brl(v) {
+  if (!v) return 'R$ 0';
+  if (v >= 1e6) return 'R$ ' + (v/1e6).toFixed(1) + 'M';
+  if (v >= 1e3) return 'R$ ' + (v/1e3).toFixed(0) + 'k';
+  return 'R$ ' + v.toLocaleString('pt-BR');
+}
+
+async function loadZoho(src) {
+  try {
+    // Highlight source button
+    ['all','mkt','sdr'].forEach(s => {
+      const btn = document.getElementById('z-src-'+s);
+      if (btn) btn.style.background = s === src ? 'rgba(96,165,250,.2)' : 'transparent';
+      if (btn) btn.style.color = s === src ? 'var(--accent)' : 'var(--muted)';
+    });
+    const d = await fetch(`/api/zoho/pipeline?source=${src}`).then(r => r.json());
+    if (!d || d.error) { console.warn('Zoho pipeline error:', d?.error); return; }
+    const k = d.kpis || {};
+    const set = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+    set('zk-mes',    brl(k.este_mes?.valor));
+    set('zk-mes-n',  k.este_mes?.count ?? '—');
+    set('zk-lmes',   brl(k.ultimo_mes?.valor));
+    set('zk-lmes-n', k.ultimo_mes?.count ?? '—');
+    set('zk-q',      brl(k.ultimo_q?.valor));
+    set('zk-q-n',    k.ultimo_q?.count ?? '—');
+    set('zk-fy',     brl(k.ultimo_fy?.valor));
+    set('zk-fy-n',   k.ultimo_fy?.count ?? '—');
+
+    // Campanhas top 8
+    const camp = (d.por_campanha || []).slice(0, 8);
+    const maxV = Math.max(1, ...camp.map(c => c.total || 0));
+    const rows = document.getElementById('zoho-campanha-rows');
+    if (rows) {
+      if (!camp.length) { rows.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:8px 0">⏳ Sem dados — rode sync Zoho.</div>'; }
+      else rows.innerHTML = camp.map(c => {
+        const pct = Math.max(4, Math.round((c.total||0)/maxV*100));
+        return `<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px dashed rgba(148,163,184,.08)">
+          <span style="flex:1;font-size:12px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${c.campanha||'—'}">${c.campanha||'—'}</span>
+          <span style="font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;white-space:nowrap">${c.deals||c.count||0} deals</span>
+          <div style="width:100px;height:6px;background:rgba(96,165,250,.1);border-radius:3px;flex-shrink:0">
+            <div style="height:100%;background:var(--accent);border-radius:3px;width:${pct}%"></div>
+          </div>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--accent);white-space:nowrap;min-width:70px;text-align:right">${brl(c.total)}</span>
+        </div>`;
+      }).join('');
+    }
+
+    const lbl = document.getElementById('zoho-sync-label');
+    if (lbl) lbl.textContent = `🟢 Zoho CRM · ${d.total_deals || 0} deals · sync ${(d.last_sync||'').slice(0,16) || '—'}`;
+  } catch(e) { console.warn('loadZoho error:', e); }
+}
+
+// ── Cases lista completa ──────────────────────────────────────────────
+async function loadCasesList() {
+  try {
+    const r = await fetch('/api/cases');
+    const d = await r.json();
+    const items = Array.isArray(d) ? d : (d.clientes || d.items || d.cases || []);
+    const rows = document.getElementById('cases-list-rows');
+    if (!rows) return;
+    if (!items.length) { rows.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:8px 0">⏳ Sem cases sincronizados.</div>'; return; }
+    const STATUS_COLOR = {
+      'publicado':'#10b981','case-publicado':'#10b981',
+      'em_edicao':'#60a5fa','em-edicao':'#60a5fa',
+      'negociacao':'#fbbf24','em-negociacao':'#fbbf24',
+      'declinado':'#ef4444','churn-risk':'#ef4444',
+      'live':'#34d399','onboarding':'#a78bfa',
+    };
+    rows.innerHTML = items.map(c => {
+      const sc = STATUS_COLOR[c.status] || '#94a3b8';
+      return `<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px dashed rgba(148,163,184,.08);font-size:12px">
+        <div style="width:8px;height:8px;border-radius:50%;background:${sc};flex-shrink:0"></div>
+        <span style="flex:1;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${c.conta||c.cliente_nome||'—'}">${c.conta||c.cliente_nome||'—'}</span>
+        <span style="color:var(--muted);font-size:11px;white-space:nowrap">${c.lob||'—'}</span>
+        <span style="font-size:10px;padding:2px 7px;border-radius:10px;background:${sc}22;color:${sc};font-weight:700;white-space:nowrap">${(c.status||'—').replace('_',' ')}</span>
+      </div>`;
+    }).join('');
+  } catch(e) {}
+}
+
 inicializarSelect();
+loadZoho('all');
+loadCasesList();
 </script>
 </body>
 </html>

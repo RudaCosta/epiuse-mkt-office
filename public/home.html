@@ -71,6 +71,17 @@
     </div>
   </section>
 
+  <!-- CALENDÁRIO — próximos itens -->
+  <section class="home-section">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px">
+      <h2 class="home-section-title" style="margin:0">📅 Calendário — próximos itens</h2>
+      <a href="/inbound/calendar" style="font-size:11px;color:var(--dk-text-muted,#94a3b8);text-decoration:none;padding:4px 10px;border:1px solid rgba(96,165,250,.2);border-radius:6px;transition:all .15s" onmouseover="this.style.borderColor='rgba(96,165,250,.5)'" onmouseout="this.style.borderColor='rgba(96,165,250,.2)'">Ver calendário completo →</a>
+    </div>
+    <div id="home-cal-list" style="display:flex;flex-direction:column;gap:6px">
+      <div class="home-empty skel" role="status" aria-busy="true" aria-label="Carregando"></div>
+    </div>
+  </section>
+
   <!-- REAL-TIME CHART PREVIEW (LinkedIn growth trend) -->
   <section class="home-section">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px">
@@ -155,5 +166,38 @@
 <script src="/office-footer.js"></script>
 <script src="/js/home.js"></script>
 <script src="/js/live-charts.js"></script>
+<script>
+// Calendário widget — próximos 8 itens a partir de hoje
+(async function(){
+  const el = document.getElementById('home-cal-list');
+  if (!el) return;
+  try {
+    const today = new Date().toISOString().slice(0,10);
+    const to = new Date(Date.now() + 30*24*3600*1000).toISOString().slice(0,10);
+    const d = await fetch(`/api/inbound/calendar?from=${today}&to=${to}`).then(r=>r.json());
+    const posts = (d.posts||[]).slice(0,8);
+    if (!posts.length) { el.innerHTML = '<div style="font-size:12px;color:#475569;padding:12px 0">Nenhum item agendado para os próximos 30 dias.</div>'; return; }
+    const PILAR_COLORS = { rh:'#2563eb', produto:'#7c3aed', servicenow:'#16a34a', institucional:'#cd1543', blog:'#d97706' };
+    const CANAL_ICONS = { linkedin:'in', blog:'B', email:'@', instagram:'ig', 'evento':'ev' };
+    const fmtDate = iso => {
+      const [y,m,d] = iso.split('-');
+      const DOW = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+      const dow = new Date(`${iso}T12:00:00`).getDay();
+      return `${DOW[dow]} ${parseInt(d)}/${parseInt(m)}`;
+    };
+    el.innerHTML = posts.map(p => {
+      const color = PILAR_COLORS[p.pilar] || '#60a5fa';
+      const icon = CANAL_ICONS[p.canal] || '•';
+      const isToday = p.data === today;
+      return `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:${isToday?'rgba(37,99,235,.12)':'rgba(15,30,53,.4)'};border:1px solid ${isToday?'rgba(96,165,250,.3)':'rgba(96,165,250,.1)'};border-left:3px solid ${color};border-radius:8px;font-size:12px;transition:background .15s" onmouseover="this.style.background='rgba(96,165,250,.08)'" onmouseout="this.style.background='${isToday?'rgba(37,99,235,.12)':'rgba(15,30,53,.4)'}'">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#64748b;white-space:nowrap;min-width:60px">${fmtDate(p.data)}</span>
+        <span style="width:20px;height:20px;border-radius:4px;background:${color}20;color:${color};font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">${icon}</span>
+        <span style="flex:1;color:#cbd5e1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.titulo||'—'}</span>
+        <span style="font-size:10px;color:#475569;white-space:nowrap">${p.autor||''}</span>
+      </div>`;
+    }).join('');
+  } catch(e) { el.innerHTML = '<div style="font-size:12px;color:#475569;padding:12px 0">⏳ Aguarda sync calendário.</div>'; }
+})();
+</script>
 </body>
 </html>
