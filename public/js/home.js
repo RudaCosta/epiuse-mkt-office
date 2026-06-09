@@ -216,29 +216,38 @@
     HCM:'#60a5fa', ERP:'#34d399', Cross:'#c084fc', BTP:'#fb923c', Cloud:'#22d3ee',
     Branding:'#f472b6', Institucional:'#f87171', WFS:'#fbbf24', SN:'#818cf8', BTM:'#2dd4bf'
   };
-  let EV_BR = [], EV_LATAM = [], EV_TAB = 'brasil';
+  // ── AGENDA UNIFICADA (eventos + posts + artigos + MDF/deadlines + ações) ───
+  // Tudo num só lugar, agrupado por mês (layout de cards). Camadas filtráveis.
+  const ANO = new Date().getFullYear();
+  const CAMADAS = [
+    { id:'evento',     label:'🔴 Eventos',        cor:'#cd1543' },
+    { id:'artigo',     label:'📰 Artigos',        cor:'#001844' },
+    { id:'post',       label:'📝 Posts (Duda)',   cor:'#0369a1' },
+    { id:'mdf',        label:'💶 MDF/Deadlines',  cor:'#dc2626' },
+    { id:'data',       label:'🎉 Datas',          cor:'#d97706' },
+  ];
+  let AG_ITEMS = [];                              // itens normalizados
+  let AG_ATIVAS = new Set(CAMADAS.map(c => c.id)); // camadas visíveis
 
-  function evGetActive() {
-    if (EV_TAB === 'brasil') return EV_BR;
-    if (EV_TAB === 'latam') return EV_LATAM;
-    return [...EV_BR, ...EV_LATAM];
-  }
+  function diaFromISO(iso){ const p=String(iso).split('-'); return p[2]?String(parseInt(p[2])):'?'; }
+  function mesFromISO(iso){ const p=String(iso).split('-'); return p[1]?parseInt(p[1]):null; }
 
-  function renderEvtMonth(m, eventos, mode) {
-    const evs = eventos.filter(e => e.m === m).sort((a,b) => String(a.d).localeCompare(String(b.d)));
+  function agGetVisiveis(){ return AG_ITEMS.filter(i => AG_ATIVAS.has(i.camada)); }
+
+  function renderAgMonth(m, items, mode) {
+    const evs = items.filter(e => e.m === m).sort((a,b) => String(a.d).localeCompare(String(b.d), undefined, {numeric:true}));
     const isEmpty = evs.length === 0;
     const cls = mode === 'past' ? 'past' : mode === 'current' ? 'current' : (isEmpty ? 'empty' : '');
     const curBadge = mode === 'current' ? ' <span style="font-size:8px;color:#34d399;background:rgba(16,185,129,.18);padding:3px 5px;border-radius:4px;margin-left:6px;letter-spacing:.1em">AGORA</span>' : '';
-    const countTxt = mode === 'past' ? 'passou' : `${evs.length} ${evs.length === 1 ? 'evento' : 'eventos'}`;
-    let body = isEmpty ? '<div class="home-evt-empty">— sem eventos —</div>' : evs.map(e => {
-      const cor = LOB_CORES[e.lob] || '#94a3b8';
+    const countTxt = mode === 'past' ? 'passou' : `${evs.length} ${evs.length === 1 ? 'item' : 'itens'}`;
+    let body = isEmpty ? '<div class="home-evt-empty">— sem itens —</div>' : evs.map(e => {
       const flag = e.flag ? `<span style="margin-right:4px">${e.flag}</span>` : '';
-      const country = e.country && e.country !== 'BR' ? ` · ${esc(e.country)}` : '';
-      return `<div class="home-evt-item">
+      const tag = e.tag ? `<span class="lob" style="background:${e.cor}22;color:${e.cor}">${esc(e.tag)}</span>` : '';
+      return `<div class="home-evt-item" style="border-left:3px solid ${e.cor};padding-left:8px">
         <div class="home-evt-day">${esc(e.d)}</div>
         <div class="home-evt-info">
-          <div class="nome">${flag}${esc(e.n)}<span class="lob" style="background:${cor}22;color:${cor}">${esc(e.lob||'')}</span></div>
-          <div class="who">${esc(e.who||'')}${country}</div>
+          <div class="nome">${flag}${esc(e.n)}${tag}</div>
+          <div class="who">${esc(e.who||'')}</div>
         </div>
       </div>`;
     }).join('');
@@ -253,38 +262,85 @@
 
   function renderEventos() {
     const grid = $('evt-grid');
-    const evs = evGetActive();
-    $('evt-count').textContent = `${evs.length} eventos`;
+    const items = agGetVisiveis();
+    $('evt-count').textContent = `${items.length} itens`;
     const cur = new Date().getMonth() + 1;
     const start = Math.max(1, cur - 1);
     let html = '';
-    for (let m = start; m <= 12; m++) {
-      html += renderEvtMonth(m, evs, m === cur ? 'current' : 'future');
-    }
+    for (let m = start; m <= 12; m++) html += renderAgMonth(m, items, m === cur ? 'current' : 'future');
     if (start > 1) {
       html += `<div class="home-evt-divider"><span></span><span class="txt">↓ Já passou ↓</span><span></span></div>`;
-      for (let m = 1; m < start; m++) html += renderEvtMonth(m, evs, 'past');
+      for (let m = 1; m < start; m++) html += renderAgMonth(m, items, 'past');
     }
     grid.innerHTML = html;
   }
 
   async function initEventos() {
     try {
-      const r = await fetch('/api/events.json'); const data = await r.json();
-      EV_BR    = (data?.abas?.brasil?.eventos) || data.eventos || [];
-      EV_LATAM = (data?.abas?.latam?.eventos)  || [];
-      // labels
-      document.querySelectorAll('.home-evt-tab').forEach(btn => {
-        const tab = btn.dataset.tab;
-        if (tab === 'brasil') btn.textContent = `🇧🇷 BRASIL (${EV_BR.length})`;
-        else if (tab === 'latam') btn.textContent = `🌎 LATAM (${EV_LATAM.length})`;
-        else btn.textContent = `TODOS (${EV_BR.length + EV_LATAM.length})`;
-        btn.addEventListener('click', () => {
-          EV_TAB = tab;
-          document.querySelectorAll('.home-evt-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
-          renderEventos();
+      const [ev, cal, dl, df, dat] = await Promise.all([
+        fetch('/api/events.json').then(r=>r.json()).catch(()=>({abas:{}})),
+        fetch(`/api/inbound/calendar?from=${ANO}-01-01&to=${ANO}-12-31`).then(r=>r.json()).catch(()=>({posts:[]})),
+        fetch('/api/deadlines-2026.json').then(r=>r.json()).catch(()=>({itens:[]})),
+        fetch('/api/development-funds').then(r=>r.json()).catch(()=>({requests:[]})),
+        fetch('/api/datas-especiais-2026.json').then(r=>r.json()).catch(()=>({itens:[]})),
+      ]);
+      const items = [];
+
+      // 1 — Eventos EPI-USE/SAP (BR + LATAM)
+      for (const aba of Object.values(ev.abas || {})) {
+        for (const e of (aba.eventos || [])) {
+          if (!e.m) continue;
+          items.push({ camada:'evento', m:e.m, d:String(e.d||'TBC'), n:e.n,
+            who:[e.who, e.country&&e.country!=='BR'?e.country:''].filter(Boolean).join(' · '),
+            flag:e.flag||'', tag:e.lob||'', cor: LOB_CORES[e.lob] || '#cd1543' });
+        }
+      }
+      // 2 — Editorial (artigos Redatoria + posts Duda)
+      for (const p of (cal.posts || [])) {
+        const m = mesFromISO(p.data); if (!m) continue;
+        const camada = p.fonte === 'redatoria' ? 'artigo' : 'post';
+        const cor = camada === 'artigo' ? '#001844' : '#0369a1';
+        items.push({ camada, m, d:diaFromISO(p.data), n:p.titulo||'(sem título)',
+          who:[p.autor, p.canal].filter(Boolean).join(' · '), tag:p.pilar||'', cor });
+      }
+      // 3 — Deadlines MDF gerais
+      for (const it of (dl.itens || [])) {
+        const m = mesFromISO(it.data); if (!m) continue;
+        items.push({ camada:'mdf', m, d:diaFromISO(it.data), n:it.nome, who:'deadline SAP', tag:'MDF', cor:'#dc2626' });
+      }
+      // 4 — Claims DF a reclamar (expiração) — só não derrubados, claim pendente
+      for (const r of (df.requests || [])) {
+        if (r.derrubado || (+r.claim||0) > 0 || !r.expiracao) continue;
+        const m = mesFromISO(r.expiracao); if (!m) continue;
+        items.push({ camada:'mdf', m, d:diaFromISO(r.expiracao), n:`💶 Expira claim: ${r.nome}`,
+          who:`€${Number(r.aprovado||0).toLocaleString('pt-BR')} · ${r.status||''}`, tag:'claim', cor:'#dc2626' });
+      }
+      // 5 — Datas comemorativas (só tipo comemorativa/premiacao, não feriado pra não poluir)
+      for (const it of (dat.itens || [])) {
+        if (!it.data) continue;
+        if (!['comemorativa','premiacao','efemeride'].includes(it.tipo)) continue;
+        const m = mesFromISO(it.data); if (!m) continue;
+        items.push({ camada:'data', m, d:diaFromISO(it.data), n:it.nome, who:it.descricao||'', tag:'', cor: it.cor||'#d97706' });
+      }
+
+      AG_ITEMS = items;
+
+      // Filtros por camada (substitui tabs BR/LATAM/TODOS)
+      const tabsEl = $('evt-tabs');
+      if (tabsEl) {
+        const counts = {}; for (const c of CAMADAS) counts[c.id] = items.filter(i=>i.camada===c.id).length;
+        tabsEl.innerHTML = CAMADAS.map(c =>
+          `<button class="home-evt-tab active" data-cam="${c.id}" style="border-color:${c.cor}66">${c.label} (${counts[c.id]})</button>`
+        ).join('');
+        tabsEl.querySelectorAll('.home-evt-tab').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const id = btn.dataset.cam;
+            if (AG_ATIVAS.has(id)) { AG_ATIVAS.delete(id); btn.classList.remove('active'); }
+            else { AG_ATIVAS.add(id); btn.classList.add('active'); }
+            renderEventos();
+          });
         });
-      });
+      }
       renderEventos();
     } catch (e) {
       $('evt-grid').innerHTML = '<div class="home-empty">Falha ao carregar agenda</div>';

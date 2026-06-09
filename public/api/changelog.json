@@ -1,5 +1,5 @@
 {
-  "current": "0.32.1",
+  "current": "0.33.0",
   "atualizado_em": "2026-06-09",
   "next": [
     { "version": "—", "sprint": "PEND-1", "status": "blocked",
@@ -11,12 +11,15 @@
     { "version": "—", "sprint": "PEND-3", "status": "blocked",
       "title": "🟡 Publicação WordPress automática (S31)",
       "summary": "Pipeline de conteúdo (/content-pipeline) entrega tudo até o HTML pronto. Último passo (publicar no blog) segue manual — falta credenciais admin WordPress da EPI-USE com o TI pra automatizar o POST via REST API." },
-    { "version": "0.33.0", "sprint": "S33", "status": "planned",
-      "title": "Calendário — popular layers Redatoria/Duda/Deadlines (aguarda arquivos Rudá)",
-      "summary": "Layers prontos no calendar. Falta popular com: planilha cronograma Redatoria atualizada, planilha posts Duda (redes), lista de ações com prazos. DF/MDF já integrado (v0.32.0)." }
+    { "version": "—", "sprint": "PEND-4", "status": "blocked",
+      "title": "🟡 Popular agenda com planilhas atualizadas",
+      "summary": "Agenda unificada pronta (v0.33.0). Para dados mais frescos, Rudá vai mandar: planilha cronograma Redatoria atualizada + planilha posts Duda (redes) + lista de ações internas com prazos. Estrutura já consome essas fontes." }
   ],
   "releases": [
-    { "version": "0.32.1", "date": "09/jun/2026", "status": "current", "path": null,
+    { "version": "0.33.0", "date": "09/jun/2026", "status": "current", "path": null,
+      "title": "Home: agenda unificada — eventos + posts + artigos + MDF/deadlines + datas em 1 lugar",
+      "summary": "Unificação dos 2 blocos de calendário da home num só, no layout de cards por mês (preferido pelo Rudá). A seção 'Agenda EPI-USE / SAP' agora agrega TODAS as camadas, não só eventos: (1) Eventos EPI-USE/SAP BR+LATAM (events.json), (2) Artigos Redatoria + Posts Duda (/api/inbound/calendar), (3) Deadlines MDF (deadlines-2026.json), (4) Claims DF a reclamar por expiração (/api/development-funds, exclui derrubados), (5) Datas comemorativas/premiações/efemérides. Tabs BR/LATAM/TODOS substituídas por FILTROS DE CAMADA toggláveis (🔴 Eventos · 📰 Artigos · 📝 Posts Duda · 💶 MDF/Deadlines · 🎉 Datas) com contadores. Cada item tem border-color + tag da camada. Agrupamento por mês mantido (mês atual destacado AGORA, passados ao final). Widget duplicado 'Calendário — próximos itens' removido — tudo num só local. Link 'Ver calendário completo' aponta pro /inbound/calendar (visão grade)." },
+    { "version": "0.32.1", "date": "09/jun/2026", "status": "snapshot", "path": null,
       "title": "Resiliência (handlers globais de erro) + War Room repurposed + Zoho fora do menu",
       "summary": "(1) RESILIÊNCIA: adicionados process.on('uncaughtException') + ('unhandledRejection') no server.js — antes qualquer erro async não tratado MATAVA o processo Node → 502 até o Railway reiniciar (janela em que 'as páginas não funcionavam'). Agora um bug pontual numa rota não derruba o app inteiro. Diagnóstico confirmou: páginas /clientes-sap-4me, /field-marketing, /content-pipeline funcionam (18/18 no stress + screenshot) — o 502 era reinício de container por erro não capturado. (2) War Room repurposed: era inbox/outbox de agentes virtuais (quase tudo 0 = inútil). Agora é 'Central — Pendências & Deadlines' lendo dados REAIS: bloqueadas/pendentes de /api/pendencias (12 itens do pendencias.md) + claims DF a reclamar por expiração + meta 70% 1º/jul + go-lives SAP próximos 30d. (3) Pipeline CRM Zoho removido do menu (era réplica do próprio CRM, sem insight novo) — o insight de pipeline gerado por Marketing (MKT vs SDR, R$ por período) permanece na seção 6 do /relatorio, que é o contexto certo. Tela /inbound/zoho-pipeline segue acessível por URL mas fora do menu." },
     { "version": "0.32.0", "date": "09/jun/2026", "status": "snapshot", "path": null,
