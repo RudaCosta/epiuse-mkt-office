@@ -1,5 +1,5 @@
 {
-  "current": "0.31.1",
+  "current": "0.32.0",
   "atualizado_em": "2026-06-09",
   "next": [
     { "version": "—", "sprint": "PEND-1", "status": "blocked",
@@ -11,12 +11,15 @@
     { "version": "—", "sprint": "PEND-3", "status": "blocked",
       "title": "🟡 Publicação WordPress automática (S31)",
       "summary": "Pipeline de conteúdo (/content-pipeline) entrega tudo até o HTML pronto. Último passo (publicar no blog) segue manual — falta credenciais admin WordPress da EPI-USE com o TI pra automatizar o POST via REST API." },
-    { "version": "0.32.0", "sprint": "S32", "status": "planned",
-      "title": "Calendário unificado + layers MDF/Deadlines (aguarda arquivos Rudá)",
-      "summary": "Calendário mestre integra agenda de eventos + artigos Redatoria + posts Duda + datas comemorativas + DEADLINES de ações + DEADLINE de cada MDF aberto. Layers MDF + Deadlines já criados (v0.31.1) com deadlines do email SAP (treinamento 1º/abr, EDF/DDF 1º/jul). Rudá vai mandar: planilha cronograma Redatoria atualizada, planilha posts Duda, lista de MDFs abertos com deadlines, lista de ações com prazos." }
+    { "version": "0.33.0", "sprint": "S33", "status": "planned",
+      "title": "Calendário — popular layers Redatoria/Duda/Deadlines (aguarda arquivos Rudá)",
+      "summary": "Layers prontos no calendar. Falta popular com: planilha cronograma Redatoria atualizada, planilha posts Duda (redes), lista de ações com prazos. DF/MDF já integrado (v0.32.0)." }
   ],
   "releases": [
-    { "version": "0.31.1", "date": "09/jun/2026", "status": "current", "path": null,
+    { "version": "0.32.0", "date": "09/jun/2026", "status": "current", "path": null,
+      "title": "S32 — Development Funds (SAP DF LAC) tracker + deadlines de MDF no calendário",
+      "summary": "Nova tela /development-funds: tracker dos SAP Development Funds (DF LAC 2026), espelho do portal PartnerEdge. public/api/development-funds.json com 18 proposals + 9 requests reais (valores €/R$, status, expirações) + budget (DDF €80k alocado, €15.327 consumido, EDF €406,53) + regras do PDF Entry & Eligibility Criteria May 2026 (training 1º/abr, 100% EDF + 70% DDF até 1º/jul, 80% demand gen / 20% enablement, DDF só Public Cloud, elegibilidade >200k ACV). REGRA-CHAVE: itens com derrubado:true (duplicados/erro) NÃO somam no budget a gastar — 2 derrubados a pedido do Rudá: 5VVWA2SLEO (Digital Demand Gen SEO €7.313,85, duplicado de DNNY18II9C) + 66IJWEAE2B (SAP Sapphire ASUG €4.809,94, engano). GET /api/development-funds agrega: aprovado válido, derrubado total, pendente, total a reclamar, meta 70% (1º/jul), por status, a_reclamar por expiração, expirando 30d. Dashboard: 6 KPIs, barra de progresso DDF rumo à meta 70% (mostra quanto falta), painel 'a reclamar' por expiração (cores urgência), painel 'derrubados' (riscado), tabela 18 proposals, regras DF. Calendário (/inbound/calendar): cada request DF aberto (não derrubado, claim pendente) vira evento no layer MDF na data de expiração do claim. Link no nav." },
+    { "version": "0.31.1", "date": "09/jun/2026", "status": "snapshot", "path": null,
       "title": "Calendário: layers MDF + Deadlines · diagnóstico de persistência no /api/version",
       "summary": "Calendário mestre (/inbound/calendar) ganhou 2 layers no topo: MDF/Dev Funds (vermelho) e Deadlines de ações (rosa), além de reordenar layers por prioridade de negócio (MDF · Deadlines · Eventos EPI-USE/SAP · Artigos Redatoria · Posts Redes Duda · Datas Comemorativas · Feriados · Copa · Efemérides · Premiações). Novo public/api/deadlines-2026.json populado com deadlines reais do email SAP Partner Marketing LAC (11/03/2026): treinamento obrigatório 1º/abr, 100% EDF + 70% DDF até 1º/jul (EDF €406,53 · DDF €80.000), abrir proposals H2. /api/version agora expõe bloco persistencia (db_path, data_dir, volume_ativo, status) para diagnosticar D1 (Railway volume). Aguardando arquivos do Rudá (planilhas Redatoria/Duda atualizadas + lista MDFs abertos + ações com prazos) para popular os layers — S32." },
     { "version": "0.31.0", "date": "09/jun/2026", "status": "snapshot", "path": null,

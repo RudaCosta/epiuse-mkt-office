@@ -8,7 +8,7 @@
 // Fonte ÚNICA da verdade: public/api/changelog.json#current via /api/version
 // Fallback hardcoded usado SÓ se fetch falhar (offline, etc).
 // Sincronização automática — não editar manualmente, basta bumpar changelog.json.
-let OFFICE_NAV_VERSION = '0.31.1';
+let OFFICE_NAV_VERSION = '0.32.0';
 // Promise compartilhada — nav + footer reaproveitam o mesmo fetch
 window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/version')
   .then(r => r.ok ? r.json() : null)
@@ -105,6 +105,7 @@ const OFFICE_NAV_OVERFLOW = [
   { section: '📊 Reports & Análises' },
   { label: '📈 Relatório Mensal',        href: '/relatorio' },
   { label: '💰 Pipeline CRM (Zoho)',     href: '/inbound/zoho-pipeline' },
+  { label: '💶 Development Funds (SAP)',  href: '/development-funds' },
   { label: '🌐 Clientes SAP 4 ME',       href: '/clientes-sap-4me' },
   { label: '📣 Field Marketing',         href: '/field-marketing' },
   { label: '✍️ Pipeline de Conteúdo',     href: '/content-pipeline' },

@@ -1200,6 +1200,7 @@ app.get('/inbound/zoho-pipeline', (req, res) => res.sendFile(path.join(INBOUND_D
 app.get('/clientes-sap-4me', (req, res) => res.sendFile(path.join(__dirname, 'public/clientes-sap-4me.html')));
 app.get('/field-marketing', (req, res) => res.sendFile(path.join(__dirname, 'public/field-marketing.html')));
 app.get('/content-pipeline', (req, res) => res.sendFile(path.join(__dirname, 'public/content-pipeline.html')));
+app.get('/development-funds', (req, res) => res.sendFile(path.join(__dirname, 'public/development-funds.html')));
 
 // ── INBOUND CALENDAR API (sprint 0.4.0) ─────────────────────────────────────
 // GET retorna posts agendados; POST faz upsert (usado pelo frontend e pelo cron de sync)
@@ -1765,6 +1766,68 @@ app.post('/api/content/import-redatoria', requireEditorToken, (req, res) => {
     })();
     res.json({ success: true, importados: n, total_redatoria: posts.length });
   } catch (e) { res.status(500).json({ success: false, error: e.message }); }
+});
+
+// ── DEVELOPMENT FUNDS (SAP DF LAC) — tracker EDF/DDF + proposals + requests ──
+app.get('/api/development-funds', (req, res) => {
+  try {
+    const df = JSON.parse(fs0.readFileSync(path.join(__dirname, 'public/api/development-funds.json'), 'utf8'));
+    const props = df.proposals || [];
+    const reqs = df.requests || [];
+
+    const isAprov = s => /approved/i.test(s || '');
+    const propsValidos = props.filter(p => !p.derrubado);
+    const propsDerrubados = props.filter(p => p.derrubado);
+
+    // Pipeline de proposals por status
+    const porStatus = {};
+    for (const p of props) porStatus[p.status] = (porStatus[p.status] || 0) + 1;
+
+    // Valor aprovado (€) — só proposals aprovadas e NÃO derrubadas
+    const aprovadoValido = propsValidos.filter(p => isAprov(p.status)).reduce((s, p) => s + (+p.pc || 0), 0);
+    const derrubadoTotal = propsDerrubados.reduce((s, p) => s + (+p.pc || 0), 0);
+    // Em andamento (pending) — potencial
+    const pendente = props.filter(p => /pending/i.test(p.status)).reduce((s, p) => s + (+p.pc || 0), 0);
+
+    // Requests: a reclamar (válidos, claim=0, Claim Now) ordenados por expiração
+    const reqsValidos = reqs.filter(r => !r.derrubado);
+    const aReclamar = reqsValidos
+      .filter(r => (+r.claim || 0) === 0 && /claim now/i.test(r.status))
+      .sort((a, b) => (a.expiracao || '').localeCompare(b.expiracao || ''));
+    const totalAReclamar = aReclamar.reduce((s, r) => s + (+r.aprovado || 0), 0);
+    const totalClaimed = reqs.reduce((s, r) => s + (+r.claim || 0), 0);
+
+    // Regra DDF: meta 70% até 1º/jul
+    const ddf = df.budget?.ddf_alocado || 0;
+    const meta70 = +(ddf * 0.7).toFixed(2);
+    const hoje = new Date().toISOString().slice(0, 10);
+    const em30 = new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10);
+    const expirandoEm30 = reqsValidos.filter(r => r.expiracao && r.expiracao >= hoje && r.expiracao <= em30 && (+r.claim || 0) === 0);
+
+    res.json({
+      programa: df.programa, periodo: df.periodo, budget: df.budget, regras: df.regras,
+      kpis: {
+        ddf_alocado: ddf,
+        ddf_consumido: df.budget?.ddf_consumido || 0,
+        meta_70pct_1jul: meta70,
+        aprovado_valido: +aprovadoValido.toFixed(2),
+        derrubado_total: +derrubadoTotal.toFixed(2),
+        pendente: +pendente.toFixed(2),
+        total_a_reclamar: +totalAReclamar.toFixed(2),
+        total_claimed: +totalClaimed.toFixed(2),
+        proposals_total: props.length,
+        proposals_derrubadas: propsDerrubados.length,
+        requests_expirando_30d: expirandoEm30.length,
+      },
+      por_status: porStatus,
+      a_reclamar: aReclamar,
+      expirando_30d: expirandoEm30,
+      proposals: props,
+      requests: reqs,
+      derrubados: propsDerrubados.map(p => ({ numero: p.numero, nome: p.nome, pc: p.pc, motivo: p.motivo_derrubada })),
+      atualizado_em: df.atualizado_em,
+    });
+  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 // ── /api/alerts: feed unificado pro sino de notificação do office-nav ──

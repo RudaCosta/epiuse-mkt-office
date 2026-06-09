@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Development Funds (SAP) · EPI-USE Office</title>
+<link rel="stylesheet" href="/design-tokens.css">
+<script type="module" src="/office-nav.js"></script>
+<script type="module" src="/office-footer.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0 }
+:root {
+  --bg:#061020; --card:#0f1e35; --border:rgba(96,165,250,.15);
+  --text:#e2e8f0; --dim:#94a3b8; --muted:#64748b;
+  --accent:#60a5fa; --navy:#001844; --red:#cd1543;
+  --green:#10b981; --yellow:#fbbf24; --purple:#a78bfa; --orange:#ea580c;
+}
+body { background:linear-gradient(180deg,#061020 0%,#0a1525 100%); color:var(--text); font-family:'Inter',sans-serif; min-height:100vh; padding-bottom:60px }
+.container { max-width:1320px; margin:0 auto; padding:24px }
+.hdr { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-bottom:14px }
+.hdr h1 { font-size:24px; font-weight:700 }
+.hdr .sub { color:var(--dim); font-size:13px; margin-top:4px }
+.btn { background:rgba(96,165,250,.10); border:1px solid rgba(96,165,250,.30); color:var(--accent); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:12px; cursor:pointer; text-decoration:none; display:inline-block }
+.btn:hover { background:rgba(96,165,250,.2) }
+.flag { font-size:11px; color:var(--yellow); background:rgba(251,191,36,.08); border:1px solid rgba(251,191,36,.25); border-radius:8px; padding:8px 12px; margin-bottom:16px; line-height:1.5 }
+
+.kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px; margin-bottom:18px }
+.kpi { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px }
+.kpi-val { font-size:24px; font-weight:800; font-family:'JetBrains Mono',monospace; line-height:1 }
+.kpi-lbl { font-size:10px; color:var(--dim); letter-spacing:.06em; text-transform:uppercase; margin-top:8px }
+.kpi-extra { font-size:10px; color:var(--muted); margin-top:5px; font-family:'JetBrains Mono',monospace }
+
+/* PROGRESS DDF */
+.prog-wrap { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:18px; margin-bottom:18px }
+.prog-wrap h2 { font-size:12px; color:var(--dim); letter-spacing:.08em; text-transform:uppercase; margin-bottom:12px }
+.prog-bar { height:26px; background:rgba(96,165,250,.08); border-radius:8px; overflow:hidden; position:relative; margin-bottom:8px }
+.prog-fill { height:100%; background:linear-gradient(90deg,#10b981,#34d399); display:flex; align-items:center; padding-left:10px; font-size:11px; font-weight:700; color:#04241a; white-space:nowrap }
+.prog-meta { position:absolute; top:0; bottom:0; border-left:2px dashed var(--yellow); }
+.prog-meta-lbl { position:absolute; top:-2px; font-size:9px; color:var(--yellow); transform:translateX(4px) }
+.prog-legend { display:flex; justify-content:space-between; font-size:11px; color:var(--muted) }
+
+.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:18px }
+@media (max-width:900px){ .grid-2{ grid-template-columns:1fr } }
+.panel { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px }
+.panel h2 { font-size:12px; color:var(--dim); letter-spacing:.08em; text-transform:uppercase; margin-bottom:12px }
+
+.derr { background:rgba(239,68,68,.06); border:1px solid rgba(239,68,68,.25) }
+.derr h2 { color:#fca5a5 }
+.derr-row { display:flex; align-items:center; gap:10px; padding:7px 0; font-size:12px; border-bottom:1px dashed rgba(239,68,68,.12) }
+.derr-row:last-child { border-bottom:0 }
+.derr-num { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted); min-width:88px }
+.derr-nome { flex:1; color:var(--dim); overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+.derr-val { font-family:'JetBrains Mono',monospace; color:#fca5a5; font-weight:700; text-decoration:line-through }
+
+.clm-row { display:flex; align-items:center; gap:10px; padding:8px 0; font-size:12px; border-bottom:1px dashed rgba(148,163,184,.08) }
+.clm-row:last-child { border-bottom:0 }
+.clm-exp { font-family:'JetBrains Mono',monospace; font-size:10px; white-space:nowrap; min-width:84px }
+.exp-urgent { color:#fca5a5 } .exp-soon { color:var(--yellow) } .exp-ok { color:var(--muted) }
+.clm-nome { flex:1; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+.clm-val { font-family:'JetBrains Mono',monospace; color:var(--green); font-weight:700; min-width:72px; text-align:right }
+
+table { width:100%; border-collapse:collapse; font-size:12px }
+th { text-align:left; padding:9px 12px; font-size:10px; letter-spacing:.05em; color:var(--muted); text-transform:uppercase; border-bottom:1px solid var(--border); background:rgba(96,165,250,.03) }
+td { padding:8px 12px; color:var(--dim); border-bottom:1px solid rgba(148,163,184,.06) }
+tr:hover td { background:rgba(96,165,250,.04) }
+tr.is-derr td { opacity:.5 }
+.st { font-size:10px; padding:2px 8px; border-radius:10px; font-weight:700; white-space:nowrap }
+.st-approved { background:rgba(16,185,129,.12); color:var(--green) }
+.st-rejected { background:rgba(239,68,68,.12); color:#fca5a5 }
+.st-pending { background:rgba(251,191,36,.12); color:var(--yellow) }
+.st-draft { background:rgba(100,116,139,.15); color:var(--dim) }
+.st-derr { background:rgba(239,68,68,.18); color:#fca5a5 }
+.rules-list { font-size:11px; color:var(--dim); line-height:1.7 }
+.rules-list b { color:var(--text) }
+.tbl-wrap { background:var(--card); border:1px solid var(--border); border-radius:14px; overflow-x:auto }
+.loading { text-align:center; padding:50px; color:var(--muted); font-size:13px }
+</style>
+</head>
+<body data-route="development-funds">
+<office-nav></office-nav>
+
+<div class="container">
+  <div class="hdr">
+    <div>
+      <h1>💶 Development Funds · SAP DF LAC 2026</h1>
+      <div class="sub">EDF + DDF · proposals · requests a reclamar · <span id="periodo-lbl">—</span></div>
+    </div>
+    <a class="btn" href="/inbound/calendar">📅 Deadlines no calendário</a>
+  </div>
+
+  <div class="flag">
+    🟢 <b>Dado real</b> — espelho do portal SAP PartnerEdge (DF LAC 2026). 🔴 Itens <b>derrubados</b> (duplicados/erro) NÃO contam no que precisamos gastar. Atualizar conforme o portal — <code>public/api/development-funds.json</code>.
+  </div>
+
+  <div id="content"><div class="loading">Carregando Development Funds…</div></div>
+</div>
+
+<office-footer></office-footer>
+<script>
+function brl(v,c){ c=c||'€'; if(v==null)return c+'0'; return c+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function stCls(s){s=(s||'').toLowerCase(); if(s.includes('approv'))return'st-approved'; if(s.includes('reject'))return'st-rejected'; if(s.includes('pending'))return'st-pending'; return'st-draft';}
+
+async function load() {
+  let d;
+  try { d = await fetch('/api/development-funds').then(r=>r.json()); }
+  catch(e){ document.getElementById('content').innerHTML='<div class="loading" style="color:#fca5a5">Erro: '+e.message+'</div>'; return; }
+  document.getElementById('periodo-lbl').textContent = `${d.periodo.inicio} → ${d.periodo.fim}`;
+  const k = d.kpis, b = d.budget;
+
+  // Progresso DDF rumo aos 70% (1 jul) e 100%
+  const consumidoPctReal = b.ddf_alocado ? (k.ddf_consumido / b.ddf_alocado * 100) : 0;
+  const aprovValidoPct = b.ddf_alocado ? (k.aprovado_valido / b.ddf_alocado * 100) : 0;
+
+  const hoje = new Date().toISOString().slice(0,10);
+  const expCls = e => e<hoje?'exp-urgent':(e<=new Date(Date.now()+45*864e5).toISOString().slice(0,10)?'exp-soon':'exp-ok');
+
+  document.getElementById('content').innerHTML = `
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi-val" style="color:var(--accent)">${brl(b.ddf_alocado)}</div><div class="kpi-lbl">DDF alocado 2026</div><div class="kpi-extra">+ EDF ${brl(b.edf_total)}</div></div>
+      <div class="kpi"><div class="kpi-val" style="color:var(--green)">${brl(k.aprovado_valido)}</div><div class="kpi-lbl">Aprovado válido</div><div class="kpi-extra">${aprovValidoPct.toFixed(0)}% do DDF</div></div>
+      <div class="kpi" style="border-left:3px solid var(--red)"><div class="kpi-val" style="color:#fca5a5">${brl(k.derrubado_total)}</div><div class="kpi-lbl">Derrubado (não conta)</div><div class="kpi-extra">${k.proposals_derrubadas} itens</div></div>
+      <div class="kpi" style="border-left:3px solid var(--yellow)"><div class="kpi-val" style="color:var(--yellow)">${brl(k.pendente)}</div><div class="kpi-lbl">Pendente (potencial)</div><div class="kpi-extra">pending approval/info</div></div>
+      <div class="kpi" style="border-left:3px solid var(--green)"><div class="kpi-val" style="color:var(--green)">${brl(k.total_a_reclamar)}</div><div class="kpi-lbl">A reclamar (claim)</div><div class="kpi-extra">${k.requests_expirando_30d} expiram em 30d</div></div>
+      <div class="kpi"><div class="kpi-val" style="color:var(--purple);font-size:18px">${brl(k.meta_70pct_1jul)}</div><div class="kpi-lbl">Meta 70% (1º jul)</div><div class="kpi-extra">EDF 100% + DDF 70%</div></div>
+    </div>
+
+    <div class="prog-wrap">
+      <h2>📊 Consumo DDF rumo à meta — ${brl(b.ddf_alocado)} alocado</h2>
+      <div class="prog-bar">
+        <div class="prog-fill" style="width:${Math.min(100,aprovValidoPct).toFixed(1)}%">${brl(k.aprovado_valido)} aprovado (${aprovValidoPct.toFixed(0)}%)</div>
+        <div class="prog-meta" style="left:70%"><span class="prog-meta-lbl">meta 70% · 1º jul</span></div>
+      </div>
+      <div class="prog-legend"><span>0</span><span style="color:var(--yellow)">⚠️ falta ${brl(Math.max(0,k.meta_70pct_1jul-k.aprovado_valido))} pra 70% até 1º/jul</span><span>${brl(b.ddf_alocado)}</span></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <h2>🎯 A reclamar (Claim Now) — por expiração</h2>
+        ${d.a_reclamar.length ? d.a_reclamar.map(r=>`
+          <div class="clm-row">
+            <span class="clm-exp ${expCls(r.expiracao)}">⏳ ${r.expiracao}</span>
+            <span class="clm-nome" title="${esc(r.nome)} · ${esc(r.atividade)}">${esc(r.nome)}</span>
+            <span class="clm-val">${brl(r.aprovado)}</span>
+          </div>`).join('') : '<div style="color:var(--muted);font-size:12px">Nada a reclamar.</div>'}
+      </div>
+      <div class="panel derr">
+        <h2>🔴 Derrubados — não somam no budget a gastar</h2>
+        ${d.derrubados.length ? d.derrubados.map(x=>`
+          <div class="derr-row">
+            <span class="derr-num">${x.numero}</span>
+            <span class="derr-nome" title="${esc(x.motivo||'')}">${esc(x.nome)}</span>
+            <span class="derr-val">${brl(x.pc)}</span>
+          </div>`).join('') : '<div style="color:var(--muted);font-size:12px">Nenhum item derrubado.</div>'}
+        <div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.5">Motivos: ${d.derrubados.map(x=>esc(x.motivo||'—')).join(' · ')}</div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-bottom:18px">
+      <h2>📋 Proposals (${d.proposals.length}) — ${Object.entries(d.por_status).map(([s,n])=>`${s}: ${n}`).join(' · ')}</h2>
+      <div class="tbl-wrap" style="border:none">
+        <table>
+          <thead><tr><th>Número</th><th>Nome</th><th>Submetido</th><th>Valor (€)</th><th>Valor (R$)</th><th>Status</th></tr></thead>
+          <tbody>${d.proposals.map(p=>`
+            <tr class="${p.derrubado?'is-derr':''}">
+              <td style="font-family:'JetBrains Mono',monospace;font-size:11px">${p.numero}</td>
+              <td style="color:var(--text)">${esc(p.nome)}${p.derrubado?' <span class="st st-derr">derrubado</span>':''}</td>
+              <td style="font-size:11px">${p.submetido||'—'}</td>
+              <td style="font-family:'JetBrains Mono',monospace">${brl(p.pc)}</td>
+              <td style="font-family:'JetBrains Mono',monospace;color:var(--muted)">${brl(p.lc,'R$')}</td>
+              <td><span class="st ${stCls(p.status)}">${esc(p.status)}</span></td>
+            </tr>`).join('')}</tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>📜 Regras DF/DDF (SAP · May 2026)</h2>
+      <div class="rules-list">
+        <b>Deadlines:</b> Treinamento obrigatório <b>1º/abr</b> · 100% EDF + 70% DDF (com proposals) <b>1º/jul</b>.<br>
+        <b>Direcionamento:</b> ${esc(d.regras.direcionamento)}.<br>
+        <b>Cloud:</b> ${esc(d.regras.cloud)}<br>
+        <b>Elegibilidade DDF:</b> ${esc(d.regras.ddf_eligibility)}.<br>
+        <b>Entry:</b> ${(d.regras.entry||[]).join(' · ')}.
+      </div>
+    </div>
+  `;
+}
+load();
+</script>
+</body>
+</html>

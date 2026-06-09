@@ -235,11 +235,12 @@ async function loadAllData() {
   showLoadingBar();
   const year = state.year;
 
-  const [especiais, eventsRaw, editorial, deadlines] = await Promise.all([
+  const [especiais, eventsRaw, editorial, deadlines, df] = await Promise.all([
     fetch('/api/datas-especiais-2026.json').then(r=>r.json()).catch(()=>({itens:[]})),
     fetch('/api/events.json').then(r=>r.json()).catch(()=>({abas:{}})),
     fetch(`/api/inbound/calendar?from=${year}-01-01&to=${year}-12-31`).then(r=>r.json()).catch(()=>({posts:[]})),
     fetch('/api/deadlines-2026.json').then(r=>r.json()).catch(()=>({itens:[]})),
+    fetch('/api/development-funds').then(r=>r.json()).catch(()=>({requests:[]})),
   ]);
 
   state.dayMap = {};
@@ -271,6 +272,20 @@ async function loadAllData() {
       nome: item.nome,
       desc: item.descricao || '',
       color: item.cor || '#dc2626',
+    });
+  }
+
+  // 1c — Expiração de cada request DF aberto (não derrubado, claim pendente) → layer mdf
+  for (const r of (df.requests || [])) {
+    if (!r.expiracao || r.derrubado) continue;
+    if ((+r.claim || 0) > 0) continue; // já reclamado
+    addToMap(r.expiracao, {
+      id: `df-${r.fund_request || r.proposta}`,
+      data: r.expiracao,
+      layerId: 'mdf',
+      nome: `💶 Expira claim: ${r.nome}`,
+      desc: `${r.atividade} · ${r.categoria} · €${Number(r.aprovado||0).toLocaleString('pt-BR')} · status ${r.status}`,
+      color: '#dc2626',
     });
   }
 

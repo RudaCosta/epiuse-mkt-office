@@ -1,0 +1,56 @@
+{
+  "_obs": "Tracker SAP Development Funds (DF LAC 2026). Fonte: portal SAP PartnerEdge (prints 09/jun) + email SAP Partner Marketing LAC + PDF Entry & Eligibility Criteria May 2026. Atualizar manualmente conforme portal (sem API SAP). Itens com derrubado:true NÃO contam no budget a gastar (duplicados/erro).",
+  "atualizado_em": "2026-06-09",
+  "programa": "DF LAC - 2026",
+  "periodo": { "inicio": "2026-01-01", "fim": "2026-12-31" },
+  "budget": {
+    "edf_total": 406.53,
+    "edf_consumido": 406.53,
+    "ddf_alocado": 80000.00,
+    "ddf_consumido": 15327.56,
+    "approved_requests": 85966.85,
+    "approved_claims": 300.00,
+    "available_budget": 0.05,
+    "moeda": "EUR"
+  },
+  "regras": {
+    "deadline_treinamento": "2026-04-01",
+    "deadline_edf_ddf": "2026-07-01",
+    "regra_edf_ddf": "Até 1º/jul: 100% EDF consumido + 70% DDF alocado, ambos com proposals criadas/aprovadas.",
+    "direcionamento": "80% geração de demanda / 20% enablement",
+    "cloud": "DDF só aprova atividades 100% Public Cloud (Private Cloud só via EDF).",
+    "entry": ["Partner Sell/Run/Build", "Operational", "Due Diligence L2+", "2 compliance consultants (PE Sell)", "Business Plan aprovado", "DF Training obrigatório (1º/abr)"],
+    "ddf_eligibility": ">200k ACV Corporate OU >100k PLT (opted-in) · 12m perf Dez24-Nov25 · foco Public Cloud"
+  },
+  "proposals": [
+    { "numero": "L6SS6OL08S", "nome": "BTP Experience 2026", "lc": 0, "pc": 0, "status": "Draft" },
+    { "numero": "I2XJCMZTM3", "nome": "Dev4S4 with Joule – S/4HANA Cloud ABAP Boot Camp (Virtual)", "lc": 0, "pc": 0, "status": "Draft" },
+    { "numero": "ODCUPY0ZHP", "nome": "SAP Partner Summit 2026", "lc": 0, "pc": 0, "status": "Draft" },
+    { "numero": "MV402CCE1N", "nome": "SAP Partner Summit 2026", "lc": 0, "pc": 0, "status": "Draft" },
+    { "numero": "7HSYD06TVN", "nome": "SAP Inside Track Goiânia", "submetido": "2026-05-06", "decidido": "2026-05-07", "lc": 21000, "pc": 3413.13, "status": "Approved" },
+    { "numero": "X4HANKAVMG", "nome": "Certificações Dev Joule for ABAP Cloud", "submetido": "2026-02-05", "decidido": "2026-02-06", "lc": 1880.14, "pc": 300, "status": "Approved" },
+    { "numero": "DNNY18II9C", "nome": "Digital Demand Generation & SEO Optimization Campaign - SAP Cloud Solutions", "submetido": "2026-05-14", "decidido": "2026-05-22", "lc": 58831, "pc": 10000.09, "status": "Approved" },
+    { "numero": "GLNBFUI8Y3", "nome": "BTP Experience 2026", "submetido": "2026-01-28", "decidido": "2026-02-02", "lc": 45000, "pc": 7052.40, "status": "Approved" },
+    { "numero": "5VVWA2SLEO", "nome": "Digital Demand Generation & SEO Optimization Campaign - SAP Cloud Solutions", "submetido": "2026-03-24", "decidido": "2026-04-02", "lc": 45000, "pc": 7313.85, "status": "Approved", "derrubado": true, "motivo_derrubada": "Duplicado de DNNY18II9C (mesma campanha) — solicitado por engano" },
+    { "numero": "66IJWEAE2B", "nome": "SAP Sapphire & ASUG Annual Conference Orlando", "submetido": "2026-04-29", "decidido": "2026-05-11", "lc": 29100, "pc": 4809.94, "status": "Approved", "derrubado": true, "motivo_derrubada": "Solicitado por engano — não vamos consumir" },
+    { "numero": "7ST440SX5Y", "nome": "HR Connect Brasil 2026", "submetido": "2026-02-23", "decidido": "2026-02-26", "lc": 45000, "pc": 7180.20, "status": "Approved" },
+    { "numero": "LKOF9KV9J2", "nome": "SAP NOW 2026", "submetido": "2026-03-24", "decidido": "2026-04-07", "lc": 275000, "pc": 44695.75, "status": "Approved" },
+    { "numero": "TOOW6SOB1Z", "nome": "SAP Partner Summit 2026", "submetido": "2026-02-27", "decidido": "2026-03-02", "lc": 7530, "pc": 1201.49, "status": "Approved" },
+    { "numero": "9KCATQFWM7", "nome": "Safari Tech 2026", "submetido": "2026-03-24", "decidido": "2026-04-01", "lc": 200000, "pc": 32506, "status": "Rejected" },
+    { "numero": "HGBPJTIFZ8", "nome": "CIO Meeting 2026", "submetido": "2026-03-24", "decidido": "2026-03-31", "lc": 85000, "pc": 13815.05, "status": "Rejected" },
+    { "numero": "GQ5KIP0ZDJ", "nome": "CIO Cerrado Experience 2026", "submetido": "2026-06-02", "lc": 139930.50, "pc": 24044.26, "status": "Pending Approval" },
+    { "numero": "MVY6KAN6VM", "nome": "CIO CERRADO 2026", "submetido": "2026-03-24", "lc": 160000, "pc": 26004.80, "status": "Pending Information" },
+    { "numero": "LHPW7BYRE3", "nome": "CIO Cerrado - Jantar de negócio", "submetido": "2026-03-24", "lc": 24000, "pc": 3900.72, "status": "Pending Information" }
+  ],
+  "requests": [
+    { "proposta": "DNNY18II9C", "nome": "DNNY18II9C - Demand Service", "fund_request": "RWTQ6IUH4G1", "atividade": "Digital Campaign execution services", "categoria": "Demand Generation", "pc": 10000.09, "aprovado": 10000.09, "claim": 0, "expiracao": "2026-10-28", "status": "Claim Now" },
+    { "proposta": "66IJWEAE2B", "nome": "66IJWEAE2B - Event", "fund_request": "BDWYBLZV9NJ", "atividade": "Registration/SAP Led tickets", "categoria": "Demand Generation", "pc": 4809.94, "aprovado": 4809.94, "claim": 0, "expiracao": "2026-08-11", "status": "Claim Now", "derrubado": true },
+    { "proposta": "7HSYD06TVN", "nome": "7HSYD06TVN - Event", "fund_request": "LIWD48XNZGF", "atividade": "Third Party Event (Industry, Tech Conference, Ignite, Invent, etc.)", "categoria": "Demand Generation", "pc": 3413.13, "aprovado": 3413.13, "claim": 0, "expiracao": "2026-08-15", "status": "Claim Now" },
+    { "proposta": "LKOF9KV9J2", "nome": "LKOF9KV9J2 - Event", "fund_request": "QDKWJQTC1GI", "atividade": "Physical Events (SAP Led) - Sponsorship", "categoria": "Demand Generation", "pc": 44695.75, "aprovado": 44695.75, "claim": 0, "expiracao": "2026-12-09", "status": "Claim Now" },
+    { "proposta": "5VVWA2SLEO", "nome": "5VVWA2SLEO - Demand Service", "fund_request": "5ZU3CHSOMQF", "atividade": "Digital Campaign execution services", "categoria": "Demand Generation", "pc": 7313.85, "aprovado": 7313.85, "claim": 0, "expiracao": "2026-09-28", "status": "Claim Now", "derrubado": true },
+    { "proposta": "TOOW6SOB1Z", "nome": "TOOW6SOB1Z - Event", "fund_request": "5EHKVJTZTAU", "atividade": "Registration/SAP Led tickets", "categoria": "Demand Generation", "pc": 1201.49, "aprovado": 1201.49, "claim": 0, "expiracao": "2026-06-16", "status": "Pending Approval" },
+    { "proposta": "7ST440SX5Y", "nome": "7ST440SX5Y - Event", "fund_request": "AMCZCV9B3SP", "atividade": "Physical Events (SAP Led) - Sponsorship", "categoria": "Demand Generation", "pc": 7180.20, "aprovado": 7180.20, "claim": 0, "expiracao": "2026-06-15", "status": "Pending Approval" },
+    { "proposta": "X4HANKAVMG", "nome": "X4HANKAVMG - Direct Pay", "fund_request": "YCZJ71KWG4A", "atividade": "Direct Pay", "categoria": "Partner Benefits Catalogue - Direct Pay Proposal", "pc": 300, "aprovado": 300, "claim": 300, "expiracao": "2026-05-13", "status": "Approved" },
+    { "proposta": "GLNBFUI8Y3", "nome": "GLNBFUI8Y3 - Event", "fund_request": "M5OLHNVJUPD", "atividade": "Physical Events (SAP Led) - Sponsorship", "categoria": "Demand Generation", "pc": 7052.40, "aprovado": 7052.40, "claim": 0, "expiracao": "2026-06-03", "status": "Pending Approval" }
+  ]
+}
