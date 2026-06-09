@@ -175,7 +175,8 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_zoho_campanha ON zoho_deals(campanha);
 
   CREATE TABLE IF NOT EXISTS clientes_sap_4me (
-    projeto_id       TEXT PRIMARY KEY,
+    pkg_id           TEXT PRIMARY KEY,
+    projeto_id       TEXT,
     conta_parceiro   TEXT,
     nome_cliente     TEXT,
     pais             TEXT,
@@ -194,6 +195,30 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_sap4me_etapa ON clientes_sap_4me(etapa);
   CREATE INDEX IF NOT EXISTS idx_sap4me_area  ON clientes_sap_4me(area_subsolucao);
 `);
+
+// Migração clientes_sap_4me: PK antiga era projeto_id (não-único → colapsava 705→500
+// pacotes). Agora pkg_id (id-pacote). Dado é espelho re-sincronizável → drop+recreate.
+(function migrateSap4me() {
+  try {
+    const cols = db.prepare("PRAGMA table_info(clientes_sap_4me)").all();
+    const hasPkgId = cols.some(c => c.name === 'pkg_id');
+    if (!hasPkgId) {
+      db.exec('DROP TABLE IF EXISTS clientes_sap_4me');
+      db.exec(`
+        CREATE TABLE clientes_sap_4me (
+          pkg_id TEXT PRIMARY KEY, projeto_id TEXT, conta_parceiro TEXT, nome_cliente TEXT,
+          pais TEXT, area_subsolucao TEXT, pacotes TEXT, escopo_pacote TEXT, etapa TEXT,
+          data_kickoff TEXT, golive_planejado TEXT, golive_confirmado TEXT,
+          relevante_nivel TEXT, gerente_projeto TEXT, synced_at TEXT DEFAULT (datetime('now'))
+        );
+        CREATE INDEX idx_sap4me_pais  ON clientes_sap_4me(pais);
+        CREATE INDEX idx_sap4me_etapa ON clientes_sap_4me(etapa);
+        CREATE INDEX idx_sap4me_area  ON clientes_sap_4me(area_subsolucao);
+      `);
+      console.log('[migrate] clientes_sap_4me recriada com PK pkg_id (re-sync necessário)');
+    }
+  } catch (e) { console.warn('[migrate] sap4me:', e.message); }
+})();
 
 // Migra JSONL legado → SQLite (roda só uma vez se as tabelas estiverem vazias)
 (function migrateJSONL() {
@@ -1390,10 +1415,10 @@ app.post('/api/clientes-sap-4me/sync', requireEditorToken, (req, res) => {
   if (!items.length) return res.status(400).json({ success: false, error: 'clientes[] vazio.' });
   // Substituição completa (espelho da planilha) — limpa e reinsere
   const upsert = db.prepare(`
-    INSERT INTO clientes_sap_4me (projeto_id, conta_parceiro, nome_cliente, pais, area_subsolucao, pacotes, escopo_pacote, etapa, data_kickoff, golive_planejado, golive_confirmado, relevante_nivel, gerente_projeto, synced_at)
-    VALUES (@projeto_id, @conta_parceiro, @nome_cliente, @pais, @area_subsolucao, @pacotes, @escopo_pacote, @etapa, @data_kickoff, @golive_planejado, @golive_confirmado, @relevante_nivel, @gerente_projeto, datetime('now'))
-    ON CONFLICT(projeto_id) DO UPDATE SET
-      conta_parceiro=excluded.conta_parceiro, nome_cliente=excluded.nome_cliente, pais=excluded.pais,
+    INSERT INTO clientes_sap_4me (pkg_id, projeto_id, conta_parceiro, nome_cliente, pais, area_subsolucao, pacotes, escopo_pacote, etapa, data_kickoff, golive_planejado, golive_confirmado, relevante_nivel, gerente_projeto, synced_at)
+    VALUES (@pkg_id, @projeto_id, @conta_parceiro, @nome_cliente, @pais, @area_subsolucao, @pacotes, @escopo_pacote, @etapa, @data_kickoff, @golive_planejado, @golive_confirmado, @relevante_nivel, @gerente_projeto, datetime('now'))
+    ON CONFLICT(pkg_id) DO UPDATE SET
+      projeto_id=excluded.projeto_id, conta_parceiro=excluded.conta_parceiro, nome_cliente=excluded.nome_cliente, pais=excluded.pais,
       area_subsolucao=excluded.area_subsolucao, pacotes=excluded.pacotes, escopo_pacote=excluded.escopo_pacote,
       etapa=excluded.etapa, data_kickoff=excluded.data_kickoff, golive_planejado=excluded.golive_planejado,
       golive_confirmado=excluded.golive_confirmado, relevante_nivel=excluded.relevante_nivel,
@@ -1404,6 +1429,7 @@ app.post('/api/clientes-sap-4me/sync', requireEditorToken, (req, res) => {
     for (const it of arr) {
       try {
         upsert.run({
+          pkg_id:            String(it.pkg_id || it.projeto_id || '').slice(0,120),
           projeto_id:        String(it.projeto_id || '').slice(0,100),
           conta_parceiro:    String(it.conta_parceiro || '').slice(0,200),
           nome_cliente:      String(it.nome_cliente || '').slice(0,300),

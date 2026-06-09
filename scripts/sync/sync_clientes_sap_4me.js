@@ -65,8 +65,13 @@ const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' 
 
 const G = (r, ...keys) => { for (const k of keys) if (r[k] != null && r[k] !== '') return r[k]; return ''; };
 
-const clientes = rows.map((r, i) => ({
-  projeto_id:        String(G(r, 'ID do projeto', 'ID do Projeto') || `sap4me-row-${i}`),
+const clientes = rows.map((r, i) => {
+  const projId = String(G(r, 'ID do projeto', 'ID do Projeto') || `row-${i}`);
+  const pacote = String(G(r, 'Pacotes') || i);
+  return {
+  // pkg_id = chave única por LINHA (cada projeto tem N pacotes; ID do projeto repete)
+  pkg_id:            `${projId}-${pacote}-${i}`,
+  projeto_id:        projId,
   conta_parceiro:    String(G(r, 'Conta do parceiro')),
   nome_cliente:      String(G(r, 'Nome do cliente')),
   pais:              String(G(r, 'País', 'Pais')),
@@ -79,7 +84,8 @@ const clientes = rows.map((r, i) => ({
   golive_confirmado: toISO(G(r, 'Entrada em operação confirmada', 'Entrada em operacao confirmada')),
   relevante_nivel:   String(G(r, 'Relevante para o nivelamento')),
   gerente_projeto:   String(G(r, 'Gerente de projeto')),
-})).filter(c => c.nome_cliente);
+  };
+}).filter(c => c.nome_cliente);
 
 process.stderr.write(`[sap4me] ${clientes.length} clientes lidos de ${path.basename(filePath)}\n`);
 
