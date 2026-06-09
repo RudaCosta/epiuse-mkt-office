@@ -604,7 +604,17 @@ app.get('/changelog',  (req, res) => res.sendFile(CHANGELOG_PATH));
 app.get('/api/version', (req, res) => {
   try {
     const cl = JSON.parse(fs.readFileSync(path.join(__dirname, 'public/api/changelog.json'), 'utf8'));
-    res.json({ current: cl.current, atualizado_em: cl.atualizado_em });
+    // Diagnóstico de persistência (D1): volume Railway montado em DATA_DIR?
+    const usandoVolume = !IS_LOCAL_DEV && !!process.env.DATA_DIR && process.env.DATA_DIR.startsWith('/');
+    res.json({
+      current: cl.current, atualizado_em: cl.atualizado_em,
+      persistencia: {
+        db_path: DB_PATH,
+        data_dir: process.env.DATA_DIR || null,
+        volume_ativo: usandoVolume,
+        status: IS_LOCAL_DEV ? 'local-dev' : (usandoVolume ? 'volume-persistente' : 'efemero-reseta-no-deploy'),
+      },
+    });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

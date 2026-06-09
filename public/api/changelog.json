@@ -1,9 +1,25 @@
 {
-  "current": "0.31.0",
+  "current": "0.31.1",
   "atualizado_em": "2026-06-09",
-  "next": [],
+  "next": [
+    { "version": "—", "sprint": "PEND-1", "status": "blocked",
+      "title": "🔴 D1 Railway Volume — validar persistência",
+      "summary": "Rudá configurou DATA_DIR=/data + volume montado em /data (09/jun). Falta confirmar que o DB persiste entre deploys (testar: push → dados sobrevivem sem re-sync). /api/version agora expõe persistencia.status (volume-persistente vs efemero). Se volume novo subiu vazio, rodar resync-railway-all.ps1 UMA vez — depois nunca mais." },
+    { "version": "—", "sprint": "PEND-2", "status": "blocked",
+      "title": "🟡 SSO Microsoft — admin consent + ativar",
+      "summary": "Env vars já no Railway (AZURE_TENANT_ID/CLIENT_ID/CLIENT_SECRET/REDIRECT_URI visíveis). Falta: (1) Azure portal → API permissions → Grant admin consent (Graph: openid/profile/email/User.Read/offline_access); (2) confirmar Redirect URIs (localhost + Railway); (3) testar login real @epiuse.com.br; (4) quando confiar, SSO_ENFORCE=true." },
+    { "version": "—", "sprint": "PEND-3", "status": "blocked",
+      "title": "🟡 Publicação WordPress automática (S31)",
+      "summary": "Pipeline de conteúdo (/content-pipeline) entrega tudo até o HTML pronto. Último passo (publicar no blog) segue manual — falta credenciais admin WordPress da EPI-USE com o TI pra automatizar o POST via REST API." },
+    { "version": "0.32.0", "sprint": "S32", "status": "planned",
+      "title": "Calendário unificado + layers MDF/Deadlines (aguarda arquivos Rudá)",
+      "summary": "Calendário mestre integra agenda de eventos + artigos Redatoria + posts Duda + datas comemorativas + DEADLINES de ações + DEADLINE de cada MDF aberto. Layers MDF + Deadlines já criados (v0.31.1) com deadlines do email SAP (treinamento 1º/abr, EDF/DDF 1º/jul). Rudá vai mandar: planilha cronograma Redatoria atualizada, planilha posts Duda, lista de MDFs abertos com deadlines, lista de ações com prazos." }
+  ],
   "releases": [
-    { "version": "0.31.0", "date": "09/jun/2026", "status": "current", "path": null,
+    { "version": "0.31.1", "date": "09/jun/2026", "status": "current", "path": null,
+      "title": "Calendário: layers MDF + Deadlines · diagnóstico de persistência no /api/version",
+      "summary": "Calendário mestre (/inbound/calendar) ganhou 2 layers no topo: MDF/Dev Funds (vermelho) e Deadlines de ações (rosa), além de reordenar layers por prioridade de negócio (MDF · Deadlines · Eventos EPI-USE/SAP · Artigos Redatoria · Posts Redes Duda · Datas Comemorativas · Feriados · Copa · Efemérides · Premiações). Novo public/api/deadlines-2026.json populado com deadlines reais do email SAP Partner Marketing LAC (11/03/2026): treinamento obrigatório 1º/abr, 100% EDF + 70% DDF até 1º/jul (EDF €406,53 · DDF €80.000), abrir proposals H2. /api/version agora expõe bloco persistencia (db_path, data_dir, volume_ativo, status) para diagnosticar D1 (Railway volume). Aguardando arquivos do Rudá (planilhas Redatoria/Duda atualizadas + lista MDFs abertos + ações com prazos) para popular os layers — S32." },
+    { "version": "0.31.0", "date": "09/jun/2026", "status": "snapshot", "path": null,
       "title": "S31 — Pipeline de Conteúdo: SEO + GEO/AIO/AEO/LLMO + copy/CTA + carrossel",
       "summary": "Nova tela /content-pipeline: kanban de 7 estados do processo inbound real (recebido → SEO/GEO → persona → copy+CTA → carrossel → agendado → publicado). SQLite: tabela content_pipeline (titulo, keyword, pilar, persona, corpo, seo_json, geo_json, copy_text, cta_sugerido, carrossel_url, agendamento, publicação). Lib determinística scripts/integrations/seo_checker.js (sem IA/token): checkSEO (título 30-60, keyword no título/início, ≥300 palavras, densidade 0.5-2.5%, ≥2 H2, listas) + checkGEO (AEO pergunta-resposta, AIO resposta direta ≤50 palavras, GEO dados citáveis + entidades nomeadas, LLMO estrutura + conclusão resumível) + suggestCTA (CTA de conversão por LOB/pilar → /contato). Server: GET /api/content (kanban + por_estado), POST /api/content (cria), PUT /api/content/:id (edita + transição estado, marca publicado_em auto), POST /api/content/:id/seo-check (calcula SEO+GEO+CTA), DELETE, POST /api/content/import-redatoria (puxa itens fonte=redatoria do editorial_calendar). UI: kanban com cards por estado (scores SEO/GEO coloridos), modal completo (dados, corpo markdown, checklists SEO+GEO com ✓/○, copy+CTA, distribuição com link carrossel + agendamento), botão importar Redatoria. Link no nav. Nota: publicação no blog WordPress permanece manual (credenciais admin pendentes com TI) — pipeline entrega tudo até o HTML pronto. Encerra o roadmap S29-S31." },
     { "version": "0.30.0", "date": "09/jun/2026", "status": "snapshot", "path": null,

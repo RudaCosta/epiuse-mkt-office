@@ -188,14 +188,16 @@ office-footer{flex-shrink:0}
 const MONTHS_PT = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 
 const LAYERS = [
-  { id:'feriado',      label:'Feriados',          color:'#dc2626' },
-  { id:'comemorativa', label:'Datas Esp.',         color:'#d97706' },
+  { id:'mdf',          label:'MDF / Dev Funds',    color:'#dc2626' },
+  { id:'deadline',     label:'Deadlines (ações)',  color:'#e11d48' },
+  { id:'epiuse',       label:'Eventos EPI-USE/SAP',color:'#cd1543' },
+  { id:'redatoria',    label:'Artigos Redatoria',  color:'#001844' },
+  { id:'duda',         label:'Posts Redes (Duda)', color:'#0369a1' },
+  { id:'comemorativa', label:'Datas Comemorativas',color:'#d97706' },
+  { id:'feriado',      label:'Feriados',          color:'#b91c1c' },
   { id:'copa',         label:'Copa / Esporte',     color:'#16a34a' },
   { id:'efemeride',    label:'Efemérides',         color:'#7c3aed' },
   { id:'premiacao',    label:'Premiações',         color:'#ca8a04' },
-  { id:'epiuse',       label:'Eventos EPI-USE',    color:'#cd1543' },
-  { id:'redatoria',    label:'Redatoria',          color:'#001844' },
-  { id:'duda',         label:'Editorial (Duda)',   color:'#0369a1' },
 ];
 
 // ── STATE ──────────────────────────────────────────────────────────────────
@@ -233,10 +235,11 @@ async function loadAllData() {
   showLoadingBar();
   const year = state.year;
 
-  const [especiais, eventsRaw, editorial] = await Promise.all([
+  const [especiais, eventsRaw, editorial, deadlines] = await Promise.all([
     fetch('/api/datas-especiais-2026.json').then(r=>r.json()).catch(()=>({itens:[]})),
     fetch('/api/events.json').then(r=>r.json()).catch(()=>({abas:{}})),
     fetch(`/api/inbound/calendar?from=${year}-01-01&to=${year}-12-31`).then(r=>r.json()).catch(()=>({posts:[]})),
+    fetch('/api/deadlines-2026.json').then(r=>r.json()).catch(()=>({itens:[]})),
   ]);
 
   state.dayMap = {};
@@ -254,6 +257,20 @@ async function loadAllData() {
       desc: item.descricao || '',
       color: item.cor || '#64748b',
       paises: item.paises || [],
+    });
+  }
+
+  // 1b — Deadlines MDF / ações (JSON estático, fonte email SAP + ações internas)
+  for (const item of (deadlines.itens || [])) {
+    if (!item.data) continue;
+    addToMap(item.data, {
+      id: item.id,
+      data: item.data,
+      data_fim: item.data_fim || null,
+      layerId: item.tipo,         // 'mdf' ou 'deadline'
+      nome: item.nome,
+      desc: item.descricao || '',
+      color: item.cor || '#dc2626',
     });
   }
 
