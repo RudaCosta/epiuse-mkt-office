@@ -73,11 +73,12 @@
 - `powershell -ExecutionPolicy Bypass -File scripts/lifecycle/resync-railway-all.ps1`
 - Re-sincroniza os 4 datasets de uma vez (cases · SAP 4 ME · calendar Duda · Redatoria). Some quando D1 (volume) for feito.
 
-### P0. URGENTE — Volume persistente Railway pro SQLite — 🟡 CÓDIGO PRONTO (09/jun), falta config humana
-- **Esforço:** 5min (só dashboard)
-- **Bloqueia:** apresentação corporativa (cada deploy "limpa" os cases reais)
-- **✅ Código pronto (v0.28.1):** `server.js` já lê `process.env.DATA_DIR` pro DB_PATH + boot log avisa (`⚠️ ATENÇÃO: DATA_DIR não setado`) se não estiver montado.
-- **🙋 Passo HUMANO restante:** Railway dashboard → Service → Settings → Volumes → criar volume mount em `/data` → Variables → adicionar `DATA_DIR=/data` → redeploy. Depois rodar sync inicial 1x (cases + zoho + calendar). Confirmar no log do Railway: `✅ Persistência: usando volume DATA_DIR=/data`.
+### ✅ P0/D1. Volume persistente Railway — RESOLVIDO E PROVADO (09/jun/2026)
+- **Rudá configurou:** volume montado em `/data` + var `DATA_DIR=/data` no Railway.
+- **Provado:** deploy v0.31.1 manteve os dados (705 sap4me + 80 content + 22 cases + calendar) **SEM re-sync manual**. Antes zerava a cada push.
+- **Diagnóstico visível:** `GET /api/version` → `persistencia.status: "volume-persistente"`, `db_path: /data/db.sqlite`.
+- **Não estava com problema** — o "vazio" inicial era só o volume novo recém-montado; resolvido com 1 re-sync.
+- **Consequência:** `resync-railway-all.ps1` agora só precisa rodar quando as PLANILHAS FONTE mudarem (não mais a cada deploy).
 
 ### ✅ P2. Cron diário Cases — RESOLVIDO (09/jun, v0.28.1)
 - **Tarefa Windows:** `EPI-USE-Office-Cases-Sync` registrada (diário 07:00) → roda `run-cases-sync.ps1` → `sync_cases_roberto.js` (Node) → POST local + Railway.
