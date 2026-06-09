@@ -3,9 +3,20 @@
 // Node.js — nao requer Python, funciona na maquina rudac
 'use strict';
 
-const XLSX = require('xlsx');
-const os   = require('os');
+// Resolve modules do optimizer (mesmo padrao dos outros scripts — Node v24 nao
+// aceita require('xlsx') direto sem node_modules local)
+const _fs0 = require('fs');
+const _os0 = require('os');
+const _winUser = _os0.userInfo().username;
+const _localCandidates = [
+  `C:/Users/${_winUser}/.epiuse-optimizer/node_modules`,
+  'C:/Users/Ruds/.epiuse-optimizer/node_modules',
+  'C:/Users/rudac/.epiuse-optimizer/node_modules',
+];
+const _localModules = _localCandidates.find(p => _fs0.existsSync(p)) || '';
 const path = require('path');
+const XLSX = require(_localModules ? path.join(_localModules, 'xlsx') : 'xlsx');
+const os   = require('os');
 const fs   = require('fs');
 
 // ── LOCALIZA O XLSX ───────────────────────────────────────────────────────────
@@ -20,6 +31,7 @@ const candidates = [
   `C:/Users/Ruds/OneDrive - EPI USE BRASIL SERVICOS EM SISTEMAS LTDA/MARKETING/Customer Reference/Empresas Transformadoras/${nome}`,
   // Com acentos (variante alternativa do OneDrive)
   `C:/Users/rudac/OneDrive - EPI USE BRASIL SERVIÇOS EM SISTEMAS LTDA/MARKETING/Customer Reference/Empresas Transformadoras/Controle de Cases Cliente Referência Empresas Transformadoras 2025.xlsx`,
+  `C:/Users/Ruds/OneDrive - EPI USE BRASIL SERVIÇOS EM SISTEMAS LTDA/MARKETING/Customer Reference/Empresas Transformadoras/Controle de Cases Cliente Referência Empresas Transformadoras 2025.xlsx`,
 ];
 
 let filePath = candidates.find(c => fs.existsSync(c));

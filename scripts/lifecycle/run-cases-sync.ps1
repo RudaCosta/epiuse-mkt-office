@@ -6,7 +6,9 @@ param(
 )
 
 $ErrorActionPreference = 'SilentlyContinue'
-$root  = 'C:\Users\rudac\OneDrive\Documents\GitHub\epiuse-mkt-office'
+# $root detectado dinamicamente: este script vive em <root>\scripts\lifecycle\
+$root  = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
+if (-not (Test-Path "$root\server.js")) { $root = 'C:\epiuse-mkt-office' }
 $log   = "$root\logs\cases-sync.log"
 $dir   = Split-Path $log -Parent
 if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir | Out-Null }

@@ -19,7 +19,12 @@ from pathlib import Path
 import pandas as pd
 
 XLS_CANDIDATES = [
+    # Pasta ROADMAP (Bruna atualiza aqui — fonte viva mais recente)
+    r"C:/Users/Ruds/Desktop/ROADMAP MKT OFFICE JUN 2026/03 LinkedIn Boost/Linkedin followers_maio 2025 ate maio 2026.xls",
+    r"C:/Users/rudac/Desktop/ROADMAP MKT OFFICE JUN 2026/03 LinkedIn Boost/Linkedin followers_maio 2025 ate maio 2026.xls",
+    # Fallbacks
     r"C:/Users/Ruds/Desktop/Linkedin followers_maio 2025 ate maio 2026.xls",
+    r"C:/epiuse-mkt-office/vault/00-contexto/metas/linkedin-followers-mai2025-mai2026.xls",
     r"G:/Meu Drive/Claude MKT EUBR/vault/00-contexto/metas/linkedin-followers-mai2025-mai2026.xls",
 ]
 
@@ -165,6 +170,41 @@ def main():
         else:
             mes_map[m['mes']]['novos_diario'] = m['novos_diario']
             mes_map[m['mes']]['dias_com_ganho'] = m['dias_com_ganho']
+
+    # ── MERGE DEFENSIVO (Regra 7 — nao regredir dado bom existente) ──────────────
+    # Preserva do JSON anterior: (1) entradas fonte "manual (Ruda...)" — ex: 10640
+    # cravado a mao; (2) campos cumulativos (total_seguidores/newsletter/posts/
+    # impressoes) que o XLS diario nao traz, quando a fonte nova nao os tiver.
+    if OUT.exists():
+        try:
+            prev = json.loads(OUT.read_text(encoding="utf-8"))
+            prev_map = {e['mes']: e for e in prev.get('serie_mensal', [])}
+            CUMUL = ['total_seguidores', 'newsletter', 'posts_mes', 'impressoes']
+            for mes, old in prev_map.items():
+                fonte_old = str(old.get('fonte', ''))
+                is_manual = fonte_old.startswith('manual')
+                new = mes_map.get(mes)
+                if new is None:
+                    # mes existia no JSON mas nao na fonte nova -> preserva integral
+                    mes_map[mes] = old
+                    continue
+                # manual vence reports/diario em campos cumulativos preenchidos
+                if is_manual:
+                    for k in CUMUL:
+                        if old.get(k) is not None:
+                            new[k] = old[k]
+                    if old.get('novos') is not None and new.get('novos') is None:
+                        new['novos'] = old['novos']
+                    # marca proveniencia combinada
+                    new['fonte'] = fonte_old + ' + xls' if 'xls' not in fonte_old else fonte_old
+                else:
+                    # report/diario antigo: so preenche cumulativo se o novo estiver vazio
+                    for k in CUMUL:
+                        if new.get(k) is None and old.get(k) is not None:
+                            new[k] = old[k]
+        except Exception as e:
+            print(f"[linkedin] aviso merge JSON anterior: {e}")
+
     serie_mensal = sorted(mes_map.values(), key=lambda x: x['mes'])
 
     total_xls = sum(d['total'] for d in daily)

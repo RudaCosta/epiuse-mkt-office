@@ -70,6 +70,15 @@ Register-ScheduledTask -TaskName 'EPI-USE-Office-Report-Mensal' -Force `
   -Description 'Roda diariamente 08:05 — gera report do mes anterior se hoje for dia 1 (script checa).' | Out-Null
 Write-Output "[OK] Tarefa 'EPI-USE-Office-Report-Mensal' registrada (diario 08:05 — script roda se hoje for dia 1)."
 
+# --- Tarefa 5: sync LinkedIn (regenera linkedin-historical.json do XLS Bruna) ---
+$LinkedInPs = Join-Path $ScriptDir 'run-linkedin-sync.ps1'
+$trigLinkedIn = New-ScheduledTaskTrigger -Daily -At '08:30'
+Register-ScheduledTask -TaskName 'EPI-USE-Office-LinkedIn-Sync' -Force `
+  -Action (New-PwshAction $LinkedInPs) -Trigger $trigLinkedIn `
+  -Settings $settings -Principal $principal `
+  -Description 'Regenera linkedin-historical.json do XLS Bruna + reports (merge defensivo). Nao faz push (Regra 3).' | Out-Null
+Write-Output "[OK] Tarefa 'EPI-USE-Office-LinkedIn-Sync' registrada (diario 08:30)."
+
 # --- Sobe agora (nao espera o proximo login) ---
 & $StartPs
 Start-Sleep -Seconds 4

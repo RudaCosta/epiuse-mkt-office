@@ -211,6 +211,15 @@ db.exec(`
 })();
 
 console.log(`[boot] SQLite: ${DB_PATH}`);
+// Persistência: em produção (não-local) o DB SÓ persiste entre deploys se DATA_DIR
+// apontar para um Railway Volume montado (ex: /data). Sem isso, reseta a cada push.
+if (!IS_LOCAL_DEV) {
+  if (process.env.DATA_DIR && process.env.DATA_DIR.startsWith('/')) {
+    console.log(`[boot] ✅ Persistência: usando volume DATA_DIR=${process.env.DATA_DIR}`);
+  } else {
+    console.warn('[boot] ⚠️  ATENÇÃO: DATA_DIR não setado para volume — SQLite vai RESETAR a cada deploy! Monte um Railway Volume e set DATA_DIR=/data.');
+  }
+}
 
 function backupFile(p) {
   if (!fs.existsSync(p)) return;

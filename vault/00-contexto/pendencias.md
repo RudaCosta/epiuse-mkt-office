@@ -62,15 +62,21 @@
 
 ## 🟢 PENDENTE DE EXECUÇÃO (não-bloqueado, dá pra fazer quando quiser)
 
-### P0. URGENTE — Configurar volume persistente Railway pro SQLite
-- **Esforço:** 30min
+### P0. URGENTE — Volume persistente Railway pro SQLite — 🟡 CÓDIGO PRONTO (09/jun), falta config humana
+- **Esforço:** 5min (só dashboard)
 - **Bloqueia:** apresentação corporativa (cada deploy "limpa" os cases reais)
-- **Como:** Railway dashboard → Service → Settings → Volumes → Mount `/data` → mover `DB_PATH` em `server.js` pra `/data/office.db`
+- **✅ Código pronto (v0.28.1):** `server.js` já lê `process.env.DATA_DIR` pro DB_PATH + boot log avisa (`⚠️ ATENÇÃO: DATA_DIR não setado`) se não estiver montado.
+- **🙋 Passo HUMANO restante:** Railway dashboard → Service → Settings → Volumes → criar volume mount em `/data` → Variables → adicionar `DATA_DIR=/data` → redeploy. Depois rodar sync inicial 1x (cases + zoho + calendar). Confirmar no log do Railway: `✅ Persistência: usando volume DATA_DIR=/data`.
 
-### P2. Cron diário Cases (OneDrive local → Railway prod)
-- **O que:** Windows Task Scheduler que roda 7h da manhã `sync_cases_roberto.py` + POST direto pro Railway
-- **Esforço:** 1h
-- **Por que:** automatiza B4 (sync de cases reais em prod)
+### ✅ P2. Cron diário Cases — RESOLVIDO (09/jun, v0.28.1)
+- **Tarefa Windows:** `EPI-USE-Office-Cases-Sync` registrada (diário 07:00) → roda `run-cases-sync.ps1` → `sync_cases_roberto.js` (Node) → POST local + Railway.
+- **Bugs corrigidos:** (1) `$root` hardcoded errado no .ps1 → agora dinâmico via `$PSScriptRoot`; (2) `sync_cases_roberto.js` não resolvia `xlsx` no Node v24 → localModules pattern; (3) faltava path `Ruds` com acento. **Testado end-to-end:** 19 cases → Railway OK.
+
+### ✅ LinkedIn sync auto — RESOLVIDO (09/jun, v0.28.1)
+- **Tarefa Windows:** `EPI-USE-Office-LinkedIn-Sync` (diário 08:30) → `run-linkedin-sync.ps1` → `sync_linkedin_historical.py` regenera `linkedin-historical.json` do XLS da Bruna (Desktop/ROADMAP/03 LinkedIn Boost) + reports PPTX.
+- **Merge defensivo (Regra 7):** preserva entradas `manual (Rudá)` (ex: 10640 mai/26) + cumulativos (newsletter/total) dos reports. Não regride dado bom.
+- **NÃO faz push** (Regra 3) — só regenera local. JSON é estático → Railway pega no próximo push autorizado. Localhost na hora.
+- **Obs:** jun/2026 só entra quando a Bruna exportar o XLS novo (hoje vai até mai/26).
 
 ### Validação visual end-to-end Voice Index em prod
 - **O que:** gerar 1 kit completo pra Anderson com 2-3 screenshots reais, validar que renderiza certo (Voice Index circular + 7 pilares + 5 destaques + banner)
