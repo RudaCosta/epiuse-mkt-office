@@ -48,6 +48,17 @@ const fs = require('fs');
 const path = require('path');
 const seoChecker = require('./scripts/integrations/seo_checker'); // SEO+GEO determinístico (sem deps)
 
+// ── RESILIÊNCIA: handlers globais de erro ───────────────────────────────────────
+// Sem isto, QUALQUER erro async não tratado mata o processo Node → 502 até o
+// Railway reiniciar (janela em que "as páginas não funcionam"). Aqui logamos e
+// mantemos o processo vivo — um bug pontual numa rota não derruba o app inteiro.
+process.on('uncaughtException', (err) => {
+  console.error('[uncaughtException] processo MANTIDO vivo:', err && err.stack || err);
+});
+process.on('unhandledRejection', (reason) => {
+  console.error('[unhandledRejection] processo MANTIDO vivo:', reason && reason.stack || reason);
+});
+
 // ── EDITOR AUTH ───────────────────────────────────────────────────────────────
 // Token simples (MVP). Override via env var em produção.
 const EDITOR_TOKEN = process.env.EDITOR_TOKEN || 'epiuse-2026';

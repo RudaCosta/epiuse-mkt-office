@@ -1,5 +1,5 @@
 {
-  "current": "0.32.0",
+  "current": "0.32.1",
   "atualizado_em": "2026-06-09",
   "next": [
     { "version": "—", "sprint": "PEND-1", "status": "blocked",
@@ -16,7 +16,10 @@
       "summary": "Layers prontos no calendar. Falta popular com: planilha cronograma Redatoria atualizada, planilha posts Duda (redes), lista de ações com prazos. DF/MDF já integrado (v0.32.0)." }
   ],
   "releases": [
-    { "version": "0.32.0", "date": "09/jun/2026", "status": "current", "path": null,
+    { "version": "0.32.1", "date": "09/jun/2026", "status": "current", "path": null,
+      "title": "Resiliência (handlers globais de erro) + War Room repurposed + Zoho fora do menu",
+      "summary": "(1) RESILIÊNCIA: adicionados process.on('uncaughtException') + ('unhandledRejection') no server.js — antes qualquer erro async não tratado MATAVA o processo Node → 502 até o Railway reiniciar (janela em que 'as páginas não funcionavam'). Agora um bug pontual numa rota não derruba o app inteiro. Diagnóstico confirmou: páginas /clientes-sap-4me, /field-marketing, /content-pipeline funcionam (18/18 no stress + screenshot) — o 502 era reinício de container por erro não capturado. (2) War Room repurposed: era inbox/outbox de agentes virtuais (quase tudo 0 = inútil). Agora é 'Central — Pendências & Deadlines' lendo dados REAIS: bloqueadas/pendentes de /api/pendencias (12 itens do pendencias.md) + claims DF a reclamar por expiração + meta 70% 1º/jul + go-lives SAP próximos 30d. (3) Pipeline CRM Zoho removido do menu (era réplica do próprio CRM, sem insight novo) — o insight de pipeline gerado por Marketing (MKT vs SDR, R$ por período) permanece na seção 6 do /relatorio, que é o contexto certo. Tela /inbound/zoho-pipeline segue acessível por URL mas fora do menu." },
+    { "version": "0.32.0", "date": "09/jun/2026", "status": "snapshot", "path": null,
       "title": "S32 — Development Funds (SAP DF LAC) tracker + deadlines de MDF no calendário",
       "summary": "Nova tela /development-funds: tracker dos SAP Development Funds (DF LAC 2026), espelho do portal PartnerEdge. public/api/development-funds.json com 18 proposals + 9 requests reais (valores €/R$, status, expirações) + budget (DDF €80k alocado, €15.327 consumido, EDF €406,53) + regras do PDF Entry & Eligibility Criteria May 2026 (training 1º/abr, 100% EDF + 70% DDF até 1º/jul, 80% demand gen / 20% enablement, DDF só Public Cloud, elegibilidade >200k ACV). REGRA-CHAVE: itens com derrubado:true (duplicados/erro) NÃO somam no budget a gastar — 2 derrubados a pedido do Rudá: 5VVWA2SLEO (Digital Demand Gen SEO €7.313,85, duplicado de DNNY18II9C) + 66IJWEAE2B (SAP Sapphire ASUG €4.809,94, engano). GET /api/development-funds agrega: aprovado válido, derrubado total, pendente, total a reclamar, meta 70% (1º/jul), por status, a_reclamar por expiração, expirando 30d. Dashboard: 6 KPIs, barra de progresso DDF rumo à meta 70% (mostra quanto falta), painel 'a reclamar' por expiração (cores urgência), painel 'derrubados' (riscado), tabela 18 proposals, regras DF. Calendário (/inbound/calendar): cada request DF aberto (não derrubado, claim pendente) vira evento no layer MDF na data de expiração do claim. Link no nav." },
     { "version": "0.31.1", "date": "09/jun/2026", "status": "snapshot", "path": null,
