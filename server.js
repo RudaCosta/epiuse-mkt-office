@@ -194,6 +194,25 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_sap4me_pais  ON clientes_sap_4me(pais);
   CREATE INDEX IF NOT EXISTS idx_sap4me_etapa ON clientes_sap_4me(etapa);
   CREATE INDEX IF NOT EXISTS idx_sap4me_area  ON clientes_sap_4me(area_subsolucao);
+
+  CREATE TABLE IF NOT EXISTS field_events (
+    event_id      TEXT PRIMARY KEY,      -- ex: brasil-1-NRF-Retail (slug do events.json)
+    nome          TEXT,
+    data_evento   TEXT,                  -- ISO se conhecida
+    local         TEXT,
+    lob           TEXT,
+    pais          TEXT,
+    responsavel   TEXT,
+    porte         TEXT,                  -- Pequeno / Médio / Grande
+    orcamento     REAL DEFAULT 0,
+    status        TEXT DEFAULT 'planejamento', -- planejamento|pre-evento|live|pos-evento|concluido
+    brindes_json  TEXT DEFAULT '[]',     -- [{item, qtd_planejada, qtd_distribuida}]
+    captura_json  TEXT DEFAULT '{}',     -- {leads, qualificados, deals, custo, obs}
+    briefing_json TEXT DEFAULT '{}',     -- {mensagem_chave, speakers, materiais, obs}
+    updated_at    TEXT DEFAULT (datetime('now'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_field_status ON field_events(status);
+  CREATE INDEX IF NOT EXISTS idx_field_data   ON field_events(data_evento);
 `);
 
 // Migração clientes_sap_4me: PK antiga era projeto_id (não-único → colapsava 705→500
@@ -1144,6 +1163,7 @@ app.get('/inbound/carousel',  (req, res) => res.sendFile(path.join(INBOUND_DIR, 
 app.get('/inbound/playbook',       (req, res) => res.sendFile(path.join(INBOUND_DIR, 'playbook.html')));
 app.get('/inbound/zoho-pipeline', (req, res) => res.sendFile(path.join(INBOUND_DIR, 'zoho-pipeline.html')));
 app.get('/clientes-sap-4me', (req, res) => res.sendFile(path.join(__dirname, 'public/clientes-sap-4me.html')));
+app.get('/field-marketing', (req, res) => res.sendFile(path.join(__dirname, 'public/field-marketing.html')));
 
 // ── INBOUND CALENDAR API (sprint 0.4.0) ─────────────────────────────────────
 // GET retorna posts agendados; POST faz upsert (usado pelo frontend e pelo cron de sync)
@@ -1505,6 +1525,98 @@ app.get('/api/clientes-sap-4me', (req, res) => {
       last_sync: last?.s || null,
     });
   } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── FIELD MARKETING (eventos events.json + enriquecimento SQLite) ────────────
+function _slugifyEvent(aba, ev) {
+  const n = String(ev.n || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40);
+  return `${aba}-${ev.m}-${n}`;
+}
+function _eventISO(ev, ano) {
+  if (!ev.m || !ev.d || ev.d === 'TBC') return null;
+  const dia = String(ev.d).split('-')[0].trim();
+  if (!/^\d+$/.test(dia)) return null;
+  return `${ano}-${String(ev.m).padStart(2,'0')}-${String(dia).padStart(2,'0')}`;
+}
+
+app.get('/api/field-marketing', (req, res) => {
+  try {
+    const events = JSON.parse(fs0.readFileSync(path.join(__dirname, 'public/api/events.json'), 'utf8'));
+    const ano = events.ano || new Date().getFullYear();
+    const enrich = {};
+    for (const r of db.prepare('SELECT * FROM field_events').all()) enrich[r.event_id] = r;
+
+    const lista = [];
+    for (const [aba, conteudo] of Object.entries(events.abas || {})) {
+      for (const ev of (conteudo.eventos || [])) {
+        const id = _slugifyEvent(aba, ev);
+        const e = enrich[id] || {};
+        let captura = {}; try { captura = JSON.parse(e.captura_json || '{}'); } catch {}
+        lista.push({
+          event_id: id, regiao: aba, nome: ev.n, lob: ev.lob, who: ev.who,
+          pais: ev.country, flag: ev.flag, mes: ev.m, dia: ev.d,
+          data_evento: e.data_evento || _eventISO(ev, ano),
+          status: e.status || 'planejamento',
+          local: e.local || '', responsavel: e.responsavel || '', porte: e.porte || '',
+          orcamento: e.orcamento || 0, captura,
+          tem_briefing: !!(e.briefing_json && e.briefing_json !== '{}'),
+        });
+      }
+    }
+    // KPIs
+    const byStatus = {};
+    for (const e of lista) byStatus[e.status] = (byStatus[e.status]||0)+1;
+    const comCaptura = lista.filter(e => e.captura && (e.captura.leads || e.captura.deals));
+    const totLeads = comCaptura.reduce((s,e)=>s+(+e.captura.leads||0),0);
+    const totQual  = comCaptura.reduce((s,e)=>s+(+e.captura.qualificados||0),0);
+    const totDeals = comCaptura.reduce((s,e)=>s+(+e.captura.deals||0),0);
+    const totCusto = comCaptura.reduce((s,e)=>s+(+e.captura.custo||0),0);
+
+    res.json({
+      total: lista.length, ano,
+      kpis: {
+        por_status: byStatus,
+        eventos_com_captura: comCaptura.length,
+        total_leads: totLeads, total_qualificados: totQual, total_deals: totDeals,
+        custo_total: totCusto,
+        custo_por_lead: totLeads ? Math.round(totCusto/totLeads) : null,
+      },
+      eventos: lista,
+    });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/api/field-marketing/:id', requireEditorToken, (req, res) => {
+  try {
+    const id = req.params.id;
+    const b = req.body || {};
+    const existing = db.prepare('SELECT * FROM field_events WHERE event_id = ?').get(id) || {};
+    const merged = {
+      event_id: id,
+      nome:        b.nome ?? existing.nome ?? '',
+      data_evento: b.data_evento ?? existing.data_evento ?? null,
+      local:       b.local ?? existing.local ?? '',
+      lob:         b.lob ?? existing.lob ?? '',
+      pais:        b.pais ?? existing.pais ?? '',
+      responsavel: b.responsavel ?? existing.responsavel ?? '',
+      porte:       b.porte ?? existing.porte ?? '',
+      orcamento:   b.orcamento != null ? parseFloat(b.orcamento) || 0 : (existing.orcamento || 0),
+      status:      b.status ?? existing.status ?? 'planejamento',
+      brindes_json:  b.brindes  != null ? JSON.stringify(b.brindes)  : (existing.brindes_json || '[]'),
+      captura_json:  b.captura  != null ? JSON.stringify(b.captura)  : (existing.captura_json || '{}'),
+      briefing_json: b.briefing != null ? JSON.stringify(b.briefing) : (existing.briefing_json || '{}'),
+    };
+    db.prepare(`
+      INSERT INTO field_events (event_id, nome, data_evento, local, lob, pais, responsavel, porte, orcamento, status, brindes_json, captura_json, briefing_json, updated_at)
+      VALUES (@event_id,@nome,@data_evento,@local,@lob,@pais,@responsavel,@porte,@orcamento,@status,@brindes_json,@captura_json,@briefing_json,datetime('now'))
+      ON CONFLICT(event_id) DO UPDATE SET
+        nome=excluded.nome, data_evento=excluded.data_evento, local=excluded.local, lob=excluded.lob,
+        pais=excluded.pais, responsavel=excluded.responsavel, porte=excluded.porte, orcamento=excluded.orcamento,
+        status=excluded.status, brindes_json=excluded.brindes_json, captura_json=excluded.captura_json,
+        briefing_json=excluded.briefing_json, updated_at=datetime('now')
+    `).run(merged);
+    res.json({ success: true, event_id: id });
+  } catch (e) { res.status(500).json({ success: false, error: e.message }); }
 });
 
 // ── /api/alerts: feed unificado pro sino de notificação do office-nav ──

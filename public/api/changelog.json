@@ -1,16 +1,16 @@
 {
-  "current": "0.29.0",
+  "current": "0.30.0",
   "atualizado_em": "2026-06-09",
   "next": [
-    { "version": "0.30.0", "sprint": "S30", "status": "planned",
-      "title": "Field Marketing integrado ao app",
-      "summary": "Adicionar processo de field marketing ao app. Entender como o calendário de eventos pode ajudar nas datas, gerar briefings de ativação pré-evento, controle de materiais/brindes por evento, relatório de capturas por ativação. Integrar com /inbound/calendar e módulo eventos." },
     { "version": "0.31.0", "sprint": "S31", "status": "planned",
       "title": "Remodelagem do workflow de conteúdo",
       "summary": "Remodelagem completa: briefing → artigo → revisão SEO/GEO → publicação automática. Integrar checklist SEO/GEO, preview LinkedIn, agendamento real via API LinkedIn (quando disponível), notificação pós-publicação. Substituir o Cowork atual pela nova cadeia." }
   ],
   "releases": [
-    { "version": "0.29.0", "date": "09/jun/2026", "status": "current", "path": null,
+    { "version": "0.30.0", "date": "09/jun/2026", "status": "current", "path": null,
+      "title": "S30 — Field Marketing: briefing pré-evento + captura pós-evento + ROI",
+      "summary": "Nova tela /field-marketing: gestão dos 92 eventos (events.json BR+LATAM) com camada de field marketing. Template da Isabela (cronograma_gantt_eventos v1.xlsx) parseado para public/api/field-template.json: 5 fases, 56 tarefas (tipo/responsável/prazo), 14 itens de checklist D-Day, 7 planos B. SQLite: tabela field_events (status, brindes_json, captura_json, briefing_json, orçamento, porte por evento). Server: GET /api/field-marketing (junta events.json + enriquecimento SQLite + KPIs: por status, leads/qualificados/deals capturados, custo total, custo por lead) + POST /api/field-marketing/:id (upsert por evento, editor token). Script parse_field_template.py. UI: 6 KPI cards, tabs por status (planejamento/pré-evento/live/pós-evento/concluído), grid de cards de evento com border-color por status, modal por evento com (1) dados editáveis, (2) form de captura pós-evento (leads/qualificados/deals/custo/obs), (3) briefing completo gerado do template com export PDF. express.json subido p/ 4mb cobre todos os syncs grandes. Nota de escopo: eventos já aparecem no /inbound/calendar (layer epiuse, mesma fonte) — não duplicados; brindes mantidos como campo editável (erp-impacto.html permanece dedicado ao impacto social ERP.ngo, não a brindes de evento). Link no nav (Reports & Análises)." },
+    { "version": "0.29.0", "date": "09/jun/2026", "status": "snapshot", "path": null,
       "title": "S29 — Clientes SAP 4 ME: dashboard global + funil no relatório (visão Duda)",
       "summary": "Nova tela /clientes-sap-4me: dashboard dos 705 projetos de nuvem SAP em todos os países EPI-USE (espelho da planilha SAP 4 ME do Roberto). SQLite: tabela clientes_sap_4me (projeto_id, conta_parceiro, nome_cliente, pais, area_subsolucao, etapa, kickoff, golive_planejado/confirmado, relevante_nivel, gerente). Server: GET /api/clientes-sap-4me (KPIs por etapa Live/Implementing/Not Started/On hold + by_pais + by_area + próximos go-lives 90d + kick-offs recentes 90d + lista completa) + POST /api/clientes-sap-4me/sync (editor token). Script: sync_clientes_sap_4me.js (Node, localModules pattern, trata datas Excel serial + placeholder 9999-12-31 → null, --dry-run + --target local/railway/all). UI: 6 KPI cards, barras por país (12) e área de subsolução, painéis go-lives + kick-offs, tabela filtrável (tabs Brasil/Global/Go-live 90d + busca + filtros país/etapa), export PDF landscape. Integração /relatorio seção 8: funil global + Brasil + cruzamento Cases (Roberto) × Clientes SAP 4 ME ativos (match por nome normalizado — mostra cases que são clientes ativos + cases sem match pra revisar naming). Dados reais: 705 projetos (455 Live, 139 Implementing, 89 Not Started, 22 On hold), 77 Brasil, 24 países. Link no nav (Reports & Análises) + alias no planilhas-registry." },
     { "version": "0.28.1", "date": "09/jun/2026", "status": "snapshot", "path": null,
