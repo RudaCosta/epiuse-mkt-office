@@ -46,6 +46,7 @@ try { Resend = (IS_LOCAL_DEV ? require(localModules + '/resend') : require('rese
 catch (e) { console.warn('[boot] resend não instalado — emails serão skipped:', e.message); }
 const fs = require('fs');
 const path = require('path');
+const seoChecker = require('./scripts/integrations/seo_checker'); // SEO+GEO determinístico (sem deps)
 
 // ── EDITOR AUTH ───────────────────────────────────────────────────────────────
 // Token simples (MVP). Override via env var em produção.
@@ -213,6 +214,30 @@ db.exec(`
   );
   CREATE INDEX IF NOT EXISTS idx_field_status ON field_events(status);
   CREATE INDEX IF NOT EXISTS idx_field_data   ON field_events(data_evento);
+
+  CREATE TABLE IF NOT EXISTS content_pipeline (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    external_id   TEXT,                  -- link opcional com editorial_calendar
+    titulo        TEXT NOT NULL,
+    tema_keyword  TEXT,
+    lob           TEXT,
+    pilar         TEXT,
+    persona_alvo  TEXT,
+    autor         TEXT,
+    estado        TEXT DEFAULT 'recebido', -- recebido|seo_geo|persona|copy_cta|carrossel|agendado|publicado
+    corpo         TEXT DEFAULT '',
+    seo_json      TEXT DEFAULT '{}',     -- {score, checklist:[{item,ok,nota}]}
+    geo_json      TEXT DEFAULT '{}',     -- {score, checklist GEO/AIO/AEO/LLMO}
+    copy_text     TEXT DEFAULT '',
+    cta_sugerido  TEXT DEFAULT '',
+    carrossel_url TEXT DEFAULT '',
+    agendado_para TEXT,
+    publicado_em  TEXT,
+    url_publicado TEXT DEFAULT '',
+    created_at    TEXT DEFAULT (datetime('now')),
+    updated_at    TEXT DEFAULT (datetime('now'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_content_estado ON content_pipeline(estado);
 `);
 
 // Migração clientes_sap_4me: PK antiga era projeto_id (não-único → colapsava 705→500
@@ -1164,6 +1189,7 @@ app.get('/inbound/playbook',       (req, res) => res.sendFile(path.join(INBOUND_
 app.get('/inbound/zoho-pipeline', (req, res) => res.sendFile(path.join(INBOUND_DIR, 'zoho-pipeline.html')));
 app.get('/clientes-sap-4me', (req, res) => res.sendFile(path.join(__dirname, 'public/clientes-sap-4me.html')));
 app.get('/field-marketing', (req, res) => res.sendFile(path.join(__dirname, 'public/field-marketing.html')));
+app.get('/content-pipeline', (req, res) => res.sendFile(path.join(__dirname, 'public/content-pipeline.html')));
 
 // ── INBOUND CALENDAR API (sprint 0.4.0) ─────────────────────────────────────
 // GET retorna posts agendados; POST faz upsert (usado pelo frontend e pelo cron de sync)
@@ -1616,6 +1642,118 @@ app.post('/api/field-marketing/:id', requireEditorToken, (req, res) => {
         briefing_json=excluded.briefing_json, updated_at=datetime('now')
     `).run(merged);
     res.json({ success: true, event_id: id });
+  } catch (e) { res.status(500).json({ success: false, error: e.message }); }
+});
+
+// ── CONTENT PIPELINE (Redatoria → SEO/GEO → persona → copy/CTA → carrossel → publicado) ──
+const CONTENT_ESTADOS = ['recebido','seo_geo','persona','copy_cta','carrossel','agendado','publicado'];
+
+app.get('/api/content', (req, res) => {
+  try {
+    const all = db.prepare('SELECT * FROM content_pipeline ORDER BY updated_at DESC').all();
+    const porEstado = {};
+    for (const e of CONTENT_ESTADOS) porEstado[e] = 0;
+    for (const it of all) porEstado[it.estado] = (porEstado[it.estado]||0)+1;
+    const parse = (s) => { try { return JSON.parse(s||'{}'); } catch { return {}; } };
+    res.json({
+      estados: CONTENT_ESTADOS,
+      total: all.length,
+      por_estado: porEstado,
+      itens: all.map(it => ({
+        id: it.id, external_id: it.external_id, titulo: it.titulo, tema_keyword: it.tema_keyword,
+        lob: it.lob, pilar: it.pilar, persona_alvo: it.persona_alvo, autor: it.autor,
+        estado: it.estado, corpo: it.corpo,
+        seo: parse(it.seo_json), geo: parse(it.geo_json),
+        copy_text: it.copy_text, cta_sugerido: it.cta_sugerido, carrossel_url: it.carrossel_url,
+        agendado_para: it.agendado_para, publicado_em: it.publicado_em, url_publicado: it.url_publicado,
+        updated_at: it.updated_at,
+      })),
+    });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/api/content', requireEditorToken, (req, res) => {
+  try {
+    const b = req.body || {};
+    if (!b.titulo) return res.status(400).json({ success: false, error: 'titulo obrigatório.' });
+    const r = db.prepare(`
+      INSERT INTO content_pipeline (external_id, titulo, tema_keyword, lob, pilar, persona_alvo, autor, estado, corpo)
+      VALUES (@external_id,@titulo,@tema_keyword,@lob,@pilar,@persona_alvo,@autor,@estado,@corpo)
+    `).run({
+      external_id: b.external_id || null, titulo: String(b.titulo).slice(0,300),
+      tema_keyword: b.tema_keyword || '', lob: b.lob || '', pilar: b.pilar || '',
+      persona_alvo: b.persona_alvo || '', autor: b.autor || '',
+      estado: CONTENT_ESTADOS.includes(b.estado) ? b.estado : 'recebido', corpo: b.corpo || '',
+    });
+    res.json({ success: true, id: r.lastInsertRowid });
+  } catch (e) { res.status(500).json({ success: false, error: e.message }); }
+});
+
+app.put('/api/content/:id', requireEditorToken, (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const ex = db.prepare('SELECT * FROM content_pipeline WHERE id = ?').get(id);
+    if (!ex) return res.status(404).json({ success: false, error: 'item não encontrado.' });
+    const b = req.body || {};
+    if (b.estado && !CONTENT_ESTADOS.includes(b.estado)) return res.status(400).json({ success: false, error: 'estado inválido.' });
+    const m = {
+      id,
+      titulo: b.titulo ?? ex.titulo, tema_keyword: b.tema_keyword ?? ex.tema_keyword,
+      lob: b.lob ?? ex.lob, pilar: b.pilar ?? ex.pilar, persona_alvo: b.persona_alvo ?? ex.persona_alvo,
+      autor: b.autor ?? ex.autor, estado: b.estado ?? ex.estado, corpo: b.corpo ?? ex.corpo,
+      copy_text: b.copy_text ?? ex.copy_text, cta_sugerido: b.cta_sugerido ?? ex.cta_sugerido,
+      carrossel_url: b.carrossel_url ?? ex.carrossel_url,
+      agendado_para: b.agendado_para ?? ex.agendado_para,
+      publicado_em: b.estado === 'publicado' && !ex.publicado_em ? new Date().toISOString().slice(0,10) : (b.publicado_em ?? ex.publicado_em),
+      url_publicado: b.url_publicado ?? ex.url_publicado,
+    };
+    db.prepare(`UPDATE content_pipeline SET titulo=@titulo, tema_keyword=@tema_keyword, lob=@lob, pilar=@pilar,
+      persona_alvo=@persona_alvo, autor=@autor, estado=@estado, corpo=@corpo, copy_text=@copy_text,
+      cta_sugerido=@cta_sugerido, carrossel_url=@carrossel_url, agendado_para=@agendado_para,
+      publicado_em=@publicado_em, url_publicado=@url_publicado, updated_at=datetime('now') WHERE id=@id`).run(m);
+    res.json({ success: true, id });
+  } catch (e) { res.status(500).json({ success: false, error: e.message }); }
+});
+
+app.post('/api/content/:id/seo-check', requireEditorToken, (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const it = db.prepare('SELECT * FROM content_pipeline WHERE id = ?').get(id);
+    if (!it) return res.status(404).json({ success: false, error: 'item não encontrado.' });
+    const input = { titulo: it.titulo, corpo: it.corpo, tema_keyword: it.tema_keyword };
+    const seo = seoChecker.checkSEO(input);
+    const geo = seoChecker.checkGEO(input);
+    const cta = seoChecker.suggestCTA({ lob: it.lob, pilar: it.pilar });
+    db.prepare('UPDATE content_pipeline SET seo_json=?, geo_json=?, cta_sugerido=?, updated_at=datetime(\'now\') WHERE id=?')
+      .run(JSON.stringify(seo), JSON.stringify(geo), it.cta_sugerido || cta.cta, id);
+    res.json({ success: true, seo, geo, cta });
+  } catch (e) { res.status(500).json({ success: false, error: e.message }); }
+});
+
+app.delete('/api/content/:id', requireEditorToken, (req, res) => {
+  try {
+    db.prepare('DELETE FROM content_pipeline WHERE id = ?').run(parseInt(req.params.id,10));
+    res.json({ success: true });
+  } catch (e) { res.status(500).json({ success: false, error: e.message }); }
+});
+
+// Importa itens fonte=redatoria do editorial_calendar pro pipeline (estado 'recebido')
+app.post('/api/content/import-redatoria', requireEditorToken, (req, res) => {
+  try {
+    const posts = db.prepare("SELECT * FROM editorial_calendar WHERE fonte = 'redatoria'").all();
+    const existing = new Set(db.prepare("SELECT external_id FROM content_pipeline WHERE external_id IS NOT NULL").all().map(r => r.external_id));
+    const ins = db.prepare(`INSERT INTO content_pipeline (external_id, titulo, tema_keyword, lob, pilar, autor, estado, corpo)
+      VALUES (@external_id,@titulo,@tema_keyword,@lob,@pilar,@autor,'recebido',@corpo)`);
+    let n = 0;
+    db.transaction(() => {
+      for (const p of posts) {
+        if (existing.has(p.external_id)) continue;
+        ins.run({ external_id: p.external_id, titulo: p.titulo || '(sem título)', tema_keyword: '',
+          lob: p.pilar || '', pilar: p.pilar || '', autor: p.autor || 'Redatoria', corpo: p.resumo || '' });
+        n++;
+      }
+    })();
+    res.json({ success: true, importados: n, total_redatoria: posts.length });
   } catch (e) { res.status(500).json({ success: false, error: e.message }); }
 });
 

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pipeline de Conteúdo · EPI-USE Office</title>
+<link rel="stylesheet" href="/design-tokens.css">
+<script type="module" src="/office-nav.js"></script>
+<script type="module" src="/office-footer.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0 }
+:root {
+  --bg:#061020; --card:#0f1e35; --border:rgba(96,165,250,.15);
+  --text:#e2e8f0; --dim:#94a3b8; --muted:#64748b;
+  --accent:#60a5fa; --navy:#001844; --red:#cd1543;
+  --green:#10b981; --yellow:#fbbf24; --purple:#a78bfa;
+}
+body { background:linear-gradient(180deg,#061020 0%,#0a1525 100%); color:var(--text); font-family:'Inter',sans-serif; min-height:100vh; padding-bottom:40px }
+.container { max-width:1500px; margin:0 auto; padding:24px }
+.hdr { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-bottom:14px }
+.hdr h1 { font-size:24px; font-weight:700 }
+.hdr .sub { color:var(--dim); font-size:13px; margin-top:4px }
+.btn { background:rgba(96,165,250,.10); border:1px solid rgba(96,165,250,.30); color:var(--accent); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:12px; cursor:pointer; transition:background .15s }
+.btn:hover { background:rgba(96,165,250,.2) }
+.btn.primary { background:var(--accent); color:#0a1525; font-weight:700 }
+.flag { font-size:11px; color:var(--yellow); background:rgba(251,191,36,.08); border:1px solid rgba(251,191,36,.25); border-radius:8px; padding:8px 12px; margin-bottom:16px; line-height:1.5 }
+
+/* KANBAN */
+.kanban { display:flex; gap:12px; overflow-x:auto; padding-bottom:14px }
+.col { flex:0 0 240px; background:rgba(15,30,53,.4); border:1px solid var(--border); border-radius:12px; padding:10px; min-height:200px }
+.col-hd { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; padding:0 4px }
+.col-title { font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--text) }
+.col-count { font-size:10px; color:var(--muted); background:rgba(96,165,250,.1); padding:2px 8px; border-radius:10px; font-family:'JetBrains Mono',monospace }
+.col[data-estado=recebido] .col-title { color:var(--dim) }
+.col[data-estado=seo_geo] .col-title { color:var(--accent) }
+.col[data-estado=persona] .col-title { color:var(--purple) }
+.col[data-estado=copy_cta] .col-title { color:var(--yellow) }
+.col[data-estado=carrossel] .col-title { color:#f472b6 }
+.col[data-estado=agendado] .col-title { color:#34d399 }
+.col[data-estado=publicado] .col-title { color:var(--green) }
+
+.ccard { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:11px; margin-bottom:8px; cursor:pointer; transition:all .15s }
+.ccard:hover { border-color:rgba(96,165,250,.4); transform:translateY(-1px) }
+.cc-title { font-size:12.5px; font-weight:600; color:var(--text); line-height:1.35; margin-bottom:6px }
+.cc-meta { font-size:10px; color:var(--muted); display:flex; gap:6px; flex-wrap:wrap; align-items:center }
+.cc-pill { font-size:9px; padding:1px 6px; border-radius:8px; background:rgba(96,165,250,.1); color:var(--accent) }
+.cc-scores { display:flex; gap:6px; margin-top:6px }
+.cc-score { font-size:9px; font-family:'JetBrains Mono',monospace; padding:1px 6px; border-radius:8px; font-weight:700 }
+.s-hi { background:rgba(16,185,129,.15); color:var(--green) }
+.s-mid { background:rgba(251,191,36,.15); color:var(--yellow) }
+.s-lo { background:rgba(239,68,68,.15); color:#fca5a5 }
+.col-empty { font-size:10px; color:var(--muted); text-align:center; padding:16px 0; opacity:.6 }
+
+/* MODAL */
+.modal-bg { position:fixed; inset:0; background:rgba(0,0,0,.6); backdrop-filter:blur(3px); z-index:200; display:none; align-items:flex-start; justify-content:center; overflow-y:auto; padding:30px 16px }
+.modal-bg.open { display:flex }
+.modal { background:#0a1525; border:1px solid var(--border); border-radius:16px; max-width:780px; width:100%; padding:24px; margin-bottom:40px }
+.modal h2 { font-size:17px; margin-bottom:12px; padding-right:30px }
+.m-close { float:right; background:none; border:none; color:var(--muted); font-size:22px; cursor:pointer }
+.m-sec { margin-bottom:16px }
+.m-sec h3 { font-size:11px; color:var(--accent); letter-spacing:.06em; text-transform:uppercase; margin-bottom:8px; padding-bottom:5px; border-bottom:1px solid var(--border) }
+.m-row { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:8px }
+.m-field { flex:1; min-width:130px }
+.m-field label { display:block; font-size:10px; color:var(--muted); margin-bottom:3px; text-transform:uppercase }
+.m-field input, .m-field select, .m-field textarea { width:100%; background:rgba(96,165,250,.06); border:1px solid var(--border); color:var(--text); padding:8px 10px; border-radius:8px; font-family:inherit; font-size:13px }
+.m-field textarea { resize:vertical; min-height:80px; font-family:inherit }
+.chk { font-size:11px; padding:4px 0; display:flex; gap:8px; align-items:flex-start; border-bottom:1px dashed rgba(148,163,184,.06) }
+.chk-ic { flex-shrink:0 }
+.chk-ok { color:var(--green) } .chk-no { color:var(--muted) }
+.chk-nota { color:var(--muted); font-size:10px }
+.score-big { font-size:22px; font-weight:800; font-family:'JetBrains Mono',monospace }
+.toast { position:fixed; bottom:20px; right:20px; background:var(--card); border:1px solid var(--green); color:var(--text); padding:12px 18px; border-radius:10px; font-size:13px; z-index:300; display:none }
+.loading { text-align:center; padding:50px; color:var(--muted); font-size:13px }
+</style>
+</head>
+<body data-route="content-pipeline">
+<office-nav></office-nav>
+
+<div class="container">
+  <div class="hdr">
+    <div>
+      <h1>✍️ Pipeline de Conteúdo</h1>
+      <div class="sub">Redatoria → SEO/GEO → persona → copy+CTA → carrossel → publicação · <span id="total-lbl">—</span></div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn" onclick="importRedatoria()">↓ Importar Redatoria</button>
+      <button class="btn primary" onclick="openNew()">+ Novo conteúdo</button>
+    </div>
+  </div>
+
+  <div class="flag">
+    🟢 Pipeline real do processo inbound: revisão SEO + <b>GEO/AIO/AEO/LLMO</b> (otimização p/ IA) + persona + copy/CTA + carrossel. SEO/GEO calculados por heurística determinística (sem token). Import puxa itens da Redatoria do calendário editorial.
+  </div>
+
+  <div id="content"><div class="loading">Carregando pipeline…</div></div>
+</div>
+
+<div class="modal-bg" id="modal-bg"><div class="modal" id="modal"></div></div>
+<div class="toast" id="toast"></div>
+<office-footer></office-footer>
+
+<script>
+const TOKEN = 'eubr-voices-edit-2026';
+const ESTADOS = [
+  { id:'recebido', label:'Recebido' }, { id:'seo_geo', label:'SEO / GEO' },
+  { id:'persona', label:'Persona' }, { id:'copy_cta', label:'Copy + CTA' },
+  { id:'carrossel', label:'Carrossel' }, { id:'agendado', label:'Agendado' },
+  { id:'publicado', label:'Publicado' },
+];
+let DATA = null, cur = null;
+
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',2600);}
+function scoreCls(s){return s>=70?'s-hi':s>=45?'s-mid':'s-lo';}
+
+async function load() {
+  try {
+    DATA = await fetch('/api/content').then(r=>r.json());
+    document.getElementById('total-lbl').textContent = `${DATA.total} conteúdos`;
+    render();
+  } catch(e) { document.getElementById('content').innerHTML='<div class="loading" style="color:#fca5a5">Erro: '+esc(e.message)+'</div>'; }
+}
+
+function render() {
+  const byEstado = {};
+  for (const e of ESTADOS) byEstado[e.id] = [];
+  for (const it of DATA.itens) (byEstado[it.estado] || (byEstado[it.estado]=[])).push(it);
+
+  document.getElementById('content').innerHTML = `<div class="kanban">${ESTADOS.map(e => `
+    <div class="col" data-estado="${e.id}">
+      <div class="col-hd"><span class="col-title">${e.label}</span><span class="col-count">${(byEstado[e.id]||[]).length}</span></div>
+      ${(byEstado[e.id]||[]).map(card).join('') || '<div class="col-empty">vazio</div>'}
+    </div>`).join('')}</div>`;
+}
+
+function card(it) {
+  const seo = it.seo && it.seo.score!=null ? `<span class="cc-score ${scoreCls(it.seo.score)}">SEO ${it.seo.score}</span>` : '';
+  const geo = it.geo && it.geo.score!=null ? `<span class="cc-score ${scoreCls(it.geo.score)}">GEO ${it.geo.score}</span>` : '';
+  return `<div class="ccard" onclick="openItem(${it.id})">
+    <div class="cc-title">${esc(it.titulo)}</div>
+    <div class="cc-meta">${it.pilar?`<span class="cc-pill">${esc(it.pilar)}</span>`:''}${it.autor?`<span>${esc(it.autor)}</span>`:''}</div>
+    ${(seo||geo)?`<div class="cc-scores">${seo}${geo}</div>`:''}
+  </div>`;
+}
+
+function openNew() {
+  cur = { id:null, titulo:'', tema_keyword:'', lob:'', pilar:'', persona_alvo:'', autor:'', estado:'recebido', corpo:'', seo:{}, geo:{}, copy_text:'', cta_sugerido:'', carrossel_url:'', agendado_para:'', url_publicado:'' };
+  renderModal();
+}
+function openItem(id) { cur = DATA.itens.find(i=>i.id===id); if(cur) renderModal(); }
+
+function renderModal() {
+  const it = cur;
+  const seoBlock = it.seo && it.seo.checklist ? `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+      <span class="score-big ${scoreCls(it.seo.score)}" style="color:${it.seo.score>=70?'var(--green)':it.seo.score>=45?'var(--yellow)':'#fca5a5'}">${it.seo.score}</span>
+      <span style="font-size:11px;color:var(--muted)">SEO clássico · ${it.seo.ok}/${it.seo.total}</span>
+    </div>
+    ${it.seo.checklist.map(c=>`<div class="chk"><span class="chk-ic ${c.ok?'chk-ok':'chk-no'}">${c.ok?'✓':'○'}</span><span>${esc(c.item)} <span class="chk-nota">${esc(c.nota||'')}</span></span></div>`).join('')}` : '<div style="color:var(--muted);font-size:11px">Rode "Analisar SEO/GEO".</div>';
+  const geoBlock = it.geo && it.geo.checklist ? `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+      <span class="score-big" style="color:${it.geo.score>=70?'var(--green)':it.geo.score>=45?'var(--yellow)':'#fca5a5'}">${it.geo.score}</span>
+      <span style="font-size:11px;color:var(--muted)">GEO/AIO/AEO/LLMO · ${it.geo.ok}/${it.geo.total}</span>
+    </div>
+    ${it.geo.checklist.map(c=>`<div class="chk"><span class="chk-ic ${c.ok?'chk-ok':'chk-no'}">${c.ok?'✓':'○'}</span><span>${esc(c.item)} <span class="chk-nota">${esc(c.nota||'')}</span></span></div>`).join('')}` : '';
+
+  document.getElementById('modal').innerHTML = `
+    <button class="m-close" onclick="closeModal()">×</button>
+    <h2>${it.id?'✍️ '+esc(it.titulo):'+ Novo conteúdo'}</h2>
+
+    <div class="m-sec">
+      <h3>Dados</h3>
+      <div class="m-field"><label>Título</label><input id="f-titulo" value="${esc(it.titulo)}"></div>
+      <div class="m-row">
+        <div class="m-field"><label>Keyword foco</label><input id="f-kw" value="${esc(it.tema_keyword)}"></div>
+        <div class="m-field"><label>Pilar/LOB</label><input id="f-pilar" value="${esc(it.pilar||it.lob)}"></div>
+        <div class="m-field"><label>Persona alvo</label><input id="f-persona" value="${esc(it.persona_alvo)}"></div>
+      </div>
+      <div class="m-row">
+        <div class="m-field"><label>Autor</label><input id="f-autor" value="${esc(it.autor)}"></div>
+        <div class="m-field"><label>Estado</label><select id="f-estado">${ESTADOS.map(e=>`<option value="${e.id}" ${it.estado===e.id?'selected':''}>${e.label}</option>`).join('')}</select></div>
+      </div>
+      <div class="m-field"><label>Corpo do texto (markdown)</label><textarea id="f-corpo" placeholder="Cole o texto da Redatoria...">${esc(it.corpo)}</textarea></div>
+    </div>
+
+    <div class="m-sec">
+      <h3>SEO clássico <button class="btn" style="float:right;padding:2px 8px;font-size:10px" onclick="analisar()">⚙ Analisar SEO/GEO</button></h3>
+      ${seoBlock}
+    </div>
+    ${it.geo && it.geo.checklist ? `<div class="m-sec"><h3>GEO · otimização para IA</h3>${geoBlock}</div>`:''}
+
+    <div class="m-sec">
+      <h3>Copy + CTA</h3>
+      <div class="m-field"><label>Copy persuasivo</label><textarea id="f-copy" placeholder="Copy para LinkedIn/post...">${esc(it.copy_text)}</textarea></div>
+      <div class="m-field"><label>CTA sugerido</label><input id="f-cta" value="${esc(it.cta_sugerido)}" placeholder="Auto-sugerido ao analisar"></div>
+    </div>
+
+    <div class="m-sec">
+      <h3>Distribuição</h3>
+      <div class="m-row">
+        <div class="m-field"><label>URL carrossel</label><input id="f-carrossel" value="${esc(it.carrossel_url)}" placeholder="/inbound/carousel?..."></div>
+        <div class="m-field"><label>Agendado para</label><input id="f-agendado" type="date" value="${esc(it.agendado_para)}"></div>
+        <div class="m-field"><label>URL publicado</label><input id="f-url" value="${esc(it.url_publicado)}"></div>
+      </div>
+    </div>
+
+    <div class="m-row" style="margin-top:14px">
+      <button class="btn primary" style="flex:1" onclick="salvar()">💾 Salvar</button>
+      ${it.carrossel_url||it.estado==='copy_cta'?'<button class="btn" onclick="window.open(\'/inbound/carousel\',\'_blank\')">🎨 Carrossel</button>':''}
+      ${it.id?'<button class="btn" style="border-color:rgba(239,68,68,.3);color:#fca5a5" onclick="excluir()">🗑</button>':''}
+    </div>
+  `;
+  document.getElementById('modal-bg').classList.add('open');
+}
+
+function collectBody() {
+  return {
+    titulo: document.getElementById('f-titulo').value,
+    tema_keyword: document.getElementById('f-kw').value,
+    pilar: document.getElementById('f-pilar').value, lob: document.getElementById('f-pilar').value,
+    persona_alvo: document.getElementById('f-persona').value,
+    autor: document.getElementById('f-autor').value,
+    estado: document.getElementById('f-estado').value,
+    corpo: document.getElementById('f-corpo').value,
+    copy_text: document.getElementById('f-copy').value,
+    cta_sugerido: document.getElementById('f-cta').value,
+    carrossel_url: document.getElementById('f-carrossel').value,
+    agendado_para: document.getElementById('f-agendado').value,
+    url_publicado: document.getElementById('f-url').value,
+  };
+}
+
+async function salvar() {
+  const body = collectBody();
+  if (!body.titulo) { toast('Título obrigatório'); return; }
+  try {
+    let r;
+    if (cur.id) r = await fetch('/api/content/'+cur.id, { method:'PUT', headers:{'Content-Type':'application/json','x-editor-token':TOKEN}, body:JSON.stringify(body) });
+    else r = await fetch('/api/content', { method:'POST', headers:{'Content-Type':'application/json','x-editor-token':TOKEN}, body:JSON.stringify(body) });
+    const j = await r.json();
+    if (j.success) { toast('✅ Salvo'); closeModal(); load(); } else toast('Erro: '+(j.error||'falhou'));
+  } catch(e) { toast('Erro: '+e.message); }
+}
+
+async function analisar() {
+  if (!cur.id) { toast('Salve primeiro pra analisar'); return; }
+  // salva corpo atual antes de analisar
+  await fetch('/api/content/'+cur.id, { method:'PUT', headers:{'Content-Type':'application/json','x-editor-token':TOKEN}, body:JSON.stringify(collectBody()) });
+  try {
+    const r = await fetch('/api/content/'+cur.id+'/seo-check', { method:'POST', headers:{'x-editor-token':TOKEN} });
+    const j = await r.json();
+    if (j.success) { cur.seo=j.seo; cur.geo=j.geo; if(!cur.cta_sugerido)cur.cta_sugerido=j.cta.cta; cur.corpo=document.getElementById('f-corpo').value; renderModal(); toast(`SEO ${j.seo.score} · GEO ${j.geo.score}`); load(); }
+    else toast('Erro: '+(j.error||'falhou'));
+  } catch(e) { toast('Erro: '+e.message); }
+}
+
+async function excluir() {
+  if (!cur.id || !confirm('Excluir este conteúdo?')) return;
+  await fetch('/api/content/'+cur.id, { method:'DELETE', headers:{'x-editor-token':TOKEN} });
+  toast('Excluído'); closeModal(); load();
+}
+
+async function importRedatoria() {
+  try {
+    const r = await fetch('/api/content/import-redatoria', { method:'POST', headers:{'x-editor-token':TOKEN} });
+    const j = await r.json();
+    if (j.success) { toast(`✅ ${j.importados} importados (${j.total_redatoria} na Redatoria)`); load(); }
+    else toast('Erro: '+(j.error||'falhou'));
+  } catch(e) { toast('Erro: '+e.message); }
+}
+
+function closeModal(){ document.getElementById('modal-bg').classList.remove('open'); cur=null; }
+document.getElementById('modal-bg').addEventListener('click', e => { if(e.target.id==='modal-bg') closeModal(); });
+load();
+</script>
+</body>
+</html>

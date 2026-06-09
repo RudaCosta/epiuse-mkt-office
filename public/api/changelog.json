@@ -1,13 +1,12 @@
 {
-  "current": "0.30.0",
+  "current": "0.31.0",
   "atualizado_em": "2026-06-09",
-  "next": [
-    { "version": "0.31.0", "sprint": "S31", "status": "planned",
-      "title": "Remodelagem do workflow de conteúdo",
-      "summary": "Remodelagem completa: briefing → artigo → revisão SEO/GEO → publicação automática. Integrar checklist SEO/GEO, preview LinkedIn, agendamento real via API LinkedIn (quando disponível), notificação pós-publicação. Substituir o Cowork atual pela nova cadeia." }
-  ],
+  "next": [],
   "releases": [
-    { "version": "0.30.0", "date": "09/jun/2026", "status": "current", "path": null,
+    { "version": "0.31.0", "date": "09/jun/2026", "status": "current", "path": null,
+      "title": "S31 — Pipeline de Conteúdo: SEO + GEO/AIO/AEO/LLMO + copy/CTA + carrossel",
+      "summary": "Nova tela /content-pipeline: kanban de 7 estados do processo inbound real (recebido → SEO/GEO → persona → copy+CTA → carrossel → agendado → publicado). SQLite: tabela content_pipeline (titulo, keyword, pilar, persona, corpo, seo_json, geo_json, copy_text, cta_sugerido, carrossel_url, agendamento, publicação). Lib determinística scripts/integrations/seo_checker.js (sem IA/token): checkSEO (título 30-60, keyword no título/início, ≥300 palavras, densidade 0.5-2.5%, ≥2 H2, listas) + checkGEO (AEO pergunta-resposta, AIO resposta direta ≤50 palavras, GEO dados citáveis + entidades nomeadas, LLMO estrutura + conclusão resumível) + suggestCTA (CTA de conversão por LOB/pilar → /contato). Server: GET /api/content (kanban + por_estado), POST /api/content (cria), PUT /api/content/:id (edita + transição estado, marca publicado_em auto), POST /api/content/:id/seo-check (calcula SEO+GEO+CTA), DELETE, POST /api/content/import-redatoria (puxa itens fonte=redatoria do editorial_calendar). UI: kanban com cards por estado (scores SEO/GEO coloridos), modal completo (dados, corpo markdown, checklists SEO+GEO com ✓/○, copy+CTA, distribuição com link carrossel + agendamento), botão importar Redatoria. Link no nav. Nota: publicação no blog WordPress permanece manual (credenciais admin pendentes com TI) — pipeline entrega tudo até o HTML pronto. Encerra o roadmap S29-S31." },
+    { "version": "0.30.0", "date": "09/jun/2026", "status": "snapshot", "path": null,
       "title": "S30 — Field Marketing: briefing pré-evento + captura pós-evento + ROI",
       "summary": "Nova tela /field-marketing: gestão dos 92 eventos (events.json BR+LATAM) com camada de field marketing. Template da Isabela (cronograma_gantt_eventos v1.xlsx) parseado para public/api/field-template.json: 5 fases, 56 tarefas (tipo/responsável/prazo), 14 itens de checklist D-Day, 7 planos B. SQLite: tabela field_events (status, brindes_json, captura_json, briefing_json, orçamento, porte por evento). Server: GET /api/field-marketing (junta events.json + enriquecimento SQLite + KPIs: por status, leads/qualificados/deals capturados, custo total, custo por lead) + POST /api/field-marketing/:id (upsert por evento, editor token). Script parse_field_template.py. UI: 6 KPI cards, tabs por status (planejamento/pré-evento/live/pós-evento/concluído), grid de cards de evento com border-color por status, modal por evento com (1) dados editáveis, (2) form de captura pós-evento (leads/qualificados/deals/custo/obs), (3) briefing completo gerado do template com export PDF. express.json subido p/ 4mb cobre todos os syncs grandes. Nota de escopo: eventos já aparecem no /inbound/calendar (layer epiuse, mesma fonte) — não duplicados; brindes mantidos como campo editável (erp-impacto.html permanece dedicado ao impacto social ERP.ngo, não a brindes de evento). Link no nav (Reports & Análises)." },
     { "version": "0.29.0", "date": "09/jun/2026", "status": "snapshot", "path": null,
