@@ -316,7 +316,7 @@ const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 app.set('trust proxy', 1);
 
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.json());
+app.use(express.json({ limit: '4mb' })); // 4mb cobre syncs grandes (SAP 4 ME 705 projetos ~370KB)
 
 // ── SSO MICROSOFT (Entra ID) — Opcao A: qualquer dominio em SSO_ALLOWED_DOMAINS ──
 const session = IS_LOCAL_DEV ? require(localModules + '/express-session') : require('express-session');
