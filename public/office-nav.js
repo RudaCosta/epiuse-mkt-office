@@ -5,9 +5,15 @@
 // ════════════════════════════════════════════════════════════════════════════
 
 // Versão atual exposta no chip ao lado do logomark.
-// Schema semver pré-1.0 — explicação completa em vault/00-contexto/versioning.md
-// Manter em sincronia com office-footer.js (OFFICE_FOOTER_VERSION).
-const OFFICE_NAV_VERSION = '0.28.0';
+// Fonte ÚNICA da verdade: public/api/changelog.json#current via /api/version
+// Fallback hardcoded usado SÓ se fetch falhar (offline, etc).
+// Sincronização automática — não editar manualmente, basta bumpar changelog.json.
+let OFFICE_NAV_VERSION = '0.28.0';
+// Promise compartilhada — nav + footer reaproveitam o mesmo fetch
+window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/version')
+  .then(r => r.ok ? r.json() : null)
+  .then(d => { if (d && d.current) { OFFICE_NAV_VERSION = d.current; window.__officeVersion = d.current; } return d; })
+  .catch(() => null);
 
 // Tokens CSS globais ERP.ngo (v0.4.12) — injetados em document.head pra ficar
 // disponíveis em todas as páginas. Cores oficiais do brand guide ERP.ngo v1.0.
@@ -129,6 +135,16 @@ class OfficeNav extends HTMLElement {
   connectedCallback() {
     this.render();
     this.hookEvents();
+    // Re-render quando versão real chegar do servidor (auto-sync)
+    if (window.__officeVersionPromise) {
+      window.__officeVersionPromise.then(d => {
+        if (d && d.current && d.current !== this._lastVersion) {
+          this._lastVersion = d.current;
+          this.render();
+          this.hookEvents();
+        }
+      });
+    }
   }
 
   getActiveRoute() {

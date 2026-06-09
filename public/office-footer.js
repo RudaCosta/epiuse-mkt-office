@@ -3,8 +3,14 @@
 // Status do sistema + versão atual + dropdown de versões anteriores
 // ════════════════════════════════════════════════════════════════════════════
 
-const OFFICE_FOOTER_VERSION = '0.28.0';
+// Fonte ÚNICA da verdade: public/api/changelog.json#current via /api/version
+// Fallback hardcoded usado SÓ se fetch falhar — sincronização automática com nav.
+let OFFICE_FOOTER_VERSION = '0.28.0';
 const OFFICE_FOOTER_BUILD = '2026-06-08';
+window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/version')
+  .then(r => r.ok ? r.json() : null)
+  .then(d => { if (d && d.current) { OFFICE_FOOTER_VERSION = d.current; window.__officeVersion = d.current; } return d; })
+  .catch(() => null);
 
 // SemVer real a partir de v1.0.0 (jun/2026). Versões 0.x eram pré-release.
 // Bug fix → 1.0.1 | Feature nova → 1.1.0 | Refactor grande → 2.0.0
@@ -76,6 +82,15 @@ class OfficeFooter extends HTMLElement {
   connectedCallback() {
     this.render();
     this.hookEvents();
+    if (window.__officeVersionPromise) {
+      window.__officeVersionPromise.then(d => {
+        if (d && d.current && d.current !== this._lastVersion) {
+          this._lastVersion = d.current;
+          this.render();
+          this.hookEvents();
+        }
+      });
+    }
   }
 
   render() {

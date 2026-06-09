@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,11 +13,11 @@
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --bg: #0a1628; --bg-card: rgba(15, 30, 53, 0.6);
+  --bg: #0a1628; --bg-card: rgba(15, 30, 53, 0.6); --bg-card-2: rgba(15, 30, 53, 0.4);
   --border: rgba(37,99,235,0.18); --border-light: rgba(255,255,255,0.06);
   --text: #e2e8f0; --text-dim: #94a3b8; --text-muted: #64748b;
   --primary: #2563EB; --primary-light: #60a5fa;
-  --success: #10b981; --warning: #f59e0b;
+  --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --purple: #a78bfa;
 }
 html, body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
 body {
@@ -26,53 +26,116 @@ body {
     var(--bg);
   background-attachment: fixed;
 }
-.wrap { max-width: 880px; margin: 0 auto; padding: 32px 28px 48px; }
-.page-head { text-align: center; margin-bottom: 44px; }
+.wrap { max-width: 980px; margin: 0 auto; padding: 32px 28px 48px; }
+
+/* HEADER */
+.page-head { text-align: center; margin-bottom: 36px; }
 .page-eyebrow { font-size: 11px; letter-spacing: 0.28em; color: var(--primary-light); text-transform: uppercase; font-weight: 700; margin-bottom: 8px; }
 .page-h1 { font-family: 'Press Start 2P', monospace; font-size: 22px; color: var(--text); letter-spacing: 0.04em; line-height: 1.5; margin-bottom: 12px; }
-.page-sub { font-size: 14px; color: var(--text-dim); max-width: 540px; margin: 0 auto; line-height: 1.55; }
+.page-sub { font-size: 14px; color: var(--text-dim); max-width: 600px; margin: 0 auto; line-height: 1.55; }
+.live-version {
+  display: inline-flex; align-items: center; gap: 8px;
+  margin-top: 14px; padding: 6px 14px;
+  background: rgba(16,185,129,0.10); border: 1px solid rgba(16,185,129,0.30);
+  border-radius: 20px; font-size: 12px; color: var(--success); font-weight: 600;
+}
+.live-version .dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; box-shadow: 0 0 6px var(--success); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: .4 } }
 
-.timeline { position: relative; padding-left: 36px; }
-.timeline::before {
-  content: ''; position: absolute; left: 11px; top: 8px; bottom: 8px; width: 2px;
-  background: linear-gradient(to bottom, var(--border), transparent);
+/* SECTION HEAD */
+.sec-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; margin: 28px 0 14px; padding: 0 4px;
 }
-.entry {
+.sec-h2 { font-size: 18px; color: var(--primary-light); font-weight: 700; }
+.sec-h2 .ic { font-size: 14px; margin-right: 6px; }
+.sec-count { font-size: 11px; color: var(--text-muted); }
+
+/* NEXT (planned) cards */
+.next-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-bottom: 32px; }
+.next-card {
+  background: linear-gradient(135deg, rgba(167,139,250,0.10), rgba(96,165,250,0.05));
+  border: 1px solid rgba(167,139,250,0.25);
+  border-radius: 12px; padding: 16px;
+}
+.next-tag { display:inline-block; font-family: 'Press Start 2P', monospace; font-size: 9px; color: var(--purple); background: rgba(167,139,250,0.10); border: 1px solid rgba(167,139,250,0.30); padding: 4px 8px; border-radius: 5px; }
+.next-title { font-size: 14px; color: var(--text); margin: 10px 0 6px; font-weight: 700; }
+.next-summary { font-size: 12px; color: var(--text-dim); line-height: 1.55; }
+
+/* CURRENT (destaque grande) */
+.current-card {
   position: relative;
-  background: var(--bg-card);
-  border: 1px solid var(--border-light);
-  border-radius: 14px;
-  padding: 20px 24px;
-  margin-bottom: 16px;
-  transition: border-color .2s;
+  background: linear-gradient(135deg, rgba(16,185,129,0.10), rgba(37,99,235,0.06));
+  border: 1px solid rgba(16,185,129,0.35);
+  border-radius: 16px; padding: 24px 28px; margin-bottom: 28px;
 }
-.entry:hover { border-color: var(--border); }
-.entry::before {
-  content: '';
-  position: absolute;
-  left: -32px;
-  top: 22px;
-  width: 14px; height: 14px;
-  border-radius: 50%;
-  background: var(--bg);
-  border: 2px solid var(--primary);
+.current-card::before {
+  content: ''; position: absolute; left: -1px; top: -1px; bottom: -1px; width: 4px;
+  background: linear-gradient(180deg, var(--success), var(--primary)); border-radius: 16px 0 0 16px;
 }
-.entry.current::before { background: var(--success); border-color: var(--success); box-shadow: 0 0 8px var(--success); }
-.entry-head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
-.ver-tag { font-family: 'Press Start 2P', monospace; font-size: 11px; color: var(--primary-light); background: rgba(37,99,235,0.10); border: 1px solid rgba(37,99,235,0.3); padding: 5px 10px; border-radius: 5px; letter-spacing: 0.04em; }
-.ver-tag.current { color: var(--success); background: rgba(16,185,129,0.10); border-color: rgba(16,185,129,0.3); }
-.entry-date { font-size: 12px; color: var(--text-muted); }
-.entry-status { font-size: 11px; padding: 3px 9px; border-radius: 10px; font-weight: 600; }
-.status-live { background: rgba(16,185,129,0.10); color: var(--success); border: 1px solid rgba(16,185,129,0.3); }
-.status-local { background: rgba(245,158,11,0.10); color: var(--warning); border: 1px solid rgba(245,158,11,0.3); }
-.status-broken { background: rgba(239,68,68,0.10); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
-.entry-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
-.entry-body { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
-.entry-body ul { padding-left: 18px; margin: 6px 0; }
-.entry-body li { margin: 3px 0; }
-.entry-body code { background: rgba(255,255,255,0.05); padding: 1px 5px; border-radius: 3px; font-size: 11px; }
-.entry-link { display: inline-block; margin-top: 12px; font-size: 12px; color: var(--primary-light); text-decoration: none; padding: 5px 10px; background: rgba(37,99,235,0.08); border-radius: 5px; }
-.entry-link:hover { background: rgba(37,99,235,0.18); }
+.current-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+.current-tag { font-family: 'Press Start 2P', monospace; font-size: 11px; color: var(--success); background: rgba(16,185,129,0.10); border: 1px solid rgba(16,185,129,0.30); padding: 6px 12px; border-radius: 6px; }
+.current-date { font-size: 12px; color: var(--text-muted); }
+.current-badge { font-size: 11px; padding: 3px 9px; border-radius: 10px; font-weight: 600; background: rgba(16,185,129,0.10); color: var(--success); border: 1px solid rgba(16,185,129,0.3); }
+.current-title { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px; }
+.current-summary { font-size: 13.5px; color: var(--text-dim); line-height: 1.65; }
+
+/* ACCORDION (snapshots) */
+.snap-list { display: flex; flex-direction: column; gap: 6px; }
+.snap-item {
+  background: var(--bg-card-2); border: 1px solid var(--border-light);
+  border-radius: 10px; overflow: hidden; transition: border-color .15s;
+}
+.snap-item:hover { border-color: var(--border); }
+.snap-item[open] { background: var(--bg-card); border-color: var(--border); }
+.snap-summary {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 18px; cursor: pointer; list-style: none;
+  font-size: 13px; user-select: none; transition: background .12s;
+}
+.snap-summary::-webkit-details-marker { display: none; }
+.snap-summary:hover { background: rgba(96,165,250,0.04); }
+.snap-summary .caret {
+  width: 16px; height: 16px; flex-shrink: 0;
+  transition: transform .2s; color: var(--text-muted);
+}
+.snap-item[open] .snap-summary .caret { transform: rotate(90deg); color: var(--primary-light); }
+.snap-ver {
+  font-family: 'Press Start 2P', monospace; font-size: 9px;
+  color: var(--primary-light); background: rgba(37,99,235,0.08);
+  border: 1px solid rgba(37,99,235,0.18); padding: 4px 8px;
+  border-radius: 4px; min-width: 78px; text-align: center;
+}
+.snap-date { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+.snap-title { flex: 1; color: var(--text); font-weight: 500; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.snap-body {
+  padding: 4px 22px 18px 60px;
+  font-size: 12.5px; color: var(--text-dim); line-height: 1.65;
+  border-top: 1px solid var(--border-light);
+}
+.snap-body ul { padding-left: 18px; margin: 8px 0; }
+.snap-body li { margin: 4px 0; }
+.snap-body code { background: rgba(255,255,255,0.05); padding: 1px 5px; border-radius: 3px; font-size: 11px; }
+.snap-link {
+  display: inline-block; margin-top: 10px; font-size: 11px;
+  color: var(--primary-light); text-decoration: none;
+  padding: 4px 10px; background: rgba(37,99,235,0.08); border-radius: 5px;
+}
+.snap-link:hover { background: rgba(37,99,235,0.18); }
+
+@media (max-width: 640px) {
+  .snap-summary { padding: 10px 12px; flex-wrap: wrap; }
+  .snap-body { padding-left: 24px; padding-right: 12px; }
+  .snap-date { display: none; }
+}
+
+/* PM SPRINTS table */
+.pm-section { margin-bottom: 40px; }
+.pm-table-wrap { overflow-x: auto; background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 12px; }
+.pm-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.pm-table th { text-align: left; padding: 10px 14px; font-size: 10px; letter-spacing: .08em; color: var(--text-muted); text-transform: uppercase; border-bottom: 1px solid var(--border-light); background: rgba(255,255,255,0.03); }
+.pm-table td { padding: 9px 14px; color: var(--text-dim); vertical-align: top; border-bottom: 1px solid var(--border-light); }
+.pm-table tr:last-child td { border-bottom: 0; }
 </style>
 </head>
 <body data-route="changelog">
@@ -82,41 +145,158 @@ body {
   <header class="page-head">
     <div class="page-eyebrow">Histórico de Releases</div>
     <h1 class="page-h1">CHANGELOG</h1>
-    <p class="page-sub">Todas as versões do EPI-USE Office, em ordem cronológica reversa. Cada release tem snapshot completo em <code>_versoes-office/</code>.</p>
+    <p class="page-sub">Todas as versões do EPI-USE Office, em ordem cronológica reversa.
+      Itens fechados ficam recolhidos — clique para expandir.</p>
+    <div class="live-version" id="live-ver">
+      <span class="dot"></span>
+      <span>Versão atual em produção: <strong id="live-ver-num">—</strong></span>
+    </div>
   </header>
 
-  <!-- ROADMAP PM (planilha do Rudá lida ao vivo) -->
-  <section id="pm-board" style="margin-bottom:48px">
-    <h2 style="font-size:18px;margin:0 0 6px;color:var(--primary-light)">🗂️ Roadmap PM — sprints (planilha viva)</h2>
-    <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px">
-      Fonte: <code>public/api/sprints-pm.xlsx</code> · controlada pelo Rudá no Desktop · atualizada via commit.
-    </p>
-    <div id="pm-table"><p style="color:var(--text-muted);font-size:13px">Carregando…</p></div>
+  <!-- PRÓXIMAS SPRINTS (planned) -->
+  <section class="pm-section" id="next-sec" style="display:none">
+    <div class="sec-head">
+      <div class="sec-h2"><span class="ic">🗺️</span>Próximas sprints (planejadas)</div>
+      <span class="sec-count" id="next-count">—</span>
+    </div>
+    <div class="next-grid" id="next-grid"></div>
   </section>
 
-  <div class="timeline" id="timeline"></div>
+  <!-- VERSÃO ATUAL -->
+  <section id="current-sec">
+    <div class="sec-head">
+      <div class="sec-h2"><span class="ic">🟢</span>Versão atual</div>
+    </div>
+    <div id="current-wrap"><p style="color:var(--text-muted);font-size:13px">Carregando…</p></div>
+  </section>
+
+  <!-- HISTÓRICO (sanfona) -->
+  <section style="margin-top:28px">
+    <div class="sec-head">
+      <div class="sec-h2"><span class="ic">📜</span>Histórico (releases anteriores)</div>
+      <span class="sec-count" id="snap-count">—</span>
+    </div>
+    <div class="snap-list" id="snap-list">
+      <p style="color:var(--text-muted);font-size:13px;padding:12px">Carregando…</p>
+    </div>
+  </section>
+
+  <!-- ROADMAP PM (sprints da planilha) -->
+  <section class="pm-section" id="pm-board" style="margin-top:40px">
+    <div class="sec-head">
+      <div class="sec-h2"><span class="ic">🗂️</span>Roadmap PM — sprints (planilha viva)</div>
+    </div>
+    <p style="font-size:12px;color:var(--text-muted);margin:-8px 0 14px">
+      Fonte: <code>public/api/sprints-pm.xlsx</code> · controlada pelo Rudá no Desktop · atualizada via commit.
+    </p>
+    <div id="pm-table"><p style="color:var(--text-muted);font-size:13px;padding:12px">Carregando…</p></div>
+  </section>
 </div>
 
+<office-footer></office-footer>
+
 <script>
+// Util: escape (defensivo, summary é texto controlado mas...)
+function esc(s) {
+  if (s == null) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+// Permite tags básicas no body (summary tem <code>, <b>, <ul>)
+function rich(s) {
+  return String(s||'').replace(/\n/g, '<br>');
+}
+
+// Renderiza sumário em formato curto (1-2 linhas) sem cortar palavras feio
+function shortTitle(s, max) {
+  s = String(s||'');
+  if (s.length <= max) return s;
+  return s.slice(0, max).replace(/\s+\S*$/, '') + '…';
+}
+
+(async function loadChangelog(){
+  try {
+    const r = await fetch('/api/changelog.json?t=' + Date.now());
+    const d = await r.json();
+    const releases = d.releases || [];
+    const next = d.next || [];
+
+    // Live version
+    document.getElementById('live-ver-num').textContent = d.current || '—';
+
+    // Próximas (planned)
+    if (next.length) {
+      document.getElementById('next-sec').style.display = '';
+      document.getElementById('next-count').textContent = `${next.length} planejada${next.length>1?'s':''}`;
+      document.getElementById('next-grid').innerHTML = next.map(n => `
+        <div class="next-card">
+          <span class="next-tag">${esc(n.sprint||'')} · ${esc(n.version||'')}</span>
+          <div class="next-title">${esc(n.title||'—')}</div>
+          <div class="next-summary">${esc(n.summary||'')}</div>
+        </div>
+      `).join('');
+    }
+
+    // Versão atual (primeira release com status 'current' ou primeiro item)
+    const current = releases.find(r => r.status === 'current') || releases[0];
+    if (current) {
+      document.getElementById('current-wrap').innerHTML = `
+        <div class="current-card">
+          <div class="current-head">
+            <span class="current-tag">v${esc(current.version)}</span>
+            <span class="current-date">${esc(current.date||'')}</span>
+            <span class="current-badge">🚀 Em produção</span>
+          </div>
+          <div class="current-title">${esc(current.title||'—')}</div>
+          <div class="current-summary">${rich(current.summary||'')}</div>
+        </div>`;
+    }
+
+    // Histórico (todos exceto current) — sanfona, fechados por padrão
+    const snapshots = releases.filter(r => r !== current);
+    document.getElementById('snap-count').textContent = `${snapshots.length} versões`;
+    if (!snapshots.length) {
+      document.getElementById('snap-list').innerHTML = '<p style="color:var(--text-muted);font-size:13px;padding:12px">Sem histórico ainda.</p>';
+    } else {
+      document.getElementById('snap-list').innerHTML = snapshots.map(rel => `
+        <details class="snap-item">
+          <summary class="snap-summary">
+            <svg class="caret" viewBox="0 0 16 16" fill="currentColor"><path d="M6 4l4 4-4 4V4z"/></svg>
+            <span class="snap-ver">${esc(rel.version)}</span>
+            <span class="snap-date">${esc(rel.date||'')}</span>
+            <span class="snap-title">${esc(rel.title||'—')}</span>
+          </summary>
+          <div class="snap-body">
+            ${rich(rel.summary||'')}
+            ${rel.path ? `<a class="snap-link" href="${esc(rel.path)}">Ver snapshot →</a>` : ''}
+          </div>
+        </details>
+      `).join('');
+    }
+  } catch(e) {
+    document.getElementById('current-wrap').innerHTML = '<p style="color:#fca5a5;font-size:12px">Erro ao carregar changelog: ' + esc(e.message) + '</p>';
+  }
+})();
+
+// Roadmap PM Sprints (planilha)
 (async function loadPMSprints(){
   try {
     const r = await fetch('/api/sprints?t=' + Date.now());
     const d = await r.json();
     if (!d.sprints || !d.sprints.length) {
-      document.getElementById('pm-table').innerHTML = '<p style="color:var(--text-muted);font-size:13px">Planilha vazia.</p>';
+      document.getElementById('pm-table').innerHTML = '<p style="color:var(--text-muted);font-size:13px;padding:12px">Planilha vazia.</p>';
       return;
     }
     const updated = new Date(d.atualizado_em).toLocaleString('pt-BR');
     const headers = Object.keys(d.sprints[0]);
     const html = `
-      <div style="overflow-x:auto;background:var(--bg-card);border:1px solid var(--border-light);border-radius:12px">
-        <table style="width:100%;border-collapse:collapse;font-size:12.5px">
-          <thead><tr style="background:rgba(255,255,255,0.03)">
-            ${headers.map(h => `<th style="text-align:left;padding:10px 14px;font-size:10px;letter-spacing:.08em;color:var(--text-muted);text-transform:uppercase;border-bottom:1px solid var(--border-light)">${h}</th>`).join('')}
+      <div class="pm-table-wrap">
+        <table class="pm-table">
+          <thead><tr>
+            ${headers.map(h => `<th>${esc(h)}</th>`).join('')}
           </tr></thead>
           <tbody>
-            ${d.sprints.map(s => `<tr style="border-bottom:1px solid var(--border-light)">
-              ${headers.map(h => `<td style="padding:9px 14px;color:var(--text-dim);vertical-align:top">${s[h] || ''}</td>`).join('')}
+            ${d.sprints.map(s => `<tr>
+              ${headers.map(h => `<td>${esc(s[h]||'')}</td>`).join('')}
             </tr>`).join('')}
           </tbody>
         </table>
@@ -124,432 +304,9 @@ body {
       <p style="font-size:10.5px;color:var(--text-muted);margin-top:8px;text-align:right">${d.total} sprints · atualizado em ${updated}</p>`;
     document.getElementById('pm-table').innerHTML = html;
   } catch(e) {
-    document.getElementById('pm-table').innerHTML = '<p style="color:#fca5a5;font-size:12px">Erro: ' + e.message + '</p>';
+    document.getElementById('pm-table').innerHTML = '<p style="color:#fca5a5;font-size:12px;padding:12px">Erro: ' + esc(e.message) + '</p>';
   }
 })();
-</script>
-
-<office-footer></office-footer>
-
-<script>
-// Semver pré-1.0 (0.X.Y) enquanto integrações de dados reais estiverem pendentes.
-// 1.0.0 fica reservado para quando: SSO ativo + dados reais plugados + Railway estável.
-// Detalhes dos critérios em vault/00-contexto/versioning.md.
-const RELEASES = [
-  {
-    version: '0.14.0', date: '05/jun/2026', current: true, status: 'current',
-    title: 'SPRINT 18 — RD Station integrado (OAuth2) + KPIs de e-mail reais',
-    body: `<ul>
-      <li><b>RD Station OAuth2</b>: <code>scripts/integrations/rd_fetch.js</code> + <code>/auth/rd-callback</code> troca code por refresh_token permanente.</li>
-      <li><b>Dados puxados</b>: 25 segmentações (com tamanho real via paginação), 9 workflows ativos, 19 LPs publicadas, 73 emails enviados (histórico).</li>
-      <li><b>Card e-mail no /relatorio</b>: fim do ⏳ — agora mostra base de leads, enviados no mês, workflows ativos, LPs publicadas (modo mensal e FY).</li>
-      <li><b>POST /api/relatorio/rd-refresh</b>: protegido por EDITOR_TOKEN, atualiza snapshot sob demanda ou via cron.</li>
-      <li><b>Bonus desta sprint</b>: top páginas GA4 (com seção 1b no /relatorio) e duração média ponderada por sessões no modo FY.</li>
-    </ul>`
-  },
-  {
-    version: '0.13.0', date: '04/jun/2026', status: 'snapshot',
-    title: 'SPRINT 17 — Relatório FY (anual fiscal) + GA4 12 meses',
-    body: `<ul>
-      <li><b>Visão anual fiscal</b>: /relatorio ganha <code>FY26</code> (jul/25→jun/26) e <code>FY27</code> (jul/26→jun/27) no seletor de mês.</li>
-      <li><b>Backend FY</b>: <code>GET /api/relatorio/snapshot?fy=26|27</code> agrega site (soma 12m), LinkedIn (ganho total + saldo FY), eventos do FY, cases atuais e voices.</li>
-      <li><b>GA4 multi-mês</b>: <code>ga4_fetch.js</code> ganha <code>fyMonths(fy)</code> + <code>refreshFY(fy)</code> que popula 12 meses do cache. <code>POST /api/relatorio/ga4-refresh-fy?fy=26</code> protegido por token.</li>
-      <li><b>FY26 confirmado</b>: 32.142 usuários · 50.404 visualizações · 36.365 sessões agregadas reais.</li>
-      <li><b>Render adaptado</b>: modo FY mostra cobertura X/12 meses, saldo total (+/-N seguidores), labels "no FY" ao invés de "no mês". Sem MoM no modo anual.</li>
-    </ul>`
-  },
-  {
-    version: '0.12.0', date: '04/jun/2026', status: 'snapshot',
-    title: 'SPRINT 16 — Infra de produção + GA4 Data API',
-    body: `<ul>
-      <li><b>SSO Microsoft ATIVO</b>: login com conta @epiuse.com.br (Entra ID) · botão "Entrar com Microsoft" na tela de entrada · <code>/api/auth/status</code> retorna enabled.</li>
-      <li><b>Railway Volume /data</b>: SQLite agora PERSISTE entre deploys — fim do reset de cases a cada push.</li>
-      <li><b>Domínio oficial</b>: <code>office.epiuse.com.br</code> (CNAME no cPanel apontando pro Railway).</li>
-      <li><b>Sync de cases em Node.js</b>: <code>sync_cases_roberto.js</code> substitui o Python (roda em qualquer máquina) · multi-target (local · Railway · site).</li>
-      <li><b>Integração GA4</b>: <code>ga4_fetch.js</code> (Railway-safe via GA4_SA_JSON · runReport mês+anterior com MoM · cache ga4-snapshot.json) + bloco <code>site</code> no <code>/api/relatorio/snapshot</code> + card Site real no /relatorio + <code>POST /api/relatorio/ga4-refresh</code>.</li>
-      <li><b>Regra de ouro 13</b>: dados automatizados, zero planilha manual (API → browser logado → manual só em último caso).</li>
-    </ul>`
-  },
-  {
-    version: '0.11.0', date: '04/jun/2026', status: 'snapshot',
-    title: 'SPRINT 15 — Módulo C · Painel da Duda real (Daily Digest + Inbox por área)',
-    body: `<ul>
-      <li><b>Daily Digest</b>: saudação contextual + resumo do que merece atenção hoje · pills com Voices ativos / inbox total / semana · ações pendentes com link RESOLVER/ABRIR direto pra agente.</li>
-      <li><b>Inbox por área</b>: feed unificado dos workspaces que a Duda toca (area-brand · criativos · landing-pages · pipe-capa · pipe-carrossel).</li>
-      <li><b>APIs novas:</b> <code>GET /api/painel/digest</code> · <code>GET /api/painel/inbox-duda</code>. Auto-refresh 60s. KPIs, tabela Voices, kanban e ações rápidas preservados.</li>
-    </ul>`
-  },
-  {
-    version: '0.10.1', date: '04/jun/2026', status: 'snapshot',
-    title: 'Fix Cowork — auto-cria pasta inbox em workspaces inexistentes',
-    body: `<ul>
-      <li>Workspaces dos <code>pipe-*</code> não existiam no Railway (eram só locais) → workflows falhavam com 5 erros.</li>
-      <li>Fix: <code>mkdirSync</code> recursive antes de gravar. Testado em prod: criar-artigo dispara 5/5 inboxes.</li>
-    </ul>`
-  },
-  {
-    version: '0.10.0', date: '04/jun/2026', status: 'snapshot',
-    title: 'SPRINT 14 — Cowork + workflows dinâmicos entre agentes',
-    body: `<ul>
-      <li>Nova área <code>/cowork</code> onde agentes trabalham em cadeia.</li>
-      <li>Workflows definidos em JSON (<code>vault/workflows/*.json</code>) com inputs tipados + steps + dependências (<code>depende_de</code>).</li>
-      <li><code>POST /api/workflows/:slug/run</code> cria pedidos encadeados em cada inbox com <code>run_id</code> compartilhado.</li>
-      <li>Feed unificado <code>/api/cowork/atividade</code> (todos inboxes+outboxes ordenados por mtime).</li>
-      <li>2 workflows seed: <code>criar-artigo</code> (5 agentes em cadeia) e <code>nova-oferta</code> (criativos+lp+campanhas → propostas).</li>
-    </ul>`
-  },
-  {
-    version: '0.9.5', date: '03/jun/2026', status: 'snapshot',
-    title: 'Padrão visual Anderson Costa — aplicado nos 2 Optimizers (V1 + V2)',
-    body: `<ul>
-      <li>Templates V1 e V2 geram HTML seguindo o padrão do kit Anderson Costa: tema dark navy <code>#0d1b2e</code> · fonte Inter · print-bar fixa com botão Salvar PDF · cover com badge + h1 + meta-pills · cards com step-num · status-table com badges · copy-block azul · checklist interativo com localStorage.</li>
-      <li>CSS inteiro embedded nos templates como referência obrigatória. Padrão visual preservado em <code>vault/00-contexto/prompts/</code>.</li>
-    </ul>`
-  },
-  {
-    version: '0.9.4', date: '02/jun/2026', status: 'snapshot',
-    title: 'Optimizer V2 — framework findskill.ai (mantém V1)',
-    body: `<ul>
-      <li>Nova rota <code>/optimizer-v2</code> baseada no LinkedIn Profile Optimizer da findskill.ai.</li>
-      <li>5 variáveis estruturadas + transcrição opcional · kit em 10 páginas A4 · 3 career goals (Thought Leadership / Clientes / Recrutamento).</li>
-      <li>Voice chip pré-popula 8 campos. V1 (<code>/optimizer</code>) mantida intacta.</li>
-    </ul>`
-  },
-  {
-    version: '0.9.3 → 0.9.1', date: '01-02/jun/2026', status: 'snapshot',
-    title: 'Optimizer refundações: transcrição direto → zero tokens → artifact IA',
-    body: `<ul>
-      <li><b>0.9.3</b> — Input transcrição direto (sem formulário) · Pág 1 com Voice Index + Resumo executivo · Voice chip pré-popula header.</li>
-      <li><b>0.9.2</b> — 1 template <code>.md</code> canônico · IA gera artifact HTML já formatado · PDF via window.print · ZERO chamada API · 3.500 linhas → ~400.</li>
-      <li><b>0.9.1</b> — ZERO tokens Anthropic · prompt copiável pra qualquer IA (Claude/ChatGPT/Gemini) · modal Prompt Lab com textarea pra colar JSON da resposta.</li>
-    </ul>`
-  },
-  {
-    version: '0.9.0', date: '01/jun/2026', status: 'snapshot',
-    title: 'SPRINT 9 — Optimizer refundado (Voice dropdown + PDF institucional + fluxo revisão)',
-    body: `<ul>
-      <li>Modo Voice cadastrado (dropdown direto pra Anderson/Furigo · pré-popula 14 campos).</li>
-      <li>PDF institucional via window.print (capa institucional pág 1 · sumário pág 2 · 1 seção por página A4 · fontes vetoriais).</li>
-      <li>Fluxo de revisão (rascunho → revisão → pronto · PDF só libera com kit revisado · estado persistido por Voice em localStorage).</li>
-    </ul>`
-  },
-  {
-    version: '0.8.3', date: '01/jun/2026', status: 'snapshot',
-    title: 'Pipeline 5 agentes (briefing → artigo → capa + carrossel + copy) + biblioteca carrossel',
-    body: `<ul>
-      <li>5 agentes em cadeia na 4ª camada do <code>/agentes</code> · 17 agentes totais no escritório.</li>
-      <li>Carrossel ganha busca nos 693 artigos do blog (importa título + slug + LOB pro brief).</li>
-    </ul>`
-  },
-  {
-    version: '0.8.2', date: '01/jun/2026', status: 'snapshot',
-    title: 'Agente relatorio-mensal + overflow nav reorganizado em 5 seções',
-    body: `<ul>
-      <li>Agente <code>relatorio-mensal</code> completo: skill + workspace + cron mensal dia 1 às 08:05.</li>
-      <li>Overflow do nav agrupado em 5 seções (Escritório Virtual · Reports · Voices · Design · Extras) · duplicatas removidas.</li>
-    </ul>`
-  },
-  {
-    version: '0.8.1', date: '01/jun/2026', status: 'snapshot',
-    title: 'Arquitetura agentes 3-camadas + ciclo inbox/outbox real',
-    body: `<ul>
-      <li>6 agentes de área (1 por dona) + tela <code>/agentes/:slug</code> com workspace real (inbox · outbox · _vt · entregas).</li>
-      <li><code>POST inbox</code> cria pedidos no vault · badges 📥📤 no /agentes · sparkline Growth (LinkedIn 14m).</li>
-      <li>F9 duplicar Voice · F10 dark mode auto OS.</li>
-    </ul>`
-  },
-  {
-    version: '0.8.0', date: '31/mai/2026', status: 'snapshot',
-    title: 'SSO Microsoft + 6 módulos por área com dado real ao vivo',
-    body: `<ul>
-      <li>Login Microsoft (Entra ID) com botão Entrar no nav e whitelist de domínios EPI-USE.</li>
-      <li>6 módulos por área (Intelligence · Growth · Eventos · Pipeline · Brand · Conteúdo) puxando dado REAL ao vivo de Apollo/LinkedIn/Artigos/Cases.</li>
-      <li>Chip "ao vivo" + marca de fonte por número · pendências honestas (⏳ aguarda integração).</li>
-    </ul>`
-  },
-  {
-    version: '0.7.1', date: '30/mai/2026', status: 'snapshot',
-    title: 'Estabilização + Migração C:\\ + Dados reais (Apollo diário · LinkedIn)',
-    body: `Fundação estabilizada + dados reais que se atualizam sozinhos.
-    <ul>
-      <li><b>Apollo sync DIÁRIO automático</b>: Tarefa Agendada (6h) → <code>/pipeline</code> com 39.166 contatos · 14.027 empresas · 15 sequências reais, sem Claude no meio.</li>
-      <li><b>Migração pro disco local</b> <code>C:\\epiuse-mkt-office</code> (GitHub <code>epiuse-mkt-office</code>): resolve o clobber do Google Drive. vault no git.</li>
-      <li><b>LinkedIn real 10.640</b> + atualização em 5s no <code>/metas</code> (corrigido 7.844 chumbado).</li>
-      <li><b>CMD para de piscar</b> (tarefas via VBS oculto) · <b>GA4</b> em integração (OAuth).</li>
-      <li><b>Fonte ÚNICA de versões</b> (<code>changelog.json</code>): dashboard + footer + /changelog leem dela — sem mais drift.</li>
-      <li><b>Regras de Ouro 11</b> (roadmap sempre aberto) <b>+ 12</b> (repo no C:\\).</li>
-    </ul>`
-  },
-  {
-    version: '0.7.0', date: '30/mai/2026', status: 'snapshot',
-    title: 'Estabilização + Design Codex + Multi-tool',
-    body: `<ul>
-      <li><b>Localhost always-on</b>: causa raiz era <code>better-sqlite3</code> incompatível com Node 24 → fix prebuilt + Tarefa Agendada Windows (aposenta PM2). <code>/api/health</code> novo.</li>
-      <li><b>Paleta Codex oficial</b> (#013A6A + Open Sans + surfaces claras), dark preservado.</li>
-      <li><b>Protocolo multi-tool</b> (Claude/Codex/Obsidian/openclaw) + lock + ROADMAP único.</li>
-    </ul>`
-  },
-  {
-    version: '0.6.0 → 0.6.4', date: '28/mai/2026', status: 'snapshot',
-    title: 'Design System (DESIGN.md + gen_tokens) + Brand oficial',
-    body: `<ul>
-      <li>DESIGN.md (spec Google Labs) + <code>gen_tokens.py</code> → design-tokens.css/json · viewer <code>/design</code>.</li>
-      <li>Brand Guides oficiais (EPI-USE V1.1 · ERP.ngo · Group Elephant) + cores reais do PPT Template Jan 2026 · Open Sans self-hosted · logos no nav · modularização <code>/modulos/</code>.</li>
-    </ul>`
-  },
-  {
-    version: '0.5.0 → 0.5.1', date: '27-28/mai/2026', status: 'snapshot',
-    title: 'Sprint dados + telas: /relatorio · /artigos · /metas-fy26 · Rule 7',
-    body: `<ul>
-      <li><code>/relatorio</code> (espelha PPT mensal) · <code>/artigos</code> (693 do Manus) · <code>/jornadas</code> · <code>/projecoes</code> (paid media) · <code>/pipeline</code>.</li>
-      <li><code>/metas-fy26</code> (29 metas × 6 áreas) · skill <code>relatorio-mensal</code> · <b>Regra 7 NO FAKE DATA</b> + auditoria de fontes.</li>
-    </ul>`
-  },
-  {
-    version: '0.4.12', date: '27/mai/2026', status: 'snapshot',
-    title: 'Optimizer 2-calls + ERP.ngo branding + Export PDF',
-    body: `<ul><li>Split <code>/api/analisar-perfil</code> em 2 calls Sonnet (sem timeout) · ERP.ngo logo+tokens · Export PDF do kit (html2pdf).</li></ul>`
-  },
-  {
-    version: '0.4.11', date: '26/mai/2026', status: 'snapshot',
-    title: 'HOTFIX: extract da transcrição (Haiku + AbortController + timer visual)',
-    body: `Bug crítico: "signal is aborted without reason" ao extrair transcrição da entrevista.
-    <ul>
-      <li><b>Root cause:</b> fetch <code>/from-transcript</code> não tinha AbortController nem timeout. Sonnet 4.6 com input grande (transcrição completa) demorava >60s e o browser/Railway abortava sem mensagem clara.</li>
-      <li><b>Fix backend:</b> trocou <code>claude-sonnet-4-6</code> → <code>claude-haiku-4-5</code> no endpoint <code>/api/optimizer/from-transcript</code> (5× mais rápido, qualidade suficiente pra extração estruturada). Adicionou check de <code>stop_reason === 'max_tokens'</code> com erro específico.</li>
-      <li><b>Fix frontend:</b> AbortController explícito com timeout 120s no extract + 180s no kit. Timer visual em tempo real ("⏱ 15s decorridos..."). Catch específico pra AbortError com mensagem amigável ("Tempo esgotado, reduza transcrição") em vez de error genérico.</li>
-      <li><b>Regra de ouro nova:</b> CLAUDE.md atualizado — Claude sempre lembra pendências em toda conversa + avisa quando bate ~75% do contexto.</li>
-    </ul>`
-  },
-  {
-    version: '0.4.10', date: '26/mai/2026', status: 'snapshot',
-    title: 'HOTFIX: "+ Novo Voice" agora cria de verdade',
-    body: `Bug crítico reportado: "Erro ao salvar: Voice não encontrado: ruda-costa".
-    <ul>
-      <li><b>Root cause:</b> o modal "+ Novo Voice (auto-preenche via IA)" fazia <code>PUT /api/voices/:slug</code> que SÓ ATUALIZAVA Voice existente. Pra Voice novo, o slug ainda não existe → 404.</li>
-      <li><b>Fix:</b> transformei o PUT em <b>upsert</b> — se o slug não existe, cria do zero com schema completo (nome, cargo, área, status onboarding, foto dicebear gerada, etc) + aplica o patch normalmente.</li>
-      <li>Whitelist de campos editáveis expandida pra aceitar <code>nome, cargo, area, status, foto, bio</code> (antes só campos secundários).</li>
-      <li>Response agora retorna <code>created: true/false</code> pra UI saber se criou ou atualizou.</li>
-      <li>Console log diferencia <code>[VOICE-CREATE]</code> vs <code>[VOICE-EDIT]</code>.</li>
-    </ul>`
-  },
-  {
-    version: '0.4.9', date: '26/mai/2026', status: 'snapshot',
-    title: 'Optimizer 3 modos: transcrição (Claude lê tudo) · roteiro · manual',
-    body: `Refundação UX do Optimizer — chega de form gigante:
-    <ul>
-      <li><b>🎙️ Modo Transcrição (recomendado):</b> single textarea onde user cola conversa de entrevista (Meet/Teams/WhatsApp/Gong/áudio transcrito). Claude Sonnet 4.6 extrai 14+ campos automaticamente em ~20s, depois gera kit completo em ~90s. Endpoint novo: <code>POST /api/optimizer/from-transcript</code>.</li>
-      <li><b>📋 Modo Roteiro:</b> 12 perguntas-core já formatadas (Identidade · Resultados · Lado Humano · Objetivos · Conteúdo) com botões "Copiar texto" e "Baixar .md" pra mandar pro Voice via WhatsApp/Email/Forms.</li>
-      <li><b>✏️ Modo Manual:</b> form clássico mantido como fallback escondido por padrão.</li>
-      <li>Seletor de modo no topo (3 cards bonitos com ícone+descrição) — Transcrição como default ⭐</li>
-      <li>Prompt da extração captura também: certificações, eventos/palestras, kickoffs recentes, e <b>3-5 "trechos destacados"</b> com frases LITERAIS do Voice pra usar como conteúdo de posts</li>
-      <li>Sustentabilidade: user não preenche NADA manualmente — fluxo de 1 entrevista por Voice cobre todo o programa</li>
-    </ul>`
-  },
-  {
-    version: '0.4.8', date: '26/mai/2026', status: 'snapshot',
-    title: 'Painel de Metas LinkedIn + footer history corrigido',
-    body: `Apresentação corporativa: novo painel <code>/metas</code> com:
-    <ul>
-      <li><b>Hero com meta agressiva</b>: 7.844 → +10k em 12m (saída de 4.9/dia → 30/dia · 6× ritmo atual)</li>
-      <li><b>Tática do Elefante</b>: ranking de eventos por ROI — SAP NOW 2025 gerou 101 seg em 1 dia (20× média!), SAP NOW 2026 (72), Inside Track GO (28), BTP Experience (26)</li>
-      <li><b>2 gráficos Chart.js</b>: evolução mensal últ 12m + acumulado vs projeção meta (real azul, tendência atual cinza tracejado, meta agressiva rosa tracejado)</li>
-      <li><b>4 distribuições</b>: cidades (SP 52%), funções (TI 27%), setores (Serv TI 37%), tamanho empresa (10k+ 28%)</li>
-      <li><b>6 cards de Meta por Área editáveis</b>: Vendas (Sergio+Marlison), Brand (Duda), Intelligence (Bruna), Field (Isabela), Growth (Gui), Voices (Anderson+Carlos). Cada um tem 3 metas numéricas (30d, 90d, eventos/Q) + textarea ações. Auto-save no blur + botão "Salvar todas" via API</li>
-      <li><b>5 insights estratégicos</b>: SP saturada (priorizar não-SP), RH sub-representado, falta gerente/diretor, enterprise alinhado ICP, ritmo recente acelerando</li>
-      <li><b>Tab "🎯 Metas" no office-nav</b></li>
-      <li><b>Tabela SQLite <code>metas_linkedin</code></b> + endpoints <code>GET/POST /api/metas</code> (POST protegido por EDITOR_TOKEN)</li>
-      <li><b>Footer histórico de versões corrigido</b>: agora mostra todas as 0.4.1→0.4.8 corretas (antes parava em 0.4.0)</li>
-    </ul>`
-  },
-  {
-    version: '0.4.7', date: '26/mai/2026', status: 'snapshot',
-    title: 'Polish pré-apresentação corporativa + decisões SSO/RD',
-    body: `Polish menor antes da apresentação pra empresa inteira:
-    <ul>
-      <li><b>/cases header com EPI-USE Brasil</b> + subtitle "22 clientes na base" (branding reforçado)</li>
-      <li><b>22 cases reais em produção</b>: 19 do Roberto sincronizados via curl POST após setup do EDITOR_TOKEN no Railway. Distribuição: 1 publicado · 1 em edição · 13 negociação · 4 declinados · 3 CS legado.</li>
-      <li><b>Decisões tomadas pelo Rudá:</b> SSO Opção A (todo @epiuse.com.br loga, sem grupos), drop RD Station sync (pivot pra planilha Duda quando ela criar)</li>
-      <li><b>Doc novo:</b> <code>vault/00-contexto/pendencias.md</code> — Claude relê toda sessão pra lembrar bloqueadores externos (IT Azure AD, Duda planilha)</li>
-      <li><b>Doc novo:</b> <code>vault/00-contexto/email-ti-sso-microsoft.md</code> — email pronto pra forward ao admin Azure AD com 7 passos detalhados (enviado pelo Rudá em 26/mai)</li>
-    </ul>`
-  },
-  {
-    version: '0.4.6', date: '26/mai/2026', status: 'snapshot',
-    title: 'Decorator real no Game + 1-click sync Cases Roberto',
-    body: `Bateria de 6 sprints incrementais (0.4.1 → 0.4.6):
-    <ul>
-      <li><b>0.4.6 Decorator drag-drop</b> no <code>/game</code>: botão 🎨 Decorar no HUD, paleta de 20 emojis (☕📚🌵🎧📷🥤🪴🎮🍕🌱🎵🖼️🎯🏆💡📝🧸⌨️🐘🪐), click pra colar / right-click pra remover, persistido em <code>office.decor.{userName}</code> por usuário</li>
-      <li><b>0.4.5 Sync Cases 1-click</b>: botão "↻ Sync OneDrive" no <code>/cases</code> que invoca <code>POST /api/cases/sync-from-onedrive</code> → Node spawn Python → upserta direto do xlsx local sincronizado (atalho enquanto SSO Microsoft não destrava Graph API)</li>
-      <li><b>0.4.4 Studio merge no Carrossel</b>: <code>/inbound/studio</code> agora 301 → <code>/inbound/carousel?mode=single</code>; script detecta query param e esconde controles multi-slide; ferramentas inbound consolidadas em 4 (Brief · Carrossel · Post Único · Calendar · Playbook)</li>
-      <li><b>0.4.3 RD Station endpoint pronto</b>: <code>POST /api/inbound/sync-rd</code> tenta 3 endpoints (email_marketing, landing_pages, popups), persiste via <code>ON CONFLICT(external_id)</code>, botão "📤 Sync RD" no calendar. <b>Bloqueado por token:</b> a chave do AppStore Publisher não autoriza leitura de dados de conta — precisa Personal API Token gerada por admin master no painel RD Marketing</li>
-      <li><b>0.4.2 Sync Cases real do Roberto</b>: 19 cases reais da planilha "Controle de Cases Cliente Referência Empresas Transformadoras 2025" carregados via script Python lendo o xlsx do OneDrive local; KPIs do <code>/cases</code> refatorados pra refletir cycle Customer Reference (PUBLICADOS · EM EDIÇÃO · NEGOCIAÇÃO · DECLINADOS); 5 status-pills novos com cores adequadas</li>
-      <li><b>0.4.1 Optimizer 7 Pilares + Voice Index</b>: prompt expandido com avaliação em 7 pilares (Identidade · Autoridade · Conteúdo · Network · SSI · Aderência EPI-USE · Conversão) × 30+ critérios em escala 4 níveis (🟢 forte 🟡 ok 🟠 fraco 🔴 ausente); nova seção "🏆 EPI-USE Voice Index" no topo do kit com score circular conic-gradient 0-100, cards por pilar com barra de progresso, legenda e responsivo mobile</li>
-      <li><b>Doc SSO Microsoft expandido</b>: checklist de 9 passos (A-I) que vai direto pro admin Azure AD — app registration, client secret 24m, Microsoft Graph permissions (openid/profile/email/User.Read/offline_access), token configuration, sign-in audience, grupos opcionais (Admins/Voices/CS), branding, conditional access. v0.5.0 dedicada planejada (15h dev + 1h IT, $0 incremental)</li>
-      <li><b>Fix aniversários</b> no <code>/dashboard</code>: scroll horizontal feio virou grid responsivo <code>auto-fill minmax(220px, 1fr)</code></li>
-      <li><b>Polish decorator</b>: drag pra mover itens já colados + preview do item selecionado seguindo o cursor (UX leve sem complicar)</li>
-    </ul>`
-  },
-  {
-    version: '0.4.0', date: '25/mai/2026', status: 'snapshot',
-    title: 'Refactor estrutural: Top menu remodel + Cases & CS Hub + Calendar API + paleta Gather',
-    body: `Sprint pós-reunião + iterações do dia. Refactor com 8 entregas:
-    <ul>
-      <li><b>Top menu remodel:</b> active state forte (gradient + dot indicator + double underline) · user chip vira dropdown real (tema, rename, logout limpa preferências, ERP.ngo) · 🔔 notification bell lê <code>GET /api/alerts</code> com badge · breadcrumb sutil em rotas profundas · hamburger mobile <720px · skip-to-content a11y · tab nova "🤝 Cases & CS"</li>
-      <li><b>Game Gather-style:</b> paleta pastel-clean (substituiu tons cyber-dark) · labels flutuantes estilo Gather (bubble preta arredondada com borda colorida da área) · polyfill ctx.roundRect</li>
-      <li><b>Cases & CS Hub novo</b> em <code>/cases</code>: tabela SQLite <code>cs_clientes</code>, KPIs agregados (live, onboarding, churn risk, NPS médio), filtros por status, callout "case publicável", seed inicial 3 clientes anonimizados, endpoint <code>POST /api/cases/sync</code> pra cron diário com SharePoint</li>
-      <li><b>Calendar editorial API:</b> tabela <code>editorial_calendar</code> + endpoints GET/POST + integração RD Station via <code>POST /api/inbound/sync-rd</code> (API key já registrada)</li>
-      <li><b>Inbound paleta unificada</b>: <code>inbound-shell.css</code> agora usa os mesmos tokens do <code>/dashboard</code> (#060e1a bg, rgba surfaces, sky #5BBCEB mantido como identidade)</li>
-      <li><b>/api/alerts</b>: feed unificado do <code>voices.json#alertas</code> + alertas derivados (Voice sem post há 14 dias)</li>
-      <li><b>Doc SSO Microsoft</b> (<code>vault/00-contexto/sso-microsoft-plan.md</code>): avaliação completa pra Roberto — $0 Microsoft, 11h dev, perguntas pendentes pro IT</li>
-      <li><b>Doc Sync Policy</b> (<code>vault/00-contexto/sync-policy.md</code>): política de scheduled tasks por planilha (CS 7h, Calendar Duda 6h, manual pra team.json)</li>
-    </ul>`
-  },
-  {
-    version: '0.3.5', date: '25/mai/2026', status: 'snapshot',
-    title: 'Quick wins + Optimizer Sonnet + Voices auto-fill (Vision)',
-    body: `Sprint pós-reunião do time RevOps & MKT (25/mai):
-    <ul>
-      <li><b>Aniversários do time</b> em <code>team.json</code> + strip 🎂 no <code>/dashboard</code> (Bruna 10/06 · Duda 12/09 · Isabela 05/09 · Rudá 30/07 · Marlison 05/11 · Gui 17/01)</li>
-      <li><b>Label "Office"</b> no lugar de "Hub" no primeiro tab do nav</li>
-      <li><b>Painel da Duda dentro de Voices</b> — redirect <code>/voices/painel</code> + card destaque na galeria + remove do top nav</li>
-      <li><b>Naming "Carrossel"</b> consistente em todas as telas Inbound (acabou "Carousel" mixed)</li>
-      <li><b>Playbook ganha header sticky de retorno</b> "← Inbound Hub" sem quebrar o deck 1920×1080</li>
-      <li><b>Optimizer modo escuro fixado</b> — removido sistema local de tema que conflitava com o global do <code>&lt;office-nav&gt;</code></li>
-      <li><b>Optimizer fix timeout/erro 20s:</b> swap Claude Opus → Sonnet 4.6 (corta latência pra ~12-18s), timeout 90s no fetch, loading 3-etapas com progresso, error handling informativo</li>
-      <li><b>Voices auto-fill via Claude Vision:</b> 2 endpoints novos (<code>POST /api/voices/extract</code> pra Voice existente preencher campos vazios · <code>POST /api/voices/create-from-profile</code> pra criar novo Voice) + botão "+ Novo Voice (auto-preenche)" na galeria + banner ✨ no editor</li>
-      <li><b>Schema de versionamento</b> agora segue semver pré-1.0 (0.X.Y) — versões anteriores renumeradas</li>
-    </ul>`
-  },
-  {
-    version: '0.3.4', date: '25/mai/2026', status: 'live',
-    title: 'Inbound Engine + Carrossel Hub + Voices Dashboard + Fixes',
-    body: `Sprint 0.3.4 entrega o Módulo F (Inbound) e resolve UX-debt:
-    <ul>
-      <li><b>Módulo F · Inbound Engine</b>: 6 rotas novas (<code>/inbound</code>, <code>/inbound/brief</code>, <code>/inbound/calendar</code>, <code>/inbound/studio</code>, <code>/inbound/carousel</code>, <code>/inbound/playbook</code>) com playbook de 19 slides + 5 ferramentas vivas vindas do handoff Claude Design</li>
-      <li><b>Carrossel Hub</b>: editor visual capa + N slides + export ZIP de PNGs (jszip + html2canvas)</li>
-      <li><b>Chip de versão</b> ao lado do EPI-USE no <code>&lt;office-nav&gt;</code> → clica e vai pro changelog</li>
-      <li><b>Footer com dropdown de versões anteriores</b> — agora todas as snapshots em <code>public/_versoes-office/</code> servem tanto local quanto Railway (antes só local)</li>
-      <li><b>Eventos restaurados</b>: dashboard/hub/game agora consomem a estrutura nova <code>abas.brasil/abas.latam</code> do <code>events.json</code> + tabs 🇧🇷 Brasil / 🌎 LATAM / TODOS</li>
-      <li><b>Voices enriquecido</b>: galeria mostra KPIs reais por Voice (posts totais, últ 30d, engaj.) vindos do <code>/api/posts</code>; perfil ganha "Dashboard de Performance" com 4 cards de KPI + chart engajamento — <b>zero fake data</b></li>
-      <li><b>Profile Optimizer integrado</b>: card prominente no perfil de cada Voice → <code>/optimizer?voice=&lt;slug&gt;</code> auto-seleciona o Voice na tela do Optimizer</li>
-    </ul>`
-  },
-  {
-    version: '0.3.3', date: '24/mai/2026', status: 'live',
-    title: 'Foundation Arquitetural + LATAM + Áreas MKT',
-    body: `Sprint baseada na auditoria do Claude Design. Reorganização profunda:
-    <ul>
-      <li><b>Foundation</b>: web component <code>&lt;office-nav&gt;</code> global em todas as rotas (remove os 6 jeitos diferentes de navegar de antes)</li>
-      <li><b>&lt;office-footer&gt;</b> também global com status + versão + links</li>
-      <li><b>/changelog</b> dedicado (esta página)</li>
-      <li><b>Information Architecture</b>: roadmap só no Painel · Time só no Painel · alertas consolidados · eventos centralizam · War Room vira widgets cruzados</li>
-      <li><b>Eventos LATAM</b>: events.json com abas brasil/latam (~86 eventos extras de 7 países)</li>
-      <li><b>5 Áreas MKT</b> no game + dashboard: Intelligence & CRM · Growth & Performance · Field Marketing · Development Sales · Brand Experience</li>
-      <li><b>Time atualizado</b>: Eduarda Hirose (Duda) + novos cargos da Bruna/Gui/Isabela/Marlison</li>
-    </ul>`
-  },
-  {
-    version: '0.3.2', date: '24/mai/2026', status: 'live',
-    title: 'Voice Agent Pro + Dashboard de Performance',
-    body: `4 features grandes:
-    <ul>
-      <li><b>Editor de Perfil Voice</b> (CMS via token) — Anderson/Carlos editam próprio <code>.md</code> + campos do <code>voices.json</code> direto no browser</li>
-      <li><b>Post Tracker</b> manual — registrar URL + métricas, snapshot em <code>posts.jsonl</code></li>
-      <li><b>Gerar 3 Pautas via Claude API</b> — contexto do Voice + eventos próximos + posts recentes</li>
-      <li><b>Dashboard de Performance</b> no Painel — KPIs cruzados, sparklines Chart.js, Top post da semana, filtros 7d/30d/90d</li>
-    </ul>`
-  },
-  {
-    version: '0.3.1', date: '24/mai/2026', status: 'live',
-    title: 'Email LP (fallback) + Dados Honestos',
-    body: `<ul>
-      <li>Email Resend com fallback gracioso (sem API key continua funcionando, só não envia)</li>
-      <li>Dados inventados marcados como <code>{valor, provisorio}</code></li>
-      <li>Banner amarelo "⚠️ Dados provisórios" no perfil de cada Voice</li>
-      <li>Coluna "Dados" no Painel + KPI "Dados Confirmados: N/X"</li>
-      <li>Doc operacional Plausible em <code>vault/00-contexto/setup-plausible.md</code></li>
-    </ul>`
-  },
-  {
-    version: '0.3.0', date: '23/mai/2026', status: 'broken',
-    title: 'Sprint Maximalist — 3 módulos novos',
-    body: `<ul>
-      <li><b>Painel da Duda</b> (operação): KPIs, tabela Voices, alertas, kanban fases</li>
-      <li><b>Voice Agents</b> (distribuição): galeria + perfil individual + prompt copiável</li>
-      <li><b>LP "Seja um Voice"</b> (recrutamento): hero + benefícios + 3 vagas + form UTM-aware</li>
-      <li><b>Data layer</b>: voices.json + events.json single source</li>
-      <li><b>Rate limit</b> no Optimizer (anti-abuso de tokens) + UTM redirect <code>/v/:slug</code></li>
-      <li><b>Plausible</b> em todos HTMLs</li>
-      <li>⚠️ <b>Parcialmente quebrada em produção</b> — rotas novas retornam 404 no Railway. Foi corrigida no push 0.3.4 (regenerar <code>package-lock.json</code>).</li>
-    </ul>`
-  },
-  {
-    version: '0.2.2', date: '23/mai/2026', status: 'live',
-    title: 'Optimizer integrado ao Voices + agenda dinâmica',
-    body: `<ul>
-      <li>Profile Optimizer movido pra adjacente da Voices Area no game</li>
-      <li>Agenda de eventos auto-reordena por data atual (mês passado pra frente; passados ao final marcados)</li>
-      <li>Mês corrente ganha border verde + badge "AGORA"</li>
-    </ul>`
-  },
-  {
-    version: '0.2.1', date: '23/mai/2026', status: 'live',
-    title: 'Dashboard duplo + spawn com escolha',
-    body: `<ul>
-      <li>War Room clássico restaurado (cards, voices, roadmap, time)</li>
-      <li>Spawn gate com escolha: 🎮 Modo Game OU 📊 Dashboard</li>
-      <li>Modal rico de eventos (30 eventos SAP 2026)</li>
-      <li>Versionamento footer com links pros snapshots</li>
-      <li>Game polish: mesas mais próximas, monitores animados, cadeiras</li>
-    </ul>`
-  },
-  {
-    version: '0.2.0', date: '23/mai/2026', status: 'live',
-    title: 'Office Engine 2D inaugural',
-    body: `Primeiro release do escritório 2D pixel art:
-    <ul>
-      <li>Mapa 50×30 tiles (1600×960 world)</li>
-      <li>WASD movement, câmera lerp, 14 zonas interativas</li>
-      <li>Pulsing E badge, minimap, sparkline em cards</li>
-    </ul>`
-  }
-];
-
-const STATUS_META = {
-  live:   { label: '🚀 Em produção',   cls: 'status-live' },
-  local:  { label: '🏠 Local only',     cls: 'status-local' },
-  broken: { label: '⚠️ Parcialmente quebrada', cls: 'status-broken' }
-};
-
-// Mapeamento explícito version → snapshot file (algumas versões não tinham
-// snapshot de game-engine). Filenames mantém o prefixo v3.X antigo pra não
-// quebrar histórico — só os labels visuais estão em 0.X.Y.
-const SNAPSHOT_MAP = {
-  '0.2.0': '/_versoes-office/v2.0-game-engine.html',
-  '0.2.1': '/_versoes-office/v2.1-game-engine.html',
-  '0.2.2': '/_versoes-office/v2.2-game-engine.html',
-  '0.3.0': '/_versoes-office/v3.0-game-engine.html',
-  '0.3.1': '/_versoes-office/v3.1-game-engine.html',
-  '0.3.4': '/_versoes-office/v3.4-game-engine.html',
-  '0.4.6': '/_versoes-office/v0.4.6-game.html'
-};
-
-const tl = document.getElementById('timeline');
-tl.innerHTML = RELEASES.map(r => {
-  const status = STATUS_META[r.status] || STATUS_META.local;
-  const snapshotUrl = SNAPSHOT_MAP[r.version];
-  return `<div class="entry ${r.current ? 'current' : ''}">
-    <div class="entry-head">
-      <span class="ver-tag ${r.current ? 'current' : ''}">${r.version}</span>
-      <span class="entry-date">${r.date}</span>
-      <span class="entry-status ${status.cls}">${status.label}</span>
-    </div>
-    <div class="entry-title">${r.title}</div>
-    <div class="entry-body">${r.body}</div>
-    ${snapshotUrl && !r.current ? `<a class="entry-link" href="${snapshotUrl}">Ver snapshot do game →</a>` : ''}
-  </div>`;
-}).join('');
 </script>
 </body>
 </html>

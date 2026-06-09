@@ -500,6 +500,18 @@ app.get('/voices/painel', (req, res) => res.redirect(301, '/painel'));
 app.get('/voices',     (req, res) => res.sendFile(VOICES_PATH));
 app.get('/seja-voice', (req, res) => res.sendFile(SEJA_VOICE_PATH));
 app.get('/changelog',  (req, res) => res.sendFile(CHANGELOG_PATH));
+
+// /api/version — single source of truth (lê current de public/api/changelog.json)
+// nav/footer fetcham esse endpoint em runtime para evitar drift de versão.
+app.get('/api/version', (req, res) => {
+  try {
+    const cl = JSON.parse(fs.readFileSync(path.join(__dirname, 'public/api/changelog.json'), 'utf8'));
+    res.json({ current: cl.current, atualizado_em: cl.atualizado_em });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 app.get('/planilhas', (req, res) => res.sendFile(path.join(__dirname, 'public/planilhas.html')));
 
 // ── PLANILHAS REGISTRY — todas as XLSX/XLS como API em tempo real ────────────
