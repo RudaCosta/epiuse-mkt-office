@@ -824,6 +824,38 @@ function applyTheme(theme) {
       color: #0f172a !important;
     }
 
+    /* ─── GRID PATTERN GLOBAL — aplica em TODAS rotas com data-route ───────
+       Opt-out: seja-voice e erp-impacto (LPs externas). Standalone — não
+       depende de consulting-dark.css estar carregado na página. */
+    body[data-route]:not([data-route="seja-voice"]):not([data-route="erp-impacto"]) {
+      background:
+        linear-gradient(rgba(134,158,195,.04) 1px, transparent 1px) 0 0/48px 48px,
+        linear-gradient(90deg, rgba(134,158,195,.04) 1px, transparent 1px) 0 0/48px 48px,
+        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(205,21,67,.12), transparent 60%),
+        radial-gradient(ellipse 60% 50% at 100% 100%, rgba(20,184,166,.05), transparent 60%),
+        #050b18;
+      background-attachment: fixed;
+      font-family: 'Source Sans 3', 'Source Sans Pro', system-ui, sans-serif;
+      color: #e6ebf2;
+      -webkit-font-smoothing: antialiased;
+    }
+    body[data-route]:not([data-route="seja-voice"]):not([data-route="erp-impacto"]) h1,
+    body[data-route]:not([data-route="seja-voice"]):not([data-route="erp-impacto"]) h2,
+    body[data-route]:not([data-route="seja-voice"]):not([data-route="erp-impacto"]) h3 {
+      font-family: 'Lexend', 'Source Sans 3', sans-serif;
+      letter-spacing: -0.012em;
+      font-weight: 600;
+    }
+    /* Light mode preserva grid mas mais sutil */
+    :root[data-theme="light"] body[data-route]:not([data-route="seja-voice"]):not([data-route="erp-impacto"]) {
+      background:
+        linear-gradient(rgba(0,24,68,.025) 1px, transparent 1px) 0 0/48px 48px,
+        linear-gradient(90deg, rgba(0,24,68,.025) 1px, transparent 1px) 0 0/48px 48px,
+        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(205,21,67,.06), transparent 60%),
+        #f4f7fb !important;
+      color: #0f172a !important;
+    }
+
     /* ─── ARMORY THEME ─────────────────────────────────────────────────────
        Inspirado em armory.framer.ai — terminal/tech sharp, slate-black bg,
        neon green accents, monospace, edges rectos. Aplica em todas páginas. */

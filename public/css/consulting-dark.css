@@ -27,9 +27,9 @@
   --dk-easing: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* GRID background sutil (modern tech feel) */
-body[data-route="home"],
-body[data-route="relatorio"] {
+/* GRID background sutil (modern tech feel) — aplica em TODAS rotas com data-route */
+/* Opt-out: data-route="seja-voice" e "erp-impacto" são LPs externas (light) */
+body[data-route]:not([data-route="seja-voice"]):not([data-route="erp-impacto"]) {
   background:
     linear-gradient(var(--dk-grid) 1px, transparent 1px) 0 0/48px 48px,
     linear-gradient(90deg, var(--dk-grid) 1px, transparent 1px) 0 0/48px 48px,
@@ -39,15 +39,15 @@ body[data-route="relatorio"] {
   background-attachment: fixed;
 }
 
-/* FONT consulting (Lexend + Source Sans 3) */
-body[data-route="home"],
-body[data-route="relatorio"] {
+/* FONT consulting (Lexend + Source Sans 3) — aplica em TODAS rotas */
+body[data-route]:not([data-route="seja-voice"]):not([data-route="erp-impacto"]) {
   font-family: 'Source Sans 3', 'Source Sans Pro', system-ui, sans-serif;
   color: var(--dk-text);
   -webkit-font-smoothing: antialiased;
 }
-body[data-route="home"] h1, body[data-route="home"] h2, body[data-route="home"] h3,
-body[data-route="relatorio"] h1, body[data-route="relatorio"] h2, body[data-route="relatorio"] h3 {
+body[data-route]:not([data-route="seja-voice"]):not([data-route="erp-impacto"]) h1,
+body[data-route]:not([data-route="seja-voice"]):not([data-route="erp-impacto"]) h2,
+body[data-route]:not([data-route="seja-voice"]):not([data-route="erp-impacto"]) h3 {
   font-family: 'Lexend', 'Source Sans 3', sans-serif;
   letter-spacing: -0.012em;
   font-weight: 600;
