@@ -1,5 +1,5 @@
 {
-  "current": "0.37.0",
+  "current": "0.37.1",
   "atualizado_em": "2026-06-10",
   "next": [
     {
@@ -40,9 +40,17 @@
   ],
   "releases": [
     {
-      "version": "0.37.0",
+      "version": "0.37.1",
       "date": "10/jun/2026",
       "status": "current",
+      "path": null,
+      "title": "Voices: SSI semanal trackeado (Carlos Furigo atualizou o perfil)",
+      "summary": "Carlos Furigo (Voice #02 · onboarding) atualizou o perfil LinkedIn pos-kit. Rudá vai pedir SSI semanal pra acompanhar a evolução. (1) voices.json: ssi_historico[] (data+ssi+seguidores+posts_mes+nota), ssi_baseline, ssi_atual, proxima_medicao_ssi (auto +7d), perfil_atualizado_em, observacoes_recentes. (2) POST /api/voices/:slug/ssi (editor token) registra medição + retorna delta baseline + próxima medição. GET /api/voices/:slug/ssi retorna histórico. (3) Central (war-room) ganhou KPI \"🎙️ Voices · SSI a medir\" + seção pink listando Voices com proxima_medicao_ssi vencida (link LinkedIn pra coletar rápido). (4) Script CLI scripts/sync/log_voice_ssi.js — Rudá registra SSI sem abrir UI (node log_voice_ssi.js carlos-furigo --ssi=42 --seguidores=1234)."
+    },
+    {
+      "version": "0.37.0",
+      "date": "10/jun/2026",
+      "status": "snapshot",
       "path": null,
       "title": "S39 — Freshness chips (Regra 7 automática) + KPIs acionáveis",
       "summary": "Novo GET /api/freshness: idade de cada dataset (10 fontes — JSONs por mtime: LinkedIn/GA4/Apollo/DF/Voices/Eventos · tabelas SQLite por MAX(synced_at): Zoho/SAP4ME/Cases/Calendar), com threshold de stale por fonte (Apollo 3d, Cases 7d, DF/Calendar 30d, LinkedIn/GA4 35d, Zoho/SAP4ME 45d...). Home mostra chips amarelos '⚠️ dados desatualizados: LinkedIn · 32d' no hero quando algum dataset passa do prazo — transparência da Regra 7 vira automática em vez de etiqueta manual. KPIs do bloco 'Meu foco' agora são CLICÁVEIS (cards viram links pro destino da ação: capturas a preencher → /field-marketing, claims → /development-funds, conteúdos aguardando → /content-pipeline...) — home deixa de ser só informativa e vira lista de ação."

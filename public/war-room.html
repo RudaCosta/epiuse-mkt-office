@@ -52,12 +52,16 @@ function limpa(s){return String(s||'').replace(/[`*#✅🔴🟡🟢⚠️⏳�]
 async function init(){
   const hoje = new Date().toISOString().slice(0,10);
   const em30 = new Date(Date.now()+30*864e5).toISOString().slice(0,10);
-  let pend={buckets:{}}, df={a_reclamar:[],kpis:{}}, sap={proximos_golive:[]};
-  try { [pend,df,sap] = await Promise.all([
+  let pend={buckets:{}}, df={a_reclamar:[],kpis:{}}, sap={proximos_golive:[]}, voicesData={voices:[]};
+  try { [pend,df,sap,voicesData] = await Promise.all([
     fetch('/api/pendencias?t='+Date.now()).then(r=>r.json()).catch(()=>({buckets:{}})),
     fetch('/api/development-funds').then(r=>r.json()).catch(()=>({a_reclamar:[],kpis:{}})),
     fetch('/api/clientes-sap-4me').then(r=>r.json()).catch(()=>({proximos_golive:[]})),
+    fetch('/api/voices.json').then(r=>r.json()).catch(()=>({voices:[]})),
   ]); } catch(e){}
+
+  // Voices com SSI vencido (proxima_medicao_ssi <= hoje) → lembrete acompanhamento
+  const voicesSSI = (voicesData.voices||[]).filter(v => v.proxima_medicao_ssi && v.proxima_medicao_ssi <= new Date().toISOString().slice(0,10));
 
   document.getElementById('ts').textContent = new Date().toLocaleString('pt-BR');
   const b = pend.buckets || {};
@@ -77,6 +81,7 @@ async function init(){
       <div class="kpi green"><div class="lbl">🟢 Pendentes de execução</div><div class="val">${pendentes.length}</div></div>
       <div class="kpi yellow"><div class="lbl">💶 Claims DF a reclamar</div><div class="val">${dlDF.length}</div></div>
       <div class="kpi purple"><div class="lbl">🚀 Go-lives SAP 30d</div><div class="val">${gl.length}</div></div>
+      <div class="kpi" style="border-left:4px solid #ec4899"><div class="lbl">🎙️ Voices · SSI a medir</div><div class="val">${voicesSSI.length}</div></div>
     </div>
 
     <div class="sec">
@@ -108,6 +113,21 @@ async function init(){
           <div class="card-top"><div class="card-title">${esc(g.nome_cliente)}</div><span class="dl-date ${expCls(g.golive)}">${g.golive}</span></div>
           <div class="card-meta">${esc(g.pais||'')} · ${esc(g.area||'')}</div>
         </div>`).join('') : '<div class="empty">Nenhum go-live nos próximos 30 dias.</div>'}
+    </div>
+
+    <div class="sec">
+      <div class="sec-t">🎙️ Voices — SSI semanal a coletar</div>
+      ${voicesSSI.length ? voicesSSI.map(v=>`
+        <div class="card" style="border-left-color:#ec4899">
+          <div class="card-top">
+            <div class="card-title">${esc(v.nome)} · ${esc(v.cargo||'')}</div>
+            <span class="dl-date d-soon">📅 ${v.proxima_medicao_ssi}</span>
+          </div>
+          <div class="card-meta">
+            SSI atual: <b>${v.ssi_atual ?? '—'}</b> · baseline: ${v.ssi_baseline ?? '—'} · medições: ${(v.ssi_historico||[]).length}
+            ${v.linkedin ? ` · <a href="${esc(v.linkedin)}" target="_blank" style="color:#60a5fa">LinkedIn →</a>` : ''}
+          </div>
+        </div>`).join('') : '<div class="empty">Nenhum Voice com SSI vencido. ✨</div>'}
     </div>
 
     <div class="sec">

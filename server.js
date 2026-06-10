@@ -2781,6 +2781,41 @@ app.post('/api/voices/:slug/duplicate', requireEditorToken, (req, res) => {
   res.json({ success: true, slug: newSlug, voice: copy });
 });
 
+// POST /api/voices/:slug/ssi — registra medição SSI semanal + seguidores + posts
+app.post('/api/voices/:slug/ssi', requireEditorToken, (req, res) => {
+  try {
+    const slug = String(req.params.slug || '').replace(/[^a-z0-9-]/g, '').slice(0, 60);
+    if (!slug) return res.status(400).json({ success: false, error: 'slug inválido' });
+    const data = JSON.parse(fs.readFileSync(VOICES_JSON_PATH, 'utf8'));
+    const v = (data.voices || []).find(x => x.id === slug || x.slug === slug);
+    if (!v) return res.status(404).json({ success: false, error: 'voice não encontrado' });
+    const b = req.body || {};
+    const ssi = parseInt(b.ssi, 10);
+    if (isNaN(ssi) || ssi < 0 || ssi > 100) return res.status(400).json({ success: false, error: 'ssi 0-100 obrigatório' });
+    v.ssi_historico = v.ssi_historico || [];
+    const entry = { data: new Date().toISOString().slice(0,10), ssi, seguidores: b.seguidores != null ? parseInt(b.seguidores,10) : null, posts_mes: b.posts_mes != null ? parseInt(b.posts_mes,10) : null, nota: b.nota || '' };
+    v.ssi_historico.push(entry);
+    if (v.ssi_baseline == null) v.ssi_baseline = ssi;
+    if (entry.seguidores != null && v.seguidores_baseline == null) v.seguidores_baseline = entry.seguidores;
+    v.ssi_atual = ssi;
+    v.proxima_medicao_ssi = new Date(Date.now() + 7*864e5).toISOString().slice(0,10);
+    fs.writeFileSync(VOICES_JSON_PATH, JSON.stringify(data, null, 2), 'utf8');
+    res.json({ success: true, voice: slug, registrada: entry, total_medicoes: v.ssi_historico.length, delta_baseline: ssi - (v.ssi_baseline || ssi), proxima: v.proxima_medicao_ssi });
+  } catch (e) { res.status(500).json({ success: false, error: e.message }); }
+});
+
+// GET /api/voices/:slug/ssi — retorna histórico SSI
+app.get('/api/voices/:slug/ssi', (req, res) => {
+  try {
+    const slug = String(req.params.slug || '').replace(/[^a-z0-9-]/g, '').slice(0, 60);
+    const data = JSON.parse(fs.readFileSync(VOICES_JSON_PATH, 'utf8'));
+    const v = (data.voices || []).find(x => x.id === slug || x.slug === slug);
+    if (!v) return res.status(404).json({ success: false, error: 'voice não encontrado' });
+    const hist = v.ssi_historico || [];
+    res.json({ voice: v.id, nome: v.nome, baseline: v.ssi_baseline, atual: v.ssi_atual, proxima_medicao: v.proxima_medicao_ssi, historico: hist, total: hist.length });
+  } catch (e) { res.status(500).json({ success: false, error: e.message }); }
+});
+
 // PUT /api/voices/:slug — atualiza campos editáveis do Voice em voices.json
 app.put('/api/voices/:slug', requireEditorToken, (req, res) => {
   const slug = String(req.params.slug || '').replace(/[^a-z0-9-]/g, '').slice(0, 60);
