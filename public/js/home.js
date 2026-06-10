@@ -439,6 +439,167 @@
   }
 
   // ── INIT ────────────────────────────────────────────────────────
+  // ── HOME POR ROLE (S38 v0.36.0) ─────────────────────────────────
+  // personas.json define ordem/visibilidade das seções + KPIs do "Meu foco".
+  // Persona vem de: localStorage override > SSO email > visitante.
+  let PERSONAS = null;
+
+  async function getPersonaId() {
+    const manual = localStorage.getItem('office.persona');
+    if (manual && PERSONAS?.personas?.[manual]) return manual;
+    try {
+      const st = await fetch('/api/auth/status').then(r => r.json());
+      const email = st?.user?.email?.toLowerCase();
+      if (email && PERSONAS?.emails?.[email]) return PERSONAS.emails[email];
+    } catch (e) {}
+    return 'visitante';
+  }
+
+  function applyPersona(pid) {
+    const p = PERSONAS?.personas?.[pid];
+    if (!p) return;
+    const wrap = document.querySelector('.home-wrap');
+    // Reordena: appendChild move cada seção pro fim na ordem definida
+    (p.ordem || []).forEach(secId => {
+      const el = document.querySelector(`[data-sec="${secId}"]`);
+      if (el) { el.style.display = ''; wrap.appendChild(el); }
+    });
+    (p.esconde || []).forEach(secId => {
+      const el = document.querySelector(`[data-sec="${secId}"]`);
+      if (el) el.style.display = 'none';
+    });
+    // Seções fora de ordem+esconde ficam visíveis no fim (default)
+    const conhecidas = new Set([...(p.ordem||[]), ...(p.esconde||[])]);
+    document.querySelectorAll('[data-sec]').forEach(el => {
+      if (!conhecidas.has(el.dataset.sec) && !['northstar','hoje','foco'].includes(el.dataset.sec)) el.style.display = '';
+    });
+    const ft = $('foco-title');
+    if (ft) ft.textContent = `${p.icon || '🎯'} Foco · ${p.nome}`;
+    if ((p.kpis || []).length) renderFoco(p.kpis);
+    else { const f = document.querySelector('[data-sec="foco"]'); if (f) f.style.display = 'none'; }
+  }
+
+  // ── KPIs por fonte (todas APIs já existentes) ───────────────────
+  const KPI_DEFS = {
+    pipeline_fy:        { label: 'Pipeline MKT · FY', fonte: 'Zoho CRM', cor: '#60a5fa',
+      get: async () => { const d = await fetch('/api/zoho/pipeline?source=all').then(r=>r.json()); const v = d?.kpis?.ultimo_fy?.valor; return v ? 'R$ ' + (v/1e6).toFixed(1) + 'M' : '—'; } },
+    linkedin_total:     { label: 'Seguidores LinkedIn', fonte: 'XLS Bruna', cor: '#34d399',
+      get: async () => { const d = await fetch('/api/linkedin/historical').then(r=>r.json()); const s = d?.serie_mensal||[]; return fmt(s.length ? s[s.length-1].total_seguidores : null); } },
+    linkedin_novos:     { label: 'Novos no mês', fonte: 'LinkedIn', cor: '#34d399',
+      get: async () => { const d = await fetch('/api/linkedin/historical').then(r=>r.json()); const s = d?.serie_mensal||[]; const n = s.length ? s[s.length-1].novos : null; return n != null ? '+' + fmt(n) : '—'; } },
+    ddf_aprovado:       { label: 'DDF aprovado válido', fonte: 'SAP DF', cor: '#a78bfa',
+      get: async () => { const d = await fetch('/api/development-funds').then(r=>r.json()); const v = d?.kpis?.aprovado_valido; return v ? '€ ' + (v/1e3).toFixed(1) + 'k' : '—'; } },
+    posts_semana:       { label: 'Posts esta semana', fonte: 'Calendar Duda', cor: '#0ea5e9',
+      get: async () => { const hoje = new Date().toISOString().slice(0,10); const fim = new Date(Date.now()+7*864e5).toISOString().slice(0,10); const d = await fetch(`/api/inbound/calendar?from=${hoje}&to=${fim}`).then(r=>r.json()); return fmt((d?.posts||[]).filter(p=>p.fonte!=='redatoria').length); } },
+    content_aguardando: { label: 'Conteúdos aguardando', fonte: 'Pipeline Conteúdo', cor: '#fbbf24',
+      get: async () => { const d = await fetch('/api/content').then(r=>r.json()); const pe = d?.por_estado||{}; return fmt((pe.seo_geo||0)+(pe.persona||0)+(pe.copy_cta||0)); } },
+    voices_ativos:      { label: 'Voices ativos', fonte: 'Voices', cor: '#c084fc',
+      get: async () => { const d = await fetch('/api/voices.json').then(r=>r.json()).catch(()=>null); const vs = d?.voices||[]; return fmt(Array.isArray(vs) ? vs.filter(v=>['ativo','piloto','onboarding'].includes(String(v.status||'').toLowerCase())).length : null); } },
+    apollo_contatos:    { label: 'Contatos Apollo', fonte: 'Apollo', cor: '#60a5fa',
+      get: async () => { const d = await fetch('/api/pipeline').then(r=>r.json()); return fmt(d?.contatos_total); } },
+    apollo_sequencias:  { label: 'Sequências ativas', fonte: 'Apollo', cor: '#60a5fa',
+      get: async () => { const d = await fetch('/api/pipeline').then(r=>r.json()); return fmt(d?.sequencias_ativas); } },
+    ga4_usuarios:       { label: 'Usuários site (mês)', fonte: 'GA4', cor: '#f472b6',
+      get: async () => { const d = await fetch('/api/relatorio/snapshot?mes=' + new Date().toISOString().slice(0,7)).then(r=>r.json()).catch(()=>null); return fmt(d?.site?.usuarios); } },
+    eventos_30d:        { label: 'Eventos 30 dias', fonte: 'Field Marketing', cor: '#cd1543',
+      get: async () => { const d = await fetch('/api/field-marketing').then(r=>r.json()); const hoje = new Date().toISOString().slice(0,10); const fim = new Date(Date.now()+30*864e5).toISOString().slice(0,10); return fmt((d?.eventos||[]).filter(e=>e.data_evento && e.data_evento>=hoje && e.data_evento<=fim).length); } },
+    capturas_pendentes: { label: 'Capturas a preencher', fonte: 'Field Marketing', cor: '#fbbf24',
+      get: async () => { const d = await fetch('/api/field-marketing').then(r=>r.json()); const hoje = new Date().toISOString().slice(0,10); return fmt((d?.eventos||[]).filter(e=>e.data_evento && e.data_evento<hoje && !(e.captura&&(e.captura.leads||e.captura.deals))).length); } },
+    claims_df:          { label: 'Claims DF a reclamar', fonte: 'SAP DF', cor: '#dc2626',
+      get: async () => { const d = await fetch('/api/development-funds').then(r=>r.json()); return fmt((d?.a_reclamar||[]).length); } },
+    golives_30d:        { label: 'Go-lives SAP 30d', fonte: 'SAP 4 ME', cor: '#a78bfa',
+      get: async () => { const d = await fetch('/api/clientes-sap-4me').then(r=>r.json()); const hoje = new Date().toISOString().slice(0,10); const fim = new Date(Date.now()+30*864e5).toISOString().slice(0,10); return fmt((d?.proximos_golive||[]).filter(g=>g.golive>=hoje&&g.golive<=fim).length); } },
+    sap_live:           { label: 'Projetos SAP Live', fonte: 'SAP 4 ME', cor: '#34d399',
+      get: async () => { const d = await fetch('/api/clientes-sap-4me').then(r=>r.json()); return fmt(d?.kpis?.live); } },
+    cases_publicaveis:  { label: 'Cases publicados', fonte: 'Cases CS', cor: '#34d399',
+      get: async () => { const d = await fetch('/api/cases').then(r=>r.json()); return fmt(d?.kpis?.case_publicado); } },
+  };
+
+  async function renderFoco(kpiIds) {
+    const grid = $('foco-grid');
+    const sec = document.querySelector('[data-sec="foco"]');
+    if (!grid || !sec) return;
+    sec.style.display = '';
+    grid.innerHTML = kpiIds.map(id => {
+      const def = KPI_DEFS[id];
+      return `<div class="dk-glass" style="padding:16px 18px;border-left:3px solid ${def?.cor||'#60a5fa'}">
+        <div style="font-size:10px;color:var(--dk-text-muted,#94a3b8);text-transform:uppercase;letter-spacing:.08em">${esc(def?.label||id)}</div>
+        <div id="foco-${id}" style="font-size:26px;font-weight:800;font-family:'JetBrains Mono',monospace;margin-top:6px">…</div>
+        <div style="font-size:9px;color:var(--dk-text-muted,#64748b);margin-top:4px">🟢 ${esc(def?.fonte||'')}</div>
+      </div>`;
+    }).join('');
+    kpiIds.forEach(async id => {
+      const def = KPI_DEFS[id]; if (!def) return;
+      try { const v = await def.get(); const el = $('foco-' + id); if (el) el.textContent = v; }
+      catch (e) { const el = $('foco-' + id); if (el) el.textContent = '—'; }
+    });
+  }
+
+  // ── NORTH-STAR (3 números que importam) ─────────────────────────
+  async function renderNorthstar() {
+    const strip = $('northstar-strip');
+    const sec = document.querySelector('[data-sec="northstar"]');
+    if (!strip || !sec) return;
+    const NS = ['pipeline_fy', 'linkedin_total', 'ddf_aprovado'];
+    strip.innerHTML = NS.map(id => {
+      const def = KPI_DEFS[id];
+      return `<div class="dk-glass" style="padding:20px 24px;text-align:center;border-top:3px solid ${def.cor}">
+        <div id="ns-${id}" style="font-size:34px;font-weight:800;font-family:'JetBrains Mono',monospace;line-height:1">…</div>
+        <div style="font-size:11px;color:var(--dk-text-muted,#94a3b8);text-transform:uppercase;letter-spacing:.08em;margin-top:8px">${esc(def.label)}</div>
+        <div style="font-size:9px;color:var(--dk-text-muted,#64748b);margin-top:3px">🟢 ${esc(def.fonte)}</div>
+      </div>`;
+    }).join('');
+    NS.forEach(async id => {
+      try { const v = await KPI_DEFS[id].get(); const el = $('ns-' + id); if (el) el.textContent = v; }
+      catch (e) {}
+    });
+  }
+
+  // ── HOJE (o que acontece hoje) ──────────────────────────────────
+  async function renderHoje() {
+    const list = $('hoje-list');
+    const sec = document.querySelector('[data-sec="hoje"]');
+    if (!list || !sec) return;
+    const hoje = new Date().toISOString().slice(0,10);
+    try {
+      const [cal, fm, df] = await Promise.all([
+        fetch(`/api/inbound/calendar?from=${hoje}&to=${hoje}`).then(r=>r.json()).catch(()=>({posts:[]})),
+        fetch('/api/field-marketing').then(r=>r.json()).catch(()=>({eventos:[]})),
+        fetch('/api/development-funds').then(r=>r.json()).catch(()=>({requests:[]})),
+      ]);
+      const itens = [];
+      for (const p of (cal.posts||[])) itens.push({ ico: p.fonte==='redatoria'?'📰':'📝', txt: p.titulo, sub: [p.autor,p.canal].filter(Boolean).join(' · '), cor: p.fonte==='redatoria'?'#869ec3':'#0ea5e9' });
+      for (const e of (fm.eventos||[])) if (e.data_evento === hoje) itens.push({ ico:'🔴', txt: e.nome, sub: 'evento · '+(e.lob||''), cor:'#cd1543' });
+      for (const r of (df.requests||[])) if (!r.derrubado && (+r.claim||0)===0 && r.expiracao === hoje) itens.push({ ico:'💶', txt:'Expira HOJE: claim '+r.nome, sub:'€'+Number(r.aprovado||0).toLocaleString('pt-BR'), cor:'#dc2626' });
+      list.innerHTML = itens.length ? itens.map(i => `
+        <div style="display:flex;align-items:center;gap:10px;padding:9px 14px;background:rgba(15,30,53,.4);border:1px solid rgba(96,165,250,.12);border-left:3px solid ${i.cor};border-radius:8px;font-size:13px">
+          <span>${i.ico}</span>
+          <span style="flex:1;color:var(--dk-text,#e2e8f0);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(i.txt)}</span>
+          <span style="font-size:10px;color:var(--dk-text-muted,#64748b);white-space:nowrap">${esc(i.sub)}</span>
+        </div>`).join('') : '<div style="font-size:12px;color:var(--dk-text-muted,#64748b);padding:8px 0">Nada agendado pra hoje. ✨</div>';
+    } catch (e) { list.innerHTML = ''; }
+  }
+
+  async function initPersonas() {
+    try {
+      PERSONAS = await fetch('/api/personas.json').then(r => r.json());
+      const pid = await getPersonaId();
+      // Seletor "Ver como…"
+      const sel = $('persona-select');
+      if (sel) {
+        sel.innerHTML = Object.entries(PERSONAS.personas).map(([id, p]) =>
+          `<option value="${id}" ${id===pid?'selected':''}>${p.icon} Ver como: ${p.nome}</option>`).join('');
+        sel.addEventListener('change', () => {
+          localStorage.setItem('office.persona', sel.value);
+          applyPersona(sel.value);
+        });
+      }
+      applyPersona(pid);
+      renderNorthstar();
+      renderHoje();
+    } catch (e) { console.warn('personas:', e); }
+  }
+
   function init() {
     renderHero();
     renderDigest();
@@ -448,6 +609,7 @@
     renderBdays();
     renderTeam();
     renderAlertas();
+    initPersonas();
     initSectionFadeIn();
     setInterval(() => { renderDigest(); renderAlertas(); }, 60000);
   }

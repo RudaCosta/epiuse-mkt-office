@@ -1,209 +1,538 @@
 {
-  "current": "0.35.0",
+  "current": "0.36.0",
   "atualizado_em": "2026-06-09",
   "next": [
-    { "version": "0.36.0", "sprint": "S38", "status": "planned",
-      "title": "Home por role/perfil + bloco Hoje + north-star strip",
-      "summary": "Seletor 'Ver como…' (7 personas de team.json: Rudá/Duda/Bruna/Gui/Isabela/Marlison/Roberto) reordena a home por papel — cada um vê primeiro o que é dele. personas.json (email→persona→layout, pronto pro SSO). Bloco 'Hoje' (posts/eventos/deadlines do dia) + north-star strip (Pipeline MKT R$ · Seguidores · Leads mês). Zero endpoint novo." },
-    { "version": "0.37.0", "sprint": "S39", "status": "planned",
+    {
+      "version": "0.37.0",
+      "sprint": "S39",
+      "status": "planned",
       "title": "Freshness chips + ações acionáveis + mobile check",
-      "summary": "/api/freshness lista idade de cada dataset → chips '⚠️ stale' automáticos na home (Regra 7 sem esforço manual). Cards de ação com botão (claims a reclamar → abrir; captura sem preencher → preencher). Teste real 390px nas telas principais." },
-    { "version": "0.36.0", "sprint": "S36", "status": "planned",
+      "summary": "/api/freshness lista idade de cada dataset → chips '⚠️ stale' automáticos na home (Regra 7 sem esforço manual). Cards de ação com botão (claims a reclamar → abrir; captura sem preencher → preencher). Teste real 390px nas telas principais."
+    },
+    {
+      "version": "0.38.0",
+      "sprint": "S36",
+      "status": "planned",
       "title": "Dados: fechar buracos + atualizar mapa-fontes",
-      "summary": "mapa-fontes-dados.md desatualizado (28/mai, sem Zoho/SAP4ME/Field/Content/DF/Calendar). Etiquetar dados vazios (field captura, content corpo). LinkedIn jun. /api/health lê versão real (hoje fixo 0.24.0)." },
-    { "version": "0.37.0", "sprint": "S37", "status": "planned",
+      "summary": "mapa-fontes-dados.md desatualizado (28/mai, sem Zoho/SAP4ME/Field/Content/DF/Calendar). Etiquetar dados vazios (field captura, content corpo). LinkedIn jun. /api/health lê versão real (hoje fixo 0.24.0)."
+    },
+    {
+      "version": "0.39.0",
+      "sprint": "S37",
+      "status": "planned",
       "title": "server.js modularização",
-      "summary": "2750 linhas num arquivo só. Quebrar em routes/ (pages, api-dados, api-content, api-field, api-df) + db.js. Saúde de longo prazo." },
-    { "version": "—", "sprint": "PEND-2", "status": "blocked",
+      "summary": "2750 linhas num arquivo só. Quebrar em routes/ (pages, api-dados, api-content, api-field, api-df) + db.js. Saúde de longo prazo."
+    },
+    {
+      "version": "—",
+      "sprint": "PEND-2",
+      "status": "blocked",
       "title": "🟡 SSO Microsoft — admin consent + ativar",
-      "summary": "Env vars já no Railway (AZURE_TENANT_ID/CLIENT_ID/CLIENT_SECRET/REDIRECT_URI visíveis). Falta: (1) Azure portal → API permissions → Grant admin consent (Graph: openid/profile/email/User.Read/offline_access); (2) confirmar Redirect URIs (localhost + Railway); (3) testar login real @epiuse.com.br; (4) quando confiar, SSO_ENFORCE=true." },
-    { "version": "—", "sprint": "PEND-3", "status": "blocked",
+      "summary": "Env vars já no Railway (AZURE_TENANT_ID/CLIENT_ID/CLIENT_SECRET/REDIRECT_URI visíveis). Falta: (1) Azure portal → API permissions → Grant admin consent (Graph: openid/profile/email/User.Read/offline_access); (2) confirmar Redirect URIs (localhost + Railway); (3) testar login real @epiuse.com.br; (4) quando confiar, SSO_ENFORCE=true."
+    },
+    {
+      "version": "—",
+      "sprint": "PEND-3",
+      "status": "blocked",
       "title": "🟡 Publicação WordPress automática (S31)",
-      "summary": "Pipeline de conteúdo (/content-pipeline) entrega tudo até o HTML pronto. Último passo (publicar no blog) segue manual — falta credenciais admin WordPress da EPI-USE com o TI pra automatizar o POST via REST API." },
-    { "version": "—", "sprint": "PEND-4", "status": "blocked",
+      "summary": "Pipeline de conteúdo (/content-pipeline) entrega tudo até o HTML pronto. Último passo (publicar no blog) segue manual — falta credenciais admin WordPress da EPI-USE com o TI pra automatizar o POST via REST API."
+    },
+    {
+      "version": "—",
+      "sprint": "PEND-4",
+      "status": "blocked",
       "title": "🟡 Popular agenda com planilhas atualizadas",
-      "summary": "Agenda unificada pronta (v0.33.0). Para dados mais frescos, Rudá vai mandar: planilha cronograma Redatoria atualizada + planilha posts Duda (redes) + lista de ações internas com prazos. Estrutura já consome essas fontes." }
+      "summary": "Agenda unificada pronta (v0.33.0). Para dados mais frescos, Rudá vai mandar: planilha cronograma Redatoria atualizada + planilha posts Duda (redes) + lista de ações internas com prazos. Estrutura já consome essas fontes."
+    }
   ],
   "releases": [
-    { "version": "0.35.0", "date": "09/jun/2026", "status": "current", "path": null,
+    {
+      "version": "0.36.0",
+      "date": "09/jun/2026",
+      "status": "current",
+      "path": null,
+      "title": "S38 — Home por role/perfil + bloco Hoje + north-star strip",
+      "summary": "Home personalizada por papel: seletor 'Ver como…' no hero com 8 personas (Rudá/Duda/Bruna/Gui/Isabela/Marlison/Roberto/Visitante) — cada uma reordena e filtra as seções da home pra mostrar primeiro o que é da pessoa. public/api/personas.json define email→persona (pronto pro SSO: quando admin consent ativar, /api/auth/status auto-seleciona) + ordem/esconde de seções + KPIs do bloco 'Meu foco'. Novos blocos: (1) NORTH-STAR strip — 3 números que importam (Pipeline MKT FY R$ via Zoho · Seguidores LinkedIn · DDF aprovado válido €), grandes, sem scroll; (2) HOJE — o que acontece no dia: posts a publicar (calendar), eventos live (field), claims DF expirando hoje; (3) MEU FOCO — 2-3 KPIs por persona com fonte etiquetada (Duda: posts da semana + conteúdos aguardando + Voices; Isabela: eventos 30d + capturas a preencher + claims DF; Bruna: Apollo + LinkedIn; Marlison: pipeline + go-lives; Roberto: pipeline + SAP Live + cases). 16 definições de KPI todas em APIs existentes — zero endpoint novo, dado 100% real. Persona persiste em localStorage (override manual sempre disponível)."
+    },
+    {
+      "version": "0.35.0",
+      "date": "09/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "S35 — Tipografia unificada: fim da fonte pixel fora do game",
-      "summary": "Diagnóstico refinado da revisão: as telas 'divergentes' NÃO eram light (falso positivo do scan — #fff de botões). A inconsistência real era a fonte pixel 'Press Start 2P' (estética game das versões 0.2-0.4) em títulos/KPIs/tags de 6 telas, destoando do Inter limpo das telas novas. Padronizado: títulos → Inter 800 (tamanhos ajustados +2-4px pra compensar largura), números/tags/labels → JetBrains Mono 700 (padrão do design system). 25 substituições em voices.html (10), painel.html (4), changelog.html (4), seja-voice.html (3), cases.html (2), metas.html (2). Press Start 2P removida dos Google Fonts links (menos 1 font load por página). Permanece SÓ no office.html (game 2D — pixel é a identidade lá, conforme documentado no /design). Confirmado: todas as telas legadas já eram dark por default (metas/voices/cases/painel com --bg navy, inbound com --d-bg #060e1a) — o bloco [data-theme=light] é suporte ao toggle, não default." },
-    { "version": "0.34.0", "date": "09/jun/2026", "status": "snapshot", "path": null,
+      "summary": "Diagnóstico refinado da revisão: as telas 'divergentes' NÃO eram light (falso positivo do scan — #fff de botões). A inconsistência real era a fonte pixel 'Press Start 2P' (estética game das versões 0.2-0.4) em títulos/KPIs/tags de 6 telas, destoando do Inter limpo das telas novas. Padronizado: títulos → Inter 800 (tamanhos ajustados +2-4px pra compensar largura), números/tags/labels → JetBrains Mono 700 (padrão do design system). 25 substituições em voices.html (10), painel.html (4), changelog.html (4), seja-voice.html (3), cases.html (2), metas.html (2). Press Start 2P removida dos Google Fonts links (menos 1 font load por página). Permanece SÓ no office.html (game 2D — pixel é a identidade lá, conforme documentado no /design). Confirmado: todas as telas legadas já eram dark por default (metas/voices/cases/painel com --bg navy, inbound com --d-bg #060e1a) — o bloco [data-theme=light] é suporte ao toggle, não default."
+    },
+    {
+      "version": "0.34.0",
+      "date": "09/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "S34 Design System unificado + aposenta telas mortas + roadmap revisão",
-      "summary": "Revisão completa do app (avaliação de saúde/UI-UX/dados no plano). EXECUTADO: (1) Design System — novo public/css/office-theme.css (vars dark canônicas --bg/--card/--accent... + utilitários .kpi/.panel/.btn/.tag/.tbl/.bar/.flag) + public/js/office-utils.js (esc/brl/fmt/fmtDate/scoreCls/expCls). 4 telas migradas pra consumir (clientes-sap-4me, field-marketing, content-pipeline, development-funds) removendo :root local duplicado — base pra padronizar as legadas. (2) Telas mortas aposentadas: dashboard + hub (redirect 301 → /, substituídas pela home), inbound/studio (segue redirect → carousel), inbound/zoho-pipeline (réplica, removida); arquivos deletados, SSO returnTo e logout apontam pra / agora, entradas removidas do Cmd+K. (3) Roadmap S34-S37 registrado (planilha + changelog) + mapa-fontes-dados.md atualizado com Zoho/SAP4ME/Field/Content/DF/Calendar. Próximas: S35 refactor telas legadas light→dark, S36 fechar buracos de dados, S37 modularizar server.js." },
-    { "version": "0.33.0", "date": "09/jun/2026", "status": "snapshot", "path": null,
+      "summary": "Revisão completa do app (avaliação de saúde/UI-UX/dados no plano). EXECUTADO: (1) Design System — novo public/css/office-theme.css (vars dark canônicas --bg/--card/--accent... + utilitários .kpi/.panel/.btn/.tag/.tbl/.bar/.flag) + public/js/office-utils.js (esc/brl/fmt/fmtDate/scoreCls/expCls). 4 telas migradas pra consumir (clientes-sap-4me, field-marketing, content-pipeline, development-funds) removendo :root local duplicado — base pra padronizar as legadas. (2) Telas mortas aposentadas: dashboard + hub (redirect 301 → /, substituídas pela home), inbound/studio (segue redirect → carousel), inbound/zoho-pipeline (réplica, removida); arquivos deletados, SSO returnTo e logout apontam pra / agora, entradas removidas do Cmd+K. (3) Roadmap S34-S37 registrado (planilha + changelog) + mapa-fontes-dados.md atualizado com Zoho/SAP4ME/Field/Content/DF/Calendar. Próximas: S35 refactor telas legadas light→dark, S36 fechar buracos de dados, S37 modularizar server.js."
+    },
+    {
+      "version": "0.33.0",
+      "date": "09/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "Home: agenda unificada — eventos + posts + artigos + MDF/deadlines + datas em 1 lugar",
-      "summary": "Unificação dos 2 blocos de calendário da home num só, no layout de cards por mês (preferido pelo Rudá). A seção 'Agenda EPI-USE / SAP' agora agrega TODAS as camadas, não só eventos: (1) Eventos EPI-USE/SAP BR+LATAM (events.json), (2) Artigos Redatoria + Posts Duda (/api/inbound/calendar), (3) Deadlines MDF (deadlines-2026.json), (4) Claims DF a reclamar por expiração (/api/development-funds, exclui derrubados), (5) Datas comemorativas/premiações/efemérides. Tabs BR/LATAM/TODOS substituídas por FILTROS DE CAMADA toggláveis (🔴 Eventos · 📰 Artigos · 📝 Posts Duda · 💶 MDF/Deadlines · 🎉 Datas) com contadores. Cada item tem border-color + tag da camada. Agrupamento por mês mantido (mês atual destacado AGORA, passados ao final). Widget duplicado 'Calendário — próximos itens' removido — tudo num só local. Link 'Ver calendário completo' aponta pro /inbound/calendar (visão grade)." },
-    { "version": "0.32.1", "date": "09/jun/2026", "status": "snapshot", "path": null,
+      "summary": "Unificação dos 2 blocos de calendário da home num só, no layout de cards por mês (preferido pelo Rudá). A seção 'Agenda EPI-USE / SAP' agora agrega TODAS as camadas, não só eventos: (1) Eventos EPI-USE/SAP BR+LATAM (events.json), (2) Artigos Redatoria + Posts Duda (/api/inbound/calendar), (3) Deadlines MDF (deadlines-2026.json), (4) Claims DF a reclamar por expiração (/api/development-funds, exclui derrubados), (5) Datas comemorativas/premiações/efemérides. Tabs BR/LATAM/TODOS substituídas por FILTROS DE CAMADA toggláveis (🔴 Eventos · 📰 Artigos · 📝 Posts Duda · 💶 MDF/Deadlines · 🎉 Datas) com contadores. Cada item tem border-color + tag da camada. Agrupamento por mês mantido (mês atual destacado AGORA, passados ao final). Widget duplicado 'Calendário — próximos itens' removido — tudo num só local. Link 'Ver calendário completo' aponta pro /inbound/calendar (visão grade)."
+    },
+    {
+      "version": "0.32.1",
+      "date": "09/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "Resiliência (handlers globais de erro) + War Room repurposed + Zoho fora do menu",
-      "summary": "(1) RESILIÊNCIA: adicionados process.on('uncaughtException') + ('unhandledRejection') no server.js — antes qualquer erro async não tratado MATAVA o processo Node → 502 até o Railway reiniciar (janela em que 'as páginas não funcionavam'). Agora um bug pontual numa rota não derruba o app inteiro. Diagnóstico confirmou: páginas /clientes-sap-4me, /field-marketing, /content-pipeline funcionam (18/18 no stress + screenshot) — o 502 era reinício de container por erro não capturado. (2) War Room repurposed: era inbox/outbox de agentes virtuais (quase tudo 0 = inútil). Agora é 'Central — Pendências & Deadlines' lendo dados REAIS: bloqueadas/pendentes de /api/pendencias (12 itens do pendencias.md) + claims DF a reclamar por expiração + meta 70% 1º/jul + go-lives SAP próximos 30d. (3) Pipeline CRM Zoho removido do menu (era réplica do próprio CRM, sem insight novo) — o insight de pipeline gerado por Marketing (MKT vs SDR, R$ por período) permanece na seção 6 do /relatorio, que é o contexto certo. Tela /inbound/zoho-pipeline segue acessível por URL mas fora do menu." },
-    { "version": "0.32.0", "date": "09/jun/2026", "status": "snapshot", "path": null,
+      "summary": "(1) RESILIÊNCIA: adicionados process.on('uncaughtException') + ('unhandledRejection') no server.js — antes qualquer erro async não tratado MATAVA o processo Node → 502 até o Railway reiniciar (janela em que 'as páginas não funcionavam'). Agora um bug pontual numa rota não derruba o app inteiro. Diagnóstico confirmou: páginas /clientes-sap-4me, /field-marketing, /content-pipeline funcionam (18/18 no stress + screenshot) — o 502 era reinício de container por erro não capturado. (2) War Room repurposed: era inbox/outbox de agentes virtuais (quase tudo 0 = inútil). Agora é 'Central — Pendências & Deadlines' lendo dados REAIS: bloqueadas/pendentes de /api/pendencias (12 itens do pendencias.md) + claims DF a reclamar por expiração + meta 70% 1º/jul + go-lives SAP próximos 30d. (3) Pipeline CRM Zoho removido do menu (era réplica do próprio CRM, sem insight novo) — o insight de pipeline gerado por Marketing (MKT vs SDR, R$ por período) permanece na seção 6 do /relatorio, que é o contexto certo. Tela /inbound/zoho-pipeline segue acessível por URL mas fora do menu."
+    },
+    {
+      "version": "0.32.0",
+      "date": "09/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "S32 — Development Funds (SAP DF LAC) tracker + deadlines de MDF no calendário",
-      "summary": "Nova tela /development-funds: tracker dos SAP Development Funds (DF LAC 2026), espelho do portal PartnerEdge. public/api/development-funds.json com 18 proposals + 9 requests reais (valores €/R$, status, expirações) + budget (DDF €80k alocado, €15.327 consumido, EDF €406,53) + regras do PDF Entry & Eligibility Criteria May 2026 (training 1º/abr, 100% EDF + 70% DDF até 1º/jul, 80% demand gen / 20% enablement, DDF só Public Cloud, elegibilidade >200k ACV). REGRA-CHAVE: itens com derrubado:true (duplicados/erro) NÃO somam no budget a gastar — 2 derrubados a pedido do Rudá: 5VVWA2SLEO (Digital Demand Gen SEO €7.313,85, duplicado de DNNY18II9C) + 66IJWEAE2B (SAP Sapphire ASUG €4.809,94, engano). GET /api/development-funds agrega: aprovado válido, derrubado total, pendente, total a reclamar, meta 70% (1º/jul), por status, a_reclamar por expiração, expirando 30d. Dashboard: 6 KPIs, barra de progresso DDF rumo à meta 70% (mostra quanto falta), painel 'a reclamar' por expiração (cores urgência), painel 'derrubados' (riscado), tabela 18 proposals, regras DF. Calendário (/inbound/calendar): cada request DF aberto (não derrubado, claim pendente) vira evento no layer MDF na data de expiração do claim. Link no nav." },
-    { "version": "0.31.1", "date": "09/jun/2026", "status": "snapshot", "path": null,
+      "summary": "Nova tela /development-funds: tracker dos SAP Development Funds (DF LAC 2026), espelho do portal PartnerEdge. public/api/development-funds.json com 18 proposals + 9 requests reais (valores €/R$, status, expirações) + budget (DDF €80k alocado, €15.327 consumido, EDF €406,53) + regras do PDF Entry & Eligibility Criteria May 2026 (training 1º/abr, 100% EDF + 70% DDF até 1º/jul, 80% demand gen / 20% enablement, DDF só Public Cloud, elegibilidade >200k ACV). REGRA-CHAVE: itens com derrubado:true (duplicados/erro) NÃO somam no budget a gastar — 2 derrubados a pedido do Rudá: 5VVWA2SLEO (Digital Demand Gen SEO €7.313,85, duplicado de DNNY18II9C) + 66IJWEAE2B (SAP Sapphire ASUG €4.809,94, engano). GET /api/development-funds agrega: aprovado válido, derrubado total, pendente, total a reclamar, meta 70% (1º/jul), por status, a_reclamar por expiração, expirando 30d. Dashboard: 6 KPIs, barra de progresso DDF rumo à meta 70% (mostra quanto falta), painel 'a reclamar' por expiração (cores urgência), painel 'derrubados' (riscado), tabela 18 proposals, regras DF. Calendário (/inbound/calendar): cada request DF aberto (não derrubado, claim pendente) vira evento no layer MDF na data de expiração do claim. Link no nav."
+    },
+    {
+      "version": "0.31.1",
+      "date": "09/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "Calendário: layers MDF + Deadlines · diagnóstico de persistência no /api/version",
-      "summary": "Calendário mestre (/inbound/calendar) ganhou 2 layers no topo: MDF/Dev Funds (vermelho) e Deadlines de ações (rosa), além de reordenar layers por prioridade de negócio (MDF · Deadlines · Eventos EPI-USE/SAP · Artigos Redatoria · Posts Redes Duda · Datas Comemorativas · Feriados · Copa · Efemérides · Premiações). Novo public/api/deadlines-2026.json populado com deadlines reais do email SAP Partner Marketing LAC (11/03/2026): treinamento obrigatório 1º/abr, 100% EDF + 70% DDF até 1º/jul (EDF €406,53 · DDF €80.000), abrir proposals H2. /api/version agora expõe bloco persistencia (db_path, data_dir, volume_ativo, status) para diagnosticar D1 (Railway volume). Aguardando arquivos do Rudá (planilhas Redatoria/Duda atualizadas + lista MDFs abertos + ações com prazos) para popular os layers — S32." },
-    { "version": "0.31.0", "date": "09/jun/2026", "status": "snapshot", "path": null,
+      "summary": "Calendário mestre (/inbound/calendar) ganhou 2 layers no topo: MDF/Dev Funds (vermelho) e Deadlines de ações (rosa), além de reordenar layers por prioridade de negócio (MDF · Deadlines · Eventos EPI-USE/SAP · Artigos Redatoria · Posts Redes Duda · Datas Comemorativas · Feriados · Copa · Efemérides · Premiações). Novo public/api/deadlines-2026.json populado com deadlines reais do email SAP Partner Marketing LAC (11/03/2026): treinamento obrigatório 1º/abr, 100% EDF + 70% DDF até 1º/jul (EDF €406,53 · DDF €80.000), abrir proposals H2. /api/version agora expõe bloco persistencia (db_path, data_dir, volume_ativo, status) para diagnosticar D1 (Railway volume). Aguardando arquivos do Rudá (planilhas Redatoria/Duda atualizadas + lista MDFs abertos + ações com prazos) para popular os layers — S32."
+    },
+    {
+      "version": "0.31.0",
+      "date": "09/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "S31 — Pipeline de Conteúdo: SEO + GEO/AIO/AEO/LLMO + copy/CTA + carrossel",
-      "summary": "Nova tela /content-pipeline: kanban de 7 estados do processo inbound real (recebido → SEO/GEO → persona → copy+CTA → carrossel → agendado → publicado). SQLite: tabela content_pipeline (titulo, keyword, pilar, persona, corpo, seo_json, geo_json, copy_text, cta_sugerido, carrossel_url, agendamento, publicação). Lib determinística scripts/integrations/seo_checker.js (sem IA/token): checkSEO (título 30-60, keyword no título/início, ≥300 palavras, densidade 0.5-2.5%, ≥2 H2, listas) + checkGEO (AEO pergunta-resposta, AIO resposta direta ≤50 palavras, GEO dados citáveis + entidades nomeadas, LLMO estrutura + conclusão resumível) + suggestCTA (CTA de conversão por LOB/pilar → /contato). Server: GET /api/content (kanban + por_estado), POST /api/content (cria), PUT /api/content/:id (edita + transição estado, marca publicado_em auto), POST /api/content/:id/seo-check (calcula SEO+GEO+CTA), DELETE, POST /api/content/import-redatoria (puxa itens fonte=redatoria do editorial_calendar). UI: kanban com cards por estado (scores SEO/GEO coloridos), modal completo (dados, corpo markdown, checklists SEO+GEO com ✓/○, copy+CTA, distribuição com link carrossel + agendamento), botão importar Redatoria. Link no nav. Nota: publicação no blog WordPress permanece manual (credenciais admin pendentes com TI) — pipeline entrega tudo até o HTML pronto. Encerra o roadmap S29-S31." },
-    { "version": "0.30.0", "date": "09/jun/2026", "status": "snapshot", "path": null,
+      "summary": "Nova tela /content-pipeline: kanban de 7 estados do processo inbound real (recebido → SEO/GEO → persona → copy+CTA → carrossel → agendado → publicado). SQLite: tabela content_pipeline (titulo, keyword, pilar, persona, corpo, seo_json, geo_json, copy_text, cta_sugerido, carrossel_url, agendamento, publicação). Lib determinística scripts/integrations/seo_checker.js (sem IA/token): checkSEO (título 30-60, keyword no título/início, ≥300 palavras, densidade 0.5-2.5%, ≥2 H2, listas) + checkGEO (AEO pergunta-resposta, AIO resposta direta ≤50 palavras, GEO dados citáveis + entidades nomeadas, LLMO estrutura + conclusão resumível) + suggestCTA (CTA de conversão por LOB/pilar → /contato). Server: GET /api/content (kanban + por_estado), POST /api/content (cria), PUT /api/content/:id (edita + transição estado, marca publicado_em auto), POST /api/content/:id/seo-check (calcula SEO+GEO+CTA), DELETE, POST /api/content/import-redatoria (puxa itens fonte=redatoria do editorial_calendar). UI: kanban com cards por estado (scores SEO/GEO coloridos), modal completo (dados, corpo markdown, checklists SEO+GEO com ✓/○, copy+CTA, distribuição com link carrossel + agendamento), botão importar Redatoria. Link no nav. Nota: publicação no blog WordPress permanece manual (credenciais admin pendentes com TI) — pipeline entrega tudo até o HTML pronto. Encerra o roadmap S29-S31."
+    },
+    {
+      "version": "0.30.0",
+      "date": "09/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "S30 — Field Marketing: briefing pré-evento + captura pós-evento + ROI",
-      "summary": "Nova tela /field-marketing: gestão dos 92 eventos (events.json BR+LATAM) com camada de field marketing. Template da Isabela (cronograma_gantt_eventos v1.xlsx) parseado para public/api/field-template.json: 5 fases, 56 tarefas (tipo/responsável/prazo), 14 itens de checklist D-Day, 7 planos B. SQLite: tabela field_events (status, brindes_json, captura_json, briefing_json, orçamento, porte por evento). Server: GET /api/field-marketing (junta events.json + enriquecimento SQLite + KPIs: por status, leads/qualificados/deals capturados, custo total, custo por lead) + POST /api/field-marketing/:id (upsert por evento, editor token). Script parse_field_template.py. UI: 6 KPI cards, tabs por status (planejamento/pré-evento/live/pós-evento/concluído), grid de cards de evento com border-color por status, modal por evento com (1) dados editáveis, (2) form de captura pós-evento (leads/qualificados/deals/custo/obs), (3) briefing completo gerado do template com export PDF. express.json subido p/ 4mb cobre todos os syncs grandes. Nota de escopo: eventos já aparecem no /inbound/calendar (layer epiuse, mesma fonte) — não duplicados; brindes mantidos como campo editável (erp-impacto.html permanece dedicado ao impacto social ERP.ngo, não a brindes de evento). Link no nav (Reports & Análises)." },
-    { "version": "0.29.0", "date": "09/jun/2026", "status": "snapshot", "path": null,
+      "summary": "Nova tela /field-marketing: gestão dos 92 eventos (events.json BR+LATAM) com camada de field marketing. Template da Isabela (cronograma_gantt_eventos v1.xlsx) parseado para public/api/field-template.json: 5 fases, 56 tarefas (tipo/responsável/prazo), 14 itens de checklist D-Day, 7 planos B. SQLite: tabela field_events (status, brindes_json, captura_json, briefing_json, orçamento, porte por evento). Server: GET /api/field-marketing (junta events.json + enriquecimento SQLite + KPIs: por status, leads/qualificados/deals capturados, custo total, custo por lead) + POST /api/field-marketing/:id (upsert por evento, editor token). Script parse_field_template.py. UI: 6 KPI cards, tabs por status (planejamento/pré-evento/live/pós-evento/concluído), grid de cards de evento com border-color por status, modal por evento com (1) dados editáveis, (2) form de captura pós-evento (leads/qualificados/deals/custo/obs), (3) briefing completo gerado do template com export PDF. express.json subido p/ 4mb cobre todos os syncs grandes. Nota de escopo: eventos já aparecem no /inbound/calendar (layer epiuse, mesma fonte) — não duplicados; brindes mantidos como campo editável (erp-impacto.html permanece dedicado ao impacto social ERP.ngo, não a brindes de evento). Link no nav (Reports & Análises)."
+    },
+    {
+      "version": "0.29.0",
+      "date": "09/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "S29 — Clientes SAP 4 ME: dashboard global + funil no relatório (visão Duda)",
-      "summary": "Nova tela /clientes-sap-4me: dashboard dos 705 projetos de nuvem SAP em todos os países EPI-USE (espelho da planilha SAP 4 ME do Roberto). SQLite: tabela clientes_sap_4me (projeto_id, conta_parceiro, nome_cliente, pais, area_subsolucao, etapa, kickoff, golive_planejado/confirmado, relevante_nivel, gerente). Server: GET /api/clientes-sap-4me (KPIs por etapa Live/Implementing/Not Started/On hold + by_pais + by_area + próximos go-lives 90d + kick-offs recentes 90d + lista completa) + POST /api/clientes-sap-4me/sync (editor token). Script: sync_clientes_sap_4me.js (Node, localModules pattern, trata datas Excel serial + placeholder 9999-12-31 → null, --dry-run + --target local/railway/all). UI: 6 KPI cards, barras por país (12) e área de subsolução, painéis go-lives + kick-offs, tabela filtrável (tabs Brasil/Global/Go-live 90d + busca + filtros país/etapa), export PDF landscape. Integração /relatorio seção 8: funil global + Brasil + cruzamento Cases (Roberto) × Clientes SAP 4 ME ativos (match por nome normalizado — mostra cases que são clientes ativos + cases sem match pra revisar naming). Dados reais: 705 projetos (455 Live, 139 Implementing, 89 Not Started, 22 On hold), 77 Brasil, 24 países. Link no nav (Reports & Análises) + alias no planilhas-registry." },
-    { "version": "0.28.1", "date": "09/jun/2026", "status": "snapshot", "path": null,
+      "summary": "Nova tela /clientes-sap-4me: dashboard dos 705 projetos de nuvem SAP em todos os países EPI-USE (espelho da planilha SAP 4 ME do Roberto). SQLite: tabela clientes_sap_4me (projeto_id, conta_parceiro, nome_cliente, pais, area_subsolucao, etapa, kickoff, golive_planejado/confirmado, relevante_nivel, gerente). Server: GET /api/clientes-sap-4me (KPIs por etapa Live/Implementing/Not Started/On hold + by_pais + by_area + próximos go-lives 90d + kick-offs recentes 90d + lista completa) + POST /api/clientes-sap-4me/sync (editor token). Script: sync_clientes_sap_4me.js (Node, localModules pattern, trata datas Excel serial + placeholder 9999-12-31 → null, --dry-run + --target local/railway/all). UI: 6 KPI cards, barras por país (12) e área de subsolução, painéis go-lives + kick-offs, tabela filtrável (tabs Brasil/Global/Go-live 90d + busca + filtros país/etapa), export PDF landscape. Integração /relatorio seção 8: funil global + Brasil + cruzamento Cases (Roberto) × Clientes SAP 4 ME ativos (match por nome normalizado — mostra cases que são clientes ativos + cases sem match pra revisar naming). Dados reais: 705 projetos (455 Live, 139 Implementing, 89 Not Started, 22 On hold), 77 Brasil, 24 países. Link no nav (Reports & Análises) + alias no planilhas-registry."
+    },
+    {
+      "version": "0.28.1",
+      "date": "09/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "Fase 0 débito técnico — automação de syncs (Cases + LinkedIn) + persistência Railway",
-      "summary": "Sprint de débito técnico antes das S29-S31. (1) Cron Cases: tarefa Windows EPI-USE-Office-Cases-Sync (diário 07:00) corrigida e registrada — bugs resolvidos: $root hardcoded no run-cases-sync.ps1 (agora dinâmico via PSScriptRoot), sync_cases_roberto.js não resolvia xlsx no Node v24 (localModules pattern), path Ruds com acento faltando. Testado end-to-end (19 cases → Railway). (2) LinkedIn sync: tarefa EPI-USE-Office-LinkedIn-Sync (diário 08:30) regenera linkedin-historical.json do XLS da Bruna + reports PPTX. Merge defensivo (Regra 7) preserva entradas 'manual (Rudá)' como o 10640 de mai/26 + cumulativos (newsletter/total) dos reports — não regride dado bom. Não faz push (Regra 3). (3) Railway Volume: server.js agora lê process.env.DATA_DIR pro DB_PATH com boot log que avisa se volume não montado (⚠️ DATA_DIR não setado → SQLite reseta a cada deploy). Falta só config humana no Railway dashboard (mount /data + DATA_DIR=/data). install-task.ps1 atualizado idempotente com as 5 tarefas." },
-    { "version": "0.28.0", "date": "08/jun/2026", "status": "snapshot", "path": null,
+      "summary": "Sprint de débito técnico antes das S29-S31. (1) Cron Cases: tarefa Windows EPI-USE-Office-Cases-Sync (diário 07:00) corrigida e registrada — bugs resolvidos: $root hardcoded no run-cases-sync.ps1 (agora dinâmico via PSScriptRoot), sync_cases_roberto.js não resolvia xlsx no Node v24 (localModules pattern), path Ruds com acento faltando. Testado end-to-end (19 cases → Railway). (2) LinkedIn sync: tarefa EPI-USE-Office-LinkedIn-Sync (diário 08:30) regenera linkedin-historical.json do XLS da Bruna + reports PPTX. Merge defensivo (Regra 7) preserva entradas 'manual (Rudá)' como o 10640 de mai/26 + cumulativos (newsletter/total) dos reports — não regride dado bom. Não faz push (Regra 3). (3) Railway Volume: server.js agora lê process.env.DATA_DIR pro DB_PATH com boot log que avisa se volume não montado (⚠️ DATA_DIR não setado → SQLite reseta a cada deploy). Falta só config humana no Railway dashboard (mount /data + DATA_DIR=/data). install-task.ps1 atualizado idempotente com as 5 tarefas."
+    },
+    {
+      "version": "0.28.0",
+      "date": "08/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "Integração Zoho+Cases em relatório/pipeline · Calendar dark · Home calendar widget",
-      "summary": "calendar.html: conversão completa para dark theme (bg #061020, cards #0a1525, bordas rgba blue-alpha, chips color-mix 20%, day-num hoje com ring blue glow). home.html: novo widget '📅 Calendário — próximos itens' com eventos dos próximos 30 dias via /api/inbound/calendar, cores por pilar, link para calendar completo. relatorio.html: (1) agenda nav tornou-se sticky (top:60px + backdrop-filter blur:12px) com estado active; (2) seção 6 refatorada para 'Pipeline CRM — Zoho MKT + SDR' com 4 KPI cards (este mês/último mês/quarter/FY) + top 8 campanhas com barra proporcional + toggle MKT/SDR/Todos; (3) seção 6b nova 'SDR/Prospecção Apollo'; (4) seção 7 Cases ampliada com 4 KPI cards de status + lista completa de accounts com badges coloridos por status. pipeline.html: bloco 'Pipeline CRM — Zoho' inserido acima do funil Apollo com 4 KPIs + top 5 campanhas + toggle + link para dashboard completo. sync_cases_roberto.py: fix caminho com acento (Ruds + Serviços EM SISTEMAS LTDA). Dados reais: 141 deals Zoho (98 MKT + 43 SDR), 19 cases CS sincronizados. ERP.ngo impact page (public/erp-impacto.html) e scripts de sync (sync_calendario_duda.js, sync_redatoria_to_calendar.js, sync_zoho_deals.js) entregues na v0.27.0 e preservados." },
-    { "version": "0.27.0", "date": "08/jun/2026", "status": "snapshot", "path": null,
+      "summary": "calendar.html: conversão completa para dark theme (bg #061020, cards #0a1525, bordas rgba blue-alpha, chips color-mix 20%, day-num hoje com ring blue glow). home.html: novo widget '📅 Calendário — próximos itens' com eventos dos próximos 30 dias via /api/inbound/calendar, cores por pilar, link para calendar completo. relatorio.html: (1) agenda nav tornou-se sticky (top:60px + backdrop-filter blur:12px) com estado active; (2) seção 6 refatorada para 'Pipeline CRM — Zoho MKT + SDR' com 4 KPI cards (este mês/último mês/quarter/FY) + top 8 campanhas com barra proporcional + toggle MKT/SDR/Todos; (3) seção 6b nova 'SDR/Prospecção Apollo'; (4) seção 7 Cases ampliada com 4 KPI cards de status + lista completa de accounts com badges coloridos por status. pipeline.html: bloco 'Pipeline CRM — Zoho' inserido acima do funil Apollo com 4 KPIs + top 5 campanhas + toggle + link para dashboard completo. sync_cases_roberto.py: fix caminho com acento (Ruds + Serviços EM SISTEMAS LTDA). Dados reais: 141 deals Zoho (98 MKT + 43 SDR), 19 cases CS sincronizados. ERP.ngo impact page (public/erp-impacto.html) e scripts de sync (sync_calendario_duda.js, sync_redatoria_to_calendar.js, sync_zoho_deals.js) entregues na v0.27.0 e preservados."
+    },
+    {
+      "version": "0.27.0",
+      "date": "08/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "Pipeline MKT — Integração Zoho CRM",
-      "summary": "Nova tela /inbound/zoho-pipeline: dashboard de oportunidades geradas pelo Marketing (campo Opportunity Source = MKT (EPI-USE) ou SDR). SQLite: nova tabela zoho_deals (deal_id, conta, nome_deal, valor, stage, campanha, solution, deal_scope, opportunity_source, data_criacao, data_fechamento). Server: GET /api/zoho/pipeline (agrega kpis por 4 períodos, por campanha, por solution, por deal_scope, por mês) + POST /api/zoho/sync (upsert com editor token). Script: scripts/sync/sync_zoho_deals.js (REST API OAuth2 ou --from-file payload JSON gerado via MCP). UI: filtro MKT/SDR/Todos, KPI cards 4 períodos, tabela campanha com barra proporcional, 2 charts horizontais (solution + deal scope), tendência mensal 24 meses. Sync via MCP Zoho já conectado (Claude Directory) — sem credenciais adicionais para uso manual. ERP.ngo impact page (erp-impacto.html): 8 impact cards com SVG icons + animated count-up + tabs + CTA split card. Scripts: sync_calendario_duda.js, sync_redatoria_to_calendar.js, datas-especiais-2026.json." },
-    { "version": "0.26.0", "date": "08/jun/2026", "status": "snapshot", "path": null,
+      "summary": "Nova tela /inbound/zoho-pipeline: dashboard de oportunidades geradas pelo Marketing (campo Opportunity Source = MKT (EPI-USE) ou SDR). SQLite: nova tabela zoho_deals (deal_id, conta, nome_deal, valor, stage, campanha, solution, deal_scope, opportunity_source, data_criacao, data_fechamento). Server: GET /api/zoho/pipeline (agrega kpis por 4 períodos, por campanha, por solution, por deal_scope, por mês) + POST /api/zoho/sync (upsert com editor token). Script: scripts/sync/sync_zoho_deals.js (REST API OAuth2 ou --from-file payload JSON gerado via MCP). UI: filtro MKT/SDR/Todos, KPI cards 4 períodos, tabela campanha com barra proporcional, 2 charts horizontais (solution + deal scope), tendência mensal 24 meses. Sync via MCP Zoho já conectado (Claude Directory) — sem credenciais adicionais para uso manual. ERP.ngo impact page (erp-impacto.html): 8 impact cards com SVG icons + animated count-up + tabs + CTA split card. Scripts: sync_calendario_duda.js, sync_redatoria_to_calendar.js, datas-especiais-2026.json."
+    },
+    {
+      "version": "0.26.0",
+      "date": "08/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "Calendário Mestre — 6 camadas de dados unificadas",
-      "summary": "Novo /inbound/calendar: calendário unificado com 8 layers filtraveis (Feriados BR, Datas Comemorativas, Copa/Esporte, Efemérides, Premiações, Eventos EPI-USE, Redatoria, Editorial Duda). Data sources: (1) public/api/datas-especiais-2026.json — 40 itens estáticos (feriados nacionais 2026, Copa do Mundo Jun11-Jul19, GPTW, SAP Pinnacle, Davos, SXSW, Black Friday, etc.). (2) /api/inbound/calendar SQLite — Editorial Duda (18 itens Jun) + Redatoria (80 itens 2026 via sync novo). (3) /api/events.json — Eventos EPI-USE BR+LATAM com TBC no painel lateral. UI: grid 7 colunas (Seg-Dom), chips coloridos por layer, day detail panel, month stats, TBC panel, nav por teclado (← →). Novo script scripts/sync/sync_redatoria_to_calendar.js — parseia abas 2026 do XLSX Redatoria (Jan26/Fev26/Mar26/Abr26/Jun26 = 80 itens sincronizados). Fix: sync_calendario_duda.js usa require absoluto (Node v24 não aceita Module._nodeModulePaths patch)." },
-    { "version": "0.25.0", "date": "08/jun/2026", "status": "snapshot", "path": null,
+      "summary": "Novo /inbound/calendar: calendário unificado com 8 layers filtraveis (Feriados BR, Datas Comemorativas, Copa/Esporte, Efemérides, Premiações, Eventos EPI-USE, Redatoria, Editorial Duda). Data sources: (1) public/api/datas-especiais-2026.json — 40 itens estáticos (feriados nacionais 2026, Copa do Mundo Jun11-Jul19, GPTW, SAP Pinnacle, Davos, SXSW, Black Friday, etc.). (2) /api/inbound/calendar SQLite — Editorial Duda (18 itens Jun) + Redatoria (80 itens 2026 via sync novo). (3) /api/events.json — Eventos EPI-USE BR+LATAM com TBC no painel lateral. UI: grid 7 colunas (Seg-Dom), chips coloridos por layer, day detail panel, month stats, TBC panel, nav por teclado (← →). Novo script scripts/sync/sync_redatoria_to_calendar.js — parseia abas 2026 do XLSX Redatoria (Jan26/Fev26/Mar26/Abr26/Jun26 = 80 itens sincronizados). Fix: sync_calendario_duda.js usa require absoluto (Node v24 não aceita Module._nodeModulePaths patch)."
+    },
+    {
+      "version": "0.25.0",
+      "date": "08/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "Limpeza: remove Remotion + Projecoes, desabilita Cowork, desinstala 4 skills",
-      "summary": "Remove /remotion (rota + public/remotion.html + skill remotion). Remove /projecoes (rota + public/projecoes.html + /api/projecoes). Desabilita Cowork por hora (rota + 5 endpoints de API retornam 503, arquivos preservados). Desinstala skills: baoyu-cover-image, baoyu-infographic, baoyu-image-gen, remotion. Skills restantes: relatorio-mensal + ui-ux-pro-max. office-nav.js limpo (removidos links cowork/projecoes/remotion do overflow + projecoes do activeRoute)." },
-    { "version": "0.24.0", "date": "08/jun/2026", "status": "snapshot", "path": null,
+      "summary": "Remove /remotion (rota + public/remotion.html + skill remotion). Remove /projecoes (rota + public/projecoes.html + /api/projecoes). Desabilita Cowork por hora (rota + 5 endpoints de API retornam 503, arquivos preservados). Desinstala skills: baoyu-cover-image, baoyu-infographic, baoyu-image-gen, remotion. Skills restantes: relatorio-mensal + ui-ux-pro-max. office-nav.js limpo (removidos links cowork/projecoes/remotion do overflow + projecoes do activeRoute)."
+    },
+    {
+      "version": "0.24.0",
+      "date": "08/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "Polish global em TODAS paginas + light mode fix WCAG AAA",
-      "summary": "(1) office-nav.js agora injeta automaticamente Lexend+Source Sans 3+Fira Code fonts + polish-pro.css + consulting-dark.css em TODAS paginas (sem precisar editar HTML uma por uma). (2) Light mode rewrite WCAG AAA: bg #f4f7fb, cards white com border navy .12, h1/h2/h3 navy #001844, body text #0f1e35 (contraste 14:1), muted #475569 (8.6:1), grid bg sutil 48px navy .025. (3) Glass cards light: white .95 + border navy + shadow real (não invisivel). (4) Trust bar light: white com check verde escuro #047857 (visivel). (5) Live indicator light: green escuro #047857. (6) Numbers light: navy #001844 (sem glow). (7) Footer + header text legivel light. (8) KPI cards genericos: bg white, val navy, lbl slate-600." },
-    { "version": "0.23.0", "date": "08/jun/2026", "status": "snapshot", "path": null,
+      "summary": "(1) office-nav.js agora injeta automaticamente Lexend+Source Sans 3+Fira Code fonts + polish-pro.css + consulting-dark.css em TODAS paginas (sem precisar editar HTML uma por uma). (2) Light mode rewrite WCAG AAA: bg #f4f7fb, cards white com border navy .12, h1/h2/h3 navy #001844, body text #0f1e35 (contraste 14:1), muted #475569 (8.6:1), grid bg sutil 48px navy .025. (3) Glass cards light: white .95 + border navy + shadow real (não invisivel). (4) Trust bar light: white com check verde escuro #047857 (visivel). (5) Live indicator light: green escuro #047857. (6) Numbers light: navy #001844 (sem glow). (7) Footer + header text legivel light. (8) KPI cards genericos: bg white, val navy, lbl slate-600."
+    },
+    {
+      "version": "0.23.0",
+      "date": "08/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "Consulting/SAP redesign · Dark OLED + Glassmorphism + Trust + Real-time charts",
-      "summary": "Skill audit retornou: Dark Mode OLED + Enterprise Gateway pattern + Lexend/Source Sans 3 + minimal glow + trust signals prominent. Aplicado: (1) consulting-dark.css com 12 tokens dark (OLED bg #050a14, glow effects, glassmorphism deep blur 24px saturate 180%). (2) Trust Bar 5 cards na home (SSO Microsoft, TLS 1.3, WCAG AAA, Real-time APIs, LGPD) com SVG icons (sem emoji). (3) LIVE indicator pulsing dot green glow. (4) dk-num com text-shadow glow red/green/blue por status. (5) dk-chart-preview component + live-charts.js SVG sparkline com animated pulse dot (real-time feel). (6) Adicionado bloco Growth Trend LinkedIn 12m com sparkline real (8361->10640). (7) Grid background sutil 48px (modern tech feel). (8) Fonts: Lexend (heading trustworthy) + Source Sans 3 (body accessible). (9) Focus-visible 2px red AAA. Aplica em /home + /relatorio." },
-    { "version": "0.22.0", "date": "08/jun/2026", "status": "snapshot", "path": null,
+      "summary": "Skill audit retornou: Dark Mode OLED + Enterprise Gateway pattern + Lexend/Source Sans 3 + minimal glow + trust signals prominent. Aplicado: (1) consulting-dark.css com 12 tokens dark (OLED bg #050a14, glow effects, glassmorphism deep blur 24px saturate 180%). (2) Trust Bar 5 cards na home (SSO Microsoft, TLS 1.3, WCAG AAA, Real-time APIs, LGPD) com SVG icons (sem emoji). (3) LIVE indicator pulsing dot green glow. (4) dk-num com text-shadow glow red/green/blue por status. (5) dk-chart-preview component + live-charts.js SVG sparkline com animated pulse dot (real-time feel). (6) Adicionado bloco Growth Trend LinkedIn 12m com sparkline real (8361->10640). (7) Grid background sutil 48px (modern tech feel). (8) Fonts: Lexend (heading trustworthy) + Source Sans 3 (body accessible). (9) Focus-visible 2px red AAA. Aplica em /home + /relatorio."
+    },
+    {
+      "version": "0.22.0",
+      "date": "08/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "Data-Dense Dashboard pattern (oficial ui-ux-pro-max audit)",
-      "summary": "Skill ui-ux-pro-max rodada via Python CLI com --design-system pra B2B SaaS Analytics. Recomendou: Pattern Data-Dense Dashboard, Fonts Fira Sans+Fira Code (substitui Poppins/Inter geral), Effects nativos (tooltips, row highlight, filter anim, spinners). Aplicado: (1) Font stack: Fira Sans body + Fira Code mono (Poppins so hero hero h1 display), (2) [data-tip] tooltip CSS nativo (sem JS), (3) table.pro row highlighting hover red, (4) .pro-spinner inline, (5) compact padding em /relatorio /metas /metas-fy26 (data-dense), (6) .pro-icon helper SVG class (skill: no emoji as icons), (7) .pro-filter-enter animation. polish-pro.css agora importado em home tambem (era so metas/relatorio). Brand colors EPI-USE preservados (Navy+Red), skill nao impos paleta dela." },
-    { "version": "0.21.1", "date": "07/jun/2026", "status": "snapshot", "path": null,
+      "summary": "Skill ui-ux-pro-max rodada via Python CLI com --design-system pra B2B SaaS Analytics. Recomendou: Pattern Data-Dense Dashboard, Fonts Fira Sans+Fira Code (substitui Poppins/Inter geral), Effects nativos (tooltips, row highlight, filter anim, spinners). Aplicado: (1) Font stack: Fira Sans body + Fira Code mono (Poppins so hero hero h1 display), (2) [data-tip] tooltip CSS nativo (sem JS), (3) table.pro row highlighting hover red, (4) .pro-spinner inline, (5) compact padding em /relatorio /metas /metas-fy26 (data-dense), (6) .pro-icon helper SVG class (skill: no emoji as icons), (7) .pro-filter-enter animation. polish-pro.css agora importado em home tambem (era so metas/relatorio). Brand colors EPI-USE preservados (Navy+Red), skill nao impos paleta dela."
+    },
+    {
+      "version": "0.21.1",
+      "date": "07/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "polish-pro.css aplicado em /metas-fy26 /relatorio /metas + versions sync",
-      "summary": "Cria public/css/polish-pro.css com ui-ux-pro-max guidelines (Poppins+Inter+JetBrains Mono, glassmorphism, heat map bar, touch 44x44, focus-visible 2px red, reduced-motion). Aplica nas 3 telas: metas-fy26, relatorio, metas. Sync versions nav (0.18→0.21.1) + footer (0.14→0.21.1)." },
-    { "version": "0.21.0", "date": "07/jun/2026", "status": "snapshot", "path": null,
+      "summary": "Cria public/css/polish-pro.css com ui-ux-pro-max guidelines (Poppins+Inter+JetBrains Mono, glassmorphism, heat map bar, touch 44x44, focus-visible 2px red, reduced-motion). Aplica nas 3 telas: metas-fy26, relatorio, metas. Sync versions nav (0.18→0.21.1) + footer (0.14→0.21.1)."
+    },
+    {
+      "version": "0.21.0",
+      "date": "07/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "DEEP REDESIGN v3 — Modern Professional + Glassmorphism+Flat (ui-ux-pro-max skill)",
-      "summary": "Aplicado padrão recomendado pela skill ui-ux-pro-max pra Analytics Dashboard + B2B Service: (1) Font stack Modern Professional: Poppins (headings + section titles + nomes) + Inter (body) + JetBrains Mono (números) via Google Fonts. (2) Hierarquia tipográfica forte: h1 32px peso 700 letter-spacing -0.025em, section title 10.5px tracking 0.14em, value 30px JetBrains Mono. (3) Glassmorphism DEEP nos 3 grupos principais (digest, area, team): backdrop-filter blur(20px) saturate(180%) + border rgba white .08 + gradient 160deg surface/2. (4) Heat map nas barras de meta: gradient cool→hot vermelho→amarelo→verde explicito (Analytics Dashboard pattern). (5) Section title ganha border-left vermelho 3px (Feature reveal B2B). (6) Light mode glass branco translúcido. (7) Drop-shadow nos area icons. Antialiased + optimizeLegibility globais." },
-    { "version": "0.20.2", "date": "07/jun/2026", "status": "snapshot", "path": null,
+      "summary": "Aplicado padrão recomendado pela skill ui-ux-pro-max pra Analytics Dashboard + B2B Service: (1) Font stack Modern Professional: Poppins (headings + section titles + nomes) + Inter (body) + JetBrains Mono (números) via Google Fonts. (2) Hierarquia tipográfica forte: h1 32px peso 700 letter-spacing -0.025em, section title 10.5px tracking 0.14em, value 30px JetBrains Mono. (3) Glassmorphism DEEP nos 3 grupos principais (digest, area, team): backdrop-filter blur(20px) saturate(180%) + border rgba white .08 + gradient 160deg surface/2. (4) Heat map nas barras de meta: gradient cool→hot vermelho→amarelo→verde explicito (Analytics Dashboard pattern). (5) Section title ganha border-left vermelho 3px (Feature reveal B2B). (6) Light mode glass branco translúcido. (7) Drop-shadow nos area icons. Antialiased + optimizeLegibility globais."
+    },
+    {
+      "version": "0.20.2",
+      "date": "07/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "FIX /code-review · 3 achados aplicados",
-      "summary": "(1) Fade-in agora opt-in via html.js-loaded — se JS falhar, sections ficam visiveis (era branco). (2) Margin-bottom dedup (26px velho removido, 36px premium consolidado). (3) Skeletons com role=status + aria-busy + aria-label pra screen readers." },
-    { "version": "0.20.1", "date": "07/jun/2026", "status": "snapshot", "path": null,
+      "summary": "(1) Fade-in agora opt-in via html.js-loaded — se JS falhar, sections ficam visiveis (era branco). (2) Margin-bottom dedup (26px velho removido, 36px premium consolidado). (3) Skeletons com role=status + aria-busy + aria-label pra screen readers."
+    },
+    {
+      "version": "0.20.1",
+      "date": "07/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "POLISH v2 — skeleton loaders + scroll fade-in + tabular nums + premium spacing",
-      "summary": "Aplica guidelines da skill ui-ux-pro-max (SaaS B2B pattern): smooth scroll global, skeleton shimmer loaders (substitui 'Carregando...' feio), section fade-in via IntersectionObserver, tabular-nums em todos os numeros (alinham coluna), premium spacing (section margin 36px, wrap padding 28px), hero light source radial Red sutil. Skills baoyu-cover-image + baoyu-infographic + ui-ux-pro-max instaladas no global (~/.claude/skills/). Caveman tambem instalado e ativo (CAVEMAN MODE full)." },
-    { "version": "0.20.0", "date": "07/jun/2026", "status": "snapshot", "path": null,
+      "summary": "Aplica guidelines da skill ui-ux-pro-max (SaaS B2B pattern): smooth scroll global, skeleton shimmer loaders (substitui 'Carregando...' feio), section fade-in via IntersectionObserver, tabular-nums em todos os numeros (alinham coluna), premium spacing (section margin 36px, wrap padding 28px), hero light source radial Red sutil. Skills baoyu-cover-image + baoyu-infographic + ui-ux-pro-max instaladas no global (~/.claude/skills/). Caveman tambem instalado e ativo (CAVEMAN MODE full)."
+    },
+    {
+      "version": "0.20.0",
+      "date": "07/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "SPRINT 20.1 — UI/UX Pro Max polish + Remotion em hold (laboratório)",
-      "summary": "Rudá: 'ta mto cara de IA padrao' + 'Remotion confundi, era pra ser skill UI/UX'. Decisões: (1) Remotion movido pra _laboratorio/remotion-engine/ (preservado, pode retomar depois com `cd _laboratorio/remotion-engine && npm install`). (2) Vídeos removidos das pages (/painel, /relatorio, /home). (3) Skill UI/UX Pro Max instalada em .claude/skills/ui-ux-pro-max/ (67 estilos, 161 paletas, 99 UX guidelines, 25 charts) + baoyu-cover-image + baoyu-infographic. (4) Polish na HOME inspirado em Glassmorphism + B2B Service (paleta EPI-USE preservada — Navy+Red): tipografia premium (letter-spacing -0.025em em h1, +0.14em em section titles), sombras elegantes em inset+drop, hover REFINADO só em botões e áreas principais (Quick actions têm shimmer red, scale icon 1.15+rotate-3deg, drop-shadow; Áreas têm glow radial no top + ring colorido; Team cards lift -2px; Tabs eventos hover red; Bday/Digest lift sutil; Alertas e itens só darken background). (5) /remotion banner virou amarelo 'HOLD' explicando arquivamento. Backup: git checkout v0.18.1-backup." },
-    { "version": "0.19.0", "date": "07/jun/2026", "status": "snapshot", "path": null,
+      "summary": "Rudá: 'ta mto cara de IA padrao' + 'Remotion confundi, era pra ser skill UI/UX'. Decisões: (1) Remotion movido pra _laboratorio/remotion-engine/ (preservado, pode retomar depois com `cd _laboratorio/remotion-engine && npm install`). (2) Vídeos removidos das pages (/painel, /relatorio, /home). (3) Skill UI/UX Pro Max instalada em .claude/skills/ui-ux-pro-max/ (67 estilos, 161 paletas, 99 UX guidelines, 25 charts) + baoyu-cover-image + baoyu-infographic. (4) Polish na HOME inspirado em Glassmorphism + B2B Service (paleta EPI-USE preservada — Navy+Red): tipografia premium (letter-spacing -0.025em em h1, +0.14em em section titles), sombras elegantes em inset+drop, hover REFINADO só em botões e áreas principais (Quick actions têm shimmer red, scale icon 1.15+rotate-3deg, drop-shadow; Áreas têm glow radial no top + ring colorido; Team cards lift -2px; Tabs eventos hover red; Bday/Digest lift sutil; Alertas e itens só darken background). (5) /remotion banner virou amarelo 'HOLD' explicando arquivamento. Backup: git checkout v0.18.1-backup."
+    },
+    {
+      "version": "0.19.0",
+      "date": "07/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "SPRINT 20 (rebuild) — Remotion Engine integrado · 5 compositions embedadas no app",
-      "summary": "BACKUP: tag git v0.18.1-backup pra reverter (`git checkout v0.18.1-backup`). Engine Remotion versionado em /remotion-engine/ com 5 compositions: (1) HomeHero 12s loop 1920x400 embedado no banner da /, (2) VoiceReel 30s 9:16 template pra LinkedIn dos Voices, (3) AniversarioCard 6s 1:1 auto-gerado pro time, (4) DailyDigest 15s loop 1:1 sticky no canto direito da /painel, (5) RelatorioIntro 8s 16:9 topo do /relatorio. Brand Guide V1.1 codificado em src/lib/brand.ts (cores · fontes · Easing premium). Scripts: npm run build:all renderiza tudo pra public/videos/. Restrição: render é local (Railway sem Chromium) — MP4s ficam pré-renderizados no repo. Página /remotion atualizada mostrando 5 previews ao vivo + status do engine. Fallback gracioso quando MP4 não existe (onerror=hide). Roadmap: S21 cron mensal regenera quando dados mudam · S22 endpoint /api/videos/render pra outros agentes · S23 Relatório Semanal Animado · S24 TTS voiceover automático." },
-    { "version": "0.18.1", "date": "07/jun/2026", "status": "snapshot", "path": null,
+      "summary": "BACKUP: tag git v0.18.1-backup pra reverter (`git checkout v0.18.1-backup`). Engine Remotion versionado em /remotion-engine/ com 5 compositions: (1) HomeHero 12s loop 1920x400 embedado no banner da /, (2) VoiceReel 30s 9:16 template pra LinkedIn dos Voices, (3) AniversarioCard 6s 1:1 auto-gerado pro time, (4) DailyDigest 15s loop 1:1 sticky no canto direito da /painel, (5) RelatorioIntro 8s 16:9 topo do /relatorio. Brand Guide V1.1 codificado em src/lib/brand.ts (cores · fontes · Easing premium). Scripts: npm run build:all renderiza tudo pra public/videos/. Restrição: render é local (Railway sem Chromium) — MP4s ficam pré-renderizados no repo. Página /remotion atualizada mostrando 5 previews ao vivo + status do engine. Fallback gracioso quando MP4 não existe (onerror=hide). Roadmap: S21 cron mensal regenera quando dados mudam · S22 endpoint /api/videos/render pra outros agentes · S23 Relatório Semanal Animado · S24 TTS voiceover automático."
+    },
+    {
+      "version": "0.18.1",
+      "date": "07/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "Página /remotion — showcase do potencial do framework de vídeo",
-      "summary": "Nova rota /remotion (e /remotion-demo redirect) com showcase visual: 4 stats (React, programático, cron, multi-formato) · 10 casos de uso pro EPI-USE (Voice Reel, Relatório Animado, Aniversário, Case Study, Onboarding, Anúncio Evento, Artigo→Carrossel, Email Signature, Pitch Deck, Daily Digest em vídeo) · 8 features técnicas · exemplo de código · roadmap de adoção (S22 aniversário, S23 Voice Reel, S24 relatório semanal, S25 /api/render-video) · 6 exemplos do showcase oficial (Fireship, Vercel, Codecademy, Linear, Mintlify, templates). Link no overflow nav · 'Modo Game' agora tem vizinho '🎬 Remotion (vídeos)'. Projeto demo continua em ~/Desktop/remotion-hover-demo/." },
-    { "version": "0.18.0", "date": "07/jun/2026", "status": "snapshot", "path": null,
+      "summary": "Nova rota /remotion (e /remotion-demo redirect) com showcase visual: 4 stats (React, programático, cron, multi-formato) · 10 casos de uso pro EPI-USE (Voice Reel, Relatório Animado, Aniversário, Case Study, Onboarding, Anúncio Evento, Artigo→Carrossel, Email Signature, Pitch Deck, Daily Digest em vídeo) · 8 features técnicas · exemplo de código · roadmap de adoção (S22 aniversário, S23 Voice Reel, S24 relatório semanal, S25 /api/render-video) · 6 exemplos do showcase oficial (Fireship, Vercel, Codecademy, Linear, Mintlify, templates). Link no overflow nav · 'Modo Game' agora tem vizinho '🎬 Remotion (vídeos)'. Projeto demo continua em ~/Desktop/remotion-hover-demo/."
+    },
+    {
+      "version": "0.18.0",
+      "date": "07/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "HOME oficial · dashboard antigo vira legado + nav/footer sincronizados (0.18.0)",
-      "summary": "Rudá aprovou HOME nova como oficial. Logo do nav agora aponta pra `/` (era `/dashboard`). Tab 'Office' renomeada 'Home'. Banner amarelo no /dashboard avisando que é legado + link pra HOME. Versão chip do nav/footer atualizada (estava em 0.14.0 desde a S18, agora sincronizada com prod 0.18.0). Cmd+K ganha entrada 'Dashboard legado' separado de 'Home'. Marco oficial da rebrand — todas rotas internas continuam funcionando, só a entrada principal mudou." },
-    { "version": "0.17.1", "date": "07/jun/2026", "status": "snapshot", "path": null,
+      "summary": "Rudá aprovou HOME nova como oficial. Logo do nav agora aponta pra `/` (era `/dashboard`). Tab 'Office' renomeada 'Home'. Banner amarelo no /dashboard avisando que é legado + link pra HOME. Versão chip do nav/footer atualizada (estava em 0.14.0 desde a S18, agora sincronizada com prod 0.18.0). Cmd+K ganha entrada 'Dashboard legado' separado de 'Home'. Marco oficial da rebrand — todas rotas internas continuam funcionando, só a entrada principal mudou."
+    },
+    {
+      "version": "0.17.1",
+      "date": "07/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "HOME ganha Agenda (BR+LATAM+TODOS), Aniversários e Time MKT (vindos do /dashboard)",
-      "summary": "Rudá aprovou a HOME nova mas pediu trazer 3 blocos do /dashboard antigo: (1) 📅 Agenda EPI-USE/SAP 2026 com tabs BR/LATAM/TODOS · grid mensal · mês atual destacado verde · meses passados em opacity reduzida · cores por LOB (HCM/ERP/BTP/Cloud/Cross etc) · contagem dinâmica nas tabs. (2) 🎂 Próximos aniversários · ordenado por dias até próxima ocorrência · badge HOJE / em Xd · avatar com gradient da área. (3) 👥 Time MKT · 6 áreas com responsáveis · cards mostram ícone + nome + foto/avatar do responsável + foco da área + Voices conectados. Usa /api/events.json e /api/team.json (já existentes, zero endpoint novo). CSS isolado em .home-evt-*, .home-bday-*, .home-team-* (sem vazar). Bump patch 0.17.1." },
-    { "version": "0.17.0", "date": "07/jun/2026", "status": "snapshot", "path": null,
+      "summary": "Rudá aprovou a HOME nova mas pediu trazer 3 blocos do /dashboard antigo: (1) 📅 Agenda EPI-USE/SAP 2026 com tabs BR/LATAM/TODOS · grid mensal · mês atual destacado verde · meses passados em opacity reduzida · cores por LOB (HCM/ERP/BTP/Cloud/Cross etc) · contagem dinâmica nas tabs. (2) 🎂 Próximos aniversários · ordenado por dias até próxima ocorrência · badge HOJE / em Xd · avatar com gradient da área. (3) 👥 Time MKT · 6 áreas com responsáveis · cards mostram ícone + nome + foto/avatar do responsável + foco da área + Voices conectados. Usa /api/events.json e /api/team.json (já existentes, zero endpoint novo). CSS isolado em .home-evt-*, .home-bday-*, .home-team-* (sem vazar). Bump patch 0.17.1."
+    },
+    {
+      "version": "0.17.0",
+      "date": "07/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "SPRINT 20 — Rebrand HOME (Command Center · pipeline V2 com 3 checkpoints)",
-      "summary": "Primeira sprint rodada no pipeline V2 (PM Técnico → Arquiteto Frontend → Revisor QA → código). HOME `/` agora é command center pessoal do Rudá (game vai pra /game). Estrutura: hero com saudação contextual + chip online + elefante ERP.ngo · Daily Digest (Voices ativos · Eventos próximos · Pendências) · Top metas FY26 strip (5 metas com % progresso) · Grid 6 áreas com hover cards (aspect-ratio 3/4 + box-shadow flutuante + backdrop-filter blur, padrão CSS do print Rudá) · SAP Competitor 7º card disabled com selo 🔜 em breve · Acessos rápidos (Optimizer V2, Cowork, Painel, Relatório) · Alertas & Bloqueios (substitui War Room, parsea pendencias.md em 5 buckets via /api/pendencias). Arquivos novos: public/home.html · public/css/home.css · public/js/home.js. Endpoint novo: GET /api/pendencias (5 buckets: bloqueadas · dropadas · achados · pendentes · entregues). CSS isolado em .home-* (Ressalva R2 do review). Toggle de tema continua via office-nav (Ressalva R4 — sem duplicar). Mobile breakpoint 480px (Ressalva R2). Light + Dark mode com Brand Guide V1.1 (Navy #001844, Red #cd1543, Blue Light #869ec3)." },
-    { "version": "0.16.0", "date": "05/jun/2026", "status": "snapshot", "path": null,
+      "summary": "Primeira sprint rodada no pipeline V2 (PM Técnico → Arquiteto Frontend → Revisor QA → código). HOME `/` agora é command center pessoal do Rudá (game vai pra /game). Estrutura: hero com saudação contextual + chip online + elefante ERP.ngo · Daily Digest (Voices ativos · Eventos próximos · Pendências) · Top metas FY26 strip (5 metas com % progresso) · Grid 6 áreas com hover cards (aspect-ratio 3/4 + box-shadow flutuante + backdrop-filter blur, padrão CSS do print Rudá) · SAP Competitor 7º card disabled com selo 🔜 em breve · Acessos rápidos (Optimizer V2, Cowork, Painel, Relatório) · Alertas & Bloqueios (substitui War Room, parsea pendencias.md em 5 buckets via /api/pendencias). Arquivos novos: public/home.html · public/css/home.css · public/js/home.js. Endpoint novo: GET /api/pendencias (5 buckets: bloqueadas · dropadas · achados · pendentes · entregues). CSS isolado em .home-* (Ressalva R2 do review). Toggle de tema continua via office-nav (Ressalva R4 — sem duplicar). Mobile breakpoint 480px (Ressalva R2). Light + Dark mode com Brand Guide V1.1 (Navy #001844, Red #cd1543, Blue Light #869ec3)."
+    },
+    {
+      "version": "0.16.0",
+      "date": "05/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "SPRINT 20.1 — Planilhas como Live API (9 XLSX como endpoints)",
-      "summary": "Registry unificado em vault/00-contexto/planilhas-registry.json mapeia 9 planilhas (Roadmap PM · Metas Equipe RevOps · LinkedIn followers · Clientes ativos · Clientes Global SAP · Cronograma Eventos · Artigos Blog · Cases Referência · Template SMART). Cada uma vira /api/planilhas/<slug>. Cache invalidado automaticamente quando mtime do arquivo muda — usuário edita XLSX no Desktop/OneDrive → próxima request já pega versão nova, zero ação manual. /api/planilhas lista status (online/offline) + mtime + tamanho. Nova página /planilhas com dashboard visual (verde = online, vermelho = arquivo não encontrado). Endpoint genérico funciona pra qualquer XLSX/XLS — adiciona no registry e tá no ar."  },
-    { "version": "0.15.0", "date": "05/jun/2026", "status": "snapshot", "path": null,
+      "summary": "Registry unificado em vault/00-contexto/planilhas-registry.json mapeia 9 planilhas (Roadmap PM · Metas Equipe RevOps · LinkedIn followers · Clientes ativos · Clientes Global SAP · Cronograma Eventos · Artigos Blog · Cases Referência · Template SMART). Cada uma vira /api/planilhas/<slug>. Cache invalidado automaticamente quando mtime do arquivo muda — usuário edita XLSX no Desktop/OneDrive → próxima request já pega versão nova, zero ação manual. /api/planilhas lista status (online/offline) + mtime + tamanho. Nova página /planilhas com dashboard visual (verde = online, vermelho = arquivo não encontrado). Endpoint genérico funciona pra qualquer XLSX/XLS — adiciona no registry e tá no ar."
+    },
+    {
+      "version": "0.15.0",
+      "date": "05/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "SPRINT 19 — Sync notebook + PC (consolidação infra 0.14.0 + área redesign + abertura roadmap v2)",
-      "summary": "Marco de consolidação: branch notebook (SSO + Railway Volume + GA4 + RD Station + relatório FY · v0.12-0.14) mergeada com mudanças locais do PC (área redesign Sprint 16 — tool cards vibrantes + dashboard de metas com progresso colorido + atividade do agente + workflows relevantes · commit d81fa24 já no histórico). Conflitos em .gitignore (RD tokens + cowork-runs juntos), package.json (0.15.0) e changelog.json (todas releases preservadas). Abertura oficial do roadmap v2 com 6 sprints planejadas: 19 (sync) · 20 (rebrand HOME) · 21 (brindes URGENTE) · 22 (importar pasta ROADMAP MKT JUN 2026) · 23 (export Microsoft To Do) · 24 (cron cases + reembolsos). Plan file em ~/.claude/plans/deep-booping-crown.md." },
-    { "version": "0.14.0", "date": "05/jun/2026", "status": "snapshot", "path": null,
+      "summary": "Marco de consolidação: branch notebook (SSO + Railway Volume + GA4 + RD Station + relatório FY · v0.12-0.14) mergeada com mudanças locais do PC (área redesign Sprint 16 — tool cards vibrantes + dashboard de metas com progresso colorido + atividade do agente + workflows relevantes · commit d81fa24 já no histórico). Conflitos em .gitignore (RD tokens + cowork-runs juntos), package.json (0.15.0) e changelog.json (todas releases preservadas). Abertura oficial do roadmap v2 com 6 sprints planejadas: 19 (sync) · 20 (rebrand HOME) · 21 (brindes URGENTE) · 22 (importar pasta ROADMAP MKT JUN 2026) · 23 (export Microsoft To Do) · 24 (cron cases + reembolsos). Plan file em ~/.claude/plans/deep-booping-crown.md."
+    },
+    {
+      "version": "0.14.0",
+      "date": "05/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "SPRINT 18 — RD Station integrado (OAuth2) + KPIs de e-mail reais",
-      "summary": "Nova integração: scripts/integrations/rd_fetch.js usa OAuth2 do RD Station Marketing pra puxar segmentações (com tamanho real via paginação até 1000), workflows ativos, LPs publicadas e emails enviados. Novo endpoint /auth/rd-callback troca code OAuth por refresh_token permanente. POST /api/relatorio/rd-refresh popula rd-snapshot.json. /api/relatorio/snapshot agora retorna bloco 'email' com base de leads (1000+), workflows ativos (9), LPs publicadas (19), emails enviados no mês. Card e-mail no /relatorio deixa de mostrar ⏳ — fim do bloqueio histórico. Funcionou também no modo FY. Top páginas GA4 e duração média ponderada no FY também adicionados nesta sprint." },
-    { "version": "0.13.0", "date": "04/jun/2026", "status": "snapshot", "path": null,
+      "summary": "Nova integração: scripts/integrations/rd_fetch.js usa OAuth2 do RD Station Marketing pra puxar segmentações (com tamanho real via paginação até 1000), workflows ativos, LPs publicadas e emails enviados. Novo endpoint /auth/rd-callback troca code OAuth por refresh_token permanente. POST /api/relatorio/rd-refresh popula rd-snapshot.json. /api/relatorio/snapshot agora retorna bloco 'email' com base de leads (1000+), workflows ativos (9), LPs publicadas (19), emails enviados no mês. Card e-mail no /relatorio deixa de mostrar ⏳ — fim do bloqueio histórico. Funcionou também no modo FY. Top páginas GA4 e duração média ponderada no FY também adicionados nesta sprint."
+    },
+    {
+      "version": "0.13.0",
+      "date": "04/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "SPRINT 17 — Relatório FY (anual fiscal jul→jun) + GA4 12 meses",
-      "summary": "/relatorio ganha visão anual fiscal (FY26 jul/25→jun/26 e FY27 jul/26→jun/27) no seletor de mês. Backend: GET /api/relatorio/snapshot?fy=26|27 agrega site (soma 12m), LinkedIn (ganho total + saldo FY), eventos do FY, cases atuais e voices. ga4_fetch.js ganha fyMonths(fy) + refreshFY(fy) (popula 12 meses do cache). POST /api/relatorio/ga4-refresh-fy?fy=26 protegido por token. Frontend: render adaptado pra modo FY (sem MoM, com saldo total, cobertura X/12 meses). FY26 já populado: 32.142 usuários · 50.404 visualizações · 36.365 sessões agregadas de jul/25 a jun/26." },
-    { "version": "0.12.0", "date": "04/jun/2026", "status": "snapshot", "path": null,
+      "summary": "/relatorio ganha visão anual fiscal (FY26 jul/25→jun/26 e FY27 jul/26→jun/27) no seletor de mês. Backend: GET /api/relatorio/snapshot?fy=26|27 agrega site (soma 12m), LinkedIn (ganho total + saldo FY), eventos do FY, cases atuais e voices. ga4_fetch.js ganha fyMonths(fy) + refreshFY(fy) (popula 12 meses do cache). POST /api/relatorio/ga4-refresh-fy?fy=26 protegido por token. Frontend: render adaptado pra modo FY (sem MoM, com saldo total, cobertura X/12 meses). FY26 já populado: 32.142 usuários · 50.404 visualizações · 36.365 sessões agregadas de jul/25 a jun/26."
+    },
+    {
+      "version": "0.12.0",
+      "date": "04/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "SPRINT 16 — Infra de produção (SSO + Railway Volume + GA4) · Módulos /area redesign",
-      "summary": "Marco duplo: (a) Infra: SSO Microsoft ATIVO (login @epiuse.com.br via Entra ID · botão na tela de entrada · /api/auth/status enabled) · Railway Volume montado em /data (SQLite agora PERSISTE entre deploys, fim do reset de cases) · domínio oficial office.epiuse.com.br (CNAME no cPanel) · sync de cases reescrito em Node.js (sync_cases_roberto.js — não depende mais de Python, roda em qualquer máquina) com suporte multi-target (local · Railway · site) · integração Google Analytics 4 (ga4_fetch.js + bloco site em /api/relatorio/snapshot + POST /api/relatorio/ga4-refresh). (b) Módulos /area/:id remodelados via commit d81fa24: dashboard de metas com progresso colorido + tool cards vibrantes com icon/desc + atividade do agente + workflows relevantes. Regra de ouro 13: dados automatizados, zero planilha manual." },
-    { "version": "0.11.0", "date": "04/jun/2026", "status": "snapshot", "path": null,
+      "summary": "Marco duplo: (a) Infra: SSO Microsoft ATIVO (login @epiuse.com.br via Entra ID · botão na tela de entrada · /api/auth/status enabled) · Railway Volume montado em /data (SQLite agora PERSISTE entre deploys, fim do reset de cases) · domínio oficial office.epiuse.com.br (CNAME no cPanel) · sync de cases reescrito em Node.js (sync_cases_roberto.js — não depende mais de Python, roda em qualquer máquina) com suporte multi-target (local · Railway · site) · integração Google Analytics 4 (ga4_fetch.js + bloco site em /api/relatorio/snapshot + POST /api/relatorio/ga4-refresh). (b) Módulos /area/:id remodelados via commit d81fa24: dashboard de metas com progresso colorido + tool cards vibrantes com icon/desc + atividade do agente + workflows relevantes. Regra de ouro 13: dados automatizados, zero planilha manual."
+    },
+    {
+      "version": "0.11.0",
+      "date": "04/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "SPRINT 15 — Módulo C · Painel da Duda real (Daily Digest + Inbox por área)",
-      "summary": "Painel da Duda ganha 2 seções novas no topo: 🌅 Daily Digest (saudação contextual + resumo do que merece atenção hoje · pills com Voices ativos/inbox total/semana · ações pendentes com link RESOLVER/ABRIR direto pra agente) · 📥 Inbox por área (feed unificado dos workspaces que a Duda toca: area-brand · criativos · landing-pages · pipe-capa · pipe-carrossel). Novas APIs: GET /api/painel/digest (cumprimento + voices_ativos + pendencias + inbox_areas + workflows_ativos_7d) · GET /api/painel/inbox-duda (filtra cowork por AREAS_DUDA). Auto-refresh 60s. /painel evolui sem quebrar o existente (KPIs · tabela voices · performance · kanban · ações rápidas todos preservados)." },
-    { "version": "0.10.1", "date": "04/jun/2026", "status": "snapshot", "path": null,
+      "summary": "Painel da Duda ganha 2 seções novas no topo: 🌅 Daily Digest (saudação contextual + resumo do que merece atenção hoje · pills com Voices ativos/inbox total/semana · ações pendentes com link RESOLVER/ABRIR direto pra agente) · 📥 Inbox por área (feed unificado dos workspaces que a Duda toca: area-brand · criativos · landing-pages · pipe-capa · pipe-carrossel). Novas APIs: GET /api/painel/digest (cumprimento + voices_ativos + pendencias + inbox_areas + workflows_ativos_7d) · GET /api/painel/inbox-duda (filtra cowork por AREAS_DUDA). Auto-refresh 60s. /painel evolui sem quebrar o existente (KPIs · tabela voices · performance · kanban · ações rápidas todos preservados)."
+    },
+    {
+      "version": "0.10.1",
+      "date": "04/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "Cowork — auto-cria pasta inbox se workspace inexistente",
-      "summary": "Fix: workspaces dos pipe-* não existiam no Railway (eram só locais) → workflows falhavam com 5 erros. mkdirSync recursive antes de gravar. Testado em prod via browser: criar-artigo dispara 5/5 inboxes em prod." },
-    { "version": "0.10.0", "date": "04/jun/2026", "status": "snapshot", "path": null,
+      "summary": "Fix: workspaces dos pipe-* não existiam no Railway (eram só locais) → workflows falhavam com 5 erros. mkdirSync recursive antes de gravar. Testado em prod via browser: criar-artigo dispara 5/5 inboxes em prod."
+    },
+    {
+      "version": "0.10.0",
+      "date": "04/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "SPRINT 14 — Cowork + workflows dinâmicos entre agentes",
-      "summary": "Nova área /cowork onde agentes trabalham em cadeia · workflows definidos em JSON (vault/workflows/*.json) com inputs tipados + steps + dependências (`depende_de`) · POST /api/workflows/:slug/run cria pedidos encadeados em cada inbox com run_id compartilhado · feed unificado /api/cowork/atividade (todos inboxes+outboxes ordenados por mtime) · histórico em /api/cowork/runs · UI com 3 tabs (Workflows · Atividade · Em andamento) · 2 workflows seed: `criar-artigo` (pipe-briefing → pipe-artigo → pipe-capa+carrossel+copy-li paralelos) e `nova-oferta` (criativos+lp+campanhas → propostas) · link no overflow nav · runs gravados em vault/cowork-runs/" },
-    { "version": "0.9.5", "date": "03/jun/2026", "status": "snapshot", "path": null,
+      "summary": "Nova área /cowork onde agentes trabalham em cadeia · workflows definidos em JSON (vault/workflows/*.json) com inputs tipados + steps + dependências (`depende_de`) · POST /api/workflows/:slug/run cria pedidos encadeados em cada inbox com run_id compartilhado · feed unificado /api/cowork/atividade (todos inboxes+outboxes ordenados por mtime) · histórico em /api/cowork/runs · UI com 3 tabs (Workflows · Atividade · Em andamento) · 2 workflows seed: `criar-artigo` (pipe-briefing → pipe-artigo → pipe-capa+carrossel+copy-li paralelos) e `nova-oferta` (criativos+lp+campanhas → propostas) · link no overflow nav · runs gravados em vault/cowork-runs/"
+    },
+    {
+      "version": "0.9.5",
+      "date": "03/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "Padrão visual Anderson Costa aplicado nos 2 Optimizers (V1 + V2)",
-      "summary": "Templates V1 (transcrição livre) e V2 (findskill) agora geram HTML seguindo EXATO o padrão visual do kit Anderson Costa: tema dark navy #0d1b2e · fonte Inter · print-bar fixa com botão Salvar PDF · cover com badge + h1 + meta-pills · progress-wrap · cards com section-title + step-num · status-table com badges urgent/normal/ok · copy-block azul com btn-copy · highlight-urgent/info/warning · howto-list numerada · criteria-list com ✓ · field-table · skills-grid 2 cols (remove/add) · checklist interativo com localStorage · footer · @media print A4 mantendo dark. CSS inteiro embedded nos templates como referência obrigatória. Referência preservada em vault/00-contexto/prompts/PADRAO-VISUAL-anderson-costa-kit-linkedin.html" },
-    { "version": "0.9.4", "date": "02/jun/2026", "status": "snapshot", "path": null,
+      "summary": "Templates V1 (transcrição livre) e V2 (findskill) agora geram HTML seguindo EXATO o padrão visual do kit Anderson Costa: tema dark navy #0d1b2e · fonte Inter · print-bar fixa com botão Salvar PDF · cover com badge + h1 + meta-pills · progress-wrap · cards com section-title + step-num · status-table com badges urgent/normal/ok · copy-block azul com btn-copy · highlight-urgent/info/warning · howto-list numerada · criteria-list com ✓ · field-table · skills-grid 2 cols (remove/add) · checklist interativo com localStorage · footer · @media print A4 mantendo dark. CSS inteiro embedded nos templates como referência obrigatória. Referência preservada em vault/00-contexto/prompts/PADRAO-VISUAL-anderson-costa-kit-linkedin.html"
+    },
+    {
+      "version": "0.9.4",
+      "date": "02/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "Optimizer V2 — framework findskill.ai (mantém V1)",
-      "summary": "Nova rota /optimizer-v2 baseada no LinkedIn Profile Optimizer da findskill.ai · 5 variáveis estruturadas (current_role, target_audience, key_skills, unique_value, career_goal) + transcrição opcional · kit em 10 páginas A4 (Quick Wins na pág 1, Headline, Sobre Hook, Sobre completo, Experiência, Skills 50, Featured, Foto/Banner, Keywords/All-Star, URL/ERP.ngo) · 3 career goals (Thought Leadership / Atração de Clientes / Recrutamento) · Voice chip pré-popula 8 campos · V1 (/optimizer) MANTIDA intacta · link no overflow nav" },
-    { "version": "0.9.3", "date": "02/jun/2026", "status": "snapshot", "path": null,
+      "summary": "Nova rota /optimizer-v2 baseada no LinkedIn Profile Optimizer da findskill.ai · 5 variáveis estruturadas (current_role, target_audience, key_skills, unique_value, career_goal) + transcrição opcional · kit em 10 páginas A4 (Quick Wins na pág 1, Headline, Sobre Hook, Sobre completo, Experiência, Skills 50, Featured, Foto/Banner, Keywords/All-Star, URL/ERP.ngo) · 3 career goals (Thought Leadership / Atração de Clientes / Recrutamento) · Voice chip pré-popula 8 campos · V1 (/optimizer) MANTIDA intacta · link no overflow nav"
+    },
+    {
+      "version": "0.9.3",
+      "date": "02/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "Optimizer v2 — input transcrição direto, Pág 1 com Voice Index + Resumo",
-      "summary": "Refunda /optimizer no fluxo certo: cola transcrição da reunião → 1 clique copia prompt completo → cola Claude.ai → artifact PDF visual. Template kit-voice-template.md ganha seção PÁGINA 1 detalhada (Voice Index 140px + 4-6 bullets executivos + tabela 8 elementos com 🔴🟡🟢) — não pode ficar em branco. Voice chip pré-popula header de dados se cadastrado. IA extrai tudo sozinha da transcrição. Zero copy-paste de JSON." },
-    { "version": "0.9.2", "date": "02/jun/2026", "status": "snapshot", "path": null,
+      "summary": "Refunda /optimizer no fluxo certo: cola transcrição da reunião → 1 clique copia prompt completo → cola Claude.ai → artifact PDF visual. Template kit-voice-template.md ganha seção PÁGINA 1 detalhada (Voice Index 140px + 4-6 bullets executivos + tabela 8 elementos com 🔴🟡🟢) — não pode ficar em branco. Voice chip pré-popula header de dados se cadastrado. IA extrai tudo sozinha da transcrição. Zero copy-paste de JSON."
+    },
+    {
+      "version": "0.9.2",
+      "date": "02/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "Optimizer SIMPLIFICADO — 1 template .md · IA gera artifact final",
-      "summary": "Refundação inteira do Optimizer pra ficar fácil: 1 template canônico em vault/00-contexto/prompts/kit-voice-template.md · Office /optimizer vira página com 3 passos (copia → cola no Claude.ai → salva PDF) · clica num Voice cadastrado e copia template já pré-preenchido · IA gera o HTML artifact JÁ formatado (navy #001844 + red #cd1543) · PDF sai do próprio artifact via window.print · ZERO JSON · ZERO render local · ZERO chamada API · de 3.500 linhas pra ~400 no optimizer.html · removido optimizer-standalone.html (não funcionava)" },
-    { "version": "0.9.1", "date": "01/jun/2026", "status": "snapshot", "path": null,
+      "summary": "Refundação inteira do Optimizer pra ficar fácil: 1 template canônico em vault/00-contexto/prompts/kit-voice-template.md · Office /optimizer vira página com 3 passos (copia → cola no Claude.ai → salva PDF) · clica num Voice cadastrado e copia template já pré-preenchido · IA gera o HTML artifact JÁ formatado (navy #001844 + red #cd1543) · PDF sai do próprio artifact via window.print · ZERO JSON · ZERO render local · ZERO chamada API · de 3.500 linhas pra ~400 no optimizer.html · removido optimizer-standalone.html (não funcionava)"
+    },
+    {
+      "version": "0.9.1",
+      "date": "01/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "Optimizer ZERO TOKENS — fluxo copia-prompt → cola-JSON",
-      "summary": "Removidas TODAS chamadas API do Optimizer (não gasta mais token Anthropic) · botão 'Analisar aqui' removido · botão 'Extrair com Claude' agora abre prompt pronto pra colar em qualquer IA (Claude/ChatGPT/Gemini/Perplexity) · modal Prompt Lab ganha 2 painéis (esquerda: prompt copiável · direita: textarea pra colar JSON da resposta) · botão 'Renderizar Kit' parsea JSON e usa renderKit existente · time MKT processa em qualquer IA externa · Office vira coletor + renderizador + PDF institucional" },
-    { "version": "0.9.0", "date": "01/jun/2026", "status": "snapshot", "path": null,
+      "summary": "Removidas TODAS chamadas API do Optimizer (não gasta mais token Anthropic) · botão 'Analisar aqui' removido · botão 'Extrair com Claude' agora abre prompt pronto pra colar em qualquer IA (Claude/ChatGPT/Gemini/Perplexity) · modal Prompt Lab ganha 2 painéis (esquerda: prompt copiável · direita: textarea pra colar JSON da resposta) · botão 'Renderizar Kit' parsea JSON e usa renderKit existente · time MKT processa em qualquer IA externa · Office vira coletor + renderizador + PDF institucional"
+    },
+    {
+      "version": "0.9.0",
+      "date": "01/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "SPRINT 9 — Profile Optimizer REFUNDADO (input + PDF institucional + fluxo revisão)",
-      "summary": "Modo Voice cadastrado (dropdown direto pra Anderson/Furigo · pré-popula 14 campos do /api/voices) · PDF institucional via window.print (paleta light forçada · capa institucional página 1 · sumário página 2 · 1 seção por página A4 · fontes vetoriais · sem mais html2pdf rasterizando) · fluxo de revisão (rascunho→revisão→pronto · PDF só libera com kit revisado · estado persistido por Voice em localStorage)" },
-    { "version": "0.8.3", "date": "01/jun/2026", "status": "snapshot", "path": null,
+      "summary": "Modo Voice cadastrado (dropdown direto pra Anderson/Furigo · pré-popula 14 campos do /api/voices) · PDF institucional via window.print (paleta light forçada · capa institucional página 1 · sumário página 2 · 1 seção por página A4 · fontes vetoriais · sem mais html2pdf rasterizando) · fluxo de revisão (rascunho→revisão→pronto · PDF só libera com kit revisado · estado persistido por Voice em localStorage)"
+    },
+    {
+      "version": "0.8.3",
+      "date": "01/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "SPRINT 11.3 (pipeline conteúdo 5 agentes) + SPRINT 11.4 (biblioteca no carrossel)",
-      "summary": "5 agentes em cadeia (briefing→artigo→capa+carrossel+copy) · 4ª camada no /agentes · Carrossel ganha busca nos 693 artigos do blog (importa título+slug+LOB pro brief) · 17 agentes totais no escritório" },
-    { "version": "0.8.2", "date": "01/jun/2026", "status": "snapshot", "path": null,
+      "summary": "5 agentes em cadeia (briefing→artigo→capa+carrossel+copy) · 4ª camada no /agentes · Carrossel ganha busca nos 693 artigos do blog (importa título+slug+LOB pro brief) · 17 agentes totais no escritório"
+    },
+    {
+      "version": "0.8.2",
+      "date": "01/jun/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "SPRINT 10 (agente relatorio-mensal) + SPRINT 11.2 (overflow reorganizado)",
-      "summary": "Agente relatorio-mensal completo (skill + workspace + cron mensal dia 1 08:05) · overflow do nav agrupado em 5 seções (Escritório Virtual · Reports · Voices · Design · Extras) · duplicatas removidas · + Relatório Mensal e Artigos do Blog adicionados" },
-    { "version": "0.8.1", "date": "01/jun/2026", "status": "live", "path": null,
+      "summary": "Agente relatorio-mensal completo (skill + workspace + cron mensal dia 1 08:05) · overflow do nav agrupado em 5 seções (Escritório Virtual · Reports · Voices · Design · Extras) · duplicatas removidas · + Relatório Mensal e Artigos do Blog adicionados"
+    },
+    {
+      "version": "0.8.1",
+      "date": "01/jun/2026",
+      "status": "live",
+      "path": null,
       "title": "Arquitetura de agentes 3-camadas + ciclo inbox/outbox real",
-      "summary": "6 agentes de área (1 por dona) + tela /agentes/:slug com workspace real (inbox·outbox·_vt·entregas) · POST inbox cria pedidos no vault · badges 📥📤 no /agentes · sparkline Growth (LinkedIn 14m) · F9 duplicar Voice · F10 dark mode auto OS" },
-    { "version": "0.8.0", "date": "31/mai/2026", "status": "snapshot", "path": null,
+      "summary": "6 agentes de área (1 por dona) + tela /agentes/:slug com workspace real (inbox·outbox·_vt·entregas) · POST inbox cria pedidos no vault · badges 📥📤 no /agentes · sparkline Growth (LinkedIn 14m) · F9 duplicar Voice · F10 dark mode auto OS"
+    },
+    {
+      "version": "0.8.0",
+      "date": "31/mai/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "SSO Microsoft + 6 módulos por área com dado real ao vivo",
-      "summary": "Login Microsoft (Entra ID) com botão Entrar no nav e whitelist de domínios EPI-USE · 6 módulos por área (Intelligence·Growth·Eventos·Pipeline·Brand·Conteúdo) puxando dado REAL ao vivo de Apollo/LinkedIn/Artigos/Cases/events.json · chip 'ao vivo' + marca de fonte por número · pendências honestas (⏳ aguarda integração)" },
-    { "version": "0.7.1", "date": "30/mai/2026", "status": "snapshot", "path": null,
+      "summary": "Login Microsoft (Entra ID) com botão Entrar no nav e whitelist de domínios EPI-USE · 6 módulos por área (Intelligence·Growth·Eventos·Pipeline·Brand·Conteúdo) puxando dado REAL ao vivo de Apollo/LinkedIn/Artigos/Cases/events.json · chip 'ao vivo' + marca de fonte por número · pendências honestas (⏳ aguarda integração)"
+    },
+    {
+      "version": "0.7.1",
+      "date": "30/mai/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "Estabilização + Design Codex + Dados reais + Migração C:\\",
-      "summary": "Localhost always-on (fix better-sqlite3 Node 24 + Tarefa Agendada) · paleta Codex · /pipeline Apollo REAL (39.166 contatos · 14.027 empresas · sync diário automático) · LinkedIn 10.640 real + atualização em 5s · CMD parou de piscar · migração pro disco local C:\\epiuse-mkt-office + GitHub" },
-    { "version": "0.6.4", "date": "28/mai/2026", "status": "snapshot", "path": null,
+      "summary": "Localhost always-on (fix better-sqlite3 Node 24 + Tarefa Agendada) · paleta Codex · /pipeline Apollo REAL (39.166 contatos · 14.027 empresas · sync diário automático) · LinkedIn 10.640 real + atualização em 5s · CMD parou de piscar · migração pro disco local C:\\epiuse-mkt-office + GitHub"
+    },
+    {
+      "version": "0.6.4",
+      "date": "28/mai/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "Logos EPI-USE + refactor 10 telas + /design viewer",
-      "summary": "Logos no nav (theme-aware) · 10 telas consumindo design-tokens.css · viewer /design com hierarquia 3 brands" },
-    { "version": "0.6.3", "date": "28/mai/2026", "status": "snapshot", "path": null,
+      "summary": "Logos no nav (theme-aware) · 10 telas consumindo design-tokens.css · viewer /design com hierarquia 3 brands"
+    },
+    {
+      "version": "0.6.3",
+      "date": "28/mai/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "Brand assets consolidação",
-      "summary": "ERP.ngo + Group Elephant + Open Sans + GE PPT assets organizados em public/assets/" },
-    { "version": "0.6.2", "date": "28/mai/2026", "status": "snapshot", "path": null,
+      "summary": "ERP.ngo + Group Elephant + Open Sans + GE PPT assets organizados em public/assets/"
+    },
+    {
+      "version": "0.6.2",
+      "date": "28/mai/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "Template PPT Jan 2026 (cores REAIS via XML)",
-      "summary": "PDF do template extraído + extração de cores reais do .pptx XML alimenta DESIGN.md" },
-    { "version": "0.6.1", "date": "28/mai/2026", "status": "snapshot", "path": null,
+      "summary": "PDF do template extraído + extração de cores reais do .pptx XML alimenta DESIGN.md"
+    },
+    {
+      "version": "0.6.1",
+      "date": "28/mai/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "DESIGN.md REAL (Brand Guide V1.1) + setup PM2 + modularização /modulos/",
-      "summary": "Brand Guide V1.1 oficial · paleta Navy #001844 + Red #cd1543 · PM2 (depois trocado por Tarefa Agendada) · estrutura /modulos/" },
-    { "version": "0.6.0", "date": "28/mai/2026", "status": "snapshot", "path": null,
+      "summary": "Brand Guide V1.1 oficial · paleta Navy #001844 + Red #cd1543 · PM2 (depois trocado por Tarefa Agendada) · estrutura /modulos/"
+    },
+    {
+      "version": "0.6.0",
+      "date": "28/mai/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "Design System unificado (DESIGN.md + gen_tokens)",
-      "summary": "DESIGN.md (spec Google Labs) · gen_tokens.py → design-tokens.css/json · viewer /design · Brand Guides oficiais" },
-    { "version": "0.5.1", "date": "28/mai/2026", "status": "snapshot", "path": null,
+      "summary": "DESIGN.md (spec Google Labs) · gen_tokens.py → design-tokens.css/json · viewer /design · Brand Guides oficiais"
+    },
+    {
+      "version": "0.5.1",
+      "date": "28/mai/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "/metas-fy26 (29 metas) + Rule 7 NO FAKE DATA",
-      "summary": "Metas FY26 oficiais · auditoria de fontes de dados · bug fixes menu /relatorio" },
-    { "version": "0.5.0", "date": "27/mai/2026", "status": "snapshot", "path": null,
+      "summary": "Metas FY26 oficiais · auditoria de fontes de dados · bug fixes menu /relatorio"
+    },
+    {
+      "version": "0.5.0",
+      "date": "27/mai/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "Sprint dados: /relatorio · /artigos · /jornadas · /projecoes · /pipeline",
-      "summary": "/relatorio (espelha PPT) · /artigos (693 do Manus) · /jornadas · /projecoes paid media · skill relatorio-mensal" },
-    { "version": "0.4.12", "date": "27/mai/2026", "status": "snapshot", "path": null,
+      "summary": "/relatorio (espelha PPT) · /artigos (693 do Manus) · /jornadas · /projecoes paid media · skill relatorio-mensal"
+    },
+    {
+      "version": "0.4.12",
+      "date": "27/mai/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "Optimizer 2-calls + ERP.ngo branding + Export PDF",
-      "summary": "Split /api/analisar-perfil em 2 calls Sonnet (sem timeout) · logo ERP.ngo · Export PDF do kit" },
-    { "version": "0.4.1", "date": "26/mai/2026", "status": "snapshot", "path": "/_versoes-office/v0.4.6-optimizer.html",
+      "summary": "Split /api/analisar-perfil em 2 calls Sonnet (sem timeout) · logo ERP.ngo · Export PDF do kit"
+    },
+    {
+      "version": "0.4.1",
+      "date": "26/mai/2026",
+      "status": "snapshot",
+      "path": "/_versoes-office/v0.4.6-optimizer.html",
       "title": "Optimizer 7 Pilares + Voice Index 0-100",
-      "summary": "Avaliação 7 pilares × 30 critérios · score circular do Voice Index" },
-    { "version": "0.4.0", "date": "25/mai/2026", "status": "snapshot", "path": "/_versoes-office/v0.4.0-dashboard.html",
+      "summary": "Avaliação 7 pilares × 30 critérios · score circular do Voice Index"
+    },
+    {
+      "version": "0.4.0",
+      "date": "25/mai/2026",
+      "status": "snapshot",
+      "path": "/_versoes-office/v0.4.0-dashboard.html",
       "title": "Refactor top menu + Cases & CS Hub + Calendar API",
-      "summary": "Top menu remodel · /cases · Calendar editorial · paleta Gather" },
-    { "version": "0.3.4", "date": "25/mai/2026", "status": "snapshot", "path": "/_versoes-office/v3.4-inbound-hub.html",
+      "summary": "Top menu remodel · /cases · Calendar editorial · paleta Gather"
+    },
+    {
+      "version": "0.3.4",
+      "date": "25/mai/2026",
+      "status": "snapshot",
+      "path": "/_versoes-office/v3.4-inbound-hub.html",
       "title": "Inbound Engine + Carrossel Hub",
-      "summary": "Brief→Post · Carrossel · chip de versão · footer dropdown" },
-    { "version": "0.3.0", "date": "24/mai/2026", "status": "snapshot", "path": "/_versoes-office/v3.0-game-engine.html",
+      "summary": "Brief→Post · Carrossel · chip de versão · footer dropdown"
+    },
+    {
+      "version": "0.3.0",
+      "date": "24/mai/2026",
+      "status": "snapshot",
+      "path": "/_versoes-office/v3.0-game-engine.html",
       "title": "Sprint Maximalist — Painel + Voice Agents + LP Recrutamento",
-      "summary": "3 módulos novos + data layer único + rate limit + Plausible + UTM tracking" },
-    { "version": "0.2.0", "date": "23/mai/2026", "status": "snapshot", "path": "/_versoes-office/v2.0-game-engine.html",
+      "summary": "3 módulos novos + data layer único + rate limit + Plausible + UTM tracking"
+    },
+    {
+      "version": "0.2.0",
+      "date": "23/mai/2026",
+      "status": "snapshot",
+      "path": "/_versoes-office/v2.0-game-engine.html",
       "title": "Office Engine 2D inaugural",
-      "summary": "Primeiro release do game" },
-    { "version": "0.1.0", "date": "20/mai/2026", "status": "snapshot", "path": null,
+      "summary": "Primeiro release do game"
+    },
+    {
+      "version": "0.1.0",
+      "date": "20/mai/2026",
+      "status": "snapshot",
+      "path": null,
       "title": "War Room Dashboard clássico",
-      "summary": "Cards de projetos + voices + alertas" }
+      "summary": "Cards de projetos + voices + alertas"
+    }
   ]
 }

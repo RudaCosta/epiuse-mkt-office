@@ -46,14 +46,32 @@
       <h1 id="hero-saudacao">Carregando…</h1>
       <div class="subtitle" id="hero-data">—</div>
     </div>
+    <select id="persona-select" title="Ver a home como…" style="background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.25);color:#94a3b8;padding:6px 10px;border-radius:8px;font-family:inherit;font-size:11px;cursor:pointer"></select>
     <span class="chip-online">Escritório Online</span>
     <svg class="home-hero-elephant" viewBox="0 0 100 100" aria-hidden="true">
       <image href="/assets/logos-group-elephant/ge-logo.svg" width="100" height="100" preserveAspectRatio="xMidYMid meet"/>
     </svg>
   </header>
 
+  <!-- NORTH-STAR STRIP (3 números que importam) -->
+  <section class="home-section" data-sec="northstar" style="display:none">
+    <div id="northstar-strip" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px"></div>
+  </section>
+
+  <!-- HOJE (o que acontece hoje) -->
+  <section class="home-section" data-sec="hoje" style="display:none">
+    <h2 class="home-section-title">📌 Hoje</h2>
+    <div id="hoje-list" style="display:flex;flex-direction:column;gap:6px"></div>
+  </section>
+
+  <!-- MEU FOCO (KPIs da persona) -->
+  <section class="home-section" data-sec="foco" style="display:none">
+    <h2 class="home-section-title" id="foco-title">🎯 Meu foco</h2>
+    <div id="foco-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px"></div>
+  </section>
+
   <!-- DAILY DIGEST -->
-  <section class="home-section">
+  <section class="home-section" data-sec="digest">
     <h2 class="home-section-title">🌅 Daily Digest</h2>
     <div class="home-digest-grid" id="digest-grid">
       <div class="home-empty skel" role="status" aria-busy="true" aria-label="Carregando"></div>
@@ -61,7 +79,7 @@
   </section>
 
   <!-- METAS FY26 STRIP -->
-  <section class="home-section">
+  <section class="home-section" data-sec="metas">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px">
       <h2 class="home-section-title" style="margin:0">🎯 Top metas FY26</h2>
       <span class="dk-live">AO VIVO</span>
@@ -72,7 +90,7 @@
   </section>
 
   <!-- REAL-TIME CHART PREVIEW (LinkedIn growth trend) -->
-  <section class="home-section">
+  <section class="home-section" data-sec="growth">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px">
       <h2 class="home-section-title" style="margin:0">📈 Growth trend · LinkedIn 12 meses</h2>
       <span class="dk-live">REAL-TIME</span>
@@ -92,7 +110,7 @@
   </section>
 
   <!-- GRID 6 ÁREAS -->
-  <section class="home-section">
+  <section class="home-section" data-sec="areas">
     <h2 class="home-section-title">📂 Áreas · resumo</h2>
     <div class="home-areas-grid" id="areas-grid">
       <div class="home-empty skel" role="status" aria-busy="true" aria-label="Carregando"></div>
@@ -100,7 +118,7 @@
   </section>
 
   <!-- QUICK ACTIONS -->
-  <section class="home-section">
+  <section class="home-section" data-sec="quick">
     <h2 class="home-section-title">⚡ Acessos rápidos</h2>
     <div class="home-quick">
       <a href="/optimizer-v2"><span class="ico">🪪</span>Profile Optimizer V2</a>
@@ -111,7 +129,7 @@
   </section>
 
   <!-- AGENDA UNIFICADA — eventos + posts + artigos + MDF/deadlines + datas -->
-  <section class="home-section">
+  <section class="home-section" data-sec="agenda">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:6px">
       <h2 class="home-section-title" style="margin:0">📅 Agenda EPI-USE / SAP — <span id="evt-count">—</span></h2>
       <a href="/inbound/calendar" style="font-size:11px;color:var(--dk-text-muted,#94a3b8);text-decoration:none;padding:4px 10px;border:1px solid rgba(96,165,250,.2);border-radius:6px">Ver calendário completo →</a>
@@ -124,7 +142,7 @@
   </section>
 
   <!-- ANIVERSÁRIOS -->
-  <section class="home-section">
+  <section class="home-section" data-sec="bdays">
     <h2 class="home-section-title">🎂 Próximos aniversários</h2>
     <div class="home-bday-grid" id="bday-grid">
       <div class="home-empty skel" role="status" aria-busy="true" aria-label="Carregando"></div>
@@ -132,7 +150,7 @@
   </section>
 
   <!-- TIME · 6 ÁREAS (com responsáveis) -->
-  <section class="home-section">
+  <section class="home-section" data-sec="team">
     <h2 class="home-section-title">👥 Time MKT · 6 áreas (responsáveis)</h2>
     <div class="home-team-grid" id="team-grid">
       <div class="home-empty skel" role="status" aria-busy="true" aria-label="Carregando"></div>
@@ -140,7 +158,7 @@
   </section>
 
   <!-- ALERTAS & BLOQUEIOS (era War Room) -->
-  <section class="home-section">
+  <section class="home-section" data-sec="alertas">
     <h2 class="home-section-title">🔴 Alertas & Bloqueios</h2>
     <div class="home-alerts" id="alerts-list">
       <div class="home-empty skel" role="status" aria-busy="true" aria-label="Carregando"></div>

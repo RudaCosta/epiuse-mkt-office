@@ -1,0 +1,56 @@
+{
+  "_obs": "Home por role (S38 v0.36.0). emails: mapa email SSO -> persona (ajustar emails reais quando SSO ativar — só ruda confirmado). personas: ordem das seções da home + KPIs do bloco 'Meu foco'. Seções: northstar, hoje, foco, digest, metas, growth, areas, quick, agenda, bdays, team, alertas.",
+  "emails": {
+    "ruda.costa@epiuse.com.br": "ruda"
+  },
+  "personas": {
+    "ruda": {
+      "nome": "Rudá", "icon": "🎯", "role": "Head RevOps & Marketing",
+      "ordem": ["northstar", "hoje", "digest", "metas", "growth", "areas", "quick", "agenda", "bdays", "team", "alertas"],
+      "esconde": [],
+      "kpis": ["pipeline_fy", "linkedin_total", "ddf_aprovado"]
+    },
+    "duda": {
+      "nome": "Duda", "icon": "🎨", "role": "Brand Experience",
+      "ordem": ["hoje", "foco", "agenda", "digest", "bdays", "quick", "areas", "alertas"],
+      "esconde": ["metas", "growth", "team", "northstar"],
+      "kpis": ["posts_semana", "content_aguardando", "voices_ativos"]
+    },
+    "bruna": {
+      "nome": "Bruna", "icon": "🧠", "role": "Intelligence & CRM",
+      "ordem": ["foco", "hoje", "growth", "digest", "agenda", "quick", "areas", "alertas"],
+      "esconde": ["bdays", "team", "northstar"],
+      "kpis": ["apollo_contatos", "apollo_sequencias", "linkedin_total"]
+    },
+    "gui": {
+      "nome": "Gui", "icon": "🚀", "role": "Growth & Performance",
+      "ordem": ["foco", "growth", "metas", "hoje", "agenda", "quick", "areas", "alertas"],
+      "esconde": ["bdays", "team", "digest", "northstar"],
+      "kpis": ["linkedin_total", "linkedin_novos", "ga4_usuarios"]
+    },
+    "isabela": {
+      "nome": "Isabela", "icon": "📣", "role": "Field Marketing & Eventos",
+      "ordem": ["foco", "hoje", "agenda", "digest", "quick", "areas", "alertas"],
+      "esconde": ["metas", "growth", "bdays", "team", "northstar"],
+      "kpis": ["eventos_30d", "capturas_pendentes", "claims_df"]
+    },
+    "marlison": {
+      "nome": "Marlison", "icon": "📞", "role": "Development Sales / Pipeline",
+      "ordem": ["foco", "northstar", "hoje", "agenda", "quick", "areas", "alertas"],
+      "esconde": ["metas", "growth", "bdays", "team", "digest"],
+      "kpis": ["pipeline_fy", "golives_30d", "apollo_sequencias"]
+    },
+    "roberto": {
+      "nome": "Roberto", "icon": "🏛️", "role": "Country Manager",
+      "ordem": ["northstar", "foco", "metas", "agenda", "areas", "alertas"],
+      "esconde": ["hoje", "growth", "quick", "bdays", "team", "digest"],
+      "kpis": ["pipeline_fy", "sap_live", "cases_publicaveis"]
+    },
+    "visitante": {
+      "nome": "Visitante", "icon": "👤", "role": "Visão completa",
+      "ordem": ["northstar", "hoje", "digest", "metas", "growth", "areas", "quick", "agenda", "bdays", "team", "alertas"],
+      "esconde": [],
+      "kpis": []
+    }
+  }
+}
