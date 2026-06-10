@@ -26,6 +26,23 @@ Remove-Item $tmp -Force -ErrorAction SilentlyContinue
 # 2. SAP 4 ME (POST direto via script)
 & node "$root\scripts\sync\sync_clientes_sap_4me.js" --target railway 2>&1 | Where-Object { $_ -match 'sap4me' } | ForEach-Object { Log $_ }
 
+# 2b. Zoho deals (extrai do SQLite local — sync original e via MCP em sessao Claude)
+$zohoTmp = "$env:TEMP\zoho-resync.json"
+$zohoScript = @"
+const path = require('path');
+const Database = require(path.join('C:/Users/Ruds/.epiuse-optimizer/node_modules', 'better-sqlite3'));
+const db = new Database('C:/Users/Ruds/.epiuse-optimizer/db.sqlite', { readonly: true });
+const rows = db.prepare('SELECT * FROM zoho_deals').all();
+require('fs').writeFileSync(process.argv[1], JSON.stringify({ deals: rows }));
+console.log(rows.length);
+"@
+$zohoCount = & node -e $zohoScript $zohoTmp 2>$null
+if ((Test-Path $zohoTmp) -and (Get-Item $zohoTmp).Length -gt 50) {
+  try { $r = Invoke-RestMethod -Uri "$RAILWAY/api/zoho/sync" -Method POST -ContentType 'application/json' -Headers @{ 'X-Editor-Token'=$token } -InFile $zohoTmp -TimeoutSec 30
+    Log ("Zoho OK ($zohoCount deals): " + ($r | ConvertTo-Json -Compress)) } catch { Log ("Zoho ERRO: " + $_.Exception.Message) }
+}
+Remove-Item $zohoTmp -Force -ErrorAction SilentlyContinue
+
 # 3. Calendar Duda + Redatoria (env OFFICE_URL aponta pro Railway)
 $env:OFFICE_URL = $RAILWAY
 & node "$root\scripts\sync\sync_calendario_duda.js" 2>&1 | Where-Object { $_ -match 'OK|ERRO' } | ForEach-Object { Log $_ }
