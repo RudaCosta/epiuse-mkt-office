@@ -337,6 +337,7 @@
 
     grid.innerHTML = `
       <style>
+        .dp-root { grid-column: 1 / -1; display:block; }
         .dp-wrap { display:grid; grid-template-columns: minmax(280px, 1fr) minmax(260px, 1fr); gap:18px; align-items:start; }
         @media (max-width: 760px){ .dp-wrap { grid-template-columns: 1fr; } }
         .dp-cal { background:var(--dk-surface,rgba(255,255,255,.02)); border:1px solid rgba(96,165,250,.12); border-radius:12px; padding:14px; }
@@ -365,6 +366,7 @@
         .dp-acc-body { padding:0 14px 14px; display:none; }
         .dp-acc[open] .dp-acc-body { display:block; }
       </style>
+      <div class="dp-root">
       <div class="dp-wrap">
         <div class="dp-cal" aria-label="Mês corrente">
           <div class="dp-cal-h"><span class="m">${MES_NOMES[M-1]}</span><span class="y">${Y}</span></div>
@@ -381,6 +383,7 @@
           <span class="arrow">▶</span>
         </div>
         <div class="dp-acc-body">${latamHtml}</div>
+      </div>
       </div>
     `;
     // Acordeão LATAM
