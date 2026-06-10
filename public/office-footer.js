@@ -5,8 +5,8 @@
 
 // Fonte ÚNICA da verdade: public/api/changelog.json#current via /api/version
 // Fallback hardcoded usado SÓ se fetch falhar — sincronização automática com nav.
-let OFFICE_FOOTER_VERSION = '0.37.1';
-const OFFICE_FOOTER_BUILD = '2026-06-09';
+let OFFICE_FOOTER_VERSION = '0.38.0';
+const OFFICE_FOOTER_BUILD = '2026-06-10';
 window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/version')
   .then(r => r.ok ? r.json() : null)
   .then(d => { if (d && d.current) { OFFICE_FOOTER_VERSION = d.current; window.__officeVersion = d.current; } return d; })
@@ -245,12 +245,35 @@ class OfficeFooter extends HTMLElement {
         }
         .ver-menu .ver-foot a:hover { text-decoration: underline; }
 
+        /* TRUST STRIP — compact line above main footer row */
+        .trust {
+          background: rgba(6, 14, 26, 0.65);
+          border-top: 1px solid rgba(37, 99, 235, 0.10);
+          padding: 8px 20px;
+          display: flex; justify-content: center; align-items: center;
+          gap: 18px; flex-wrap: wrap;
+          font-size: 10px; color: #64748b;
+          letter-spacing: 0.02em;
+        }
+        .trust .ti { display: inline-flex; align-items: center; gap: 6px; }
+        .trust .ti svg { color: #60a5fa; opacity: 0.75; flex-shrink: 0; }
+        .trust .ti b { color: #94a3b8; font-weight: 600; }
+        .trust .ti .sub { color: #475569; font-size: 9px; }
         @media (max-width: 580px) {
           .foot { font-size: 10px; gap: 8px; padding: 12px 14px; }
           .ver-tag, .ver-trigger { font-size: 9px; }
           .ver-menu { min-width: 280px; }
+          .trust { gap: 10px; padding: 8px 12px; font-size: 9px; }
+          .trust .ti .sub { display: none; }
         }
       </style>
+      <div class="trust" aria-label="Compliance e infraestrutura">
+        <span class="ti"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L3 7l9 5 9-5-9-5z"/><path d="M3 17l9 5 9-5"/><path d="M3 12l9 5 9-5"/></svg><b>SSO Microsoft</b><span class="sub">Entra ID</span></span>
+        <span class="ti"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg><b>TLS 1.3</b><span class="sub">Railway Volume</span></span>
+        <span class="ti"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg><b>WCAG AAA</b></span>
+        <span class="ti"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><b>Real-time</b><span class="sub">GA4 · RD · Zoho</span></span>
+        <span class="ti"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg><b>LGPD</b><span class="sub">dados off-repo</span></span>
+      </div>
       <footer class="foot" role="contentinfo">
         <span class="ver-tag">EPI-USE OFFICE</span>
         <div class="ver-picker">

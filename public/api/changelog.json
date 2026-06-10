@@ -1,5 +1,5 @@
 {
-  "current": "0.37.1",
+  "current": "0.38.0",
   "atualizado_em": "2026-06-10",
   "next": [
     {
@@ -40,9 +40,17 @@
   ],
   "releases": [
     {
-      "version": "0.37.1",
+      "version": "0.38.0",
       "date": "10/jun/2026",
       "status": "current",
+      "path": null,
+      "title": "UX pivot: trust bar global · calendário Daily Planner · 2 temas novos (armory + elephant)",
+      "summary": "(1) Trust bar (SSO/TLS/WCAG/Real-time/LGPD) saiu do topo da home e virou faixa fina compacta no office-footer.js — propaga em TODAS as páginas, libera real estate no topo da home. (2) Calendário da home redesenhado estilo Figma Daily Planner: mini-grid quadrado do mês corrente (dots por dia, hoje destacado) + lista top 8 BR próximos + sanfona LATAM/Internacional fechada por default. Toggle '📋 Ver cronograma anual' restaura a vista anterior (persiste em localStorage.office.agenda.mode). (3) Dois temas novos no toggle do nav — agora cicla 4: dark → armory → elephant → light. armory: inspirado em armory.framer.ai (slate-black bg, neon green #00ff99, JetBrains Mono, sharp edges 2px). elephant: inspirado em groupelephant.com (cream bg #f5f1e8, deep green #2d4a33, Lexend serif headings, soft 14px corners). CSS global injetado via office-nav.js — aplica em TODAS páginas que usam --bg/--surface/--text tokens."
+    },
+    {
+      "version": "0.37.1",
+      "date": "10/jun/2026",
+      "status": "snapshot",
       "path": null,
       "title": "Voices: SSI semanal trackeado (Carlos Furigo atualizou o perfil)",
       "summary": "Carlos Furigo (Voice #02 · onboarding) atualizou o perfil LinkedIn pos-kit. Rudá vai pedir SSI semanal pra acompanhar a evolução. (1) voices.json: ssi_historico[] (data+ssi+seguidores+posts_mes+nota), ssi_baseline, ssi_atual, proxima_medicao_ssi (auto +7d), perfil_atualizado_em, observacoes_recentes. (2) POST /api/voices/:slug/ssi (editor token) registra medição + retorna delta baseline + próxima medição. GET /api/voices/:slug/ssi retorna histórico. (3) Central (war-room) ganhou KPI \"🎙️ Voices · SSI a medir\" + seção pink listando Voices com proxima_medicao_ssi vencida (link LinkedIn pra coletar rápido). (4) Script CLI scripts/sync/log_voice_ssi.js — Rudá registra SSI sem abrir UI (node log_voice_ssi.js carlos-furigo --ssi=42 --seguidores=1234)."

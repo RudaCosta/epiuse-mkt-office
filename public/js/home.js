@@ -260,10 +260,151 @@
     </div>`;
   }
 
-  function renderEventos() {
+  // Modo de visualização: 'compact' (default, Daily Planner) ou 'full' (cronograma anual)
+  let AG_MODE = localStorage.getItem('office.agenda.mode') || 'compact';
+  const MES_BR_SHORT = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+  function parseDayNum(d){ const n = parseInt(String(d).replace(/[^0-9]/g,''),10); return isNaN(n)?null:n; }
+
+  // ── COMPACT MODE — mini grid mês corrente + lista top próximos (BR) + sanfona LATAM ──
+  function renderEventosCompact(){
     const grid = $('evt-grid');
     const items = agGetVisiveis();
-    $('evt-count').textContent = `${items.length} itens`;
+    $('evt-count').textContent = `${items.length} itens · vista compacta`;
+
+    const hoje = new Date();
+    const Y = hoje.getFullYear();
+    const M = hoje.getMonth() + 1; // 1-12
+    const todayD = hoje.getDate();
+    const dim = new Date(Y, M, 0).getDate(); // dias do mês
+    const firstDow = new Date(Y, M-1, 1).getDay(); // 0=Dom
+
+    // Mapa dia→items do mês corrente (BR/sem país)
+    const mesItems = items.filter(i => i.m === M && (!i.country || i.country === 'BR'));
+    const byDay = {};
+    for (const it of mesItems){
+      const d = parseDayNum(it.d); if (!d) continue;
+      (byDay[d] = byDay[d] || []).push(it);
+    }
+
+    // Mini grid celulas
+    let cells = '';
+    const DOW = ['D','S','T','Q','Q','S','S'];
+    cells += DOW.map(x=>`<div class="dp-dow">${x}</div>`).join('');
+    for (let i=0;i<firstDow;i++) cells += `<div class="dp-cell empty"></div>`;
+    for (let d=1; d<=dim; d++){
+      const list = byDay[d]||[];
+      const isToday = d === todayD;
+      const dots = list.slice(0,3).map(it=>`<span class="dp-dot" style="background:${it.cor}"></span>`).join('');
+      const more = list.length>3 ? `<span class="dp-more">+${list.length-3}</span>` : '';
+      cells += `<div class="dp-cell ${isToday?'today':''} ${list.length?'has':''}" data-day="${d}" title="${list.length} item(s)">
+        <div class="dp-num">${d}</div>
+        <div class="dp-dots">${dots}${more}</div>
+      </div>`;
+    }
+
+    // Top 8 próximos (BR) — current month em diante, ordenado
+    const proximos = items
+      .filter(i => (!i.country || i.country === 'BR'))
+      .filter(i => i.m > M || (i.m === M && (parseDayNum(i.d)||0) >= todayD))
+      .sort((a,b)=> (a.m-b.m) || ((parseDayNum(a.d)||99) - (parseDayNum(b.d)||99)))
+      .slice(0, 8);
+    const proxHtml = proximos.length ? proximos.map(e=>{
+      const flag = e.flag ? `<span style="margin-right:4px">${e.flag}</span>` : '';
+      const tag = e.tag ? `<span class="lob" style="background:${e.cor}22;color:${e.cor}">${esc(e.tag)}</span>` : '';
+      return `<div class="home-evt-item" style="border-left:3px solid ${e.cor};padding-left:8px">
+        <div class="home-evt-day">${esc(e.d)}<span style="display:block;font-size:9px;opacity:.6">${MES_BR_SHORT[e.m-1]}</span></div>
+        <div class="home-evt-info">
+          <div class="nome">${flag}${esc(e.n)}${tag}</div>
+          <div class="who">${esc(e.who||'')}</div>
+        </div>
+      </div>`;
+    }).join('') : '<div class="home-evt-empty">Nada por aqui. ✨</div>';
+
+    // LATAM acordeão (eventos com country !== BR, próximos 90d aproximação por mês)
+    const latam = items
+      .filter(i => i.camada==='evento' && i.country && i.country !== 'BR')
+      .filter(i => i.m >= M)
+      .sort((a,b)=> (a.m-b.m) || ((parseDayNum(a.d)||99) - (parseDayNum(b.d)||99)));
+    const latamHtml = latam.length ? latam.slice(0,20).map(e=>`
+      <div class="home-evt-item" style="border-left:3px solid ${e.cor};padding-left:8px">
+        <div class="home-evt-day">${esc(e.d)}<span style="display:block;font-size:9px;opacity:.6">${MES_BR_SHORT[e.m-1]}</span></div>
+        <div class="home-evt-info">
+          <div class="nome">${e.flag?`<span style="margin-right:4px">${e.flag}</span>`:''}${esc(e.n)}</div>
+          <div class="who">${esc(e.who||'')}</div>
+        </div>
+      </div>`).join('') : '<div class="home-evt-empty">Sem eventos LATAM no horizonte.</div>';
+
+    grid.innerHTML = `
+      <style>
+        .dp-wrap { display:grid; grid-template-columns: minmax(280px, 1fr) minmax(260px, 1fr); gap:18px; align-items:start; }
+        @media (max-width: 760px){ .dp-wrap { grid-template-columns: 1fr; } }
+        .dp-cal { background:var(--dk-surface,rgba(255,255,255,.02)); border:1px solid rgba(96,165,250,.12); border-radius:12px; padding:14px; }
+        .dp-cal-h { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; }
+        .dp-cal-h .m { font-weight:700; font-size:14px; color:var(--home-text,#e2e8f0); }
+        .dp-cal-h .y { font-size:10px; color:var(--home-text-muted,#64748b); font-family:'JetBrains Mono',monospace; letter-spacing:.1em; }
+        .dp-grid { display:grid; grid-template-columns: repeat(7, 1fr); gap:4px; }
+        .dp-dow { font-size:9px; color:var(--home-text-muted,#64748b); text-align:center; padding:4px 0; font-weight:700; letter-spacing:.1em; }
+        .dp-cell { aspect-ratio:1/1; min-height:44px; border-radius:6px; padding:4px 5px; background:rgba(96,165,250,.04); display:flex; flex-direction:column; justify-content:space-between; transition:background .15s; cursor:default; position:relative; }
+        .dp-cell.empty { background:transparent; }
+        .dp-cell.has { background:rgba(96,165,250,.10); cursor:pointer; }
+        .dp-cell.has:hover { background:rgba(96,165,250,.20); }
+        .dp-cell.today { outline:2px solid #cd1543; }
+        .dp-num { font-size:11px; font-weight:600; color:var(--home-text,#e2e8f0); }
+        .dp-cell.today .dp-num { color:#fca5a5; }
+        .dp-dots { display:flex; gap:2px; align-items:center; flex-wrap:wrap; }
+        .dp-dot { width:5px; height:5px; border-radius:50%; }
+        .dp-more { font-size:8px; color:var(--home-text-muted,#64748b); font-family:'JetBrains Mono',monospace; }
+        .dp-side { display:flex; flex-direction:column; gap:8px; }
+        .dp-side h4 { font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--home-text-muted,#94a3b8); margin:0 0 6px; }
+        .dp-acc { background:var(--dk-surface,rgba(255,255,255,.02)); border:1px solid rgba(96,165,250,.12); border-radius:10px; margin-top:14px; overflow:hidden; }
+        .dp-acc-h { padding:12px 14px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; font-size:12px; font-weight:600; color:var(--home-text,#e2e8f0); user-select:none; }
+        .dp-acc-h:hover { background:rgba(96,165,250,.06); }
+        .dp-acc-h .arrow { transition:transform .2s; font-size:10px; opacity:.6; }
+        .dp-acc[open] .dp-acc-h .arrow { transform:rotate(90deg); }
+        .dp-acc-body { padding:0 14px 14px; display:none; }
+        .dp-acc[open] .dp-acc-body { display:block; }
+      </style>
+      <div class="dp-wrap">
+        <div class="dp-cal" aria-label="Mês corrente">
+          <div class="dp-cal-h"><span class="m">${MES_NOMES[M-1]}</span><span class="y">${Y}</span></div>
+          <div class="dp-grid">${cells}</div>
+        </div>
+        <div class="dp-side">
+          <h4>📌 Próximos itens (Brasil)</h4>
+          ${proxHtml}
+        </div>
+      </div>
+      <div class="dp-acc" id="dp-latam">
+        <div class="dp-acc-h" data-acc="latam">
+          <span>🌎 LATAM &amp; Internacional — ${latam.length} item${latam.length===1?'':'s'}</span>
+          <span class="arrow">▶</span>
+        </div>
+        <div class="dp-acc-body">${latamHtml}</div>
+      </div>
+    `;
+    // Acordeão LATAM
+    const acc = grid.querySelector('#dp-latam');
+    acc?.querySelector('.dp-acc-h')?.addEventListener('click', ()=>{
+      if (acc.hasAttribute('open')) acc.removeAttribute('open'); else acc.setAttribute('open','');
+    });
+    // Click em dia preenchido scrolla pra sanfona se for LATAM ou expande detalhes
+    grid.querySelectorAll('.dp-cell.has').forEach(c=>{
+      c.addEventListener('click', ()=>{
+        const d = parseInt(c.dataset.day, 10);
+        const items2 = byDay[d]||[];
+        if (!items2.length) return;
+        const sum = items2.map(i=>`${i.flag||''} ${i.n}`).join('\n');
+        alert(`${MES_NOMES[M-1]} ${d} · ${items2.length} item(s):\n\n${sum}`);
+      });
+    });
+  }
+
+  // ── FULL MODE — cronograma anual (versão anterior) ──
+  function renderEventosFull(){
+    const grid = $('evt-grid');
+    const items = agGetVisiveis();
+    $('evt-count').textContent = `${items.length} itens · vista anual`;
     const cur = new Date().getMonth() + 1;
     const start = Math.max(1, cur - 1);
     let html = '';
@@ -273,6 +414,31 @@
       for (let m = 1; m < start; m++) html += renderAgMonth(m, items, 'past');
     }
     grid.innerHTML = html;
+  }
+
+  function renderEventos(){
+    if (AG_MODE === 'full') renderEventosFull(); else renderEventosCompact();
+  }
+
+  // Toggle compact/full button injection — adiciona ao header da seção
+  function ensureAgendaToggle(){
+    const sec = document.querySelector('[data-sec="agenda"]');
+    if (!sec || sec.querySelector('#ag-mode-toggle')) return;
+    const link = sec.querySelector('a[href="/inbound/calendar"]');
+    if (!link) return;
+    const btn = document.createElement('button');
+    btn.id = 'ag-mode-toggle';
+    btn.type = 'button';
+    btn.style.cssText = 'font-size:11px;color:var(--dk-text-muted,#94a3b8);background:rgba(96,165,250,.06);border:1px solid rgba(96,165,250,.2);border-radius:6px;padding:4px 10px;cursor:pointer;margin-right:6px';
+    const label = () => AG_MODE === 'compact' ? '📋 Ver cronograma anual' : '📅 Vista compacta';
+    btn.textContent = label();
+    btn.addEventListener('click', () => {
+      AG_MODE = AG_MODE === 'compact' ? 'full' : 'compact';
+      localStorage.setItem('office.agenda.mode', AG_MODE);
+      btn.textContent = label();
+      renderEventos();
+    });
+    link.parentNode.insertBefore(btn, link);
   }
 
   async function initEventos() {
@@ -290,8 +456,9 @@
       for (const aba of Object.values(ev.abas || {})) {
         for (const e of (aba.eventos || [])) {
           if (!e.m) continue;
-          items.push({ camada:'evento', m:e.m, d:String(e.d||'TBC'), n:e.n,
-            who:[e.who, e.country&&e.country!=='BR'?e.country:''].filter(Boolean).join(' · '),
+          const country = e.country || 'BR';
+          items.push({ camada:'evento', m:e.m, d:String(e.d||'TBC'), n:e.n, country,
+            who:[e.who, country!=='BR'?country:''].filter(Boolean).join(' · '),
             flag:e.flag||'', tag:e.lob||'', cor: LOB_CORES[e.lob] || '#cd1543' });
         }
       }
@@ -341,6 +508,7 @@
           });
         });
       }
+      ensureAgendaToggle();
       renderEventos();
     } catch (e) {
       $('evt-grid').innerHTML = '<div class="home-empty">Falha ao carregar agenda</div>';

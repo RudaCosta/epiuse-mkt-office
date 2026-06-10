@@ -8,7 +8,7 @@
 // Fonte ÚNICA da verdade: public/api/changelog.json#current via /api/version
 // Fallback hardcoded usado SÓ se fetch falhar (offline, etc).
 // Sincronização automática — não editar manualmente, basta bumpar changelog.json.
-let OFFICE_NAV_VERSION = '0.37.1';
+let OFFICE_NAV_VERSION = '0.38.0';
 // Promise compartilhada — nav + footer reaproveitam o mesmo fetch
 window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/version')
   .then(r => r.ok ? r.json() : null)
@@ -192,7 +192,7 @@ class OfficeNav extends HTMLElement {
   getTheme() {
     try {
       const saved = localStorage.getItem('office.theme');
-      if (saved === 'dark' || saved === 'light') return saved;
+      if (['dark','light','armory','elephant'].includes(saved)) return saved;
       // F10: auto-detect OS preference (default fallback = dark)
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) return 'light';
       return 'dark';
@@ -205,7 +205,9 @@ class OfficeNav extends HTMLElement {
     const breadcrumb = OFFICE_NAV_BREADCRUMBS[activeRoute] || null;
     const user = this.getUser();
     const theme = this.getTheme();
-    const themeIcon = theme === 'dark' ? '☾' : '☀';
+    const THEME_ICON = { dark: '☾', light: '☀', armory: '◆', elephant: '🐘' };
+    const THEME_LABEL = { dark: 'escuro', light: 'claro', armory: 'armory', elephant: 'elephant' };
+    const themeIcon = THEME_ICON[theme] || '☾';
 
     this.shadowRoot.innerHTML = `
       <style>
@@ -596,7 +598,7 @@ class OfficeNav extends HTMLElement {
               <div id="bell-items"><div class="bp-item empty">Carregando…</div></div>
             </div>
           </div>
-          <button class="ctrl-btn" id="theme-btn" title="Trocar tema (dark/light)" type="button">${themeIcon}</button>
+          <button class="ctrl-btn" id="theme-btn" title="Trocar tema (dark→armory→elephant→light)" type="button">${themeIcon}</button>
           <div class="user-wrap">
             <button class="user-chip" id="user-btn" type="button">👤 <span class="user-name">${user}</span></button>
             <div class="user-menu" id="user-menu" role="menu">
@@ -605,7 +607,7 @@ class OfficeNav extends HTMLElement {
                 <div class="um-sub">EPI-USE Office · ${OFFICE_NAV_VERSION}</div>
               </div>
               <button class="um-item" id="um-rename" type="button"><span class="ic">✏️</span>Trocar nome de exibição</button>
-              <button class="um-item" id="um-theme" type="button"><span class="ic">${themeIcon}</span>Tema: ${theme === 'dark' ? 'escuro' : 'claro'}</button>
+              <button class="um-item" id="um-theme" type="button"><span class="ic">${themeIcon}</span>Tema: ${THEME_LABEL[theme]||'escuro'}</button>
               <a class="um-item" href="/changelog"><span class="ic">📜</span>Changelog</a>
               <a class="um-item" href="https://erp.ngo" target="_blank" rel="noopener"><span class="ic">🐘</span>ERP.ngo</a>
               <button class="um-item" id="um-logout" type="button"><span class="ic">↪</span>Sair (limpa preferências)</button>
@@ -707,8 +709,9 @@ class OfficeNav extends HTMLElement {
     });
 
     $('um-theme')?.addEventListener('click', () => {
+      const ORDER = ['dark','armory','elephant','light'];
       const cur = this.getTheme();
-      const next = cur === 'dark' ? 'light' : 'dark';
+      const next = ORDER[(ORDER.indexOf(cur) + 1) % ORDER.length];
       try { localStorage.setItem('office.theme', next); } catch {}
       applyTheme(next);
       this.render();
@@ -729,8 +732,9 @@ class OfficeNav extends HTMLElement {
     cmdkBtn?.addEventListener('click', () => OfficeCommandPalette.open());
 
     themeBtn?.addEventListener('click', () => {
+      const ORDER = ['dark','armory','elephant','light'];
       const cur = this.getTheme();
-      const next = cur === 'dark' ? 'light' : 'dark';
+      const next = ORDER[(ORDER.indexOf(cur) + 1) % ORDER.length];
       try { localStorage.setItem('office.theme', next); } catch {}
       applyTheme(next);
       this.render();
@@ -787,7 +791,9 @@ function applyTheme(theme) {
   const html = document.documentElement;
   // SEMPRE seta o atributo explicitamente. Páginas como /optimizer dependem
   // do CSS `[data-theme="dark"]` ativar (não funciona se o atributo for removido).
-  html.setAttribute('data-theme', theme === 'light' ? 'light' : 'dark');
+  const valid = ['dark','light','armory','elephant'];
+  const t = valid.includes(theme) ? theme : 'dark';
+  html.setAttribute('data-theme', t);
 }
 
 // Garante que o stylesheet de light mode global existe (injetado 1x)
@@ -817,6 +823,135 @@ function applyTheme(theme) {
       background: #f8fafc !important;
       color: #0f172a !important;
     }
+
+    /* ─── ARMORY THEME ─────────────────────────────────────────────────────
+       Inspirado em armory.framer.ai — terminal/tech sharp, slate-black bg,
+       neon green accents, monospace, edges rectos. Aplica em todas páginas. */
+    :root[data-theme="armory"] {
+      --bg: #0a0a0a;
+      --bg-2: #111111;
+      --surface: #161616;
+      --surface-2: #1c1c1c;
+      --border: rgba(0, 255, 153, 0.18);
+      --border-light: rgba(255, 255, 255, 0.06);
+      --text: #f5f5f5;
+      --text-dim: #c0c0c0;
+      --text-muted: #888888;
+      --primary: #00ff99;
+      --primary-light: #5cffb8;
+      --accent: #00ff99;
+      --danger: #ff4444;
+      --color-primary-500: #00ff99;
+      --color-primary-600: #00d985;
+      --color-surface-0: #0a0a0a;
+      --color-surface-1: #161616;
+      --color-surface-2: #1c1c1c;
+      --color-text-primary: #f5f5f5;
+      --color-text-secondary: #c0c0c0;
+      --color-text-muted: #888888;
+      --color-border: rgba(255,255,255,0.08);
+      --dk-surface: #161616;
+      --dk-text: #f5f5f5;
+      --dk-text-muted: #888888;
+      --home-text: #f5f5f5;
+      --home-text-muted: #888888;
+      color-scheme: dark;
+    }
+    :root[data-theme="armory"] body {
+      background: #0a0a0a !important;
+      color: #f5f5f5 !important;
+      font-family: 'JetBrains Mono', 'Fira Code', 'IBM Plex Mono', monospace !important;
+    }
+    :root[data-theme="armory"] h1,
+    :root[data-theme="armory"] h2,
+    :root[data-theme="armory"] h3,
+    :root[data-theme="armory"] h4,
+    :root[data-theme="armory"] .home-section-title {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace !important;
+      letter-spacing: -0.02em !important;
+      text-transform: uppercase;
+      color: #f5f5f5 !important;
+    }
+    :root[data-theme="armory"] .kpi,
+    :root[data-theme="armory"] .card,
+    :root[data-theme="armory"] .home-area-card,
+    :root[data-theme="armory"] .home-digest-card,
+    :root[data-theme="armory"] .dk-glass {
+      background: #161616 !important;
+      border: 1px solid rgba(0, 255, 153, 0.15) !important;
+      border-radius: 2px !important;
+      box-shadow: none !important;
+    }
+    :root[data-theme="armory"] a { color: #00ff99 !important; }
+    :root[data-theme="armory"] button,
+    :root[data-theme="armory"] .btn {
+      border-radius: 2px !important;
+      letter-spacing: 0.05em;
+    }
+
+    /* ─── ELEPHANT THEME ───────────────────────────────────────────────────
+       Inspirado em groupelephant.com — bege/cream warm bg, deep green primary,
+       serif headings, organic/conservation tone, soft edges. */
+    :root[data-theme="elephant"] {
+      --bg: #f5f1e8;
+      --bg-2: #ebe5d4;
+      --surface: #ffffff;
+      --surface-2: #faf6ec;
+      --border: rgba(45, 74, 51, 0.15);
+      --border-light: rgba(45, 74, 51, 0.08);
+      --text: #1f3024;
+      --text-dim: #3d4f3a;
+      --text-muted: #6b7464;
+      --primary: #2d4a33;
+      --primary-light: #4a6b50;
+      --accent: #a8723f;
+      --color-primary-500: #2d4a33;
+      --color-primary-600: #1f3024;
+      --color-surface-0: #f5f1e8;
+      --color-surface-1: #ffffff;
+      --color-surface-2: #faf6ec;
+      --color-text-primary: #1f3024;
+      --color-text-secondary: #3d4f3a;
+      --color-text-muted: #6b7464;
+      --color-border: rgba(45,74,51,0.15);
+      --dk-surface: #ffffff;
+      --dk-text: #1f3024;
+      --dk-text-muted: #6b7464;
+      --home-text: #1f3024;
+      --home-text-muted: #6b7464;
+      color-scheme: light;
+    }
+    :root[data-theme="elephant"] body {
+      background: #f5f1e8 !important;
+      color: #1f3024 !important;
+      font-family: 'Source Sans 3', 'Inter', sans-serif !important;
+    }
+    :root[data-theme="elephant"] h1,
+    :root[data-theme="elephant"] h2,
+    :root[data-theme="elephant"] h3,
+    :root[data-theme="elephant"] h4,
+    :root[data-theme="elephant"] .home-section-title {
+      font-family: 'Lexend', 'Playfair Display', 'Source Serif Pro', Georgia, serif !important;
+      color: #1f3024 !important;
+      letter-spacing: -0.01em !important;
+      font-weight: 600 !important;
+    }
+    :root[data-theme="elephant"] .kpi,
+    :root[data-theme="elephant"] .card,
+    :root[data-theme="elephant"] .home-area-card,
+    :root[data-theme="elephant"] .home-digest-card,
+    :root[data-theme="elephant"] .dk-glass {
+      background: #ffffff !important;
+      border: 1px solid rgba(45, 74, 51, 0.12) !important;
+      border-radius: 14px !important;
+      box-shadow: 0 1px 3px rgba(45,74,51,0.04) !important;
+      color: #1f3024 !important;
+    }
+    :root[data-theme="elephant"] a { color: #2d4a33 !important; }
+    :root[data-theme="elephant"] .chip-online {
+      background: rgba(45,74,51,0.10) !important;
+      color: #2d4a33 !important;
+    }
   `;
   document.head.appendChild(style);
 })();
@@ -825,7 +960,8 @@ function applyTheme(theme) {
 (function preApplyTheme() {
   try {
     const saved = localStorage.getItem('office.theme') || 'dark';
-    applyTheme(saved);
+    const valid = ['dark','light','armory','elephant'].includes(saved) ? saved : 'dark';
+    applyTheme(valid);
   } catch {}
 })();
 
@@ -858,9 +994,10 @@ const OfficeCommandPalette = (() => {
       { group:'Rotas', icon:'📨', label:'LP Seja um Voice',     hint:'/seja-voice', action:'/seja-voice' },
       { group:'Rotas', icon:'📜', label:'Changelog',            hint:'/changelog',  action:'/changelog' },
       // Ações
-      { group:'Ações', icon:'☾',  label:'Alternar tema (dark/light)', hint:'persiste', action: () => {
+      { group:'Ações', icon:'☾',  label:'Alternar tema (dark→armory→elephant→light)', hint:'persiste', action: () => {
+          const ORDER = ['dark','armory','elephant','light'];
           const cur = (localStorage.getItem('office.theme') || 'dark');
-          const next = cur === 'dark' ? 'light' : 'dark';
+          const next = ORDER[(ORDER.indexOf(cur) + 1) % ORDER.length];
           try { localStorage.setItem('office.theme', next); } catch {}
           applyTheme(next);
         }},
