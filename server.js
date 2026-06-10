@@ -639,9 +639,17 @@ app.get('/api/freshness', (req, res) => {
     const out = [];
     const addFile = (id, label, file, staleDias) => {
       try {
-        const st = fs.statSync(path.join(__dirname, 'public/api', file));
-        const dias = Math.floor((hoje - st.mtimeMs) / 864e5);
-        out.push({ id, label, fonte: 'json', atualizado: new Date(st.mtimeMs).toISOString().slice(0,10), dias, stale: dias > staleDias });
+        const fp = path.join(__dirname, 'public/api', file);
+        // mtime reseta a cada deploy no Railway — preferir campo interno do JSON
+        let ts = null;
+        try {
+          const j = JSON.parse(fs.readFileSync(fp, 'utf8'));
+          const campo = j.atualizado_em || j.gerado_em || j.ultima_sync_ts || j.ultima_sync;
+          if (campo) ts = Date.parse(String(campo).length === 10 ? campo + 'T12:00:00Z' : campo);
+        } catch (e2) {}
+        if (!ts || isNaN(ts)) ts = fs.statSync(fp).mtimeMs;
+        const dias = Math.floor((hoje - ts) / 864e5);
+        out.push({ id, label, fonte: 'json', atualizado: new Date(ts).toISOString().slice(0,10), dias, stale: dias > staleDias });
       } catch (e) { out.push({ id, label, fonte: 'json', atualizado: null, dias: null, stale: true }); }
     };
     const addTable = (id, label, sql, staleDias) => {
