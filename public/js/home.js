@@ -518,6 +518,16 @@
       get: async () => { const d = await fetch('/api/cases').then(r=>r.json()); return fmt(d?.kpis?.case_publicado); } },
   };
 
+  // Destinos de ação por KPI — card do foco vira link (S39: acionável, não só info)
+  const KPI_LINKS = {
+    pipeline_fy: '/relatorio#s6', linkedin_total: '/metas', linkedin_novos: '/metas',
+    ddf_aprovado: '/development-funds', claims_df: '/development-funds',
+    posts_semana: '/inbound/calendar', content_aguardando: '/content-pipeline',
+    voices_ativos: '/voices', apollo_contatos: '/pipeline', apollo_sequencias: '/pipeline',
+    ga4_usuarios: '/relatorio', eventos_30d: '/field-marketing', capturas_pendentes: '/field-marketing',
+    golives_30d: '/clientes-sap-4me', sap_live: '/clientes-sap-4me', cases_publicaveis: '/cases',
+  };
+
   async function renderFoco(kpiIds) {
     const grid = $('foco-grid');
     const sec = document.querySelector('[data-sec="foco"]');
@@ -525,11 +535,12 @@
     sec.style.display = '';
     grid.innerHTML = kpiIds.map(id => {
       const def = KPI_DEFS[id];
-      return `<div class="dk-glass" style="padding:16px 18px;border-left:3px solid ${def?.cor||'#60a5fa'}">
+      const href = KPI_LINKS[id] || '#';
+      return `<a href="${href}" class="dk-glass" style="display:block;padding:16px 18px;border-left:3px solid ${def?.cor||'#60a5fa'};text-decoration:none;color:inherit;cursor:pointer">
         <div style="font-size:10px;color:var(--dk-text-muted,#94a3b8);text-transform:uppercase;letter-spacing:.08em">${esc(def?.label||id)}</div>
         <div id="foco-${id}" style="font-size:26px;font-weight:800;font-family:'JetBrains Mono',monospace;margin-top:6px">…</div>
-        <div style="font-size:9px;color:var(--dk-text-muted,#64748b);margin-top:4px">🟢 ${esc(def?.fonte||'')}</div>
-      </div>`;
+        <div style="font-size:9px;color:var(--dk-text-muted,#64748b);margin-top:4px">🟢 ${esc(def?.fonte||'')} · abrir →</div>
+      </a>`;
     }).join('');
     kpiIds.forEach(async id => {
       const def = KPI_DEFS[id]; if (!def) return;
@@ -583,6 +594,22 @@
     } catch (e) { list.innerHTML = ''; }
   }
 
+  // ── FRESHNESS CHIPS (S39 — Regra 7 automática) ──────────────────
+  async function renderFreshness() {
+    try {
+      const d = await fetch('/api/freshness').then(r => r.json());
+      const stale = (d.datasets || []).filter(x => x.stale);
+      if (!stale.length) return;
+      const hero = document.querySelector('.home-hero');
+      if (!hero) return;
+      const bar = document.createElement('div');
+      bar.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 0;width:100%';
+      bar.innerHTML = '<span style="font-size:10px;color:var(--dk-text-muted,#64748b);align-self:center">⚠️ dados desatualizados:</span>' +
+        stale.map(x => `<span title="última atualização: ${x.atualizado || 'nunca'}" style="font-size:10px;padding:3px 9px;border-radius:10px;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);color:#fbbf24;font-weight:600">${esc(x.label)} · ${x.dias != null ? x.dias + 'd' : 'sem dado'}</span>`).join('');
+      hero.appendChild(bar);
+    } catch (e) {}
+  }
+
   async function initPersonas() {
     try {
       PERSONAS = await fetch('/api/personas.json').then(r => r.json());
@@ -600,6 +627,7 @@
       applyPersona(pid);
       renderNorthstar();
       renderHoje();
+      renderFreshness();
     } catch (e) { console.warn('personas:', e); }
   }
 

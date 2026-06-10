@@ -1,14 +1,7 @@
 {
-  "current": "0.36.0",
-  "atualizado_em": "2026-06-09",
+  "current": "0.37.0",
+  "atualizado_em": "2026-06-10",
   "next": [
-    {
-      "version": "0.37.0",
-      "sprint": "S39",
-      "status": "planned",
-      "title": "Freshness chips + ações acionáveis + mobile check",
-      "summary": "/api/freshness lista idade de cada dataset → chips '⚠️ stale' automáticos na home (Regra 7 sem esforço manual). Cards de ação com botão (claims a reclamar → abrir; captura sem preencher → preencher). Teste real 390px nas telas principais."
-    },
     {
       "version": "0.38.0",
       "sprint": "S36",
@@ -47,9 +40,17 @@
   ],
   "releases": [
     {
+      "version": "0.37.0",
+      "date": "10/jun/2026",
+      "status": "current",
+      "path": null,
+      "title": "S39 — Freshness chips (Regra 7 automática) + KPIs acionáveis",
+      "summary": "Novo GET /api/freshness: idade de cada dataset (10 fontes — JSONs por mtime: LinkedIn/GA4/Apollo/DF/Voices/Eventos · tabelas SQLite por MAX(synced_at): Zoho/SAP4ME/Cases/Calendar), com threshold de stale por fonte (Apollo 3d, Cases 7d, DF/Calendar 30d, LinkedIn/GA4 35d, Zoho/SAP4ME 45d...). Home mostra chips amarelos '⚠️ dados desatualizados: LinkedIn · 32d' no hero quando algum dataset passa do prazo — transparência da Regra 7 vira automática em vez de etiqueta manual. KPIs do bloco 'Meu foco' agora são CLICÁVEIS (cards viram links pro destino da ação: capturas a preencher → /field-marketing, claims → /development-funds, conteúdos aguardando → /content-pipeline...) — home deixa de ser só informativa e vira lista de ação."
+    },
+    {
       "version": "0.36.0",
       "date": "09/jun/2026",
-      "status": "current",
+      "status": "snapshot",
       "path": null,
       "title": "S38 — Home por role/perfil + bloco Hoje + north-star strip",
       "summary": "Home personalizada por papel: seletor 'Ver como…' no hero com 8 personas (Rudá/Duda/Bruna/Gui/Isabela/Marlison/Roberto/Visitante) — cada uma reordena e filtra as seções da home pra mostrar primeiro o que é da pessoa. public/api/personas.json define email→persona (pronto pro SSO: quando admin consent ativar, /api/auth/status auto-seleciona) + ordem/esconde de seções + KPIs do bloco 'Meu foco'. Novos blocos: (1) NORTH-STAR strip — 3 números que importam (Pipeline MKT FY R$ via Zoho · Seguidores LinkedIn · DDF aprovado válido €), grandes, sem scroll; (2) HOJE — o que acontece no dia: posts a publicar (calendar), eventos live (field), claims DF expirando hoje; (3) MEU FOCO — 2-3 KPIs por persona com fonte etiquetada (Duda: posts da semana + conteúdos aguardando + Voices; Isabela: eventos 30d + capturas a preencher + claims DF; Bruna: Apollo + LinkedIn; Marlison: pipeline + go-lives; Roberto: pipeline + SAP Live + cases). 16 definições de KPI todas em APIs existentes — zero endpoint novo, dado 100% real. Persona persiste em localStorage (override manual sempre disponível)."

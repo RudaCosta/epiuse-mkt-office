@@ -631,6 +631,41 @@ app.get('/api/version', (req, res) => {
   }
 });
 
+// /api/freshness — idade de cada dataset (Regra 7 automática: chips stale na home)
+// JSONs estáticos: mtime do arquivo. Tabelas SQLite: MAX(synced_at/updated_at).
+app.get('/api/freshness', (req, res) => {
+  try {
+    const hoje = Date.now();
+    const out = [];
+    const addFile = (id, label, file, staleDias) => {
+      try {
+        const st = fs.statSync(path.join(__dirname, 'public/api', file));
+        const dias = Math.floor((hoje - st.mtimeMs) / 864e5);
+        out.push({ id, label, fonte: 'json', atualizado: new Date(st.mtimeMs).toISOString().slice(0,10), dias, stale: dias > staleDias });
+      } catch (e) { out.push({ id, label, fonte: 'json', atualizado: null, dias: null, stale: true }); }
+    };
+    const addTable = (id, label, sql, staleDias) => {
+      try {
+        const r = db.prepare(sql).get();
+        const ts = r && r.s ? Date.parse(r.s.replace(' ', 'T') + 'Z') : null;
+        const dias = ts ? Math.floor((hoje - ts) / 864e5) : null;
+        out.push({ id, label, fonte: 'sqlite', atualizado: ts ? new Date(ts).toISOString().slice(0,10) : null, dias, stale: dias == null || dias > staleDias });
+      } catch (e) { out.push({ id, label, fonte: 'sqlite', atualizado: null, dias: null, stale: true }); }
+    };
+    addFile('linkedin', 'LinkedIn', 'linkedin-historical.json', 35);
+    addFile('ga4', 'GA4 Site', 'ga4-snapshot.json', 35);
+    addFile('apollo', 'Apollo', 'pipeline-snapshot.json', 3);
+    addFile('df', 'Dev Funds', 'development-funds.json', 30);
+    addFile('voices', 'Voices', 'voices.json', 45);
+    addFile('events', 'Eventos', 'events.json', 60);
+    addTable('zoho', 'Zoho CRM', 'SELECT MAX(synced_at) AS s FROM zoho_deals', 45);
+    addTable('sap4me', 'SAP 4 ME', 'SELECT MAX(synced_at) AS s FROM clientes_sap_4me', 45);
+    addTable('cases', 'Cases CS', 'SELECT MAX(synced_at) AS s FROM cs_clientes', 7);
+    addTable('calendar', 'Calendário', 'SELECT MAX(synced_at) AS s FROM editorial_calendar', 30);
+    res.json({ gerado_em: new Date().toISOString(), datasets: out, stale_count: out.filter(d => d.stale).length });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 app.get('/planilhas', (req, res) => res.sendFile(path.join(__dirname, 'public/planilhas.html')));
 
 // ── PLANILHAS REGISTRY — todas as XLSX/XLS como API em tempo real ────────────
