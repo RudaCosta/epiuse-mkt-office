@@ -477,6 +477,9 @@
     if (ft) ft.textContent = `${p.icon || '🎯'} Foco · ${p.nome}`;
     if ((p.kpis || []).length) renderFoco(p.kpis);
     else { const f = document.querySelector('[data-sec="foco"]'); if (f) f.style.display = 'none'; }
+    // Reorder via appendChild conflita com o IntersectionObserver do fade-in
+    // (seções movidas ficam presas em opacity:0). Força .visible após aplicar.
+    document.querySelectorAll('.home-section').forEach(s => s.classList.add('visible'));
   }
 
   // ── KPIs por fonte (todas APIs já existentes) ───────────────────
