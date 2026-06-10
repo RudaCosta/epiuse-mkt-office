@@ -1,10 +1,13 @@
 {
-  "current": "0.34.0",
+  "current": "0.35.0",
   "atualizado_em": "2026-06-09",
   "next": [
-    { "version": "0.35.0", "sprint": "S35", "status": "planned",
-      "title": "Refactor telas legadas pro padrão dark + aposentar mortas",
-      "summary": "~13 telas divergentes (metas com data-theme=light, voices/cases/painel/inbound/* light/sem-theme). Padronizar pro dark moderno. Aposentar telas mortas: dashboard, hub (=home), inbound/studio (=carousel), zoho-pipeline (réplica)." },
+    { "version": "0.36.0", "sprint": "S38", "status": "planned",
+      "title": "Home por role/perfil + bloco Hoje + north-star strip",
+      "summary": "Seletor 'Ver como…' (7 personas de team.json: Rudá/Duda/Bruna/Gui/Isabela/Marlison/Roberto) reordena a home por papel — cada um vê primeiro o que é dele. personas.json (email→persona→layout, pronto pro SSO). Bloco 'Hoje' (posts/eventos/deadlines do dia) + north-star strip (Pipeline MKT R$ · Seguidores · Leads mês). Zero endpoint novo." },
+    { "version": "0.37.0", "sprint": "S39", "status": "planned",
+      "title": "Freshness chips + ações acionáveis + mobile check",
+      "summary": "/api/freshness lista idade de cada dataset → chips '⚠️ stale' automáticos na home (Regra 7 sem esforço manual). Cards de ação com botão (claims a reclamar → abrir; captura sem preencher → preencher). Teste real 390px nas telas principais." },
     { "version": "0.36.0", "sprint": "S36", "status": "planned",
       "title": "Dados: fechar buracos + atualizar mapa-fontes",
       "summary": "mapa-fontes-dados.md desatualizado (28/mai, sem Zoho/SAP4ME/Field/Content/DF/Calendar). Etiquetar dados vazios (field captura, content corpo). LinkedIn jun. /api/health lê versão real (hoje fixo 0.24.0)." },
@@ -22,7 +25,10 @@
       "summary": "Agenda unificada pronta (v0.33.0). Para dados mais frescos, Rudá vai mandar: planilha cronograma Redatoria atualizada + planilha posts Duda (redes) + lista de ações internas com prazos. Estrutura já consome essas fontes." }
   ],
   "releases": [
-    { "version": "0.34.0", "date": "09/jun/2026", "status": "current", "path": null,
+    { "version": "0.35.0", "date": "09/jun/2026", "status": "current", "path": null,
+      "title": "S35 — Tipografia unificada: fim da fonte pixel fora do game",
+      "summary": "Diagnóstico refinado da revisão: as telas 'divergentes' NÃO eram light (falso positivo do scan — #fff de botões). A inconsistência real era a fonte pixel 'Press Start 2P' (estética game das versões 0.2-0.4) em títulos/KPIs/tags de 6 telas, destoando do Inter limpo das telas novas. Padronizado: títulos → Inter 800 (tamanhos ajustados +2-4px pra compensar largura), números/tags/labels → JetBrains Mono 700 (padrão do design system). 25 substituições em voices.html (10), painel.html (4), changelog.html (4), seja-voice.html (3), cases.html (2), metas.html (2). Press Start 2P removida dos Google Fonts links (menos 1 font load por página). Permanece SÓ no office.html (game 2D — pixel é a identidade lá, conforme documentado no /design). Confirmado: todas as telas legadas já eram dark por default (metas/voices/cases/painel com --bg navy, inbound com --d-bg #060e1a) — o bloco [data-theme=light] é suporte ao toggle, não default." },
+    { "version": "0.34.0", "date": "09/jun/2026", "status": "snapshot", "path": null,
       "title": "S34 Design System unificado + aposenta telas mortas + roadmap revisão",
       "summary": "Revisão completa do app (avaliação de saúde/UI-UX/dados no plano). EXECUTADO: (1) Design System — novo public/css/office-theme.css (vars dark canônicas --bg/--card/--accent... + utilitários .kpi/.panel/.btn/.tag/.tbl/.bar/.flag) + public/js/office-utils.js (esc/brl/fmt/fmtDate/scoreCls/expCls). 4 telas migradas pra consumir (clientes-sap-4me, field-marketing, content-pipeline, development-funds) removendo :root local duplicado — base pra padronizar as legadas. (2) Telas mortas aposentadas: dashboard + hub (redirect 301 → /, substituídas pela home), inbound/studio (segue redirect → carousel), inbound/zoho-pipeline (réplica, removida); arquivos deletados, SSO returnTo e logout apontam pra / agora, entradas removidas do Cmd+K. (3) Roadmap S34-S37 registrado (planilha + changelog) + mapa-fontes-dados.md atualizado com Zoho/SAP4ME/Field/Content/DF/Calendar. Próximas: S35 refactor telas legadas light→dark, S36 fechar buracos de dados, S37 modularizar server.js." },
     { "version": "0.33.0", "date": "09/jun/2026", "status": "snapshot", "path": null,

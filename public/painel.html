@@ -6,7 +6,7 @@
 <title>Painel da Duda · EPI-USE Voices</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script defer data-domain="epiuse-voices-optimizer.up.railway.app" src="https://plausible.io/js/script.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <link rel="stylesheet" href="/design-tokens.css">
@@ -43,7 +43,7 @@ body {
 .hdr::before { content: ''; position: absolute; inset: 0;
   background: radial-gradient(circle at 0% 0%, rgba(217,119,6,0.12), transparent 50%); pointer-events: none; }
 .hdr-l { position: relative; z-index: 1; }
-.hdr-title { font-family: 'Press Start 2P', monospace; font-size: 18px; color: #f59e0b; letter-spacing: 0.04em; line-height: 1.5; }
+.hdr-title { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 22px; color: #f59e0b; letter-spacing: 0.04em; line-height: 1.5; }
 .hdr-sub { font-size: 11px; color: var(--text-muted); letter-spacing: 0.25em; margin-top: 6px; font-weight: 500; }
 .hdr-r { display: flex; align-items: center; gap: 10px; position: relative; z-index: 1; }
 .hdr-chip { font-size: 13px; color: var(--text-dim); background: rgba(255,255,255,0.04); border: 1px solid var(--border-light); padding: 6px 14px; border-radius: 20px; text-decoration: none; }
@@ -64,7 +64,7 @@ body {
 .kpi-card.warn { border-color: rgba(245,158,11,0.3); background: linear-gradient(135deg, rgba(245,158,11,0.05), var(--bg-card)); }
 .kpi-card.ok { border-color: rgba(16,185,129,0.3); background: linear-gradient(135deg, rgba(16,185,129,0.05), var(--bg-card)); }
 .kpi-lbl { font-size: 10px; letter-spacing: 0.16em; color: var(--text-muted); text-transform: uppercase; font-weight: 700; }
-.kpi-val { font-family: 'Press Start 2P', monospace; font-size: 22px; color: var(--text); margin: 10px 0 4px; letter-spacing: 0.04em; }
+.kpi-val { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 26px; color: var(--text); margin: 10px 0 4px; letter-spacing: 0.04em; }
 .kpi-val.warn { color: var(--warning); }
 .kpi-val.ok { color: var(--success); }
 .kpi-val.dim { color: var(--text-muted); font-size: 18px; }
@@ -125,7 +125,7 @@ body {
 .foot { border-top: 1px solid var(--border-light); padding: 28px 0 8px; text-align: center; margin-top: 30px; }
 .foot-line { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
 .foot-line a { color: var(--primary-light); text-decoration: none; }
-.foot-meta { font-family: 'Press Start 2P', monospace; font-size: 9px; color: rgba(148,163,184,0.35); letter-spacing: 0.15em; margin-top: 16px; }
+.foot-meta { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 9px; color: rgba(148,163,184,0.35); letter-spacing: 0.15em; margin-top: 16px; }
 
 /* PERFORMANCE SECTION */
 .perf-filters { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
@@ -135,7 +135,7 @@ body {
 .perf-mini { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-bottom: 18px; }
 .perf-mini-card { background: rgba(255,255,255,.025); border: 1px solid var(--border-light); border-radius: 10px; padding: 13px 16px; }
 .perf-mini-lbl { font-size: 10px; letter-spacing: .12em; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 6px; }
-.perf-mini-val { font-family: 'Press Start 2P', monospace; font-size: 17px; color: var(--text); }
+.perf-mini-val { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 20px; color: var(--text); }
 .perf-mini-val.success { color: var(--success); }
 .perf-mini-val.purple { color: var(--purple); }
 .perf-mini-sub { font-size: 10px; color: var(--text-muted); margin-top: 4px; }

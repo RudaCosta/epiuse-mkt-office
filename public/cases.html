@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="/design-tokens.css">
 <script type="module" src="/office-nav.js"></script>
 <script type="module" src="/office-footer.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg: #060e1a;
@@ -28,7 +28,7 @@ body { background: var(--bg); font-family: 'Inter', sans-serif; color: var(--tex
 .wrap { max-width: 1400px; margin: 0 auto; padding: 28px 24px 80px; }
 
 .hdr { display: flex; justify-content: space-between; align-items: end; gap: 20px; flex-wrap: wrap; margin-bottom: 24px; }
-.hdr-l h1 { font-family: 'Press Start 2P', monospace; font-size: 22px; color: var(--primary-light); letter-spacing: .04em; margin: 0 0 6px; }
+.hdr-l h1 { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 26px; color: var(--primary-light); letter-spacing: .04em; margin: 0 0 6px; }
 .hdr-l .sub { font-size: 12px; color: var(--text-muted); letter-spacing: .14em; text-transform: uppercase; }
 .hdr-r { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .btn { padding: 8px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); text-decoration: none; transition: all .15s; }
@@ -38,7 +38,7 @@ body { background: var(--bg); font-family: 'Inter', sans-serif; color: var(--tex
 
 .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 28px; }
 .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
-.kpi-card .label { font-family: 'Press Start 2P', monospace; font-size: 9px; letter-spacing: .12em; margin-bottom: 8px; }
+.kpi-card .label { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 10px; letter-spacing: .12em; margin-bottom: 8px; }
 .kpi-card .value { font-size: 26px; font-weight: 700; line-height: 1; color: var(--text); }
 .kpi-card .meta  { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
 .kpi-card.live  .label { color: #34d399; } .kpi-card.live  .value { color: #34d399; }

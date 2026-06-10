@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Voice Agents · EPI-USE Voices</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script defer data-domain="epiuse-voices-optimizer.up.railway.app" src="https://plausible.io/js/script.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -36,7 +36,7 @@ body {
 .hdr { background: linear-gradient(135deg, rgba(15,30,53,0.7), rgba(10,22,40,0.7)); border: 1px solid var(--border); border-radius: 18px; padding: 22px 28px; display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 28px; position: relative; overflow: hidden; }
 .hdr::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 0% 0%, rgba(168,85,247,0.12), transparent 50%); pointer-events: none; }
 .hdr-l { position: relative; z-index: 1; }
-.hdr-title { font-family: 'Press Start 2P', monospace; font-size: 18px; color: #c084fc; letter-spacing: 0.04em; line-height: 1.5; }
+.hdr-title { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 22px; color: #c084fc; letter-spacing: 0.04em; line-height: 1.5; }
 .hdr-sub { font-size: 11px; color: var(--text-muted); letter-spacing: 0.25em; margin-top: 6px; font-weight: 500; }
 .hdr-r { display: flex; gap: 8px; position: relative; z-index: 1; }
 .hdr-chip { font-size: 13px; color: var(--text-dim); background: rgba(255,255,255,0.04); border: 1px solid var(--border-light); padding: 6px 14px; border-radius: 20px; text-decoration: none; }
@@ -56,7 +56,7 @@ body {
 .vt-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
 .vt-avatar { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0; border: 2px solid rgba(255,255,255,0.06); }
 .vt-avatar.empty { background: rgba(148,163,184,0.08); border: 2px dashed rgba(148,163,184,0.3); color: var(--text-muted); }
-.vt-num { font-family: 'Press Start 2P', monospace; font-size: 10px; color: var(--primary-light); background: rgba(37,99,235,0.10); padding: 4px 8px; border-radius: 5px; }
+.vt-num { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 11px; color: var(--primary-light); background: rgba(37,99,235,0.10); padding: 4px 8px; border-radius: 5px; }
 .vt-name-w { flex: 1; min-width: 0; }
 .vt-name { font-size: 15px; font-weight: 700; }
 .vt-role { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
@@ -75,7 +75,7 @@ body {
 .profile-role { font-size: 14px; color: var(--text-dim); margin-bottom: 8px; }
 .profile-meta { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: var(--text-muted); }
 .profile-meta span { display: inline-flex; align-items: center; gap: 5px; }
-.profile-num { font-family: 'Press Start 2P', monospace; font-size: 14px; color: var(--purple); }
+.profile-num { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 16px; color: var(--purple); }
 
 .card { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 14px; padding: 22px 24px; margin-bottom: 16px; backdrop-filter: blur(8px); }
 .card-title { font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--primary-light); display: flex; align-items: center; gap: 8px; }
@@ -195,7 +195,7 @@ body {
 .post-list { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
 .post-item { background: rgba(0,0,0,.15); border: 1px solid var(--border-light); border-radius: 10px; padding: 12px 14px; display: flex; gap: 14px; align-items: flex-start; transition: border-color .15s; }
 .post-item:hover { border-color: rgba(37,99,235,.3); }
-.post-date { font-family: 'Press Start 2P', monospace; font-size: 8px; color: #fbbf24; background: rgba(251,191,36,.08); padding: 4px 6px; border-radius: 4px; min-width: 50px; text-align: center; margin-top: 1px; }
+.post-date { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 10px; color: #fbbf24; background: rgba(251,191,36,.08); padding: 4px 6px; border-radius: 4px; min-width: 50px; text-align: center; margin-top: 1px; }
 .post-body { flex: 1; min-width: 0; }
 .post-preview { color: var(--text); font-size: 13px; line-height: 1.4; }
 .post-meta { display: flex; gap: 10px; margin-top: 6px; font-size: 11px; color: var(--text-muted); align-items: center; flex-wrap: wrap; }
@@ -252,7 +252,7 @@ body {
 .foot { border-top: 1px solid var(--border-light); padding: 28px 0 8px; text-align: center; margin-top: 30px; }
 .foot-line { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
 .foot-line a { color: var(--primary-light); text-decoration: none; }
-.foot-meta { font-family: 'Press Start 2P', monospace; font-size: 9px; color: rgba(148,163,184,0.35); letter-spacing: 0.15em; margin-top: 16px; }
+.foot-meta { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 9px; color: rgba(148,163,184,0.35); letter-spacing: 0.15em; margin-top: 16px; }
 
 .spinner { width: 32px; height: 32px; border: 3px solid rgba(255,255,255,0.08); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 60px auto; }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -474,7 +474,7 @@ async function renderGallery() {
   <a href="/voices/painel" style="display:flex;align-items:center;gap:16px;padding:18px 22px;margin-bottom:24px;background:linear-gradient(135deg,rgba(168,85,247,.08),rgba(236,72,153,.08));border:1px solid rgba(168,85,247,.30);border-radius:12px;text-decoration:none;transition:transform .15s,border-color .15s" onmouseover="this.style.transform='translateY(-2px)';this.style.borderColor='rgba(168,85,247,.55)'" onmouseout="this.style.transform='';this.style.borderColor='rgba(168,85,247,.30)'">
     <div style="width:54px;height:54px;border-radius:12px;background:linear-gradient(135deg,#a855f7,#ec4899);display:flex;align-items:center;justify-content:center;font-size:28px;flex:0 0 auto">🎯</div>
     <div style="flex:1;min-width:0">
-      <div style="font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:.14em;color:#c084fc;margin-bottom:4px">PAINEL DA DUDA · MÓDULO C</div>
+      <div style="font-family:'Inter', sans-serif;font-weight:800;font-size:11px;letter-spacing:.14em;color:#c084fc;margin-bottom:4px">PAINEL DA DUDA · MÓDULO C</div>
       <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px">Backstage operacional do programa Voices</div>
       <div style="font-size:13px;color:var(--text-dim)">KPIs cruzados · alertas · roadmap de fases · top post da semana — onde a Eduarda toca a operação dia-a-dia</div>
     </div>
@@ -484,19 +484,19 @@ async function renderGallery() {
   <!-- Dashboard agregado do programa — dados REAIS do /api/posts -->
   <div class="prog-kpis" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:28px">
     <div style="background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.25);border-radius:10px;padding:14px 16px">
-      <div style="font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:.12em;color:#60a5fa;margin-bottom:6px">VOICES ATIVOS</div>
+      <div style="font-family:'JetBrains Mono', monospace;font-weight:700;font-size:9px;letter-spacing:.12em;color:#60a5fa;margin-bottom:6px">VOICES ATIVOS</div>
       <div style="font-size:24px;font-weight:700;color:var(--text)">${data.voices.length}<span style="font-size:13px;color:var(--text-muted);font-weight:400"> / ${data.voices.length + (data.vagas_abertas?.length||0)}</span></div>
     </div>
     <div style="background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);border-radius:10px;padding:14px 16px">
-      <div style="font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:.12em;color:#34d399;margin-bottom:6px">POSTS PUBLICADOS</div>
+      <div style="font-family:'JetBrains Mono', monospace;font-weight:700;font-size:9px;letter-spacing:.12em;color:#34d399;margin-bottom:6px">POSTS PUBLICADOS</div>
       <div style="font-size:24px;font-weight:700;color:var(--text)">${progTotal}<span style="font-size:13px;color:var(--text-muted);font-weight:400"> registrados</span></div>
     </div>
     <div style="background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.25);border-radius:10px;padding:14px 16px">
-      <div style="font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:.12em;color:#fbbf24;margin-bottom:6px">ENGAJAMENTO TOTAL</div>
+      <div style="font-family:'JetBrains Mono', monospace;font-weight:700;font-size:9px;letter-spacing:.12em;color:#fbbf24;margin-bottom:6px">ENGAJAMENTO TOTAL</div>
       <div style="font-size:24px;font-weight:700;color:var(--text)">${progEng.toLocaleString('pt-BR')}<span style="font-size:13px;color:var(--text-muted);font-weight:400"> ❤️💬🔄</span></div>
     </div>
     <a href="/optimizer" style="background:rgba(192,132,252,.08);border:1px solid rgba(192,132,252,.25);border-radius:10px;padding:14px 16px;text-decoration:none;transition:background .15s" onmouseover="this.style.background='rgba(192,132,252,.18)'" onmouseout="this.style.background='rgba(192,132,252,.08)'">
-      <div style="font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:.12em;color:#c084fc;margin-bottom:6px">🪪 PROFILE OPTIMIZER</div>
+      <div style="font-family:'JetBrains Mono', monospace;font-weight:700;font-size:9px;letter-spacing:.12em;color:#c084fc;margin-bottom:6px">🪪 PROFILE OPTIMIZER</div>
       <div style="font-size:13px;color:var(--text);line-height:1.4">Análise de perfil LinkedIn via Claude Vision — abrir →</div>
     </a>
   </div>
