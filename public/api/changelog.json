@@ -1,6 +1,6 @@
 {
-  "current": "0.40.0",
-  "atualizado_em": "2026-06-10",
+  "current": "0.41.0",
+  "atualizado_em": "2026-06-11",
   "next": [
     {
       "version": "0.38.0",
@@ -40,9 +40,17 @@
   ],
   "releases": [
     {
+      "version": "0.41.0",
+      "date": "11/jun/2026",
+      "status": "current",
+      "path": null,
+      "title": "💡 Mural de Ideias de MKT — página interativa fun + replicação SharePoint via webhook",
+      "summary": "Nova tela /ideias com tom totalmente diferente: bg gradiente colorido (mesh), post-its rotacionados, emoji picker, confete no submit, voto 1-clique (❤️), filtro por categoria, FAB flutuante. Backend: tabela ideias_mkt (SQLite) + GET/POST /api/ideias + POST /api/ideias/:id/voto. Replicação na planilha SharePoint via Power Automate webhook (env IDEIAS_WEBHOOK_URL): a cada ideia nova, server dispara POST pro flow que adiciona linha no Excel — SEM precisar Graph/admin consent. Sem webhook configurado → ideias ficam locais (banner ⏳ aguarda integração) e marca sincronizada=0. Quando flow ativo, card mostra 🟢 'na planilha'. Link no nav (overflow → Escritório Virtual)."
+    },
+    {
       "version": "0.40.0",
       "date": "10/jun/2026",
-      "status": "current",
+      "status": "snapshot",
       "path": null,
       "title": "i18n híbrido: LibreTranslate self-host (tradução 100% auto) PT/EN/ES + flags SVG",
       "summary": "Tradução automática de TODO conteúdo via LibreTranslate self-host (privacidade: roda na própria infra, dado não sai pra terceiro). Motor i18n.js em 3 camadas: (1) dicionário curado window.OFFICE_PHRASES (instantâneo, ~56 frases override); (2) cache localStorage (não re-bate API); (3) LibreTranslate via proxy /api/translate (batch dedup + cache persistente no servidor em DATA_DIR/translate-cache.json). Varre text nodes (TreeWalker) + MutationObserver pro conteúdo dinâmico. Heurística i18nIsTranslatable + data-no-translate protegem dado real (números/moeda/data auto-skip; nome de pessoa no hero marcado) — Regra 7 preservada. Flags do seletor migradas de emoji (não renderiza no Windows!) pra SVG inline 🇧🇷🇺🇸🇪🇸 — renderiza em qualquer SO. PT-BR default. Backend opcional: sem LIBRETRANSLATE_URL configurada, cai gracioso no dicionário. server.js: POST /api/translate + GET /api/translate/status. ALÉM: footer ganhou SAP Partner ID 1426872 (data-no-translate) + width 100%; fix margin:0 no body (gap nas bordas); temas claros (light + elephant) agora flipam tokens --home-* e --dk-* corretamente — cards/metas/quick-actions/alertas/dk-glass que ficavam escuros em fundo claro agora respeitam o tema."

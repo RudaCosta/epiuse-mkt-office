@@ -251,6 +251,26 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_content_estado ON content_pipeline(estado);
 `);
 
+// Repositório de Ideias de Marketing (mural criativo)
+db.exec(`
+  CREATE TABLE IF NOT EXISTS ideias_mkt (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    titulo      TEXT NOT NULL,
+    descricao   TEXT DEFAULT '',
+    categoria   TEXT DEFAULT 'geral',
+    autor       TEXT DEFAULT 'Anônimo',
+    impacto     TEXT DEFAULT 'medio',     -- baixo|medio|alto|moonshot
+    esforco     TEXT DEFAULT 'medio',     -- baixo|medio|alto
+    emoji       TEXT DEFAULT '💡',
+    cor         TEXT DEFAULT '#fbbf24',
+    votos       INTEGER DEFAULT 0,
+    status      TEXT DEFAULT 'nova',      -- nova|avaliando|aprovada|feita|arquivada
+    sincronizada INTEGER DEFAULT 0,       -- 1 = replicada na planilha (webhook OK)
+    created_at  TEXT DEFAULT (datetime('now'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_ideias_status ON ideias_mkt(status);
+`);
+
 // Migração clientes_sap_4me: PK antiga era projeto_id (não-único → colapsava 705→500
 // pacotes). Agora pkg_id (id-pacote). Dado é espelho re-sincronizável → drop+recreate.
 (function migrateSap4me() {
@@ -767,6 +787,71 @@ app.get('/api/freshness', (req, res) => {
 });
 
 app.get('/planilhas', (req, res) => res.sendFile(path.join(__dirname, 'public/planilhas.html')));
+
+// ════════════════════════════════════════════════════════════════════════════
+// REPOSITÓRIO DE IDEIAS DE MARKETING — mural criativo + replicação na planilha
+// Replicação SharePoint via Power Automate webhook (env IDEIAS_WEBHOOK_URL).
+// Sem webhook → idea fica local (sincronizada=0), ⏳ aguarda integração.
+// ════════════════════════════════════════════════════════════════════════════
+const IDEIAS_WEBHOOK_URL = process.env.IDEIAS_WEBHOOK_URL || '';
+
+app.get('/ideias', (req, res) => res.sendFile(path.join(__dirname, 'public/ideias.html')));
+
+app.get('/api/ideias', (req, res) => {
+  try {
+    const rows = db.prepare('SELECT * FROM ideias_mkt ORDER BY votos DESC, created_at DESC').all();
+    res.json({ total: rows.length, sync_enabled: !!IDEIAS_WEBHOOK_URL, ideias: rows });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/api/ideias', async (req, res) => {
+  try {
+    const b = req.body || {};
+    const titulo = String(b.titulo || '').trim().slice(0, 160);
+    if (!titulo) return res.status(400).json({ success: false, error: 'título obrigatório' });
+    const clean = (v, def, max) => String(v == null ? def : v).trim().slice(0, max || 60);
+    const row = {
+      titulo,
+      descricao: String(b.descricao || '').trim().slice(0, 2000),
+      categoria: clean(b.categoria, 'geral'),
+      autor: clean(b.autor, 'Anônimo', 60),
+      impacto: ['baixo','medio','alto','moonshot'].includes(b.impacto) ? b.impacto : 'medio',
+      esforco: ['baixo','medio','alto'].includes(b.esforco) ? b.esforco : 'medio',
+      emoji: clean(b.emoji, '💡', 8),
+      cor: /^#[0-9a-fA-F]{6}$/.test(b.cor || '') ? b.cor : '#fbbf24',
+    };
+    const info = db.prepare(`INSERT INTO ideias_mkt (titulo,descricao,categoria,autor,impacto,esforco,emoji,cor)
+      VALUES (@titulo,@descricao,@categoria,@autor,@impacto,@esforco,@emoji,@cor)`).run(row);
+    const id = info.lastInsertRowid;
+
+    // Replica na planilha via Power Automate (fire-and-forget)
+    let sincronizada = 0;
+    if (IDEIAS_WEBHOOK_URL) {
+      try {
+        const r = await fetch(IDEIAS_WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, ...row, data: new Date().toISOString() }),
+          signal: AbortSignal.timeout(8000),
+        });
+        if (r.ok) { sincronizada = 1; db.prepare('UPDATE ideias_mkt SET sincronizada=1 WHERE id=?').run(id); }
+      } catch (e) { /* webhook caiu — fica local, sincronizada=0 */ }
+    }
+    const ideia = db.prepare('SELECT * FROM ideias_mkt WHERE id=?').get(id);
+    res.json({ success: true, ideia, sincronizada: !!sincronizada, sync_enabled: !!IDEIAS_WEBHOOK_URL });
+  } catch (e) { res.status(500).json({ success: false, error: e.message }); }
+});
+
+app.post('/api/ideias/:id/voto', (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const dir = req.body && req.body.dir === 'down' ? -1 : 1;
+    const r = db.prepare('UPDATE ideias_mkt SET votos = MAX(0, votos + ?) WHERE id=?').run(dir, id);
+    if (!r.changes) return res.status(404).json({ success: false, error: 'ideia não encontrada' });
+    const ideia = db.prepare('SELECT id, votos FROM ideias_mkt WHERE id=?').get(id);
+    res.json({ success: true, votos: ideia.votos });
+  } catch (e) { res.status(500).json({ success: false, error: e.message }); }
+});
 
 // ── PLANILHAS REGISTRY — todas as XLSX/XLS como API em tempo real ────────────
 // Le do arquivo origem (Desktop/OneDrive/vault) on-demand · cache invalidado por mtime

@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>💡 Mural de Ideias · MKT EPI-USE</title>
+<link rel="stylesheet" href="/design-tokens.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+/* body id vence o grid global (!important + specificity alta) */
+body#ideias-mural{
+  font-family:'Inter',system-ui,sans-serif;
+  min-height:100vh;color:#1e293b;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(251,191,36,.35), transparent 38%),
+    radial-gradient(circle at 88% 12%, rgba(236,72,153,.30), transparent 40%),
+    radial-gradient(circle at 78% 82%, rgba(56,189,248,.30), transparent 42%),
+    radial-gradient(circle at 20% 88%, rgba(16,185,129,.28), transparent 40%),
+    linear-gradient(135deg,#fef9f0 0%,#fdf2f8 45%,#eff6ff 100%) !important;
+  background-attachment:fixed !important;
+}
+.mural-wrap{max-width:1280px;margin:0 auto;padding:24px 18px 80px}
+
+/* HERO playful */
+.mural-hero{text-align:center;padding:28px 16px 18px;position:relative}
+.mural-hero h1{font-family:'Fredoka',sans-serif;font-weight:700;font-size:clamp(30px,6vw,52px);
+  background:linear-gradient(90deg,#f59e0b,#ec4899,#8b5cf6,#0ea5e9);-webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;line-height:1.1;letter-spacing:-.02em}
+.mural-hero p{font-size:15px;color:#64748b;margin-top:8px;font-weight:500}
+.mural-hero .floaty{position:absolute;font-size:30px;animation:float 4s ease-in-out infinite;opacity:.9;pointer-events:none}
+.mural-hero .f1{top:6px;left:8%;animation-delay:0s}
+.mural-hero .f2{top:30px;right:10%;animation-delay:.8s}
+.mural-hero .f3{bottom:0;left:18%;animation-delay:1.6s;font-size:24px}
+.mural-hero .f4{bottom:8px;right:20%;animation-delay:2.2s;font-size:26px}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-14px) rotate(6deg)}}
+
+/* Barra stats + sync */
+.mural-bar{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:14px 0 22px}
+.pill{background:rgba(255,255,255,.7);backdrop-filter:blur(8px);border:2px solid #fff;border-radius:99px;
+  padding:7px 16px;font-size:13px;font-weight:700;color:#475569;box-shadow:0 4px 12px -4px rgba(0,0,0,.12);display:inline-flex;gap:7px;align-items:center}
+.pill b{color:#ec4899}
+.sync-banner{display:flex;align-items:center;gap:8px;justify-content:center;font-size:12px;font-weight:600;
+  padding:8px 14px;border-radius:12px;margin:0 auto 18px;max-width:680px;text-align:center}
+.sync-banner.off{background:rgba(251,191,36,.18);color:#92400e;border:1.5px dashed #f59e0b}
+.sync-banner.on{background:rgba(16,185,129,.16);color:#065f46;border:1.5px solid #10b981}
+
+/* Botão flutuante "nova ideia" */
+.fab{position:fixed;bottom:24px;right:24px;z-index:60;background:linear-gradient(135deg,#ec4899,#8b5cf6);
+  color:#fff;border:none;border-radius:99px;padding:16px 24px;font-size:16px;font-weight:800;font-family:'Fredoka',sans-serif;
+  cursor:pointer;box-shadow:0 10px 30px -6px rgba(139,92,246,.6);display:flex;gap:9px;align-items:center;
+  transition:transform .18s cubic-bezier(.16,1,.3,1),box-shadow .18s}
+.fab:hover{transform:translateY(-3px) scale(1.04);box-shadow:0 16px 40px -6px rgba(139,92,246,.7)}
+.fab:active{transform:scale(.96)}
+
+/* Filtros categoria */
+.cat-filter{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:22px}
+.cat-btn{background:rgba(255,255,255,.65);border:2px solid transparent;border-radius:99px;padding:6px 14px;
+  font-size:13px;font-weight:700;cursor:pointer;color:#64748b;transition:all .15s}
+.cat-btn:hover{background:#fff}
+.cat-btn.active{background:#1e293b;color:#fff;border-color:#1e293b}
+
+/* Mural de cards (masonry-ish) */
+.mural-grid{columns:4 260px;column-gap:16px}
+@media(max-width:1100px){.mural-grid{columns:3 240px}}
+@media(max-width:720px){.mural-grid{columns:2 160px}}
+@media(max-width:480px){.mural-grid{columns:1}}
+.idea{break-inside:avoid;margin-bottom:16px;border-radius:16px;padding:16px 16px 14px;
+  position:relative;box-shadow:0 6px 20px -8px rgba(0,0,0,.25);border:1px solid rgba(0,0,0,.06);
+  transform:rotate(var(--rot,0deg));transition:transform .18s,box-shadow .18s;cursor:default}
+.idea:hover{transform:rotate(0deg) translateY(-4px);box-shadow:0 14px 34px -10px rgba(0,0,0,.32);z-index:2}
+.idea .pin{position:absolute;top:-9px;left:50%;transform:translateX(-50%);font-size:18px}
+.idea .emoji{font-size:30px;line-height:1}
+.idea h3{font-family:'Fredoka',sans-serif;font-size:17px;font-weight:600;color:#1e293b;margin:6px 0 4px;line-height:1.2}
+.idea .desc{font-size:13px;color:#475569;line-height:1.45;margin-bottom:10px;white-space:pre-wrap}
+.idea .chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.idea .chip{font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;background:rgba(0,0,0,.07);color:#334155}
+.idea .chip.imp-alto,.idea .chip.imp-moonshot{background:rgba(236,72,153,.18);color:#9d174d}
+.idea .chip.imp-moonshot{background:linear-gradient(90deg,#8b5cf6,#ec4899);color:#fff}
+.idea .foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;border-top:1px dashed rgba(0,0,0,.12);padding-top:8px}
+.idea .autor{font-size:11px;color:#64748b;font-weight:600;display:flex;align-items:center;gap:4px;min-width:0}
+.idea .autor span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vote{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.7);border:1.5px solid rgba(0,0,0,.1);
+  border-radius:99px;padding:3px 10px;cursor:pointer;font-weight:800;font-size:13px;color:#ec4899;transition:transform .12s,background .15s;flex-shrink:0}
+.vote:hover{background:#fff;transform:scale(1.06)}
+.vote:active{transform:scale(.9)}
+.vote.voted{background:#ec4899;color:#fff;border-color:#ec4899}
+.synced-dot{font-size:10px}
+.empty-mural{text-align:center;padding:50px 20px;color:#94a3b8;font-size:15px;font-weight:600}
+
+/* Modal form */
+.overlay{position:fixed;inset:0;background:rgba(30,41,59,.55);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:100;padding:18px}
+.overlay.open{display:flex}
+.modal{background:#fff;border-radius:24px;max-width:540px;width:100%;max-height:92vh;overflow:auto;
+  box-shadow:0 30px 70px -20px rgba(0,0,0,.5);position:relative}
+.modal-head{background:linear-gradient(135deg,#ec4899,#8b5cf6);padding:22px 24px;color:#fff;position:sticky;top:0;z-index:2}
+.modal-head h2{font-family:'Fredoka',sans-serif;font-size:22px;font-weight:700}
+.modal-head p{font-size:13px;opacity:.9;margin-top:2px}
+.modal-close{position:absolute;top:16px;right:18px;background:rgba(255,255,255,.25);border:none;color:#fff;
+  width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:18px;font-weight:700}
+.modal-body{padding:22px 24px 26px}
+.fld{margin-bottom:16px}
+.fld label{display:block;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:#64748b;margin-bottom:6px}
+.fld input,.fld textarea,.fld select{width:100%;padding:11px 13px;font-size:14px;font-family:inherit;
+  border:2px solid #e2e8f0;border-radius:12px;color:#1e293b;transition:border-color .15s}
+.fld input:focus,.fld textarea:focus,.fld select:focus{outline:none;border-color:#8b5cf6}
+.fld textarea{min-height:80px;resize:vertical}
+.emoji-pick{display:flex;flex-wrap:wrap;gap:6px}
+.emoji-pick button{font-size:22px;background:#f8fafc;border:2px solid transparent;border-radius:10px;width:42px;height:42px;cursor:pointer;transition:all .12s}
+.emoji-pick button:hover{background:#f1f5f9}
+.emoji-pick button.sel{border-color:#8b5cf6;background:#f5f3ff}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.seg{display:flex;gap:5px}
+.seg button{flex:1;padding:8px 4px;font-size:12px;font-weight:700;border:2px solid #e2e8f0;border-radius:10px;background:#fff;cursor:pointer;color:#64748b;transition:all .12s}
+.seg button.sel{border-color:#8b5cf6;background:#f5f3ff;color:#6d28d9}
+.cor-pick{display:flex;gap:8px}
+.cor-pick button{width:34px;height:34px;border-radius:50%;border:3px solid #fff;cursor:pointer;box-shadow:0 0 0 1px rgba(0,0,0,.1);transition:transform .12s}
+.cor-pick button.sel{transform:scale(1.2);box-shadow:0 0 0 2px #1e293b}
+.submit-btn{width:100%;background:linear-gradient(135deg,#ec4899,#8b5cf6);color:#fff;border:none;border-radius:14px;
+  padding:15px;font-size:16px;font-weight:800;font-family:'Fredoka',sans-serif;cursor:pointer;margin-top:6px;transition:transform .15s}
+.submit-btn:hover{transform:translateY(-2px)}
+.submit-btn:disabled{opacity:.6;cursor:wait}
+
+/* Confete */
+.confetti{position:fixed;top:-10px;z-index:200;font-size:18px;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(720deg);opacity:.2}}
+@media (prefers-reduced-motion:reduce){.floaty,.confetti{animation:none}}
+</style>
+</head>
+<body id="ideias-mural" data-route="ideias">
+<office-nav></office-nav>
+<div class="mural-wrap">
+  <div class="mural-hero">
+    <span class="floaty f1">💡</span><span class="floaty f2">🚀</span>
+    <span class="floaty f3">✨</span><span class="floaty f4">🎨</span>
+    <h1>Mural de Ideias de Marketing</h1>
+    <p>Joga a ideia no mural — boa, maluca, moonshot. Tudo conta. 🌱→🌳</p>
+  </div>
+
+  <div class="sync-banner" id="syncBanner"></div>
+
+  <div class="mural-bar" id="statsBar"></div>
+
+  <div class="cat-filter" id="catFilter"></div>
+
+  <div class="mural-grid" id="mural"><div class="empty-mural" data-no-translate>Carregando o mural… 🎨</div></div>
+</div>
+
+<button class="fab" id="fabBtn" data-no-translate>✏️ Nova ideia</button>
+
+<!-- Modal -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <button class="modal-close" id="closeModal" aria-label="Fechar">✕</button>
+      <h2>💡 Solta a ideia!</h2>
+      <p>Não existe ideia ruim no mural. Manda ver.</p>
+    </div>
+    <div class="modal-body">
+      <form id="ideaForm">
+        <div class="fld">
+          <label>O título da ideia *</label>
+          <input id="f-titulo" maxlength="160" placeholder="Ex: Série de Reels 'SAP em 60s'" required>
+        </div>
+        <div class="fld">
+          <label>Conta mais (opcional)</label>
+          <textarea id="f-desc" maxlength="2000" placeholder="Como funciona, por que é boa, pra quem…"></textarea>
+        </div>
+        <div class="fld">
+          <label>Escolhe um emoji</label>
+          <div class="emoji-pick" id="emojiPick"></div>
+        </div>
+        <div class="fld">
+          <label>Categoria</label>
+          <select id="f-cat">
+            <option value="conteudo">📝 Conteúdo</option>
+            <option value="campanha">📣 Campanha</option>
+            <option value="evento">🎪 Evento</option>
+            <option value="produto">🛠️ Produto/Feature</option>
+            <option value="growth">🚀 Growth</option>
+            <option value="brand">🎨 Brand</option>
+            <option value="geral" selected>💡 Geral</option>
+          </select>
+        </div>
+        <div class="row2">
+          <div class="fld">
+            <label>Impacto</label>
+            <div class="seg" id="segImpacto">
+              <button type="button" data-v="baixo">🌱</button>
+              <button type="button" data-v="medio" class="sel">📈</button>
+              <button type="button" data-v="alto">🔥</button>
+              <button type="button" data-v="moonshot">🌙</button>
+            </div>
+          </div>
+          <div class="fld">
+            <label>Esforço</label>
+            <div class="seg" id="segEsforco">
+              <button type="button" data-v="baixo" class="sel">😌</button>
+              <button type="button" data-v="medio">💪</button>
+              <button type="button" data-v="alto">🥵</button>
+            </div>
+          </div>
+        </div>
+        <div class="fld">
+          <label>Cor do post-it</label>
+          <div class="cor-pick" id="corPick"></div>
+        </div>
+        <div class="fld">
+          <label>Quem mandou (opcional)</label>
+          <input id="f-autor" maxlength="60" placeholder="Teu nome ou deixa anônimo 🕶️">
+        </div>
+        <button class="submit-btn" type="submit" id="submitBtn" data-no-translate>🚀 Jogar no mural!</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<office-footer></office-footer>
+<script src="/i18n.js"></script>
+<script src="/office-nav.js"></script>
+<script src="/office-footer.js"></script>
+<script>
+const EMOJIS = ['💡','🚀','🎨','📣','🔥','✨','🎯','📈','🎪','🤖','📱','🎬','🧠','💎','🌙','⚡','🎁','🏆'];
+const CORES = ['#fbbf24','#f472b6','#a78bfa','#38bdf8','#34d399','#fb923c','#f87171','#facc15'];
+const CAT_LABEL = {conteudo:'📝 Conteúdo',campanha:'📣 Campanha',evento:'🎪 Evento',produto:'🛠️ Produto',growth:'🚀 Growth',brand:'🎨 Brand',geral:'💡 Geral'};
+const IMP_EMOJI = {baixo:'🌱',medio:'📈',alto:'🔥',moonshot:'🌙'};
+const ESF_EMOJI = {baixo:'😌',medio:'💪',alto:'🥵'};
+let STATE = { ideias:[], cat:'todas', sync:false, voted:JSON.parse(localStorage.getItem('ideias.voted')||'[]') };
+const $ = s => document.querySelector(s);
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+let fSel = { emoji:'💡', cor:'#fbbf24', impacto:'medio', esforco:'baixo' };
+
+function buildPickers(){
+  $('#emojiPick').innerHTML = EMOJIS.map(e=>`<button type="button" data-e="${e}" class="${e===fSel.emoji?'sel':''}">${e}</button>`).join('');
+  $('#corPick').innerHTML = CORES.map(c=>`<button type="button" data-c="${c}" class="${c===fSel.cor?'sel':''}" style="background:${c}"></button>`).join('');
+  $('#emojiPick').querySelectorAll('button').forEach(b=>b.onclick=()=>{fSel.emoji=b.dataset.e;buildPickers();});
+  $('#corPick').querySelectorAll('button').forEach(b=>b.onclick=()=>{fSel.cor=b.dataset.c;buildPickers();});
+}
+function segWire(id,key){
+  $(id).querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    fSel[key]=b.dataset.v;
+    $(id).querySelectorAll('button').forEach(x=>x.classList.remove('sel'));
+    b.classList.add('sel');
+  });
+}
+
+async function load(){
+  try{
+    const d = await fetch('/api/ideias').then(r=>r.json());
+    STATE.ideias = d.ideias||[]; STATE.sync = !!d.sync_enabled;
+    renderSync(); renderStats(); renderCats(); renderMural();
+  }catch(e){ $('#mural').innerHTML='<div class="empty-mural">Erro ao carregar 😢</div>'; }
+}
+
+function renderSync(){
+  const el = $('#syncBanner');
+  if(STATE.sync){ el.className='sync-banner on'; el.innerHTML='✅ Ideias replicam na planilha do SharePoint automaticamente.'; }
+  else { el.className='sync-banner off'; el.innerHTML='⏳ <span data-no-translate>Replicação na planilha SharePoint: aguardando webhook do Power Automate. Ideias ficam salvas aqui no mural enquanto isso.</span>'; }
+}
+function renderStats(){
+  const total=STATE.ideias.length, votos=STATE.ideias.reduce((s,i)=>s+i.votos,0);
+  const moon=STATE.ideias.filter(i=>i.impacto==='moonshot').length;
+  $('#statsBar').innerHTML=`<span class="pill">💡 <b>${total}</b> ideias</span><span class="pill">❤️ <b>${votos}</b> votos</span><span class="pill">🌙 <b>${moon}</b> moonshots</span>`;
+}
+function renderCats(){
+  const cats=['todas',...Object.keys(CAT_LABEL)];
+  $('#catFilter').innerHTML=cats.map(c=>{
+    const lbl = c==='todas'?'🌈 Todas':CAT_LABEL[c];
+    const n = c==='todas'?STATE.ideias.length:STATE.ideias.filter(i=>i.categoria===c).length;
+    return `<button class="cat-btn ${c===STATE.cat?'active':''}" data-c="${c}">${lbl}${n?` (${n})`:''}</button>`;
+  }).join('');
+  $('#catFilter').querySelectorAll('.cat-btn').forEach(b=>b.onclick=()=>{STATE.cat=b.dataset.c;renderCats();renderMural();});
+}
+function renderMural(){
+  let list = STATE.cat==='todas'?STATE.ideias:STATE.ideias.filter(i=>i.categoria===STATE.cat);
+  if(!list.length){ $('#mural').innerHTML='<div class="empty-mural" data-no-translate>Mural vazio nessa categoria. Solta a primeira! 👇</div>'; return; }
+  $('#mural').innerHTML = list.map((i,idx)=>{
+    const rot = ((i.id*37)%7)-3; // -3..3 graus pseudo-aleatório estável
+    const voted = STATE.voted.includes(i.id);
+    return `<div class="idea" style="--rot:${rot}deg;background:${esc(i.cor)}22;border-color:${esc(i.cor)}55">
+      <span class="pin">📌</span>
+      <div class="emoji" data-no-translate>${esc(i.emoji)}</div>
+      <h3 data-no-translate>${esc(i.titulo)}</h3>
+      ${i.descricao?`<div class="desc" data-no-translate>${esc(i.descricao)}</div>`:''}
+      <div class="chips">
+        <span class="chip">${CAT_LABEL[i.categoria]||i.categoria}</span>
+        <span class="chip imp-${i.impacto}">${IMP_EMOJI[i.impacto]||''} impacto</span>
+        <span class="chip">${ESF_EMOJI[i.esforco]||''} esforço</span>
+      </div>
+      <div class="foot">
+        <span class="autor" data-no-translate>👤 <span>${esc(i.autor)}</span>${i.sincronizada?' <span class="synced-dot" title="na planilha">🟢</span>':''}</span>
+        <button class="vote ${voted?'voted':''}" data-id="${i.id}">${voted?'❤️':'🤍'} ${i.votos}</button>
+      </div>
+    </div>`;
+  }).join('');
+  $('#mural').querySelectorAll('.vote').forEach(b=>b.onclick=()=>vote(parseInt(b.dataset.id,10)));
+}
+
+async function vote(id){
+  if(STATE.voted.includes(id)) return; // 1 voto por navegador
+  try{
+    const d = await fetch(`/api/ideias/${id}/voto`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dir:'up'})}).then(r=>r.json());
+    if(d.success){
+      STATE.voted.push(id); localStorage.setItem('ideias.voted',JSON.stringify(STATE.voted));
+      const it=STATE.ideias.find(x=>x.id===id); if(it) it.votos=d.votos;
+      STATE.ideias.sort((a,b)=>b.votos-a.votos||0);
+      renderStats(); renderMural(); burst(6);
+    }
+  }catch(e){}
+}
+
+function confetti(n){
+  const em=['🎉','✨','💡','🚀','⭐','🎊','💜','💛'];
+  for(let k=0;k<n;k++){
+    const c=document.createElement('div');c.className='confetti';c.textContent=em[k%em.length];
+    c.style.left=Math.random()*100+'vw';c.style.animationDuration=(1.8+Math.random()*1.6)+'s';c.style.fontSize=(14+Math.random()*16)+'px';
+    document.body.appendChild(c);setTimeout(()=>c.remove(),3600);
+  }
+}
+function burst(n){ // mini confete no voto
+  const em=['❤️','✨','💖'];
+  for(let k=0;k<n;k++){const c=document.createElement('div');c.className='confetti';c.textContent=em[k%em.length];
+    c.style.left=(45+Math.random()*10)+'vw';c.style.animationDuration='1.6s';c.style.fontSize='16px';
+    document.body.appendChild(c);setTimeout(()=>c.remove(),1800);}
+}
+
+// Modal
+function openModal(){$('#overlay').classList.add('open');setTimeout(()=>$('#f-titulo').focus(),100);}
+function closeModal(){$('#overlay').classList.remove('open');}
+$('#fabBtn').onclick=openModal;
+$('#closeModal').onclick=closeModal;
+$('#overlay').onclick=e=>{if(e.target===$('#overlay'))closeModal();};
+
+$('#ideaForm').onsubmit=async e=>{
+  e.preventDefault();
+  const btn=$('#submitBtn'); btn.disabled=true; const old=btn.textContent; btn.textContent='Jogando… 🎯';
+  const payload={
+    titulo:$('#f-titulo').value.trim(), descricao:$('#f-desc').value.trim(),
+    categoria:$('#f-cat').value, autor:$('#f-autor').value.trim()||'Anônimo',
+    emoji:fSel.emoji, cor:fSel.cor, impacto:fSel.impacto, esforco:fSel.esforco
+  };
+  try{
+    const d=await fetch('/api/ideias',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(r=>r.json());
+    if(d.success){
+      confetti(40); closeModal(); $('#ideaForm').reset(); fSel={emoji:'💡',cor:'#fbbf24',impacto:'medio',esforco:'baixo'};
+      buildPickers(); $('#segImpacto').querySelectorAll('button').forEach(b=>b.classList.toggle('sel',b.dataset.v==='medio'));
+      $('#segEsforco').querySelectorAll('button').forEach(b=>b.classList.toggle('sel',b.dataset.v==='baixo'));
+      await load();
+    } else { alert('Ops: '+(d.error||'erro')); }
+  }catch(e){ alert('Falha de rede 😢'); }
+  btn.disabled=false; btn.textContent=old;
+};
+
+buildPickers(); segWire('#segImpacto','impacto'); segWire('#segEsforco','esforco'); load();
+</script>
+</body>
+</html>

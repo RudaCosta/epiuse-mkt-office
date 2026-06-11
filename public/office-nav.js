@@ -8,7 +8,7 @@
 // Fonte ÚNICA da verdade: public/api/changelog.json#current via /api/version
 // Fallback hardcoded usado SÓ se fetch falhar (offline, etc).
 // Sincronização automática — não editar manualmente, basta bumpar changelog.json.
-let OFFICE_NAV_VERSION = '0.40.0';
+let OFFICE_NAV_VERSION = '0.41.0';
 // Promise compartilhada — nav + footer reaproveitam o mesmo fetch
 window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/version')
   .then(r => r.ok ? r.json() : null)
@@ -130,6 +130,7 @@ const OFFICE_NAV_BREADCRUMBS = {
 // Cada item com `section` vira separador. Itens sem section são extras.
 const OFFICE_NAV_OVERFLOW = [
   { section: '🤖 Escritório Virtual' },
+  { label: '💡 Mural de Ideias',         href: '/ideias' },
   { label: '🤖 Agentes & Contexto',      href: '/agentes' },
   { label: '⚡ Central (pendências+prazos)', href: '/war-room' },
 
