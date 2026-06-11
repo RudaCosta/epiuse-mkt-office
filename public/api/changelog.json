@@ -1,5 +1,5 @@
 {
-  "current": "0.39.0",
+  "current": "0.39.1",
   "atualizado_em": "2026-06-10",
   "next": [
     {
@@ -40,9 +40,17 @@
   ],
   "releases": [
     {
-      "version": "0.39.0",
+      "version": "0.39.1",
       "date": "10/jun/2026",
       "status": "current",
+      "path": null,
+      "title": "Hotfix: botão idiomas no nav (canto sup. direito) + remove atalhos teclado",
+      "summary": "Fix do bug que sumiu o nav na 0.39.0 (integração i18n no template das tabs explodia em runtime). Reverte essa integração, mantém i18n.js standalone. Novo botão de idioma no canto superior direito da nav (.controls, substitui o antigo ⌘K): bandeira do idioma atual 🇧🇷/🇺🇸/🇪🇸, click cicla PT→EN→ES, persiste em localStorage.office.lang, auto-load i18n.js sem race condition. Atalhos de teclado removidos: Cmd+K/Ctrl+K (command palette) + ArrowLeft/ArrowRight no /inbound/calendar."
+    },
+    {
+      "version": "0.39.0",
+      "date": "10/jun/2026",
+      "status": "snapshot",
       "path": null,
       "title": "i18n: versão EN + ES com toggle de idioma + layout unificado em TODAS páginas",
       "summary": "(1) i18n.js standalone com dicionário PT/EN/ES (~50 chaves: nav, home, calendar, footer, common). Função T(key) global + auto-detect browser language + persist em localStorage.office.lang + custom event 'office:langchange'. (2) office-nav.js: OFFICE_NAV_TABS usa T() pro label, novo botão 'Idioma: 🇧🇷 Português' no user menu cicla PT→EN→ES, auto-loads i18n.js se ausente, re-render no langchange. (3) home.html: section titles (Hoje, Daily Digest, Top metas, Growth, Áreas, Quick actions, Aniversários, Alertas, Foco) marcadas com [data-i18n]. (4) Layout unificado em TODAS rotas com data-route — auditoria + fix de 4 páginas faltantes (agente, cowork, calendar, playbook) + remoção de body{bg hardcoded} em 3 + !important no seletor global pra vencer hardcodes legados em 14 páginas. Páginas internas mantém PT default (fallback automático)."
