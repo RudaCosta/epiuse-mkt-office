@@ -111,8 +111,8 @@ body#ideias-mural{
   border:2px solid #e2e8f0;border-radius:12px;color:#1e293b;transition:border-color .15s}
 .fld input:focus,.fld textarea:focus,.fld select:focus{outline:none;border-color:#8b5cf6}
 .fld textarea{min-height:80px;resize:vertical}
-.emoji-pick{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
-.emoji-pick button{font-size:22px;background:#f8fafc;border:2px solid transparent;border-radius:10px;width:42px;height:42px;cursor:pointer;transition:all .12s}
+.emoji-pick{display:grid;grid-template-columns:repeat(auto-fit,42px);gap:8px;justify-content:center}
+.emoji-pick button{font-size:22px;background:#f8fafc;border:2px solid transparent;border-radius:10px;width:42px;height:42px;cursor:pointer;transition:all .12s;display:flex;align-items:center;justify-content:center}
 .emoji-pick button:hover{background:#f1f5f9}
 .emoji-pick button.sel{border-color:#8b5cf6;background:#f5f3ff}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}

@@ -171,6 +171,7 @@ class OfficeNav extends HTMLElement {
   connectedCallback() {
     this.render();
     this.hookEvents();
+    this.loadSSO();
     // Re-render quando versão real chegar do servidor (auto-sync)
     if (window.__officeVersionPromise) {
       window.__officeVersionPromise.then(d => {
@@ -181,6 +182,19 @@ class OfficeNav extends HTMLElement {
         }
       });
     }
+  }
+
+  // SSO Microsoft: se autenticado, fixa nome+email do Entra ID (não editável)
+  async loadSSO() {
+    try {
+      const d = await fetch('/api/auth/status').then(r => r.json());
+      if (d && d.authenticated && d.user) {
+        this._sso = { name: d.user.name || '', email: d.user.email || d.user.preferred_username || '' };
+        try { if (this._sso.name) localStorage.setItem('office.user', this._sso.name); } catch {}
+        this.render();
+        this.hookEvents();
+      }
+    } catch {}
   }
 
   getActiveRoute() {
@@ -217,6 +231,7 @@ class OfficeNav extends HTMLElement {
   }
 
   getUser() {
+    if (this._sso && this._sso.name) return this._sso.name;
     try { return localStorage.getItem('office.user') || 'Visitante'; }
     catch { return 'Visitante'; }
   }
@@ -670,9 +685,9 @@ class OfficeNav extends HTMLElement {
             <div class="user-menu" id="user-menu" role="menu">
               <div class="um-head">
                 <div class="um-name">👤 ${user}</div>
-                <div class="um-sub">EPI-USE Office · ${OFFICE_NAV_VERSION}</div>
+                <div class="um-sub">${this._sso && this._sso.email ? this._sso.email + ' · 🔒 SSO' : 'EPI-USE Office · ' + OFFICE_NAV_VERSION}</div>
               </div>
-              <button class="um-item" id="um-rename" type="button"><span class="ic">✏️</span>Trocar nome de exibição</button>
+              ${this._sso && this._sso.name ? '' : '<button class="um-item" id="um-rename" type="button"><span class="ic">✏️</span>Trocar nome de exibição</button>'}
               <button class="um-item" id="um-theme" type="button"><span class="ic">${themeIcon}</span>Tema: ${THEME_LABEL[theme]||'escuro'}</button>
               <a class="um-item" href="/changelog"><span class="ic">📜</span>Changelog</a>
               <a class="um-item" href="https://erp.ngo" target="_blank" rel="noopener"><span class="ic">🐘</span>ERP.ngo</a>
