@@ -111,7 +111,7 @@ body#ideias-mural{
   border:2px solid #e2e8f0;border-radius:12px;color:#1e293b;transition:border-color .15s}
 .fld input:focus,.fld textarea:focus,.fld select:focus{outline:none;border-color:#8b5cf6}
 .fld textarea{min-height:80px;resize:vertical}
-.emoji-pick{display:flex;flex-wrap:wrap;gap:6px}
+.emoji-pick{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
 .emoji-pick button{font-size:22px;background:#f8fafc;border:2px solid transparent;border-radius:10px;width:42px;height:42px;cursor:pointer;transition:all .12s}
 .emoji-pick button:hover{background:#f1f5f9}
 .emoji-pick button.sel{border-color:#8b5cf6;background:#f5f3ff}
@@ -234,14 +234,21 @@ const ESF_EMOJI = {baixo:'😌',medio:'💪',alto:'🥵'};
 let STATE = { ideias:[], cat:'todas', sync:false, voted:JSON.parse(localStorage.getItem('ideias.voted')||'[]') };
 const $ = s => document.querySelector(s);
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function solicitante(){
+  try{ const u=localStorage.getItem('office.user'); if(u && u!=='Visitante') return u; }catch(e){}
+  return '';
+}
 function mailto(i,autor){
+  const quem=solicitante();
   const subj='[Ideia MKT] '+i.titulo;
-  const body='Quero discutir esta ideia do Mural de Ideias:\n\n'
+  const body='Olá time de Marketing,\n\n'
+    +'Quero discutir esta ideia do Mural de Ideias:\n\n'
     +'💡 '+i.titulo+'\n'
     +(i.descricao?('\n'+i.descricao+'\n'):'')
     +'\nCategoria: '+(i.categoria||'-')+' | Impacto: '+(i.impacto||'-')+' | Votos: '+i.votos+'\n'
-    +'Sugerida por: '+autor+'\n\n'
-    +'Mural: '+location.origin+'/ideias\n';
+    +'Ideia sugerida por: '+autor+'\n'
+    +'Mural: '+location.origin+'/ideias\n\n'
+    +(quem?('Abraços,\n'+quem):'Abraços');
   return 'mailto:marketing@epiuse.com.br?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
 }
 
