@@ -86,6 +86,11 @@ body#ideias-mural{
 .vote:hover{background:#fff;transform:scale(1.06)}
 .vote:active{transform:scale(.9)}
 .vote.voted{background:#ec4899;color:#fff;border-color:#ec4899}
+.acts{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.discuss{display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:99px;
+  background:rgba(255,255,255,.7);border:1.5px solid rgba(0,0,0,.1);text-decoration:none;font-size:15px;
+  transition:transform .12s,background .15s}
+.discuss:hover{background:#fff;transform:scale(1.1)}
 .synced-dot{font-size:10px}
 .empty-mural{text-align:center;padding:50px 20px;color:#94a3b8;font-size:15px;font-weight:600}
 
@@ -229,6 +234,16 @@ const ESF_EMOJI = {baixo:'😌',medio:'💪',alto:'🥵'};
 let STATE = { ideias:[], cat:'todas', sync:false, voted:JSON.parse(localStorage.getItem('ideias.voted')||'[]') };
 const $ = s => document.querySelector(s);
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function mailto(i,autor){
+  const subj='[Ideia MKT] '+i.titulo;
+  const body='Quero discutir esta ideia do Mural de Ideias:\n\n'
+    +'💡 '+i.titulo+'\n'
+    +(i.descricao?('\n'+i.descricao+'\n'):'')
+    +'\nCategoria: '+(i.categoria||'-')+' | Impacto: '+(i.impacto||'-')+' | Votos: '+i.votos+'\n'
+    +'Sugerida por: '+autor+'\n\n'
+    +'Mural: '+location.origin+'/ideias\n';
+  return 'mailto:marketing@epiuse.com.br?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
+}
 
 let fSel = { emoji:'💡', cor:'#fbbf24', impacto:'medio', esforco:'baixo' };
 
@@ -256,8 +271,8 @@ async function load(){
 
 function renderSync(){
   const el = $('#syncBanner');
-  if(STATE.sync){ el.className='sync-banner on'; el.innerHTML='✅ Ideias replicam na planilha do SharePoint automaticamente.'; }
-  else { el.className='sync-banner off'; el.innerHTML='⏳ <span data-no-translate>Replicação na planilha SharePoint: aguardando webhook do Power Automate. Ideias ficam salvas aqui no mural enquanto isso.</span>'; }
+  if(STATE.sync){ el.className='sync-banner on'; el.style.display=''; el.innerHTML='✅ Ideias replicam na planilha do SharePoint automaticamente.'; }
+  else { el.style.display='none'; el.innerHTML=''; }
 }
 function renderStats(){
   const total=STATE.ideias.length, votos=STATE.ideias.reduce((s,i)=>s+i.votos,0);
@@ -292,7 +307,10 @@ function renderMural(){
       </div>
       <div class="foot">
         <span class="autor" data-no-translate>👤 <span>${esc(autor)}</span>${i.sincronizada?' <span class="synced-dot" title="na planilha">🟢</span>':''}</span>
-        <button class="vote ${voted?'voted':''}" data-id="${i.id}">${voted?'❤️':'🤍'} ${i.votos}</button>
+        <span class="acts">
+          <a class="discuss" href="${mailto(i,autor)}" title="Discutir por e-mail com marketing@epiuse.com.br" data-no-translate>💬</a>
+          <button class="vote ${voted?'voted':''}" data-id="${i.id}">${voted?'❤️':'🤍'} ${i.votos}</button>
+        </span>
       </div>
     </div>`;
   }).join('');
