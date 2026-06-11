@@ -8,7 +8,7 @@
 // Fonte ÚNICA da verdade: public/api/changelog.json#current via /api/version
 // Fallback hardcoded usado SÓ se fetch falhar (offline, etc).
 // Sincronização automática — não editar manualmente, basta bumpar changelog.json.
-let OFFICE_NAV_VERSION = '0.39.0';
+let OFFICE_NAV_VERSION = '0.39.1';
 // Promise compartilhada — nav + footer reaproveitam o mesmo fetch
 window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/version')
   .then(r => r.ok ? r.json() : null)
@@ -68,31 +68,48 @@ window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/ver
   });
 })();
 
-// NAV POR AREA/DONA (v0.7.x) — cada item = 1 modulo (funil de meta + numeros + projetos + ferramentas).
-// Fonte: /api/areas.json. Telas antigas viram "ferramentas" dentro de cada modulo (deep-links seguem valendo).
 // Auto-load i18n.js se não estiver presente (idempotente)
 (function ensureI18n() {
-  if (window.OFFICE_I18N || document.querySelector('script[src="/i18n.js"]')) return;
+  if (window.OFFICE_I18N) return;
+  if (document.querySelector('script[src="/i18n.js"]')) return;
   const s = document.createElement('script');
   s.src = '/i18n.js';
   s.async = false;
   document.head.appendChild(s);
 })();
 
-// T() global pode não ter chegado ainda — fallback síncrono pro PT
-function T(key, fb) {
-  return (window.T ? window.T(key, fb) : (fb || key));
+// Helpers idioma — fallback PT se i18n.js ainda não carregou
+function getLangCode() {
+  try { var v = localStorage.getItem('office.lang'); if (v === 'en' || v === 'es' || v === 'pt') return v; } catch (e) {}
+  return 'pt';
+}
+function getLangFlag() {
+  var c = getLangCode();
+  return c === 'en' ? '🇺🇸' : (c === 'es' ? '🇪🇸' : '🇧🇷');
+}
+function cycleLang() {
+  var ORDER = ['pt','en','es'];
+  var cur = getLangCode();
+  var next = ORDER[(ORDER.indexOf(cur) + 1) % ORDER.length];
+  if (window.setLang) {
+    window.setLang(next);
+  } else {
+    try { localStorage.setItem('office.lang', next); } catch (e) {}
+    location.reload();
+  }
 }
 
+// NAV POR AREA/DONA (v0.7.x) — cada item = 1 modulo (funil de meta + numeros + projetos + ferramentas).
+// Fonte: /api/areas.json. Telas antigas viram "ferramentas" dentro de cada modulo (deep-links seguem valendo).
 const OFFICE_NAV_TABS = [
-  { id: 'hub',          i18n: 'nav.home',         label: 'Home',         icon: '🏠', href: '/',                  matches: ['hub','home'] },
-  { id: 'intelligence', i18n: 'nav.intelligence', label: 'Intelligence', icon: '🧠', href: '/area/intelligence', matches: ['area-intelligence'] },
-  { id: 'growth',       i18n: 'nav.growth',       label: 'Growth',       icon: '🚀', href: '/area/growth',       matches: ['area-growth'] },
-  { id: 'eventos',      i18n: 'nav.events',       label: 'Eventos',      icon: '📅', href: '/area/eventos',      matches: ['area-eventos'] },
-  { id: 'pipeline',     i18n: 'nav.pipeline',     label: 'Pipeline',     icon: '📞', href: '/area/pipeline',     matches: ['area-pipeline','pipeline'] },
-  { id: 'brand',        i18n: 'nav.brand',        label: 'Brand/Voices', icon: '🎨', href: '/area/brand',        matches: ['area-brand','voices','inbound','cases','painel','optimizer'] },
-  { id: 'conteudo',     i18n: 'nav.content',      label: 'Conteúdo',     icon: '📣', href: '/area/conteudo',     matches: ['area-conteudo','artigos','jornadas'] },
-  { id: 'metas',        i18n: 'nav.metas',        label: 'Metas FY',     icon: '🎯', href: '/metas-fy26',        matches: ['metas','metas-fy26','relatorio'] }
+  { id: 'hub',          label: 'Home',         icon: '🏠', href: '/',                  matches: ['hub','home'] },
+  { id: 'intelligence', label: 'Intelligence', icon: '🧠', href: '/area/intelligence', matches: ['area-intelligence'] },
+  { id: 'growth',       label: 'Growth',       icon: '🚀', href: '/area/growth',       matches: ['area-growth'] },
+  { id: 'eventos',      label: 'Eventos',      icon: '📅', href: '/area/eventos',      matches: ['area-eventos'] },
+  { id: 'pipeline',     label: 'Pipeline',     icon: '📞', href: '/area/pipeline',     matches: ['area-pipeline','pipeline'] },
+  { id: 'brand',        label: 'Brand/Voices', icon: '🎨', href: '/area/brand',        matches: ['area-brand','voices','inbound','cases','painel','optimizer'] },
+  { id: 'conteudo',     label: 'Conteúdo',     icon: '📣', href: '/area/conteudo',     matches: ['area-conteudo','artigos','jornadas'] },
+  { id: 'metas',        label: 'Metas FY',     icon: '🎯', href: '/metas-fy26',        matches: ['metas','metas-fy26','relatorio'] }
 ];
 
 // Breadcrumbs por rota — aparece sutil abaixo do nav em rotas profundas
@@ -163,11 +180,6 @@ class OfficeNav extends HTMLElement {
         }
       });
     }
-    // Re-render quando idioma muda
-    document.addEventListener('office:langchange', () => {
-      this.render();
-      this.hookEvents();
-    });
   }
 
   getActiveRoute() {
@@ -603,13 +615,13 @@ class OfficeNav extends HTMLElement {
             const isActive = t.id === activeTab;
             return `<a class="tab ${isActive ? 'active' : ''}" href="${t.href}" data-tab="${t.id}" role="tab" aria-selected="${isActive}">
               <span class="tab-ico">${t.icon}</span>
-              <span class="tab-label">${T(t.i18n, t.label)}</span>
+              <span class="tab-label">${t.label}</span>
             </a>`;
           }).join('')}
         </div>
 
         <div class="controls">
-          <button class="ctrl-btn" id="cmdk-btn" title="Command palette ⌘K" type="button">⌘<span class="kbd">K</span></button>
+          <button class="ctrl-btn" id="lang-btn" title="Idioma · Language · Idioma" type="button">${(typeof getLangFlag === 'function' ? getLangFlag() : '🇧🇷')}</button>
           <div class="bell-wrap">
             <button class="bell-btn" id="bell-btn" type="button" title="Notificações" aria-label="Notificações">🔔<span class="bell-badge" id="bell-badge" style="display:none">0</span></button>
             <div class="bell-panel" id="bell-panel" role="menu">
@@ -626,8 +638,7 @@ class OfficeNav extends HTMLElement {
                 <div class="um-sub">EPI-USE Office · ${OFFICE_NAV_VERSION}</div>
               </div>
               <button class="um-item" id="um-rename" type="button"><span class="ic">✏️</span>Trocar nome de exibição</button>
-              <button class="um-item" id="um-theme" type="button"><span class="ic">${themeIcon}</span>${T('nav.theme','Tema')}: ${THEME_LABEL[theme]||'escuro'}</button>
-              <button class="um-item" id="um-lang" type="button"><span class="ic">🌐</span>${T('nav.language','Idioma')}: ${(window.OFFICE_LANGS||[]).find(l=>l.code===(window.getLang?window.getLang():'pt'))?.flag||'🇧🇷'} ${(window.OFFICE_LANGS||[]).find(l=>l.code===(window.getLang?window.getLang():'pt'))?.label||'Português'}</button>
+              <button class="um-item" id="um-theme" type="button"><span class="ic">${themeIcon}</span>Tema: ${THEME_LABEL[theme]||'escuro'}</button>
               <a class="um-item" href="/changelog"><span class="ic">📜</span>Changelog</a>
               <a class="um-item" href="https://erp.ngo" target="_blank" rel="noopener"><span class="ic">🐘</span>ERP.ngo</a>
               <button class="um-item" id="um-logout" type="button"><span class="ic">↪</span>Sair (limpa preferências)</button>
@@ -671,7 +682,7 @@ class OfficeNav extends HTMLElement {
     const overflowMenu = $('overflow-menu');
     const userBtn = $('user-btn');
     const userMenu = $('user-menu');
-    const cmdkBtn = $('cmdk-btn');
+    const langBtn = $('lang-btn');
     const themeBtn = $('theme-btn');
     const bellBtn = $('bell-btn');
     const bellPanel = $('bell-panel');
@@ -738,15 +749,6 @@ class OfficeNav extends HTMLElement {
       this.hookEvents();
     });
 
-    $('um-lang')?.addEventListener('click', () => {
-      const ORDER = ['pt','en','es'];
-      const cur = window.getLang ? window.getLang() : 'pt';
-      const next = ORDER[(ORDER.indexOf(cur) + 1) % ORDER.length];
-      if (window.setLang) window.setLang(next);
-      this.render();
-      this.hookEvents();
-    });
-
     $('um-logout')?.addEventListener('click', () => {
       if (!confirm('Limpar preferências locais (nome, tema, drafts)?')) return;
       try {
@@ -758,7 +760,12 @@ class OfficeNav extends HTMLElement {
     // Notification bell — busca /api/alerts uma vez
     this.loadAlerts();
 
-    cmdkBtn?.addEventListener('click', () => OfficeCommandPalette.open());
+    langBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      cycleLang();
+      this.render();
+      this.hookEvents();
+    });
 
     themeBtn?.addEventListener('click', () => {
       const ORDER = ['dark','armory','elephant','light'];
@@ -768,14 +775,6 @@ class OfficeNav extends HTMLElement {
       applyTheme(next);
       this.render();
       this.hookEvents();
-    });
-
-    // Cmd+K / Ctrl+K abre command palette
-    document.addEventListener('keydown', (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
-        e.preventDefault();
-        OfficeCommandPalette.open();
-      }
     });
 
     // Aplica tema salvo na primeira montagem (idempotente)

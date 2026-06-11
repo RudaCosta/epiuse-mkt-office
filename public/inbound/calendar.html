@@ -581,11 +581,6 @@ document.getElementById('syncBtn').addEventListener('click', async () => {
   await loadAllData();
   btn.classList.remove('spinning');
 });
-document.addEventListener('keydown', e => {
-  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-  if (e.key === 'ArrowLeft')  document.getElementById('prevBtn').click();
-  if (e.key === 'ArrowRight') document.getElementById('nextBtn').click();
-});
 
 // ── INIT ───────────────────────────────────────────────────────────────────
 renderFilters();
