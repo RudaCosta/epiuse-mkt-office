@@ -29,7 +29,7 @@
 
 /* GRID background sutil (modern tech feel) — aplica em TODAS rotas com data-route */
 /* Opt-out: data-route="seja-voice" e "erp-impacto" são LPs externas (light) */
-body[data-route]:not([data-route="seja-voice"]):not([data-route="erp-impacto"]) {
+body[data-route]:not([data-route="seja-voice"]) {
   background:
     linear-gradient(var(--dk-grid) 1px, transparent 1px) 0 0/48px 48px,
     linear-gradient(90deg, var(--dk-grid) 1px, transparent 1px) 0 0/48px 48px,
@@ -40,14 +40,14 @@ body[data-route]:not([data-route="seja-voice"]):not([data-route="erp-impacto"]) 
 }
 
 /* FONT consulting (Lexend + Source Sans 3) — aplica em TODAS rotas */
-body[data-route]:not([data-route="seja-voice"]):not([data-route="erp-impacto"]) {
+body[data-route]:not([data-route="seja-voice"]) {
   font-family: 'Source Sans 3', 'Source Sans Pro', system-ui, sans-serif;
   color: var(--dk-text);
   -webkit-font-smoothing: antialiased;
 }
-body[data-route]:not([data-route="seja-voice"]):not([data-route="erp-impacto"]) h1,
-body[data-route]:not([data-route="seja-voice"]):not([data-route="erp-impacto"]) h2,
-body[data-route]:not([data-route="seja-voice"]):not([data-route="erp-impacto"]) h3 {
+body[data-route]:not([data-route="seja-voice"]) h1,
+body[data-route]:not([data-route="seja-voice"]) h2,
+body[data-route]:not([data-route="seja-voice"]) h3 {
   font-family: 'Lexend', 'Source Sans 3', sans-serif;
   letter-spacing: -0.012em;
   font-weight: 600;

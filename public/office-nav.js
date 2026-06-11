@@ -827,7 +827,7 @@ function applyTheme(theme) {
     /* ─── GRID PATTERN GLOBAL — aplica em TODAS rotas com data-route ───────
        Opt-out: seja-voice e erp-impacto (LPs externas). Standalone — não
        depende de consulting-dark.css estar carregado na página. */
-    body[data-route]:not([data-route="seja-voice"]):not([data-route="erp-impacto"]) {
+    body[data-route]:not([data-route="seja-voice"]) {
       background:
         linear-gradient(rgba(134,158,195,.04) 1px, transparent 1px) 0 0/48px 48px,
         linear-gradient(90deg, rgba(134,158,195,.04) 1px, transparent 1px) 0 0/48px 48px,
@@ -839,15 +839,15 @@ function applyTheme(theme) {
       color: #e6ebf2;
       -webkit-font-smoothing: antialiased;
     }
-    body[data-route]:not([data-route="seja-voice"]):not([data-route="erp-impacto"]) h1,
-    body[data-route]:not([data-route="seja-voice"]):not([data-route="erp-impacto"]) h2,
-    body[data-route]:not([data-route="seja-voice"]):not([data-route="erp-impacto"]) h3 {
+    body[data-route]:not([data-route="seja-voice"]) h1,
+    body[data-route]:not([data-route="seja-voice"]) h2,
+    body[data-route]:not([data-route="seja-voice"]) h3 {
       font-family: 'Lexend', 'Source Sans 3', sans-serif;
       letter-spacing: -0.012em;
       font-weight: 600;
     }
     /* Light mode preserva grid mas mais sutil */
-    :root[data-theme="light"] body[data-route]:not([data-route="seja-voice"]):not([data-route="erp-impacto"]) {
+    :root[data-theme="light"] body[data-route]:not([data-route="seja-voice"]) {
       background:
         linear-gradient(rgba(0,24,68,.025) 1px, transparent 1px) 0 0/48px 48px,
         linear-gradient(90deg, rgba(0,24,68,.025) 1px, transparent 1px) 0 0/48px 48px,
