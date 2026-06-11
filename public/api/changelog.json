@@ -1,5 +1,5 @@
 {
-  "current": "0.38.0",
+  "current": "0.39.0",
   "atualizado_em": "2026-06-10",
   "next": [
     {
@@ -40,9 +40,17 @@
   ],
   "releases": [
     {
-      "version": "0.38.0",
+      "version": "0.39.0",
       "date": "10/jun/2026",
       "status": "current",
+      "path": null,
+      "title": "i18n: versão EN + ES com toggle de idioma + layout unificado em TODAS páginas",
+      "summary": "(1) i18n.js standalone com dicionário PT/EN/ES (~50 chaves: nav, home, calendar, footer, common). Função T(key) global + auto-detect browser language + persist em localStorage.office.lang + custom event 'office:langchange'. (2) office-nav.js: OFFICE_NAV_TABS usa T() pro label, novo botão 'Idioma: 🇧🇷 Português' no user menu cicla PT→EN→ES, auto-loads i18n.js se ausente, re-render no langchange. (3) home.html: section titles (Hoje, Daily Digest, Top metas, Growth, Áreas, Quick actions, Aniversários, Alertas, Foco) marcadas com [data-i18n]. (4) Layout unificado em TODAS rotas com data-route — auditoria + fix de 4 páginas faltantes (agente, cowork, calendar, playbook) + remoção de body{bg hardcoded} em 3 + !important no seletor global pra vencer hardcodes legados em 14 páginas. Páginas internas mantém PT default (fallback automático)."
+    },
+    {
+      "version": "0.38.0",
+      "date": "10/jun/2026",
+      "status": "snapshot",
       "path": null,
       "title": "UX pivot: trust bar global · calendário Daily Planner · 2 temas novos (armory + elephant)",
       "summary": "(1) Trust bar (SSO/TLS/WCAG/Real-time/LGPD) saiu do topo da home e virou faixa fina compacta no office-footer.js — propaga em TODAS as páginas, libera real estate no topo da home. (2) Calendário da home redesenhado estilo Figma Daily Planner: mini-grid quadrado do mês corrente (dots por dia, hoje destacado) + lista top 8 BR próximos + sanfona LATAM/Internacional fechada por default. Toggle '📋 Ver cronograma anual' restaura a vista anterior (persiste em localStorage.office.agenda.mode). (3) Dois temas novos no toggle do nav — agora cicla 4: dark → armory → elephant → light. armory: inspirado em armory.framer.ai (slate-black bg, neon green #00ff99, JetBrains Mono, sharp edges 2px). elephant: inspirado em groupelephant.com (cream bg #f5f1e8, deep green #2d4a33, Lexend serif headings, soft 14px corners). CSS global injetado via office-nav.js — aplica em TODAS páginas que usam --bg/--surface/--text tokens."
