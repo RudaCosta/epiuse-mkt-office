@@ -369,16 +369,18 @@ class OfficeNav extends HTMLElement {
           background: transparent;
           border: none;
           cursor: pointer;
-          font-size: 14px;
-          line-height: 1;
-          padding: 4px 5px;
+          line-height: 0;
+          padding: 3px 4px;
           border-radius: 5px;
-          opacity: 0.4;
-          filter: grayscale(0.6);
+          opacity: 0.42;
+          filter: grayscale(0.7);
           transition: opacity .15s, filter .15s, background .15s;
+          display: inline-flex;
+          align-items: center;
         }
-        .lang-flag:hover { opacity: 0.85; filter: grayscale(0); background: var(--nav-hover-bg); }
-        .lang-flag.active { opacity: 1; filter: grayscale(0); background: rgba(37,99,235,0.22); }
+        .lang-flag svg { display: block; border-radius: 2px; box-shadow: 0 0 0 1px rgba(0,0,0,.18); }
+        .lang-flag:hover { opacity: 0.9; filter: grayscale(0); background: var(--nav-hover-bg); }
+        .lang-flag.active { opacity: 1; filter: grayscale(0); background: rgba(37,99,235,0.28); }
         .ctrl-btn .kbd {
           display: inline-block;
           background: rgba(0,0,0,0.4);
@@ -645,9 +647,13 @@ class OfficeNav extends HTMLElement {
 
         <div class="controls">
           <div class="lang-select" role="group" aria-label="Idioma / Language / Idioma">
-            ${[['pt','🇧🇷','Português'],['en','🇺🇸','English'],['es','🇪🇸','Español']].map(([code,flag,name]) => {
+            ${[
+              ['pt','Português','<svg viewBox="0 0 28 20" width="22" height="16"><rect width="28" height="20" fill="#009b3a"/><polygon points="14,2.5 25.5,10 14,17.5 2.5,10" fill="#fedf00"/><circle cx="14" cy="10" r="4.2" fill="#002776"/></svg>'],
+              ['en','English','<svg viewBox="0 0 28 20" width="22" height="16"><rect width="28" height="20" fill="#fff"/><g fill="#b22234"><rect width="28" height="1.54"/><rect y="3.08" width="28" height="1.54"/><rect y="6.15" width="28" height="1.54"/><rect y="9.23" width="28" height="1.54"/><rect y="12.31" width="28" height="1.54"/><rect y="15.38" width="28" height="1.54"/><rect y="18.46" width="28" height="1.54"/></g><rect width="12" height="10.77" fill="#3c3b6e"/></svg>'],
+              ['es','Español','<svg viewBox="0 0 28 20" width="22" height="16"><rect width="28" height="20" fill="#c60b1e"/><rect y="5" width="28" height="10" fill="#ffc400"/></svg>']
+            ].map(([code,name,svg]) => {
               const active = (typeof getLangCode === 'function' ? getLangCode() : 'pt') === code;
-              return `<button class="lang-flag ${active ? 'active' : ''}" data-lang="${code}" title="${name}" aria-label="${name}" aria-pressed="${active}" type="button">${flag}</button>`;
+              return `<button class="lang-flag ${active ? 'active' : ''}" data-lang="${code}" title="${name}" aria-label="${name}" aria-pressed="${active}" type="button">${svg}</button>`;
             }).join('')}
           </div>
           <div class="bell-wrap">

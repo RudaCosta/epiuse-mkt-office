@@ -49,8 +49,11 @@
   // ── HERO ────────────────────────────────────────────────────────
   async function renderHero() {
     const nome = await getNome();
-    $('hero-saudacao').textContent = `${saudacao()}, ${nome} 👋`;
+    // saudação traduz (dict); nome é dado real → data-no-translate
+    const nomeSafe = String(nome).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+    $('hero-saudacao').innerHTML = `${saudacao()}<span data-no-translate>, ${nomeSafe} 👋</span>`;
     const hoje = new Date().toLocaleDateString('pt-BR', { day:'2-digit', month:'long', year:'numeric' });
+    $('hero-data').setAttribute('data-no-translate', ''); // data formatada localmente
     $('hero-data').textContent = hoje;
   }
 

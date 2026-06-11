@@ -631,6 +631,98 @@ app.get('/api/version', (req, res) => {
   }
 });
 
+// ════════════════════════════════════════════════════════════════════════════
+// /api/translate — proxy pro LibreTranslate self-host + cache persistente
+// Env: LIBRETRANSLATE_URL (ex: https://libretranslate.up.railway.app)
+//      LIBRETRANSLATE_API_KEY (opcional)
+// Sem URL configurada → responde { disabled:true } e o cliente cai no dicionário.
+// Cache: memória + arquivo TRANSLATE_CACHE_PATH (sobrevive deploy via volume).
+// ════════════════════════════════════════════════════════════════════════════
+const LIBRETRANSLATE_URL = (process.env.LIBRETRANSLATE_URL || '').replace(/\/+$/, '');
+const LIBRETRANSLATE_API_KEY = process.env.LIBRETRANSLATE_API_KEY || '';
+const TRANSLATE_CACHE_PATH = path.join(
+  (!IS_LOCAL_DEV && process.env.DATA_DIR && process.env.DATA_DIR.startsWith('/')) ? process.env.DATA_DIR : __dirname,
+  'translate-cache.json'
+);
+let TRANSLATE_CACHE = {};
+try { if (fs.existsSync(TRANSLATE_CACHE_PATH)) TRANSLATE_CACHE = JSON.parse(fs.readFileSync(TRANSLATE_CACHE_PATH, 'utf8')) || {}; } catch (e) { TRANSLATE_CACHE = {}; }
+let _translateCacheDirty = false;
+setInterval(() => {
+  if (!_translateCacheDirty) return;
+  _translateCacheDirty = false;
+  try { fs.writeFileSync(TRANSLATE_CACHE_PATH, JSON.stringify(TRANSLATE_CACHE), 'utf8'); } catch (e) {}
+}, 5000);
+
+app.get('/api/translate/status', (req, res) => {
+  res.json({
+    enabled: !!LIBRETRANSLATE_URL,
+    url: LIBRETRANSLATE_URL ? LIBRETRANSLATE_URL.replace(/^(https?:\/\/[^/]+).*/, '$1') : null,
+    cache_entries: Object.keys(TRANSLATE_CACHE).length,
+  });
+});
+
+app.post('/api/translate', async (req, res) => {
+  try {
+    const body = req.body || {};
+    const target = String(body.target || '').slice(0, 5);
+    const source = String(body.source || 'pt').slice(0, 5);
+    if (!['en', 'es', 'pt'].includes(target)) return res.status(400).json({ error: 'target inválido (en|es|pt)' });
+    let items = body.q;
+    if (typeof items === 'string') items = [items];
+    if (!Array.isArray(items)) return res.status(400).json({ error: 'q deve ser string ou array' });
+    items = items.slice(0, 200).map(s => String(s == null ? '' : s));
+
+    if (target === source || target === 'pt') {
+      return res.json({ translations: items, cached: items.length, fetched: 0 });
+    }
+
+    const out = new Array(items.length);
+    const toFetch = []; const toFetchIdx = [];
+    for (let i = 0; i < items.length; i++) {
+      const key = target + ' ' + items[i];
+      if (TRANSLATE_CACHE[key] != null) { out[i] = TRANSLATE_CACHE[key]; }
+      else if (!items[i].trim()) { out[i] = items[i]; }
+      else { toFetch.push(items[i]); toFetchIdx.push(i); }
+    }
+
+    if (toFetch.length && !LIBRETRANSLATE_URL) {
+      // Sem backend: devolve original nos misses + sinaliza disabled
+      for (let j = 0; j < toFetch.length; j++) out[toFetchIdx[j]] = toFetch[j];
+      return res.json({ translations: out, disabled: true, cached: items.length - toFetch.length, fetched: 0 });
+    }
+
+    if (toFetch.length) {
+      const payload = { q: toFetch, source, target, format: 'text' };
+      if (LIBRETRANSLATE_API_KEY) payload.api_key = LIBRETRANSLATE_API_KEY;
+      const r = await fetch(LIBRETRANSLATE_URL + '/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(15000),
+      });
+      if (!r.ok) {
+        const txt = await r.text().catch(() => '');
+        for (let j = 0; j < toFetch.length; j++) out[toFetchIdx[j]] = toFetch[j];
+        return res.status(502).json({ error: 'LibreTranslate ' + r.status, detail: txt.slice(0, 200), translations: out });
+      }
+      const data = await r.json();
+      // LibreTranslate batch retorna { translatedText: [...] } ou objeto único
+      let translated = data.translatedText;
+      if (!Array.isArray(translated)) translated = [translated];
+      for (let j = 0; j < toFetch.length; j++) {
+        const t = translated[j] != null ? translated[j] : toFetch[j];
+        out[toFetchIdx[j]] = t;
+        TRANSLATE_CACHE[target + ' ' + toFetch[j]] = t;
+      }
+      _translateCacheDirty = true;
+    }
+
+    res.json({ translations: out, cached: items.length - toFetch.length, fetched: toFetch.length });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // /api/freshness — idade de cada dataset (Regra 7 automática: chips stale na home)
 // JSONs estáticos: mtime do arquivo. Tabelas SQLite: MAX(synced_at/updated_at).
 app.get('/api/freshness', (req, res) => {

@@ -44,8 +44,8 @@
       "date": "10/jun/2026",
       "status": "current",
       "path": null,
-      "title": "i18n runtime: tradução automática PT/EN/ES em TODAS páginas + seletor 3 bandeiras",
-      "summary": "Motor de tradução runtime no i18n.js: varre text nodes via TreeWalker + MutationObserver (conteúdo dinâmico) e troca PT→EN/ES por dicionário de frases (window.OFFICE_PHRASES). SÓ traduz match EXATO → dado real (nomes de pessoa, títulos de artigo, nomes de evento, números) nunca casa, nunca é traduzido (respeita Regra 7). Cobre TODAS páginas sem tagging manual — basta a frase estar no dicionário. Shadow DOM (office-nav + office-footer) traduzido via translateRoot(). Seletor de idioma virou 3 bandeiras inline (🇧🇷 🇺🇸 🇪🇸) no canto superior direito do nav, ativa destacada, PT-BR default. Persiste em localStorage.office.lang. Dicionário seed ~70 frases (nav, home, calendar, footer, comuns) — expansível incrementalmente."
+      "title": "i18n híbrido: LibreTranslate self-host (tradução 100% auto) PT/EN/ES + flags SVG",
+      "summary": "Tradução automática de TODO conteúdo via LibreTranslate self-host (privacidade: roda na própria infra, dado não sai pra terceiro). Motor i18n.js em 3 camadas: (1) dicionário curado window.OFFICE_PHRASES (instantâneo, ~56 frases override); (2) cache localStorage (não re-bate API); (3) LibreTranslate via proxy /api/translate (batch dedup + cache persistente no servidor em DATA_DIR/translate-cache.json). Varre text nodes (TreeWalker) + MutationObserver pro conteúdo dinâmico. Heurística i18nIsTranslatable + data-no-translate protegem dado real (números/moeda/data auto-skip; nome de pessoa no hero marcado) — Regra 7 preservada. Flags do seletor migradas de emoji (não renderiza no Windows!) pra SVG inline 🇧🇷🇺🇸🇪🇸 — renderiza em qualquer SO. PT-BR default. Backend opcional: sem LIBRETRANSLATE_URL configurada, cai gracioso no dicionário. server.js: POST /api/translate + GET /api/translate/status."
     },
     {
       "version": "0.39.1",

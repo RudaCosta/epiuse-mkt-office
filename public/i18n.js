@@ -280,29 +280,63 @@ window.OFFICE_PHRASES = {
 
 const I18N_SKIP_TAGS = new Set(['SCRIPT','STYLE','NOSCRIPT','TEXTAREA','CODE','PRE']);
 
-function i18nTranslateTextNode(node, lang) {
-  // Guarda original PT na 1ª visita
+// Cache de tradução via API (localStorage) — evita re-bater na API
+const I18N_API_CACHE = {};
+(function loadApiCache() {
+  try {
+    const raw = localStorage.getItem('office.i18ncache');
+    if (raw) Object.assign(I18N_API_CACHE, JSON.parse(raw));
+  } catch (e) {}
+})();
+let _apiCacheDirty = false;
+function saveApiCache() {
+  if (!_apiCacheDirty) return;
+  _apiCacheDirty = false;
+  try { localStorage.setItem('office.i18ncache', JSON.stringify(I18N_API_CACHE)); } catch (e) {}
+}
+setInterval(saveApiCache, 3000);
+
+// Heurística: não mandar pra API texto que é claramente DADO, não UI.
+// Protege Regra 7 além do data-no-translate. Pula: só número/símbolo/data/moeda,
+// strings muito curtas sem letra, URLs/emails.
+function i18nIsTranslatable(s) {
+  const t = s.trim();
+  if (t.length < 2) return false;
+  if (!/[a-zA-ZÀ-ÿ]/.test(t)) return false;            // sem letra (números, R$ 20.2M, datas)
+  if (/^https?:\/\//i.test(t) || /\S+@\S+\.\S+/.test(t)) return false; // url/email
+  if (/^[\d.,:%€$R\s\-+/x]+$/i.test(t)) return false;  // só números/moeda/símbolo
+  return true;
+}
+
+function i18nApplyTranslation(node, lang) {
   if (node.__i18nPt === undefined) {
     const raw = node.nodeValue;
-    if (!raw || !raw.trim()) return;
+    if (!raw || !raw.trim()) return null;
     node.__i18nPt = raw;
   }
   const original = node.__i18nPt;
   if (lang === 'pt') {
     if (node.nodeValue !== original) node.nodeValue = original;
-    return;
+    return null;
   }
   const trimmed = original.trim();
+  const lead = original.match(/^\s*/)[0];
+  const trail = original.match(/\s*$/)[0];
+  // 1 — dicionário (instantâneo, override curado)
   const entry = window.OFFICE_PHRASES[trimmed];
-  if (entry && entry[lang]) {
-    // Preserva espaços em volta
-    const lead = original.match(/^\s*/)[0];
-    const trail = original.match(/\s*$/)[0];
-    node.nodeValue = lead + entry[lang] + trail;
-  } else if (node.nodeValue !== original) {
-    node.nodeValue = original; // sem tradução → volta PT
-  }
+  if (entry && entry[lang]) { node.nodeValue = lead + entry[lang] + trail; return null; }
+  // 2 — cache API
+  const ck = lang + '' + trimmed;
+  if (I18N_API_CACHE[ck] != null) { node.nodeValue = lead + I18N_API_CACHE[ck] + trail; return null; }
+  // 3 — candidato a API (se traduzível)
+  if (i18nIsTranslatable(trimmed)) return { node, text: trimmed, lead, trail };
+  // não traduzível → mantém PT
+  if (node.nodeValue !== original) node.nodeValue = original;
+  return null;
 }
+
+// compat: nome antigo
+function i18nTranslateTextNode(node, lang) { i18nApplyTranslation(node, lang); }
 
 function i18nWalk(root, lang) {
   if (!root) return;
@@ -319,7 +353,51 @@ function i18nWalk(root, lang) {
   const nodes = [];
   let cur;
   while ((cur = walker.nextNode())) nodes.push(cur);
-  for (const n of nodes) i18nTranslateTextNode(n, lang);
+  const pending = [];
+  for (const n of nodes) {
+    const miss = i18nApplyTranslation(n, lang);
+    if (miss) pending.push(miss);
+  }
+  if (pending.length) i18nFetchAndApply(pending, lang);
+}
+
+// Bate na API (batch, deduplicado) e aplica + cacheia
+let _i18nApiEnabled = true;
+async function i18nFetchAndApply(pending, lang) {
+  if (!_i18nApiEnabled || lang === 'pt') return;
+  // dedup por texto
+  const byText = {};
+  for (const p of pending) { (byText[p.text] = byText[p.text] || []).push(p); }
+  const uniq = Object.keys(byText);
+  // batch de 100
+  for (let i = 0; i < uniq.length; i += 100) {
+    const chunk = uniq.slice(i, i + 100);
+    try {
+      const r = await fetch('/api/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ q: chunk, source: 'pt', target: lang }),
+      });
+      if (!r.ok) { if (r.status === 502 || r.status === 503) _i18nApiEnabled = false; continue; }
+      const data = await r.json();
+      if (data.disabled) { _i18nApiEnabled = false; return; }
+      const tr = data.translations || [];
+      for (let j = 0; j < chunk.length; j++) {
+        const src = chunk[j];
+        const out = tr[j];
+        if (out == null) continue;
+        I18N_API_CACHE[lang + '' + src] = out;
+        _apiCacheDirty = true;
+        // só aplica se ainda no idioma atual
+        if (window.getLang() !== lang) continue;
+        for (const p of byText[src]) {
+          if (p.node.__i18nPt === undefined) continue;
+          p.node.nodeValue = p.lead + out + p.trail;
+        }
+      }
+    } catch (e) { /* rede caiu — mantém PT */ }
+  }
+  saveApiCache();
 }
 
 // Traduz uma raiz específica (ex: shadowRoot de web component)
