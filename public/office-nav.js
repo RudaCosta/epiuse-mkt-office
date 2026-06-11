@@ -825,19 +825,22 @@ function applyTheme(theme) {
     }
 
     /* ─── GRID PATTERN GLOBAL — aplica em TODAS rotas com data-route ───────
-       Opt-out: seja-voice e erp-impacto (LPs externas). Standalone — não
-       depende de consulting-dark.css estar carregado na página. */
-    body[data-route]:not([data-route="seja-voice"]) {
-      background:
-        linear-gradient(rgba(134,158,195,.04) 1px, transparent 1px) 0 0/48px 48px,
-        linear-gradient(90deg, rgba(134,158,195,.04) 1px, transparent 1px) 0 0/48px 48px,
-        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(205,21,67,.12), transparent 60%),
-        radial-gradient(ellipse 60% 50% at 100% 100%, rgba(20,184,166,.05), transparent 60%),
-        #050b18;
-      background-attachment: fixed;
-      font-family: 'Source Sans 3', 'Source Sans Pro', system-ui, sans-serif;
-      color: #e6ebf2;
-      -webkit-font-smoothing: antialiased;
+       Opt-out: seja-voice (LP externa). Standalone — não depende de
+       consulting-dark.css estar carregado na página. !important pra vencer
+       hardcodes locais nas páginas legadas. */
+    @media screen {
+      body[data-route]:not([data-route="seja-voice"]) {
+        background:
+          linear-gradient(rgba(134,158,195,.04) 1px, transparent 1px) 0 0/48px 48px,
+          linear-gradient(90deg, rgba(134,158,195,.04) 1px, transparent 1px) 0 0/48px 48px,
+          radial-gradient(ellipse 80% 60% at 50% -10%, rgba(205,21,67,.12), transparent 60%),
+          radial-gradient(ellipse 60% 50% at 100% 100%, rgba(20,184,166,.05), transparent 60%),
+          #050b18 !important;
+        background-attachment: fixed !important;
+        font-family: 'Source Sans 3', 'Source Sans Pro', system-ui, sans-serif !important;
+        color: #e6ebf2 !important;
+        -webkit-font-smoothing: antialiased;
+      }
     }
     body[data-route]:not([data-route="seja-voice"]) h1,
     body[data-route]:not([data-route="seja-voice"]) h2,
