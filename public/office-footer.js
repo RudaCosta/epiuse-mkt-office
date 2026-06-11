@@ -5,7 +5,7 @@
 
 // Fonte ÚNICA da verdade: public/api/changelog.json#current via /api/version
 // Fallback hardcoded usado SÓ se fetch falhar — sincronização automática com nav.
-let OFFICE_FOOTER_VERSION = '0.39.1';
+let OFFICE_FOOTER_VERSION = '0.40.0';
 const OFFICE_FOOTER_BUILD = '2026-06-10';
 window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/version')
   .then(r => r.ok ? r.json() : null)
@@ -307,6 +307,7 @@ class OfficeFooter extends HTMLElement {
         <span>build ${OFFICE_FOOTER_BUILD}</span>
       </footer>
     `;
+    if (window.translateRoot) { try { window.translateRoot(this.shadowRoot); } catch (e) {} }
   }
 
   hookEvents() {

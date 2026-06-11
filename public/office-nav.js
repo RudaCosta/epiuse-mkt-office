@@ -8,7 +8,7 @@
 // Fonte ÚNICA da verdade: public/api/changelog.json#current via /api/version
 // Fallback hardcoded usado SÓ se fetch falhar (offline, etc).
 // Sincronização automática — não editar manualmente, basta bumpar changelog.json.
-let OFFICE_NAV_VERSION = '0.39.1';
+let OFFICE_NAV_VERSION = '0.40.0';
 // Promise compartilhada — nav + footer reaproveitam o mesmo fetch
 window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/version')
   .then(r => r.ok ? r.json() : null)
@@ -356,6 +356,29 @@ class OfficeNav extends HTMLElement {
           transition: background .15s, border-color .15s;
         }
         .ctrl-btn:hover { background: var(--nav-hover-bg); border-color: rgba(37,99,235,0.45); }
+        /* Seletor de idioma — 3 bandeiras */
+        .lang-select {
+          display: inline-flex;
+          gap: 2px;
+          background: rgba(255,255,255,0.04);
+          border: 1px solid var(--nav-border);
+          border-radius: 7px;
+          padding: 2px;
+        }
+        .lang-flag {
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          font-size: 14px;
+          line-height: 1;
+          padding: 4px 5px;
+          border-radius: 5px;
+          opacity: 0.4;
+          filter: grayscale(0.6);
+          transition: opacity .15s, filter .15s, background .15s;
+        }
+        .lang-flag:hover { opacity: 0.85; filter: grayscale(0); background: var(--nav-hover-bg); }
+        .lang-flag.active { opacity: 1; filter: grayscale(0); background: rgba(37,99,235,0.22); }
         .ctrl-btn .kbd {
           display: inline-block;
           background: rgba(0,0,0,0.4);
@@ -621,7 +644,12 @@ class OfficeNav extends HTMLElement {
         </div>
 
         <div class="controls">
-          <button class="ctrl-btn" id="lang-btn" title="Idioma · Language · Idioma" type="button">${(typeof getLangFlag === 'function' ? getLangFlag() : '🇧🇷')}</button>
+          <div class="lang-select" role="group" aria-label="Idioma / Language / Idioma">
+            ${[['pt','🇧🇷','Português'],['en','🇺🇸','English'],['es','🇪🇸','Español']].map(([code,flag,name]) => {
+              const active = (typeof getLangCode === 'function' ? getLangCode() : 'pt') === code;
+              return `<button class="lang-flag ${active ? 'active' : ''}" data-lang="${code}" title="${name}" aria-label="${name}" aria-pressed="${active}" type="button">${flag}</button>`;
+            }).join('')}
+          </div>
           <div class="bell-wrap">
             <button class="bell-btn" id="bell-btn" type="button" title="Notificações" aria-label="Notificações">🔔<span class="bell-badge" id="bell-badge" style="display:none">0</span></button>
             <div class="bell-panel" id="bell-panel" role="menu">
@@ -674,6 +702,8 @@ class OfficeNav extends HTMLElement {
         `).join('')}
       </div>` : ''}
     `;
+    // Traduz o conteúdo do nav (Shadow DOM não é alcançado pelo walker global)
+    if (window.translateRoot) { try { window.translateRoot(this.shadowRoot); } catch (e) {} }
   }
 
   hookEvents() {
@@ -682,7 +712,6 @@ class OfficeNav extends HTMLElement {
     const overflowMenu = $('overflow-menu');
     const userBtn = $('user-btn');
     const userMenu = $('user-menu');
-    const langBtn = $('lang-btn');
     const themeBtn = $('theme-btn');
     const bellBtn = $('bell-btn');
     const bellPanel = $('bell-panel');
@@ -760,11 +789,15 @@ class OfficeNav extends HTMLElement {
     // Notification bell — busca /api/alerts uma vez
     this.loadAlerts();
 
-    langBtn?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      cycleLang();
-      this.render();
-      this.hookEvents();
+    this.shadowRoot.querySelectorAll('.lang-flag').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const code = btn.dataset.lang;
+        if (window.setLang) window.setLang(code);
+        else { try { localStorage.setItem('office.lang', code); } catch (e2) {} location.reload(); }
+        this.render();
+        this.hookEvents();
+      });
     });
 
     themeBtn?.addEventListener('click', () => {
