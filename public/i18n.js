@@ -408,6 +408,7 @@ window.translateRoot = function(root) {
 
 window.translatePage = function() {
   const lang = window.getLang();
+  _i18nApiEnabled = true; // reseta: cada troca de idioma re-tenta a API (LT pode ter voltado)
   i18nWalk(document.body, lang);
   // attrs comuns: placeholder, title, aria-label
   document.querySelectorAll('[placeholder],[title]').forEach(el => {
