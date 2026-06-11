@@ -279,6 +279,7 @@ function renderMural(){
   $('#mural').innerHTML = list.map((i,idx)=>{
     const rot = ((i.id*37)%7)-3; // -3..3 graus pseudo-aleatório estável
     const voted = STATE.voted.includes(i.id);
+    const autor = (i.autor && i.autor !== 'nan' && i.autor !== 'None') ? i.autor : 'Anônimo';
     return `<div class="idea" style="--rot:${rot}deg;background:${esc(i.cor)}22;border-color:${esc(i.cor)}55">
       <span class="pin">📌</span>
       <div class="emoji" data-no-translate>${esc(i.emoji)}</div>
@@ -290,7 +291,7 @@ function renderMural(){
         <span class="chip">${ESF_EMOJI[i.esforco]||''} esforço</span>
       </div>
       <div class="foot">
-        <span class="autor" data-no-translate>👤 <span>${esc(i.autor)}</span>${i.sincronizada?' <span class="synced-dot" title="na planilha">🟢</span>':''}</span>
+        <span class="autor" data-no-translate>👤 <span>${esc(autor)}</span>${i.sincronizada?' <span class="synced-dot" title="na planilha">🟢</span>':''}</span>
         <button class="vote ${voted?'voted':''}" data-id="${i.id}">${voted?'❤️':'🤍'} ${i.votos}</button>
       </div>
     </div>`;
