@@ -201,6 +201,30 @@ html[data-theme="light"] {
   --dk-glow-green: 0 0 8px rgba(16,185,129,.25);
   --dk-glow-blue: 0 0 8px rgba(0,102,178,.18);
 }
+/* ELEPHANT — tema claro cream: flipa dk-* pra tons claros */
+html[data-theme="elephant"] {
+  --dk-bg-oled: #f5f1e8;
+  --dk-bg-surface: #ffffff;
+  --dk-bg-elev: #ffffff;
+  --dk-bg-elev2: #faf6ec;
+  --dk-text: #1f3024;
+  --dk-text-dim: #3d4f3a;
+  --dk-text-muted: #6b7464;
+  --dk-grid: rgba(45,74,51,.04);
+  --dk-glow-red: 0 0 12px rgba(168,114,63,.18);
+  --dk-glow-green: 0 0 8px rgba(45,74,51,.25);
+  --dk-glow-blue: 0 0 8px rgba(45,74,51,.15);
+}
+html[data-theme="elephant"] .dk-glass {
+  background: #ffffff;
+  border: 1px solid rgba(45,74,51,.12);
+  box-shadow: 0 1px 3px rgba(45,74,51,.06), 0 4px 12px -4px rgba(45,74,51,.06);
+}
+html[data-theme="elephant"] .dk-glass::before { background: linear-gradient(90deg, transparent, rgba(45,74,51,.08), transparent); }
+html[data-theme="elephant"] .dk-num { color: #1f3024; }
+html[data-theme="elephant"] body[data-route] h1,
+html[data-theme="elephant"] body[data-route] h2,
+html[data-theme="elephant"] body[data-route] h3 { color: #1f3024; }
 
 html[data-theme="light"] body[data-route="home"],
 html[data-theme="light"] body[data-route="relatorio"] {

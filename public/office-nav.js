@@ -907,6 +907,7 @@ function applyTheme(theme) {
         font-family: 'Source Sans 3', 'Source Sans Pro', system-ui, sans-serif !important;
         color: #e6ebf2 !important;
         -webkit-font-smoothing: antialiased;
+        margin: 0 !important;
       }
     }
     body[data-route]:not([data-route="seja-voice"]) h1,

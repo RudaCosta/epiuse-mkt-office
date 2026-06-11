@@ -98,6 +98,7 @@ class OfficeFooter extends HTMLElement {
       <style>
         :host {
           display: block;
+          width: 100%;
           margin-top: 32px;
           font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
@@ -119,6 +120,8 @@ class OfficeFooter extends HTMLElement {
         .foot a.erp-link img { display: block; opacity: 0.9; transition: opacity .15s; }
         .foot a.erp-link:hover img { opacity: 1; }
         .foot .sep { opacity: 0.4; }
+        .foot .sap-partner { color: #94a3b8; font-family: 'JetBrains Mono','Courier New',monospace; font-size: 10px; letter-spacing: .04em; }
+        .foot .sap-partner b { color: #cbd5e1; font-weight: 700; }
         .status {
           display: inline-flex;
           align-items: center;
@@ -305,6 +308,8 @@ class OfficeFooter extends HTMLElement {
         <a href="https://erp.ngo" target="_blank" rel="noopener" class="erp-link" title="ERP.ngo · 1% receita global → conservação de elefantes e combate à pobreza rural"><img src="/assets/erp-ngo/erp-logo-white.svg" alt="ERP.ngo" height="14"> erp.ngo</a>
         <span class="sep">·</span>
         <span>build ${OFFICE_FOOTER_BUILD}</span>
+        <span class="sep">·</span>
+        <span class="sap-partner" title="EPI-USE — SAP Partner oficial" data-no-translate>SAP Partner ID <b>1426872</b></span>
       </footer>
     `;
     if (window.translateRoot) { try { window.translateRoot(this.shadowRoot); } catch (e) {} }
