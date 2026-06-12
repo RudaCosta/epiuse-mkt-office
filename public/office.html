@@ -171,7 +171,7 @@ body { background: #7ec850; overflow: hidden; font-family: 'Inter', sans-serif; 
     <label class="sg-label" style="margin-top:18px">Cor do avatar</label>
     <div class="sg-swatches" id="sg-swatches"></div>
     <button class="sg-btn" id="sg-go">Entrar no escritório →</button>
-    <div class="sg-ver">v0.44.0 · GATHER EDITION</div>
+    <div class="sg-ver">v0.44.1 · GATHER EDITION</div>
   </div>
 </div>
 
@@ -284,7 +284,12 @@ const ROOMS = {
 const ITEM_LABELS = {
   caneca:'☕ caneca', caneca_vermelha:'☕ caneca vermelha', planta:'🪴 plantinha', livros:'📚 livros',
   fones:'🎧 fones', foto:'🖼️ porta-retrato', trofeu:'🏆 troféu', violao:'🎸 violão', mate:'🧉 chimarrão',
-  notebook:'💻 notebook', monitor_duplo:'🖥️🖥️ monitor duplo', gato:'🐈 gato dorminhoco', bola:'⚽ bolinha', cafe:'☕ café espresso'
+  notebook:'💻 notebook', monitor_duplo:'🖥️🖥️ monitor duplo', gato:'🐈 gato dorminhoco', bola:'⚽ bolinha', cafe:'☕ café espresso',
+  funko_tini:'👱‍♀️ Funko Pop da Tini', funko_deadpool:'🔴 Funko do Deadpool', caderno_erpngo:'🐘 caderno ERP.ngo',
+  tarot:'🔮 livro de tarot', switch:'🎮 Nintendo Switch', ae86:'🚗 miniatura Toyota AE86', ps5:'🎮 PS5',
+  pc_gamer:'🖥️ PC gamer', luminaria:'💡 luminária', ganesha:'🐘 mini Ganesha',
+  garrafa_agua:'💧 garrafa de água', gloss:'💄 gloss', oculos:'👓 óculos de grau',
+  caneca_office:'☕ caneca "World\'s Best Boss"'
 };
 
 function drawItem(g, id, x, y) {
@@ -304,6 +309,21 @@ function drawItem(g, id, x, y) {
     case 'monitor_duplo': g.fillStyle='#1e293b'; g.fillRect(x,y,5,6); g.fillRect(x+6,y,5,6); g.fillStyle='#7dd3fc'; g.fillRect(x+1,y+1,3,3); g.fillStyle='#86efac'; g.fillRect(x+7,y+1,3,3); g.fillStyle='#475569'; g.fillRect(x+2,y+6,1,2); g.fillRect(x+8,y+6,1,2); break;
     case 'gato': g.fillStyle='#f97316'; g.fillRect(x+1,y+4,8,4); g.fillRect(x+7,y+2,3,3); g.fillStyle='#fdba74'; g.fillRect(x+2,y+5,5,2); g.fillStyle='#0f172a'; g.fillRect(x+8,y+3,1,1); break;
     case 'bola': g.fillStyle='#fff'; g.fillRect(x+2,y+2,6,6); g.fillRect(x+3,y+1,4,8); g.fillRect(x+1,y+3,8,4); g.fillStyle='#0f172a'; g.fillRect(x+4,y+4,2,2); break;
+    // ── itens reais do time (12/jun/2026) ──
+    case 'funko_tini': g.fillStyle='#fde047'; g.fillRect(x+2,y,6,5); g.fillStyle='#f5cfa6'; g.fillRect(x+3,y+2,4,3); g.fillStyle='#0f172a'; g.fillRect(x+3,y+3,1,1); g.fillRect(x+6,y+3,1,1); g.fillStyle='#ec4899'; g.fillRect(x+3,y+5,4,4); break;
+    case 'funko_deadpool': g.fillStyle='#b91c1c'; g.fillRect(x+2,y,6,5); g.fillStyle='#fff'; g.fillRect(x+3,y+2,1,2); g.fillRect(x+6,y+2,1,2); g.fillStyle='#7f1d1d'; g.fillRect(x+3,y+5,4,4); g.fillStyle='#0f172a'; g.fillRect(x+4,y+6,2,2); break;
+    case 'caderno_erpngo': g.fillStyle='#15803d'; g.fillRect(x+1,y+1,8,8); g.fillStyle='#fff'; g.fillRect(x+2,y+2,6,6); g.fillStyle='#9ca3af'; g.fillRect(x+3,y+3,4,3); g.fillRect(x+6,y+5,2,2); break;
+    case 'tarot': g.fillStyle='#581c87'; g.fillRect(x+1,y+2,8,7); g.fillStyle='#7c3aed'; g.fillRect(x+2,y+3,6,5); g.fillStyle='#fbbf24'; g.fillRect(x+4,y+4,2,2); g.fillRect(x+3,y+6,1,1); g.fillRect(x+6,y+6,1,1); break;
+    case 'switch': g.fillStyle='#dc2626'; g.fillRect(x,y+3,3,6); g.fillStyle='#2563eb'; g.fillRect(x+7,y+3,3,6); g.fillStyle='#0f172a'; g.fillRect(x+3,y+3,4,6); g.fillStyle='#38bdf8'; g.fillRect(x+4,y+4,2,4); break;
+    case 'ae86': g.fillStyle='#f8fafc'; g.fillRect(x,y+4,10,4); g.fillStyle='#0f172a'; g.fillRect(x+2,y+2,6,3); g.fillRect(x+1,y+8,2,2); g.fillRect(x+7,y+8,2,2); g.fillStyle='#fbbf24'; g.fillRect(x+9,y+5,1,1); break;
+    case 'ps5': g.fillStyle='#f8fafc'; g.fillRect(x+2,y,2,9); g.fillRect(x+6,y,2,9); g.fillStyle='#0f172a'; g.fillRect(x+4,y+1,2,8); g.fillStyle='#3b82f6'; g.fillRect(x+4,y+2,2,1); break;
+    case 'pc_gamer': g.fillStyle='#0f172a'; g.fillRect(x,y,8,14); g.fillStyle='#1e293b'; g.fillRect(x+1,y+1,6,12); g.fillStyle='#22d3ee'; g.fillRect(x+2,y+2,4,1); g.fillStyle='#a78bfa'; g.fillRect(x+2,y+5,4,1); g.fillStyle='#4ade80'; g.fillRect(x+2,y+8,4,1); g.fillStyle='#f472b6'; g.fillRect(x+2,y+11,4,1); break;
+    case 'luminaria': g.fillStyle='#475569'; g.fillRect(x+4,y+4,2,5); g.fillRect(x+2,y+8,6,2); g.fillStyle='#fbbf24'; g.fillRect(x+1,y,8,4); g.fillStyle='#fef3c7'; g.fillRect(x+2,y+1,6,2); break;
+    case 'ganesha': g.fillStyle='#f59e0b'; g.fillRect(x+2,y+1,6,4); g.fillRect(x+3,y+5,4,4); g.fillStyle='#d97706'; g.fillRect(x+4,y+4,2,3); g.fillStyle='#fbbf24'; g.fillRect(x+1,y+2,2,2); g.fillRect(x+7,y+2,2,2); g.fillStyle='#0f172a'; g.fillRect(x+3,y+2,1,1); g.fillRect(x+6,y+2,1,1); break;
+    case 'garrafa_agua': g.fillStyle='#38bdf8'; g.fillRect(x+3,y+2,4,7); g.fillStyle='#bae6fd'; g.fillRect(x+4,y+3,1,5); g.fillStyle='#0284c7'; g.fillRect(x+3,y,4,2); break;
+    case 'gloss': g.fillStyle='#ec4899'; g.fillRect(x+4,y+3,3,6); g.fillStyle='#f9a8d4'; g.fillRect(x+4,y+4,1,4); g.fillStyle='#831843'; g.fillRect(x+4,y+1,3,2); break;
+    case 'oculos': g.fillStyle='#0f172a'; g.fillRect(x,y+3,4,4); g.fillRect(x+6,y+3,4,4); g.fillRect(x+4,y+4,2,1); g.fillStyle='#bae6fd'; g.fillRect(x+1,y+4,2,2); g.fillRect(x+7,y+4,2,2); break;
+    case 'caneca_office': g.fillStyle='#fff'; g.fillRect(x,y+3,7,6); g.fillRect(x+7,y+4,2,3); g.fillStyle='#0f172a'; g.fillRect(x+1,y+4,5,1); g.fillRect(x+1,y+6,4,1); break;
   }
 }
 
@@ -396,10 +416,15 @@ function pDesk(g, x, y, ownerId) {
   // itens personalizados
   const cfg = DESKS[ownerId];
   if (cfg && cfg.itens) {
-    let ix = x + 28;
-    for (const item of cfg.itens.slice(0,3)) {
-      if (item === 'monitor_duplo') { drawItem(g, item, x+26, y+5); ix = x + 40; continue; }
-      drawItem(g, item, ix, y + 14); ix += 12;
+    const SPECIAL = { monitor_duplo: [26, 5], pc_gamer: [25, 3] };  // desenham ao lado do monitor
+    const hasSpecial = cfg.itens.some(i => SPECIAL[i]);
+    const slots = hasSpecial ? [[37,13],[48,13],[26,20]] : [[28,13],[39,13],[50,13],[26,20]];
+    let si = 0;
+    for (const item of cfg.itens) {
+      if (SPECIAL[item]) { drawItem(g, item, x + SPECIAL[item][0], y + SPECIAL[item][1]); continue; }
+      if (si >= slots.length) break;
+      const [ox, oy] = slots[si++];
+      drawItem(g, item, x + ox, y + oy);
     }
   }
 }
