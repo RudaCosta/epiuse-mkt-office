@@ -1,48 +1,63 @@
 {
-  "current": "0.41.0",
+  "current": "0.42.0",
   "atualizado_em": "2026-06-11",
   "next": [
     {
-      "version": "0.38.0",
-      "sprint": "S36",
+      "version": "0.43.0",
+      "sprint": "S41",
       "status": "planned",
-      "title": "Dados: fechar buracos + atualizar mapa-fontes",
-      "summary": "mapa-fontes-dados.md desatualizado (28/mai, sem Zoho/SAP4ME/Field/Content/DF/Calendar). Etiquetar dados vazios (field captura, content corpo). LinkedIn jun. /api/health lê versão real (hoje fixo 0.24.0)."
+      "title": "🌍 i18n cobertura 100% por página + default por país",
+      "summary": "Pré-rollout internacional: varrer página a página e curar TODAS as strings de UI no dicionário (hoje 111 frases cobrem home/área/mural — falta relatório, voices, cases, optimizer, painel, inbound, development-funds, field, clientes-sap). Default de idioma por país/domínio (?lang= ou subpath /en /es). Glossário de termos fixos no LibreTranslate (SAP, EPI-USE, ERP.ngo, Voices não traduzem). Opcional: 4º idioma (FR/DE) se abrir mercado."
     },
     {
-      "version": "0.39.0",
-      "sprint": "S37",
+      "version": "0.44.0",
+      "sprint": "S42",
       "status": "planned",
-      "title": "server.js modularização",
-      "summary": "2750 linhas num arquivo só. Quebrar em routes/ (pages, api-dados, api-content, api-field, api-df) + db.js. Saúde de longo prazo."
+      "title": "💡 Mural: editar/arquivar/deletar ideia + status board",
+      "summary": "Hoje só cadastra + vota. Falta: editar/arquivar/deletar (editor token), mudar status (nova→avaliando→aprovada→feita) num board kanban, comentários por ideia. Sync xlsx OneDrive já roda a cada 2h (espelho)."
+    },
+    {
+      "version": "0.45.0",
+      "sprint": "S43",
+      "status": "planned",
+      "title": "🧱 server.js modularização (saúde de longo prazo)",
+      "summary": "~3000 linhas num arquivo só. Quebrar em routes/ (pages, api-dados, api-content, api-field, api-df, api-ideias, api-translate) + db.js. Reduz risco de regressão conforme o app cresce pra multi-país."
     },
     {
       "version": "—",
       "sprint": "PEND-2",
       "status": "blocked",
-      "title": "🟡 SSO Microsoft — admin consent + ativar",
-      "summary": "Env vars já no Railway (AZURE_TENANT_ID/CLIENT_ID/CLIENT_SECRET/REDIRECT_URI visíveis). Falta: (1) Azure portal → API permissions → Grant admin consent (Graph: openid/profile/email/User.Read/offline_access); (2) confirmar Redirect URIs (localhost + Railway); (3) testar login real @epiuse.com.br; (4) quando confiar, SSO_ENFORCE=true."
+      "title": "🟡 SSO Microsoft — admin consent (libera nome/email fixo)",
+      "summary": "Código pronto (nav + home já puxam nome+email do Entra ID quando autenticado, fixam no card com 🔒, escondem rename). BLOQUEIO: Azure portal → App registration → API permissions → Grant admin consent (Graph: openid/profile/email/User.Read/offline_access). Sem isso authenticated=false → cai no localStorage. Depois: testar login @epiuse.com.br; quando confiar, SSO_ENFORCE=true."
     },
     {
       "version": "—",
       "sprint": "PEND-3",
       "status": "blocked",
-      "title": "🟡 Publicação WordPress automática (S31)",
-      "summary": "Pipeline de conteúdo (/content-pipeline) entrega tudo até o HTML pronto. Último passo (publicar no blog) segue manual — falta credenciais admin WordPress da EPI-USE com o TI pra automatizar o POST via REST API."
+      "title": "🟡 Publicação WordPress automática",
+      "summary": "Pipeline de conteúdo entrega até o HTML pronto. Publicar no blog segue manual — falta credenciais admin WordPress da EPI-USE (TI) pra automatizar POST via REST API."
     },
     {
       "version": "—",
-      "sprint": "PEND-4",
+      "sprint": "PEND-5",
       "status": "blocked",
-      "title": "🟡 Popular agenda com planilhas atualizadas",
-      "summary": "Agenda unificada pronta (v0.33.0). Para dados mais frescos, Rudá vai mandar: planilha cronograma Redatoria atualizada + planilha posts Duda (redes) + lista de ações internas com prazos. Estrutura já consome essas fontes."
+      "title": "🟡 Mural → planilha em tempo real (opcional)",
+      "summary": "Hoje o espelho xlsx roda a cada 2h via tarefa LOCAL (precisa PC ligado). Pra tempo-real + independente do PC: webhook Power Automate (env IDEIAS_WEBHOOK_URL) — Rudá monta o flow HTTP→add row e passa a URL."
     }
   ],
   "releases": [
     {
-      "version": "0.41.0",
+      "version": "0.42.0",
       "date": "11/jun/2026",
       "status": "current",
+      "path": null,
+      "title": "🌐 i18n internacional: LibreTranslate self-host PROD + 111 frases curadas + flags SVG + SSO name + always-on",
+      "summary": "Consolidação do i18n pra rollout multi-país. (1) LibreTranslate self-host NO AR em prod (Railway, libretranslate-prod) + local always-on (Tarefas Agendadas login+health 5min) — tradução automática PT/EN/ES, dado não sai pra terceiro. Fix do 502 (porta 5000). (2) Motor i18n 3 camadas: dicionário curado 111 frases (instantâneo, override) → cache localStorage → /api/translate (proxy LibreTranslate + cache servidor). Fix _i18nApiEnabled reseta a cada troca de idioma. (3) Datas locale-aware (pt-BR/en-US/es-ES). (4) Seletor 3 bandeiras SVG (emoji não renderiza no Windows) no canto sup. direito, PT-BR default. (5) Dado real protegido (Regra 7): nomes/títulos/fontes/números não traduzem. (6) Nav+home puxam nome+email do SSO Entra ID quando autenticado (fixo, 🔒, sem rename) — degrada pro localStorage até admin consent. (7) Mural: botão 💬 Discutir (mailto marketing@epiuse pré-preenchido com solicitante), emoji picker em grid centralizado, espelho xlsx OneDrive a cada 2h. (8) Temas claros (light/elephant) flipam tokens corretamente. Footer: SAP Partner ID 1426872 + width 100%."
+    },
+    {
+      "version": "0.41.0",
+      "date": "11/jun/2026",
+      "status": "snapshot",
       "path": null,
       "title": "💡 Mural de Ideias de MKT — página interativa fun + replicação SharePoint via webhook",
       "summary": "Nova tela /ideias com tom totalmente diferente: bg gradiente colorido (mesh), post-its rotacionados, emoji picker, confete no submit, voto 1-clique (❤️), filtro por categoria, FAB flutuante. Backend: tabela ideias_mkt (SQLite) + GET/POST /api/ideias + POST /api/ideias/:id/voto. Replicação na planilha SharePoint via Power Automate webhook (env IDEIAS_WEBHOOK_URL): a cada ideia nova, server dispara POST pro flow que adiciona linha no Excel — SEM precisar Graph/admin consent. Sem webhook configurado → ideias ficam locais (banner ⏳ aguarda integração) e marca sincronizada=0. Quando flow ativo, card mostra 🟢 'na planilha'. Link no nav (overflow → Escritório Virtual)."
