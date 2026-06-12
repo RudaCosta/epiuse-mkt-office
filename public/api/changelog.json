@@ -1,6 +1,6 @@
 {
-  "current": "0.42.0",
-  "atualizado_em": "2026-06-11",
+  "current": "0.43.0",
+  "atualizado_em": "2026-06-12",
   "next": [
     {
       "version": "0.43.0",
@@ -47,9 +47,17 @@
   ],
   "releases": [
     {
+      "version": "0.43.0",
+      "date": "12/jun/2026",
+      "status": "current",
+      "path": null,
+      "title": "📊 Visão Executiva (CMO View) — pipeline marketing-sourced + win rate REAL pro Roberto",
+      "summary": "Nova tela /executivo (printável em PDF) com a narrativa que CMO leva pro Country Manager: (1) Pipeline gerado por Marketing — classificação de campanhas Zoho em marketing/sales/parceria/sem-atribuição via campanha-classificacao.json (editável sem deploy): LinkedIn EUBR + Inbound + BTP Experience + SAP NOW + eventos = marketing-sourced. (2) Win rate REAL descoberto nos stages do Zoho (Fechado Ganhamos 21 deals R$7.1M vs Perdemos 76) — closed-won + win rate + pipeline aberto sem etiqueta de placeholder. (3) Funil de demanda real: LinkedIn → GA4 → Apollo → pipeline aberto → ganho, cada estágio com chip de fonte. (4) Tabela de atribuição por campanha (expõe gap de governança: R$10.8M sem campanha no Zoho). (5) Riscos: claims DF expirando, metas FY26 cobertura de fonte (8 reais + 1 parcial de 29), perdidos/cancelados. CAC/ROI e MQL/SQL etiquetados ⏳ (sem dado — Regra 7). Backend: GET /api/executivo agrega Zoho stages + classificação + DF + metas. Persona Roberto na home ganhou 4 KPIs executivos (pipeline_mkt_sourced, receita_ganha, pipeline_fy, df_meta_pct) linkando pro /executivo. Nav: '📊 Visão Executiva (CMO)' em Reports."
+    },
+    {
       "version": "0.42.0",
       "date": "11/jun/2026",
-      "status": "current",
+      "status": "snapshot",
       "path": null,
       "title": "🌐 i18n internacional: LibreTranslate self-host PROD + 111 frases curadas + flags SVG + SSO name + always-on",
       "summary": "Consolidação do i18n pra rollout multi-país. (1) LibreTranslate self-host NO AR em prod (Railway, libretranslate-prod) + local always-on (Tarefas Agendadas login+health 5min) — tradução automática PT/EN/ES, dado não sai pra terceiro. Fix do 502 (porta 5000). (2) Motor i18n 3 camadas: dicionário curado 111 frases (instantâneo, override) → cache localStorage → /api/translate (proxy LibreTranslate + cache servidor). Fix _i18nApiEnabled reseta a cada troca de idioma. (3) Datas locale-aware (pt-BR/en-US/es-ES). (4) Seletor 3 bandeiras SVG (emoji não renderiza no Windows) no canto sup. direito, PT-BR default. (5) Dado real protegido (Regra 7): nomes/títulos/fontes/números não traduzem. (6) Nav+home puxam nome+email do SSO Entra ID quando autenticado (fixo, 🔒, sem rename) — degrada pro localStorage até admin consent. (7) Mural: botão 💬 Discutir (mailto marketing@epiuse pré-preenchido com solicitante), emoji picker em grid centralizado, espelho xlsx OneDrive a cada 2h. (8) Temas claros (light/elephant) flipam tokens corretamente. Footer: SAP Partner ID 1426872 + width 100%."

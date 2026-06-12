@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>📊 Visão Executiva · Marketing Brasil · EPI-USE Office</title>
+<link rel="stylesheet" href="/design-tokens.css">
+<link rel="stylesheet" href="/css/polish-pro.css">
+<link rel="stylesheet" href="/css/consulting-dark.css">
+<link rel="stylesheet" href="/css/home.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+.wrap{max-width:1180px;margin:0 auto;padding:26px 18px 70px}
+.exec-hero{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:8px}
+.exec-hero h1{font-size:26px;font-weight:700;color:var(--home-text,#e6ebf2);letter-spacing:-.015em}
+.exec-hero .sub{font-size:12.5px;color:var(--home-text-muted,#869ec3);margin-top:4px}
+.btn-pdf{background:linear-gradient(135deg,#001844,#395170);color:#fff;border:1px solid rgba(134,158,195,.3);border-radius:10px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn-pdf:hover{opacity:.9}
+.sec-t{font-size:12px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--home-text-muted,#869ec3);margin:30px 0 12px;display:flex;align-items:center;gap:10px}
+.sec-t::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--home-border,rgba(134,158,195,.2)),transparent)}
+/* headline strip */
+.heads{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-top:18px}
+.head{background:var(--home-surface,#0f1e35);border:1px solid var(--home-border,rgba(134,158,195,.18));border-top:3px solid var(--cor,#cd1543);border-radius:14px;padding:18px 20px;box-shadow:var(--home-shadow,0 1rem 2rem -1rem #000)}
+.head .lbl{font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--home-text-muted,#869ec3)}
+.head .val{font-size:32px;font-weight:800;font-family:'JetBrains Mono','Fira Code',monospace;color:var(--home-text,#e6ebf2);margin:8px 0 2px;line-height:1}
+.head .delta{font-size:12px;font-weight:700}
+.head .delta.pos{color:#34d399}.head .delta.neutro{color:var(--home-text-muted,#869ec3)}
+.head .fonte{font-size:10px;color:#6ee7b7;margin-top:8px;opacity:.85}
+/* funil */
+.funil{display:flex;gap:10px;flex-wrap:wrap}
+.fstage{flex:1;min-width:150px;background:var(--home-surface,#0f1e35);border:1px solid var(--home-border,rgba(134,158,195,.18));border-radius:12px;padding:14px 16px;position:relative}
+.fstage::after{content:'→';position:absolute;right:-13px;top:50%;transform:translateY(-50%);color:var(--home-text-muted,#475569);font-size:16px;z-index:2}
+.fstage:last-child::after{display:none}
+.fstage .fl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--home-text-muted,#869ec3)}
+.fstage .fv{font-size:22px;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--home-text,#e6ebf2);margin-top:6px}
+.fstage .fs{font-size:10px;color:#6ee7b7;margin-top:5px;opacity:.85}
+/* tabela campanhas */
+table.camp{width:100%;border-collapse:collapse;background:var(--home-surface,#0f1e35);border:1px solid var(--home-border,rgba(134,158,195,.18));border-radius:12px;overflow:hidden;font-size:13px}
+table.camp th{text-align:left;padding:11px 14px;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--home-text-muted,#869ec3);border-bottom:1px solid var(--home-border,rgba(134,158,195,.15))}
+table.camp td{padding:10px 14px;border-bottom:1px solid rgba(134,158,195,.07);color:var(--home-text,#e6ebf2)}
+table.camp tr:last-child td{border-bottom:none}
+table.camp .num{font-family:'JetBrains Mono',monospace;text-align:right;white-space:nowrap}
+.tipo-badge{display:inline-block;font-size:9.5px;font-weight:800;padding:2px 9px;border-radius:99px;text-transform:uppercase;letter-spacing:.05em}
+/* riscos */
+.riscos{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.risco{background:var(--home-surface,#0f1e35);border:1px solid var(--home-border,rgba(134,158,195,.18));border-left:4px solid #fbbf24;border-radius:10px;padding:13px 16px;font-size:13px;color:var(--home-text,#e6ebf2)}
+.risco .rm{font-size:11px;color:var(--home-text-muted,#869ec3);margin-top:4px}
+.pend-chip{display:inline-block;font-size:10px;font-weight:700;background:rgba(251,191,36,.14);color:#fcd34d;padding:2px 9px;border-radius:99px}
+.loading{text-align:center;padding:60px;color:var(--home-text-muted,#64748b)}
+@media print{
+  office-nav,office-footer,.btn-pdf{display:none!important}
+  body{background:#fff!important;color:#111!important}
+}
+</style>
+</head>
+<body class="home-root" data-route="executivo">
+<office-nav></office-nav>
+<div class="wrap" id="page">
+  <div class="exec-hero">
+    <div>
+      <h1>📊 Visão Executiva · Marketing Brasil</h1>
+      <div class="sub">Contribuição do marketing pra receita — dados ao vivo · gerado <span id="gerado" data-no-translate>…</span></div>
+    </div>
+    <button class="btn-pdf" id="btnPdf" data-no-translate>📄 Exportar PDF</button>
+  </div>
+  <div id="content"><div class="loading">Carregando…</div></div>
+</div>
+<office-footer></office-footer>
+<script src="/i18n.js"></script>
+<script src="/office-nav.js"></script>
+<script src="/office-footer.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+const fmtR$ = v => 'R$ ' + (v >= 1e6 ? (v/1e6).toFixed(1).replace('.',',')+'M' : v >= 1e3 ? (v/1e3).toFixed(0)+'k' : Math.round(v));
+const fmtEUR = v => '€ ' + (v >= 1e3 ? (v/1e3).toFixed(1).replace('.',',')+'k' : Math.round(v));
+const esc = s => String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+async function init(){
+  let ex={}, li={}, ga={}, ap={};
+  try{
+    [ex, li, ga, ap] = await Promise.all([
+      fetch('/api/executivo').then(r=>r.json()),
+      fetch('/api/linkedin-historical.json').then(r=>r.json()).catch(()=>({})),
+      fetch('/api/ga4-snapshot.json').then(r=>r.json()).catch(()=>({})),
+      fetch('/api/pipeline-snapshot.json').then(r=>r.json()).catch(()=>({})),
+    ]);
+  }catch(e){ document.getElementById('content').innerHTML='<div class="loading">Erro ao carregar.</div>'; return; }
+
+  document.getElementById('gerado').textContent = new Date().toLocaleString('pt-BR');
+  const p = ex.pipeline||{}, r = ex.resultado||{}, df = ex.df||{}, metas = ex.metas||{};
+  const tiposMeta = p.tipos_meta||{};
+
+  // LinkedIn último ponto
+  const liMeses = li.meses || li.historico || [];
+  const liTotal = liMeses.length ? (liMeses[liMeses.length-1].seguidores || liMeses[liMeses.length-1].total || null) : null;
+  // GA4 último mês
+  const gaMeses = ga.meses || [];
+  const gaLast = gaMeses.length ? gaMeses[gaMeses.length-1] : null;
+
+  const dfPct = df.ddf_alocado ? Math.round(100*(df.aprovado_valido||0)/df.ddf_alocado) : null;
+  const metaPct70 = df.meta_70pct_1jul ? Math.round(100*(df.aprovado_valido||0)/df.meta_70pct_1jul) : null;
+
+  // ── HEADLINES ──
+  const heads = `
+  <div class="heads" data-no-translate>
+    <div class="head" style="--cor:#cd1543">
+      <div class="lbl">Pipeline gerado por Marketing</div>
+      <div class="val">${fmtR$(p.mkt_sourced_total||0)}</div>
+      <div class="delta pos">${p.mkt_sourced_pct!=null?p.mkt_sourced_pct+'% do pipeline total':''}</div>
+      <div class="fonte">🟢 Zoho CRM · campanhas classificadas</div>
+    </div>
+    <div class="head" style="--cor:#10b981">
+      <div class="lbl">Receita ganha (closed-won)</div>
+      <div class="val">${fmtR$(r.ganho_valor||0)}</div>
+      <div class="delta pos">${r.ganho_deals||0} deals · win rate ${r.win_rate_pct!=null?r.win_rate_pct+'%':'—'}</div>
+      <div class="fonte">🟢 Zoho CRM · stages reais</div>
+    </div>
+    <div class="head" style="--cor:#60a5fa">
+      <div class="lbl">Pipeline aberto (em jogo)</div>
+      <div class="val">${fmtR$(r.aberto_valor||0)}</div>
+      <div class="delta neutro">${r.aberto_deals||0} oportunidades ativas</div>
+      <div class="fonte">🟢 Zoho CRM</div>
+    </div>
+    <div class="head" style="--cor:#fbbf24">
+      <div class="lbl">Development Funds SAP</div>
+      <div class="val">${fmtEUR(df.aprovado_valido||0)}</div>
+      <div class="delta ${metaPct70>=100?'pos':'neutro'}">${metaPct70!=null?metaPct70+'% da meta 70% (1/jul)':'—'}</div>
+      <div class="fonte">🟢 SAP DF · €${(df.ddf_alocado||0)/1000}k alocado</div>
+    </div>
+  </div>`;
+
+  // ── FUNIL ──
+  const funil = `
+  <div class="sec-t">📐 Funil de demanda</div>
+  <div class="funil" data-no-translate>
+    <div class="fstage"><div class="fl">Audiência LinkedIn</div><div class="fv">${liTotal!=null?liTotal.toLocaleString('pt-BR'):'—'}</div><div class="fs">🟢 XLS Bruna</div></div>
+    <div class="fstage"><div class="fl">Usuários site/mês</div><div class="fv">${gaLast?(gaLast.usuarios||gaLast.users||0).toLocaleString('pt-BR'):'—'}</div><div class="fs">🟢 GA4 ${gaLast?(gaLast.mes||''):''}</div></div>
+    <div class="fstage"><div class="fl">Base mapeada</div><div class="fv">${ap.contatos_total!=null?ap.contatos_total.toLocaleString('pt-BR'):'—'}</div><div class="fs">🟢 Apollo · sync ${esc(ap.ultima_sync||'')}</div></div>
+    <div class="fstage"><div class="fl">Pipeline aberto</div><div class="fv">${fmtR$(r.aberto_valor||0)}</div><div class="fs">🟢 Zoho</div></div>
+    <div class="fstage"><div class="fl">Ganho</div><div class="fv">${fmtR$(r.ganho_valor||0)}</div><div class="fs">🟢 Zoho closed-won</div></div>
+  </div>`;
+
+  // ── CAMPANHAS ──
+  const ordem = ['marketing','sales','parceria','sem_atribuicao'];
+  let rows = '';
+  for(const t of ordem){
+    const grp = (p.por_tipo||{})[t]; if(!grp || !grp.campanhas.length) continue;
+    const meta = tiposMeta[t]||{label:t,cor:'#64748b'};
+    for(const c of grp.campanhas){
+      rows += `<tr>
+        <td data-no-translate>${esc(c.nome)}</td>
+        <td><span class="tipo-badge" style="background:${meta.cor}22;color:${meta.cor}">${esc(meta.label)}</span></td>
+        <td class="num" data-no-translate>${fmtR$(c.total||0)}</td>
+        <td class="num" data-no-translate>${c.deals}</td>
+      </tr>`;
+    }
+  }
+  const campanhas = `
+  <div class="sec-t">🎯 Pipeline por campanha — atribuição</div>
+  <table class="camp">
+    <thead><tr><th>Campanha</th><th>Origem</th><th style="text-align:right">Pipeline</th><th style="text-align:right">Deals</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>
+  <div style="font-size:10.5px;color:var(--home-text-muted,#64748b);margin-top:8px">Classificação editável em campanha-classificacao.json · "Sem atribuição" = campo campanha vazio no Zoho (oportunidade de governança de CRM).</div>`;
+
+  // ── RISCOS & PRÓXIMOS ──
+  const riscos = `
+  <div class="sec-t">⚠️ Riscos & deadlines</div>
+  <div class="riscos" data-no-translate>
+    <div class="risco">💶 Claims DF a reclamar: <b>${fmtEUR(df.total_a_reclamar||0)}</b><div class="rm">${df.requests_expirando_30d||0} expirando em 30d · meta 100% EDF + 70% DDF até 1/jul</div></div>
+    <div class="risco">📋 Metas FY26: <b>${metas.com_fonte_real||0}/${metas.total||29} com dado real conectado</b><div class="rm">${(metas.por_status_fonte&&metas.por_status_fonte.pending||0)+(metas.por_status_fonte&&metas.por_status_fonte.aguarda_integracao||0)} aguardam integração de fonte <span class="pend-chip">⏳ governança</span></div></div>
+    <div class="risco">🔄 Perdidos/cancelados: <b>${(r.perdido_deals||0)+(r.cancelado_deals||0)} deals</b><div class="rm">${fmtR$(r.perdido_valor||0)} perdido — análise de loss reasons ainda manual <span class="pend-chip">⏳ aguarda integração</span></div></div>
+  </div>
+  <div style="font-size:10.5px;color:var(--home-text-muted,#64748b);margin-top:14px">
+    ⏳ Não medido ainda (sem dado real — Regra 7): spend por canal → CAC/ROI (aguarda planilha budget) · MQL/SQL mensal (aguarda RD Station leads/mês).
+  </div>`;
+
+  document.getElementById('content').innerHTML = heads + funil + campanhas + riscos;
+}
+
+document.getElementById('btnPdf').addEventListener('click', () => {
+  const el = document.getElementById('page');
+  html2pdf().set({
+    margin: 8, filename: 'visao-executiva-mkt-brasil.pdf',
+    image: { type:'jpeg', quality:.95 },
+    html2canvas: { scale:2, backgroundColor:'#0a1525' },
+    jsPDF: { unit:'mm', format:'a4', orientation:'portrait' }
+  }).from(el).save();
+});
+
+init();
+</script>
+</body>
+</html>

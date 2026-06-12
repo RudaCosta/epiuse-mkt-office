@@ -1659,6 +1659,95 @@ app.get('/api/zoho/pipeline', (req, res) => {
   }
 });
 
+// ════════════════════════════════════════════════════════════════════════════
+// GET /api/executivo — agregado CMO View (Roberto / Country Manager)
+// Marketing-sourced pipeline (classificação por campanha) + win rate real
+// (stages Zoho) + DF + metas FY26. Tudo dado REAL (Regra 7).
+// ════════════════════════════════════════════════════════════════════════════
+app.get('/api/executivo', (req, res) => {
+  try {
+    // 1 — classificação de campanhas (editável sem deploy)
+    let classif = { tipos: {}, campanhas: {} };
+    try { classif = JSON.parse(fs.readFileSync(path.join(__dirname, 'public/api/campanha-classificacao.json'), 'utf8')); } catch (e) {}
+
+    // 2 — pipeline por campanha × tipo (todos os deals, 24m)
+    const porCampanha = db.prepare(
+      `SELECT campanha, SUM(valor) as total, COUNT(*) as deals
+       FROM zoho_deals GROUP BY campanha ORDER BY total DESC`
+    ).all();
+    const porTipo = {};
+    for (const t of Object.keys(classif.tipos || {})) porTipo[t] = { total: 0, deals: 0, campanhas: [] };
+    if (!porTipo.sem_atribuicao) porTipo.sem_atribuicao = { total: 0, deals: 0, campanhas: [] };
+    for (const c of porCampanha) {
+      const nome = (c.campanha || '').trim();
+      const tipo = nome ? (classif.campanhas[nome] || 'sem_atribuicao') : 'sem_atribuicao';
+      if (!porTipo[tipo]) porTipo[tipo] = { total: 0, deals: 0, campanhas: [] };
+      porTipo[tipo].total += c.total || 0;
+      porTipo[tipo].deals += c.deals || 0;
+      porTipo[tipo].campanhas.push({ nome: nome || '(sem campanha)', total: c.total, deals: c.deals });
+    }
+    const totalPipeline = porCampanha.reduce((s, c) => s + (c.total || 0), 0);
+
+    // 3 — win rate REAL por stage
+    const stages = db.prepare('SELECT stage, COUNT(*) n, SUM(valor) v FROM zoho_deals GROUP BY stage').all();
+    const agg = { ganho: { n: 0, v: 0 }, perdido: { n: 0, v: 0 }, cancelado: { n: 0, v: 0 }, aberto: { n: 0, v: 0 } };
+    for (const s of stages) {
+      const st = (s.stage || '').toLowerCase();
+      const key = st.includes('ganhamos') ? 'ganho'
+                : (st.includes('perdemos') || st === 'perdido') ? 'perdido'
+                : st.includes('cancelado') ? 'cancelado'
+                : 'aberto';
+      agg[key].n += s.n; agg[key].v += s.v || 0;
+    }
+    const decididos = agg.ganho.n + agg.perdido.n;
+    const winRate = decididos ? Math.round(1000 * agg.ganho.n / decididos) / 10 : null;
+
+    // 4 — DF (lê o endpoint interno? não — replica leitura do JSON snapshot usado por /api/development-funds)
+    let df = null;
+    try {
+      const dfData = JSON.parse(fs.readFileSync(path.join(__dirname, 'public/api/development-funds.json'), 'utf8'));
+      df = dfData.kpis || null;
+    } catch (e) {}
+
+    // 5 — metas FY26 agregado (valor no JSON é TARGET; realizado vem das APIs ao
+    // vivo na tela /metas-fy26 — aqui só contamos cobertura de fonte, sem inventar %)
+    let metas = null;
+    try {
+      const mj = JSON.parse(fs.readFileSync(path.join(__dirname, 'public/api/metas-fy26.json'), 'utf8'));
+      const st = mj.por_status_fonte || {};
+      metas = {
+        total: mj.total_metas || (mj.metas || []).length,
+        com_fonte_real: (st.real || 0) + (st.parcial || 0),
+        por_status_fonte: st,
+        ano_fiscal: mj.ano_fiscal || 'FY26',
+      };
+    } catch (e) {}
+
+    const lastSync = db.prepare('SELECT MAX(synced_at) as s FROM zoho_deals').get()?.s || null;
+    res.json({
+      gerado_em: new Date().toISOString(),
+      pipeline: {
+        total_24m: totalPipeline,
+        por_tipo: porTipo,
+        tipos_meta: classif.tipos || {},
+        mkt_sourced_total: porTipo.marketing ? porTipo.marketing.total : 0,
+        mkt_sourced_pct: totalPipeline ? Math.round(1000 * (porTipo.marketing?.total || 0) / totalPipeline) / 10 : null,
+      },
+      resultado: {
+        ganho_valor: agg.ganho.v, ganho_deals: agg.ganho.n,
+        perdido_valor: agg.perdido.v, perdido_deals: agg.perdido.n,
+        cancelado_deals: agg.cancelado.n,
+        aberto_valor: agg.aberto.v, aberto_deals: agg.aberto.n,
+        win_rate_pct: winRate,
+      },
+      df, metas,
+      last_sync_zoho: lastSync,
+    });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.get('/executivo', (req, res) => res.sendFile(path.join(__dirname, 'public/executivo.html')));
+
 app.post('/api/zoho/sync', requireEditorToken, (req, res) => {
   const items = Array.isArray(req.body?.deals) ? req.body.deals : [];
   if (!items.length) return res.status(400).json({ success: false, error: 'deals[] vazio.' });

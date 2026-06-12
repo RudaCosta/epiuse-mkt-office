@@ -697,6 +697,13 @@
       get: async () => { const d = await fetch('/api/clientes-sap-4me').then(r=>r.json()); return fmt(d?.kpis?.live); } },
     cases_publicaveis:  { label: 'Cases publicados', fonte: 'Cases CS', cor: '#34d399',
       get: async () => { const d = await fetch('/api/cases').then(r=>r.json()); return fmt(d?.kpis?.case_publicado); } },
+    // ── Executivo (CMO View — persona Roberto) ──
+    pipeline_mkt_sourced: { label: 'Pipeline gerado por MKT', fonte: 'Zoho · atribuição', cor: '#cd1543',
+      get: async () => { const d = await fetch('/api/executivo').then(r=>r.json()); const v = d?.pipeline?.mkt_sourced_total; const pct = d?.pipeline?.mkt_sourced_pct; return v ? 'R$ ' + (v/1e6).toFixed(1) + 'M' + (pct!=null ? ` (${pct}%)` : '') : '—'; } },
+    receita_ganha:        { label: 'Receita ganha (won)', fonte: 'Zoho · closed-won', cor: '#10b981',
+      get: async () => { const d = await fetch('/api/executivo').then(r=>r.json()); const r2 = d?.resultado; return r2?.ganho_valor ? 'R$ ' + (r2.ganho_valor/1e6).toFixed(1) + 'M · WR ' + (r2.win_rate_pct ?? '—') + '%' : '—'; } },
+    df_meta_pct:          { label: 'DF · meta 70% (1/jul)', fonte: 'SAP DF', cor: '#fbbf24',
+      get: async () => { const d = await fetch('/api/executivo').then(r=>r.json()); const df = d?.df; return (df && df.meta_70pct_1jul) ? Math.round(100*(df.aprovado_valido||0)/df.meta_70pct_1jul) + '%' : '—'; } },
   };
 
   // Destinos de ação por KPI — card do foco vira link (S39: acionável, não só info)
@@ -707,6 +714,7 @@
     voices_ativos: '/voices', apollo_contatos: '/pipeline', apollo_sequencias: '/pipeline',
     ga4_usuarios: '/relatorio', eventos_30d: '/field-marketing', capturas_pendentes: '/field-marketing',
     golives_30d: '/clientes-sap-4me', sap_live: '/clientes-sap-4me', cases_publicaveis: '/cases',
+    pipeline_mkt_sourced: '/executivo', receita_ganha: '/executivo', df_meta_pct: '/executivo',
   };
 
   async function renderFoco(kpiIds) {
