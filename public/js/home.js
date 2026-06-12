@@ -52,9 +52,16 @@
     // saudação traduz (dict); nome é dado real → data-no-translate
     const nomeSafe = String(nome).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
     $('hero-saudacao').innerHTML = `${saudacao()}<span data-no-translate>, ${nomeSafe} 👋</span>`;
-    const hoje = new Date().toLocaleDateString('pt-BR', { day:'2-digit', month:'long', year:'numeric' });
-    $('hero-data').setAttribute('data-no-translate', ''); // data formatada localmente
+    const LOC = { pt:'pt-BR', en:'en-US', es:'es-ES' };
+    const lang = (window.getLang ? window.getLang() : 'pt');
+    const hoje = new Date().toLocaleDateString(LOC[lang] || 'pt-BR', { day:'2-digit', month:'long', year:'numeric' });
+    $('hero-data').setAttribute('data-no-translate', ''); // formatada localmente (locale-aware)
     $('hero-data').textContent = hoje;
+    // re-formata a data quando trocar idioma
+    if (!window.__heroDateHook) {
+      window.__heroDateHook = true;
+      document.addEventListener('office:langchange', () => { try { renderHero(); } catch(e){} });
+    }
   }
 
   // ── DIGEST (3 cards) ────────────────────────────────────────────
