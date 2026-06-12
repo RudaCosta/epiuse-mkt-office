@@ -279,29 +279,10 @@ class OfficeFooter extends HTMLElement {
       </div>
       <footer class="foot" role="contentinfo">
         <span class="ver-tag">EPI-USE OFFICE</span>
-        <div class="ver-picker">
-          <button class="ver-trigger" id="ver-trigger" type="button" title="Ver versões anteriores">
-            <span>${OFFICE_FOOTER_VERSION}</span>
-            <span id="ver-status-chip" style="font-size:9px;padding:2px 6px;border-radius:99px;margin-left:6px;background:rgba(134,158,195,.12);color:#869ec3" title="status do ambiente">…</span>
-            <span class="arrow">▴</span>
-          </button>
-          <div class="ver-menu" id="ver-menu" role="menu">
-            <div class="ver-head">Versões anteriores</div>
-            ${OFFICE_VERSION_HISTORY.map(v => {
-              const isCurrent = v.status === 'current';
-              const cls = isCurrent ? 'current disabled' : '';
-              const href = isCurrent || !v.path ? '#' : v.path;
-              const target = isCurrent ? '' : ' target="_blank" rel="noopener"';
-              return `<a class="ver-item ${cls}" href="${href}"${target}>
-                <span class="v">${v.ver}</span>
-                <span class="lbl">${v.label}<span class="meta">${v.date}</span></span>
-              </a>`;
-            }).join('')}
-            <div class="ver-foot">
-              <a href="/changelog">📜 Changelog completo →</a>
-            </div>
-          </div>
-        </div>
+        <a class="ver-trigger" href="/changelog" title="Ver changelog completo" style="text-decoration:none">
+          <span>${OFFICE_FOOTER_VERSION}</span>
+          <span id="ver-status-chip" style="font-size:9px;padding:2px 6px;border-radius:99px;margin-left:6px;background:rgba(134,158,195,.12);color:#869ec3" title="status do ambiente">…</span>
+        </a>
         <span class="sep">·</span>
         <span class="status">sistemas online</span>
         <span class="sep">·</span>
@@ -316,13 +297,6 @@ class OfficeFooter extends HTMLElement {
   }
 
   hookEvents() {
-    const trigger = this.shadowRoot.getElementById('ver-trigger');
-    const menu = this.shadowRoot.getElementById('ver-menu');
-    trigger?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      menu.classList.toggle('open');
-    });
-    document.addEventListener('click', () => menu?.classList.remove('open'));
     // Status chip: detecta se essa versao é prod (live) ou local (snapshot)
     fetch('/api/changelog.json?t=' + Date.now())
       .then(r => r && r.ok ? r.json() : null)
