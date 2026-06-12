@@ -1,6 +1,6 @@
 {
-  "current": "0.43.0",
-  "atualizado_em": "2026-06-12",
+  "current": "0.44.0",
+  "atualizado_em": "12/jun/2026",
   "next": [
     {
       "version": "0.43.0",
@@ -47,9 +47,25 @@
   ],
   "releases": [
     {
-      "version": "0.43.0",
+      "version": "0.44.0",
       "date": "12/jun/2026",
       "status": "current",
+      "path": null,
+      "title": "🎮 Office Game 2.0 — Gather Edition (reformulação total do escritório)",
+      "summary": "Rewrite completo do /game inspirado no Gather: paleta clara pastel (grama, madeira, cream) no lugar do dark cyber, sprites pixel-art 100% procedurais (zero assets externos), 11 salas com tapetes e labels flutuantes (Optimizer, Marketing Hub, Inbound HQ, Sala do Roberto → /executivo, Voices Studio, Bullpen do time, Field & Eventos, SAP Lab, Coffee Lounge, Lobby com Mural de Ideias, Jardim ERP.ngo com elefante pixel). Time inteiro como NPCs andando (Duda, Bruna, Gui, Isabela, Marlison, Roberto, Anderson, Carlos) com name tags estilo Gather. Mesas personalizadas via office-desks.json (itens pixel-art: caneca, chimarrão, violão, gato dorminhoco… editável sem deploy — ⏳ itens REAIS de cada pessoa pendentes, pedir pro time). Click-to-move com pathfinding BFS + WASD + joystick mobile. Avatar com seletor de cor no spawn. Verificado: 11 salas alcançáveis do spawn via BFS nos dados reais de colisão.",
+      "highlights": [
+        "Visual Gather: pixel-art clara, tapetes pastel, árvores, labels de sala",
+        "8 NPCs do time real andando pelo escritório",
+        "Mesas personalizadas por pessoa (office-desks.json, sem deploy)",
+        "Click-to-move (BFS) + WASD + joystick mobile",
+        "Sala do Roberto linka direto pra Visão Executiva (/executivo)",
+        "Backup da versão anterior em _versoes-office/v0.43.0-office-warroom.html"
+      ]
+    },
+    {
+      "version": "0.43.0",
+      "date": "12/jun/2026",
+      "status": "released",
       "path": null,
       "title": "📊 Visão Executiva (CMO View) — pipeline marketing-sourced + win rate REAL pro Roberto",
       "summary": "Nova tela /executivo (printável em PDF) com a narrativa que CMO leva pro Country Manager: (1) Pipeline gerado por Marketing — classificação de campanhas Zoho em marketing/sales/parceria/sem-atribuição via campanha-classificacao.json (editável sem deploy): LinkedIn EUBR + Inbound + BTP Experience + SAP NOW + eventos = marketing-sourced. (2) Win rate REAL descoberto nos stages do Zoho (Fechado Ganhamos 21 deals R$7.1M vs Perdemos 76) — closed-won + win rate + pipeline aberto sem etiqueta de placeholder. (3) Funil de demanda real: LinkedIn → GA4 → Apollo → pipeline aberto → ganho, cada estágio com chip de fonte. (4) Tabela de atribuição por campanha (expõe gap de governança: R$10.8M sem campanha no Zoho). (5) Riscos: claims DF expirando, metas FY26 cobertura de fonte (8 reais + 1 parcial de 29), perdidos/cancelados. CAC/ROI e MQL/SQL etiquetados ⏳ (sem dado — Regra 7). Backend: GET /api/executivo agrega Zoho stages + classificação + DF + metas. Persona Roberto na home ganhou 4 KPIs executivos (pipeline_mkt_sourced, receita_ganha, pipeline_fy, df_meta_pct) linkando pro /executivo. Nav: '📊 Visão Executiva (CMO)' em Reports."
