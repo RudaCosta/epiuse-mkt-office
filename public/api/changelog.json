@@ -1,5 +1,5 @@
 {
-  "current": "0.44.2",
+  "current": "0.44.3",
   "atualizado_em": "12/jun/2026",
   "next": [
     {
@@ -47,9 +47,24 @@
   ],
   "releases": [
     {
-      "version": "0.44.2",
+      "version": "0.44.3",
       "date": "12/jun/2026",
       "status": "current",
+      "path": null,
+      "title": "🎨 /design reformulado — Brand System completo + agente Designer Principal",
+      "summary": "Viewer /design reescrito como documentação viva de Brand System (9 seções com TOC lateral + scroll-spy): (1) Fundamentos — ponte explícita dos 3 atributos da marca (expertise → navy #001844, humano → red #cd1543, propósito → ERP.ngo) pra decisões de UI; (2) Hierarquia das 3 marcas (GE > EPI-USE > ERP.ngo) com paletas clicáveis; (3) Arquitetura de tokens em 3 camadas (global → alias → componente); (4) Cores com contraste WCAG calculado AO VIVO por token — badge AAA/AA/✕ sobre surface dark e light; (5) Tipografia com orientação de uso por nível; (6) Spacing/Radius/Elevation; (7) Inventário Atomic Design (átomos → moléculas → organismos) com demos vivas e touch targets ≥44px; (8) UX Writing — tom de voz na interface com pares certo/errado (estados vazio/erro/loading + Regra 7); (9) Governança — workflow DESIGN.md → gen_tokens.py → propagação + Do's & Don'ts. Novo agente design-principal (.claude/agents/) — Designer UI/UX Principal especializado em Brand Systems, com as 3 perguntas de descoberta já respondidas pela base.",
+      "highlights": [
+        "Contraste WCAG AA/AAA calculado ao vivo pra cada token de cor",
+        "Tokens em 3 camadas: global → alias → componente",
+        "Inventário Atomic Design com demos funcionais",
+        "UX Writing: tom de voz na interface documentado",
+        "Agente design-principal contratado no escritório virtual"
+      ]
+    },
+    {
+      "version": "0.44.2",
+      "date": "12/jun/2026",
+      "status": "released",
       "path": null,
       "title": "🗂️ Reestruturação do menu — áreas unificadas + nomes finais",
       "summary": "Reorganização do nav principal: Growth absorvido por Intelligence (uma área unificada de dados); Eventos renomeado para Field Marketing; Pipeline renomeado para Biz Dev; Brand/Voices passa a Brand Experience e absorve Conteúdo (tab removida do menu principal); Metas FY atualizado para Metas FY27; Relatório Mensal promovido para tab fixa no menu principal (antes só no overflow). Breadcrumbs atualizados para refletir a nova hierarquia Brand Experience > Inbound / Voices / Cases / Artigos / Jornadas.",
