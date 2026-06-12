@@ -42,8 +42,12 @@
         return (d.user.name || '').split(' ')[0] || 'Rudá';
       }
     } catch {}
-    try { return (localStorage.getItem('office.user') || 'Rudá').split(' ')[0]; }
-    catch { return 'Rudá'; }
+    try {
+      let v = localStorage.getItem('office.user') || 'Rudá';
+      // migra valor legado JSON {"nome":"X"} salvo por versão antiga
+      if (v.startsWith('{')) { const p = JSON.parse(v); v = p.nome || p.name || 'Rudá'; localStorage.setItem('office.user', v); }
+      return v.split(' ')[0];
+    } catch { return 'Rudá'; }
   }
 
   // ── HERO ────────────────────────────────────────────────────────
