@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🎨 Brand System · EPI-USE Office</title>
 <link rel="stylesheet" href="/design-tokens.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script type="module" src="/office-nav.js"></script>
 <script type="module" src="/office-footer.js"></script>
 <style>
@@ -27,7 +28,7 @@
   /* ── Hero ── */
   .hero { margin-bottom: 34px; }
   .hero .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--color-text-muted); margin-bottom: 8px; }
-  h1 { font-family: 'Lexend', 'Open Sans', sans-serif; font-size: 32px; font-weight: 700; letter-spacing: -0.015em; margin-bottom: 8px; }
+  h1 { font-family: 'Poppins', 'Lexend', 'Open Sans', sans-serif; font-size: 32px; font-weight: 700; letter-spacing: -0.015em; margin-bottom: 8px; }
   .hero p.lede { color: var(--color-text-dim, var(--color-text-muted)); font-size: 15px; max-width: 720px; line-height: 1.6; }
   .hero .meta { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
   .hero .chip { font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--color-border); color: var(--color-text-muted); background: var(--color-surface); }
@@ -36,7 +37,7 @@
   /* ── Sections ── */
   .section { margin-bottom: 44px; scroll-margin-top: 64px; }
   .section-hdr { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; padding-bottom: 8px; border-bottom: 1px solid var(--color-border); }
-  .section-hdr h2 { font-family: 'Lexend', sans-serif; font-size: 20px; font-weight: 600; }
+  .section-hdr h2 { font-family: 'Poppins', 'Lexend', sans-serif; font-size: 20px; font-weight: 600; }
   .section-hdr .count { color: var(--color-text-muted); font-family: 'JetBrains Mono', monospace; font-size: 11px; }
   .section > .desc { color: var(--color-text-muted); font-size: 13px; line-height: 1.6; margin-bottom: 16px; max-width: 760px; }
   .section h3.subhdr { font-size: 11px; color: var(--color-text-muted); margin: 18px 0 10px; letter-spacing: .08em; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; }
@@ -45,7 +46,7 @@
   .attr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
   .attr-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--rounded-lg, 12px); padding: 18px; }
   .attr-card .swatch-dot { width: 34px; height: 34px; border-radius: 9px; margin-bottom: 12px; border: 1px solid rgba(255,255,255,.12); }
-  .attr-card h3 { font-family: 'Lexend', sans-serif; font-size: 15px; margin-bottom: 6px; }
+  .attr-card h3 { font-family: 'Poppins', 'Lexend', sans-serif; font-size: 15px; margin-bottom: 6px; }
   .attr-card .valor { font-size: 12px; color: var(--color-text-muted); line-height: 1.55; margin-bottom: 10px; }
   .attr-card .ui-rule { font-size: 12px; line-height: 1.55; border-top: 1px dashed var(--color-border); padding-top: 10px; }
   .attr-card .ui-rule b { font-family: 'JetBrains Mono', monospace; font-size: 11px; }
@@ -67,7 +68,7 @@
   .layer-card:last-child { border-radius: 0 var(--rounded-lg, 12px) var(--rounded-lg, 12px) 0; }
   .layer-card + .layer-card { border-left: none; }
   .layer-card .n { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--color-primary-400, #0070bf); letter-spacing: .1em; }
-  .layer-card h3 { font-size: 14px; margin: 4px 0 8px; font-family: 'Lexend', sans-serif; }
+  .layer-card h3 { font-size: 14px; margin: 4px 0 8px; font-family: 'Poppins', 'Lexend', sans-serif; }
   .layer-card p { font-size: 12px; color: var(--color-text-muted); line-height: 1.55; margin-bottom: 10px; }
   .layer-card code { display: block; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; background: var(--color-bg-2, rgba(0,0,0,.25)); border: 1px solid var(--color-border); border-radius: 6px; padding: 8px 10px; color: var(--color-text-dim, var(--color-text)); overflow-x: auto; white-space: nowrap; }
   @media (max-width: 900px) { .layer-card { border-radius: 0 !important; } .layer-card + .layer-card { border-left: 1px solid var(--color-border); border-top: none; } }
@@ -106,7 +107,7 @@
   /* ── Atomic design ── */
   .atomic-lvl { margin-bottom: 22px; }
   .atomic-lvl .lvl-hdr { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; }
-  .atomic-lvl .lvl-hdr h3 { font-family: 'Lexend', sans-serif; font-size: 15px; }
+  .atomic-lvl .lvl-hdr h3 { font-family: 'Poppins', 'Lexend', sans-serif; font-size: 15px; }
   .atomic-lvl .lvl-hdr span { font-size: 11px; color: var(--color-text-muted); }
   .comp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
   .comp-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--rounded-lg, 12px); padding: 14px 16px; }
@@ -131,7 +132,7 @@
   /* moléculas demo */
   .kpi-demo { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--rounded-lg, 12px); padding: 14px; min-width: 180px; }
   .kpi-demo .lbl { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-text-muted); font-family: 'JetBrains Mono', monospace; }
-  .kpi-demo .val { font-size: 26px; font-weight: 800; font-family: 'Lexend', sans-serif; margin: 4px 0; }
+  .kpi-demo .val { font-size: 26px; font-weight: 800; font-family: 'Poppins', 'Lexend', sans-serif; margin: 4px 0; }
   .kpi-demo .src { font-size: 9.5px; color: var(--color-text-muted); font-family: 'JetBrains Mono', monospace; }
   .alert { padding: 10px 14px; border-radius: var(--rounded-md, 8px); font-size: 12.5px; line-height: 1.5; border: 1px solid; width: 100%; }
   .alert.warn   { background: rgba(217,119,6,.08);  border-color: rgba(217,119,6,.3);  color: #fcd34d; }
@@ -141,7 +142,7 @@
   /* ── UX writing ── */
   .uxw-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
   .uxw-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--rounded-lg, 12px); padding: 16px; }
-  .uxw-card h3 { font-size: 13px; font-family: 'Lexend', sans-serif; margin-bottom: 10px; }
+  .uxw-card h3 { font-size: 13px; font-family: 'Poppins', 'Lexend', sans-serif; margin-bottom: 10px; }
   .uxw-card .ex { font-size: 12px; line-height: 1.6; padding: 8px 10px; border-radius: 6px; margin-bottom: 6px; }
   .uxw-card .ex.sim { background: rgba(5,150,105,.08); border-left: 3px solid #059669; }
   .uxw-card .ex.nao { background: rgba(220,38,38,.07); border-left: 3px solid #dc2626; color: var(--color-text-muted); }
@@ -229,8 +230,8 @@
 
     <!-- 2 · HIERARQUIA -->
     <section class="section" id="hierarquia">
-      <div class="section-hdr"><h2>2 · Hierarquia de marcas</h2><span class="count">3 brands oficiais</span></div>
-      <p class="desc">Três identidades convivem no ecossistema — cada uma com paleta própria. <strong>Não misturar sem propósito:</strong> telas do Office usam a escala operacional Codex; conteúdo ERP.ngo usa a paleta ERP.ngo; material do grupo usa GE.</p>
+      <div class="section-hdr"><h2>2 · Hierarquia de marcas</h2><span class="count">4 brands</span></div>
+      <p class="desc">Quatro identidades convivem no ecossistema — cada uma com paleta própria. <strong>Não misturar sem propósito:</strong> telas do Office usam a escala operacional Codex; conteúdo ERP.ngo usa a paleta ERP.ngo; material do grupo usa GE. Fotografia institucional (ref. epiuse.com/company-overview): <strong>pessoas reais do time + elefantes/conservação</strong> — nunca stock genérico de "negócios".</p>
       <div class="brand-grid">
         <div class="brand-card" style="border-left:4px solid #1C478A">
           <div class="ttl">🐘 Group Elephant</div>
@@ -271,6 +272,37 @@
           </div>
           <div class="src">Brand Guide V1.0 (2016) · tagline obrigatória</div>
         </div>
+        <div class="brand-card" style="border-left:4px solid #0083B3">
+          <div class="ttl">📊 Stratview</div>
+          <div class="role">Analytics / Reporting · Group Company</div>
+          <div class="logo-box"><img src="/assets/logos-stratview/stratview-logo.svg" alt="Stratview" style="max-height:42px"></div>
+          <div class="pal">
+            <span style="background:#0083B3" onclick="copyHex('#0083B3')" title="#0083B3"></span>
+            <span style="background:#005F82" onclick="copyHex('#005F82')" title="#005F82"></span>
+            <span style="background:#003D54" onclick="copyHex('#003D54')" title="#003D54"></span>
+            <span style="background:#7CC4DE" onclick="copyHex('#7CC4DE')" title="#7CC4DE"></span>
+            <span style="background:#D6EEF7" onclick="copyHex('#D6EEF7')" title="#D6EEF7"></span>
+          </div>
+          <div class="src">🤖 sistema proposto por IA — único asset oficial é o logo (#0083B3 do SVG) · validar antes de uso externo</div>
+        </div>
+      </div>
+
+      <h3 class="subhdr">📦 Biblioteca de assets (OneDrive · MARKETING/Branding)</h3>
+      <div class="comp-grid">
+        <div class="comp-card">
+          <div class="comp-title">Ícones brancos EPI-USE — 288 PNGs</div>
+          <p style="font-size:11.5px;color:var(--color-text-muted);line-height:1.55;font-family:'JetBrains Mono',monospace;word-break:break-all">EPI-USE/_logos/icons white/</p>
+          <p style="font-size:12px;color:var(--color-text-muted);line-height:1.55;margin-top:6px">Set oficial "EU Icons" 2021–2022. Uso: slides, peças escuras. Na web, preferir SVG equivalente quando existir.</p>
+        </div>
+        <div class="comp-card">
+          <div class="comp-title">Logos square de parceiros — 15 PNGs</div>
+          <p style="font-size:11.5px;color:var(--color-text-muted);line-height:1.55;font-family:'JetBrains Mono',monospace;word-break:break-all">EPI-USE/_logos/square logos/</p>
+          <p style="font-size:12px;color:var(--color-text-muted);line-height:1.55;margin-top:6px">SAP Gold Partner · S/4HANA · SuccessFactors · BTP · Signavio · LeanIX · Business AI · AWS · ServiceNow · WorkForce · GE · ERP.ngo · 40 years. Formato padrão pra grids de parceiros.</p>
+        </div>
+        <div class="comp-card">
+          <div class="comp-title">Fotografia institucional</div>
+          <p style="font-size:12px;color:var(--color-text-muted);line-height:1.55">Padrão do site global (epiuse.com): <strong>pessoas reais do time</strong> em contexto de trabalho + <strong>elefantes/rinocerontes</strong> (ERP.ngo) — "Beyond Corporate Purpose". Nunca stock genérico de aperto de mão.</p>
+        </div>
       </div>
     </section>
 
@@ -302,8 +334,8 @@
 
     <!-- 4 · CORES + WCAG -->
     <section class="section" id="cores">
-      <div class="section-hdr"><h2>4 · Cores + acessibilidade WCAG</h2><span class="count" id="color-count">—</span></div>
-      <p class="desc">Cada token mostra o contraste calculado <em>ao vivo</em> como cor de texto sobre as superfícies do tema dark (◐) e light (○). WCAG 2.1: <strong>AA</strong> exige 4.5:1 (texto normal) · <strong>AAA</strong> exige 7:1. Tokens reprovados nos dois fundos só podem ser usados como cor decorativa/de fundo — nunca como texto.</p>
+      <div class="section-hdr"><h2>4 · Cores das marcas + acessibilidade WCAG</h2><span class="count" id="color-count">—</span></div>
+      <p class="desc">Paletas das 4 marcas do ecossistema. Cada token mostra o contraste calculado <em>ao vivo</em> como cor de texto sobre as superfícies do tema dark (◐) e light (○). WCAG 2.1: <strong>AA</strong> exige 4.5:1 (texto normal) · <strong>AAA</strong> exige 7:1. Tokens reprovados nos dois fundos só podem ser usados como cor decorativa/de fundo — nunca como texto. <em>Tokens operacionais (semantic/status + neutrals dos temas) seguem no design-tokens.css — são infraestrutura do produto, não identidade de marca.</em></p>
       <div class="wcag-legend">
         <span><span class="wcag-badge wcag-aaa">AAA</span> ≥ 7:1</span>
         <span><span class="wcag-badge wcag-aa">AA</span> ≥ 4.5:1</span>
@@ -316,7 +348,7 @@
     <!-- 5 · TIPOGRAFIA -->
     <section class="section" id="tipografia">
       <div class="section-hdr"><h2>5 · Tipografia</h2><span class="count" id="type-count">—</span></div>
-      <p class="desc">Stack web: <strong>Lexend</strong> (títulos · produto digital) · <strong>Source Sans 3 / Open Sans</strong> (corpo) · <strong>JetBrains Mono</strong> (números, código, chips de fonte) · <strong>Press Start 2P</strong> (exclusivo /game). Brand Guide ideal: Maven Pro + Avenir — aproximadas na web pela stack self-hosted. Body mínimo 16px no mobile · line-height 1.5–1.75.</p>
+      <p class="desc">Stack oficial (decisão 12/jun/2026): <strong>Poppins</strong> (display/títulos — geométrica-circular, mesma família do Maven Pro do Brand Guide V1.1, aproxima a web do ideal de marca) · <strong>Open Sans</strong> (corpo — humanista, legível em dashboard denso; self-hosted) · <strong>Verdana</strong> (fallback honesto: é a fonte real do PPT corporativo Jan 2026, 295 ocorrências auditadas) · <strong>JetBrains Mono</strong> (números, código, chips) · <strong>Press Start 2P</strong> (exclusivo /game). <strong>Aposentadas:</strong> Lato · Inter (migração gradual) · Maven Pro direto (não self-hosted). Body mínimo 16px no mobile · line-height 1.5–1.75.</p>
       <div id="types"></div>
     </section>
 
@@ -526,12 +558,11 @@ function renderColors() {
     '🔵 EPI-USE Brasil — escala primary (Codex + navy master)': k => k.startsWith('primary-'),
     '🔵 EPI-USE Brasil — secondary + backgrounds': k => k.startsWith('secondary-') || k.startsWith('bg-light-'),
     '🦏 ERP.ngo': k => k.startsWith('erp-'),
-    'Semantic — status de UI': k => /^(success|warning|danger|info|ia-|accent-|service-)/.test(k),
-    'Neutral dark (tema padrão)': k => k.startsWith('neutral-dark-'),
-    'Neutral light (tema claro)': k => k.startsWith('neutral-light-'),
+    '📊 Stratview — 🤖 sistema proposto (derivado do logo, sem brand guide)': k => k.startsWith('stratview-'),
   };
   const all = Object.entries(TOKENS.colors);
-  document.getElementById('color-count').textContent = `${all.length} tokens`;
+  const shown = all.filter(([k]) => Object.values(cats).some(fn => fn(k)));
+  document.getElementById('color-count').textContent = `${shown.length} tokens de marca (${all.length} no CSS — semantic/neutral são operacionais, fora do showcase)`;
   document.getElementById('color-cats').innerHTML = Object.entries(cats).map(([cat, fn]) => {
     const items = all.filter(([k]) => fn(k));
     if (!items.length) return '';
@@ -558,18 +589,19 @@ function renderColors() {
 
 // Orientação de uso por nível tipográfico
 const TYPE_USO = {
-  'display-lg':  'Hero de LPs e telas de capa — 1 por página',
-  'display-md':  'Título de página interna',
-  'headline-lg': 'Título de seção principal',
-  'headline-md': 'Título de card grande / modal',
-  'headline-sm': 'Título de card padrão',
-  'title':       'Subtítulo, label de grupo',
-  'body-lg':     'Texto de leitura longa',
-  'body-md':     'Corpo padrão da UI',
-  'body-sm':     'Texto secundário, descrições',
-  'label':       'Labels de form e chips',
-  'mono':        'Números, KPIs, código, fontes de dado',
-  'pixel':       'EXCLUSIVO /game — nunca em telas de dado',
+  'display-lg':    'Hero de LPs e telas de capa — 1 por página · Poppins',
+  'display-md':    'Título de página interna · Poppins',
+  'headline-lg':   'Título de seção principal · Poppins',
+  'headline-md':   'Título de card grande / modal · Poppins',
+  'headline-sm':   'Título de card padrão · Poppins',
+  'body-lg':       'Texto de leitura longa · Open Sans',
+  'body-md':       'Corpo padrão da UI · Open Sans',
+  'body-sm':       'Texto secundário, descrições · Open Sans',
+  'label-md':      'Labels de form e botões · Open Sans',
+  'label-sm':      'Eyebrows, chips, uppercase · Open Sans',
+  'code-md':       'Números, KPIs, código · JetBrains Mono',
+  'code-sm':       'Chips de fonte de dado · JetBrains Mono',
+  'pixel-display': 'EXCLUSIVO /game — nunca em telas de dado',
 };
 
 function renderTypes() {

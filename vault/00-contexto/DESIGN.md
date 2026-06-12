@@ -1,7 +1,7 @@
 ---
-version: "3.0"
+version: "3.1"
 name: EPI-USE Brasil Office Design System (Codex)
-description: v3.0 (30/mai/2026) — adota a paleta operacional Codex (#013A6A primary + Open Sans + surfaces claras), decisão Rudá. Preserva marcas oficiais (GE · EPI-USE navy #001844 · ERP.ngo) como sub-paletas e o tema DARK completo. Camada clean p/ produto digital sobre a base de marca.
+description: "v3.1 (12/jun/2026) — adiciona sub-paleta STRATVIEW (#0083B3 extraído do SVG oficial — sistema 🤖 proposto por IA, sem brand guide) e atualiza stack tipográfica (Poppins display + Open Sans body, decisão Rudá 12/jun — Poppins ecoa a geometria do Maven Pro do Brand Guide; Verdana é a realidade do PPT corporativo Jan 2026 e vira fallback). Base v3.0 — paleta operacional Codex (#013A6A = accent1 do PPT theme, confirmado) + marcas oficiais (GE · EPI-USE navy #001844 · ERP.ngo) como sub-paletas."
 
 # ============================================================================
 # COLORS — 3 hierarquias oficiais (Group Elephant > EPI-USE > ERP.ngo)
@@ -57,6 +57,19 @@ colors:
   erp-brown-light: "#BBA997"  # CMYK 23/27/36/6 · RGB 187/169/151
 
   # ────────────────────────────────────────────────────────────────────────
+  # STRATVIEW (Analytics/Reporting — Group Company)
+  # 🤖 Sistema PROPOSTO por IA (12/jun/2026): único asset oficial é o logo.
+  # Master #0083B3 extraído do fill do SVG oficial (_Group Companies/Stratview/Logo).
+  # Escala derivada por luminância — validar com a marca antes de uso externo.
+  # ────────────────────────────────────────────────────────────────────────
+  stratview-blue:       "#0083B3"  # fill oficial do logo SVG · master
+  stratview-blue-dark:  "#005F82"  # hover/active · texto sobre claro
+  stratview-blue-deep:  "#003D54"  # headings · contraste AAA sobre claro
+  stratview-blue-light: "#7CC4DE"  # acentos sobre escuro
+  stratview-blue-pale:  "#D6EEF7"  # backgrounds/tints
+  stratview-grey:       "#5B6770"  # neutro de apoio p/ dataviz
+
+  # ────────────────────────────────────────────────────────────────────────
   # SEMANTIC (UI status indicators)
   # ────────────────────────────────────────────────────────────────────────
   success-300: "#6ee7b7"
@@ -106,18 +119,22 @@ colors:
 # ============================================================================
 # TYPOGRAPHY — hierarquia de fontes por brand
 # ============================================================================
-# WEB STACK FINAL (decisão Rudá 28/mai):
-#   PRIMARY (headlines): Open Sans (self-hosted) → Maven Pro (Brand Guide ideal) → System fallback
-#   SECONDARY (body):    Open Sans (self-hosted, confirmada por Rudá) → Verdana → Arial
+# WEB STACK FINAL (decisão Rudá 12/jun/2026 — revisão design-principal):
+#   DISPLAY (headlines): Poppins → Maven Pro (Brand Guide ideal — mesma família geométrica) → Open Sans → Verdana
+#     Racional: Rudá prefere Poppins; é geométrica-circular como o Maven Pro do Brand Guide V1.1,
+#     então aproxima a web do ideal de marca MAIS que Open Sans (humanista).
+#   BODY (texto/UI):     Open Sans (self-hosted) → Verdana (realidade do PPT corporativo Jan 2026) → Arial
+#     Racional: leitura densa de dashboard pede humanista; Verdana é o fallback honesto (é o que o deck usa).
+#   APOSENTADAS:         Lato · Inter (migração gradual) · Maven Pro direto (não self-hosted)
 #   CODE/NUMBERS:        JetBrains Mono → Consolas
 #   PIXEL (só /game):    Press Start 2P
 # ============================================================================
 typography:
-  display-lg:    { fontFamily: "Open Sans, Maven Pro, Verdana, Arial, sans-serif", fontSize: "40px", fontWeight: 800, lineHeight: 1.1, letterSpacing: "-0.02em" }
-  display-md:    { fontFamily: "Open Sans, Maven Pro, Verdana, Arial, sans-serif", fontSize: "32px", fontWeight: 700, lineHeight: 1.15 }
-  headline-lg:   { fontFamily: "Open Sans, Maven Pro, Verdana, Arial, sans-serif", fontSize: "26px", fontWeight: 700, lineHeight: 1.2 }
-  headline-md:   { fontFamily: "Open Sans, Maven Pro, Verdana, Arial, sans-serif", fontSize: "20px", fontWeight: 700, lineHeight: 1.3 }
-  headline-sm:   { fontFamily: "Open Sans, Maven Pro, Verdana, Arial, sans-serif", fontSize: "16px", fontWeight: 700, lineHeight: 1.4 }
+  display-lg:    { fontFamily: "Poppins, Maven Pro, Open Sans, Verdana, sans-serif", fontSize: "40px", fontWeight: 700, lineHeight: 1.1, letterSpacing: "-0.02em" }
+  display-md:    { fontFamily: "Poppins, Maven Pro, Open Sans, Verdana, sans-serif", fontSize: "32px", fontWeight: 700, lineHeight: 1.15 }
+  headline-lg:   { fontFamily: "Poppins, Maven Pro, Open Sans, Verdana, sans-serif", fontSize: "26px", fontWeight: 600, lineHeight: 1.2 }
+  headline-md:   { fontFamily: "Poppins, Maven Pro, Open Sans, Verdana, sans-serif", fontSize: "20px", fontWeight: 600, lineHeight: 1.3 }
+  headline-sm:   { fontFamily: "Poppins, Maven Pro, Open Sans, Verdana, sans-serif", fontSize: "16px", fontWeight: 600, lineHeight: 1.4 }
   body-lg:       { fontFamily: "Open Sans, Verdana, Arial, sans-serif", fontSize: "16px", fontWeight: 400, lineHeight: 1.55 }
   body-md:       { fontFamily: "Open Sans, Verdana, Arial, sans-serif", fontSize: "14px", fontWeight: 400, lineHeight: 1.5 }
   body-sm:       { fontFamily: "Open Sans, Verdana, Arial, sans-serif", fontSize: "12px", fontWeight: 400, lineHeight: 1.45 }

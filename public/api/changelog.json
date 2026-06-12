@@ -1,5 +1,5 @@
 {
-  "current": "0.44.3",
+  "current": "0.44.4",
   "atualizado_em": "12/jun/2026",
   "next": [
     {
@@ -47,9 +47,24 @@
   ],
   "releases": [
     {
-      "version": "0.44.3",
+      "version": "0.44.4",
       "date": "12/jun/2026",
       "status": "current",
+      "path": null,
+      "title": "🧑‍🎨 Revisão do Brand System pelo design-principal — Stratview + Poppins + auditoria PPT",
+      "summary": "Revisão com evidência real: (1) Auditoria do PPT corporativo Jan 2026 (55 slides) — fonte real é Verdana (295 runs) e o theme accent1 #013A6A confirma a paleta Codex do DESIGN.md. (2) Nova decisão tipográfica: Poppins (display — geométrica como o Maven Pro do Brand Guide) + Open Sans (body) + Verdana (fallback honesto); Lato/Inter aposentadas. (3) Sub-paleta STRATVIEW criada (🤖 proposta IA — único asset oficial é o logo; master #0083B3 extraído do fill do SVG, escala derivada) — DESIGN.md v3.1 + tokens regenerados (73 cores). (4) /design: 4ª marca no grid (Stratview com logo), seção de cores agora mostra SÓ paletas de marca (semantic/neutral saem do showcase — são infra do produto, seguem no CSS), biblioteca de assets documentada (288 ícones white + 15 square logos de parceiros + diretriz de fotografia do site global: pessoas reais + elefantes, nunca stock genérico).",
+      "highlights": [
+        "Stratview: 4ª marca com sistema proposto (#0083B3 do SVG oficial)",
+        "Tipografia: Poppins display + Open Sans body + Verdana fallback",
+        "Auditoria PPT Jan 2026: Verdana 295× · accent1 #013A6A = Codex ✅",
+        "DESIGN.md v3.1 · 73 tokens de cor regenerados",
+        "Showcase de cores só com as 4 marcas (semantic/neutral viram infra)"
+      ]
+    },
+    {
+      "version": "0.44.3",
+      "date": "12/jun/2026",
+      "status": "released",
       "path": null,
       "title": "🎨 /design reformulado — Brand System completo + agente Designer Principal",
       "summary": "Viewer /design reescrito como documentação viva de Brand System (9 seções com TOC lateral + scroll-spy): (1) Fundamentos — ponte explícita dos 3 atributos da marca (expertise → navy #001844, humano → red #cd1543, propósito → ERP.ngo) pra decisões de UI; (2) Hierarquia das 3 marcas (GE > EPI-USE > ERP.ngo) com paletas clicáveis; (3) Arquitetura de tokens em 3 camadas (global → alias → componente); (4) Cores com contraste WCAG calculado AO VIVO por token — badge AAA/AA/✕ sobre surface dark e light; (5) Tipografia com orientação de uso por nível; (6) Spacing/Radius/Elevation; (7) Inventário Atomic Design (átomos → moléculas → organismos) com demos vivas e touch targets ≥44px; (8) UX Writing — tom de voz na interface com pares certo/errado (estados vazio/erro/loading + Regra 7); (9) Governança — workflow DESIGN.md → gen_tokens.py → propagação + Do's & Don'ts. Novo agente design-principal (.claude/agents/) — Designer UI/UX Principal especializado em Brand Systems, com as 3 perguntas de descoberta já respondidas pela base.",
