@@ -8,7 +8,7 @@
 // Fonte ÚNICA da verdade: public/api/changelog.json#current via /api/version
 // Fallback hardcoded usado SÓ se fetch falhar (offline, etc).
 // Sincronização automática — não editar manualmente, basta bumpar changelog.json.
-let OFFICE_NAV_VERSION = '0.44.1';
+let OFFICE_NAV_VERSION = '0.44.2';
 // Promise compartilhada — nav + footer reaproveitam o mesmo fetch
 window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/version')
   .then(r => r.ok ? r.json() : null)
@@ -102,28 +102,29 @@ function cycleLang() {
 // NAV POR AREA/DONA (v0.7.x) — cada item = 1 modulo (funil de meta + numeros + projetos + ferramentas).
 // Fonte: /api/areas.json. Telas antigas viram "ferramentas" dentro de cada modulo (deep-links seguem valendo).
 const OFFICE_NAV_TABS = [
-  { id: 'hub',          label: 'Home',         icon: '🏠', href: '/',                  matches: ['hub','home'] },
-  { id: 'intelligence', label: 'Intelligence', icon: '🧠', href: '/area/intelligence', matches: ['area-intelligence'] },
-  { id: 'growth',       label: 'Growth',       icon: '🚀', href: '/area/growth',       matches: ['area-growth'] },
-  { id: 'eventos',      label: 'Eventos',      icon: '📅', href: '/area/eventos',      matches: ['area-eventos'] },
-  { id: 'pipeline',     label: 'Pipeline',     icon: '📞', href: '/area/pipeline',     matches: ['area-pipeline','pipeline'] },
-  { id: 'brand',        label: 'Brand/Voices', icon: '🎨', href: '/area/brand',        matches: ['area-brand','voices','inbound','cases','painel','optimizer'] },
-  { id: 'conteudo',     label: 'Conteúdo',     icon: '📣', href: '/area/conteudo',     matches: ['area-conteudo','artigos','jornadas'] },
-  { id: 'metas',        label: 'Metas FY',     icon: '🎯', href: '/metas-fy26',        matches: ['metas','metas-fy26','relatorio'] }
+  { id: 'hub',          label: 'Home',             icon: '🏠', href: '/',                  matches: ['hub','home'] },
+  { id: 'intelligence', label: 'Intelligence',     icon: '🧠', href: '/area/intelligence', matches: ['area-intelligence','area-growth'] },
+  { id: 'field',        label: 'Field Marketing',  icon: '📅', href: '/area/eventos',      matches: ['area-eventos','area-field'] },
+  { id: 'pipeline',     label: 'Biz Dev',          icon: '📞', href: '/area/pipeline',     matches: ['area-pipeline','pipeline'] },
+  { id: 'brand',        label: 'Brand Experience', icon: '🎨', href: '/area/brand',        matches: ['area-brand','voices','inbound','cases','painel','optimizer','area-conteudo','artigos','jornadas'] },
+  { id: 'metas',        label: 'Metas FY27',       icon: '🎯', href: '/metas-fy26',        matches: ['metas','metas-fy26'] },
+  { id: 'relatorio',    label: 'Relatório Mensal', icon: '📊', href: '/relatorio',         matches: ['relatorio'] }
 ];
 
 // Breadcrumbs por rota — aparece sutil abaixo do nav em rotas profundas
 const OFFICE_NAV_BREADCRUMBS = {
-  'inbound':       ['📡 Inbound'],
-  'inbound-brief': ['📡 Inbound', 'Brief → Post'],
-  'inbound-carousel': ['📡 Inbound', 'Carrossel + Capa'],
-  'inbound-calendar': ['📡 Inbound', 'Calendário Editorial'],
-  'inbound-studio': ['📡 Inbound', 'Template Studio'],
-  'inbound-playbook': ['📡 Inbound', 'Playbook'],
-  'voices': ['🎙️ Voices'],
-  'painel': ['🎙️ Voices', '🎯 Painel da Duda'],
-  'optimizer': ['🎙️ Voices', '🪪 Profile Optimizer'],
-  'cases': ['🤝 Cases & CS']
+  'inbound':       ['🎨 Brand Experience', '📡 Inbound'],
+  'inbound-brief': ['🎨 Brand Experience', '📡 Inbound', 'Brief → Post'],
+  'inbound-carousel': ['🎨 Brand Experience', '📡 Inbound', 'Carrossel + Capa'],
+  'inbound-calendar': ['🎨 Brand Experience', '📡 Inbound', 'Calendário Editorial'],
+  'inbound-studio': ['🎨 Brand Experience', '📡 Inbound', 'Template Studio'],
+  'inbound-playbook': ['🎨 Brand Experience', '📡 Inbound', 'Playbook'],
+  'voices': ['🎨 Brand Experience', '🎙️ Voices'],
+  'painel': ['🎨 Brand Experience', '🎙️ Voices', '🎯 Painel da Duda'],
+  'optimizer': ['🎨 Brand Experience', '🪪 Profile Optimizer'],
+  'cases': ['🎨 Brand Experience', '🤝 Cases & CS'],
+  'artigos': ['🎨 Brand Experience', '📚 Artigos do Blog'],
+  'jornadas': ['🎨 Brand Experience', '🗺️ Jornadas de Compra']
 };
 
 // Overflow agrupado por seção (Sprint 11.2 — UX/UI melhor)
@@ -226,8 +227,12 @@ class OfficeNav extends HTMLElement {
   // Mapa route → tab id (várias rotas mapeiam pro mesmo tab principal)
   getActiveTab() {
     const r = this.getActiveRoute();
-    if (r.startsWith('inbound')) return 'inbound';
-    if (r === 'painel' || r === 'voices') return 'voices';
+    if (r.startsWith('inbound')) return 'brand';
+    if (r === 'painel' || r === 'voices') return 'brand';
+    if (r === 'area-growth' || r === 'growth') return 'intelligence';
+    if (r === 'area-eventos' || r === 'area-field' || r === 'eventos') return 'field';
+    if (r === 'artigos' || r === 'jornadas' || r === 'area-conteudo') return 'brand';
+    if (r === 'relatorio') return 'relatorio';
     return r;
   }
 
