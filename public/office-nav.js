@@ -35,7 +35,7 @@ window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/ver
 })();
 
 // GLOBAL polish stylesheets (v0.24.0) — injeta em TODAS paginas que carregam office-nav.js
-// Inclui Lexend + Source Sans 3 (consulting fonts) + polish-pro.css + consulting-dark.css
+// Inclui Poppins + Source Sans 3 (consulting fonts) + polish-pro.css + consulting-dark.css
 (function injectGlobalPolish() {
   if (document.getElementById('global-polish-loader')) return;
   const marker = document.createElement('meta');
@@ -51,11 +51,11 @@ window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/ver
     document.head.appendChild(l);
   });
 
-  // Google Fonts CSS (Lexend + Source Sans 3 + Fira Code)
-  if (!document.querySelector('link[href*="Lexend"]')) {
+  // Google Fonts CSS (Poppins + Source Sans 3 + Fira Code)
+  if (!document.querySelector('link[href*="Poppins"]')) {
     const fontsLink = document.createElement('link');
     fontsLink.rel = 'stylesheet';
-    fontsLink.href = 'https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&family=Fira+Code:wght@500;600;700&display=swap';
+    fontsLink.href = 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&family=Fira+Code:wght@500;600;700&display=swap';
     document.head.appendChild(fontsLink);
   }
 
@@ -935,7 +935,7 @@ function applyTheme(theme) {
     body[data-route]:not([data-route="seja-voice"]) h1,
     body[data-route]:not([data-route="seja-voice"]) h2,
     body[data-route]:not([data-route="seja-voice"]) h3 {
-      font-family: 'Lexend', 'Source Sans 3', sans-serif;
+      font-family: 'Poppins', 'Source Sans 3', sans-serif;
       letter-spacing: -0.012em;
       font-weight: 600;
     }
@@ -1056,7 +1056,7 @@ function applyTheme(theme) {
     :root[data-theme="elephant"] h3,
     :root[data-theme="elephant"] h4,
     :root[data-theme="elephant"] .home-section-title {
-      font-family: 'Lexend', 'Playfair Display', 'Source Serif Pro', Georgia, serif !important;
+      font-family: 'Poppins', 'Playfair Display', 'Source Serif Pro', Georgia, serif !important;
       color: #1f3024 !important;
       letter-spacing: -0.01em !important;
       font-weight: 600 !important;
