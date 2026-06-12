@@ -1429,7 +1429,8 @@ app.get('/inbound/carousel',  (req, res) => res.sendFile(path.join(INBOUND_DIR, 
 app.get('/inbound/playbook',       (req, res) => res.sendFile(path.join(INBOUND_DIR, 'playbook.html')));
 app.get('/clientes-sap-4me', (req, res) => res.sendFile(path.join(__dirname, 'public/clientes-sap-4me.html')));
 app.get('/field-marketing', (req, res) => res.sendFile(path.join(__dirname, 'public/field-marketing.html')));
-app.get('/content-pipeline', (req, res) => res.sendFile(path.join(__dirname, 'public/content-pipeline.html')));
+app.get('/content-pipeline', (req, res) => res.redirect(301, '/area/brand'));
+app.get('/area/conteudo', (req, res) => res.redirect(301, '/area/brand'));
 app.get('/development-funds', (req, res) => res.sendFile(path.join(__dirname, 'public/development-funds.html')));
 
 // ── INBOUND CALENDAR API (sprint 0.4.0) ─────────────────────────────────────
