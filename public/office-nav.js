@@ -8,7 +8,7 @@
 // Fonte ÚNICA da verdade: public/api/changelog.json#current via /api/version
 // Fallback hardcoded usado SÓ se fetch falhar (offline, etc).
 // Sincronização automática — não editar manualmente, basta bumpar changelog.json.
-let OFFICE_NAV_VERSION = '0.45.0';
+let OFFICE_NAV_VERSION = '0.45.1';
 // Promise compartilhada — nav + footer reaproveitam o mesmo fetch
 window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/version')
   .then(r => r.ok ? r.json() : null)
@@ -346,18 +346,19 @@ class OfficeNav extends HTMLElement {
         }
         .tab:hover { background: var(--nav-hover-bg); color: var(--nav-text); }
         .tab.active {
-          background: linear-gradient(180deg, rgba(37,99,235,0.28) 0%, rgba(37,99,235,0.18) 100%);
-          border-color: rgba(96,165,250,0.55);
-          color: #93c5fd;
+          background: linear-gradient(180deg, rgba(37,99,235,0.42) 0%, rgba(37,99,235,0.28) 100%);
+          border-color: rgba(96,165,250,0.85);
+          color: #ffffff;
           font-weight: 700;
-          box-shadow: 0 1px 0 rgba(96,165,250,0.40) inset, 0 -2px 0 rgba(96,165,250,0.55) inset;
+          box-shadow: 0 0 0 1px rgba(96,165,250,0.45), 0 2px 10px rgba(37,99,235,0.45);
         }
         .tab.active::before {
           content: '';
-          width: 5px; height: 5px;
-          background: #60a5fa;
+          width: 6px; height: 6px;
+          background: #93c5fd;
           border-radius: 50%;
-          box-shadow: 0 0 6px #60a5fa;
+          box-shadow: 0 0 8px 1px #60a5fa;
+          flex-shrink: 0;
         }
         .tab-ico { font-size: 13px; }
         .spacer { flex: 1; }

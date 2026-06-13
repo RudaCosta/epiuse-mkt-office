@@ -1,5 +1,5 @@
 {
-  "current": "0.45.0",
+  "current": "0.45.1",
   "atualizado_em": "12/jun/2026",
   "next": [
     {
@@ -47,9 +47,22 @@
   ],
   "releases": [
     {
-      "version": "0.45.0",
+      "version": "0.45.1",
       "date": "12/jun/2026",
       "status": "current",
+      "path": null,
+      "title": "🎯 Item ativo do menu mais visível",
+      "summary": "Reforço do estado selecionado no nav (as vezes o usuario se perdia): fundo azul mais forte, borda solida 0.85 alpha, ring + sombra azul, texto branco e dot maior com glow. Aplica no nav desktop e mobile.",
+      "highlights": [
+        "Tab ativa: fundo+borda+ring mais fortes",
+        "Dot indicador maior com glow",
+        "Texto branco no item selecionado"
+      ]
+    },
+    {
+      "version": "0.45.0",
+      "date": "12/jun/2026",
+      "status": "released",
       "path": null,
       "title": "🏭 Content Factory — Inbound reestruturado: 1 input → pacote pronto",
       "summary": "Reformulação total do /inbound. Novo hub Content Factory: usuário cola UMA coisa (tema, brief, transcrição, rascunho) e o pipeline devolve o pacote pronto pra publicação. Pipeline de 2 etapas no servidor: (1) Redator B2B por persona — 3 agentes novos (redator-b2b-cfo, redator-b2b-chro, redator-b2b-cio) com dores e pitches reais do empresa.md, rodando em Sonnet 4.6; auto-detecção de persona disponível. (2) Revisor SEO/GEO — agente novo (revisor-seo-geo, Haiku): meta title/description/slug/keywords + FAQ citável por LLMs (Generative Engine Optimization) + alertas de qualidade. Saídas configuráveis: Post LinkedIn, Carrossel (estrutura completa cover+slides+CTA), Post único, Capa de blog (canvas 1200×630 com download PNG, Poppins + navy/red) e Artigo SEO completo. Regras de marca embutidas no prompt: zero número inventado, sem concorrente nominal, sem cliente sem aprovação, voz sóbria EPI-USE. Etiqueta 🤖 Gerado por IA em todo pacote (Regra 6) + lembrete de aprovação Duda. Submenu antigo removido; 5 ferramentas antigas viram seção Ferramentas Avançadas. Endpoint novo: POST /api/inbound/factory. 4 agentes registrados no /agentes (camada Pipeline de Conteúdo). ⚠️ Requer restart do server local pra ativar o endpoint.",
