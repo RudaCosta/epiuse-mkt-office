@@ -1,5 +1,5 @@
 {
-  "current": "0.47.0",
+  "current": "0.47.1",
   "atualizado_em": "12/jun/2026",
   "next": [
     {
@@ -47,9 +47,23 @@
   ],
   "releases": [
     {
-      "version": "0.47.0",
+      "version": "0.47.1",
       "date": "13/jun/2026",
       "status": "current",
+      "path": null,
+      "title": "📊 Report mensal redondo — seguidores 10.709 + base RD real + ressalva mes parcial",
+      "summary": "Revisao do /relatorio: (1) overlay da rotina LinkedIn aplicado tambem no /api/relatorio/snapshot — seguidores 10.709 (jun) em vez de null/chumbado. (2) Base de leads passa a usar total_na_conta REAL (1.497) em vez do segmento arredondado (1.000+). (3) Enviados no mes=0 ganha label honesto sem disparo no periodo (e real: sem campanha em jun ate dia 5). (4) Duracao de sessao 1m03s -35% e GA4 REAL, mas junho e mes em curso (parcial) — adicionada ressalva de que variacao % vs mes cheio distorce. GA4/RD nao refrescam local (creds GA4_PROPERTY_ID/RD_REFRESH_TOKEN so no Railway).",
+      "highlights": [
+        "Seguidores 10.709 no report (overlay no snapshot)",
+        "Base de leads real 1.497 (era 1.000+ arredondado)",
+        "Ressalva de mes parcial na duracao de sessao",
+        "Enviados 0 = real, com label de contexto"
+      ]
+    },
+    {
+      "version": "0.47.0",
+      "date": "13/jun/2026",
+      "status": "released",
       "path": null,
       "title": "🔗 LinkedIn Intelligence — dashboard cruzado (marca x pipeline x conteudo)",
       "summary": "Nova tela /linkedin dentro de Intelligence: nao e o LinkedIn Analytics, e o CRUZAMENTO da presenca de marca com o resto do app. Endpoint /api/linkedin/intelligence cruza, por linha de negocio: LinkedIn (posts + engajamento medio + top post) x Pipeline (Zoho por solution, R$ + deals) x Conteudo (693 artigos, total + fundo de funil). Gera insights acionaveis automaticos: silencio (pipeline alto + zero post), oportunidade (engaja + pipeline mas sem artigo de fundo), sem_retorno (post sem pipeline atribuido). Ex real: S/4HANA R0.2M e ZERO post; ServiceNow 41% engaj + R.6M mas 0 artigo de fundo. Snapshot de seguidores ao vivo (rotina diaria) + top 5 posts. Linkado em /area/intelligence e no nav (Reports).",

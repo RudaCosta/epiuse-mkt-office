@@ -562,7 +562,8 @@ function renderKPIs(li, site, fyCtx, email) {
   const labelUsuarios = isFY ? 'Usuários (12m soma)' : 'Usuários';
   const labelViews = isFY ? 'Visualizações (12m soma)' : 'Visualizações';
   const cobertura = isFY && site ? `<div class="kpi-row" style="color:var(--dim);font-size:10px"><span>🟢 GA4 · ${site.meses_com_dado}/${site.meses_elegiveis} meses agregados</span></div>` : '';
-  const fonteSite = isFY ? '' : `<div class="kpi-row" style="color:var(--dim);font-size:10px"><span>🟢 GA4 · ${(site?.atualizado_em||'').slice(0,10)}</span></div>`;
+  const mesParcial = !isFY && mesAtual === new Date().toISOString().slice(0, 7);
+  const fonteSite = isFY ? '' : `<div class="kpi-row" style="color:var(--dim);font-size:10px"><span>🟢 GA4 · ${(site?.atualizado_em||'').slice(0,10)}${mesParcial ? ' · ⚠️ mês em curso (parcial) — variação % vs mês cheio distorce' : ''}</span></div>`;
 
   // Card Site: real se houver snapshot GA4, senão etiqueta honesta (Regra 7)
   const siteCard = (site && site.usuarios != null) ? `
@@ -600,8 +601,8 @@ function renderKPIs(li, site, fyCtx, email) {
     ${email ? `
     <div class="kpi-canal">
       <h3>✉️ E-mail (RD Station)</h3>
-      <div class="kpi-row"><span class="kpi-label">Base de leads</span><span class="kpi-val">${email.base_leads != null ? fmt(email.base_leads) + (email.base_leads_aprox ? '+' : '') : '—'}</span></div>
-      <div class="kpi-row"><span class="kpi-label">Enviados no mês ${email.mes_atual ? `(${email.mes_atual})` : ''}</span><span class="kpi-val">${fmt(email.enviados_mes_atual)}</span></div>
+      <div class="kpi-row"><span class="kpi-label">Base de leads</span><span class="kpi-val">${email.total_na_conta != null ? fmt(email.total_na_conta) : (email.base_leads != null ? fmt(email.base_leads) + (email.base_leads_aprox ? '+' : '') : '—')}</span></div>
+      <div class="kpi-row"><span class="kpi-label">Enviados no mês ${email.mes_atual ? `(${email.mes_atual})` : ''}</span><span class="kpi-val">${fmt(email.enviados_mes_atual)}${email.enviados_mes_atual === 0 ? ' <span style="font-size:9px;color:var(--dim)">· sem disparo no período</span>' : ''}</span></div>
       <div class="kpi-row"><span class="kpi-label">Workflows ativos</span><span class="kpi-val">${fmt(email.workflows_ativos)}</span></div>
       <div class="kpi-row"><span class="kpi-label">LPs publicadas</span><span class="kpi-val">${fmt(email.landing_pages_publicadas)}</span></div>
       <div class="kpi-row" style="color:var(--dim);font-size:10px"><span>🟢 RD Station · ${(email.atualizado_em||'').slice(0,10)}</span></div>

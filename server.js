@@ -2939,7 +2939,8 @@ function _snapshotFY(req, res) {
 app.get('/api/relatorio/snapshot', (req, res) => {
   if (req.query.fy) return _snapshotFY(req, res);
   const mes = req.query.mes || new Date().toISOString().slice(0, 7);
-  const linkedin = _readJSON(LINKEDIN_HIST_PATH, { serie_mensal: [], demografia: {}, resumo: {}, eventos: [] });
+  // overlay rotina diária → total de seguidores do mês corrente sempre fresco (fonte única)
+  const linkedin = overlayLinkedinRoutine(_readJSON(LINKEDIN_HIST_PATH, { serie_mensal: [], demografia: {}, resumo: {}, eventos: [] }));
 
   // Recupera o mês específico + comparativo com mês anterior
   const sm = linkedin.serie_mensal || [];
