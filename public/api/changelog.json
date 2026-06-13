@@ -1,5 +1,5 @@
 {
-  "current": "0.47.1",
+  "current": "0.47.2",
   "atualizado_em": "12/jun/2026",
   "next": [
     {
@@ -47,9 +47,22 @@
   ],
   "releases": [
     {
-      "version": "0.47.1",
+      "version": "0.47.2",
       "date": "13/jun/2026",
       "status": "current",
+      "path": null,
+      "title": "⏰ Refresh diario automatico de GA4 + RD (fim do dado congelado)",
+      "summary": "Descoberto que GA4 e RD nunca tinham cron real — travados em 05/jun (8 dias) em prod. Adicionado scheduler in-process (setTimeout boot+40s + setInterval 24h) que dispara ga4.refreshAndCache + rd.fetchRD onde as credenciais existem (Railway). Local sem creds = no-op silencioso. Agora o report mensal se mantem fresco sozinho.",
+      "highlights": [
+        "GA4 + RD refrescam sozinhos a cada 24h em prod",
+        "Estavam congelados em 05/jun — sem cron real antes",
+        "Local faz no-op gracioso (sem creds)"
+      ]
+    },
+    {
+      "version": "0.47.1",
+      "date": "13/jun/2026",
+      "status": "released",
       "path": null,
       "title": "📊 Report mensal redondo — seguidores 10.709 + base RD real + ressalva mes parcial",
       "summary": "Revisao do /relatorio: (1) overlay da rotina LinkedIn aplicado tambem no /api/relatorio/snapshot — seguidores 10.709 (jun) em vez de null/chumbado. (2) Base de leads passa a usar total_na_conta REAL (1.497) em vez do segmento arredondado (1.000+). (3) Enviados no mes=0 ganha label honesto sem disparo no periodo (e real: sem campanha em jun ate dia 5). (4) Duracao de sessao 1m03s -35% e GA4 REAL, mas junho e mes em curso (parcial) — adicionada ressalva de que variacao % vs mes cheio distorce. GA4/RD nao refrescam local (creds GA4_PROPERTY_ID/RD_REFRESH_TOKEN so no Railway).",

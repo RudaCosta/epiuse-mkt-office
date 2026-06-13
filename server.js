@@ -4802,3 +4802,36 @@ app.listen(PORT, () => {
   console.log(`\n🎙️  EPI-USE Voices — Profile Optimizer`);
   console.log(`🚀  http://localhost:${PORT}\n`);
 });
+
+// ════════════════════════════════════════════════════════════════════════════
+// REFRESH DIÁRIO de GA4 + RD (v0.47.2) — mantém o report mensal fresco em PROD.
+// Só dispara onde as credenciais existem (Railway). Local sem creds = no-op
+// silencioso. Roda ~40s após boot + a cada 24h. Sem lib de cron (setInterval).
+// Antes disso GA4/RD ficavam congelados (ex: travados em 05/jun) — Regra 7.
+// ════════════════════════════════════════════════════════════════════════════
+async function dailyDataRefresh() {
+  const mes = new Date().toISOString().slice(0, 7);
+  // GA4
+  if (process.env.GA4_PROPERTY_ID) {
+    try {
+      const ga4 = require(path.join(__dirname, 'scripts/integrations/ga4_fetch.js'));
+      const r = await ga4.refreshAndCache(mes);
+      console.log(`[daily] GA4 ${mes} OK — usuarios=${r.usuarios}`);
+    } catch (e) { console.warn('[daily] GA4 falhou:', e.message); }
+  }
+  // RD Station
+  if (process.env.RD_REFRESH_TOKEN) {
+    try {
+      const rd = require(path.join(__dirname, 'scripts/integrations/rd_fetch.js'));
+      const o = await rd.fetchRD();
+      console.log(`[daily] RD OK — atualizado=${o.atualizado_em}`);
+    } catch (e) { console.warn('[daily] RD falhou:', e.message); }
+  }
+}
+if (process.env.GA4_PROPERTY_ID || process.env.RD_REFRESH_TOKEN) {
+  setTimeout(dailyDataRefresh, 40000);            // 40s após boot
+  setInterval(dailyDataRefresh, 24 * 60 * 60 * 1000); // a cada 24h
+  console.log('[daily] refresh GA4/RD agendado (boot+24h)');
+} else {
+  console.log('[daily] refresh GA4/RD inativo (sem creds — esperado em local)');
+}
