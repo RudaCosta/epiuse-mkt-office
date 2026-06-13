@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔗 LinkedIn Intelligence · EPI-USE Office</title>
+<link rel="stylesheet" href="/design-tokens.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script type="module" src="/office-nav.js"></script>
+<script type="module" src="/office-footer.js"></script>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--color-bg);color:var(--color-text);font-family:'Source Sans 3','Open Sans',sans-serif;min-height:100vh;padding-bottom:60px}
+  .wrap{max-width:1180px;margin:0 auto;padding:24px 20px}
+  .hero{margin-bottom:22px}
+  .hero .eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:8px}
+  .hero h1{font-family:'Poppins',sans-serif;font-size:30px;font-weight:700;letter-spacing:-.015em}
+  .hero p{color:var(--color-text-muted);font-size:14px;margin-top:6px;max-width:720px;line-height:1.6}
+  .fonte{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--color-text-muted);margin-top:8px}
+
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:20px 0}
+  .kpi{background:var(--color-surface);border:1px solid var(--color-border);border-radius:12px;padding:16px}
+  .kpi .l{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-text-muted)}
+  .kpi .v{font-family:'Poppins',sans-serif;font-size:28px;font-weight:800;margin:4px 0}
+  .kpi .s{font-size:11px;color:var(--color-text-muted)}
+  .kpi .v.up{color:#34d399}
+
+  .sec{margin:28px 0}
+  .sec h2{font-family:'Poppins',sans-serif;font-size:19px;font-weight:600;margin-bottom:4px}
+  .sec .sub{color:var(--color-text-muted);font-size:12.5px;margin-bottom:14px;line-height:1.55}
+
+  .insights{display:grid;gap:10px}
+  .ins{display:flex;gap:11px;align-items:flex-start;background:var(--color-surface);border:1px solid var(--color-border);border-left-width:4px;border-radius:10px;padding:13px 15px;font-size:13.5px;line-height:1.5}
+  .ins.oportunidade{border-left-color:#34d399}
+  .ins.silencio{border-left-color:#fbbf24}
+  .ins.sem_retorno{border-left-color:#f87171}
+  .ins .ic{font-size:16px;flex-shrink:0}
+
+  table.cross{width:100%;border-collapse:collapse;font-size:13px}
+  table.cross th{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-muted);text-align:left;padding:8px 10px;border-bottom:1px solid var(--color-border)}
+  table.cross td{padding:11px 10px;border-bottom:1px solid var(--color-border);vertical-align:middle}
+  table.cross tr:hover td{background:rgba(0,112,191,.04)}
+  .lob{font-family:'Poppins',sans-serif;font-weight:600}
+  .bar{height:6px;border-radius:3px;background:var(--color-border);position:relative;min-width:40px;margin-top:4px}
+  .bar i{position:absolute;left:0;top:0;height:100%;border-radius:3px}
+  .num{font-family:'JetBrains Mono',monospace;font-size:12.5px}
+  .muted{color:var(--color-text-muted)}
+  .pill{font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 6px;border-radius:4px;background:rgba(0,112,191,.12);color:#93c5fd}
+  .warn0{color:#f87171;font-weight:700}
+
+  .posts{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:11px}
+  .post{background:var(--color-surface);border:1px solid var(--color-border);border-radius:11px;padding:14px}
+  .post .rk{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--color-text-muted)}
+  .post .ttl{font-family:'Poppins',sans-serif;font-size:13.5px;font-weight:600;line-height:1.3;margin:5px 0 8px}
+  .post .mt{display:flex;gap:12px;font-size:11px;color:var(--color-text-muted)}
+  .post .mt b{color:#34d399;font-family:'JetBrains Mono',monospace}
+  .err{background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.35);color:#fca5a5;border-radius:10px;padding:13px 16px;font-size:13px}
+  @media(max-width:640px){table.cross{font-size:11px}.hero h1{font-size:24px}}
+</style>
+</head>
+<body data-route="area-intelligence">
+<office-nav></office-nav>
+
+<main class="wrap" id="main">
+  <header class="hero">
+    <div class="eyebrow">Intelligence · LinkedIn</div>
+    <h1>🔗 LinkedIn Intelligence</h1>
+    <p>Não é o LinkedIn Analytics — é o <strong>cruzamento</strong> da presença de marca com o resto do app: pipeline (Zoho), conteúdo (693 artigos), por linha de negócio. Onde a marca fala, onde há demanda, onde falta conteúdo.</p>
+    <div class="fonte" id="fonte">⏳ carregando…</div>
+  </header>
+
+  <div id="content"></div>
+</main>
+
+<office-footer></office-footer>
+
+<script>
+const $=id=>document.getElementById(id);
+const fmt=n=>n==null?'—':n.toLocaleString('pt-BR');
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const milhao=v=>'R$ '+(v/1e6).toFixed(1)+'M';
+
+(async function(){
+  let d;
+  try{ d=await fetch('/api/linkedin/intelligence').then(r=>r.json()); if(!d.success)throw new Error(d.error); }
+  catch(e){ $('content').innerHTML='<div class="err">⚠️ '+esc(e.message||'falha')+'</div>'; return; }
+
+  const s=d.snapshot;
+  $('fonte').textContent='⚙️ '+d.fonte+' · atualizado '+(s.atualizado_em||'').replace('T',' ').slice(0,16);
+
+  const maxPipe=Math.max(...d.cross.map(c=>c.pipeline),1);
+  const ICO={oportunidade:'🎯',silencio:'🔇',sem_retorno:'📉'};
+
+  let h='';
+  // KPIs
+  h+=`<div class="kpis">
+    <div class="kpi"><div class="l">Seguidores</div><div class="v">${fmt(s.total)}</div><div class="s">${esc(s.mes)}</div></div>
+    <div class="kpi"><div class="l">Novos (30d)</div><div class="v up">+${fmt(s.novos)}</div><div class="s">brutos</div></div>
+    <div class="kpi"><div class="l">Impressões</div><div class="v">${fmt(s.impressoes)}</div><div class="s">período</div></div>
+    <div class="kpi"><div class="l">Reações</div><div class="v">${fmt(s.reacoes)}</div><div class="s">período</div></div>
+  </div>`;
+
+  // Insights
+  if(d.insights&&d.insights.length){
+    h+=`<div class="sec"><h2>🧠 Insights cruzados</h2><div class="sub">Lidos da combinação LinkedIn × pipeline × conteúdo — o que o LinkedIn Analytics sozinho não mostra.</div><div class="insights">`;
+    d.insights.forEach(i=>h+=`<div class="ins ${i.tipo}"><span class="ic">${ICO[i.tipo]||'•'}</span><span>${esc(i.msg)}</span></div>`);
+    h+=`</div></div>`;
+  }
+
+  // Cross table
+  h+=`<div class="sec"><h2>📊 Marca × Demanda × Conteúdo por LOB</h2><div class="sub">Cada linha de negócio: o que postamos (engajamento), quanto de pipeline existe, e quantos artigos cobrem — ordenado por pipeline.</div>
+    <table class="cross"><thead><tr>
+      <th>Linha de negócio</th><th>LinkedIn (posts · engaj.)</th><th>Pipeline</th><th>Conteúdo (artigos · fundo)</th>
+    </tr></thead><tbody>`;
+  d.cross.forEach(c=>{
+    const eng=c.li_engaj_medio!=null?(c.li_engaj_medio*100).toFixed(1)+'%':'<span class="muted">—</span>';
+    const liCell=c.li_posts?`${c.li_posts} post(s) · <b>${eng}</b>`:'<span class="warn0">0 posts</span>';
+    const pipePct=Math.round(c.pipeline/maxPipe*100);
+    const fundo=c.artigos_fundo===0?`<span class="warn0">0 fundo</span>`:`${c.artigos_fundo} fundo`;
+    h+=`<tr>
+      <td class="lob">${esc(c.lob)}</td>
+      <td>${liCell}${c.li_top?`<div class="muted" style="font-size:11px;margin-top:3px">top: ${esc((c.li_top.resumo||'').slice(0,40))}</div>`:''}</td>
+      <td><span class="num">${milhao(c.pipeline)}</span> <span class="muted">(${c.deals}d)</span><div class="bar"><i style="width:${pipePct}%;background:#cd1543"></i></div></td>
+      <td><span class="num">${c.artigos}</span> art · ${fundo}</td>
+    </tr>`;
+  });
+  h+=`</tbody></table></div>`;
+
+  // Top posts
+  if(d.top_posts&&d.top_posts.length){
+    h+=`<div class="sec"><h2>🏆 Posts que mais performaram</h2><div class="sub">Top 5 por taxa de engajamento no período.</div><div class="posts">`;
+    d.top_posts.forEach((p,i)=>h+=`<div class="post"><div class="rk">#${i+1} · ${esc(p.data||'')} · ${esc(p.tipo||'')}</div><div class="ttl">${esc(p.resumo||'')}</div><div class="mt"><span><b>${p.taxa_engaj!=null?(p.taxa_engaj*100).toFixed(1)+'%':'—'}</b> engaj</span><span>${fmt(p.impressoes)} impr</span><span>${fmt(p.reacoes)} ❤</span></div></div>`);
+    h+=`</div></div>`;
+  }
+
+  $('content').innerHTML=h;
+})();
+</script>
+</body>
+</html>

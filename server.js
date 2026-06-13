@@ -1748,6 +1748,7 @@ app.get('/api/executivo', (req, res) => {
 });
 
 app.get('/executivo', (req, res) => res.sendFile(path.join(__dirname, 'public/executivo.html')));
+app.get('/linkedin', (req, res) => res.sendFile(path.join(__dirname, 'public/linkedin.html')));
 
 app.post('/api/zoho/sync', requireEditorToken, (req, res) => {
   const items = Array.isArray(req.body?.deals) ? req.body.deals : [];
@@ -2672,6 +2673,90 @@ app.get('/api/linkedin/followers', (req, res) => {
   const rt = readLinkedinRoutine();
   if (!rt) return res.status(404).json({ success: false, error: 'linkedin-routine.json não encontrado. Rode a rotina diária.' });
   res.json({ success: true, ...rt });
+});
+
+// ── LinkedIn INTELLIGENCE (v0.46.0) — cruza LinkedIn × Pipeline (Zoho) × Conteúdo (693 artigos) ──
+// O valor de ter isso no app (vs ir no LinkedIn Analytics direto): conectar
+// presença de marca → demanda → cobertura de conteúdo, por LOB.
+const _LOB_CANON = ['HCM', 'S/4HANA', 'BTP', 'ServiceNow', 'Signavio', 'ESG/ERP.ngo', 'Cloud/Infra', 'Outros'];
+// mapeia post (texto livre) -> LOB canônico via palavra-chave
+function _postToLob(txt) {
+  const t = (txt || '').toLowerCase();
+  if (/servicenow|hrsd|itsm/.test(t)) return 'ServiceNow';
+  if (/signavio|processo|process mining/.test(t)) return 'Signavio';
+  if (/btp|build|integration suite|clean core/.test(t)) return 'BTP';
+  if (/elephant|erp\.ngo|elefante|rinoceronte|esg|conserva|pobreza/.test(t)) return 'ESG/ERP.ngo';
+  if (/successfactors|hxm|hcm|\brh\b|folha|payroll|talento|colaborador|profissional de rh/.test(t)) return 'HCM';
+  if (/s\/?4hana|s4hana|\berp\b|reforma trib|ecc|migra/.test(t)) return 'S/4HANA';
+  if (/cloud|valcann|infra|aws|hospedagem|observ/.test(t)) return 'Cloud/Infra';
+  return 'Outros';
+}
+const _ZOHO_SOL_LOB = { 'SAP HXM': 'HCM', 'SAP ERP': 'S/4HANA', 'SAP BTP': 'BTP', 'ServiceNow': 'ServiceNow', 'SAP Signavio': 'Signavio', 'SAP Cloud': 'Cloud/Infra', 'Cloud': 'Cloud/Infra', 'SAP HANA': 'S/4HANA' };
+const _ART_LOB = { 'Serviços HCM & RH': 'HCM', 'Serviços SAP ERP (S/4HANA)': 'S/4HANA', 'ServiceNow': 'ServiceNow', 'Estratégia & ESG (ERP.ngo)': 'ESG/ERP.ngo', 'Infraestrutura & Cloud (Valcann)': 'Cloud/Infra', 'Excelência em Processos': 'Signavio', 'Observabilidade & Testes (iLab)': 'Outros' };
+
+app.get('/api/linkedin/intelligence', (req, res) => {
+  const rt = readLinkedinRoutine();
+  if (!rt) return res.status(404).json({ success: false, error: 'rotina LinkedIn indisponível.' });
+
+  // base canônica
+  const cross = {};
+  _LOB_CANON.forEach(l => cross[l] = { lob: l, li_posts: 0, li_impressoes: 0, li_engaj_soma: 0, li_top: null, pipeline: 0, deals: 0, artigos: 0, artigos_fundo: 0 });
+
+  // 1) LinkedIn: posts -> LOB
+  (rt.posts || []).forEach(p => {
+    const lob = _postToLob((p.resumo || '') + ' ' + (p.tipo || ''));
+    const c = cross[lob]; if (!c) return;
+    c.li_posts++; c.li_impressoes += (p.impressoes || 0);
+    if (p.taxa_engaj != null) c.li_engaj_soma += p.taxa_engaj;
+    if (!c.li_top || (p.taxa_engaj || 0) > (c.li_top.taxa_engaj || 0)) c.li_top = { resumo: p.resumo, taxa_engaj: p.taxa_engaj, impressoes: p.impressoes };
+  });
+
+  // 2) Pipeline: Zoho por solution (SQLite)
+  try {
+    const sols = db.prepare(`SELECT solution, SUM(valor) total, COUNT(*) deals FROM zoho_deals WHERE solution IS NOT NULL AND solution != '' GROUP BY solution`).all();
+    sols.forEach(s => {
+      const lob = _ZOHO_SOL_LOB[s.solution] || 'Outros';
+      if (cross[lob]) { cross[lob].pipeline += (s.total || 0); cross[lob].deals += (s.deals || 0); }
+    });
+  } catch (e) { console.warn('[li-intel] zoho:', e.message); }
+
+  // 3) Conteúdo: 693 artigos por LOB
+  try {
+    const art = _readJSON(ARTIGOS_JSON_PATH, { artigos: [] });
+    (art.artigos || []).forEach(a => {
+      const lob = _ART_LOB[a.linha_de_negocio] || 'Outros';
+      if (cross[lob]) { cross[lob].artigos++; if ((a.etapa_funil || '').startsWith('Fundo')) cross[lob].artigos_fundo++; }
+    });
+  } catch (e) { console.warn('[li-intel] artigos:', e.message); }
+
+  // finaliza: média engaj + insights acionáveis
+  const linhas = Object.values(cross).map(c => ({
+    ...c,
+    li_engaj_medio: c.li_posts ? +(c.li_engaj_soma / c.li_posts).toFixed(4) : null,
+  })).filter(c => c.li_posts || c.pipeline || c.artigos);
+
+  // insights: alto engaj + pipeline mas pouca cobertura de fundo = oportunidade
+  const insights = [];
+  linhas.forEach(c => {
+    if (c.li_engaj_medio != null && c.li_engaj_medio >= 0.10 && c.pipeline > 1e6 && c.artigos_fundo < 5) {
+      insights.push({ tipo: 'oportunidade', lob: c.lob, msg: `${c.lob}: engaja no LinkedIn (${(c.li_engaj_medio*100).toFixed(1)}%) e tem R$${(c.pipeline/1e6).toFixed(1)}M em pipeline, mas só ${c.artigos_fundo} artigo(s) de fundo de funil — gap de conteúdo de decisão.` });
+    }
+    if (c.pipeline > 1e6 && c.li_posts === 0) {
+      insights.push({ tipo: 'silencio', lob: c.lob, msg: `${c.lob}: R$${(c.pipeline/1e6).toFixed(1)}M em pipeline e ZERO post no período — marca silenciosa onde há demanda.` });
+    }
+    if (c.li_posts > 0 && c.pipeline === 0) {
+      insights.push({ tipo: 'sem_retorno', lob: c.lob, msg: `${c.lob}: ${c.li_posts} post(s) no LinkedIn mas R$0 de pipeline atribuído — conteúdo sem captura comercial (ou atribuição faltando).` });
+    }
+  });
+
+  res.json({
+    success: true,
+    snapshot: { total: rt.total, mes: rt.mes_label, novos: rt.novos, impressoes: rt.impressoes, reacoes: rt.reacoes, atualizado_em: rt.atualizado_em },
+    top_posts: rt.top_posts,
+    cross: linhas.sort((a, b) => b.pipeline - a.pipeline),
+    insights,
+    fonte: 'LinkedIn (rotina Cowork) × Zoho CRM × 693 artigos — dados REAIS',
+  });
 });
 
 // POST /api/linkedin/update-today — Ruda crava o nº de seguidores do dia em 5s (interim ate LinkedIn API)
