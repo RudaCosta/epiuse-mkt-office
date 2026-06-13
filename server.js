@@ -21,7 +21,7 @@ const _envCandidates = [
 for (const _ep of _envCandidates) {
   if (fs0.existsSync(_ep)) {
     try {
-      const _lines = fs0.readFileSync(_ep, 'utf8').split('\n');
+      const _lines = fs0.readFileSync(_ep, 'utf8').replace(/^﻿/, '').split('\n');
       _lines.forEach(l => {
         const m = l.match(/^([A-Z_][A-Z0-9_]*)=(.*)$/);
         if (m && !process.env[m[1]]) process.env[m[1]] = m[2].trim().replace(/^["']|["']$/g, '');
