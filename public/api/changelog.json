@@ -1,5 +1,5 @@
 {
-  "current": "0.45.1",
+  "current": "0.46.0",
   "atualizado_em": "12/jun/2026",
   "next": [
     {
@@ -47,9 +47,23 @@
   ],
   "releases": [
     {
+      "version": "0.46.0",
+      "date": "13/jun/2026",
+      "status": "current",
+      "path": null,
+      "title": "🔗 Seguidores LinkedIn — fonte ÚNICA diária (fim do número chumbado)",
+      "summary": "Rotina diaria (Cowork xlsx) vira a fonte unica do nº de seguidores. /api/linkedin/historical agora SOBREPOE o total fresco do dia (overlay no serve-time, sem guerra de escrita com o sync da Bruna) — TODO consumidor (home, area, metas, relatorio, executivo) mostra o numero atualizado automatico. Novo /api/linkedin/followers = snapshot canonico (total, novos, impressoes, top posts). areas.json fallback atualizado 10640->10709. Tarefa Agendada diaria 08:30 le o xlsx e regenera linkedin-routine.json.",
+      "highlights": [
+        "Fim do 10.640 chumbado — overlay diario via rotina",
+        "/api/linkedin/historical sobrepoe total fresco (chokepoint unico)",
+        "/api/linkedin/followers: snapshot canonico do dia",
+        "10.709 seguidores (jun/2026) propagado em todo app"
+      ]
+    },
+    {
       "version": "0.45.1",
       "date": "12/jun/2026",
-      "status": "current",
+      "status": "released",
       "path": null,
       "title": "🎯 Item ativo do menu mais visível",
       "summary": "Reforço do estado selecionado no nav (as vezes o usuario se perdia): fundo azul mais forte, borda solida 0.85 alpha, ring + sombra azul, texto branco e dot maior com glow. Aplica no nav desktop e mobile.",

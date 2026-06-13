@@ -2611,11 +2611,67 @@ app.get('/api/jornadas', (req, res) => {
   res.json({ success: true, matriz, gaps });
 });
 
-// GET /api/linkedin/historical — 16+ meses + demografia + eventos
+// ── Fonte ÚNICA do nº de seguidores (v0.46.0) ──────────────────────────────
+// linkedin-routine.json é regenerado TODO DIA (Tarefa Agendada → xlsx Cowork).
+// Sobrepomos o total fresco no serve-time, sem reescrever historical.json
+// (evita guerra com sync_linkedin_historical.py). Assim TODO consumidor que lê
+// /api/linkedin/historical (home, area, metas, relatorio, executivo) mostra o
+// número atualizado do dia — fonte única, zero campo chumbado.
+const LINKEDIN_ROUTINE_PATH = path.join(__dirname, 'public/api/linkedin-routine.json');
+const _MES_PT = { jan:'01', fev:'02', mar:'03', abr:'04', mai:'05', jun:'06', jul:'07', ago:'08', set:'09', out:'10', nov:'11', dez:'12' };
+function _routineMesToISO(m) {
+  // "jun/2026" -> "2026-06"
+  const mm = String(m || '').toLowerCase().match(/([a-z]{3})\/?(\d{4})/);
+  if (!mm || !_MES_PT[mm[1]]) return null;
+  return `${mm[2]}-${_MES_PT[mm[1]]}`;
+}
+// Lê o snapshot diário da rotina; retorna { total, mes_iso, novos, impressoes, reacoes, atualizado_em } ou null
+function readLinkedinRoutine() {
+  const r = _readJSON(LINKEDIN_ROUTINE_PATH, null);
+  if (!r || r.seguidores_atual == null) return null;
+  const atual = (r.historico || []).slice(-1)[0] || {};
+  return {
+    total: r.seguidores_atual,
+    mes_iso: _routineMesToISO(r.mes_atual),
+    mes_label: r.mes_atual,
+    novos: atual.novos_30d ?? null,
+    impressoes: atual.impressoes ?? null,
+    reacoes: atual.reacoes ?? null,
+    top_posts: r.top_posts || [],
+    posts: r.posts || [],
+    atualizado_em: r.atualizado_em,
+    fonte: r.fonte,
+  };
+}
+// Sobrepõe o total da rotina no serie_mensal (upsert do mês corrente) sem persistir
+function overlayLinkedinRoutine(data) {
+  const rt = readLinkedinRoutine();
+  if (!rt || rt.total == null || !rt.mes_iso) return data;
+  const out = { ...data, serie_mensal: [...(data.serie_mensal || [])] };
+  const i = out.serie_mensal.findIndex(m => m.mes === rt.mes_iso);
+  const entry = {
+    mes: rt.mes_iso, total_seguidores: rt.total, novos: rt.novos,
+    impressoes: rt.impressoes, fonte: 'rotina-cowork (admin diario)',
+  };
+  if (i >= 0) out.serie_mensal[i] = { ...out.serie_mensal[i], ...entry };
+  else out.serie_mensal.push(entry);
+  if (out.resumo) out.resumo = { ...out.resumo, ultimo_total_reportado: rt.total, atualizado_rotina: rt.atualizado_em };
+  out._rotina_overlay = { aplicado: true, total: rt.total, mes: rt.mes_iso, em: rt.atualizado_em };
+  return out;
+}
+
+// GET /api/linkedin/historical — 16+ meses + demografia + eventos (+ overlay rotina diária)
 app.get('/api/linkedin/historical', (req, res) => {
   const data = _readJSON(LINKEDIN_HIST_PATH, null);
   if (!data) return res.status(404).json({ success: false, error: 'linkedin-historical.json não encontrado. Rode: python scripts/sync/sync_linkedin_historical.py' });
-  res.json({ success: true, ...data });
+  res.json({ success: true, ...overlayLinkedinRoutine(data) });
+});
+
+// GET /api/linkedin/followers — snapshot canônico do dia (fonte única p/ qualquer tela nova)
+app.get('/api/linkedin/followers', (req, res) => {
+  const rt = readLinkedinRoutine();
+  if (!rt) return res.status(404).json({ success: false, error: 'linkedin-routine.json não encontrado. Rode a rotina diária.' });
+  res.json({ success: true, ...rt });
 });
 
 // POST /api/linkedin/update-today — Ruda crava o nº de seguidores do dia em 5s (interim ate LinkedIn API)
