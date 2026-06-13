@@ -2349,6 +2349,135 @@ app.post('/api/inbound/generate', inboundGenLimiter, async (req, res) => {
   }
 });
 
+// ════════════════════════════════════════════════════════════════════════════
+// INBOUND CONTENT FACTORY (v0.45.0) — 1 input mínimo → pacote pronto p/ publicar
+// Pipeline: redator-b2b-<persona> (Sonnet) → revisor-seo-geo (Haiku)
+// Personas com dores reais do vault/00-contexto/empresa.md
+// ════════════════════════════════════════════════════════════════════════════
+const FACTORY_PERSONAS = {
+  cfo: {
+    nome: 'CFO',
+    dor: 'Reforma Tributária (CBS/IBS em vigor em 2026, ano 2x mais complexo), fim do suporte ECC sem extensão, custo de processos manuais no financeiro, risco fiscal.',
+    pitch: 'A sua infraestrutura de ERP está preparada para a Reforma Tributária ou seu time financeiro precisará de processos manuais?',
+    tom: 'Números, risco quantificado, ROI, eficiência. Zero jargão técnico de TI — traduza tudo pra impacto financeiro. CFO lê em 30 segundos: hero number primeiro.'
+  },
+  chro: {
+    nome: 'CHRO',
+    dor: 'Experiência do colaborador fragmentada, folha de pagamento com erro (passivo trabalhista), retenção de talentos, RH operacional sem tempo pra estratégia.',
+    pitch: 'Se sua empresa fosse um app, a experiência dos colaboradores seria intuitiva ou eles o desinstalariam por ser frustrante?',
+    tom: 'Gente primeiro, depois sistema. Casos concretos de experiência do colaborador. Empatia sem ser piegas. SuccessFactors/HCM como meio, não fim.'
+  },
+  cio: {
+    nome: 'CIO',
+    dor: 'Governança de dados insuficiente pra IA confiável, Clean Core como pré-requisito de upgrades baratos (SAP Public Cloud), débito técnico do ECC legado, integração fragmentada.',
+    pitch: 'Sua empresa investe em IA, mas seus dados e processos têm governança suficiente para que as decisões não sejam baseadas em achismos operacionais?',
+    tom: 'Arquitetura e trade-offs. Respeite a inteligência técnica do leitor. BTP/Clean Core/governança com especificidade — sem buzzword vazia.'
+  }
+};
+
+function buildFactoryPrompt(p) {
+  const persona = FACTORY_PERSONAS[p.persona] || null;
+  const outs = p.outputs;
+  const pedacos = [];
+  if (outs.post) pedacos.push('"post": { "headline": "4-6 palavras com *destaque*", "heroNumber": "número do input ou null — NUNCA invente", "context": "1 linha máx 12 palavras", "linkedinCopy": "PT-BR, 3-5 linhas curtas, gancho na 1ª linha, pergunta/CTA no fim, sem emoji", "hashtags": "5-7 hashtags", "distribution": "1 linha: perfil corporativo OU reshare executivo OU carrossel" }');
+  if (outs.carousel) pedacos.push('"carousel": { "cover": {"eyebrow":"ex GUIA CFO · 2026","headline":"4-9 palavras com *destaque*","sub":"1 linha"}, "slides": [4 itens: {"tag":"PONTO 01","headline":"4-6 palavras com *destaque*","number":"só se estiver no input, senão \\"\\"","context":"1 linha até 12 palavras","source":"instituto+ano se houver number, senão \\"\\""}], "cta": {"headline":"verbo de ação com *destaque*","sub":"convite específico","url":"epiuse.com.br"} }');
+  if (outs.single) pedacos.push('"single": { "tag":"categoria curta", "headline":"4-6 palavras com *destaque*", "number":"se houver no input, senão \\"\\"", "context":"1 linha", "source":"se houver number" }');
+  if (outs.blogCover) pedacos.push('"blogCover": { "eyebrow":"ex ARTIGO · SAP S/4HANA", "title":"título do artigo 6-10 palavras", "sub":"subtítulo 1 linha" }');
+  if (outs.article) pedacos.push('"article": { "title":"título SEO 50-60 chars", "intro":"parágrafo de abertura com a dor da persona", "sections":[3-4 itens: {"h2":"subtítulo","body":"2-3 parágrafos PT-BR, específico, sem floreio"}], "conclusion":"parágrafo final com CTA pra EPI-USE Brasil" }');
+
+  return [
+    `Você é o REDATOR B2B SÊNIOR do time de Marketing da EPI-USE Brasil, especializado em conteúdo para ${persona ? persona.nome : 'executivos C-level'}.`,
+    'EPI-USE Brasil: maior consultoria SAP HCM/Payroll do Brasil, 42+ anos de grupo global (Group Elephant), evoluindo pra Transformação Empresarial (EPI-USE 5.0). 1% da receita global vai pro ERP.ngo (conservação + combate à pobreza).',
+    '',
+    persona ? [
+      `PERSONA-ALVO: ${persona.nome}`,
+      `DOR CENTRAL: ${persona.dor}`,
+      `PITCH DE REFERÊNCIA: "${persona.pitch}"`,
+      `TOM: ${persona.tom}`
+    ].join('\n') : 'PERSONA: detecte a mais adequada (CFO, CHRO ou CIO) pelo input e escreva pra ela.',
+    '',
+    'REGRAS INEGOCIÁVEIS:',
+    '1. NUNCA invente número, estatística ou fonte. Só use o que estiver no INPUT ou for fato público comprovado (ECC end-of-support 31/12/2027, Reforma Tributária 2026). Campo sem dado = string vazia.',
+    '2. PT-BR. Voz EPI-USE: sóbria, confiante, específica. Sem emoji no copy. Sem "Hoje quero falar sobre".',
+    '3. Nunca cite concorrente nominalmente. Nunca cite cliente sem aprovação — use "indústria farmacêutica", "varejista nacional" etc.',
+    '4. Sempre que institucional, mencione EPI-USE Voices ou ERP.ngo quando couber naturalmente.',
+    '5. Headline sempre marca a palavra-chave com *asteriscos*.',
+    '',
+    'INPUT DO USUÁRIO (pode ser tema, brief, URL descrita, transcrição — extraia o máximo):',
+    p.input,
+    '',
+    'Gere SOMENTE este JSON (sem markdown, sem texto antes/depois):',
+    '{',
+    '  "estrategia": { "persona": "cfo|chro|cio", "dor": "dor específica atacada", "angulo": "ângulo editorial em 1 linha", "lob": "HCM|S4HANA|BTP|Signavio|ServiceNow|Analytics|Cross", "categoria": "thought-leadership|case|produto|evento|cultura" },',
+    '  ' + pedacos.join(',\n  '),
+    '}'
+  ].join('\n');
+}
+
+function buildRevisorPrompt(pacote, input) {
+  return [
+    'Você é o REVISOR SEO/GEO do time de Marketing da EPI-USE Brasil.',
+    'SEO: otimização pra busca tradicional (Google BR). GEO (Generative Engine Optimization): otimização pra ser CITADO por LLMs (ChatGPT, Gemini, Perplexity) — conteúdo citável = afirmações diretas, entidades nomeadas, perguntas respondidas, dados com fonte.',
+    '',
+    'CONTEÚDO GERADO (revisar):',
+    JSON.stringify(pacote).slice(0, 5000),
+    '',
+    'INPUT ORIGINAL:',
+    String(input).slice(0, 2000),
+    '',
+    'Gere SOMENTE este JSON:',
+    '{',
+    '  "seo": { "metaTitle": "50-60 chars com keyword principal", "metaDescription": "140-155 chars com CTA", "slug": "url-amigavel-em-kebab", "keywords": ["5-8 keywords PT-BR ordenadas por intenção"] },',
+    '  "geo": { "faq": [3 itens: {"q":"pergunta como executivo perguntaria a um LLM","a":"resposta direta 2-3 frases, citável, com entidade EPI-USE Brasil"}], "ajustes": ["até 3 sugestões objetivas pra tornar o conteúdo mais citável por IA — ou lista vazia"] },',
+    '  "qualidade": { "score": 0-100, "alertas": ["riscos: número sem fonte, promessa absoluta, concorrente citado — ou lista vazia"] }',
+    '}'
+  ].join('\n');
+}
+
+app.post('/api/inbound/factory', inboundGenLimiter, async (req, res) => {
+  const b = req.body || {};
+  const input = String(b.input || '').slice(0, 12000);
+  if (!input.trim()) return res.status(400).json({ success: false, error: 'Input é obrigatório — cole tema, brief, transcrição ou descrição.' });
+  const persona = ['cfo', 'chro', 'cio'].includes(b.persona) ? b.persona : 'auto';
+  const o = b.outputs || {};
+  const outputs = {
+    post: o.post !== false,
+    carousel: !!o.carousel,
+    single: !!o.single,
+    blogCover: !!o.blogCover,
+    article: !!o.article
+  };
+  if (!Object.values(outputs).some(Boolean)) return res.status(400).json({ success: false, error: 'Escolha pelo menos uma saída.' });
+
+  try {
+    // Etapa 1 — redator B2B (Sonnet: qualidade de copy)
+    const gen = await client.messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: outputs.article ? 6000 : 3000,
+      messages: [{ role: 'user', content: buildFactoryPrompt({ input, persona, outputs }) }]
+    });
+    const pacote = JSON.parse(gen.content[0].text.replace(/^```(json)?/i, '').replace(/```$/, '').trim());
+
+    // Etapa 2 — revisor SEO/GEO (Haiku: rápido e barato)
+    let revisao = null;
+    try {
+      const rev = await client.messages.create({
+        model: 'claude-haiku-4-5',
+        max_tokens: 1800,
+        messages: [{ role: 'user', content: buildRevisorPrompt(pacote, input) }]
+      });
+      revisao = JSON.parse(rev.content[0].text.replace(/^```(json)?/i, '').replace(/```$/, '').trim());
+    } catch (e2) {
+      console.error('[inbound/factory] revisor falhou (pacote segue sem revisão):', e2.message);
+    }
+
+    res.json({ success: true, ...pacote, revisao, etiqueta: '🤖 Gerado por IA — revisar antes de publicar' });
+  } catch (e) {
+    console.error('[inbound/factory]', e.message);
+    res.status(500).json({ success: false, error: e.message || 'Falha na geração do pacote.' });
+  }
+});
+
 // Single source of truth — local e Railway servem do mesmo public/.
 // (Antes o local lia de G:/Meu Drive/.../dashboard-classic.html que ficou stale.
 // Agora qualquer edição em public/ aparece imediatamente nos 2 ambientes.)

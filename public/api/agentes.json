@@ -1,115 +1,631 @@
 {
-  "atualizado_em": "2026-05-31",
+  "atualizado_em": "2026-06-12",
   "obs": "Mapa real dos agentes. 3 camadas: CEO orquestra -> 6 agentes de AREA (1 por dona) -> 4 executores transversais. Fonte: .claude/agents/*.md + vault/agentes/.",
   "mestre": {
     "local": "vault/00-contexto/",
-    "arquivos": ["empresa.md", "projetos.md", "branding.md", "pessoas.md", "DESIGN.md", "mapa-fontes-dados.md"]
+    "arquivos": [
+      "empresa.md",
+      "projetos.md",
+      "branding.md",
+      "pessoas.md",
+      "DESIGN.md",
+      "mapa-fontes-dados.md"
+    ]
   },
   "camadas": [
     {
       "camada": "orquestrador",
       "titulo": "🎯 Orquestrador",
       "agentes": [
-        { "id": "ceo-mkt", "nome": "CEO", "icon": "🎯", "cor": "#fbbf24",
+        {
+          "id": "ceo-mkt",
+          "nome": "CEO",
+          "icon": "🎯",
+          "cor": "#fbbf24",
           "cargo": "CEO operacional — orquestra todo o escritório",
           "papel": "Recebe pedido do humano, decompoe, delega pra área ou executor, consolida entregas",
-          "le": ["empresa","projetos","branding","pessoas","DESIGN","mapa-fontes-dados"],
-          "le_tudo": true, "escreve": "workspaces/ceo/",
-          "tools": ["Read","Write","Edit","Glob","Grep","Bash","PowerShell"], "comandos": ["/contratar","/nova-oferta"] }
+          "le": [
+            "empresa",
+            "projetos",
+            "branding",
+            "pessoas",
+            "DESIGN",
+            "mapa-fontes-dados"
+          ],
+          "le_tudo": true,
+          "escreve": "workspaces/ceo/",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Glob",
+            "Grep",
+            "Bash",
+            "PowerShell"
+          ],
+          "comandos": [
+            "/contratar",
+            "/nova-oferta"
+          ]
+        }
       ]
     },
     {
       "camada": "areas",
       "titulo": "🏢 Agentes de Área (1 por dona)",
       "agentes": [
-        { "id": "area-intelligence", "nome": "Intelligence", "icon": "🧠", "cor": "#60a5fa", "dona": "Bruna Yamagami",
-          "cargo": "Marketing Intelligence & CRM", "papel": "CRM, lead scoring, attribution, higienização de base, dashboards de funil",
-          "le": ["empresa","projetos","mapa-fontes-dados","areas.json#intelligence"], "nao_le": ["branding visual","código de LP","propostas"],
-          "escreve": "workspaces/area-intelligence/", "modulo": "/area/intelligence",
-          "tools": ["Read","Write","Edit","Glob","Grep"], "aciona": ["campanhas"] },
-        { "id": "area-growth", "nome": "Growth", "icon": "🚀", "cor": "#10b981", "dona": "Guilherme Marques (Gui)",
-          "cargo": "Growth Hacking & Performance", "papel": "Mídia paga, SEO/pautas B2B, LinkedIn growth, briefing pra agências",
-          "le": ["empresa","projetos","branding","mapa-fontes-dados","areas.json#growth"], "nao_le": ["propostas","cases confidenciais"],
-          "escreve": "workspaces/area-growth/", "modulo": "/area/growth",
-          "tools": ["Read","Write","Edit","Glob","Grep"], "aciona": ["campanhas","criativos","area-conteudo"] },
-        { "id": "area-eventos", "nome": "Eventos", "icon": "📅", "cor": "#fbbf24", "dona": "Isabela Carvalho",
-          "cargo": "Field Marketing & Eventos", "papel": "30+ eventos/ano BR+LATAM, MDF SAP, ativações, tática do elefante",
-          "le": ["empresa","projetos","branding","areas.json#eventos"], "nao_le": ["pipeline/Apollo","propostas","design tokens"],
-          "escreve": "workspaces/area-eventos/", "modulo": "/area/eventos",
-          "tools": ["Read","Write","Edit","Glob","Grep"], "aciona": ["criativos","landing-pages"] },
-        { "id": "area-pipeline", "nome": "Pipeline / SDR", "icon": "📞", "cor": "#f87171", "dona": "Marlison Estrela",
-          "cargo": "Development Sales", "papel": "Outbound Apollo, prospecção C-Level, bridge marketing->vendas, sequências",
-          "le": ["empresa","projetos","mapa-fontes-dados","areas.json#pipeline"], "nao_le": ["branding visual","design tokens","criativos"],
-          "escreve": "workspaces/area-pipeline/", "modulo": "/area/pipeline",
-          "tools": ["Read","Write","Edit","Glob","Grep"], "aciona": ["propostas","area-intelligence"] },
-        { "id": "area-brand", "nome": "Brand / Voices", "icon": "🎨", "cor": "#c084fc", "dona": "Eduarda Hirose (Duda)",
-          "cargo": "Brand Experience", "papel": "Identidade visual, EPI-USE Voices, Inbound, Cases, governança de tom",
-          "le": ["branding","pessoas","DESIGN","projetos","areas.json#brand"], "nao_le": ["pipeline/Apollo","metas financeiras"],
-          "escreve": "workspaces/area-brand/", "modulo": "/area/brand",
-          "tools": ["Read","Write","Edit","Glob","Grep"], "aciona": ["criativos","landing-pages"] },
-        { "id": "area-conteudo", "nome": "Conteúdo", "icon": "📣", "cor": "#a37d57", "dona": "Lisiane de Assis",
-          "cargo": "Conteúdo / Redatoria", "papel": "20 artigos/mês, curadoria, tom de voz, jornadas de compra por LOB",
-          "le": ["branding","empresa","projetos","areas.json#conteudo"], "nao_le": ["pipeline/Apollo","propostas","design tokens"],
-          "escreve": "workspaces/area-conteudo/", "modulo": "/area/conteudo",
-          "tools": ["Read","Write","Edit","Glob","Grep"], "aciona": ["criativos"] }
+        {
+          "id": "area-intelligence",
+          "nome": "Intelligence",
+          "icon": "🧠",
+          "cor": "#60a5fa",
+          "dona": "Bruna Yamagami",
+          "cargo": "Marketing Intelligence & CRM",
+          "papel": "CRM, lead scoring, attribution, higienização de base, dashboards de funil",
+          "le": [
+            "empresa",
+            "projetos",
+            "mapa-fontes-dados",
+            "areas.json#intelligence"
+          ],
+          "nao_le": [
+            "branding visual",
+            "código de LP",
+            "propostas"
+          ],
+          "escreve": "workspaces/area-intelligence/",
+          "modulo": "/area/intelligence",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Glob",
+            "Grep"
+          ],
+          "aciona": [
+            "campanhas"
+          ]
+        },
+        {
+          "id": "area-growth",
+          "nome": "Growth",
+          "icon": "🚀",
+          "cor": "#10b981",
+          "dona": "Guilherme Marques (Gui)",
+          "cargo": "Growth Hacking & Performance",
+          "papel": "Mídia paga, SEO/pautas B2B, LinkedIn growth, briefing pra agências",
+          "le": [
+            "empresa",
+            "projetos",
+            "branding",
+            "mapa-fontes-dados",
+            "areas.json#growth"
+          ],
+          "nao_le": [
+            "propostas",
+            "cases confidenciais"
+          ],
+          "escreve": "workspaces/area-growth/",
+          "modulo": "/area/growth",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Glob",
+            "Grep"
+          ],
+          "aciona": [
+            "campanhas",
+            "criativos",
+            "area-conteudo"
+          ]
+        },
+        {
+          "id": "area-eventos",
+          "nome": "Eventos",
+          "icon": "📅",
+          "cor": "#fbbf24",
+          "dona": "Isabela Carvalho",
+          "cargo": "Field Marketing & Eventos",
+          "papel": "30+ eventos/ano BR+LATAM, MDF SAP, ativações, tática do elefante",
+          "le": [
+            "empresa",
+            "projetos",
+            "branding",
+            "areas.json#eventos"
+          ],
+          "nao_le": [
+            "pipeline/Apollo",
+            "propostas",
+            "design tokens"
+          ],
+          "escreve": "workspaces/area-eventos/",
+          "modulo": "/area/eventos",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Glob",
+            "Grep"
+          ],
+          "aciona": [
+            "criativos",
+            "landing-pages"
+          ]
+        },
+        {
+          "id": "area-pipeline",
+          "nome": "Pipeline / SDR",
+          "icon": "📞",
+          "cor": "#f87171",
+          "dona": "Marlison Estrela",
+          "cargo": "Development Sales",
+          "papel": "Outbound Apollo, prospecção C-Level, bridge marketing->vendas, sequências",
+          "le": [
+            "empresa",
+            "projetos",
+            "mapa-fontes-dados",
+            "areas.json#pipeline"
+          ],
+          "nao_le": [
+            "branding visual",
+            "design tokens",
+            "criativos"
+          ],
+          "escreve": "workspaces/area-pipeline/",
+          "modulo": "/area/pipeline",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Glob",
+            "Grep"
+          ],
+          "aciona": [
+            "propostas",
+            "area-intelligence"
+          ]
+        },
+        {
+          "id": "area-brand",
+          "nome": "Brand / Voices",
+          "icon": "🎨",
+          "cor": "#c084fc",
+          "dona": "Eduarda Hirose (Duda)",
+          "cargo": "Brand Experience",
+          "papel": "Identidade visual, EPI-USE Voices, Inbound, Cases, governança de tom",
+          "le": [
+            "branding",
+            "pessoas",
+            "DESIGN",
+            "projetos",
+            "areas.json#brand"
+          ],
+          "nao_le": [
+            "pipeline/Apollo",
+            "metas financeiras"
+          ],
+          "escreve": "workspaces/area-brand/",
+          "modulo": "/area/brand",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Glob",
+            "Grep"
+          ],
+          "aciona": [
+            "criativos",
+            "landing-pages"
+          ]
+        },
+        {
+          "id": "area-conteudo",
+          "nome": "Conteúdo",
+          "icon": "📣",
+          "cor": "#a37d57",
+          "dona": "Lisiane de Assis",
+          "cargo": "Conteúdo / Redatoria",
+          "papel": "20 artigos/mês, curadoria, tom de voz, jornadas de compra por LOB",
+          "le": [
+            "branding",
+            "empresa",
+            "projetos",
+            "areas.json#conteudo"
+          ],
+          "nao_le": [
+            "pipeline/Apollo",
+            "propostas",
+            "design tokens"
+          ],
+          "escreve": "workspaces/area-conteudo/",
+          "modulo": "/area/conteudo",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Glob",
+            "Grep"
+          ],
+          "aciona": [
+            "criativos"
+          ]
+        }
       ]
     },
     {
       "camada": "executores",
       "titulo": "🛠️ Executores transversais (chamados pelas áreas)",
       "agentes": [
-        { "id": "criativos", "nome": "Criativos", "icon": "🎨", "cor": "#c084fc",
-          "cargo": "Diretor de Arte / Copywriter", "papel": "Copy de anúncio, briefing visual, paleta, mockup, direção de arte",
-          "le": ["branding","empresa","pessoas","DESIGN"], "nao_le": ["pipeline/Apollo","metas financeiras","propostas"],
-          "escreve": "workspaces/criativos/", "tools": ["Read","Write","Edit","Glob","Grep"], "comandos": ["/criativos"] },
-        { "id": "landing-pages", "nome": "Landing Pages", "icon": "💻", "cor": "#60a5fa",
-          "cargo": "Frontend Engineer + UX writer", "papel": "Codar LP/quiz/dashboard HTML vanilla, mobile-first",
-          "le": ["branding","DESIGN","empresa","pessoas"], "nao_le": ["pipeline/Apollo","propostas","plano de mídia"],
-          "escreve": "workspaces/landing-pages/ + public/", "tools": ["Read","Write","Edit","Glob","Grep","Bash","PowerShell"], "comandos": ["/lp"] },
-        { "id": "propostas", "nome": "Propostas", "icon": "📄", "cor": "#10b981",
-          "cargo": "Pré-Vendas + Solution Architect", "papel": "Transcrição/brief -> proposta comercial (escopo, investimento, prazos)",
-          "le": ["empresa","projetos","pessoas","branding"], "nao_le": ["design tokens","criativos visuais","plano de mídia"],
-          "escreve": "workspaces/propostas/", "tools": ["Read","Write","Edit","Glob","Grep"], "comandos": ["/proposta"] },
-        { "id": "campanhas", "nome": "Campanhas", "icon": "📊", "cor": "#f87171",
-          "cargo": "Mídia Paga + Competitive Intelligence", "papel": "Meta/LinkedIn Ads, análise de concorrentes, plano de mídia, relatório de ads",
-          "le": ["empresa","projetos","branding","mapa-fontes-dados"], "nao_le": ["propostas","código de LP","design tokens"],
-          "escreve": "workspaces/campanhas/", "tools": ["Read","Write","Edit","Glob","Grep","WebFetch","WebSearch"], "comandos": ["/campanha"] },
-        { "id": "relatorio-mensal", "nome": "Relatório Mensal", "icon": "📊", "cor": "#60a5fa",
-          "cargo": "Diretor de Reporting Executivo", "papel": "Gera o PPT mensal pra diretoria (Roberto/Duda) replicando template dos 13 reports históricos. Roda skill relatorio-mensal + python-pptx + OneDrive.",
-          "le": ["empresa","projetos","branding","mapa-fontes-dados"], "nao_le": ["código frontend","conteúdo individual Voices"],
+        {
+          "id": "criativos",
+          "nome": "Criativos",
+          "icon": "🎨",
+          "cor": "#c084fc",
+          "cargo": "Diretor de Arte / Copywriter",
+          "papel": "Copy de anúncio, briefing visual, paleta, mockup, direção de arte",
+          "le": [
+            "branding",
+            "empresa",
+            "pessoas",
+            "DESIGN"
+          ],
+          "nao_le": [
+            "pipeline/Apollo",
+            "metas financeiras",
+            "propostas"
+          ],
+          "escreve": "workspaces/criativos/",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Glob",
+            "Grep"
+          ],
+          "comandos": [
+            "/criativos"
+          ]
+        },
+        {
+          "id": "landing-pages",
+          "nome": "Landing Pages",
+          "icon": "💻",
+          "cor": "#60a5fa",
+          "cargo": "Frontend Engineer + UX writer",
+          "papel": "Codar LP/quiz/dashboard HTML vanilla, mobile-first",
+          "le": [
+            "branding",
+            "DESIGN",
+            "empresa",
+            "pessoas"
+          ],
+          "nao_le": [
+            "pipeline/Apollo",
+            "propostas",
+            "plano de mídia"
+          ],
+          "escreve": "workspaces/landing-pages/ + public/",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Glob",
+            "Grep",
+            "Bash",
+            "PowerShell"
+          ],
+          "comandos": [
+            "/lp"
+          ]
+        },
+        {
+          "id": "propostas",
+          "nome": "Propostas",
+          "icon": "📄",
+          "cor": "#10b981",
+          "cargo": "Pré-Vendas + Solution Architect",
+          "papel": "Transcrição/brief -> proposta comercial (escopo, investimento, prazos)",
+          "le": [
+            "empresa",
+            "projetos",
+            "pessoas",
+            "branding"
+          ],
+          "nao_le": [
+            "design tokens",
+            "criativos visuais",
+            "plano de mídia"
+          ],
+          "escreve": "workspaces/propostas/",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Glob",
+            "Grep"
+          ],
+          "comandos": [
+            "/proposta"
+          ]
+        },
+        {
+          "id": "campanhas",
+          "nome": "Campanhas",
+          "icon": "📊",
+          "cor": "#f87171",
+          "cargo": "Mídia Paga + Competitive Intelligence",
+          "papel": "Meta/LinkedIn Ads, análise de concorrentes, plano de mídia, relatório de ads",
+          "le": [
+            "empresa",
+            "projetos",
+            "branding",
+            "mapa-fontes-dados"
+          ],
+          "nao_le": [
+            "propostas",
+            "código de LP",
+            "design tokens"
+          ],
+          "escreve": "workspaces/campanhas/",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Glob",
+            "Grep",
+            "WebFetch",
+            "WebSearch"
+          ],
+          "comandos": [
+            "/campanha"
+          ]
+        },
+        {
+          "id": "relatorio-mensal",
+          "nome": "Relatório Mensal",
+          "icon": "📊",
+          "cor": "#60a5fa",
+          "cargo": "Diretor de Reporting Executivo",
+          "papel": "Gera o PPT mensal pra diretoria (Roberto/Duda) replicando template dos 13 reports históricos. Roda skill relatorio-mensal + python-pptx + OneDrive.",
+          "le": [
+            "empresa",
+            "projetos",
+            "branding",
+            "mapa-fontes-dados"
+          ],
+          "nao_le": [
+            "código frontend",
+            "conteúdo individual Voices"
+          ],
           "escreve": "workspaces/relatorio-mensal/ + OneDrive/MARKETING/Reports/",
-          "tools": ["Read","Write","Edit","Bash","Glob","Grep"], "comandos": ["skill relatorio-mensal"] }
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Bash",
+            "Glob",
+            "Grep"
+          ],
+          "comandos": [
+            "skill relatorio-mensal"
+          ]
+        }
       ]
     },
     {
       "camada": "pipeline-conteudo",
       "titulo": "🏭 Pipeline de Conteúdo (cadeia briefing → post)",
       "agentes": [
-        { "id": "pipe-briefing", "nome": "Briefing Architect", "icon": "📋", "cor": "#a3e635",
-          "cargo": "Etapa 1/5 — estrutura pauta crua", "papel": "Recebe pauta + contexto, devolve briefing estruturado (tese · argumento · CTA · SEO · tom)",
-          "le": ["branding","empresa","projetos","artigos.json"], "nao_le": ["Apollo","propostas","código"],
+        {
+          "id": "pipe-briefing",
+          "nome": "Briefing Architect",
+          "icon": "📋",
+          "cor": "#a3e635",
+          "cargo": "Etapa 1/5 — estrutura pauta crua",
+          "papel": "Recebe pauta + contexto, devolve briefing estruturado (tese · argumento · CTA · SEO · tom)",
+          "le": [
+            "branding",
+            "empresa",
+            "projetos",
+            "artigos.json"
+          ],
+          "nao_le": [
+            "Apollo",
+            "propostas",
+            "código"
+          ],
           "escreve": "workspaces/pipe-briefing/",
-          "tools": ["Read","Write","Edit","Glob","Grep"], "aciona": ["pipe-artigo"] },
-        { "id": "pipe-artigo", "nome": "Redator SEO/GEO", "icon": "✍️", "cor": "#84cc16",
-          "cargo": "Etapa 2/5 — artigo completo", "papel": "Briefing → artigo publicável com SEO técnico + GEO (citável por IAs). 600-2000 palavras.",
-          "le": ["branding","empresa","briefing recebido"], "nao_le": ["Apollo","propostas","código frontend"],
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Glob",
+            "Grep"
+          ],
+          "aciona": [
+            "pipe-artigo"
+          ]
+        },
+        {
+          "id": "pipe-artigo",
+          "nome": "Redator SEO/GEO",
+          "icon": "✍️",
+          "cor": "#84cc16",
+          "cargo": "Etapa 2/5 — artigo completo",
+          "papel": "Briefing → artigo publicável com SEO técnico + GEO (citável por IAs). 600-2000 palavras.",
+          "le": [
+            "branding",
+            "empresa",
+            "briefing recebido"
+          ],
+          "nao_le": [
+            "Apollo",
+            "propostas",
+            "código frontend"
+          ],
           "escreve": "workspaces/pipe-artigo/",
-          "tools": ["Read","Write","Edit","Glob","Grep"], "aciona": ["pipe-capa","pipe-carrossel","pipe-copy-li"] },
-        { "id": "pipe-capa", "nome": "Art Director (capa)", "icon": "🖼️", "cor": "#65a30d",
-          "cargo": "Etapa 3/5 — briefing visual da capa", "papel": "Artigo → briefing visual da capa OG 1200x630 (NÃO gera imagem — gera brief)",
-          "le": ["branding","DESIGN","artigo recebido"], "nao_le": ["Apollo","backend"],
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Glob",
+            "Grep"
+          ],
+          "aciona": [
+            "pipe-capa",
+            "pipe-carrossel",
+            "pipe-copy-li"
+          ]
+        },
+        {
+          "id": "pipe-capa",
+          "nome": "Art Director (capa)",
+          "icon": "🖼️",
+          "cor": "#65a30d",
+          "cargo": "Etapa 3/5 — briefing visual da capa",
+          "papel": "Artigo → briefing visual da capa OG 1200x630 (NÃO gera imagem — gera brief)",
+          "le": [
+            "branding",
+            "DESIGN",
+            "artigo recebido"
+          ],
+          "nao_le": [
+            "Apollo",
+            "backend"
+          ],
           "escreve": "workspaces/pipe-capa/",
-          "tools": ["Read","Write","Edit","Glob","Grep"], "aciona": ["criativos"] },
-        { "id": "pipe-carrossel", "nome": "Carousel Designer", "icon": "🎠", "cor": "#4d7c0f",
-          "cargo": "Etapa 4/5 — carrossel LinkedIn", "papel": "Artigo → roteiro de carrossel LI (8 slides padrão · JSON pra /inbound/carousel)",
-          "le": ["branding","DESIGN","artigo recebido"], "nao_le": ["Apollo","dashboards"],
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Glob",
+            "Grep"
+          ],
+          "aciona": [
+            "criativos"
+          ]
+        },
+        {
+          "id": "pipe-carrossel",
+          "nome": "Carousel Designer",
+          "icon": "🎠",
+          "cor": "#4d7c0f",
+          "cargo": "Etapa 4/5 — carrossel LinkedIn",
+          "papel": "Artigo → roteiro de carrossel LI (8 slides padrão · JSON pra /inbound/carousel)",
+          "le": [
+            "branding",
+            "DESIGN",
+            "artigo recebido"
+          ],
+          "nao_le": [
+            "Apollo",
+            "dashboards"
+          ],
           "escreve": "workspaces/pipe-carrossel/",
-          "tools": ["Read","Write","Edit","Glob","Grep"], "aciona": ["criativos","/inbound/carousel"] },
-        { "id": "pipe-copy-li", "nome": "LinkedIn Copywriter", "icon": "💬", "cor": "#365314",
-          "cargo": "Etapa 5/5 — copy do post LI", "papel": "Artigo + carrossel → copy do post (3 versões A/B/C: hook · story · pergunta) · pronto pra /inbound/calendar",
-          "le": ["branding","pessoas","artigo + carrossel recebidos"], "nao_le": ["Apollo","código"],
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Glob",
+            "Grep"
+          ],
+          "aciona": [
+            "criativos",
+            "/inbound/carousel"
+          ]
+        },
+        {
+          "id": "pipe-copy-li",
+          "nome": "LinkedIn Copywriter",
+          "icon": "💬",
+          "cor": "#365314",
+          "cargo": "Etapa 5/5 — copy do post LI",
+          "papel": "Artigo + carrossel → copy do post (3 versões A/B/C: hook · story · pergunta) · pronto pra /inbound/calendar",
+          "le": [
+            "branding",
+            "pessoas",
+            "artigo + carrossel recebidos"
+          ],
+          "nao_le": [
+            "Apollo",
+            "código"
+          ],
           "escreve": "workspaces/pipe-copy-li/",
-          "tools": ["Read","Write","Edit","Glob","Grep"], "aciona": ["/inbound/calendar"] }
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Glob",
+            "Grep"
+          ],
+          "aciona": [
+            "/inbound/calendar"
+          ]
+        },
+        {
+          "id": "redator-b2b-cfo",
+          "nome": "Redator B2B · CFO",
+          "icon": "💰",
+          "cor": "#cd1543",
+          "cargo": "Redator sênior focado em CFO",
+          "papel": "Escreve com a dor do CFO: Reforma Tributária, ECC end-of-support, custo manual, risco fiscal. Hero number primeiro. Roda no /inbound (Content Factory, Sonnet).",
+          "le": [
+            "empresa",
+            "branding"
+          ],
+          "escreve": "api /api/inbound/factory",
+          "tools": [
+            "Claude API"
+          ]
+        },
+        {
+          "id": "redator-b2b-chro",
+          "nome": "Redator B2B · CHRO",
+          "icon": "👥",
+          "cor": "#cd1543",
+          "cargo": "Redator sênior focado em CHRO",
+          "papel": "Escreve com a dor do CHRO: experiência do colaborador, folha sem erro, retenção. Gente primeiro, sistema depois. Roda no /inbound (Content Factory, Sonnet).",
+          "le": [
+            "empresa",
+            "branding"
+          ],
+          "escreve": "api /api/inbound/factory",
+          "tools": [
+            "Claude API"
+          ]
+        },
+        {
+          "id": "redator-b2b-cio",
+          "nome": "Redator B2B · CIO",
+          "icon": "🖥️",
+          "cor": "#cd1543",
+          "cargo": "Redator sênior focado em CIO",
+          "papel": "Escreve com a dor do CIO: governança de dados pra IA, Clean Core, débito técnico ECC, BTP. Arquitetura e trade-offs. Roda no /inbound (Content Factory, Sonnet).",
+          "le": [
+            "empresa",
+            "branding"
+          ],
+          "escreve": "api /api/inbound/factory",
+          "tools": [
+            "Claude API"
+          ]
+        },
+        {
+          "id": "revisor-seo-geo",
+          "nome": "Revisor SEO/GEO",
+          "icon": "🔍",
+          "cor": "#0070bf",
+          "cargo": "Revisor de otimização pra busca + IA generativa",
+          "papel": "Revisa todo pacote do Content Factory: meta title/description/slug/keywords (SEO) + FAQ citável por LLMs e ajustes de citabilidade (GEO) + alertas de qualidade (número sem fonte, promessa absoluta). Roda em Haiku.",
+          "le": [
+            "branding"
+          ],
+          "escreve": "api /api/inbound/factory",
+          "tools": [
+            "Claude API"
+          ]
+        }
       ]
     }
   ]

@@ -1,5 +1,5 @@
 {
-  "current": "0.44.4",
+  "current": "0.45.0",
   "atualizado_em": "12/jun/2026",
   "next": [
     {
@@ -47,9 +47,25 @@
   ],
   "releases": [
     {
-      "version": "0.44.4",
+      "version": "0.45.0",
       "date": "12/jun/2026",
       "status": "current",
+      "path": null,
+      "title": "🏭 Content Factory — Inbound reestruturado: 1 input → pacote pronto",
+      "summary": "Reformulação total do /inbound. Novo hub Content Factory: usuário cola UMA coisa (tema, brief, transcrição, rascunho) e o pipeline devolve o pacote pronto pra publicação. Pipeline de 2 etapas no servidor: (1) Redator B2B por persona — 3 agentes novos (redator-b2b-cfo, redator-b2b-chro, redator-b2b-cio) com dores e pitches reais do empresa.md, rodando em Sonnet 4.6; auto-detecção de persona disponível. (2) Revisor SEO/GEO — agente novo (revisor-seo-geo, Haiku): meta title/description/slug/keywords + FAQ citável por LLMs (Generative Engine Optimization) + alertas de qualidade. Saídas configuráveis: Post LinkedIn, Carrossel (estrutura completa cover+slides+CTA), Post único, Capa de blog (canvas 1200×630 com download PNG, Poppins + navy/red) e Artigo SEO completo. Regras de marca embutidas no prompt: zero número inventado, sem concorrente nominal, sem cliente sem aprovação, voz sóbria EPI-USE. Etiqueta 🤖 Gerado por IA em todo pacote (Regra 6) + lembrete de aprovação Duda. Submenu antigo removido; 5 ferramentas antigas viram seção Ferramentas Avançadas. Endpoint novo: POST /api/inbound/factory. 4 agentes registrados no /agentes (camada Pipeline de Conteúdo). ⚠️ Requer restart do server local pra ativar o endpoint.",
+      "highlights": [
+        "1 input mínimo → pacote completo pronto pra publicar",
+        "3 redatores B2B por persona (CFO/CHRO/CIO) + auto-detect — Sonnet",
+        "Revisor SEO/GEO: meta tags + FAQ citável por LLMs — Haiku",
+        "Capa de blog 1200×630 renderizada no canvas + download PNG",
+        "Carrossel estruturado + Artigo SEO completo + Post LinkedIn",
+        "Etiqueta IA obrigatória + alertas de qualidade (Regra 6/7)"
+      ]
+    },
+    {
+      "version": "0.44.4",
+      "date": "12/jun/2026",
+      "status": "released",
       "path": null,
       "title": "🧑‍🎨 Revisão do Brand System pelo design-principal — Stratview + Poppins + auditoria PPT",
       "summary": "Revisão com evidência real: (1) Auditoria do PPT corporativo Jan 2026 (55 slides) — fonte real é Verdana (295 runs) e o theme accent1 #013A6A confirma a paleta Codex do DESIGN.md. (2) Nova decisão tipográfica: Poppins (display — geométrica como o Maven Pro do Brand Guide) + Open Sans (body) + Verdana (fallback honesto); Lato/Inter aposentadas. (3) Sub-paleta STRATVIEW criada (🤖 proposta IA — único asset oficial é o logo; master #0083B3 extraído do fill do SVG, escala derivada) — DESIGN.md v3.1 + tokens regenerados (73 cores). (4) /design: 4ª marca no grid (Stratview com logo), seção de cores agora mostra SÓ paletas de marca (semantic/neutral saem do showcase — são infra do produto, seguem no CSS), biblioteca de assets documentada (288 ícones white + 15 square logos de parceiros + diretriz de fotografia do site global: pessoas reais + elefantes, nunca stock genérico).",
