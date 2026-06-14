@@ -8,7 +8,7 @@
 // Fonte ÚNICA da verdade: public/api/changelog.json#current via /api/version
 // Fallback hardcoded usado SÓ se fetch falhar (offline, etc).
 // Sincronização automática — não editar manualmente, basta bumpar changelog.json.
-let OFFICE_NAV_VERSION = '0.50.3';
+let OFFICE_NAV_VERSION = '0.50.4';
 // Promise compartilhada — nav + footer reaproveitam o mesmo fetch
 window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/version')
   .then(r => r.ok ? r.json() : null)
@@ -952,22 +952,28 @@ function applyTheme(theme) {
   const t = valid.includes(theme) ? theme : 'dark';
   html.setAttribute('data-theme', t);
 
-  // Injeta ou gerencia o background de Liquid Glass reais (VFX blobs do open-design)
+  // Injeta ou gerencia o background de Liquid Glass (VFX video do open-design)
   let bg = document.getElementById('liquid-glass-bg');
   if (t === 'liquid-glass') {
     if (!bg) {
       bg = document.createElement('div');
       bg.id = 'liquid-glass-bg';
-      bg.style.cssText = 'position:fixed; inset:0; z-index:-2; pointer-events:none; overflow:hidden; background:#0b0825;';
+      bg.style.cssText = 'position:fixed; inset:0; z-index:-2; pointer-events:none; overflow:hidden; background:#000000;';
       bg.innerHTML = `
-        <div class="lg-blob b1" style="position:absolute; border-radius:50%; mix-blend-mode:screen; filter:blur(110px); -webkit-filter:blur(110px); will-change:transform; width:700px; height:700px; background:#a78bfa; top:-180px; left:-180px; opacity:0.42; animation:lg-float1 16s ease-in-out infinite;"></div>
-        <div class="lg-blob b2" style="position:absolute; border-radius:50%; mix-blend-mode:screen; filter:blur(110px); -webkit-filter:blur(110px); will-change:transform; width:600px; height:600px; background:#7c5cff; top:20%; right:-180px; opacity:0.42; animation:lg-float2 14s ease-in-out infinite;"></div>
-        <div class="lg-blob b3" style="position:absolute; border-radius:50%; mix-blend-mode:screen; filter:blur(110px); -webkit-filter:blur(110px); will-change:transform; width:550px; height:550px; background:#ec4899; bottom:-180px; left:20%; opacity:0.42; animation:lg-float3 18s ease-in-out infinite;"></div>
-        <div class="lg-blob b4" style="position:absolute; border-radius:50%; mix-blend-mode:screen; filter:blur(110px); -webkit-filter:blur(110px); will-change:transform; width:450px; height:450px; background:#06b6d4; top:50%; left:5%; opacity:0.32; animation:lg-float1 20s ease-in-out infinite;"></div>
+        <video autoplay loop muted playsinline style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0.32; filter:saturate(0.8) contrast(1.15);">
+          <source src="https://plugin-assets.open-design.ai/plugins/liquid-glass-agency/hf_20260307_083826_e938b29f-a43a-41ec-a153-3d4730578ab8-b7258e.mp4" type="video/mp4">
+        </video>
+        <div style="position:absolute; top:0; left:0; right:0; height:200px; background:linear-gradient(to bottom, #000, transparent); pointer-events:none; z-index:1;"></div>
+        <div style="position:absolute; bottom:0; left:0; right:0; height:200px; background:linear-gradient(to top, #000, transparent); pointer-events:none; z-index:1;"></div>
+        <div style="position:absolute; inset:0; background:rgba(0,0,0,0.1); pointer-events:none; z-index:1;"></div>
       `;
       document.body?.insertBefore(bg, document.body.firstChild);
     } else {
       bg.style.display = 'block';
+      const vid = bg.querySelector('video');
+      if (vid && vid.paused) {
+        vid.play().catch(() => {});
+      }
     }
   } else {
     if (bg) {
@@ -1239,55 +1245,40 @@ function applyTheme(theme) {
       border: 1px solid rgba(251, 191, 36, 0.3) !important;
     }
 
-    /* ─── LIQUID GLASS DE VERDADE ──────────────────────────────────────────
-       Fundo dinâmico com blobs WebGL-like, mix-blend-mode e vidro fosco de alta
-       transparência e saturação para refração real de surrounding color. */
-    @keyframes lg-float1 { 
-      0%, 100% { transform: translate(0,0) scale(1); } 
-      50% { transform: translate(100px, -80px) scale(1.18); } 
-    }
-    @keyframes lg-float2 { 
-      0%, 100% { transform: translate(0,0) scale(1.15); } 
-      50% { transform: translate(-120px, 60px) scale(0.9); } 
-    }
-    @keyframes lg-float3 { 
-      0%, 100% { transform: translate(0,0) scale(0.95); } 
-      50% { transform: translate(70px, 100px) scale(1.25); } 
-    }
-
+    /* ─── LIQUID GLASS DE VERDADE (Estilo open-design) ───────────────────── */
     :root[data-theme="liquid-glass"] {
-      --bg: #0b0825;
-      --bg-2: #141042;
-      --surface: rgba(255, 255, 255, 0.04);
-      --surface-2: rgba(255, 255, 255, 0.08);
-      --border: rgba(255, 255, 255, 0.15);
+      --bg: #000000;
+      --bg-2: #05070f;
+      --surface: rgba(255, 255, 255, 0.01);
+      --surface-2: rgba(255, 255, 255, 0.03);
+      --border: rgba(255, 255, 255, 0.2);
       --border-light: rgba(255, 255, 255, 0.06);
-      --text: #fafaf8;
-      --text-dim: #e2e8f0;
+      --text: #ffffff;
+      --text-dim: rgba(255, 255, 255, 0.9);
       --text-muted: rgba(255, 255, 255, 0.6);
-      --primary: #a78bfa;
-      --primary-light: #c4b5fd;
-      --accent: #ec4899;
-      --color-primary-500: #a78bfa;
-      --color-primary-600: #7c5cff;
-      --color-surface-0: #0b0825;
-      --color-surface-1: rgba(255, 255, 255, 0.04);
-      --color-surface-2: rgba(255, 255, 255, 0.08);
-      --color-text-primary: #fafaf8;
-      --color-text-secondary: #e2e8f0;
+      --primary: #ffffff;
+      --primary-light: rgba(255, 255, 255, 0.8);
+      --accent: rgba(255, 255, 255, 0.25);
+      --color-primary-500: #ffffff;
+      --color-primary-600: rgba(255, 255, 255, 0.8);
+      --color-surface-0: #000000;
+      --color-surface-1: rgba(255, 255, 255, 0.01);
+      --color-surface-2: rgba(255, 255, 255, 0.03);
+      --color-text-primary: #ffffff;
+      --color-text-secondary: rgba(255, 255, 255, 0.9);
       --color-text-muted: rgba(255, 255, 255, 0.6);
-      --color-border: rgba(255, 255, 255, 0.12);
-      --dk-surface: rgba(255, 255, 255, 0.04);
-      --dk-text: #fafaf8;
+      --color-border: rgba(255, 255, 255, 0.15);
+      --dk-surface: rgba(255, 255, 255, 0.01);
+      --dk-text: #ffffff;
       --dk-text-muted: rgba(255, 255, 255, 0.6);
-      --home-text: #fafaf8;
+      --home-text: #ffffff;
       --home-text-muted: rgba(255, 255, 255, 0.6);
       color-scheme: dark;
     }
 
     :root[data-theme="liquid-glass"] body {
-      background: #0b0825 !important;
-      color: #fafaf8 !important;
+      background: #000000 !important;
+      color: #ffffff !important;
     }
 
     /* Grid Overlay do Liquid Hero */
@@ -1297,8 +1288,8 @@ function applyTheme(theme) {
       inset: 0 !important;
       pointer-events: none !important;
       background-image: 
-        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), 
-        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px) !important;
+        linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px), 
+        linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px) !important;
       background-size: 64px 64px !important;
       z-index: -1 !important;
     }
@@ -1308,22 +1299,50 @@ function applyTheme(theme) {
     :root[data-theme="liquid-glass"] .home-area-card,
     :root[data-theme="liquid-glass"] .home-digest-card,
     :root[data-theme="liquid-glass"] .dk-glass {
-      background: rgba(255, 255, 255, 0.04) !important;
-      backdrop-filter: blur(40px) saturate(180%) contrast(115%) !important;
-      -webkit-backdrop-filter: blur(40px) saturate(180%) contrast(115%) !important;
-      border: 1px solid rgba(255, 255, 255, 0.15) !important;
+      background: rgba(255, 255, 255, 0.01) !important;
+      background-blend-mode: luminosity !important;
+      backdrop-filter: blur(50px) saturate(190%) contrast(110%) !important;
+      -webkit-backdrop-filter: blur(50px) saturate(190%) contrast(110%) !important;
+      border: none !important;
       border-radius: 20px !important;
       box-shadow: 
-        inset 0 1.5px 0 0 rgba(255, 255, 255, 0.22),
-        inset 0 -1px 0 0 rgba(0, 0, 0, 0.15),
-        0 15px 35px -10px rgba(0, 0, 0, 0.35) !important;
+        inset 0 1px 1px rgba(255, 255, 255, 0.1),
+        0 15px 35px -10px rgba(0, 0, 0, 0.45) !important;
       position: relative !important;
       overflow: hidden !important;
-      color: #fafaf8 !important;
-      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s, box-shadow 0.3s, background-color 0.3s !important;
+      color: #ffffff !important;
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s, background-color 0.3s !important;
     }
 
-    /* Brilho Especular Interno em Gel Superior */
+    /* Specular Glowing Border Gradient using Mask-Composite */
+    :root[data-theme="liquid-glass"] .kpi::before,
+    :root[data-theme="liquid-glass"] .card::before,
+    :root[data-theme="liquid-glass"] .home-area-card::before,
+    :root[data-theme="liquid-glass"] .home-digest-card::before,
+    :root[data-theme="liquid-glass"] .dk-glass::before {
+      content: '' !important;
+      position: absolute !important;
+      inset: 0 !important;
+      border-radius: inherit !important;
+      padding: 1.4px !important;
+      background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.5) 0%,
+        rgba(255, 255, 255, 0.15) 20%,
+        rgba(255, 255, 255, 0) 40%,
+        rgba(255, 255, 255, 0) 60%,
+        rgba(255, 255, 255, 0.15) 80%,
+        rgba(255, 255, 255, 0.5) 100%
+      ) !important;
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0) !important;
+      -webkit-mask-composite: xor !important;
+      mask-composite: exclude !important;
+      pointer-events: none !important;
+      z-index: 2 !important;
+      transition: background 0.3s ease !important;
+    }
+
+    /* Specular Highlight (Gel Lens) */
     :root[data-theme="liquid-glass"] .kpi::after,
     :root[data-theme="liquid-glass"] .card::after,
     :root[data-theme="liquid-glass"] .home-area-card::after,
@@ -1340,7 +1359,7 @@ function applyTheme(theme) {
       pointer-events: none !important;
       z-index: 1 !important;
       opacity: 0.9 !important;
-      transition: opacity 0.3s !important;
+      transition: opacity 0.3s, background-color 0.3s !important;
     }
 
     :root[data-theme="liquid-glass"] .kpi:hover,
@@ -1349,13 +1368,27 @@ function applyTheme(theme) {
     :root[data-theme="liquid-glass"] .home-digest-card:hover,
     :root[data-theme="liquid-glass"] .dk-glass:hover {
       transform: translateY(-4px) scale(1.006) !important;
-      background: rgba(255, 255, 255, 0.08) !important;
-      border-color: rgba(255, 255, 255, 0.25) !important;
+      background: rgba(255, 255, 255, 0.03) !important;
       box-shadow: 
-        inset 0 2px 0 0 rgba(255, 255, 255, 0.35),
-        inset 0 -1.5px 0 0 rgba(0, 0, 0, 0.10),
-        0 25px 45px -12px rgba(124, 58, 237, 0.15),
-        0 15px 35px -10px rgba(0, 0, 0, 0.45) !important;
+        inset 0 1px 1px rgba(255, 255, 255, 0.18),
+        0 25px 45px -12px rgba(255, 255, 255, 0.06),
+        0 15px 35px -10px rgba(0, 0, 0, 0.65) !important;
+    }
+
+    :root[data-theme="liquid-glass"] .kpi:hover::before,
+    :root[data-theme="liquid-glass"] .card:hover::before,
+    :root[data-theme="liquid-glass"] .home-area-card:hover::before,
+    :root[data-theme="liquid-glass"] .home-digest-card:hover::before,
+    :root[data-theme="liquid-glass"] .dk-glass:hover::before {
+      background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.75) 0%,
+        rgba(255, 255, 255, 0.3) 20%,
+        rgba(255, 255, 255, 0) 40%,
+        rgba(255, 255, 255, 0) 60%,
+        rgba(255, 255, 255, 0.3) 80%,
+        rgba(255, 255, 255, 0.75) 100%
+      ) !important;
     }
 
     :root[data-theme="liquid-glass"] .kpi:hover::after,
@@ -1364,13 +1397,14 @@ function applyTheme(theme) {
     :root[data-theme="liquid-glass"] .home-digest-card:hover::after,
     :root[data-theme="liquid-glass"] .dk-glass:hover::after {
       opacity: 1 !important;
-      background: linear-gradient(to bottom, rgba(255, 255, 255, 0.20) 0%, rgba(255, 255, 255, 0.04) 70%, transparent 100%) !important;
+      background: linear-gradient(to bottom, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.04) 70%, transparent 100%) !important;
     }
 
-    :root[data-theme="liquid-glass"] a { color: #c4b5fd !important; }
+    :root[data-theme="liquid-glass"] a { color: #ffffff !important; text-decoration: underline !important; }
+    :root[data-theme="liquid-glass"] a:hover { color: rgba(255, 255, 255, 0.8) !important; }
     :root[data-theme="liquid-glass"] .chip-online {
       background: rgba(255, 255, 255, 0.08) !important;
-      color: #fafaf8 !important;
+      color: #ffffff !important;
       border: 1px solid rgba(255, 255, 255, 0.2) !important;
     }
   `;
