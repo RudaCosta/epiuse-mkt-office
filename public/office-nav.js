@@ -8,7 +8,7 @@
 // Fonte ÚNICA da verdade: public/api/changelog.json#current via /api/version
 // Fallback hardcoded usado SÓ se fetch falhar (offline, etc).
 // Sincronização automática — não editar manualmente, basta bumpar changelog.json.
-let OFFICE_NAV_VERSION = '0.47.2';
+let OFFICE_NAV_VERSION = '0.50.0';
 // Promise compartilhada — nav + footer reaproveitam o mesmo fetch
 window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/version')
   .then(r => r.ok ? r.json() : null)
@@ -246,7 +246,7 @@ class OfficeNav extends HTMLElement {
   getTheme() {
     try {
       const saved = localStorage.getItem('office.theme');
-      if (['dark','light','armory','elephant','glass-aurora'].includes(saved)) return saved;
+      if (['dark','light','armory','elephant','glass-aurora','liquid-glass'].includes(saved)) return saved;
       // F10: auto-detect OS preference (default fallback = dark)
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) return 'light';
       return 'dark';
@@ -259,8 +259,8 @@ class OfficeNav extends HTMLElement {
     const breadcrumb = OFFICE_NAV_BREADCRUMBS[activeRoute] || null;
     const user = this.getUser();
     const theme = this.getTheme();
-    const THEME_ICON = { dark: '☾', light: '☀', armory: '◆', elephant: '🐘', 'glass-aurora': '🔮' };
-    const THEME_LABEL = { dark: 'escuro', light: 'claro', armory: 'armory', elephant: 'elephant', 'glass-aurora': 'aurora glass' };
+    const THEME_ICON = { dark: '☾', light: '☀', armory: '◆', elephant: '🐘', 'glass-aurora': '🔮', 'liquid-glass': '💧' };
+    const THEME_LABEL = { dark: 'escuro', light: 'claro', armory: 'armory', elephant: 'elephant', 'glass-aurora': 'aurora glass', 'liquid-glass': 'liquid glass' };
     const themeIcon = THEME_ICON[theme] || '☾';
 
     this.shadowRoot.innerHTML = `
@@ -742,6 +742,7 @@ class OfficeNav extends HTMLElement {
               <button class="td-item ${theme === 'elephant' ? 'active' : ''}" data-theme-val="elephant" type="button"><span class="ic">🐘</span> Elephant Core</button>
               <button class="td-item ${theme === 'light' ? 'active' : ''}" data-theme-val="light" type="button"><span class="ic">☀️</span> Claro (Light)</button>
               <button class="td-item ${theme === 'glass-aurora' ? 'active' : ''}" data-theme-val="glass-aurora" type="button"><span class="ic">🔮</span> Aurora Glass</button>
+              <button class="td-item ${theme === 'liquid-glass' ? 'active' : ''}" data-theme-val="liquid-glass" type="button"><span class="ic">💧</span> Liquid Glass</button>
             </div>
           </div>
           <div class="user-wrap">
@@ -856,7 +857,7 @@ class OfficeNav extends HTMLElement {
     });
 
     $('um-theme')?.addEventListener('click', () => {
-      const ORDER = ['dark','armory','elephant','light','glass-aurora'];
+      const ORDER = ['dark','armory','elephant','light','glass-aurora','liquid-glass'];
       const cur = this.getTheme();
       const next = ORDER[(ORDER.indexOf(cur) + 1) % ORDER.length];
       try { localStorage.setItem('office.theme', next); } catch {}
@@ -947,7 +948,7 @@ function applyTheme(theme) {
   const html = document.documentElement;
   // SEMPRE seta o atributo explicitamente. Páginas como /optimizer dependem
   // do CSS `[data-theme="dark"]` ativar (não funciona se o atributo for removido).
-  const valid = ['dark','light','armory','elephant','glass-aurora'];
+  const valid = ['dark','light','armory','elephant','glass-aurora','liquid-glass'];
   const t = valid.includes(theme) ? theme : 'dark';
   html.setAttribute('data-theme', t);
 }
@@ -1214,6 +1215,81 @@ function applyTheme(theme) {
       color: #fbbf24 !important;
       border: 1px solid rgba(251, 191, 36, 0.3) !important;
     }
+
+    /* ─── LIQUID GLASS THEME ───────────────────────────────────────────────
+       Inspirado no Liquid Glass Design System: vidro líquido translúcido premium,
+       desfoque de 20px com saturação de 220%, brilhos de borda ciano e accents rosa neon. */
+    :root[data-theme="liquid-glass"] {
+      --bg: #050d1a;
+      --bg-2: #09172e;
+      --surface: rgba(10, 30, 60, 0.45);
+      --surface-2: rgba(15, 45, 90, 0.6);
+      --border: rgba(0, 229, 255, 0.3);
+      --border-light: rgba(255, 255, 255, 0.08);
+      --text: #e0f7fc;
+      --text-dim: #a5e8f3;
+      --text-muted: #73b6c7;
+      --primary: #00e5ff;
+      --primary-light: #80f3ff;
+      --accent: #ec4899;
+      --color-primary-500: #00e5ff;
+      --color-primary-600: #00b8cc;
+      --color-surface-0: #050d1a;
+      --color-surface-1: rgba(10, 30, 60, 0.4);
+      --color-surface-2: rgba(15, 45, 90, 0.55);
+      --color-text-primary: #e0f7fc;
+      --color-text-secondary: #a5e8f3;
+      --color-text-muted: #73b6c7;
+      --color-border: rgba(0, 229, 255, 0.2);
+      --dk-surface: rgba(10, 30, 60, 0.45);
+      --dk-text: #e0f7fc;
+      --dk-text-muted: #73b6c7;
+      --home-text: #e0f7fc;
+      --home-text-muted: #73b6c7;
+      color-scheme: dark;
+    }
+    :root[data-theme="liquid-glass"] body {
+      background: radial-gradient(circle at 50% -20%, rgba(0, 229, 255, 0.18), transparent 50%),
+                  radial-gradient(circle at 15% 35%, rgba(236, 72, 153, 0.08), transparent 40%),
+                  radial-gradient(circle at 85% 75%, rgba(0, 229, 255, 0.10), transparent 50%),
+                  #040b17 !important;
+      background-attachment: fixed !important;
+      color: #e0f7fc !important;
+    }
+    :root[data-theme="liquid-glass"] .kpi,
+    :root[data-theme="liquid-glass"] .card,
+    :root[data-theme="liquid-glass"] .home-area-card,
+    :root[data-theme="liquid-glass"] .home-digest-card,
+    :root[data-theme="liquid-glass"] .dk-glass {
+      background: rgba(10, 30, 60, 0.4) !important;
+      backdrop-filter: blur(20px) saturate(220%) !important;
+      -webkit-backdrop-filter: blur(20px) saturate(220%) !important;
+      border: 1px solid rgba(255, 255, 255, 0.12) !important;
+      border-bottom-color: rgba(0, 229, 255, 0.25) !important;
+      border-right-color: rgba(0, 229, 255, 0.15) !important;
+      border-radius: 16px !important;
+      box-shadow: 0 8px 32px 0 rgba(0, 229, 255, 0.04), inset 0 1px 1px rgba(255, 255, 255, 0.1) !important;
+      position: relative;
+      overflow: hidden;
+      color: #e0f7fc !important;
+      transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), border-color 0.3s, box-shadow 0.3s, background-color 0.3s !important;
+    }
+    :root[data-theme="liquid-glass"] .kpi:hover,
+    :root[data-theme="liquid-glass"] .card:hover,
+    :root[data-theme="liquid-glass"] .home-area-card:hover,
+    :root[data-theme="liquid-glass"] .home-digest-card:hover,
+    :root[data-theme="liquid-glass"] .dk-glass:hover {
+      transform: translateY(-4px) !important;
+      background: rgba(15, 45, 90, 0.5) !important;
+      border-color: rgba(0, 229, 255, 0.5) !important;
+      box-shadow: 0 12px 40px 0 rgba(0, 229, 255, 0.15), inset 0 1px 2px rgba(255, 255, 255, 0.2) !important;
+    }
+    :root[data-theme="liquid-glass"] a { color: #00e5ff !important; }
+    :root[data-theme="liquid-glass"] .chip-online {
+      background: rgba(0, 229, 255, 0.15) !important;
+      color: #00e5ff !important;
+      border: 1px solid rgba(0, 229, 255, 0.3) !important;
+    }
   `;
   document.head.appendChild(style);
 })();
@@ -1222,7 +1298,7 @@ function applyTheme(theme) {
 (function preApplyTheme() {
   try {
     const saved = localStorage.getItem('office.theme') || 'dark';
-    const valid = ['dark','light','armory','elephant','glass-aurora'].includes(saved) ? saved : 'dark';
+    const valid = ['dark','light','armory','elephant','glass-aurora','liquid-glass'].includes(saved) ? saved : 'dark';
     applyTheme(valid);
   } catch {}
 })();
@@ -1256,8 +1332,8 @@ const OfficeCommandPalette = (() => {
       { group:'Rotas', icon:'📨', label:'LP Seja um Voice',     hint:'/seja-voice', action:'/seja-voice' },
       { group:'Rotas', icon:'📜', label:'Changelog',            hint:'/changelog',  action:'/changelog' },
       // Ações
-      { group:'Ações', icon:'🔮',  label:'Alternar tema (dark→armory→elephant→light→glass-aurora)', hint:'persiste', action: () => {
-          const ORDER = ['dark','armory','elephant','light','glass-aurora'];
+      { group:'Ações', icon:'🔮',  label:'Alternar tema (dark→armory→elephant→light→glass-aurora→liquid-glass)', hint:'persiste', action: () => {
+          const ORDER = ['dark','armory','elephant','light','glass-aurora','liquid-glass'];
           const cur = (localStorage.getItem('office.theme') || 'dark');
           const next = ORDER[(ORDER.indexOf(cur) + 1) % ORDER.length];
           try { localStorage.setItem('office.theme', next); } catch {}
