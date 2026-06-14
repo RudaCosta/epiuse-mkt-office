@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&family=Fira+Code:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/design-tokens.css">
+<link rel="stylesheet" href="/css/office-theme.css">
 <link rel="stylesheet" href="/css/polish-pro.css">
 <link rel="stylesheet" href="/css/consulting-dark.css">
 <script type="module" src="/office-nav.js"></script>
@@ -19,12 +20,6 @@
   *,*::before,*::after { box-sizing:border-box; margin:0; padding:0 }
   /* Tokens vêm de /design-tokens.css (aliases legados mantidos pra compat) */
   /* Adições locais — só se necessário */
-  body {
-    background: linear-gradient(180deg, var(--color-bg-2) 0%, var(--color-bg) 100%);
-    color: var(--color-text); font-family: 'Inter', sans-serif;
-    min-height: 100vh; padding-bottom: 80px;
-  }
-  .container { max-width: 1280px; margin: 0 auto; padding: 24px; }
 
   /* HEADER */
   .rep-header {
@@ -169,10 +164,10 @@
   }
 </style>
 </head>
-<body data-route="relatorio">
+<body class="office-body" data-route="relatorio">
 <office-nav></office-nav>
 
-<div class="container" id="rep-root">
+<div class="office-container" id="rep-root">
   <!-- HEADER -->
   <div class="rep-header">
     <div style="min-width:0;flex:1">

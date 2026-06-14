@@ -14,52 +14,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after { box-sizing:border-box; margin:0; padding:0 }
-/* Vars dark + utils vêm de /css/office-theme.css (S34) */
-body { background:linear-gradient(180deg,#061020 0%,#0a1525 100%); color:var(--text); font-family:'Inter',sans-serif; min-height:100vh; padding-bottom:60px }
-.container { max-width:1320px; margin:0 auto; padding:24px }
-
-/* HEADER */
-.hdr { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-bottom:18px }
-.hdr h1 { font-size:24px; font-weight:700 }
-.hdr .sub { color:var(--dim); font-size:13px; margin-top:4px }
 .hdr-actions { display:flex; gap:8px; align-items:center }
-.btn { background:rgba(96,165,250,.10); border:1px solid rgba(96,165,250,.30); color:var(--accent); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:12px; cursor:pointer; transition:background .15s; white-space:nowrap }
-.btn:hover { background:rgba(96,165,250,.2) }
-.btn.primary { background:var(--accent); color:#0a1525; font-weight:700 }
-
-.flag { font-size:11px; color:var(--yellow); background:rgba(251,191,36,.08); border:1px solid rgba(251,191,36,.25); border-radius:8px; padding:8px 12px; margin-bottom:18px; line-height:1.5 }
-
-/* KPI */
-.kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; margin-bottom:22px }
-.kpi { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:18px; position:relative }
 .kpi.live { border-left:3px solid var(--green) }
 .kpi.impl { border-left:3px solid var(--accent) }
 .kpi.ns { border-left:3px solid var(--muted) }
 .kpi.hold { border-left:3px solid var(--yellow) }
-.kpi-val { font-size:30px; font-weight:800; font-family:'JetBrains Mono',monospace; line-height:1 }
-.kpi-lbl { font-size:11px; color:var(--dim); letter-spacing:.06em; text-transform:uppercase; margin-top:8px }
-.kpi-extra { font-size:10px; color:var(--muted); margin-top:6px; font-family:'JetBrains Mono',monospace }
-
-/* TABS */
-.tabs { display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap }
-.tab { padding:8px 16px; border-radius:8px; border:1px solid var(--border); background:transparent; color:var(--dim); cursor:pointer; font-family:inherit; font-size:13px; font-weight:600; transition:all .15s }
-.tab:hover { background:rgba(96,165,250,.06) }
-.tab.active { background:rgba(96,165,250,.18); color:var(--accent); border-color:rgba(96,165,250,.4) }
-
-/* 2-COL GRID */
-.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:22px }
-@media (max-width:880px) { .grid-2 { grid-template-columns:1fr } }
-.panel { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px }
-.panel h2 { font-size:13px; color:var(--dim); letter-spacing:.08em; text-transform:uppercase; margin-bottom:14px }
-
-/* BAR ROWS */
-.bar-row { display:flex; align-items:center; gap:10px; padding:6px 0; font-size:12px }
-.bar-lbl { flex:1; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
-.bar-track { width:120px; height:6px; background:rgba(96,165,250,.1); border-radius:3px; flex-shrink:0 }
-.bar-fill { height:100%; border-radius:3px; background:var(--accent) }
-.bar-fill.navy { background:linear-gradient(90deg,#869ec3,#001844) }
-.bar-fill.red { background:var(--red) }
-.bar-val { font-family:'JetBrains Mono',monospace; font-weight:700; color:var(--accent); min-width:36px; text-align:right }
 
 /* LISTAS GO-LIVE / KICKOFF */
 .evt-row { display:flex; align-items:center; gap:10px; padding:7px 0; border-bottom:1px dashed rgba(148,163,184,.08); font-size:12px }
@@ -72,11 +31,6 @@ body { background:linear-gradient(180deg,#061020 0%,#0a1525 100%); color:var(--t
 .filters { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px }
 .filters select, .filters input { background:rgba(96,165,250,.06); border:1px solid var(--border); color:var(--text); padding:7px 10px; border-radius:8px; font-family:inherit; font-size:12px }
 .filters input { flex:1; min-width:160px }
-.tbl-wrap { background:var(--card); border:1px solid var(--border); border-radius:14px; overflow-x:auto }
-table { width:100%; border-collapse:collapse; font-size:12.5px }
-th { text-align:left; padding:10px 14px; font-size:10px; letter-spacing:.06em; color:var(--muted); text-transform:uppercase; border-bottom:1px solid var(--border); background:rgba(96,165,250,.03); position:sticky; top:0 }
-td { padding:8px 14px; color:var(--dim); border-bottom:1px solid rgba(148,163,184,.06); vertical-align:top }
-tr:hover td { background:rgba(96,165,250,.04) }
 .etapa-badge { font-size:10px; padding:2px 8px; border-radius:10px; font-weight:700; white-space:nowrap }
 .etapa-live { background:rgba(16,185,129,.12); color:var(--green) }
 .etapa-impl { background:rgba(96,165,250,.12); color:var(--accent) }
@@ -84,8 +38,6 @@ tr:hover td { background:rgba(96,165,250,.04) }
 .etapa-hold { background:rgba(251,191,36,.12); color:var(--yellow) }
 .tbl-count { font-size:11px; color:var(--muted); margin-top:8px; text-align:right }
 
-.loading { text-align:center; padding:50px; color:var(--muted); font-size:13px }
-#loadBar { height:3px; background:linear-gradient(90deg,#001844,#cd1543); position:fixed; top:60px; left:0; right:0; z-index:100; transform:scaleX(0); transform-origin:left; transition:transform .4s; }
 @media print {
   office-nav, office-footer, .hdr-actions, .filters, #loadBar { display:none !important }
   body { background:white; color:#1e293b }
@@ -94,12 +46,12 @@ tr:hover td { background:rgba(96,165,250,.04) }
 }
 </style>
 </head>
-<body data-route="clientes-sap-4me">
+<body class="office-body" data-route="clientes-sap-4me">
 <office-nav></office-nav>
 <div id="loadBar"></div>
 
-<div class="container" id="root">
-  <div class="hdr">
+<div class="office-container" id="root">
+  <div class="office-hdr">
     <div>
       <h1>🌐 Clientes SAP 4 ME</h1>
       <div class="sub">Projetos de nuvem SAP em todos os países EPI-USE · <span id="total-lbl">—</span></div>
@@ -220,7 +172,7 @@ function render() {
         </select>
       </div>
       <div class="tbl-wrap">
-        <table>
+        <table class="tbl">
           <thead><tr><th>Cliente</th><th>País</th><th>Área</th><th>Etapa</th><th>Kick-off</th><th>Go-live</th><th>Gerente</th></tr></thead>
           <tbody id="tbl-body"></tbody>
         </table>

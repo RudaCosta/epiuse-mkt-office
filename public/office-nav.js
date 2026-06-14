@@ -1298,7 +1298,14 @@ function applyTheme(theme) {
     :root[data-theme="liquid-glass"] .card,
     :root[data-theme="liquid-glass"] .home-area-card,
     :root[data-theme="liquid-glass"] .home-digest-card,
-    :root[data-theme="liquid-glass"] .dk-glass {
+    :root[data-theme="liquid-glass"] .dk-glass,
+    :root[data-theme="liquid-glass"] .panel,
+    :root[data-theme="liquid-glass"] .tbl-wrap,
+    :root[data-theme="liquid-glass"] .rep-header,
+    :root[data-theme="liquid-glass"] .agenda,
+    :root[data-theme="liquid-glass"] .evt-card,
+    :root[data-theme="liquid-glass"] .voice-tile,
+    :root[data-theme="liquid-glass"] .profile-hdr {
       background: rgba(255, 255, 255, 0.01) !important;
       background-blend-mode: luminosity !important;
       backdrop-filter: blur(50px) saturate(190%) contrast(110%) !important;
@@ -1319,7 +1326,14 @@ function applyTheme(theme) {
     :root[data-theme="liquid-glass"] .card::before,
     :root[data-theme="liquid-glass"] .home-area-card::before,
     :root[data-theme="liquid-glass"] .home-digest-card::before,
-    :root[data-theme="liquid-glass"] .dk-glass::before {
+    :root[data-theme="liquid-glass"] .dk-glass::before,
+    :root[data-theme="liquid-glass"] .panel::before,
+    :root[data-theme="liquid-glass"] .tbl-wrap::before,
+    :root[data-theme="liquid-glass"] .rep-header::before,
+    :root[data-theme="liquid-glass"] .agenda::before,
+    :root[data-theme="liquid-glass"] .evt-card::before,
+    :root[data-theme="liquid-glass"] .voice-tile::before,
+    :root[data-theme="liquid-glass"] .profile-hdr::before {
       content: '' !important;
       position: absolute !important;
       inset: 0 !important;
@@ -1347,7 +1361,14 @@ function applyTheme(theme) {
     :root[data-theme="liquid-glass"] .card::after,
     :root[data-theme="liquid-glass"] .home-area-card::after,
     :root[data-theme="liquid-glass"] .home-digest-card::after,
-    :root[data-theme="liquid-glass"] .dk-glass::after {
+    :root[data-theme="liquid-glass"] .dk-glass::after,
+    :root[data-theme="liquid-glass"] .panel::after,
+    :root[data-theme="liquid-glass"] .tbl-wrap::after,
+    :root[data-theme="liquid-glass"] .rep-header::after,
+    :root[data-theme="liquid-glass"] .agenda::after,
+    :root[data-theme="liquid-glass"] .evt-card::after,
+    :root[data-theme="liquid-glass"] .voice-tile::after,
+    :root[data-theme="liquid-glass"] .profile-hdr::after {
       content: '' !important;
       position: absolute !important;
       top: 0 !important;
@@ -1366,7 +1387,14 @@ function applyTheme(theme) {
     :root[data-theme="liquid-glass"] .card:hover,
     :root[data-theme="liquid-glass"] .home-area-card:hover,
     :root[data-theme="liquid-glass"] .home-digest-card:hover,
-    :root[data-theme="liquid-glass"] .dk-glass:hover {
+    :root[data-theme="liquid-glass"] .dk-glass:hover,
+    :root[data-theme="liquid-glass"] .panel:hover,
+    :root[data-theme="liquid-glass"] .tbl-wrap:hover,
+    :root[data-theme="liquid-glass"] .rep-header:hover,
+    :root[data-theme="liquid-glass"] .agenda:hover,
+    :root[data-theme="liquid-glass"] .evt-card:hover,
+    :root[data-theme="liquid-glass"] .voice-tile:hover,
+    :root[data-theme="liquid-glass"] .profile-hdr:hover {
       transform: translateY(-4px) scale(1.006) !important;
       background: rgba(255, 255, 255, 0.03) !important;
       box-shadow: 
@@ -1379,7 +1407,14 @@ function applyTheme(theme) {
     :root[data-theme="liquid-glass"] .card:hover::before,
     :root[data-theme="liquid-glass"] .home-area-card:hover::before,
     :root[data-theme="liquid-glass"] .home-digest-card:hover::before,
-    :root[data-theme="liquid-glass"] .dk-glass:hover::before {
+    :root[data-theme="liquid-glass"] .dk-glass:hover::before,
+    :root[data-theme="liquid-glass"] .panel:hover::before,
+    :root[data-theme="liquid-glass"] .tbl-wrap:hover::before,
+    :root[data-theme="liquid-glass"] .rep-header:hover::before,
+    :root[data-theme="liquid-glass"] .agenda:hover::before,
+    :root[data-theme="liquid-glass"] .evt-card:hover::before,
+    :root[data-theme="liquid-glass"] .voice-tile:hover::before,
+    :root[data-theme="liquid-glass"] .profile-hdr:hover::before {
       background: linear-gradient(
         180deg,
         rgba(255, 255, 255, 0.75) 0%,
@@ -1395,7 +1430,14 @@ function applyTheme(theme) {
     :root[data-theme="liquid-glass"] .card:hover::after,
     :root[data-theme="liquid-glass"] .home-area-card:hover::after,
     :root[data-theme="liquid-glass"] .home-digest-card:hover::after,
-    :root[data-theme="liquid-glass"] .dk-glass:hover::after {
+    :root[data-theme="liquid-glass"] .dk-glass:hover::after,
+    :root[data-theme="liquid-glass"] .panel:hover::after,
+    :root[data-theme="liquid-glass"] .tbl-wrap:hover::after,
+    :root[data-theme="liquid-glass"] .rep-header:hover::after,
+    :root[data-theme="liquid-glass"] .agenda:hover::after,
+    :root[data-theme="liquid-glass"] .evt-card:hover::after,
+    :root[data-theme="liquid-glass"] .voice-tile:hover::after,
+    :root[data-theme="liquid-glass"] .profile-hdr:hover::after {
       opacity: 1 !important;
       background: linear-gradient(to bottom, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.04) 70%, transparent 100%) !important;
     }
