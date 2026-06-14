@@ -108,7 +108,6 @@ async function fetchRD() {
 
   // 1. Segmentations (listas) + tamanho via paginacao (RD max page_size=125)
   // Pagina ate MAX_PAGES por seg pra nao estourar quota; marca "+" se truncou
-  const MAX_PAGES = 8;       // 8 paginas * 125 = ate 1000 contatos por lista
   const PAGE_SIZE = 125;
   try {
     const seg = await rdGet('/platform/segmentations', accessToken);
@@ -117,12 +116,16 @@ async function fetchRD() {
     for (const s of top) {
       try {
         let total = 0, page = 1, truncado = false;
-        while (page <= MAX_PAGES) {
+        // Se for a segmentacao principal de leads, paginamos ate 150 paginas (ate 18.750 contatos)
+        // Para as outras segmentacoes, limitamos a 2 paginas (250 contatos) para poupar quota
+        const isBaseLeads = /todos os contatos/i.test(s.name);
+        const maxPagesForThisSeg = isBaseLeads ? 150 : 2;
+        while (page <= maxPagesForThisSeg) {
           const c = await rdGet(`/platform/segmentations/${s.id}/contacts?page_size=${PAGE_SIZE}&page=${page}`, accessToken);
           const n = (c.contacts || []).length;
           total += n;
           if (n < PAGE_SIZE) break; // fim
-          if (page === MAX_PAGES) { truncado = true; break; }
+          if (page === maxPagesForThisSeg) { truncado = true; break; }
           page++;
         }
         s._contatos = total;
