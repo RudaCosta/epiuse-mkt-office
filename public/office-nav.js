@@ -8,7 +8,7 @@
 // Fonte ÚNICA da verdade: public/api/changelog.json#current via /api/version
 // Fallback hardcoded usado SÓ se fetch falhar (offline, etc).
 // Sincronização automática — não editar manualmente, basta bumpar changelog.json.
-let OFFICE_NAV_VERSION = '0.50.1';
+let OFFICE_NAV_VERSION = '0.50.2';
 // Promise compartilhada — nav + footer reaproveitam o mesmo fetch
 window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/version')
   .then(r => r.ok ? r.json() : null)
@@ -1221,32 +1221,32 @@ function applyTheme(theme) {
        reflexão especular de borda, refração de surrounding content com gradientes fluidos em movimento
        e iluminação interativa ao hover. */
     :root[data-theme="liquid-glass"] {
-      --bg: #030712;
-      --bg-2: #0b1528;
-      --surface: rgba(15, 23, 42, 0.22);
-      --surface-2: rgba(30, 41, 59, 0.35);
-      --border: rgba(255, 255, 255, 0.12);
-      --border-light: rgba(255, 255, 255, 0.06);
-      --text: #f1f5f9;
-      --text-dim: #cbd5e1;
-      --text-muted: #64748b;
+      --bg: #020617;
+      --bg-2: #070f2e;
+      --surface: rgba(15, 23, 42, 0.18);
+      --surface-2: rgba(30, 41, 59, 0.3);
+      --border: rgba(255, 255, 255, 0.1);
+      --border-light: rgba(255, 255, 255, 0.05);
+      --text: #f8fafc;
+      --text-dim: #e2e8f0;
+      --text-muted: #94a3b8;
       --primary: #38bdf8;
       --primary-light: #7dd3fc;
       --accent: #f43f5e;
       --color-primary-500: #38bdf8;
       --color-primary-600: #0284c7;
-      --color-surface-0: #030712;
-      --color-surface-1: rgba(15, 23, 42, 0.2);
-      --color-surface-2: rgba(30, 41, 59, 0.3);
-      --color-text-primary: #f1f5f9;
-      --color-text-secondary: #cbd5e1;
-      --color-text-muted: #64748b;
-      --color-border: rgba(255, 255, 255, 0.08);
-      --dk-surface: rgba(15, 23, 42, 0.22);
-      --dk-text: #f1f5f9;
-      --dk-text-muted: #64748b;
-      --home-text: #f1f5f9;
-      --home-text-muted: #64748b;
+      --color-surface-0: #020617;
+      --color-surface-1: rgba(15, 23, 42, 0.15);
+      --color-surface-2: rgba(30, 41, 59, 0.25);
+      --color-text-primary: #f8fafc;
+      --color-text-secondary: #e2e8f0;
+      --color-text-muted: #94a3b8;
+      --color-border: rgba(255, 255, 255, 0.06);
+      --dk-surface: rgba(15, 23, 42, 0.18);
+      --dk-text: #f8fafc;
+      --dk-text-muted: #94a3b8;
+      --home-text: #f8fafc;
+      --home-text-muted: #94a3b8;
       color-scheme: dark;
     }
     @keyframes float-liquid {
@@ -1254,47 +1254,81 @@ function applyTheme(theme) {
       50% { background-position: 50% 100%, 0% 50%, 100% 0%; }
       100% { background-position: 0% 0%, 100% 100%, 50% 50%; }
     }
+    @keyframes liquid-shape {
+      0% { border-radius: 16px 14px 17px 15px / 15px 17px 14px 16px; }
+      33% { border-radius: 14px 17px 15px 16px / 16px 14px 17px 15px; }
+      66% { border-radius: 17px 15px 16px 14px / 14px 16px 15px 17px; }
+      100% { border-radius: 16px 14px 17px 15px / 15px 17px 14px 16px; }
+    }
     :root[data-theme="liquid-glass"] body {
-      background: radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.12), transparent 45%),
-                  radial-gradient(circle at 80% 80%, rgba(244, 63, 94, 0.08), transparent 45%),
+      background: radial-gradient(circle at 15% 15%, rgba(56, 189, 248, 0.12), transparent 45%),
+                  radial-gradient(circle at 85% 85%, rgba(244, 63, 94, 0.08), transparent 45%),
                   radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.06), transparent 50%),
-                  #030712 !important;
+                  #020617 !important;
       background-size: 200% 200% !important;
-      animation: float-liquid 20s ease-in-out infinite !important;
+      animation: float-liquid 25s ease-in-out infinite !important;
       background-attachment: fixed !important;
-      color: #f1f5f9 !important;
+      color: #f8fafc !important;
     }
     :root[data-theme="liquid-glass"] .kpi,
     :root[data-theme="liquid-glass"] .card,
     :root[data-theme="liquid-glass"] .home-area-card,
     :root[data-theme="liquid-glass"] .home-digest-card,
     :root[data-theme="liquid-glass"] .dk-glass {
-      background: rgba(15, 23, 42, 0.22) !important;
-      backdrop-filter: blur(25px) saturate(210%) !important;
-      -webkit-backdrop-filter: blur(25px) saturate(210%) !important;
-      border: 1px solid rgba(255, 255, 255, 0.12) !important;
-      border-radius: 16px !important;
-      box-shadow: inset 0 1.5px 0 0 rgba(255, 255, 255, 0.25),
-                  inset 0 -1px 0 0 rgba(0, 0, 0, 0.2),
-                  0 12px 40px -10px rgba(0, 0, 0, 0.35),
-                  0 0 1px 0 rgba(56, 189, 248, 0.15) !important;
-      position: relative;
-      overflow: hidden;
-      color: #f1f5f9 !important;
+      background: rgba(15, 23, 42, 0.18) !important;
+      backdrop-filter: blur(28px) saturate(220%) !important;
+      -webkit-backdrop-filter: blur(28px) saturate(220%) !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      position: relative !important;
+      overflow: hidden !important;
+      color: #f8fafc !important;
+      animation: liquid-shape 12s ease-in-out infinite !important;
       transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s, box-shadow 0.3s, background-color 0.3s !important;
+      box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.2),
+                  inset 0 -1px 0 0 rgba(0, 0, 0, 0.35),
+                  0 10px 30px -10px rgba(0, 0, 0, 0.4),
+                  0 0 0 1px rgba(0, 229, 255, 0.08) !important;
+    }
+    /* Pseudo-elemento: Glossy Gel Lens (Reflexo de Lente 3D Curva) */
+    :root[data-theme="liquid-glass"] .kpi::after,
+    :root[data-theme="liquid-glass"] .card::after,
+    :root[data-theme="liquid-glass"] .home-area-card::after,
+    :root[data-theme="liquid-glass"] .home-digest-card::after,
+    :root[data-theme="liquid-glass"] .dk-glass::after {
+      content: '' !important;
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      height: 50% !important;
+      background: linear-gradient(to bottom, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.02) 80%, transparent 100%) !important;
+      border-radius: 16px 16px 100px 100px / 16px 16px 20px 20px !important;
+      pointer-events: none !important;
+      z-index: 2 !important;
+      opacity: 0.9 !important;
+      transition: opacity 0.3s !important;
     }
     :root[data-theme="liquid-glass"] .kpi:hover,
     :root[data-theme="liquid-glass"] .card:hover,
     :root[data-theme="liquid-glass"] .home-area-card:hover,
     :root[data-theme="liquid-glass"] .home-digest-card:hover,
     :root[data-theme="liquid-glass"] .dk-glass:hover {
-      transform: translateY(-4px) scale(1.005) !important;
-      background: rgba(15, 23, 42, 0.30) !important;
-      border-color: rgba(255, 255, 255, 0.2) !important;
-      box-shadow: inset 0 2px 0 0 rgba(255, 255, 255, 0.45),
+      transform: translateY(-4px) scale(1.008) !important;
+      background: rgba(15, 23, 42, 0.28) !important;
+      border-color: rgba(0, 229, 255, 0.4) !important;
+      animation-play-state: paused !important;
+      box-shadow: inset 0 1.5px 0 0 rgba(255, 255, 255, 0.35),
                   inset 0 -1.5px 0 0 rgba(0, 0, 0, 0.15),
-                  0 20px 50px -12px rgba(56, 189, 248, 0.15),
-                  0 15px 35px -10px rgba(0, 0, 0, 0.45) !important;
+                  0 20px 45px -12px rgba(0, 229, 255, 0.22),
+                  0 15px 35px -10px rgba(0, 0, 0, 0.5) !important;
+    }
+    :root[data-theme="liquid-glass"] .kpi:hover::after,
+    :root[data-theme="liquid-glass"] .card:hover::after,
+    :root[data-theme="liquid-glass"] .home-area-card:hover::after,
+    :root[data-theme="liquid-glass"] .home-digest-card:hover::after,
+    :root[data-theme="liquid-glass"] .dk-glass:hover::after {
+      opacity: 1 !important;
+      background: linear-gradient(to bottom, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.04) 70%, transparent 100%) !important;
     }
     :root[data-theme="liquid-glass"] a { color: #38bdf8 !important; }
     :root[data-theme="liquid-glass"] .chip-online {
