@@ -30,6 +30,11 @@
 | 💻 [[landing-pages]] | Frontend + UX Writer | `/lp` | [landing-pages.md](./landing-pages.md) |
 | 📄 [[propostas]] | Pré-Vendas + Solution Architect | `/proposta` | [propostas.md](./propostas.md) |
 | 📊 [[campanhas]] | Mídia Paga + Competitive Intel | `/campanha` | [campanhas.md](./campanhas.md) |
+| ✍️ [[copywriter]] | Redator + Copywriter | `/texto` | [copywriter.md](./copywriter.md) |
+| 🎨 [[designer]] | Diretor de Arte + Designer | `/design` | [designer.md](./designer.md) |
+| 🧠 [[marketing-intelligence]] | BI + CRM Analyst | `/intelligence` | [marketing-intelligence.md](./marketing-intelligence.md) |
+| 🔍 [[revisor-qa]] | QA Editor + Revisor | `/revisar` | [revisor-qa.md](./revisor-qa.md) |
+
 
 ## Comandos do escritório
 

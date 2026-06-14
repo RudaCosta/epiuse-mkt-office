@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-gerar_pptx.py — v0.5.0
+gerar_pptx.py — v0.6.0
 Gera PPTX mensal de Marketing EPI-USE Brasil replicando estrutura dos 13 reports históricos.
 
 Lê: /api/relatorio/snapshot?mes=YYYY-MM (Office rodando local)
@@ -41,6 +41,17 @@ COR_GREEN = RGBColor(0x10, 0xB9, 0x81)
 COR_RED = RGBColor(0xEF, 0x44, 0x44)
 COR_TEXT = RGBColor(0x1E, 0x29, 0x3B)
 COR_MUTED = RGBColor(0x64, 0x74, 0x8B)
+COR_WHITE = RGBColor(255, 255, 255)
+
+
+def get_layout(prs, name, fallback_idx=6):
+    """Retorna um layout do template buscando por nome, ou fallback por index."""
+    for l in prs.slide_layouts:
+        if l.name == name:
+            return l
+    if fallback_idx < len(prs.slide_layouts):
+        return prs.slide_layouts[fallback_idx]
+    return prs.slide_layouts[0]
 
 
 def fetch_snapshot(mes, base_url="http://localhost:3000"):
@@ -94,24 +105,42 @@ def add_kpi_card(slide, x, y, w, h, label, valor, sub=None, cor_val=COR_SECONDAR
 
 
 def slide_capa(prs, mes):
-    s = prs.slides.add_slide(prs.slide_layouts[6])  # blank
+    layout = get_layout(prs, "Title-slide_Elephant", 6)
+    s = prs.slides.add_slide(layout)
     yyyy, mm = mes.split("-")
     nome_mes = MESES_PT[mm]
-    add_titulo(s, "Monthly Report — Marketing", top=Inches(2.5), size=36)
-    tb = s.shapes.add_textbox(Inches(0.5), Inches(3.3), Inches(12.5), Inches(0.7))
-    tb.text_frame.text = f"{nome_mes} de {yyyy}"
-    tb.text_frame.paragraphs[0].runs[0].font.size = Pt(24)
-    tb.text_frame.paragraphs[0].runs[0].font.color.rgb = COR_SECONDARY
 
-    tb2 = s.shapes.add_textbox(Inches(0.5), Inches(6.5), Inches(12.5), Inches(0.4))
-    tb2.text_frame.text = f"EPI-USE Brasil · Marketing & RevOps · Gerado em {datetime.now().strftime('%d/%m/%Y %H:%M')}"
-    tb2.text_frame.paragraphs[0].runs[0].font.size = Pt(11)
-    tb2.text_frame.paragraphs[0].runs[0].font.color.rgb = COR_MUTED
+    if layout.name == "Title-slide_Elephant":
+        # Se for o layout oficial, preenche os placeholders 14 e 15 com texto branco e alinhado
+        try:
+            ph_title = s.placeholders[14]
+            ph_title.text = "Monthly Report — Marketing"
+        except KeyError:
+            pass
+        try:
+            ph_sub = s.placeholders[15]
+            ph_sub.text = f"{nome_mes} de {yyyy}  ·  EPI-USE Brasil"
+        except KeyError:
+            pass
+    else:
+        # Fallback original
+        add_titulo(s, "Monthly Report — Marketing", top=Inches(2.5), size=36)
+        tb = s.shapes.add_textbox(Inches(0.5), Inches(3.3), Inches(12.5), Inches(0.7))
+        tb.text_frame.text = f"{nome_mes} de {yyyy}"
+        tb.text_frame.paragraphs[0].runs[0].font.size = Pt(24)
+        tb.text_frame.paragraphs[0].runs[0].font.color.rgb = COR_SECONDARY
+
+        tb2 = s.shapes.add_textbox(Inches(0.5), Inches(6.5), Inches(12.5), Inches(0.4))
+        tb2.text_frame.text = f"EPI-USE Brasil · Marketing & RevOps · Gerado em {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+        tb2.text_frame.paragraphs[0].runs[0].font.size = Pt(11)
+        tb2.text_frame.paragraphs[0].runs[0].font.color.rgb = COR_MUTED
 
 
 def slide_agenda(prs):
-    s = prs.slides.add_slide(prs.slide_layouts[6])
-    add_titulo(s, "Agenda")
+    layout = get_layout(prs, "Blue BG", 6)
+    s = prs.slides.add_slide(layout)
+    is_blue_bg = "Blue BG" in layout.name
+
     itens = [
         ("1.", "KPIs Digitais"),
         ("2.", "LinkedIn — Detalhe"),
@@ -121,18 +150,41 @@ def slide_agenda(prs):
         ("6.", "SDR / Pipeline"),
         ("7.", "Next Steps"),
     ]
-    y = Inches(1.5)
-    for num, label in itens:
-        tb = s.shapes.add_textbox(Inches(2), y, Inches(10), Inches(0.5))
+
+    if is_blue_bg:
+        # Título no meio-esquerda em branco
+        tb = s.shapes.add_textbox(Inches(1.0), Inches(1.5), Inches(11.3), Inches(0.8))
         p = tb.text_frame.paragraphs[0]
-        p.text = f"{num}  {label}"
-        p.runs[0].font.size = Pt(18)
-        p.runs[0].font.color.rgb = COR_PRIMARY
-        y += Inches(0.5)
+        p.text = "Agenda"
+        p.font.size = Pt(36)
+        p.font.bold = True
+        p.font.color.rgb = COR_WHITE
+
+        y = Inches(2.5)
+        for num, label in itens:
+            tb_item = s.shapes.add_textbox(Inches(1.0), y, Inches(11.3), Inches(0.4))
+            p_item = tb_item.text_frame.paragraphs[0]
+            p_item.text = f"{num}  {label}"
+            p_item.font.size = Pt(18)
+            p_item.font.color.rgb = COR_WHITE
+            y += Inches(0.5)
+    else:
+        # Comportamento original
+        add_titulo(s, "Agenda")
+        y = Inches(1.5)
+        for num, label in itens:
+            tb = s.shapes.add_textbox(Inches(2), y, Inches(10), Inches(0.5))
+            p = tb.text_frame.paragraphs[0]
+            p.text = f"{num}  {label}"
+            p.runs[0].font.size = Pt(18)
+            p.runs[0].font.color.rgb = COR_PRIMARY
+            y += Inches(0.5)
+
 
 
 def slide_kpis_digitais(prs, snap):
-    s = prs.slides.add_slide(prs.slide_layouts[6])
+    layout = get_layout(prs, "Content-slide_white-bg-blank", 6)
+    s = prs.slides.add_slide(layout)
     add_titulo(s, "1. KPIs Digitais")
     li = snap["linkedin"]
     site = snap.get("site")
@@ -211,7 +263,8 @@ def slide_kpis_digitais(prs, snap):
 
 
 def slide_linkedin(prs, snap):
-    s = prs.slides.add_slide(prs.slide_layouts[6])
+    layout = get_layout(prs, "Content-slide_white-bg-blank", 6)
+    s = prs.slides.add_slide(layout)
     add_titulo(s, "2. LinkedIn — Detalhe")
     li = snap["linkedin"]
     add_kpi_card(s, Inches(0.5), Inches(1.5), Inches(3.5), Inches(1.5),
@@ -242,7 +295,8 @@ def slide_linkedin(prs, snap):
 
 
 def slide_eventos(prs, snap):
-    s = prs.slides.add_slide(prs.slide_layouts[6])
+    layout = get_layout(prs, "Content-slide_white-bg-blank", 6)
+    s = prs.slides.add_slide(layout)
     add_titulo(s, "4. Eventos — Tática Elefante 🐘")
     tat = snap["linkedin"].get("tatica_elefante", {})
     tb = s.shapes.add_textbox(Inches(0.5), Inches(1.4), Inches(12), Inches(0.5))
@@ -263,7 +317,8 @@ def slide_eventos(prs, snap):
 
 
 def slide_voices(prs, snap):
-    s = prs.slides.add_slide(prs.slide_layouts[6])
+    layout = get_layout(prs, "Content-slide_white-bg-blank", 6)
+    s = prs.slides.add_slide(layout)
     add_titulo(s, "5. EPI-USE Voices")
     v = snap.get("voices", {})
     add_kpi_card(s, Inches(0.5), Inches(1.5), Inches(3.5), Inches(1.5),
@@ -277,7 +332,8 @@ def slide_voices(prs, snap):
 
 
 def slide_cases(prs, snap):
-    s = prs.slides.add_slide(prs.slide_layouts[6])
+    layout = get_layout(prs, "Content-slide_white-bg-blank", 6)
+    s = prs.slides.add_slide(layout)
     add_titulo(s, "7. Cases & CS Highlights")
     c = snap["cases"]
     cards = [
@@ -295,7 +351,8 @@ def slide_cases(prs, snap):
 def slide_alertas(prs, snap):
     alertas = snap.get("alertas", [])
     if not alertas: return
-    s = prs.slides.add_slide(prs.slide_layouts[6])
+    layout = get_layout(prs, "Content-slide_white-bg-blank", 6)
+    s = prs.slides.add_slide(layout)
     add_titulo(s, "⚠️ Alertas Automáticos")
     yy = Inches(1.5)
     for a in alertas:
@@ -307,27 +364,58 @@ def slide_alertas(prs, snap):
         yy += Inches(0.55)
 
 
+def slide_fim(prs):
+    layout = get_layout(prs, "End-slide_Elephant", 6)
+    if layout.name == "End-slide_Elephant":
+        s = prs.slides.add_slide(layout)
+        try:
+            ph = s.placeholders[12]
+            ph.text = "Obrigado!"
+        except KeyError:
+            pass
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--mes", required=True, help="YYYY-MM (ex: 2026-05)")
     ap.add_argument("--output", help="Path custom do PPTX")
     ap.add_argument("--base-url", default="http://localhost:3000", help="URL do Office")
+    ap.add_argument("--template", help="Caminho do template PPTX da EPI-USE")
     args = ap.parse_args()
 
     print(f"[relatorio] pegando snapshot {args.mes}...")
     snap = fetch_snapshot(args.mes, args.base_url)
 
     print(f"[relatorio] montando PPTX...")
-    prs = Presentation()
-    prs.slide_width = Inches(13.333)
-    prs.slide_height = Inches(7.5)
+    
+    template_path = None
+    if args.template:
+        template_path = Path(args.template)
+    else:
+        template_path = Path(ONEDRIVE_BASE) / "EPI-USE_PPT_Template (Effective Jan 2026).pptx"
+
+    if template_path.exists():
+        print(f"[relatorio] Carregando template oficial: {template_path}")
+        prs = Presentation(str(template_path))
+        # Deletar todos os slides originais do template
+        for i in range(len(prs.slides) - 1, -1, -1):
+            slide_id = prs.slides._sldIdLst[i].rId
+            prs.part.drop_rel(slide_id)
+            del prs.slides._sldIdLst[i]
+    else:
+        print("[relatorio] Template oficial não encontrado. Usando apresentação vazia padrão.")
+        prs = Presentation()
+        prs.slide_width = Inches(13.333)
+        prs.slide_height = Inches(7.5)
 
     slide_capa(prs, args.mes)
     slide_agenda(prs)
     slide_kpis_digitais(prs, snap)
     slide_linkedin(prs, snap)
+    
     # Conteúdo (placeholder por enquanto)
-    s = prs.slides.add_slide(prs.slide_layouts[6])
+    layout_content = get_layout(prs, "Content-slide_white-bg-blank", 6)
+    s = prs.slides.add_slide(layout_content)
     add_titulo(s, "3. Conteúdo do Mês")
     tb = s.shapes.add_textbox(Inches(0.5), Inches(2), Inches(12), Inches(0.5))
     tb.text_frame.text = "[Aguardando tracking de Conteúdo em /api — temas trabalhados, taxa engajamento, destaques]"
@@ -337,14 +425,15 @@ def main():
     slide_voices(prs, snap)
 
     # SDR
-    s = prs.slides.add_slide(prs.slide_layouts[6])
-    add_titulo(s, "6. SDR / Pipeline")
-    tb = s.shapes.add_textbox(Inches(0.5), Inches(2), Inches(12), Inches(0.5))
-    tb.text_frame.text = "[Aguardando integração Apollo MCP — Onda 5 v0.5.0]"
-    tb.text_frame.paragraphs[0].runs[0].font.size = Pt(13); tb.text_frame.paragraphs[0].runs[0].font.color.rgb = COR_MUTED
+    s_sdr = prs.slides.add_slide(layout_content)
+    add_titulo(s_sdr, "6. SDR / Pipeline")
+    tb_sdr = s_sdr.shapes.add_textbox(Inches(0.5), Inches(2), Inches(12), Inches(0.5))
+    tb_sdr.text_frame.text = "[Aguardando integração Apollo MCP — Onda 5 v0.5.0]"
+    tb_sdr.text_frame.paragraphs[0].runs[0].font.size = Pt(13); tb_sdr.text_frame.paragraphs[0].runs[0].font.color.rgb = COR_MUTED
 
     slide_cases(prs, snap)
     slide_alertas(prs, snap)
+    slide_fim(prs)
 
     # Output path
     if args.output:
