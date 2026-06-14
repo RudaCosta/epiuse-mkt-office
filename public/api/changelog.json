@@ -1,6 +1,6 @@
 {
-  "current": "0.47.2",
-  "atualizado_em": "12/jun/2026",
+  "current": "0.49.0",
+  "atualizado_em": "14/jun/2026",
   "next": [
     {
       "version": "0.43.0",
@@ -47,10 +47,35 @@
   ],
   "releases": [
     {
-      "version": "0.47.2",
-      "date": "13/jun/2026",
+      "version": "0.49.0",
+      "date": "14/jun/2026",
       "status": "current",
       "path": null,
+      "title": "🔮 Novo tema Aurora Glass, Seletor Dropdown e Visão CMO V2 nas 5 páginas principais",
+      "summary": "Implementação do tema ultra-premium Aurora Glass (desfoque de vidro, gradiente de nebulosa e bordas superior neon) e do novo Seletor de Temas Dropdown flutuante na barra global. Introdução do interruptor 'Visão CMO V2' com métricas SAP B2B nas 5 páginas principais (Home, Relatório, Voices, Field Marketing e Pipeline) conectando KPIs reais de CRM, MDF e prospecção.",
+      "highlights": [
+        "Tema Aurora Glass baseado em Glassmorphism e neon vibrante",
+        "Seletor dropdown flutuante substituindo rotação cíclica ineficiente",
+        "Modo CMO V2 interativo com métricas de negócio e conversão SAP"
+      ]
+    },
+    {
+      "version": "0.48.0",
+      "date": "14/jun/2026",
+      "status": "released",
+      "path": null,
+      "title": "📊 Template PPTX Oficial da EPI-USE no gerador automático de relatórios",
+      "summary": "Integração do template corporativo de PowerPoint (11 slides com fotos de elefante na capa/fim, fundo azul na agenda e rodapé com logo/numeração) no script python. Suporta carregamento dinâmico local e fallback seguro para apresentação em branco no Railway (sem crash). Criados 4 subagentes (Copywriter, Designer, Intelligence, Revisor) para atuar nas respectivas áreas de especialidade.",
+      "highlights": [
+        "Integração do template PPTX real da marca (Capa, Agenda e Conteúdo)",
+        "Fallback resiliente para Railway em caso de ausência do arquivo",
+        "4 subagentes especializados estruturados no escritório virtual"
+      ]
+    },
+    {
+      "version": "0.47.2",
+      "date": "13/jun/2026",
+      "status": "released",
       "title": "⏰ Refresh diario automatico de GA4 + RD (fim do dado congelado)",
       "summary": "Descoberto que GA4 e RD nunca tinham cron real — travados em 05/jun (8 dias) em prod. Adicionado scheduler in-process (setTimeout boot+40s + setInterval 24h) que dispara ga4.refreshAndCache + rd.fetchRD onde as credenciais existem (Railway). Local sem creds = no-op silencioso. Agora o report mensal se mantem fresco sozinho.",
       "highlights": [
