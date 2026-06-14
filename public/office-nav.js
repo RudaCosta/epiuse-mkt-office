@@ -947,7 +947,7 @@ function applyTheme(theme) {
   const html = document.documentElement;
   // SEMPRE seta o atributo explicitamente. Páginas como /optimizer dependem
   // do CSS `[data-theme="dark"]` ativar (não funciona se o atributo for removido).
-  const valid = ['dark','light','armory','elephant'];
+  const valid = ['dark','light','armory','elephant','glass-aurora'];
   const t = valid.includes(theme) ? theme : 'dark';
   html.setAttribute('data-theme', t);
 }
@@ -1256,8 +1256,8 @@ const OfficeCommandPalette = (() => {
       { group:'Rotas', icon:'📨', label:'LP Seja um Voice',     hint:'/seja-voice', action:'/seja-voice' },
       { group:'Rotas', icon:'📜', label:'Changelog',            hint:'/changelog',  action:'/changelog' },
       // Ações
-      { group:'Ações', icon:'☾',  label:'Alternar tema (dark→armory→elephant→light)', hint:'persiste', action: () => {
-          const ORDER = ['dark','armory','elephant','light'];
+      { group:'Ações', icon:'🔮',  label:'Alternar tema (dark→armory→elephant→light→glass-aurora)', hint:'persiste', action: () => {
+          const ORDER = ['dark','armory','elephant','light','glass-aurora'];
           const cur = (localStorage.getItem('office.theme') || 'dark');
           const next = ORDER[(ORDER.indexOf(cur) + 1) % ORDER.length];
           try { localStorage.setItem('office.theme', next); } catch {}
