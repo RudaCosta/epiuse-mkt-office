@@ -246,7 +246,7 @@ class OfficeNav extends HTMLElement {
   getTheme() {
     try {
       const saved = localStorage.getItem('office.theme');
-      if (['dark','light','armory','elephant'].includes(saved)) return saved;
+      if (['dark','light','armory','elephant','glass-aurora'].includes(saved)) return saved;
       // F10: auto-detect OS preference (default fallback = dark)
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) return 'light';
       return 'dark';
@@ -259,8 +259,8 @@ class OfficeNav extends HTMLElement {
     const breadcrumb = OFFICE_NAV_BREADCRUMBS[activeRoute] || null;
     const user = this.getUser();
     const theme = this.getTheme();
-    const THEME_ICON = { dark: '☾', light: '☀', armory: '◆', elephant: '🐘' };
-    const THEME_LABEL = { dark: 'escuro', light: 'claro', armory: 'armory', elephant: 'elephant' };
+    const THEME_ICON = { dark: '☾', light: '☀', armory: '◆', elephant: '🐘', 'glass-aurora': '🔮' };
+    const THEME_LABEL = { dark: 'escuro', light: 'claro', armory: 'armory', elephant: 'elephant', 'glass-aurora': 'aurora glass' };
     const themeIcon = THEME_ICON[theme] || '☾';
 
     this.shadowRoot.innerHTML = `
@@ -599,6 +599,52 @@ class OfficeNav extends HTMLElement {
         .user-menu .um-item:hover { background: var(--nav-hover-bg); }
         .user-menu .um-item .ic { font-size: 13px; opacity: 0.85; }
         .user-wrap { position: relative; }
+        .theme-wrap { position: relative; }
+        .theme-dropdown {
+          display: none;
+          position: absolute;
+          right: 0;
+          top: calc(100% + 6px);
+          min-width: 190px;
+          background: #0d1e36;
+          border: 1px solid var(--nav-border);
+          border-radius: 10px;
+          padding: 6px;
+          box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+          z-index: 10;
+        }
+        .theme-dropdown.open { display: block; }
+        .theme-dropdown .td-head {
+          padding: 6px 8px;
+          font-size: 10px;
+          font-weight: 700;
+          color: var(--nav-muted);
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          border-bottom: 1px solid rgba(255,255,255,0.06);
+          margin-bottom: 4px;
+        }
+        .theme-dropdown .td-item {
+          display: flex; align-items: center; gap: 8px;
+          padding: 7px 10px;
+          font-size: 12px;
+          color: var(--nav-text);
+          text-decoration: none;
+          border-radius: 6px;
+          cursor: pointer;
+          background: transparent;
+          border: none;
+          width: 100%;
+          text-align: left;
+          font-family: inherit;
+        }
+        .theme-dropdown .td-item:hover { background: var(--nav-hover-bg); }
+        .theme-dropdown .td-item.active {
+          background: var(--nav-active-bg);
+          border-left: 3px solid var(--nav-accent);
+          font-weight: 600;
+        }
+        .theme-dropdown .td-item .ic { font-size: 13px; }
 
         /* ── Skip-to-content a11y ── */
         .skip-link {
@@ -687,7 +733,17 @@ class OfficeNav extends HTMLElement {
               <div id="bell-items"><div class="bp-item empty">Carregando…</div></div>
             </div>
           </div>
-          <button class="ctrl-btn" id="theme-btn" title="Trocar tema (dark→armory→elephant→light)" type="button">${themeIcon}</button>
+          <div class="theme-wrap">
+            <button class="ctrl-btn" id="theme-btn" title="Selecionar tema" type="button">${themeIcon}</button>
+            <div class="theme-dropdown" id="theme-dropdown" role="menu">
+              <div class="td-head">Selecione o Tema</div>
+              <button class="td-item ${theme === 'dark' ? 'active' : ''}" data-theme-val="dark" type="button"><span class="ic">🌑</span> Escuro (Padrão)</button>
+              <button class="td-item ${theme === 'armory' ? 'active' : ''}" data-theme-val="armory" type="button"><span class="ic">📟</span> Armory Tech</button>
+              <button class="td-item ${theme === 'elephant' ? 'active' : ''}" data-theme-val="elephant" type="button"><span class="ic">🐘</span> Elephant Core</button>
+              <button class="td-item ${theme === 'light' ? 'active' : ''}" data-theme-val="light" type="button"><span class="ic">☀️</span> Claro (Light)</button>
+              <button class="td-item ${theme === 'glass-aurora' ? 'active' : ''}" data-theme-val="glass-aurora" type="button"><span class="ic">🔮</span> Aurora Glass</button>
+            </div>
+          </div>
           <div class="user-wrap">
             <button class="user-chip" id="user-btn" type="button">👤 <span class="user-name">${user}</span></button>
             <div class="user-menu" id="user-menu" role="menu">
@@ -748,9 +804,10 @@ class OfficeNav extends HTMLElement {
     const hamburgerBtn = $('hamburger-btn');
     const mobileTabs = $('mobile-tabs');
 
+    const themeDropdown = $('theme-dropdown');
     // Helper: fecha todos os dropdowns exceto o que abriu
     const closeAll = (except) => {
-      [overflowMenu, userMenu, bellPanel, mobileTabs].forEach(el => {
+      [overflowMenu, userMenu, bellPanel, mobileTabs, themeDropdown].forEach(el => {
         if (el && el !== except) el.classList.remove('open');
       });
     };
@@ -799,7 +856,7 @@ class OfficeNav extends HTMLElement {
     });
 
     $('um-theme')?.addEventListener('click', () => {
-      const ORDER = ['dark','armory','elephant','light'];
+      const ORDER = ['dark','armory','elephant','light','glass-aurora'];
       const cur = this.getTheme();
       const next = ORDER[(ORDER.indexOf(cur) + 1) % ORDER.length];
       try { localStorage.setItem('office.theme', next); } catch {}
@@ -830,14 +887,22 @@ class OfficeNav extends HTMLElement {
       });
     });
 
-    themeBtn?.addEventListener('click', () => {
-      const ORDER = ['dark','armory','elephant','light'];
-      const cur = this.getTheme();
-      const next = ORDER[(ORDER.indexOf(cur) + 1) % ORDER.length];
-      try { localStorage.setItem('office.theme', next); } catch {}
-      applyTheme(next);
-      this.render();
-      this.hookEvents();
+    themeBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = themeDropdown.classList.contains('open');
+      closeAll();
+      if (!isOpen) themeDropdown.classList.add('open');
+    });
+
+    this.shadowRoot.querySelectorAll('.td-item').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const next = btn.dataset.themeVal;
+        try { localStorage.setItem('office.theme', next); } catch {}
+        applyTheme(next);
+        this.render();
+        this.hookEvents();
+      });
     });
 
     // Aplica tema salvo na primeira montagem (idempotente)
@@ -1079,6 +1144,76 @@ function applyTheme(theme) {
       background: rgba(45,74,51,0.10) !important;
       color: #2d4a33 !important;
     }
+
+    /* ─── AURORA GLASS THEME ───────────────────────────────────────────────
+       Tema ultra-premium: desfoque de vidro, fundo gradiente de nebulosa/aurora roxa,
+       bordas e sombras neon sutis, realces dourados/amber (SAP consulting vibe). */
+    :root[data-theme="glass-aurora"] {
+      --bg: #0c081f;
+      --bg-2: #140d33;
+      --surface: rgba(26, 17, 60, 0.45);
+      --surface-2: rgba(35, 23, 80, 0.6);
+      --border: rgba(168, 85, 247, 0.3);
+      --border-light: rgba(255, 255, 255, 0.08);
+      --text: #f3e8ff;
+      --text-dim: #d8b4fe;
+      --text-muted: #a78bfa;
+      --primary: #fbbf24;
+      --primary-light: #fde047;
+      --accent: #ec4899;
+      --color-primary-500: #fbbf24;
+      --color-primary-600: #d97706;
+      --color-surface-0: #0c081f;
+      --color-surface-1: rgba(26, 17, 60, 0.4);
+      --color-surface-2: rgba(35, 23, 80, 0.55);
+      --color-text-primary: #f3e8ff;
+      --color-text-secondary: #d8b4fe;
+      --color-text-muted: #a78bfa;
+      --color-border: rgba(168, 85, 247, 0.2);
+      --dk-surface: rgba(26, 17, 60, 0.45);
+      --dk-text: #f3e8ff;
+      --dk-text-muted: #a78bfa;
+      --home-text: #f3e8ff;
+      --home-text-muted: #a78bfa;
+      color-scheme: dark;
+    }
+    :root[data-theme="glass-aurora"] body {
+      background: radial-gradient(circle at 50% 0%, #1c0f3a, #0c081f 60%, #04020a) !important;
+      background-attachment: fixed !important;
+      color: #f3e8ff !important;
+    }
+    :root[data-theme="glass-aurora"] .kpi,
+    :root[data-theme="glass-aurora"] .card,
+    :root[data-theme="glass-aurora"] .home-area-card,
+    :root[data-theme="glass-aurora"] .home-digest-card,
+    :root[data-theme="glass-aurora"] .dk-glass {
+      background: rgba(26, 17, 60, 0.45) !important;
+      backdrop-filter: blur(16px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
+      border-radius: 16px !important;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37) !important;
+      position: relative;
+      overflow: hidden;
+      color: #f3e8ff !important;
+    }
+    :root[data-theme="glass-aurora"] .kpi::before,
+    :root[data-theme="glass-aurora"] .card::before,
+    :root[data-theme="glass-aurora"] .home-area-card::before,
+    :root[data-theme="glass-aurora"] .dk-glass::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, #fbbf24, #ec4899, #a855f7);
+      opacity: 0.8;
+      z-index: 1;
+    }
+    :root[data-theme="glass-aurora"] a { color: #fbbf24 !important; }
+    :root[data-theme="glass-aurora"] .chip-online {
+      background: rgba(251, 191, 36, 0.15) !important;
+      color: #fbbf24 !important;
+      border: 1px solid rgba(251, 191, 36, 0.3) !important;
+    }
   `;
   document.head.appendChild(style);
 })();
@@ -1087,7 +1222,7 @@ function applyTheme(theme) {
 (function preApplyTheme() {
   try {
     const saved = localStorage.getItem('office.theme') || 'dark';
-    const valid = ['dark','light','armory','elephant'].includes(saved) ? saved : 'dark';
+    const valid = ['dark','light','armory','elephant','glass-aurora'].includes(saved) ? saved : 'dark';
     applyTheme(valid);
   } catch {}
 })();
