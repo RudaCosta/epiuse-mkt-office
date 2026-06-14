@@ -184,6 +184,7 @@
       <select id="mes-select" onchange="setMes(this.value)"></select>
       <button onclick="navMes(+1)" title="Próximo mês">▶</button>
       <button class="primary" onclick="exportarPDF()">⬇ PDF</button>
+      <button class="primary" onclick="exportarPPTX()" style="background: #D24726; border-color: #D24726; margin-left: 6px;">⬇ PPTX</button>
     </div>
   </div>
 
@@ -736,6 +737,12 @@ function exportarPDF() {
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true },
     pagebreak: { mode: ['css', 'legacy'], avoid: ['.sec', '.kpi-canal', '.gen-card', '.li-chart-card', '.eleph-card'] }
   }).from(root).save();
+}
+
+function exportarPPTX() {
+  const select = document.getElementById('mes-select');
+  const mes = select ? select.value : '';
+  window.open(`/api/relatorio/download-pptx?mes=${mes}`, '_blank');
 }
 
 // ── Zoho Pipeline (seção 6) ───────────────────────────────────────────

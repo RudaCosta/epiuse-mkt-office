@@ -3110,6 +3110,42 @@ app.get('/api/relatorio/snapshot', (req, res) => {
   });
 });
 
+// GET /api/relatorio/download-pptx?mes=YYYY-MM — executa scripts/relatorio/gerar_pptx.py e retorna o arquivo gerado
+app.get('/api/relatorio/download-pptx', (req, res) => {
+  const mes = req.query.mes || new Date().toISOString().slice(0, 7);
+  const { exec } = require('child_process');
+  const os = require('os');
+  const tempFile = path.join(os.tmpdir(), `EPI-USE_Marketing_Report_${mes}_${Date.now()}.pptx`);
+  
+  const port = process.env.PORT || 3000;
+  const baseUrl = `http://localhost:${port}`;
+  
+  const cmd = `python "${path.join(__dirname, 'scripts/relatorio/gerar_pptx.py')}" --mes "${mes}" --output "${tempFile}" --base-url "${baseUrl}"`;
+  
+  console.log(`[relatorio] executando comando: ${cmd}`);
+  
+  exec(cmd, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`[relatorio] erro ao gerar PPTX: ${error.message}`);
+      return res.status(500).json({ 
+        success: false, 
+        error: 'Erro ao gerar PowerPoint. O Python e python-pptx estão instalados localmente?', 
+        details: error.message, 
+        stderr 
+      });
+    }
+    
+    if (fs.existsSync(tempFile)) {
+      res.download(tempFile, `EPI-USE_Marketing_Report_${mes}.pptx`, (err) => {
+        if (err) console.error(`[relatorio] erro no download: ${err.message}`);
+        try { fs.unlinkSync(tempFile); } catch {}
+      });
+    } else {
+      res.status(500).json({ success: false, error: 'Arquivo PowerPoint não foi criado pelo script.' });
+    }
+  });
+});
+
 // POST /api/relatorio/ga4-refresh?mes=YYYY-MM — dispara fetch real do GA4 e atualiza snapshot
 // Protegido por EDITOR_TOKEN. Usado manualmente ou por cron diário.
 app.post('/api/relatorio/ga4-refresh', requireEditorToken, async (req, res) => {
