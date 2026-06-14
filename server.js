@@ -2551,6 +2551,7 @@ app.get('/pipeline',  (req, res) => res.sendFile(path.join(__dirname, 'public/pi
 // ════════════════════════════════════════════════════════════════════════════
 const ARTIGOS_JSON_PATH = path.join(__dirname, 'public/api/artigos.json');
 const LINKEDIN_HIST_PATH = path.join(__dirname, 'public/api/linkedin-historical.json');
+const KPIS_HIST_PATH = path.join(__dirname, 'public/api/kpis-historical.json');
 const METAS_FY26_PATH = path.join(__dirname, 'public/api/metas-fy26.json');
 
 function _readJSON(filePath, fallback = null) {
@@ -2949,6 +2950,14 @@ app.get('/api/relatorio/snapshot', (req, res) => {
   const anterior = idxAtual > 0 ? sm[idxAtual - 1] : null;
   const mom = (a, b) => (a && b && b > 0) ? Math.round(100 * (a - b) / b * 100) / 100 : null;
 
+  // Lógica de mesclagem de KPIs históricos consolidada
+  const kpisHist = _readJSON(KPIS_HIST_PATH, { meses: {} });
+  const histMes = kpisHist.meses && kpisHist.meses[mes];
+  
+  // Acha o mês anterior dinâmico para comparação MoM histórica
+  const anteriorMes = idxAtual > 0 ? sm[idxAtual - 1].mes : null;
+  const histAnterior = anteriorMes ? (kpisHist.meses && kpisHist.meses[anteriorMes]) : null;
+
   // Cases atuais
   let cases = { live: 0, publicado: 0, em_edicao: 0, negociacao: 0, declinado: 0 };
   try {
@@ -2979,7 +2988,6 @@ app.get('/api/relatorio/snapshot', (req, res) => {
   } catch {}
 
   // Site (GA4) — lê snapshot gravado por scripts/integrations/ga4_fetch.js (quota-safe)
-  // Se não houver snapshot do mês → site:null (relatorio.html mostra etiqueta ⏳ aguarda GA4)
   let site = null;
   try {
     const ga4 = _readJSON(path.join(__dirname, 'public/api/ga4-snapshot.json'), { meses: {} });
@@ -2999,6 +3007,22 @@ app.get('/api/relatorio/snapshot', (req, res) => {
       };
     }
   } catch (e) { console.warn('[relatorio] ga4 fail:', e.message); }
+
+  // Sobrescreve com o histórico do Site se disponível
+  if (histMes && histMes.site) {
+    site = {
+      usuarios: histMes.site.usuarios,
+      visualizacoes: histMes.site.visualizacoes,
+      sessoes: histMes.site.sessoes ?? site?.sessoes ?? null,
+      duracao_sessao_s: histMes.site.duracao_sessao_s,
+      usuarios_mom_pct: histAnterior?.site ? mom(histMes.site.usuarios, histAnterior.site.usuarios) : site?.usuarios_mom_pct ?? null,
+      visualizacoes_mom_pct: histAnterior?.site ? mom(histMes.site.visualizacoes, histAnterior.site.visualizacoes) : site?.visualizacoes_mom_pct ?? null,
+      duracao_sessao_mom_pct: histAnterior?.site ? mom(histMes.site.duracao_sessao_s, histAnterior.site.duracao_sessao_s) : site?.duracao_sessao_mom_pct ?? null,
+      top_pages: site?.top_pages || [],
+      fonte: 'Report Mensal (GA4)',
+      atualizado_em: new Date().toISOString()
+    };
+  }
 
   // Email (RD Station) — lê snapshot gravado por scripts/integrations/rd_fetch.js
   let email = null;
@@ -3021,17 +3045,49 @@ app.get('/api/relatorio/snapshot', (req, res) => {
     }
   } catch (e) { console.warn('[relatorio] rd fail:', e.message); }
 
+  // Mescla dados do histórico do Email se disponíveis
+  if (histMes && histMes.email) {
+    email = {
+      ...(email || {}),
+      taxa_abertura: histMes.email.taxa_abertura,
+      taxa_cliques: histMes.email.taxa_cliques,
+      leads: histMes.email.leads,
+      taxa_abertura_mom_pct: histAnterior?.email ? mom(histMes.email.taxa_abertura, histAnterior.email.taxa_abertura) : null,
+      taxa_cliques_mom_pct: histAnterior?.email ? mom(histMes.email.taxa_cliques, histAnterior.email.taxa_cliques) : null,
+      leads_mom_pct: histAnterior?.email ? mom(histMes.email.leads, histAnterior.email.leads) : null,
+      fonte: email?.fonte ? `${email.fonte} + Report` : 'Report Mensal (RD Station)'
+    };
+  }
+
+  // Instagram histórico
+  let instagram = null;
+  if (histMes && histMes.instagram) {
+    instagram = {
+      seguidores_novos: histMes.instagram.seguidores_novos,
+      alcance: histMes.instagram.alcance,
+      seguidores_mom_pct: histAnterior?.instagram ? mom(histMes.instagram.seguidores_novos, histAnterior.instagram.seguidores_novos) : null,
+      alcance_mom_pct: histAnterior?.instagram ? mom(histMes.instagram.alcance, histAnterior.instagram.alcance) : null,
+      fonte: 'Report Mensal (Instagram)',
+      atualizado_em: new Date().toISOString()
+    };
+  }
+
+  // Bloco de resposta consolidado
   res.json({
     success: true,
     mes,
     site,
     email,
+    instagram,
     linkedin: {
       total_atual: atual?.total_seguidores ?? null,
       novos: atual?.novos ?? atual?.novos_diario ?? null,
       novos_mom_pct: mom(atual?.novos ?? atual?.novos_diario, anterior?.novos ?? anterior?.novos_diario),
       newsletter: atual?.newsletter ?? null,
-      impressoes: atual?.impressoes ?? null,
+      impressoes: histMes?.linkedin?.impressoes ?? atual?.impressoes ?? null,
+      engajamento: histMes?.linkedin?.engajamento ?? null,
+      impressoes_mom_pct: histAnterior?.linkedin?.impressoes && histMes?.linkedin?.impressoes ? mom(histMes.linkedin.impressoes, histAnterior.linkedin.impressoes) : null,
+      engajamento_mom_pct: histAnterior?.linkedin?.engajamento && histMes?.linkedin?.engajamento ? mom(histMes.linkedin.engajamento, histAnterior.linkedin.engajamento) : null,
       posts_mes: atual?.posts_mes ?? null,
       serie_12m: sm.slice(-12),
       eventos_mes: eventosMes,

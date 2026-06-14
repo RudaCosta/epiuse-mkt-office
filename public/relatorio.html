@@ -461,7 +461,7 @@ async function carregar(mes) {
   renderAlertas(d.alertas);
 
   // KPIs Digitais (4 colunas)
-  renderKPIs(d.linkedin, d.site, isFY ? d : null, d.email);
+  renderKPIs(d.linkedin, d.site, isFY ? d : null, d.email, d.instagram);
 
   // Top páginas (GA4) — só mostra se houver dado
   renderTopPages(d.site, isFY ? d.label : mes);
@@ -555,7 +555,7 @@ function renderTopPages(site, periodo) {
   }).join('');
 }
 
-function renderKPIs(li, site, fyCtx, email) {
+function renderKPIs(li, site, fyCtx, email, instagram) {
   const grid = document.getElementById('kpis-grid');
   const isFY = !!fyCtx;
   const labelNovos = isFY ? 'Novos no FY' : 'Novos no mês';
@@ -563,7 +563,7 @@ function renderKPIs(li, site, fyCtx, email) {
   const labelViews = isFY ? 'Visualizações (12m soma)' : 'Visualizações';
   const cobertura = isFY && site ? `<div class="kpi-row" style="color:var(--dim);font-size:10px"><span>🟢 GA4 · ${site.meses_com_dado}/${site.meses_elegiveis} meses agregados</span></div>` : '';
   const mesParcial = !isFY && mesAtual === new Date().toISOString().slice(0, 7);
-  const fonteSite = isFY ? '' : `<div class="kpi-row" style="color:var(--dim);font-size:10px"><span>🟢 GA4 · ${(site?.atualizado_em||'').slice(0,10)}${mesParcial ? ' · ⚠️ mês em curso (parcial) — variação % vs mês cheio distorce' : ''}</span></div>`;
+  const fonteSite = isFY ? '' : `<div class="kpi-row" style="color:var(--dim);font-size:10px"><span>🟢 ${site?.fonte || 'GA4'} · ${(site?.atualizado_em||'').slice(0,10)}${mesParcial ? ' · ⚠️ mês em curso (parcial) — variação % vs mês cheio distorce' : ''}</span></div>`;
 
   // Card Site: real se houver snapshot GA4, senão etiqueta honesta (Regra 7)
   const siteCard = (site && site.usuarios != null) ? `
@@ -571,15 +571,14 @@ function renderKPIs(li, site, fyCtx, email) {
       <h3>🌐 Site</h3>
       <div class="kpi-row"><span class="kpi-label">${labelUsuarios}</span><span class="kpi-val">${fmt(site.usuarios)} ${isFY ? '' : fmtMomBadge(site.usuarios_mom_pct)}</span></div>
       <div class="kpi-row"><span class="kpi-label">${labelViews}</span><span class="kpi-val">${fmt(site.visualizacoes)} ${isFY ? '' : fmtMomBadge(site.visualizacoes_mom_pct)}</span></div>
-      <div class="kpi-row"><span class="kpi-label">Sessões</span><span class="kpi-val">${fmt(site.sessoes)}</span></div>
-      <div class="kpi-row"><span class="kpi-label">Duração sessão${isFY ? ' (média ponderada)' : ''}</span><span class="kpi-val">${fmtDur(site.duracao_sessao_s)} ${isFY ? '' : fmtMomBadge(site.duracao_sessao_mom_pct)}</span></div>
+      <div class="kpi-row"><span class="kpi-label">Tempo engajamento${isFY ? ' (médio)' : ''}</span><span class="kpi-val">${fmtDur(site.duracao_sessao_s)} ${isFY ? '' : fmtMomBadge(site.duracao_sessao_mom_pct)}</span></div>
       ${cobertura}${fonteSite}
     </div>` : `
     <div class="kpi-canal">
       <h3>🌐 Site</h3>
       <div class="kpi-row"><span class="kpi-label">Usuários</span><span class="kpi-val">—</span></div>
       <div class="kpi-row"><span class="kpi-label">Visualizações</span><span class="kpi-val">—</span></div>
-      <div class="kpi-row"><span class="kpi-label">Duração sessão</span><span class="kpi-val">—</span></div>
+      <div class="kpi-row"><span class="kpi-label">Tempo engajamento</span><span class="kpi-val">—</span></div>
       <div class="kpi-row" style="color:var(--dim);font-size:10px"><span>⏳ ${isFY ? 'Rode POST /api/relatorio/ga4-refresh-fy?fy=' + fyCtx.fy : 'Aguarda sync GA4 (rodar ga4_fetch)'}</span></div>
     </div>`;
   grid.innerHTML = `
@@ -587,25 +586,25 @@ function renderKPIs(li, site, fyCtx, email) {
       <h3>💼 LinkedIn</h3>
       <div class="kpi-row"><span class="kpi-label">Seguidores totais</span><span class="kpi-val">${fmt(li.total_atual)}</span></div>
       <div class="kpi-row"><span class="kpi-label">${labelNovos}</span><span class="kpi-val">+${fmt(li.novos)} ${isFY ? '' : fmtMomBadge(li.novos_mom_pct)}</span></div>
-      <div class="kpi-row"><span class="kpi-label">Impressões</span><span class="kpi-val">${fmt(li.impressoes)}</span></div>
-      <div class="kpi-row"><span class="kpi-label">Posts</span><span class="kpi-val">${fmt(li.posts_mes)}</span></div>
+      <div class="kpi-row"><span class="kpi-label">Impressões</span><span class="kpi-val">${fmt(li.impressoes)} ${li.impressoes_mom_pct != null ? fmtMomBadge(li.impressoes_mom_pct) : ''}</span></div>
+      <div class="kpi-row"><span class="kpi-label">Engajamento</span><span class="kpi-val">${li.engajamento != null ? `${li.engajamento}%` : '—'} ${li.engajamento_mom_pct != null ? fmtMomBadge(li.engajamento_mom_pct) : ''}</span></div>
       ${isFY && li.ganho_total != null ? `<div class="kpi-row" style="color:var(--dim);font-size:10px"><span>Saldo FY: ${li.ganho_total > 0 ? '+' : ''}${fmt(li.ganho_total)} (${li.ganho_pct > 0 ? '+' : ''}${li.ganho_pct}%)</span></div>` : ''}
     </div>
     ${siteCard}
     <div class="kpi-canal">
       <h3>📷 Instagram</h3>
-      <div class="kpi-row"><span class="kpi-label">Seguidores</span><span class="kpi-val">— ${fmtMomBadge(null)}</span></div>
-      <div class="kpi-row"><span class="kpi-label">Alcance</span><span class="kpi-val">—</span></div>
-      <div class="kpi-row" style="color:var(--dim);font-size:10px"><span>⚠️ Aguarda Instagram Graph API</span></div>
+      <div class="kpi-row"><span class="kpi-label">${labelNovos}</span><span class="kpi-val">${instagram && instagram.seguidores_novos != null ? `+${fmt(instagram.seguidores_novos)}` : '—'} ${instagram && instagram.seguidores_mom_pct != null ? fmtMomBadge(instagram.seguidores_mom_pct) : ''}</span></div>
+      <div class="kpi-row"><span class="kpi-label">Alcance</span><span class="kpi-val">${instagram && instagram.alcance != null ? fmt(instagram.alcance) : '—'} ${instagram && instagram.alcance_mom_pct != null ? fmtMomBadge(instagram.alcance_mom_pct) : ''}</span></div>
+      <div class="kpi-row" style="color:var(--dim);font-size:10px"><span>${instagram && instagram.fonte ? `🟢 ${instagram.fonte}` : '⏳ Aguarda Instagram Graph API'}</span></div>
     </div>
     ${email ? `
     <div class="kpi-canal">
       <h3>✉️ E-mail (RD Station)</h3>
       <div class="kpi-row"><span class="kpi-label">Base de leads</span><span class="kpi-val">${email.total_na_conta != null ? fmt(email.total_na_conta) : (email.base_leads != null ? fmt(email.base_leads) + (email.base_leads_aprox ? '+' : '') : '—')}</span></div>
-      <div class="kpi-row"><span class="kpi-label">Enviados no mês ${email.mes_atual ? `(${email.mes_atual})` : ''}</span><span class="kpi-val">${fmt(email.enviados_mes_atual)}${email.enviados_mes_atual === 0 ? ' <span style="font-size:9px;color:var(--dim)">· sem disparo no período</span>' : ''}</span></div>
-      <div class="kpi-row"><span class="kpi-label">Workflows ativos</span><span class="kpi-val">${fmt(email.workflows_ativos)}</span></div>
-      <div class="kpi-row"><span class="kpi-label">LPs publicadas</span><span class="kpi-val">${fmt(email.landing_pages_publicadas)}</span></div>
-      <div class="kpi-row" style="color:var(--dim);font-size:10px"><span>🟢 RD Station · ${(email.atualizado_em||'').slice(0,10)}</span></div>
+      ${email.taxa_abertura != null ? `<div class="kpi-row"><span class="kpi-label">Taxa abertura</span><span class="kpi-val">${email.taxa_abertura}% ${fmtMomBadge(email.taxa_abertura_mom_pct)}</span></div>` : ''}
+      ${email.taxa_cliques != null ? `<div class="kpi-row"><span class="kpi-label">Taxa cliques</span><span class="kpi-val">${email.taxa_cliques}% ${fmtMomBadge(email.taxa_cliques_mom_pct)}</span></div>` : ''}
+      ${email.leads != null ? `<div class="kpi-row"><span class="kpi-label">Leads (conversões)</span><span class="kpi-val">${fmt(email.leads)} ${fmtMomBadge(email.leads_mom_pct)}</span></div>` : ''}
+      <div class="kpi-row" style="color:var(--dim);font-size:10px"><span>🟢 ${email.fonte || 'RD Station'} · ${(email.atualizado_em||'').slice(0,10)}</span></div>
     </div>` : `
     <div class="kpi-canal">
       <h3>✉️ E-mail (RD Station)</h3>

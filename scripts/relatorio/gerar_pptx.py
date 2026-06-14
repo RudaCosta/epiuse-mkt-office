@@ -135,35 +135,51 @@ def slide_kpis_digitais(prs, snap):
     s = prs.slides.add_slide(prs.slide_layouts[6])
     add_titulo(s, "1. KPIs Digitais")
     li = snap["linkedin"]
+    site = snap.get("site")
+    insta = snap.get("instagram")
+    em = snap.get("email")
+
+    # Preenche Site
+    site_kpis = []
+    if site and site.get("usuarios") is not None:
+        site_kpis.append(("Usuários", f"{site['usuarios']}"))
+        site_kpis.append(("Visualizações", f"{site['visualizacoes']}"))
+        site_kpis.append(("Tempo engajamento", f"{site['duracao_sessao_s']}s" if site.get("duracao_sessao_s") else "—"))
+    else:
+        site_kpis.extend([("Usuários", "—"), ("Visualizações", "—"), ("Tempo engajamento", "—"), ("⏳ Aguarda GA4 API", "")])
+
+    # Preenche Instagram
+    insta_kpis = []
+    if insta and insta.get("seguidores_novos") is not None:
+        insta_kpis.append(("Novos seguidores", f"+{insta['seguidores_novos']}"))
+        insta_kpis.append(("Alcance", f"{insta['alcance']}"))
+    else:
+        insta_kpis.extend([("Seguidores", "—"), ("Alcance", "—"), ("⏳ Aguarda Graph API", "")])
+
+    # Preenche E-mail
+    email_kpis = []
+    if em and em.get("taxa_abertura") is not None:
+        email_kpis.append(("Taxa abertura", f"{em['taxa_abertura']}%"))
+        email_kpis.append(("Taxa cliques", f"{em['taxa_cliques']}%"))
+        email_kpis.append(("Leads (conversões)", f"{em['leads']}"))
+    else:
+        email_kpis.extend([("Taxa abertura", "—"), ("Taxa cliques", "—"), ("Leads", "—"), ("⏳ Aguarda Token RD", "")])
+
     # 4 colunas: Site · LinkedIn · Instagram · E-mail
     col_w = Inches(2.85)
     col_h = Inches(4.5)
     x = Inches(0.5)
     y = Inches(1.5)
     canais = [
-        ("🌐 Site", [
-            ("Usuários", "—"),
-            ("Visualizações", "—"),
-            ("Duração sessão", "—"),
-            ("⚠️ Aguarda GA4 API", ""),
-        ]),
+        ("🌐 Site", site_kpis),
         ("💼 LinkedIn", [
             ("Seguidores", f"{li.get('total_atual') or '—'}"),
             ("Novos no mês", f"+{li.get('novos') or '—'}"),
             ("Impressões", f"{li.get('impressoes') or '—'}"),
-            ("Posts", f"{li.get('posts_mes') or '—'}"),
+            ("Engajamento", f"{li.get('engajamento')}%" if li.get("engajamento") is not None else "—"),
         ]),
-        ("📷 Instagram", [
-            ("Seguidores", "—"),
-            ("Alcance", "—"),
-            ("⚠️ Aguarda Graph API", ""),
-        ]),
-        ("✉️ E-mail (RD)", [
-            ("Taxa abertura", "—"),
-            ("Taxa cliques", "—"),
-            ("Leads", "—"),
-            ("⚠️ Aguarda Token RD", ""),
-        ]),
+        ("📷 Instagram", insta_kpis),
+        ("✉️ E-mail (RD)", email_kpis),
     ]
     for nome, kpis in canais:
         # Header do card
@@ -340,7 +356,7 @@ def main():
 
     out.parent.mkdir(parents=True, exist_ok=True)
     prs.save(str(out))
-    print(f"[relatorio] OK ✓")
+    print(f"[relatorio] OK")
     print(f"           PPTX: {out}")
     print(f"           Dashboard: {args.base_url}/relatorio?mes={args.mes}")
     print(f"           Slides: {len(prs.slides)}")

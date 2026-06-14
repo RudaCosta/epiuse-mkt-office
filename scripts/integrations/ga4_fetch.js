@@ -80,7 +80,7 @@ async function fetchTopPages(mes, limit = 10) {
     requestBody: {
       dateRanges: [{ startDate: cur.start, endDate: cur.end }],
       dimensions: [{ name: 'pagePath' }, { name: 'pageTitle' }],
-      metrics: [{ name: 'screenPageViews' }, { name: 'activeUsers' }, { name: 'averageSessionDuration' }],
+      metrics: [{ name: 'screenPageViews' }, { name: 'activeUsers' }, { name: 'userEngagementDuration' }],
       orderBys: [{ metric: { metricName: 'screenPageViews' }, desc: true }],
       limit,
     },
@@ -90,7 +90,9 @@ async function fetchTopPages(mes, limit = 10) {
     title: r.dimensionValues?.[1]?.value || '',
     visualizacoes: Number(r.metricValues?.[0]?.value || 0),
     usuarios: Number(r.metricValues?.[1]?.value || 0),
-    duracao_sessao_s: Math.round(Number(r.metricValues?.[2]?.value || 0)),
+    duracao_sessao_s: Number(r.metricValues?.[1]?.value || 0) > 0
+      ? Math.round(Number(r.metricValues?.[2]?.value || 0) / Number(r.metricValues?.[1]?.value || 0))
+      : 0,
   }));
 }
 
@@ -109,7 +111,7 @@ async function fetchGA4(mes, { withTopPages = true } = {}) {
     { name: 'activeUsers' },
     { name: 'screenPageViews' },
     { name: 'sessions' },
-    { name: 'averageSessionDuration' },
+    { name: 'userEngagementDuration' },
   ];
 
   const res = await data.properties.runReport({
@@ -129,7 +131,10 @@ async function fetchGA4(mes, { withTopPages = true } = {}) {
     const row = rows.find(r => Number(r.dimensionValues?.[0]?.value ?? r.dateRangeIndex ?? -1) === rangeIdx)
              || rows[rangeIdx];
     const v = (row && row.metricValues) ? row.metricValues.map(x => Number(x.value)) : [0, 0, 0, 0];
-    return { usuarios: v[0], visualizacoes: v[1], sessoes: v[2], duracao_sessao_s: Math.round(v[3]) };
+    const activeUsers = v[0];
+    const userEngagementDuration = v[3];
+    const avgEngagement = activeUsers > 0 ? Math.round(userEngagementDuration / activeUsers) : 0;
+    return { usuarios: v[0], visualizacoes: v[1], sessoes: v[2], duracao_sessao_s: avgEngagement };
   };
   const atual    = grab(0);
   const anterior = grab(1);
