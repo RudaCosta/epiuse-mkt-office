@@ -8,7 +8,7 @@
 // Fonte ÚNICA da verdade: public/api/changelog.json#current via /api/version
 // Fallback hardcoded usado SÓ se fetch falhar (offline, etc).
 // Sincronização automática — não editar manualmente, basta bumpar changelog.json.
-let OFFICE_NAV_VERSION = '0.50.4';
+let OFFICE_NAV_VERSION = '0.50.5';
 // Promise compartilhada — nav + footer reaproveitam o mesmo fetch
 window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/version')
   .then(r => r.ok ? r.json() : null)
@@ -961,7 +961,7 @@ function applyTheme(theme) {
       bg.style.cssText = 'position:fixed; inset:0; z-index:-2; pointer-events:none; overflow:hidden; background:#000000;';
       bg.innerHTML = `
         <video autoplay loop muted playsinline style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0.32; filter:saturate(0.8) contrast(1.15);">
-          <source src="https://plugin-assets.open-design.ai/plugins/liquid-glass-agency/hf_20260307_083826_e938b29f-a43a-41ec-a153-3d4730578ab8-b7258e.mp4" type="video/mp4">
+          <source src="/assets/11760747-uhd_4096_2160_30fps.mp4" type="video/mp4">
         </video>
         <div style="position:absolute; top:0; left:0; right:0; height:200px; background:linear-gradient(to bottom, #000, transparent); pointer-events:none; z-index:1;"></div>
         <div style="position:absolute; bottom:0; left:0; right:0; height:200px; background:linear-gradient(to top, #000, transparent); pointer-events:none; z-index:1;"></div>
