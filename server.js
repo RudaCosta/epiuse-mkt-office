@@ -2364,7 +2364,8 @@ app.get('/api/relatorio/download-pptx', (req, res) => {
   const port = process.env.PORT || 3000;
   const baseUrl = `http://localhost:${port}`;
   
-  const cmd = `python "${path.join(__dirname, 'scripts/relatorio/gerar_pptx.py')}" --mes "${mes}" --output "${tempFile}" --base-url "${baseUrl}"`;
+  const PYBIN = process.env.PYTHON_BIN || (process.platform === 'win32' ? 'python' : 'python3');
+  const cmd = `${PYBIN} "${path.join(__dirname, 'scripts/relatorio/gerar_pptx.py')}" --mes "${mes}" --output "${tempFile}" --base-url "${baseUrl}"`;
   
   console.log(`[relatorio] executando comando: ${cmd}`);
   
@@ -2373,7 +2374,7 @@ app.get('/api/relatorio/download-pptx', (req, res) => {
       console.error(`[relatorio] erro ao gerar PPTX: ${error.message}`);
       return res.status(500).json({ 
         success: false, 
-        error: 'Erro ao gerar PowerPoint. O Python e python-pptx estão instalados localmente?', 
+        error: `Erro ao gerar PowerPoint. Python + python-pptx instalados no servidor? (interpretador: ${PYBIN})`,
         details: error.message, 
         stderr 
       });
