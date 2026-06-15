@@ -106,7 +106,7 @@ const OFFICE_NAV_TABS = [
   { id: 'intelligence', label: 'Intelligence',     icon: '🧠', href: '/area/intelligence', matches: ['area-intelligence','area-growth'] },
   { id: 'field',        label: 'Field Marketing',  icon: '📅', href: '/area/eventos',      matches: ['area-eventos','area-field'] },
   { id: 'pipeline',     label: 'Biz Dev',          icon: '📞', href: '/area/pipeline',     matches: ['area-pipeline','pipeline'] },
-  { id: 'brand',        label: 'Brand Experience', icon: '🎨', href: '/area/brand',        matches: ['area-brand','voices','inbound','cases','painel','optimizer','area-conteudo','artigos','jornadas'] },
+  { id: 'brand',        label: 'Brand Experience', icon: '🎨', href: '/area/brand',        matches: ['area-brand','voices','inbound','cases','painel','optimizer','area-conteudo','artigos','jornadas','raccoon'] },
   { id: 'metas',        label: 'Metas FY27',       icon: '🎯', href: '/metas-fy26',        matches: ['metas','metas-fy26'] },
   { id: 'relatorio',    label: 'Relatório Mensal', icon: '📊', href: '/relatorio',         matches: ['relatorio'] }
 ];
@@ -124,7 +124,8 @@ const OFFICE_NAV_BREADCRUMBS = {
   'optimizer': ['🎨 Brand Experience', '🪪 Profile Optimizer'],
   'cases': ['🎨 Brand Experience', '🤝 Cases & CS'],
   'artigos': ['🎨 Brand Experience', '📚 Artigos do Blog'],
-  'jornadas': ['🎨 Brand Experience', '🗺️ Jornadas de Compra']
+  'jornadas': ['🎨 Brand Experience', '🗺️ Jornadas de Compra'],
+  'raccoon': ['🎨 Brand Experience', '🦝 Raccoon Studio']
 };
 
 // Overflow agrupado por seção (Sprint 11.2 — UX/UI melhor)
@@ -148,6 +149,7 @@ const OFFICE_NAV_OVERFLOW = [
   { label: '📊 Planilhas (Live API)',    href: '/planilhas' },
 
   { section: '🎙️ Voices & Optimizer' },
+  { label: '🦝 Raccoon Studio',          href: '/raccoon' },
   { label: '🪪 Profile Optimizer (V1)',   href: '/optimizer' },
   { label: '🪪 Profile Optimizer V2 (findskill)', href: '/optimizer-v2' },
   { label: '🎯 Painel da Duda',          href: '/voices/painel' },
@@ -208,6 +210,7 @@ class OfficeNav extends HTMLElement {
     const path = location.pathname;
     if (path === '/' || path === '/dashboard' || path.startsWith('/game')) return 'hub';
     if (path.startsWith('/painel') || path === '/voices/painel') return 'painel';
+    if (path.startsWith('/raccoon')) return 'raccoon';
     if (path.startsWith('/voices') || path.startsWith('/optimizer') || path.startsWith('/seja-voice')) return 'voices';
     if (path === '/inbound/brief') return 'inbound-brief';
     if (path === '/inbound/carousel') return 'inbound-carousel';
@@ -229,7 +232,7 @@ class OfficeNav extends HTMLElement {
   getActiveTab() {
     const r = this.getActiveRoute();
     if (r.startsWith('inbound')) return 'brand';
-    if (r === 'painel' || r === 'voices') return 'brand';
+    if (r === 'painel' || r === 'voices' || r === 'raccoon') return 'brand';
     if (r === 'area-growth' || r === 'growth') return 'intelligence';
     if (r === 'area-eventos' || r === 'area-field' || r === 'eventos') return 'field';
     if (r === 'artigos' || r === 'jornadas' || r === 'area-conteudo') return 'brand';

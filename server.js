@@ -1282,6 +1282,7 @@ app.get('/api/executivo', (req, res) => {
 
 app.get('/executivo', (req, res) => res.sendFile(path.join(__dirname, 'public/executivo.html')));
 app.get('/linkedin', (req, res) => res.sendFile(path.join(__dirname, 'public/linkedin.html')));
+app.get('/raccoon', (req, res) => res.sendFile(path.join(__dirname, 'public/raccoon.html')));
 
 app.post('/api/zoho/sync', requireEditorToken, (req, res) => {
   const items = Array.isArray(req.body?.deals) ? req.body.deals : [];
@@ -1504,6 +1505,107 @@ app.delete('/api/content/:id', requireEditorToken, (req, res) => {
     db.prepare('DELETE FROM content_pipeline WHERE id = ?').run(parseInt(req.params.id,10));
     res.json({ success: true });
   } catch (e) { res.status(500).json({ success: false, error: e.message }); }
+});
+
+// ── RACCOON OFFLINE GENERATOR ENDPOINT ──
+app.post('/api/raccoon/generate', (req, res) => {
+  const { ping, tema, persona, lob, outputs } = req.body || {};
+  
+  // Se for apenas ping para checar status e presença do Ollama
+  if (ping) {
+    if (process.env.RAILWAY_ENVIRONMENT) {
+      return res.json({ success: true, offline: true, msg: 'Engine offline roda apenas no ambiente local.' });
+    }
+    const indexFile = path.join(__dirname, 'modulos/08-inbound-offline/corpus/index.npz');
+    if (!fs.existsSync(indexFile)) {
+      return res.json({ success: true, offline: true, msg: 'Índice RAG ainda em compilação.' });
+    }
+    const http = require('http');
+    const options = {
+      hostname: 'localhost',
+      port: 11434,
+      path: '/api/tags',
+      method: 'GET',
+      timeout: 2000
+    };
+    const reqOllama = http.request(options, (response) => {
+      if (response.statusCode === 200) {
+        res.json({ success: true, offline: false });
+      } else {
+        res.json({ success: true, offline: true, msg: 'Ollama respondeu com status ' + response.statusCode });
+      }
+    });
+    reqOllama.on('error', (err) => {
+      res.json({ success: true, offline: true, msg: 'Ollama local não conectado: ' + err.message });
+    });
+    reqOllama.end();
+    return;
+  }
+
+  if (!tema) {
+    return res.status(400).json({ success: false, error: 'tema é obrigatório.' });
+  }
+
+  if (process.env.RAILWAY_ENVIRONMENT) {
+    return res.status(400).json({ success: false, error: 'Engine offline roda apenas no ambiente local.', offline: true });
+  }
+
+  const { spawn } = require('child_process');
+  const pythonScript = path.join(__dirname, 'modulos/08-inbound-offline/raccoon_gen.py');
+  
+  const args = [
+    pythonScript,
+    '--tema', tema,
+    '--persona', persona || 'auto'
+  ];
+  if (lob) {
+    args.push('--lob', lob);
+  }
+  if (outputs) {
+    if (outputs.article) args.push('--article');
+    if (outputs.post) args.push('--post');
+    if (outputs.carousel) args.push('--carousel');
+    if (outputs.single) args.push('--single');
+  }
+
+  console.log(`[raccoon-route] Spawning: python ${args.join(' ')}`);
+
+  const py = spawn('python', args, { cwd: path.join(__dirname, 'modulos/08-inbound-offline') });
+  
+  let stdoutData = '';
+  let stderrData = '';
+
+  py.stdout.on('data', (data) => {
+    stdoutData += data.toString();
+  });
+
+  py.stderr.on('data', (data) => {
+    stderrData += data.toString();
+  });
+
+  py.on('close', (code) => {
+    if (code !== 0) {
+      console.error(`[raccoon-route] Python process exited with code ${code}. Error: ${stderrData}`);
+      return res.status(500).json({
+        success: false,
+        error: `Falha na geração (código ${code})`,
+        details: stderrData
+      });
+    }
+
+    try {
+      const parsed = JSON.parse(stdoutData.trim());
+      res.json(parsed);
+    } catch (err) {
+      console.error(`[raccoon-route] JSON Parse failed for stdout: ${stdoutData}. Error: ${err.message}`);
+      res.status(500).json({
+        success: false,
+        error: 'A saída do script Python não pôde ser interpretada como JSON.',
+        stdout: stdoutData,
+        stderr: stderrData
+      });
+    }
+  });
 });
 
 // Importa itens fonte=redatoria do editorial_calendar pro pipeline (estado 'recebido')

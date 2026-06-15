@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🏭 Content Factory OFFLINE · EPI-USE</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Open+Sans:wght@400;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{--navy:#001844;--red:#cd1543;--blue:#0070bf;--blue2:#013a6a;--bg:#0a1525;--surf:#0f1e35;--bd:rgba(134,158,195,.18);--tx:#e6ebf2;--mut:#869ec3}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--tx);font-family:'Open Sans',sans-serif;min-height:100vh;padding:0 0 60px}
+  .top{background:var(--navy);border-bottom:1px solid var(--bd);padding:12px 22px;display:flex;align-items:center;gap:12px}
+  .top .logo{font-family:'Poppins';font-weight:700;font-size:16px}
+  .top .badge{font-family:'JetBrains Mono';font-size:10px;background:rgba(16,185,129,.15);color:#6ee7b7;border:1px solid rgba(16,185,129,.35);padding:3px 9px;border-radius:99px}
+  .top .hp{margin-left:auto;font-family:'JetBrains Mono';font-size:10px;color:var(--mut)}
+  .wrap{max-width:1080px;margin:0 auto;padding:26px 20px}
+  .hero h1{font-family:'Poppins';font-size:28px;font-weight:700;letter-spacing:-.015em}
+  .hero p{color:var(--mut);font-size:14px;margin-top:6px;max-width:680px;line-height:1.6}
+  .factory{background:var(--surf);border:1px solid var(--bd);border-radius:14px;padding:22px;margin:22px 0}
+  .lbl{display:block;font-family:'JetBrains Mono';font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);margin-bottom:8px}
+  textarea{width:100%;min-height:120px;resize:vertical;background:rgba(0,0,0,.25);border:1px solid var(--bd);border-radius:10px;padding:14px;color:var(--tx);font-family:'Open Sans';font-size:15px;line-height:1.55}
+  textarea:focus{outline:2px solid var(--blue);outline-offset:1px;border-color:transparent}
+  .row{display:flex;gap:22px;flex-wrap:wrap;margin-top:18px}
+  .grp{flex:1;min-width:240px}
+  .pills,.checks{display:flex;gap:8px;flex-wrap:wrap}
+  .pill,.chk{border:1px solid var(--bd);color:var(--tx);padding:10px 15px;min-height:44px;border-radius:99px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .12s;background:transparent;display:inline-flex;align-items:center;gap:7px}
+  .chk{border-radius:10px}
+  .pill:hover,.chk:hover{border-color:var(--blue)}
+  .pill.on{background:rgba(0,112,191,.2);border-color:var(--blue);color:#93c5fd}
+  .chk.on{background:rgba(0,112,191,.1);border-color:rgba(0,112,191,.5)}
+  .chk input{accent-color:var(--blue);width:15px;height:15px;cursor:pointer}
+  .gerar{margin-top:20px;width:100%;background:linear-gradient(135deg,var(--red),#a01034);color:#fff;border:none;padding:15px;min-height:50px;border-radius:11px;font-family:'Poppins';font-size:15px;font-weight:600;cursor:pointer;transition:filter .15s}
+  .gerar:hover{filter:brightness(1.12)}.gerar:disabled{opacity:.55;cursor:wait}
+  .steps{display:none;gap:0;margin-bottom:22px}.steps.show{display:flex}
+  .step{flex:1;background:var(--surf);border:1px solid var(--bd);padding:12px 15px;font-size:12px;display:flex;align-items:center;gap:8px}
+  .step:first-child{border-radius:10px 0 0 10px}.step:last-child{border-radius:0 10px 10px 0}.step+.step{border-left:none}
+  .step .dot{width:9px;height:9px;border-radius:50%;background:var(--bd)}
+  .step.run .dot{background:#fbbf24;animation:pulse 1s infinite}.step.ok .dot{background:#10b981}
+  @keyframes pulse{50%{opacity:.35}}
+  .result{display:none}.result.show{display:block}
+  .etiqueta{display:inline-flex;gap:7px;background:rgba(96,165,250,.12);border:1px solid rgba(96,165,250,.35);color:#93c5fd;font-family:'JetBrains Mono';font-size:11px;padding:6px 13px;border-radius:99px;margin-bottom:8px}
+  .motor{font-family:'JetBrains Mono';font-size:10px;color:var(--mut);margin-bottom:14px}
+  .estrat{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+  .tag{font-family:'JetBrains Mono';font-size:10.5px;padding:5px 11px;border-radius:7px;background:var(--surf);border:1px solid var(--bd);color:var(--mut)}.tag b{color:var(--tx)}
+  .piece{background:var(--surf);border:1px solid var(--bd);border-radius:13px;padding:18px 20px;margin-bottom:16px}
+  .p-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px}
+  .p-hdr h2{font-family:'Poppins';font-size:16px;font-weight:600}
+  .copy-btn{background:transparent;border:1px solid var(--bd);color:var(--mut);padding:8px 14px;min-height:38px;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit}
+  .copy-btn:hover{border-color:var(--blue);color:#93c5fd}
+  .field{margin-bottom:10px}
+  .f-lbl{font-family:'JetBrains Mono';font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin-bottom:3px}
+  .f-val{font-size:14px;line-height:1.6;white-space:pre-wrap}.f-val.big{font-family:'Poppins';font-size:19px;font-weight:600}
+  .slides-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin-top:8px}
+  .slide-mini{background:rgba(0,24,68,.45);border:1px solid var(--bd);border-radius:9px;padding:13px}
+  .s-tag{font-family:'JetBrains Mono';font-size:9px;color:var(--red);letter-spacing:.1em;margin-bottom:6px;font-weight:700}
+  .s-head{font-family:'Poppins';font-size:13.5px;font-weight:600;line-height:1.3;margin-bottom:5px}
+  .s-num{font-size:21px;font-weight:800;color:var(--red);font-family:'Poppins'}
+  .s-ctx{font-size:11px;color:var(--mut);line-height:1.45}.s-src{font-size:9px;color:var(--mut);opacity:.7;margin-top:5px;font-family:'JetBrains Mono'}
+  canvas#cover{width:100%;max-width:600px;border-radius:10px;border:1px solid var(--bd);display:block}
+  .seo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+  .kw{display:inline-block;background:rgba(0,112,191,.12);border:1px solid rgba(0,112,191,.3);color:#93c5fd;font-size:11.5px;padding:4px 10px;border-radius:99px;margin:0 5px 5px 0}
+  .faq-item{border-left:3px solid var(--blue);padding:8px 12px;margin-bottom:9px;background:rgba(0,112,191,.05);border-radius:0 8px 8px 0}
+  .faq-item .q{font-weight:600;font-size:13px;margin-bottom:3px}.faq-item .a{font-size:12.5px;color:var(--mut);line-height:1.5}
+  .alerta-q{font-size:12.5px;color:#fcd34d;padding:4px 0}
+  .fontes a{color:#93c5fd;font-size:12px;text-decoration:none;display:block;padding:4px 0;border-bottom:1px dashed var(--bd)}
+  .fontes a:hover{color:#fff}
+  .err{display:none;background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.35);color:#fca5a5;border-radius:10px;padding:13px 16px;font-size:13px;margin-bottom:18px}.err.show{display:block}
+  em{color:var(--red);font-style:normal}
+</style>
+</head>
+<body>
+<div class="top">
+  <span class="logo">EPI-USE</span>
+  <span class="badge">● OFFLINE · zero crédito</span>
+  <span class="hp" id="hp">checando motor…</span>
+</div>
+
+<main class="wrap">
+  <header class="hero">
+    <h1>🏭 Content Factory <span style="color:var(--mut);font-size:18px">offline</span></h1>
+    <p>Mesmo fluxo do /inbound, rodando 100% na sua máquina (Qwen2.5 local + RAG nos 693 artigos). Cola uma coisa só — sai o pacote pronto. Custo de API: R$0.</p>
+  </header>
+
+  <section class="factory">
+    <label class="lbl" for="input">Input único — tema, brief, transcrição, rascunho (números REAIS entram, inventados nunca)</label>
+    <textarea id="input" placeholder="Ex: Reforma Tributária 2026 dobra a complexidade fiscal. Empresas em ECC sem suporte a partir de 2027. Migrar pra S/4HANA com a EPI-USE resolve os dois de uma vez."></textarea>
+    <div class="row">
+      <div class="grp">
+        <label class="lbl">Persona-alvo</label>
+        <div class="pills" id="personas">
+          <button class="pill on" data-p="auto" type="button">✨ Auto</button>
+          <button class="pill" data-p="cfo" type="button">💰 CFO</button>
+          <button class="pill" data-p="chro" type="button">👥 CHRO</button>
+          <button class="pill" data-p="cio" type="button">🖥️ CIO</button>
+        </div>
+      </div>
+      <div class="grp">
+        <label class="lbl">Saídas</label>
+        <div class="checks" id="outputs">
+          <label class="chk on"><input type="checkbox" data-o="post" checked> Post LinkedIn</label>
+          <label class="chk on"><input type="checkbox" data-o="carousel" checked> Carrossel</label>
+          <label class="chk"><input type="checkbox" data-o="single"> Post único</label>
+          <label class="chk"><input type="checkbox" data-o="blogCover"> Capa blog</label>
+          <label class="chk"><input type="checkbox" data-o="article"> Artigo SEO</label>
+        </div>
+      </div>
+    </div>
+    <button class="gerar" id="gerar" type="button">Gerar pacote (local)</button>
+  </section>
+
+  <div class="err" id="err"></div>
+  <div class="steps" id="steps">
+    <div class="step" id="st1"><span class="dot"></span> RAG + Redator B2B</div>
+    <div class="step" id="st2"><span class="dot"></span> Revisor SEO/GEO</div>
+    <div class="step" id="st3"><span class="dot"></span> Pronto</div>
+  </div>
+
+  <section class="result" id="result">
+    <div class="etiqueta" id="etiqueta">🤖 Gerado por IA local — revisar antes de publicar</div>
+    <div class="motor" id="motor"></div>
+    <div class="estrat" id="estrat"></div>
+    <div id="pieces"></div>
+  </section>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+let persona='auto';
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function md(s){return esc(s).replace(/\*([^*]+)\*/g,'<em>$1</em>')}
+function setStep(n,st){const e=$('st'+n);e.classList.remove('run','ok');if(st)e.classList.add(st)}
+
+fetch('/api/health').then(r=>r.json()).then(d=>{
+  $('hp').textContent = d.ok ? `motor ok · ${(d.modelos||[]).join(', ')} · RAG ${d.rag_index?'✓':'✗'}` : 'motor offline';
+}).catch(()=>{$('hp').textContent='Ollama não responde'});
+
+document.querySelectorAll('#personas .pill').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#personas .pill').forEach(x=>x.classList.remove('on'));b.classList.add('on');persona=b.dataset.p;
+}));
+document.querySelectorAll('#outputs .chk input').forEach(c=>c.addEventListener('change',()=>c.closest('.chk').classList.toggle('on',c.checked)));
+
+$('gerar').addEventListener('click',async()=>{
+  const input=$('input').value.trim();
+  const outputs={};document.querySelectorAll('#outputs .chk input').forEach(c=>outputs[c.dataset.o]=c.checked);
+  $('err').classList.remove('show');
+  if(!input){$('err').textContent='Cola o input primeiro.';$('err').classList.add('show');return}
+  if(!Object.values(outputs).some(Boolean)){$('err').textContent='Escolhe ao menos uma saída.';$('err').classList.add('show');return}
+  $('gerar').disabled=true;$('gerar').textContent='Gerando local…';
+  $('result').classList.remove('show');$('steps').classList.add('show');
+  setStep(1,'run');setStep(2,null);setStep(3,null);
+  const t=setTimeout(()=>{setStep(1,'ok');setStep(2,'run')},12000);
+  try{
+    const r=await fetch('/api/factory',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({input,persona,outputs})});
+    const d=await r.json();clearTimeout(t);
+    if(!d.success)throw new Error(d.error||'Falha');
+    setStep(1,'ok');setStep(2,'ok');setStep(3,'ok');
+    render(d);
+  }catch(e){clearTimeout(t);$('err').textContent='⚠️ '+e.message;$('err').classList.add('show');$('steps').classList.remove('show')}
+  finally{$('gerar').disabled=false;$('gerar').textContent='Gerar pacote (local)'}
+});
+
+function cbtn(txt,lbl){const b=document.createElement('button');b.className='copy-btn';b.type='button';b.textContent=lbl||'📋 Copiar';
+  b.onclick=()=>{navigator.clipboard.writeText(typeof txt==='function'?txt():txt);b.textContent='✓';setTimeout(()=>b.textContent=lbl||'📋 Copiar',1300)};return b}
+function piece(title,cp){const s=document.createElement('div');s.className='piece';const h=document.createElement('div');h.className='p-hdr';h.innerHTML=`<h2>${title}</h2>`;if(cp)h.appendChild(cbtn(cp));s.appendChild(h);return s}
+function fld(s,l,v,big){if(v==null||v==='')return;const f=document.createElement('div');f.className='field';f.innerHTML=`<div class="f-lbl">${esc(l)}</div><div class="f-val${big?' big':''}">${md(v)}</div>`;s.appendChild(f)}
+
+function render(d){
+  $('etiqueta').textContent=d.etiqueta||'🤖 Gerado por IA local';
+  $('motor').textContent='⚙️ '+(d.motor||'');
+  const e=d.estrategia||{};
+  $('estrat').innerHTML=[e.persona?`<span class="tag">persona <b>${esc(e.persona.toUpperCase())}</b></span>`:'',e.lob?`<span class="tag">LOB <b>${esc(e.lob)}</b></span>`:'',e.categoria?`<span class="tag">cat <b>${esc(e.categoria)}</b></span>`:'',e.angulo?`<span class="tag">ângulo: ${esc(e.angulo)}</span>`:''].join('');
+  const P=$('pieces');P.innerHTML='';
+
+  if(d.post){const s=piece('💼 Post LinkedIn',()=>[d.post.linkedinCopy,'',d.post.hashtags].join('\n'));
+    fld(s,'Headline',d.post.headline,true);if(d.post.heroNumber)fld(s,'Hero number',d.post.heroNumber);fld(s,'Contexto',d.post.context);fld(s,'Copy',d.post.linkedinCopy);fld(s,'Hashtags',d.post.hashtags);fld(s,'Distribuição',d.post.distribution);P.appendChild(s)}
+
+  if(d.carousel){const c=d.carousel;const s=piece('▥ Carrossel',()=>JSON.stringify(c,null,2));
+    fld(s,'Capa',(c.cover.eyebrow?c.cover.eyebrow+' · ':'')+c.cover.headline,true);if(c.cover.sub)fld(s,'Sub',c.cover.sub);
+    const g=document.createElement('div');g.className='slides-grid';
+    (c.slides||[]).forEach(sl=>{const m=document.createElement('div');m.className='slide-mini';m.innerHTML=`<div class="s-tag">${esc(sl.tag)}</div><div class="s-head">${md(sl.headline)}</div>${sl.number?`<div class="s-num">${esc(sl.number)}</div>`:''}<div class="s-ctx">${esc(sl.context)}</div>${sl.source?`<div class="s-src">${esc(sl.source)}</div>`:''}`;g.appendChild(m)});
+    const ct=document.createElement('div');ct.className='slide-mini';ct.style.borderColor='rgba(205,21,67,.5)';ct.innerHTML=`<div class="s-tag">CTA</div><div class="s-head">${md(c.cta.headline)}</div><div class="s-ctx">${esc(c.cta.sub)}</div><div class="s-src">${esc(c.cta.url)}</div>`;g.appendChild(ct);
+    s.appendChild(g);P.appendChild(s)}
+
+  if(d.single){const s=piece('◇ Post único',()=>JSON.stringify(d.single,null,2));fld(s,'Tag',d.single.tag);fld(s,'Headline',d.single.headline,true);if(d.single.number)fld(s,'Número',d.single.number+(d.single.source?' · '+d.single.source:''));fld(s,'Contexto',d.single.context);P.appendChild(s)}
+
+  if(d.blogCover){const s=piece('🖼️ Capa de blog (1200×630)');const cv=document.createElement('canvas');cv.id='cover';cv.width=1200;cv.height=630;s.appendChild(cv);drawCover(cv,d.blogCover);
+    const dl=document.createElement('button');dl.className='copy-btn';dl.type='button';dl.style.marginTop='10px';dl.textContent='⬇ Baixar PNG';dl.onclick=()=>{const a=document.createElement('a');a.download='capa-blog.png';a.href=cv.toDataURL('image/png');a.click()};s.appendChild(dl);P.appendChild(s)}
+
+  if(d.article){const a=d.article;const s=piece('📚 Artigo SEO',()=>{let t=a.title+'\n\n'+a.intro+'\n\n';(a.sections||[]).forEach(x=>t+='## '+x.h2+'\n\n'+x.body+'\n\n');return t+(a.conclusion||'')});
+    fld(s,'Título',a.title,true);fld(s,'Introdução',a.intro);(a.sections||[]).forEach((x,i)=>fld(s,'Seção '+(i+1)+' — '+x.h2,x.body));fld(s,'Conclusão',a.conclusion);P.appendChild(s)}
+
+  if(d.revisao){const r=d.revisao;const s=piece('🔍 Revisão SEO/GEO');const g=document.createElement('div');g.className='seo-grid';
+    if(r.seo){const c=document.createElement('div');c.innerHTML=`<div class="field"><div class="f-lbl">Meta title (${(r.seo.metaTitle||'').length})</div><div class="f-val">${esc(r.seo.metaTitle)}</div></div><div class="field"><div class="f-lbl">Meta desc (${(r.seo.metaDescription||'').length})</div><div class="f-val">${esc(r.seo.metaDescription)}</div></div><div class="field"><div class="f-lbl">Slug</div><div class="f-val" style="font-family:'JetBrains Mono';font-size:12px">${esc(r.seo.slug)}</div></div><div class="field"><div class="f-lbl">Keywords</div><div>${(r.seo.keywords||[]).map(k=>`<span class="kw">${esc(k)}</span>`).join('')}</div></div>`;g.appendChild(c)}
+    if(r.geo){const c=document.createElement('div');c.innerHTML=`<div class="f-lbl" style="margin-bottom:6px">GEO — FAQ citável por LLMs</div>`+(r.geo.faq||[]).map(f=>`<div class="faq-item"><div class="q">${esc(f.q)}</div><div class="a">${esc(f.a)}</div></div>`).join('')+((r.geo.ajustes&&r.geo.ajustes.length)?`<div class="f-lbl" style="margin:10px 0 4px">Ajustes</div>`+r.geo.ajustes.map(x=>`<div class="alerta-q">→ ${esc(x)}</div>`).join(''):'');g.appendChild(c)}
+    s.appendChild(g);
+    if(r.qualidade&&r.qualidade.alertas&&r.qualidade.alertas.length){const al=document.createElement('div');al.style.marginTop='12px';al.innerHTML=`<div class="f-lbl" style="color:#fcd34d;margin-bottom:4px">⚠️ Alertas (score ${r.qualidade.score??'—'})</div>`+r.qualidade.alertas.map(x=>`<div class="alerta-q">⚠️ ${esc(x)}</div>`).join('');s.appendChild(al)}
+    P.appendChild(s)}
+
+  if(d.fontes_rag&&d.fontes_rag.length){const s=piece('📚 Fontes RAG (artigos EPI-USE que ancoraram)');const f=document.createElement('div');f.className='fontes';f.innerHTML=d.fontes_rag.map(x=>`<a href="${esc(x.url)}" target="_blank">${(x.score).toFixed(2)} · ${esc(x.titulo)}</a>`).join('');s.appendChild(f);P.appendChild(s)}
+
+  $('result').classList.add('show');$('result').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function drawCover(cv,c){const g=cv.getContext('2d');const gr=g.createLinearGradient(0,0,1200,630);gr.addColorStop(0,'#001844');gr.addColorStop(1,'#00224f');g.fillStyle=gr;g.fillRect(0,0,1200,630);
+  g.strokeStyle='rgba(134,158,195,.07)';g.lineWidth=1;for(let x=0;x<=1200;x+=60){g.beginPath();g.moveTo(x,0);g.lineTo(x,630);g.stroke()}for(let y=0;y<=630;y+=60){g.beginPath();g.moveTo(0,y);g.lineTo(1200,y);g.stroke()}
+  g.fillStyle='#cd1543';g.fillRect(80,150,8,330);
+  g.fillStyle='#869ec3';g.font='600 24px Poppins';g.fillText((c.eyebrow||'').toUpperCase(),120,190);
+  g.fillStyle='#fff';g.font='700 58px Poppins';wrap(g,c.title||'',120,265,980,70);
+  g.fillStyle='#cfd1d3';g.font='400 27px Open Sans';wrap(g,c.sub||'',120,470,980,38);
+  g.fillStyle='#fff';g.font='700 30px Poppins';g.fillText('EPI-USE',80,580);g.fillStyle='#869ec3';g.font='400 22px Open Sans';g.fillText('Brasil',220,580)}
+function wrap(g,t,x,y,mw,lh){const w=String(t).split(' ');let l='',yy=y;for(const wd of w){const ts=l?l+' '+wd:wd;if(g.measureText(ts).width>mw&&l){g.fillText(l,x,yy);l=wd;yy+=lh}else l=ts}if(l)g.fillText(l,x,yy)}
+</script>
+</body>
+</html>

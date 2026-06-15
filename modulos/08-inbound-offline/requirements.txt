@@ -1,0 +1,8 @@
+flask>=3.0
+requests>=2.31
+beautifulsoup4>=4.12
+numpy>=1.26
+# LLM + embeddings rodam via Ollama (servico externo, nao pip):
+#   ollama pull qwen2.5:7b-instruct
+#   ollama pull nomic-embed-text
+# Sem torch, sem faiss, sem sentence-transformers (evita problema no Python 3.14).
