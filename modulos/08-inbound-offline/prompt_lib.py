@@ -8,7 +8,7 @@ import json
 import re
 import requests
 
-OLLAMA = os.environ.get("OLLAMA_URL", "http://localhost:11434")
+OLLAMA = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434")
 LLM = os.environ.get("LLM_MODEL", "qwen2.5:7b-instruct")
 
 PERSONAS = {

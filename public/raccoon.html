@@ -1159,16 +1159,196 @@
 
   // Mock content factory generator (Wave 1)
   function generateMock(tema, persona) {
+    const lower = (tema || '').toLowerCase();
+    let detectedPersona = persona === 'auto' ? 'cfo' : persona;
+    let lob = 'Cross';
+    let dor = 'Burocracia e falta de engajamento.';
+    let angulo = 'Posicionamento estratégico no mercado.';
+    let categoria = 'thought-leadership';
+    
+    if (lower.includes('rh') || lower.includes('pessoas') || lower.includes('colaborador') || lower.includes('produtividade') || lower.includes('copa') || lower.includes('talento')) {
+      detectedPersona = persona === 'auto' ? 'chro' : persona;
+      lob = 'HCM';
+      dor = 'Engajamento de colaboradores e produtividade organizacional durante eventos.';
+      angulo = 'Criação de cultura participativa e alinhamento de metas internas.';
+    } else if (lower.includes('tecnologia') || lower.includes('dados') || lower.includes('ia') || lower.includes('cloud') || lower.includes('cio')) {
+      detectedPersona = persona === 'auto' ? 'cio' : persona;
+      lob = 'BTP';
+      dor = 'Segurança e governança de dados em novos sistemas.';
+      angulo = 'Infraestrutura Clean Core e agilidade no desenvolvimento.';
+    } else {
+      detectedPersona = persona === 'auto' ? 'cfo' : persona;
+      lob = 'S4HANA';
+      dor = 'Reforma Tributária e burocracia excessiva nos fechamentos fiscais.';
+      angulo = 'Agilidade e segurança no planejamento tributário corporativo.';
+    }
+
+    const title = tema.length > 15 ? (tema.charAt(0).toUpperCase() + tema.slice(1)) : `Como abordar: ${tema}`;
+
+    if (lob === 'HCM') {
+      return {
+        success: true,
+        etiqueta: "📝 Demo — Rax mock local",
+        motor: "Mock local (Onda 1)",
+        estrategia: {
+          persona: detectedPersona,
+          dor: dor,
+          angulo: angulo,
+          lob: lob,
+          categoria: categoria
+        },
+        post: {
+          headline: `Por que a *Copa do Mundo* pode ser aliada da produtividade`,
+          heroNumber: "2026",
+          context: "Meta de engajamento do RH para o próximo grande evento.",
+          linkedinCopy: `Como o RH de sua empresa está se preparando para a Copa do Mundo? A produtividade não precisa ser uma barreira. Pelo contrário: eventos esportivos integrados a uma cultura corporativa sólida podem ser o catalisador que seu time precisa para alavancar o engajamento organizacional. A experiência do colaborador deve vir em primeiro lugar.\n\nDescubra como transformar momentos de descontração em oportunidades de engajamento corporativo com a EPI-USE Brasil.`,
+          hashtags: "#RecursosHumanos #CHRO #Engajamento #CulturaCorporativa #EPIUSE",
+          distribution: "Publicar no LinkedIn via Hub de Marketing."
+        },
+        article: {
+          title: title,
+          intro: `Ao contrário do senso comum, grandes eventos como a Copa do Mundo não precisam significar queda na produtividade. Para o ${detectedPersona.toUpperCase()}, essa é uma oportunidade única de estreitar o engajamento das equipes.`,
+          sections: [
+            {
+              h2: "Alinhando momentos de lazer com metas corporativas",
+              body: "Proporcionar espaços compartilhados para assistir aos jogos e criar dinâmicas de gamificação interna ajudam a manter a equipe conectada e focada nos objetivos semanais, mesmo com quebras de rotina."
+            },
+            {
+              h2: "Flexibilidade e autonomia no trabalho híbrido",
+              body: "O uso estratégico do SAP SuccessFactors e de canais de RH mobile-first permite que os colaboradores gerenciem seus horários com responsabilidade, garantindo entregas no prazo sem perder as comemorações."
+            }
+          ],
+          conclusion: "Fortaleça sua cultura e integre as equipes hoje mesmo. Fale com os especialistas da EPI-USE Brasil e conheça nossas soluções para Employee Experience."
+        },
+        carousel: {
+          cover: {
+            eyebrow: `CULTURA & ENGAJAMENTO 2026`,
+            headline: "Copa do Mundo: *Aliada do RH*",
+            sub: "Como manter o engajamento em alta"
+          },
+          slides: [
+            { tag: "RH ESTRATÉGICO", headline: "Eventos unem times", number: "100%", context: "Criação de sintonia e eliminação de silos entre departamentos.", source: "EPI-USE Voices" },
+            { tag: "TECNOLOGIA", headline: "Gestão mobile-first", number: "", context: "Autonomia do colaborador com SAP SuccessFactors para gerenciar entregas.", source: "" },
+            { tag: "RESULTADO", headline: "Cultura forte = entrega", number: "", context: "Empresas com cultura ativa mantêm a produtividade intocada.", source: "" }
+          ],
+          cta: {
+            headline: "Descubra o *Employee Experience*",
+            sub: "Acesse nosso blog e veja o playbook completo",
+            url: "epiuse.com.br"
+          }
+        },
+        revisao: {
+          seo: {
+            metaTitle: "Copa do Mundo e Produtividade: O papel do RH estratégico",
+            metaDescription: "Saiba como a Copa do Mundo pode ser usada pelo RH para aumentar o engajamento dos colaboradores sem perder produtividade.",
+            slug: "copa-do-mundo-produtividade-rh",
+            keywords: ["recursos humanos", "chro", "employee experience", "successfactors", "engajamento"]
+          },
+          geo: {
+            faq: [
+              { q: "Assistir jogos da Copa na empresa reduz a produtividade?", a: "Estudos indicam que integrar momentos de lazer no escritório aumenta o engajamento a longo prazo, compensando pequenas paradas." },
+              { q: "Qual ferramenta apoia o RH na flexibilidade de horários?", a: "O SAP SuccessFactors permite controle descentralizado de ponto e gestão por objetivos claros." }
+            ],
+            ajustes: ["Mencionar SuccessFactors no post do LinkedIn", "Ajustar o tom do artigo para que soe voltado a gestão de pessoas"]
+          },
+          qualidade: {
+            score: 96,
+            alertas: []
+          }
+        },
+        fontes_rag: [
+          { titulo: "Employee Experience na prática corporativa", url: "/artigos/employee-experience-pratica", score: 0.912 },
+          { titulo: "SAP SuccessFactors como alavanca de RH", url: "/artigos/successfactors-hcm-voices", score: 0.864 }
+        ]
+      };
+    }
+
+    if (lob === 'BTP') {
+      return {
+        success: true,
+        etiqueta: "📝 Demo — Rax mock local",
+        motor: "Mock local (Onda 1)",
+        estrategia: {
+          persona: detectedPersona,
+          dor: dor,
+          angulo: angulo,
+          lob: lob,
+          categoria: categoria
+        },
+        post: {
+          headline: `IA generativa sem *governança* é risco para sua TI`,
+          heroNumber: "0",
+          context: "Alinhamento com o CIO para mitigação de alucinação de dados.",
+          linkedinCopy: `Como sua empresa lida com dados em IA generativa? Sem uma plataforma confiável e governada, suas equipes correm o risco de tomar decisões operacionais baseadas em dados inconsistentes. A inteligência artificial exige processos de governança sólidos.\n\nDescubra como estruturar seu core técnico no SAP BTP com a EPI-USE Brasil.`,
+          hashtags: "#Tecnologia #CIO #IA #CleanCore #BTP #EPIUSE",
+          distribution: "Publicar no LinkedIn via Hub de Marketing."
+        },
+        article: {
+          title: title,
+          intro: `Com o boom de ferramentas baseadas em inteligência artificial, governança técnica tornou-se prioridade essencial. Para o ${detectedPersona.toUpperCase()}, garantir Clean Core é o primeiro passo para a inovação.`,
+          sections: [
+            {
+              h2: "Evitando silos de dados com governança",
+              body: "Um ecossistema tecnológico com processos unificados e Clean Core nativo reduz o custo operacional e garante bases limpas e confiáveis para qualquer algoritmo de tomada de decisão."
+            },
+            {
+              h2: "Acelerando com SAP BTP e inovação limpa",
+              body: "A plataforma BTP centraliza integrações e extensões sem poluir o núcleo operacional do ERP, permitindo inovações contínuas e upgrades baratos no SAP Public Cloud."
+            }
+          ],
+          conclusion: "Defina sua estratégia de dados hoje. Fale com os especialistas da EPI-USE Brasil."
+        },
+        carousel: {
+          cover: {
+            eyebrow: `TECNOLOGIA & IA 2026`,
+            headline: "IA: A Importância da *Governança*",
+            sub: "Como manter os dados limpos no BTP"
+          },
+          slides: [
+            { tag: "CIO ESTRATÉGICO", headline: "Clean Core primeiro", number: "", context: "Manter o ERP limpo é vital para upgrades baratos e IA confiável.", source: "" },
+            { tag: "IA & DADOS", headline: "IA exige consistência", number: "", context: "Dados errados levam a alucinações perigosas na ponta operacional.", source: "" }
+          ],
+          cta: {
+            headline: "Inove com o *SAP BTP*",
+            sub: "Fale com o time técnico da EPI-USE Brasil",
+            url: "epiuse.com.br"
+          }
+        },
+        revisao: {
+          seo: {
+            metaTitle: "Governança de dados e IA corporativa: O papel do BTP",
+            metaDescription: "Saiba como o SAP BTP garante Clean Core e governança de dados robusta para IA generativa em grandes empresas.",
+            slug: "governanca-dados-ia-btp-cio",
+            keywords: ["governanca de dados", "cio", "sap btp", "clean core", "ia generativa"]
+          },
+          geo: {
+            faq: [
+              { q: "Qual o maior desafio de dados para CIOs na era da IA?", a: "Garantir a governança de dados limpos e evitar silos de informações inconsistentes na operação." }
+            ],
+            ajustes: ["Enfatizar o Clean Core no artigo principal"]
+          },
+          qualidade: {
+            score: 93,
+            alertas: []
+          }
+        },
+        fontes_rag: [
+          { titulo: "SAP BTP e Governança de Integrações", url: "/artigos/sap-btp-governanca", score: 0.905 }
+        ]
+      };
+    }
+
+    // Default CFO Tax Reform fallback
     return {
       success: true,
       etiqueta: "📝 Demo — Rax mock local",
       motor: "Mock local (Onda 1)",
       estrategia: {
-        persona: persona === 'auto' ? 'cfo' : persona,
-        dor: "Reforma Tributária e burocracia excessiva nos fechamentos fiscais.",
-        angulo: "Agilidade e segurança no planejamento tributário corporativo.",
-        lob: "S4HANA",
-        categoria: "thought-leadership"
+        persona: detectedPersona,
+        dor: dor,
+        angulo: angulo,
+        lob: lob,
+        categoria: categoria
       },
       post: {
         headline: `Como a *Reforma Tributária* impacta o caixa da sua empresa`,
@@ -1179,8 +1359,8 @@
         distribution: "Publicar na terça-feira pela manhã via Hub."
       },
       article: {
-        title: `Reforma Tributária 2026: O Guia de Sobrevivência do ${persona === 'auto' ? 'CFO' : persona.toUpperCase()}`,
-        intro: "Com as novas regras do CBS e IBS entrando em vigor em 2026, as Diretorias Financeiras enfrentam um cenário de complexidade sem precedentes. Processos manuais no ERP legado se tornarão um gargalo perigoso e caro.",
+        title: title,
+        intro: "Com as novas regras do CBS e IBS entrando em vigor in 2026, as Diretorias Financeiras enfrentam um cenário de complexidade sem precedentes. Processos manuais no ERP legado se tornarão um gargalo perigoso e caro.",
         sections: [
           {
             h2: "O impacto imediato na governança fiscal",
@@ -1195,7 +1375,7 @@
       },
       carousel: {
         cover: {
-          eyebrow: `GUIA ${persona === 'auto' ? 'CFO' : persona.toUpperCase()} 2026`,
+          eyebrow: `GUIA ${detectedPersona.toUpperCase()} 2026`,
           headline: "Sobrevivendo à *Reforma Tributária*",
           sub: "O impacto no ERP de grande porte"
         },

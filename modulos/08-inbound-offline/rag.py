@@ -16,7 +16,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 CORPUS = os.path.join(HERE, "corpus", "corpus.jsonl")
 INDEX = os.path.join(HERE, "corpus", "index.npz")
 META = os.path.join(HERE, "corpus", "index_meta.json")
-OLLAMA = os.environ.get("OLLAMA_URL", "http://localhost:11434")
+OLLAMA = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434")
 EMBED_MODEL = "nomic-embed-text"
 CHUNK = 1100  # chars por chunk
 
