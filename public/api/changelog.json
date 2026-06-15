@@ -1,55 +1,64 @@
 {
   "current": "0.50.6",
-  "atualizado_em": "14/jun/2026",
+  "atualizado_em": "15/jun/2026",
   "next": [
     {
-      "version": "0.43.0",
-      "sprint": "S41",
-      "status": "planned",
-      "title": "🌍 i18n cobertura 100% por página + default por país",
-      "summary": "Pré-rollout internacional: varrer página a página e curar TODAS as strings de UI no dicionário (hoje 111 frases cobrem home/área/mural — falta relatório, voices, cases, optimizer, painel, inbound, development-funds, field, clientes-sap). Default de idioma por país/domínio (?lang= ou subpath /en /es). Glossário de termos fixos no LibreTranslate (SAP, EPI-USE, ERP.ngo, Voices não traduzem). Opcional: 4º idioma (FR/DE) se abrir mercado."
-    },
-    {
-      "version": "0.44.0",
-      "sprint": "S42",
+      "version": "0.51.0",
+      "sprint": "S44",
       "status": "planned",
       "title": "💡 Mural: editar/arquivar/deletar ideia + status board",
-      "summary": "Hoje só cadastra + vota. Falta: editar/arquivar/deletar (editor token), mudar status (nova→avaliando→aprovada→feita) num board kanban, comentários por ideia. Sync xlsx OneDrive já roda a cada 2h (espelho)."
+      "summary": "Implementação de edição, arquivamento e exclusão de ideias com token de autorização, painel Kanban interativo e moderação."
     },
     {
-      "version": "0.45.0",
-      "sprint": "S43",
+      "version": "0.52.0",
+      "sprint": "S45",
       "status": "planned",
-      "title": "🧱 server.js modularização (saúde de longo prazo)",
-      "summary": "~3000 linhas num arquivo só. Quebrar em routes/ (pages, api-dados, api-content, api-field, api-df, api-ideias, api-translate) + db.js. Reduz risco de regressão conforme o app cresce pra multi-país."
+      "title": "🌍 i18n cobertura 100% por página + default por país",
+      "summary": "Localização completa de todas as páginas da UI (relatório, optimizer, voices, field) e detecção automática de idioma por domínio."
     },
     {
       "version": "—",
       "sprint": "PEND-2",
       "status": "blocked",
-      "title": "🟡 SSO Microsoft — admin consent (libera nome/email fixo)",
-      "summary": "Código pronto (nav + home já puxam nome+email do Entra ID quando autenticado, fixam no card com 🔒, escondem rename). BLOQUEIO: Azure portal → App registration → API permissions → Grant admin consent (Graph: openid/profile/email/User.Read/offline_access). Sem isso authenticated=false → cai no localStorage. Depois: testar login @epiuse.com.br; quando confiar, SSO_ENFORCE=true."
+      "title": "SSO Microsoft — admin consent",
+      "summary": "Mapeamento seguro de login e e-mail via Entra ID (Graph API), aguardando liberação do consentimento de admin no Azure Portal."
     },
     {
       "version": "—",
       "sprint": "PEND-3",
       "status": "blocked",
-      "title": "🟡 Publicação WordPress automática",
-      "summary": "Pipeline de conteúdo entrega até o HTML pronto. Publicar no blog segue manual — falta credenciais admin WordPress da EPI-USE (TI) pra automatizar POST via REST API."
+      "title": "Publicação WordPress automática",
+      "summary": "Integração via REST API para publicação de artigos gerados diretamente no blog oficial da EPI-USE Brasil (depende de TI/TI)."
     },
     {
       "version": "—",
       "sprint": "PEND-5",
       "status": "blocked",
-      "title": "🟡 Mural → planilha em tempo real (opcional)",
-      "summary": "Hoje o espelho xlsx roda a cada 2h via tarefa LOCAL (precisa PC ligado). Pra tempo-real + independente do PC: webhook Power Automate (env IDEIAS_WEBHOOK_URL) — Rudá monta o flow HTTP→add row e passa a URL."
+      "title": "Mural → planilha em tempo real",
+      "summary": "Webhook com Power Automate para espelhamento instantâneo de novas ideias enviadas no mural para planilha oficial."
     }
   ],
   "releases": [
     {
+      "version": "0.50.6",
+      "date": "15/jun/2026",
+      "status": "current",
+      "path": null,
+      "title": "🦝 Raccoon Studio (Ondas 1 e 2), RAG 140x mais rápido e PPTX via Docker",
+      "summary": "Implementação completa da tela do Raccoon Studio com o mascote Rax (SVG animado que reage aos estados da IA), motor real offline (Qwen2.5 + RAG) integrado e otimizações de rede local. Dockerfile configurado com Node+Python para suporte a relatórios PPTX seguros em produção na nuvem Railway.",
+      "highlights": [
+        "Raccoon Studio (/raccoon) com animações dinâmicas de estados do Rax",
+        "Mock dinâmico inteligente por palavra-chave (HCM/RH, BTP/TI, S4HANA/Finanças) como contingência em nuvem",
+        "Correção de latência DNS local do Windows de localhost para 127.0.0.1 (compilação RAG 140x mais rápida)",
+        "Correção de UnicodeEncodeError para terminais Windows no script de geração",
+        "Geração de PPTX na Railway corrigida com imagem Docker contendo dependências de Node + Python + python-pptx",
+        "Variável PYTHON_BIN adicionada para suportar interpretadores Linux (nuvem) e Windows (local)"
+      ]
+    },
+    {
       "version": "0.50.5",
       "date": "14/jun/2026",
-      "status": "current",
+      "status": "released",
       "path": null,
       "title": "🐘 Tema Liquid Glass com Background de Elefantes (Mãe e Filho)",
       "summary": "Integração do vídeo real de elefantes (mãe e filho) no background do tema Liquid Glass, servido de forma estática em `/assets/`. Mantém a estética dark luxury e as bordas de refração do open-design.",
