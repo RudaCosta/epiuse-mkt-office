@@ -9,6 +9,10 @@ import sys
 import json
 import os
 
+# Forçar UTF-8 na saída padrão do Windows
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+
 # Ajusta path para importar o módulo local
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
