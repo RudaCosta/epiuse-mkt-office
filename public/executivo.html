@@ -76,13 +76,15 @@ const fmtEUR = v => '€ ' + (v >= 1e3 ? (v/1e3).toFixed(1).replace('.',',')+'k'
 const esc = s => String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
 async function init(){
-  let ex={}, li={}, ga={}, ap={};
+  let ex={}, li={}, ga={}, ap={}, rdCanais={}, rdPerf={};
   try{
-    [ex, li, ga, ap] = await Promise.all([
+    [ex, li, ga, ap, rdCanais, rdPerf] = await Promise.all([
       fetch('/api/executivo').then(r=>r.json()),
       fetch('/api/linkedin-historical.json').then(r=>r.json()).catch(()=>({})),
       fetch('/api/ga4-snapshot.json').then(r=>r.json()).catch(()=>({})),
       fetch('/api/pipeline-snapshot.json').then(r=>r.json()).catch(()=>({})),
+      fetch('/api/rd/canais').then(r=>r.json()).catch(()=>({})),
+      fetch('/api/rd/performance').then(r=>r.json()).catch(()=>({})),
     ]);
   }catch(e){ document.getElementById('content').innerHTML='<div class="loading">Erro ao carregar.</div>'; return; }
 
@@ -175,7 +177,66 @@ async function init(){
     ⏳ Não medido ainda (sem dado real — Regra 7): spend por canal → CAC/ROI (aguarda planilha budget) · MQL/SQL mensal (aguarda RD Station leads/mês).
   </div>`;
 
-  document.getElementById('content').innerHTML = heads + funil + campanhas + riscos;
+  // Helper de formatação de valores curtos
+  const fmtVal = v => {
+    if (v == null) return '—';
+    return v >= 1000 ? `${(v/1000).toFixed(1).replace('.0', '')}k` : v;
+  };
+
+  // ── RD STATION CANAIS & PERFORMANCE SUMMARY ──
+  let rdSummary = '';
+  if (rdCanais.success && rdPerf.success) {
+    const c = rdCanais.totals || {};
+    const p = rdPerf.campanhas || {};
+    const emailObj = p.Email || {};
+    
+    // Sort channels by conversion count
+    const sortedCh = Object.entries(rdCanais.canais || {}).sort((a,b) => b[1].conversoes - a[1].conversoes).slice(0, 3);
+    const channelListHtml = sortedCh.map(([name, m]) => `
+      <div style="font-size:12px;display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dashed rgba(134,158,195,.1)">
+        <span>${name}</span>
+        <span style="font-weight:700;color:#fbbf24">${m.conversoes} conversões (${m.visitas} visitas)</span>
+      </div>
+    `).join('');
+
+    rdSummary = `
+    <div class="sec-t">📡 RD Station — Aquisição e Campanhas</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px;margin-top:8px" data-no-translate>
+      <!-- Card 1: Canais principais -->
+      <div style="background:var(--home-surface,#0f1e35);border:1px solid var(--home-border,rgba(134,158,195,.18));border-radius:12px;padding:16px">
+        <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--home-text-muted,#869ec3);margin-bottom:12px">Principais Origens de Conversão (Período Recente)</div>
+        ${channelListHtml}
+        <div style="font-size:10px;color:var(--home-text-muted,#869ec3);margin-top:8px">Total de visitas do período: <b>${c.visitas || 0}</b> · Conversões: <b>${c.conversoes || 0}</b></div>
+      </div>
+      <!-- Card 2: Funil E-mail -->
+      <div style="background:var(--home-surface,#0f1e35);border:1px solid var(--home-border,rgba(134,158,195,.18));border-radius:12px;padding:16px">
+        <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--home-text-muted,#869ec3);margin-bottom:12px">Performance de Campanhas de E-mail (Mês de Referência)</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center">
+          <div>
+            <div style="font-size:10px;color:var(--home-text-muted)">Enviados</div>
+            <div style="font-size:15px;font-weight:800;font-family:'JetBrains Mono',monospace;margin-top:4px">${fmtVal(emailObj.enviados)}</div>
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--home-text-muted)">Entregues</div>
+            <div style="font-size:15px;font-weight:800;font-family:'JetBrains Mono',monospace;margin-top:4px;color:#10b981">${fmtVal(emailObj.entregues)}</div>
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--home-text-muted)">Aberturas</div>
+            <div style="font-size:15px;font-weight:800;font-family:'JetBrains Mono',monospace;margin-top:4px;color:#3b82f6">${fmtVal(emailObj.aberturas)}</div>
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--home-text-muted)">Cliques</div>
+            <div style="font-size:15px;font-weight:800;font-family:'JetBrains Mono',monospace;margin-top:4px;color:#ec4899">${fmtVal(emailObj.cliques)}</div>
+          </div>
+        </div>
+        <div style="font-size:10px;color:var(--home-text-muted,#869ec3);margin-top:10px;text-align:right">
+          Aberturas/Enviados: <b>${emailObj.enviados ? ((emailObj.aberturas/emailObj.enviados)*100).toFixed(1) : 0}%</b> · Cliques/Aberturas: <b>${emailObj.aberturas ? ((emailObj.cliques/emailObj.aberturas)*100).toFixed(1) : 0}%</b>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  document.getElementById('content').innerHTML = heads + funil + rdSummary + campanhas + riscos;
 }
 
 document.getElementById('btnPdf').addEventListener('click', () => {

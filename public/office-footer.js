@@ -5,8 +5,8 @@
 
 // Fonte ÚNICA da verdade: public/api/changelog.json#current via /api/version
 // Fallback hardcoded usado SÓ se fetch falhar — sincronização automática com nav.
-let OFFICE_FOOTER_VERSION = '0.47.2';
-const OFFICE_FOOTER_BUILD = '2026-06-10';
+let OFFICE_FOOTER_VERSION = '0.50.11';
+const OFFICE_FOOTER_BUILD = '2026-06-16';
 window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/version')
   .then(r => r.ok ? r.json() : null)
   .then(d => { if (d && d.current) { OFFICE_FOOTER_VERSION = d.current; window.__officeVersion = d.current; } return d; })
@@ -16,8 +16,12 @@ window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/ver
 // Bug fix → 1.0.1 | Feature nova → 1.1.0 | Refactor grande → 2.0.0
 // Histórico pré-1.0 preservado abaixo para referência.
 const OFFICE_VERSION_HISTORY = [
+  // ─── SPRINT 43 · RD Station integrado (16/jun/2026) ───
+  { ver: '0.50.11', date: '16/jun/2026', label: 'SPRINT 43 — Integração RD Station: Canais de Aquisição & Performance de Campanhas no Relatório Mensal, Visão Executiva e Metas com suporte Aurora e simulação.', path: null, status: 'current' },
+  // ─── SPRINT 42 · Tema Aurora padrão (16/jun/2026) ───
+  { ver: '0.50.10', date: '16/jun/2026', label: 'SPRINT 42 — Consolidação do tema Aurora padrão e adaptação total de todos os gráficos e dashboards para Light, Elephant, Dark, Aurora e Liquid Glass.', path: null, status: 'snapshot' },
   // ─── SPRINT 18 · RD Station OAuth2 + KPIs e-mail reais (05/jun/2026) ───
-  { ver: '0.14.0', date: '05/jun/2026', label: 'SPRINT 18 — RD Station integrado (OAuth2). scripts/integrations/rd_fetch.js + /auth/rd-callback + POST /api/relatorio/rd-refresh. Snapshot popula segmentações com tamanho real (paginação até 1000), workflows ativos, LPs publicadas, emails enviados. Card e-mail no /relatorio mostra: base de leads, enviados no mês, workflows ativos, LPs publicadas (fim do ⏳ "RD pendente"). Top páginas GA4 + duração média ponderada no FY também.', path: null, status: 'current' },
+  { ver: '0.14.0', date: '05/jun/2026', label: 'SPRINT 18 — RD Station integrado (OAuth2). scripts/integrations/rd_fetch.js + /auth/rd-callback + POST /api/relatorio/rd-refresh. Snapshot popula segmentações com tamanho real (paginação até 1000), workflows ativos, LPs publicadas, emails enviados. Card e-mail no /relatorio mostra: base de leads, enviados no mês, workflows ativos, LPs publicadas (fim do ⏳ "RD pendente"). Top páginas GA4 + duração média ponderada no FY também.', path: null, status: 'snapshot' },
   // ─── SPRINT 17 · Relatório FY + GA4 anual (04/jun/2026) ───
   { ver: '0.13.0', date: '04/jun/2026', label: 'SPRINT 17 — Relatório FY (jul→jun) e GA4 12 meses. /relatorio ganha FY26 + FY27 no seletor · /api/relatorio/snapshot?fy=26|27 agrega site/linkedin/eventos/voices do ano fiscal · ga4_fetch.js ganha refreshFY(fy) (popula 12 meses) · POST /api/relatorio/ga4-refresh-fy. FY26 confirmado: 32.142 usuários · 50.404 visualizações · 36.365 sessões reais agregados do GA4. Regra de ouro 13 (dados automatizados, zero planilha) memorizada.', path: null, status: 'snapshot' },
   // ─── SPRINT 16 · Infra prod + GA4 (04/jun/2026) ───

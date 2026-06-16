@@ -417,27 +417,52 @@ const AREAS = [
   { id: 'vendas', nome: 'Vendas', icon: '📞', color_bg: 'rgba(248,113,113,.18)', color: '#f87171',
     owners: 'Sergio Crepaldi + Marlison Estrela',
     meta_default: { seg_30d: 200, seg_90d: 700, eventos_q: 3 },
+    label_30d: 'Seguidores em <strong>30 dias</strong>',
+    label_90d: 'Seguidores em <strong>90 dias</strong>',
+    label_q: 'Eventos ativados <strong>no trimestre</strong>',
     placeholder_acoes: '• Cold outbound mencionando posts EPI-USE\n• Convidar 50 contatos/mês pra seguir a page\n• Compartilhar 1 post EPI-USE/semana no perfil pessoal' },
   { id: 'brand', nome: 'Brand Experience', icon: '🎨', color_bg: 'rgba(192,132,252,.18)', color: '#c084fc',
     owners: 'Duda',
     meta_default: { seg_30d: 300, seg_90d: 1200, eventos_q: 4 },
+    label_30d: 'Seguidores em <strong>30 dias</strong>',
+    label_90d: 'Seguidores em <strong>90 dias</strong>',
+    label_q: 'Eventos ativados <strong>no trimestre</strong>',
     placeholder_acoes: '• Aprovar ativação do elefante em todos os eventos do trimestre\n• Calendário editorial com 2 posts/semana\n• Polir visual da company page (capa, sobre, destaques)' },
   { id: 'intel', nome: 'MKT Intelligence', icon: '🧠', color_bg: 'rgba(96,165,250,.18)', color: '#60a5fa',
     owners: 'Bruna Yamagami',
     meta_default: { seg_30d: 150, seg_90d: 500, eventos_q: 1 },
+    label_30d: 'Seguidores em <strong>30 dias</strong>',
+    label_90d: 'Seguidores em <strong>90 dias</strong>',
+    label_q: 'Eventos ativados <strong>no trimestre</strong>',
     placeholder_acoes: '• Relatório mensal de quem nos seguiu (alimentar Apollo + CRM)\n• Identificar 20 contas-alvo enterprise/mês\n• Sinalizar pro Inbound conteúdos que mais geram seguidores' },
   { id: 'field', nome: 'Field Marketing', icon: '📅', color_bg: 'rgba(251,191,36,.18)', color: '#fbbf24',
     owners: 'Isabela Carvalho',
     meta_default: { seg_30d: 500, seg_90d: 1800, eventos_q: 8 },
+    label_30d: 'Seguidores em <strong>30 dias</strong>',
+    label_90d: 'Seguidores em <strong>90 dias</strong>',
+    label_q: 'Eventos ativados <strong>no trimestre</strong>',
     placeholder_acoes: '• Garantir kit do elefante em TODO evento presencial\n• Mínimo 8 eventos/trimestre (SAP NOW, TechEd, BTP, Inside Track, regionais)\n• Capturar leads pós-evento e re-engajar via DM' },
   { id: 'growth', nome: 'Growth', icon: '🚀', color_bg: 'rgba(52,211,153,.18)', color: '#34d399',
     owners: 'Gui Sant\'Ana',
     meta_default: { seg_30d: 250, seg_90d: 1000, eventos_q: 2 },
+    label_30d: 'Seguidores em <strong>30 dias</strong>',
+    label_90d: 'Seguidores em <strong>90 dias</strong>',
+    label_q: 'Eventos ativados <strong>no trimestre</strong>',
     placeholder_acoes: '• Sponsored content em LinkedIn Ads pra crescimento de seguidores\n• Testar 3 criativos/mês com CTA "Siga a página"\n• Budget: definir com Roberto' },
   { id: 'voices', nome: 'Voices (Anderson + Carlos)', icon: '🎙️', color_bg: 'rgba(236,72,153,.18)', color: '#ec4899',
     owners: 'Anderson Costa + Carlos Furigo + futuros',
     meta_default: { seg_30d: 400, seg_90d: 1500, eventos_q: 2 },
-    placeholder_acoes: '• 2 posts/semana cada Voice (8 posts/semana total quando crescer)\n• Mencionar @EPI-USE Brasil em todo post\n• Comentar em posts de SAP, EPI-USE Global, SAP partners' }
+    label_30d: 'Seguidores em <strong>30 dias</strong>',
+    label_90d: 'Seguidores em <strong>90 dias</strong>',
+    label_q: 'Eventos ativados <strong>no trimestre</strong>',
+    placeholder_acoes: '• 2 posts/semana cada Voice (8 posts/semana total quando crescer)\n• Mencionar @EPI-USE Brasil em todo post\n• Comentar em posts de SAP, EPI-USE Global, SAP partners' },
+  { id: 'rd_marketing', nome: 'RD Station & Campanhas', icon: '✉️', color_bg: 'rgba(56,189,248,.18)', color: '#38bdf8',
+    owners: 'RevOps & Inbound Team',
+    meta_default: { seg_30d: 10, seg_90d: 35, eventos_q: 12 },
+    label_30d: 'Conversão canal <strong>(meta/mês)</strong>',
+    label_90d: 'Taxa de abertura <strong>(meta %)</strong>',
+    label_q: 'Taxa de cliques <strong>(meta %)</strong>',
+    placeholder_acoes: '• Conversão: 10 conversões mensais por canal orgânico\n• Abertura: meta de 35% de taxa de abertura\n• Cliques: atingir 12% de cliques em campanhas concluídas\n• Testar SMS/Whats em campanhas premium' }
 ];
 
 const grid = document.getElementById('metas-grid');
@@ -455,15 +480,15 @@ function renderAreas() {
         </div>
       </div>
       <div class="meta-row-input">
-        <label>Seguidores em <strong>30 dias</strong></label>
+        <label>${a.label_30d}</label>
         <input type="number" class="input-meta" data-key="seg_30d" min="0" max="9999" placeholder="${a.meta_default.seg_30d}" value="${saved.seg_30d || ''}">
       </div>
       <div class="meta-row-input">
-        <label>Seguidores em <strong>90 dias</strong></label>
+        <label>${a.label_90d}</label>
         <input type="number" class="input-meta" data-key="seg_90d" min="0" max="99999" placeholder="${a.meta_default.seg_90d}" value="${saved.seg_90d || ''}">
       </div>
       <div class="meta-row-input">
-        <label>Eventos ativados <strong>no trimestre</strong></label>
+        <label>${a.label_q}</label>
         <input type="number" class="input-meta" data-key="eventos_q" min="0" max="99" placeholder="${a.meta_default.eventos_q}" value="${saved.eventos_q || ''}">
       </div>
       <div class="meta-acoes">

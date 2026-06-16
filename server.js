@@ -2441,8 +2441,64 @@ app.get('/api/relatorio/snapshot', (req, res) => {
     },
     eventos_proximos,
     alertas: _gerarAlertas(linkedin, atual, anterior),
-    gerado_em: new Date().toISOString(),
   });
+});
+
+// GET /api/rd/canais — dados de canais de aquisição do RD Station
+app.get('/api/rd/canais', (req, res) => {
+  try {
+    const data = _readJSON(path.join(__dirname, 'public/api/rd-canais.json'), { canais_series: [] });
+    const { start_date, end_date } = req.query;
+    let series = data.canais_series || [];
+    if (start_date) series = series.filter(s => s.data >= start_date);
+    if (end_date) series = series.filter(s => s.data <= end_date);
+    
+    const canais = {};
+    let totalVisitas = 0;
+    let totalConversoes = 0;
+    
+    series.forEach(pt => {
+      Object.keys(pt).forEach(k => {
+        if (k === 'data') return;
+        if (!canais[k]) {
+          canais[k] = { visitas: 0, conversoes: 0, oportunidades: 0, vendas: 0 };
+        }
+        canais[k].visitas += pt[k].visitas || 0;
+        canais[k].conversoes += pt[k].conversoes || 0;
+        canais[k].oportunidades += pt[k].oportunidades || 0;
+        canais[k].vendas += pt[k].vendas || 0;
+        
+        totalVisitas += pt[k].visitas || 0;
+        totalConversoes += pt[k].conversoes || 0;
+      });
+    });
+
+    res.json({
+      success: true,
+      periodo: { start_date, end_date, dias: series.length },
+      totals: { visitas: totalVisitas, conversoes: totalConversoes, oportunidades: 0, vendas: 0 },
+      canais,
+      series
+    });
+  } catch (e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+// GET /api/rd/performance — dados de performance do funil de campanhas do RD Station
+app.get('/api/rd/performance', (req, res) => {
+  try {
+    const data = _readJSON(path.join(__dirname, 'public/api/rd-canais.json'), { performance_campanhas: {} });
+    const simulado = req.query.simulado === 'true';
+    const perf = data.performance_campanhas || {};
+    res.json({
+      success: true,
+      periodo: perf.periodo,
+      campanhas: simulado ? perf.simulado : perf.real
+    });
+  } catch (e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
 });
 
 // GET /api/relatorio/download-pptx?mes=YYYY-MM — executa scripts/relatorio/gerar_pptx.py e retorna o arquivo gerado

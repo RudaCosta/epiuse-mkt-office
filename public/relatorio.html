@@ -203,6 +203,66 @@
     }
   }
 
+  /* Switch slider */
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 22px;
+  }
+  .switch input { 
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(255,255,255,0.06);
+    border: 1px solid var(--border);
+    transition: .3s;
+    border-radius: 34px;
+  }
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 4px;
+    bottom: 3px;
+    background-color: var(--muted);
+    transition: .3s;
+    border-radius: 50%;
+  }
+  input:checked + .slider {
+    background-color: rgba(96,165,250,0.2);
+    border-color: var(--accent);
+  }
+  input:checked + .slider:before {
+    transform: translateX(20px);
+    background-color: var(--accent);
+  }
+  
+  .tab-btn:hover {
+    color: var(--text) !important;
+    background: rgba(255,255,255,0.03) !important;
+  }
+  .tab-btn.active {
+    background: rgba(96,165,250,0.1) !important;
+    border: 1px solid rgba(96,165,250,0.2) !important;
+  }
+  
+  :root[data-theme="light"] .slider,
+  :root[data-theme="elephant"] .slider {
+    background-color: rgba(15,23,42,0.06);
+  }
+  :root[data-theme="light"] .tab-btn.active,
+  :root[data-theme="elephant"] .tab-btn.active {
+    background: rgba(37,99,235,0.1) !important;
+    border-color: rgba(37,99,235,0.2) !important;
+  }
+
   /* PRINT */
   @media print {
     @page { size: A4; margin: 12mm }
@@ -243,6 +303,7 @@
     <div class="agenda-item" onclick="scrollToSec('s1')"><span class="agenda-num">1</span> KPIs Digitais</div>
     <div class="agenda-item" onclick="scrollToSec('s1b')"><span class="agenda-num">1b</span> Site — Top Páginas</div>
     <div class="agenda-item" onclick="scrollToSec('s2')"><span class="agenda-num">2</span> LinkedIn</div>
+    <div class="agenda-item" onclick="scrollToSec('s2b')"><span class="agenda-num">2b</span> Canais RD</div>
     <div class="agenda-item" onclick="scrollToSec('s3')"><span class="agenda-num">3</span> Conteúdo</div>
     <div class="agenda-item" onclick="scrollToSec('s4')"><span class="agenda-num">4</span> Eventos</div>
     <div class="agenda-item" onclick="scrollToSec('s5')"><span class="agenda-num">5</span> Voices</div>
@@ -298,6 +359,142 @@
       </div>
     </div>
     <div class="demo-grid" id="li-demo"></div>
+  </section>
+
+  <!-- 2B. CANAIS & PERFORMANCE RD STATION -->
+  <section class="sec" id="s2b">
+    <div class="sec-hdr"><div class="sec-num">2b</div><div class="sec-title">RD Station — Canais e Performance</div></div>
+    
+    <!-- Tab Controls -->
+    <div class="tab-controls" style="display:flex;gap:10px;margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:10px">
+      <button class="tab-btn active" onclick="switchRDTab('canais')" id="rd-tab-btn-canais" style="background:transparent;border:0;color:var(--accent);font-size:14px;font-weight:700;cursor:pointer;padding:8px 16px;border-radius:6px;transition:all .15s">📡 Análise de Canais</button>
+      <button class="tab-btn" onclick="switchRDTab('performance')" id="rd-tab-btn-performance" style="background:transparent;border:0;color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;padding:8px 16px;border-radius:6px;transition:all .15s">📈 Performance de Canais</button>
+    </div>
+
+    <!-- TAB 1: ANÁLISE DE CANAIS -->
+    <div id="rd-tab-content-canais" class="rd-tab-pane active">
+      <!-- Filtros Análise de Canais -->
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px" class="rep-controls">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <select id="rd-canal-filter" onchange="atualizarRDCanais()" style="min-width:150px">
+            <option value="todos">Todos os canais</option>
+            <option value="Busca Orgânica">Busca Orgânica</option>
+            <option value="Tráfego Direto">Tráfego Direto</option>
+            <option value="Referências">Referências</option>
+            <option value="Redes Sociais">Redes Sociais</option>
+            <option value="Email">Email</option>
+            <option value="Mídia Paga">Mídia Paga</option>
+          </select>
+          <select id="rd-metric-filter" onchange="atualizarRDCanais()" style="min-width:180px">
+            <option value="visitas">Visitas, Conversões, Oportunidades e Vendas</option>
+            <option value="visitas-only">Apenas Visitas</option>
+            <option value="conversoes-only">Apenas Conversões</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="date" id="rd-canais-start" value="2026-06-01" onchange="atualizarRDCanais()" style="background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.3);color:var(--text);padding:6px 10px;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:12px">
+          <span style="color:var(--muted);font-size:12px">até</span>
+          <input type="date" id="rd-canais-end" value="2026-06-16" onchange="atualizarRDCanais()" style="background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.3);color:var(--text);padding:6px 10px;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:12px">
+        </div>
+      </div>
+
+      <!-- KPI 4 Cards -->
+      <div class="kpi-grid" style="margin-bottom:20px" id="rd-canais-kpi-grid">
+        <div class="kpi-canal" id="rd-kpi-visitas" onclick="selectRDMetric('visitas')" style="border: 2px solid var(--accent); cursor:pointer">
+          <h3>Visitas</h3>
+          <div class="kpi-val" id="rd-val-visitas" style="font-size:32px;color:var(--accent)">833</div>
+        </div>
+        <div class="kpi-canal" id="rd-kpi-conversoes" onclick="selectRDMetric('conversoes')" style="cursor:pointer">
+          <h3>Conversões</h3>
+          <div class="kpi-val" id="rd-val-conversoes" style="font-size:32px">10</div>
+        </div>
+        <div class="kpi-canal" id="rd-kpi-oportunidades" onclick="selectRDMetric('oportunidades')" style="cursor:pointer">
+          <h3>Oportunidades</h3>
+          <div class="kpi-val" id="rd-val-oportunidades" style="font-size:32px">0</div>
+        </div>
+        <div class="kpi-canal" id="rd-kpi-vendas" onclick="selectRDMetric('vendas')" style="cursor:pointer">
+          <h3>Vendas</h3>
+          <div class="kpi-val" id="rd-val-vendas" style="font-size:32px">0</div>
+        </div>
+      </div>
+
+      <!-- Chart container -->
+      <div class="li-chart-card" style="margin-bottom:20px;height:340px;position:relative">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <h4 style="font-size:12px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin:0" id="rd-chart-title">Visitas por canal</h4>
+          <div style="display:flex;gap:6px;align-items:center" class="rep-controls">
+            <select id="rd-view-by" onchange="atualizarRDCanais()" style="padding:4px 8px;font-size:11px;min-width:140px">
+              <option value="dia">Visualizar por dia</option>
+              <option value="semana">Visualizar por semana</option>
+            </select>
+            <button onclick="toggleRDChartType('area')" id="btn-rd-area" class="primary" style="padding:4px 8px;font-size:11px">Área</button>
+            <button onclick="toggleRDChartType('line')" id="btn-rd-line" style="padding:4px 8px;font-size:11px">Linha</button>
+          </div>
+        </div>
+        <div style="height:270px;position:relative">
+          <canvas id="rd-canais-chart"></canvas>
+        </div>
+      </div>
+
+      <!-- Tabela Canais -->
+      <div class="gen-card">
+        <h4 style="font-size:12px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px">Canais de Aquisição</h4>
+        <table style="width:100%;border-collapse:collapse;font-size:13px" class="perf-tbl">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border)">
+              <th style="text-align:left;padding:10px">Canal</th>
+              <th style="text-align:right;padding:10px">Visitas</th>
+              <th style="text-align:right;padding:10px">Conversões</th>
+              <th style="text-align:right;padding:10px">Oportunidades</th>
+              <th style="text-align:right;padding:10px">Vendas</th>
+            </tr>
+          </thead>
+          <tbody id="rd-canais-table-body">
+            <!-- Dynamic rows -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 2: PERFORMANCE DE CANAIS -->
+    <div id="rd-tab-content-performance" class="rd-tab-pane" style="display:none">
+      <!-- Filtros e Simulação -->
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px" class="rep-controls">
+        <div style="display:flex;gap:8px;align-items:center">
+          <span style="font-size:12px;color:var(--muted)">Período de Análise:</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--text)" id="rd-perf-periodo-lbl">01/01/2025 – 01/07/2025</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:12.5px;font-weight:600;color:var(--text)">Simular SMS & WhatsApp (Plano Advanced)</span>
+          <label class="switch">
+            <input type="checkbox" id="rd-simular-toggle" onchange="toggleRDSimulacao()">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- KPI 5 Cards com Canal Info -->
+      <div class="kpi-grid" style="margin-bottom:20px;" id="rd-perf-kpi-grid">
+        <!-- Dynamic Cards -->
+      </div>
+
+      <!-- Chart Grouped Columns -->
+      <div class="li-chart-card" style="margin-bottom:20px;height:340px;position:relative">
+        <h4 style="font-size:12px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px">Comparativo entre canais por etapa</h4>
+        <div style="height:270px;position:relative">
+          <canvas id="rd-perf-chart"></canvas>
+        </div>
+      </div>
+
+      <!-- Informative banner -->
+      <div style="background:rgba(139,92,246,.08);border-left:4px solid #8b5cf6;padding:15px;border-radius:8px;font-size:12px;line-height:1.6;color:var(--muted);margin-bottom:14px">
+        <ul style="margin-left:20px;list-style-type:disc">
+          <li>Compare a performance através da variação percentual entre as etapas.</li>
+          <li>Atualmente, o WhatsApp não possui taxa de cliques nativa reportada no RD.</li>
+          <li>Para medir a taxa de cliques de SMS é necessário usar o encurtador de links da EPI-USE.</li>
+        </ul>
+      </div>
+    </div>
   </section>
 
   <!-- 3. CONTEÚDO -->
@@ -1027,14 +1224,396 @@ async function loadSap4me() {
   } catch(e) { console.warn('loadSap4me error:', e); }
 }
 
+// RD Station Canais & Performance State Variables
+let rdCanaisChart = null;
+let rdPerformanceChart = null;
+let rdCanaisDataCache = null;
+let rdPerfDataCache = null;
+let activeRDTab = 'canais';
+let activeRDMetric = 'visitas';
+let activeRDChartType = 'area';
+
+function switchRDTab(tab) {
+  activeRDTab = tab;
+  document.getElementById('rd-tab-btn-canais').classList.toggle('active', tab === 'canais');
+  document.getElementById('rd-tab-btn-canais').style.color = tab === 'canais' ? 'var(--accent)' : 'var(--muted)';
+  document.getElementById('rd-tab-btn-canais').style.fontWeight = tab === 'canais' ? '700' : '600';
+  document.getElementById('rd-tab-btn-performance').classList.toggle('active', tab === 'performance');
+  document.getElementById('rd-tab-btn-performance').style.color = tab === 'performance' ? 'var(--accent)' : 'var(--muted)';
+  document.getElementById('rd-tab-btn-performance').style.fontWeight = tab === 'performance' ? '700' : '600';
+  
+  document.getElementById('rd-tab-content-canais').style.display = tab === 'canais' ? 'block' : 'none';
+  document.getElementById('rd-tab-content-performance').style.display = tab === 'performance' ? 'block' : 'none';
+  
+  if (tab === 'canais') {
+    atualizarRDCanais();
+  } else {
+    atualizarRDPerformance();
+  }
+}
+
+function selectRDMetric(metric) {
+  activeRDMetric = metric;
+  const metrics = ['visitas', 'conversoes', 'oportunidades', 'vendas'];
+  metrics.forEach(m => {
+    const card = document.getElementById(`rd-kpi-${m}`);
+    if (m === metric) {
+      card.style.border = '2px solid var(--accent)';
+      card.querySelector('.kpi-val').style.color = 'var(--accent)';
+    } else {
+      card.style.border = '1px solid var(--border)';
+      card.querySelector('.kpi-val').style.color = 'var(--text)';
+    }
+  });
+  
+  document.getElementById('rd-chart-title').textContent = `${metric.charAt(0).toUpperCase() + metric.slice(1)} por canal`;
+  renderRDCanaisChart();
+}
+
+function toggleRDChartType(type) {
+  activeRDChartType = type;
+  document.getElementById('btn-rd-area').classList.toggle('primary', type === 'area');
+  document.getElementById('btn-rd-line').classList.toggle('primary', type === 'line');
+  renderRDCanaisChart();
+}
+
+async function toggleRDSimulacao() {
+  await loadRDPerformanceData();
+}
+
+async function loadRDCanaisData() {
+  const start = document.getElementById('rd-canais-start').value;
+  const end = document.getElementById('rd-canais-end').value;
+  const r = await fetch(`/api/rd/canais?start_date=${start}&end_date=${end}`);
+  rdCanaisDataCache = await r.json();
+}
+
+async function atualizarRDCanais() {
+  await loadRDCanaisData();
+  if (!rdCanaisDataCache || !rdCanaisDataCache.success) return;
+  
+  document.getElementById('rd-val-visitas').textContent = fmt(rdCanaisDataCache.totals.visitas);
+  document.getElementById('rd-val-conversoes').textContent = fmt(rdCanaisDataCache.totals.conversoes);
+  document.getElementById('rd-val-oportunidades').textContent = fmt(rdCanaisDataCache.totals.oportunidades);
+  document.getElementById('rd-val-vendas').textContent = fmt(rdCanaisDataCache.totals.vendas);
+  
+  renderRDCanaisChart();
+  
+  const tbody = document.getElementById('rd-canais-table-body');
+  tbody.innerHTML = '';
+  
+  const channelDescriptions = {
+    'Busca Orgânica': 'Ferramentas de busca como Google, Bing, Yahoo',
+    'Tráfego Direto': 'Endereço inserido diretamente no navegador',
+    'Referências': 'Sites ou páginas fora do domínio configurado no RD Station',
+    'Redes Sociais': 'Links em redes sociais como Instagram, Facebook, Twitter',
+    'Email': 'Links em campanhas de email',
+    'Outros Canais': 'Casos não mapeados',
+    'Mídia Paga': 'Mídias pagas como Google Ads, Facebook Ads',
+    'Display': 'Anúncios em rede de display como AdSense',
+    'Outras Publicidades': 'Outros tipos de mídias pagas',
+    'Origem Desconhecida': 'Sem informações da origem da conversão'
+  };
+  
+  const sorted = Object.entries(rdCanaisDataCache.canais).sort((a, b) => b[1].visitas - a[1].visitas);
+  
+  sorted.forEach(([channel, m]) => {
+    const tr = document.createElement('tr');
+    tr.style.borderBottom = '1px solid rgba(148,163,184,.08)';
+    tr.innerHTML = `
+      <td style="padding:10px">
+        <div style="font-weight:600;color:var(--accent)">${channel}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">${channelDescriptions[channel] || ''}</div>
+      </td>
+      <td style="text-align:right;padding:10px;font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--text)">${fmt(m.visitas)}</td>
+      <td style="text-align:right;padding:10px;font-family:'JetBrains Mono',monospace;color:var(--text)">${fmt(m.conversoes)}</td>
+      <td style="text-align:right;padding:10px;font-family:'JetBrains Mono',monospace;color:var(--text)">${fmt(m.oportunidades)}</td>
+      <td style="text-align:right;padding:10px;font-family:'JetBrains Mono',monospace;color:var(--text)">${fmt(m.vendas)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderRDCanaisChart() {
+  if (!rdCanaisDataCache || !rdCanaisDataCache.series) return;
+  const ctx = document.getElementById('rd-canais-chart').getContext('2d');
+  if (rdCanaisChart) rdCanaisChart.destroy();
+  
+  const series = rdCanaisDataCache.series;
+  const labels = series.map(s => {
+    const [y, m, d] = s.data.split('-');
+    return `${d}/${m}`;
+  });
+  
+  const theme = document.documentElement.getAttribute('data-theme') || 'aurora';
+  const isLight = theme === 'light' || theme === 'elephant';
+  const labelColor = isLight ? '#64748b' : '#94a3b8';
+  const gridColor = isLight ? 'rgba(15, 23, 42, 0.05)' : 'rgba(255, 255, 255, 0.03)';
+  
+  const channelColors = {
+    'Busca Orgânica': '#f97316',
+    'Tráfego Direto': '#10b981',
+    'Referências': '#ec4899',
+    'Redes Sociais': '#b45309',
+    'Email': '#a855f7',
+    'Outros Canais': '#6366f1',
+    'Mídia Paga': '#eab308',
+    'Display': '#3b82f6',
+    'Outras Publicidades': '#06b6d4',
+    'Origem Desconhecida': '#64748b'
+  };
+
+  const channelFilter = document.getElementById('rd-canal-filter').value;
+  const metricFilter = document.getElementById('rd-metric-filter').value;
+
+  let keys = Object.keys(series[0] || {}).filter(k => k !== 'data');
+  if (channelFilter !== 'todos') {
+    keys = keys.filter(k => k === channelFilter);
+  }
+
+  const plotKey = activeRDMetric;
+
+  const datasets = keys.map(k => {
+    const dataPoints = series.map(s => (s[k] ? s[k][plotKey] : 0) || 0);
+    const color = channelColors[k] || '#94a3b8';
+    
+    return {
+      label: k,
+      data: dataPoints,
+      borderColor: color,
+      backgroundColor: activeRDChartType === 'area' ? hexToRgba(color, 0.1) : 'transparent',
+      fill: activeRDChartType === 'area',
+      tension: 0.4,
+      pointRadius: 2,
+      pointHoverRadius: 5,
+      borderWidth: 2
+    };
+  });
+
+  rdCanaisChart = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: channelFilter === 'todos',
+          position: 'bottom',
+          labels: {
+            boxWidth: 10,
+            color: labelColor,
+            font: { family: 'Inter', size: 10 }
+          }
+        },
+        tooltip: {
+          mode: 'index',
+          intersect: false
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: gridColor },
+          ticks: { color: labelColor, font: { family: 'JetBrains Mono', size: 9 } }
+        },
+        y: {
+          stacked: activeRDChartType === 'area' && channelFilter === 'todos',
+          grid: { color: gridColor },
+          ticks: { color: labelColor, font: { family: 'JetBrains Mono', size: 9 } }
+        }
+      }
+    }
+  });
+}
+
+function hexToRgba(hex, alpha) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+async function loadRDPerformanceData() {
+  const isSimulated = document.getElementById('rd-simular-toggle').checked;
+  const r = await fetch(`/api/rd/performance?simulado=${isSimulated}`);
+  rdPerfDataCache = await r.json();
+  atualizarRDPerformance();
+}
+
+function atualizarRDPerformance() {
+  if (!rdPerfDataCache || !rdPerfDataCache.success) return;
+  
+  const campaigns = rdPerfDataCache.campanhas;
+  document.getElementById('rd-perf-periodo-lbl').textContent = rdPerfDataCache.periodo;
+  
+  const grid = document.getElementById('rd-perf-kpi-grid');
+  grid.innerHTML = '';
+  
+  const stages = [
+    { key: 'campanhas', label: 'Campanhas', desc: 'Disparos no período' },
+    { key: 'enviados', label: 'Enviados', desc: 'Total processado' },
+    { key: 'entregues', label: 'Entregues', desc: 'Recebidos pelos contatos' },
+    { key: 'aberturas', label: 'Aberturas', desc: 'Visualizações registradas' },
+    { key: 'cliques', label: 'Cliques', desc: 'Acessos aos links' }
+  ];
+  
+  stages.forEach(s => {
+    const emailVal = campaigns.Email[s.key] != null ? fmtVal(campaigns.Email[s.key]) : '—';
+    const smsVal = campaigns.SMS.locked ? '🔒 SMS' : (campaigns.SMS[s.key] != null ? fmtVal(campaigns.SMS[s.key]) : '—');
+    const waVal = campaigns.WhatsApp.locked ? '🔒 Whats' : (campaigns.WhatsApp[s.key] != null ? fmtVal(campaigns.WhatsApp[s.key]) : '—');
+    
+    let total = 0;
+    if (campaigns.Email[s.key]) total += campaigns.Email[s.key];
+    if (!campaigns.SMS.locked && campaigns.SMS[s.key]) total += campaigns.SMS[s.key];
+    if (!campaigns.WhatsApp.locked && campaigns.WhatsApp[s.key]) total += campaigns.WhatsApp[s.key];
+    
+    const displayTotal = total > 0 ? fmtVal(total) : emailVal;
+    const pct = campaigns.Email[`${s.key}_mom`];
+    const momHtml = pct != null ? `<span class="kpi-mom ${pct > 0 ? 'up' : 'down'}" style="font-size:10px;margin-left:6px">${pct > 0 ? '↗' : '↘'} ${Math.abs(pct)}%</span>` : '';
+    
+    const card = document.createElement('div');
+    card.className = 'kpi-canal';
+    card.innerHTML = `
+      <h3>${s.label}</h3>
+      <div style="display:flex;align-items:baseline">
+        <div class="kpi-val" style="font-size:24px">${displayTotal}</div>
+        ${momHtml}
+      </div>
+      <div style="margin-top:10px;padding-top:8px;border-top:1px dashed rgba(148,163,184,.08);font-size:10.5px;color:var(--muted)">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span>📧 Email</span>
+          <span style="font-weight:700;color:var(--accent)">${emailVal}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span>💬 SMS</span>
+          <span style="font-weight:700;color:var(--text)">${smsVal}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between">
+          <span>🟢 WhatsApp</span>
+          <span style="font-weight:700;color:var(--text)">${waVal}</span>
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+  
+  renderRDPerformanceChart();
+}
+
+function fmtVal(v) {
+  if (v == null) return '—';
+  return v >= 1000 ? `${(v/1000).toFixed(1).replace('.0', '')}K` : v;
+}
+
+function renderRDPerformanceChart() {
+  if (!rdPerfDataCache || !rdPerfDataCache.success) return;
+  const ctx = document.getElementById('rd-perf-chart').getContext('2d');
+  if (rdPerformanceChart) rdPerformanceChart.destroy();
+  
+  const campaigns = rdPerfDataCache.campanhas;
+  const theme = document.documentElement.getAttribute('data-theme') || 'aurora';
+  const isLight = theme === 'light' || theme === 'elephant';
+  const labelColor = isLight ? '#64748b' : '#94a3b8';
+  const gridColor = isLight ? 'rgba(15, 23, 42, 0.05)' : 'rgba(255, 255, 255, 0.03)';
+  
+  const labels = ['Enviados', 'Entregues', 'Cliques'];
+  const datasets = [];
+  
+  datasets.push({
+    label: 'Email',
+    data: [campaigns.Email.enviados, campaigns.Email.entregues, campaigns.Email.cliques],
+    backgroundColor: '#0ea5e9',
+    borderRadius: 4
+  });
+  
+  if (campaigns.SMS.locked) {
+    datasets.push({
+      label: 'SMS (Bloqueado)',
+      data: [0, 0, 0],
+      backgroundColor: 'rgba(148,163,184,.15)',
+      borderColor: 'rgba(148,163,184,.3)',
+      borderWidth: 1,
+      borderRadius: 4
+    });
+  } else {
+    datasets.push({
+      label: 'SMS',
+      data: [campaigns.SMS.enviados, campaigns.SMS.entregues, campaigns.SMS.cliques],
+      backgroundColor: '#a855f7',
+      borderRadius: 4
+    });
+  }
+  
+  if (campaigns.WhatsApp.locked) {
+    datasets.push({
+      label: 'WhatsApp (Bloqueado)',
+      data: [0, 0, 0],
+      backgroundColor: 'rgba(148,163,184,.15)',
+      borderColor: 'rgba(148,163,184,.3)',
+      borderWidth: 1,
+      borderRadius: 4
+    });
+  } else {
+    datasets.push({
+      label: 'WhatsApp',
+      data: [campaigns.WhatsApp.enviados, campaigns.WhatsApp.entregues, campaigns.WhatsApp.cliques],
+      backgroundColor: '#10b981',
+      borderRadius: 4
+    });
+  }
+  
+  rdPerformanceChart = new Chart(ctx, {
+    type: 'bar',
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            boxWidth: 10,
+            color: labelColor,
+            font: { family: 'Inter', size: 10 }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: gridColor },
+          ticks: { color: labelColor, font: { family: 'Inter', size: 11, fontWeight: '600' } }
+        },
+        y: {
+          grid: { color: gridColor },
+          ticks: {
+            color: labelColor,
+            font: { family: 'JetBrains Mono', size: 9 },
+            callback: function(value) {
+              return value >= 1000 ? `${value/1000}K` : value;
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
 inicializarSelect();
 loadZoho('all');
 loadCasesList();
 loadSap4me();
+atualizarRDCanais();
+loadRDPerformanceData();
 
 window.addEventListener('office-theme-change', function() {
   if (cachedSerie12m) {
     renderChart12m(cachedSerie12m);
+  }
+  if (rdCanaisDataCache) {
+    renderRDCanaisChart();
+  }
+  if (rdPerfDataCache) {
+    renderRDPerformanceChart();
   }
 });
 </script>

@@ -1,5 +1,5 @@
 {
-  "current": "0.50.10",
+  "current": "0.50.11",
   "atualizado_em": "16/jun/2026",
   "next": [
     {
@@ -54,9 +54,26 @@
   ],
   "releases": [
     {
-      "version": "0.50.10",
+      "version": "0.50.11",
       "date": "16/jun/2026",
       "status": "current",
+      "path": null,
+      "title": "📊 Integração RD Station: Canais de Aquisição & Performance de Campanhas",
+      "summary": "Implementação da integração de relatórios inspirados no novo painel do RD Station ('Análise de Canais' e 'Performance de Canais'). Os dados foram integrados diretamente aos painéis existentes (Relatório Mensal, Visão Executiva CMO e Metas) com suporte total a múltiplos temas (incluindo o tema Aurora), visualização interativa, tabelas dinâmicas e simulação de upgrades de planos para canais de SMS e WhatsApp.",
+      "highlights": [
+        "Criação do dataset de alta fidelidade para aquisição multicanal e funil de campanhas (rd-canais.json).",
+        "Implementação dos endpoints seguros /api/rd/canais e /api/rd/performance no backend do server.js.",
+        "Integração da Seção 2b ('RD Station — Canais e Performance') em /relatorio com suporte a filtros, gráficos de área empilhada, gráficos de barras de performance de funil e tabelas analíticas.",
+        "Adicionado toggle interativo de simulação de plano para demonstrar canais travados/desbloqueados (SMS e WhatsApp).",
+        "Integração do resumo de canais e KPIs de e-mail na Visão Executiva do CMO (/executivo) logo abaixo do funil principal.",
+        "Inclusão do card de metas de RD Station e Campanhas em /metas integrado dinamicamente à base de dados metas_linkedin sem alteração no esquema.",
+        "Alinhamento dos estilos visuais e comportamento responsivo com os temas Aurora, Dark e Liquid Glass usando fontes JetBrains Mono e paletas de cores harmônicas."
+      ]
+    },
+    {
+      "version": "0.50.10",
+      "date": "16/jun/2026",
+      "status": "released",
       "path": null,
       "title": "⚡ Tema Aurora & Dashboards Multitema Complacentes",
       "summary": "Consolidação do tema Aurora (antigo Aurora Glass) como tema padrão do escritório virtual e revisão de todos os dashboards e gráficos do sistema para suportar dinamicamente temas claros (Light, Elephant) e escuros/vidro (Aurora, Dark, Liquid Glass) sem estouro de layout ou falhas de contraste.",
