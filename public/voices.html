@@ -914,21 +914,78 @@ function renderPostsChart(posts) {
   if (postsChart) postsChart.destroy();
   const labels = posts.map(p => (p.published_at || p.captured_at).slice(5, 10));
   const eng = posts.map(p => p.metrics.likes + p.metrics.comments + p.metrics.reposts);
+
+  // Gradientes e Estilos "Superpowers"
+  const gradLine = ctx.createLinearGradient(0, 0, 0, 200);
+  gradLine.addColorStop(0, '#00f2fe'); // Neon Cyan
+  gradLine.addColorStop(1, '#6366f1'); // Indigo
+
+  const gradFill = ctx.createLinearGradient(0, 0, 0, 200);
+  gradFill.addColorStop(0, 'rgba(0, 242, 254, 0.22)');
+  gradFill.addColorStop(0.5, 'rgba(99, 102, 241, 0.05)');
+  gradFill.addColorStop(1, 'rgba(99, 102, 241, 0)');
+
   postsChart = new Chart(ctx, {
     type: 'line',
-    data: { labels, datasets: [{
-      label: 'Engajamento (likes + coments + reposts)',
-      data: eng,
-      borderColor: '#60a5fa',
-      backgroundColor: 'rgba(96,165,250,.15)',
-      tension: 0.3, fill: true
-    }]},
+    data: { 
+      labels, 
+      datasets: [{
+        label: 'Engajamento total (likes + comentários + compartilhamentos)',
+        data: eng,
+        borderColor: gradLine,
+        backgroundColor: gradFill,
+        tension: 0.4, 
+        fill: true,
+        borderWidth: 3,
+        pointBackgroundColor: '#00f2fe',
+        pointBorderColor: '#061020',
+        pointBorderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        pointHoverBackgroundColor: '#ffffff',
+        pointHoverBorderColor: '#00f2fe',
+        pointHoverBorderWidth: 3
+      }]
+    },
+    plugins: [{
+      id: 'voicesChartGlow',
+      beforeDatasetDraw: (chart, args) => {
+        if (args.index === 0) {
+          const c = chart.ctx;
+          c.save();
+          c.shadowColor = 'rgba(0, 242, 254, 0.5)';
+          c.shadowBlur = 10;
+          c.shadowOffsetX = 0;
+          c.shadowOffsetY = 4;
+        }
+      },
+      afterDatasetDraw: (chart, args) => {
+        if (args.index === 0) {
+          chart.ctx.restore();
+        }
+      }
+    }],
     options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { labels: { color: '#cbd5e1', font: { size: 11 } } } },
+      responsive: true, 
+      maintainAspectRatio: false,
+      plugins: { 
+        legend: { 
+          labels: { 
+            color: '#cbd5e1', 
+            font: { family: "'Inter', sans-serif", size: 11, weight: '500' } 
+          } 
+        } 
+      },
       scales: {
-        x: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,.04)' } },
-        y: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,.04)' }, beginAtZero: true }
+        x: { 
+          ticks: { color: '#94a3b8', font: { family: "'JetBrains Mono', monospace", size: 9 } }, 
+          grid: { color: 'rgba(255,255,255,0.03)', borderDash: [2, 2] } 
+        },
+        y: { 
+          ticks: { color: '#94a3b8', font: { family: "'JetBrains Mono', monospace", size: 9 } }, 
+          grid: { color: 'rgba(255,255,255,0.03)', borderDash: [2, 2] }, 
+          beginAtZero: true 
+        }
       }
     }
   });

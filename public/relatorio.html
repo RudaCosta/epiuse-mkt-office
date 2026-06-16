@@ -617,21 +617,103 @@ function renderChart12m(serie) {
   const labels = serie.map(s => s.mes);
   const totals = serie.map(s => s.total_seguidores || null);
   const novos = serie.map(s => s.novos || s.novos_diario || 0);
+
+  // Gradientes e Estilos "Superpowers"
+  const gradLine = ctx.createLinearGradient(0, 0, 0, 200);
+  gradLine.addColorStop(0, '#00f2fe'); // Neon Cyan
+  gradLine.addColorStop(1, '#0070c0'); // Deep Blue
+
+  const gradFill = ctx.createLinearGradient(0, 0, 0, 200);
+  gradFill.addColorStop(0, 'rgba(0, 242, 254, 0.22)');
+  gradFill.addColorStop(0.5, 'rgba(0, 112, 192, 0.05)');
+  gradFill.addColorStop(1, 'rgba(0, 112, 192, 0)');
+
+  const gradBar = ctx.createLinearGradient(0, 0, 0, 200);
+  gradBar.addColorStop(0, '#ec4899'); // Neon Pink
+  gradBar.addColorStop(0.6, '#a855f7'); // Violet/Purple
+  gradBar.addColorStop(1, 'rgba(168, 85, 247, 0.05)'); // Translucent
+
   chart12m = new Chart(ctx, {
     data: {
       labels,
       datasets: [
-        { type:'line', label:'Total Seguidores', data: totals, borderColor:'#60a5fa', backgroundColor:'rgba(96,165,250,.10)', yAxisID:'y', tension:0.3, fill: true, spanGaps: true },
-        { type:'bar',  label:'Novos no Mês',     data: novos,  backgroundColor:'rgba(167,139,250,.65)', yAxisID:'y2' },
+        { 
+          type: 'line', 
+          label: 'Total Seguidores', 
+          data: totals, 
+          borderColor: gradLine, 
+          backgroundColor: gradFill, 
+          yAxisID: 'y', 
+          tension: 0.4, 
+          fill: true, 
+          spanGaps: true,
+          borderWidth: 3,
+          pointBackgroundColor: '#00f2fe',
+          pointBorderColor: '#061020',
+          pointBorderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          pointHoverBackgroundColor: '#ffffff',
+          pointHoverBorderColor: '#00f2fe',
+          pointHoverBorderWidth: 3
+        },
+        { 
+          type: 'bar',  
+          label: 'Novos no Mês',     
+          data: novos,  
+          backgroundColor: gradBar, 
+          yAxisID: 'y2',
+          borderRadius: { topLeft: 6, topRight: 6 },
+          borderWidth: 0
+        },
       ]
     },
+    plugins: [{
+      id: 'glowPlugin',
+      beforeDatasetDraw: (chart, args) => {
+        if (args.index === 0) {
+          const c = chart.ctx;
+          c.save();
+          c.shadowColor = 'rgba(0, 242, 254, 0.5)';
+          c.shadowBlur = 10;
+          c.shadowOffsetX = 0;
+          c.shadowOffsetY = 4;
+        }
+      },
+      afterDatasetDraw: (chart, args) => {
+        if (args.index === 0) {
+          chart.ctx.restore();
+        }
+      }
+    }],
     options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { labels: { color: '#94a3b8', font: { size: 10 }}}},
+      responsive: true, 
+      maintainAspectRatio: false,
+      plugins: { 
+        legend: { 
+          labels: { 
+            color: '#cbd5e1', 
+            font: { family: "'Inter', sans-serif", size: 11, weight: '500' }
+          }
+        }
+      },
       scales: {
-        x: { ticks: { color: '#64748b', font: { size: 10 }}, grid: { color: 'rgba(148,163,184,.05)' }},
-        y: { position: 'left', ticks: { color: '#60a5fa', font: { size: 10 }}, grid: { color: 'rgba(148,163,184,.05)' }, title: { display: true, text: 'Total', color: '#60a5fa', font: { size: 10 }}},
-        y2: { position: 'right', ticks: { color: '#a78bfa', font: { size: 10 }}, grid: { display: false }, title: { display: true, text: 'Novos', color: '#a78bfa', font: { size: 10 }}},
+        x: { 
+          ticks: { color: '#94a3b8', font: { family: "'JetBrains Mono', monospace", size: 9 }}, 
+          grid: { color: 'rgba(255,255,255,0.03)', borderDash: [2, 2] }
+        },
+        y: { 
+          position: 'left', 
+          ticks: { color: '#00f2fe', font: { family: "'JetBrains Mono', monospace", size: 9 }}, 
+          grid: { color: 'rgba(255,255,255,0.03)', borderDash: [2, 2] }, 
+          title: { display: true, text: 'Total', color: '#00f2fe', font: { family: "'Inter', sans-serif", size: 10, weight: '600' }}
+        },
+        y2: { 
+          position: 'right', 
+          ticks: { color: '#a78bfa', font: { family: "'JetBrains Mono', monospace", size: 9 }}, 
+          grid: { display: false }, 
+          title: { display: true, text: 'Novos', color: '#a78bfa', font: { family: "'Inter', sans-serif", size: 10, weight: '600' }}
+        },
       }
     }
   });

@@ -162,17 +162,19 @@ body[data-route]:not([data-route="seja-voice"]) h3 {
 .dk-chart-preview svg { width: 100%; height: 100%; }
 .dk-chart-preview .line {
   fill: none;
-  stroke: var(--dk-red);
-  stroke-width: 1.5;
-  filter: drop-shadow(0 0 6px rgba(205,21,67,.6));
+  stroke: url(#dk-line-grad);
+  stroke-width: 2.2;
+  filter: drop-shadow(0 2px 8px rgba(236,72,153,.5));
 }
 .dk-chart-preview .area {
   fill: url(#dk-area-grad);
-  opacity: .35;
+  opacity: .75;
 }
 .dk-chart-preview .pulse-dot {
-  fill: var(--dk-red);
-  filter: drop-shadow(0 0 8px rgba(205,21,67,.9));
+  fill: #ffffff;
+  stroke: #ec4899;
+  stroke-width: 2;
+  filter: drop-shadow(0 0 6px #ec4899);
 }
 
 /* FOCUS visible (WCAG AAA) */

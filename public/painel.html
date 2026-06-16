@@ -669,10 +669,57 @@ async function loadPerformance(period) {
     if (!canvas) continue;
     const sorted = [...b.posts].sort((a,b) => new Date(a.published_at||a.captured_at) - new Date(b.published_at||b.captured_at));
     const eng = sorted.map(p => (p.metrics.likes||0)+(p.metrics.comments||0)+(p.metrics.reposts||0));
-    new Chart(canvas.getContext('2d'), {
+    
+    const ctx = canvas.getContext('2d');
+    
+    // Gradientes "Superpowers"
+    const gradLine = ctx.createLinearGradient(0, 0, 100, 0);
+    gradLine.addColorStop(0, '#00f2fe'); // Neon Cyan
+    gradLine.addColorStop(1, '#a855f7'); // Violet/Purple
+
+    const gradFill = ctx.createLinearGradient(0, 0, 0, 30);
+    gradFill.addColorStop(0, 'rgba(0, 242, 254, 0.25)');
+    gradFill.addColorStop(1, 'rgba(168, 85, 247, 0)');
+
+    new Chart(ctx, {
       type: 'line',
-      data: { labels: sorted.map((_,i)=>i+1), datasets: [{ data: eng, borderColor: '#60a5fa', backgroundColor: 'rgba(96,165,250,.2)', tension: 0.35, fill: true, pointRadius: 0, borderWidth: 1.5 }] },
-      options: { responsive: false, plugins: { legend: { display: false }, tooltip: { enabled: false } }, scales: { x: { display: false }, y: { display: false } } }
+      data: { 
+        labels: sorted.map((_,i)=>i+1), 
+        datasets: [{ 
+          data: eng, 
+          borderColor: gradLine, 
+          backgroundColor: gradFill, 
+          tension: 0.45, 
+          fill: true, 
+          pointRadius: 0, 
+          borderWidth: 2 
+        }] 
+      },
+      plugins: [{
+        id: 'sparkGlow',
+        beforeDatasetDraw: (chart) => {
+          const c = chart.ctx;
+          c.save();
+          c.shadowColor = 'rgba(0, 242, 254, 0.4)';
+          c.shadowBlur = 6;
+          c.shadowOffsetX = 0;
+          c.shadowOffsetY = 2;
+        },
+        afterDatasetDraw: (chart) => {
+          chart.ctx.restore();
+        }
+      }],
+      options: { 
+        responsive: false, 
+        plugins: { 
+          legend: { display: false }, 
+          tooltip: { enabled: false } 
+        }, 
+        scales: { 
+          x: { display: false }, 
+          y: { display: false } 
+        } 
+      }
     });
   }
 }

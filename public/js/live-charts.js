@@ -28,18 +28,23 @@
     const lastX = xs[xs.length-1];
     const lastY = ys[ys.length-1];
 
-    el.innerHTML = `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
+    el.innerHTML = `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="overflow:visible;">
       <defs>
         <linearGradient id="dk-area-grad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#cd1543" stop-opacity=".5"/>
+          <stop offset="0%" stop-color="#cd1543" stop-opacity="0.28"/>
           <stop offset="100%" stop-color="#cd1543" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="dk-line-grad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#cd1543"/>
+          <stop offset="50%" stop-color="#ec4899"/>
+          <stop offset="100%" stop-color="#f472b6"/>
         </linearGradient>
       </defs>
       <path class="area" d="${area}"/>
       <path class="line" d="${line}"/>
-      <circle class="pulse-dot" cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="3.5">
-        <animate attributeName="r" values="3.5;6;3.5" dur="1.6s" repeatCount="indefinite"/>
-        <animate attributeName="opacity" values="1;.4;1" dur="1.6s" repeatCount="indefinite"/>
+      <circle class="pulse-dot" cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="4">
+        <animate attributeName="r" values="4;6.5;4" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="1;.5;1" dur="2s" repeatCount="indefinite"/>
       </circle>
     </svg>`;
   }
