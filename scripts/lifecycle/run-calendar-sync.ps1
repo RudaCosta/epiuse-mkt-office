@@ -15,4 +15,10 @@ $env:OFFICE_URL = $RAILWAY
 & node "$root\scripts\sync\sync_calendario_duda.js" 2>&1 | Where-Object { $_ -match 'OK|ERRO|itens' } | ForEach-Object { Log $_ }
 & node "$root\scripts\sync\sync_redatoria_to_calendar.js" 2>&1 | Where-Object { $_ -match 'OK|ERRO|itens|Total' } | ForEach-Object { Log $_ }
 Remove-Item Env:\OFFICE_URL -ErrorAction SilentlyContinue
+
+# Direcao inversa: itens AGENDADOS do Rax (fonte=raccoon no prod) -> celula-dia da xlsx da Duda.
+# Roda DEPOIS dos syncs xlsx->prod para nao re-ler na mesma rodada. Faz backup .bak e dedup.
+Log "--- raccoon -> xlsx da Duda ---"
+& python "$root\scripts\sync\raccoon_to_xlsx.py" --from-prod --apply 2>&1 | Where-Object { $_ -match 'WRITE|OK|backup|SKIP|DUP|nao' } | ForEach-Object { Log $_ }
+
 Log "=== calendar-sync fim ==="

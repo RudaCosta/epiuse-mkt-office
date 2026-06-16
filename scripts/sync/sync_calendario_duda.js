@@ -111,7 +111,10 @@ function parseGrid(rows, monthStart, month, year) {
       const dayNum = parseInt(numRow[col], 10);
       if (isNaN(dayNum) || dayNum < 1 || dayNum > 31) continue;
 
-      const raw = String(contentRow[col] || '').trim();
+      let raw = String(contentRow[col] || '').trim();
+      // Ignora linhas escritas pelo proprio Rax (raccoon_to_xlsx) para evitar
+      // round-trip duplicado: prod -> xlsx -> prod. O item ja existe como fonte=raccoon.
+      raw = raw.split('\n').filter(l => !/^\s*Rax:/i.test(l)).join('\n').trim();
       if (!raw) continue;
 
       // Monta data ISO
