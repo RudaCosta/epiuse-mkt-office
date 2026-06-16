@@ -323,6 +323,26 @@ html[data-theme="light"] .kpi-card .kpi-sub {
   color: #475569;
 }
 
+/* CHART PREVIEW LIGHT/ELEPHANT COMPLIANCE */
+html[data-theme="light"] .dk-chart-preview {
+  background: rgba(255, 255, 255, 0.7) !important;
+  border: 1px solid rgba(0, 24, 68, 0.1) !important;
+  box-shadow: 0 8px 32px 0 rgba(0, 24, 68, 0.04) !important;
+}
+html[data-theme="light"] .dk-chart-preview:hover {
+  border-color: rgba(37, 99, 235, 0.4) !important;
+  box-shadow: 0 12px 40px rgba(37, 99, 235, 0.12) !important;
+}
+html[data-theme="elephant"] .dk-chart-preview {
+  background: rgba(255, 255, 255, 0.7) !important;
+  border: 1px solid rgba(45, 74, 51, 0.1) !important;
+  box-shadow: 0 8px 32px 0 rgba(45, 74, 51, 0.04) !important;
+}
+html[data-theme="elephant"] .dk-chart-preview:hover {
+  border-color: rgba(45, 74, 51, 0.45) !important;
+  box-shadow: 0 12px 40px rgba(45, 74, 51, 0.12) !important;
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .dk-live::before { animation: none; }

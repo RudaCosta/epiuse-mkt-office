@@ -124,6 +124,29 @@
     border-color: rgba(0, 242, 254, 0.4);
     box-shadow: 0 12px 40px rgba(0, 242, 254, 0.15);
   }
+  
+  /* LIGHT / ELEPHANT OVERRIDES FOR CHART & DEMO CARDS */
+  :root[data-theme="light"] .li-chart-card,
+  :root[data-theme="elephant"] .li-chart-card {
+    background: rgba(255, 255, 255, 0.65) !important;
+    border: 1px solid rgba(15, 23, 42, 0.08) !important;
+    box-shadow: 0 8px 32px rgba(15, 23, 42, 0.05) !important;
+  }
+  :root[data-theme="light"] .li-chart-card:hover,
+  :root[data-theme="elephant"] .li-chart-card:hover {
+    border-color: rgba(37, 99, 235, 0.4) !important;
+    box-shadow: 0 12px 40px rgba(37, 99, 235, 0.15) !important;
+  }
+  :root[data-theme="light"] .demo-card,
+  :root[data-theme="elephant"] .demo-card {
+    background: rgba(255, 255, 255, 0.65) !important;
+    border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  }
+  :root[data-theme="light"] .kpi-canal,
+  :root[data-theme="elephant"] .kpi-canal {
+    background: rgba(255, 255, 255, 0.65) !important;
+    border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  }
 
   /* DEMO TOPS */
   .demo-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap:12px; margin-top: 14px }
@@ -166,6 +189,19 @@
   .eleph-date { font-family: 'JetBrains Mono', monospace; color: var(--muted); font-size: 11px; }
   .eleph-name { color: var(--text); }
   .eleph-seg { text-align:right; font-family: 'JetBrains Mono', monospace; font-weight:700; color: #fbbf24 }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .li-hero {
+      grid-template-columns: 1fr !important;
+    }
+    .kpi-grid {
+      grid-template-columns: 1fr !important;
+    }
+    .demo-grid {
+      grid-template-columns: 1fr !important;
+    }
+  }
 
   /* PRINT */
   @media print {
@@ -438,6 +474,7 @@
 <script>
 let chart12m = null;
 let mesAtual = null;
+let cachedSerie12m = null;
 
 function fmt(n) { return n == null ? '—' : Number(n).toLocaleString('pt-BR') }
 function fmtMomBadge(pct) {
@@ -491,7 +528,8 @@ async function carregar(mes) {
     dEl.innerHTML = `+${fmt(d.linkedin.novos)} novos ${fmtMomBadge(d.linkedin.novos_mom_pct)}`;
   }
 
-  renderChart12m(d.linkedin.serie_12m);
+  cachedSerie12m = d.linkedin.serie_12m;
+  renderChart12m(cachedSerie12m);
   renderDemo(d.linkedin.demografia);
 
   // Eventos
@@ -633,20 +671,33 @@ function renderChart12m(serie) {
   const totals = serie.map(s => s.total_seguidores || null);
   const novos = serie.map(s => s.novos || s.novos_diario || 0);
 
-  // Gradientes e Estilos "Superpowers"
+  const theme = document.documentElement.getAttribute('data-theme') || 'aurora';
+  const isLight = theme === 'light' || theme === 'elephant';
+
+  // Dynamic colors based on active theme
+  const textColor = isLight ? '#0f172a' : '#cbd5e1';
+  const labelColor = isLight ? '#64748b' : '#94a3b8';
+  const gridColor = isLight ? 'rgba(15, 23, 42, 0.05)' : 'rgba(255, 255, 255, 0.03)';
+  
+  const cyanColor = isLight ? '#2563eb' : '#00f2fe';
+  const purpleColor = isLight ? '#7c3aed' : '#8b5cf6';
+  const pinkColor = isLight ? '#db2777' : '#ec4899';
+  const shadowColor = isLight ? 'rgba(37, 99, 235, 0.35)' : 'rgba(0, 242, 254, 0.65)';
+
+  // Gradients
   const gradLine = ctx.createLinearGradient(0, 0, 0, 200);
-  gradLine.addColorStop(0, '#00f2fe'); // Neon Cyan
-  gradLine.addColorStop(1, '#8b5cf6'); // Violet/Purple
+  gradLine.addColorStop(0, cyanColor);
+  gradLine.addColorStop(1, purpleColor);
 
   const gradFill = ctx.createLinearGradient(0, 0, 0, 200);
-  gradFill.addColorStop(0, 'rgba(0, 242, 254, 0.28)');
-  gradFill.addColorStop(0.5, 'rgba(139, 92, 246, 0.08)');
-  gradFill.addColorStop(1, 'rgba(139, 92, 246, 0)');
+  gradFill.addColorStop(0, isLight ? 'rgba(37, 99, 235, 0.22)' : 'rgba(0, 242, 254, 0.28)');
+  gradFill.addColorStop(0.5, isLight ? 'rgba(124, 58, 237, 0.05)' : 'rgba(139, 92, 246, 0.08)');
+  gradFill.addColorStop(1, 'rgba(124, 58, 237, 0)');
 
   const gradBar = ctx.createLinearGradient(0, 0, 0, 200);
-  gradBar.addColorStop(0, '#ec4899'); // Neon Pink
-  gradBar.addColorStop(0.6, '#8b5cf6'); // Violet/Purple
-  gradBar.addColorStop(1, 'rgba(139, 92, 246, 0.05)'); // Translucent
+  gradBar.addColorStop(0, pinkColor);
+  gradBar.addColorStop(0.6, purpleColor);
+  gradBar.addColorStop(1, isLight ? 'rgba(124, 58, 237, 0.03)' : 'rgba(139, 92, 246, 0.04)');
 
   chart12m = new Chart(ctx, {
     data: {
@@ -663,13 +714,13 @@ function renderChart12m(serie) {
           fill: true, 
           spanGaps: true,
           borderWidth: 3.5,
-          pointBackgroundColor: '#00f2fe',
-          pointBorderColor: '#0a1525',
+          pointBackgroundColor: cyanColor,
+          pointBorderColor: isLight ? '#ffffff' : '#0a1525',
           pointBorderWidth: 2,
           pointRadius: 4,
           pointHoverRadius: 6,
           pointHoverBackgroundColor: '#ffffff',
-          pointHoverBorderColor: '#00f2fe',
+          pointHoverBorderColor: cyanColor,
           pointHoverBorderWidth: 3
         },
         { 
@@ -689,7 +740,7 @@ function renderChart12m(serie) {
         if (args.index === 0) {
           const c = chart.ctx;
           c.save();
-          c.shadowColor = 'rgba(0, 242, 254, 0.65)';
+          c.shadowColor = shadowColor;
           c.shadowBlur = 12;
           c.shadowOffsetX = 0;
           c.shadowOffsetY = 4;
@@ -707,27 +758,27 @@ function renderChart12m(serie) {
       plugins: { 
         legend: { 
           labels: { 
-            color: '#cbd5e1', 
+            color: textColor, 
             font: { family: "'JetBrains Mono', monospace", size: 10, weight: '500' }
           }
         }
       },
       scales: {
         x: { 
-          ticks: { color: '#94a3b8', font: { family: "'JetBrains Mono', monospace", size: 9 }}, 
-          grid: { color: 'rgba(255,255,255,0.03)', borderDash: [2, 2] }
+          ticks: { color: labelColor, font: { family: "'JetBrains Mono', monospace", size: 9 }}, 
+          grid: { color: gridColor, borderDash: [2, 2] }
         },
         y: { 
           position: 'left', 
-          ticks: { color: '#00f2fe', font: { family: "'JetBrains Mono', monospace", size: 9 }}, 
-          grid: { color: 'rgba(255,255,255,0.03)', borderDash: [2, 2] }, 
-          title: { display: true, text: 'Total', color: '#00f2fe', font: { family: "'JetBrains Mono', monospace", size: 10, weight: '600' }}
+          ticks: { color: cyanColor, font: { family: "'JetBrains Mono', monospace", size: 9 }}, 
+          grid: { color: gridColor, borderDash: [2, 2] }, 
+          title: { display: true, text: 'Total', color: cyanColor, font: { family: "'JetBrains Mono', monospace", size: 10, weight: '600' }}
         },
         y2: { 
           position: 'right', 
-          ticks: { color: '#a78bfa', font: { family: "'JetBrains Mono', monospace", size: 9 }}, 
+          ticks: { color: purpleColor, font: { family: "'JetBrains Mono', monospace", size: 9 }}, 
           grid: { display: false }, 
-          title: { display: true, text: 'Novos', color: '#a78bfa', font: { family: "'JetBrains Mono', monospace", size: 10, weight: '600' }}
+          title: { display: true, text: 'Novos', color: purpleColor, font: { family: "'JetBrains Mono', monospace", size: 10, weight: '600' }}
         },
       }
     }
@@ -980,6 +1031,12 @@ inicializarSelect();
 loadZoho('all');
 loadCasesList();
 loadSap4me();
+
+window.addEventListener('office-theme-change', function() {
+  if (cachedSerie12m) {
+    renderChart12m(cachedSerie12m);
+  }
+});
 </script>
 <script src="/js/cmo-v2.js"></script>
 </body>

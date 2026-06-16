@@ -168,6 +168,49 @@ body { background: var(--bg); font-family: 'Inter', sans-serif; color: var(--tex
 .insights li { padding: 6px 0 6px 22px; position: relative; font-size: 13px; line-height: 1.6; color: var(--text-dim); }
 .insights li::before { content: '→'; position: absolute; left: 0; color: var(--warning); font-weight: 700; }
 .insights li strong { color: var(--text); }
+
+  /* LIGHT / ELEPHANT OVERRIDES */
+  :root[data-theme="light"] .chart-card,
+  :root[data-theme="elephant"] .chart-card {
+    background: rgba(255, 255, 255, 0.65) !important;
+    border: 1px solid rgba(15, 23, 42, 0.08) !important;
+    box-shadow: 0 8px 32px 0 rgba(15, 23, 42, 0.05) !important;
+  }
+  :root[data-theme="light"] .chart-card:hover,
+  :root[data-theme="elephant"] .chart-card:hover {
+    border-color: rgba(37, 99, 235, 0.3) !important;
+    box-shadow: 0 12px 40px 0 rgba(37, 99, 235, 0.15) !important;
+  }
+  :root[data-theme="light"] .hero-kpi,
+  :root[data-theme="elephant"] .hero-kpi {
+    background: rgba(255, 255, 255, 0.65) !important;
+    border-color: rgba(15, 23, 42, 0.08) !important;
+  }
+  :root[data-theme="light"] .input-meta,
+  :root[data-theme="elephant"] .input-meta,
+  :root[data-theme="light"] textarea,
+  :root[data-theme="elephant"] textarea {
+    background: rgba(255, 255, 255, 0.85) !important;
+    color: #0f172a !important;
+  }
+  :root[data-theme="light"] .meta-row-input .input-meta,
+  :root[data-theme="elephant"] .meta-row-input .input-meta {
+    background: rgba(255, 255, 255, 0.85) !important;
+    color: #0f172a !important;
+  }
+  :root[data-theme="light"] .meta-acoes textarea,
+  :root[data-theme="elephant"] .meta-acoes textarea {
+    background: rgba(255, 255, 255, 0.85) !important;
+    color: #0f172a !important;
+  }
+  :root[data-theme="light"] .dist-row,
+  :root[data-theme="elephant"] .dist-row {
+    border-bottom-color: rgba(15, 23, 42, 0.06) !important;
+  }
+  :root[data-theme="light"] .meta-acoes,
+  :root[data-theme="elephant"] .meta-acoes {
+    border-top-color: rgba(15, 23, 42, 0.06) !important;
+  }
 </style>
 </head>
 <body data-route="metas">
@@ -492,185 +535,210 @@ fetch('/api/linkedin-historical.json').then(r => r.json()).then(d => {
 }).catch(() => {/* sem dado: mantém último valor real conhecido */});
 
 // ── CHARTS ────────────────────────────────
-const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
-const textColor = isDark ? '#cbd5e1' : '#475569';
+let chartMes = null;
+let chartProj = null;
 
-Chart.defaults.color = textColor;
-Chart.defaults.borderColor = gridColor;
-Chart.defaults.font.family = "'Inter', sans-serif";
-
-// Gráfico 1: ganhos por mês
 const mesData = [
   { m: 'ago/25', v: 291 }, { m: 'set/25', v: 91 }, { m: 'out/25', v: 148 },
   { m: 'nov/25', v: 86 },  { m: 'dez/25', v: 74 }, { m: 'jan/26', v: 109 },
   { m: 'fev/26', v: 124 }, { m: 'mar/26', v: 231 }, { m: 'abr/26', v: 148 }, { m: 'mai/26', v: 154 }
 ];
 
-const ctxMes = document.getElementById('chart-mes').getContext('2d');
+function initCharts() {
+  if (chartMes) chartMes.destroy();
+  if (chartProj) chartProj.destroy();
 
-// Gradientes "Superpowers" para Barras
-const gradGreen = ctxMes.createLinearGradient(0, 0, 0, 200);
-gradGreen.addColorStop(0, '#34d399'); // Neon Green
-gradGreen.addColorStop(1, 'rgba(16, 185, 129, 0.05)');
+  const theme = document.documentElement.getAttribute('data-theme') || 'aurora';
+  const isLight = theme === 'light' || theme === 'elephant';
 
-const gradBlue = ctxMes.createLinearGradient(0, 0, 0, 200);
-gradBlue.addColorStop(0, '#00f2fe'); // Neon Cyan
-gradBlue.addColorStop(1, 'rgba(59, 130, 246, 0.05)');
+  const gridColor = isLight ? 'rgba(15, 23, 42, 0.05)' : 'rgba(255,255,255,0.03)';
+  const textColor = isLight ? '#0f172a' : '#cbd5e1';
+  const labelColor = isLight ? '#64748b' : '#94a3b8';
 
-const gradMuted = ctxMes.createLinearGradient(0, 0, 0, 200);
-gradMuted.addColorStop(0, '#ec4899'); // Neon Pink
-gradMuted.addColorStop(1, 'rgba(236, 72, 153, 0.05)');
+  Chart.defaults.color = textColor;
+  Chart.defaults.borderColor = gridColor;
+  Chart.defaults.font.family = "'Inter', sans-serif";
 
-const barColors = mesData.map(d => d.v >= 200 ? gradGreen : d.v >= 100 ? gradBlue : gradMuted);
+  // Gráfico 1: ganhos por mês
+  const ctxMes = document.getElementById('chart-mes').getContext('2d');
+  
+  const greenColor = isLight ? '#047857' : '#34d399';
+  const greenBg = isLight ? 'rgba(4, 120, 87, 0.05)' : 'rgba(16, 185, 129, 0.05)';
+  const blueColor = isLight ? '#2563eb' : '#00f2fe';
+  const blueBg = isLight ? 'rgba(37, 99, 235, 0.05)' : 'rgba(59, 130, 246, 0.05)';
+  const pinkColor = isLight ? '#db2777' : '#ec4899';
+  const pinkBg = isLight ? 'rgba(219, 39, 119, 0.05)' : 'rgba(236, 72, 153, 0.05)';
 
-new Chart(ctxMes, {
-  type: 'bar',
-  data: {
-    labels: mesData.map(d => d.m),
-    datasets: [{
-      label: 'Seguidores ganhos',
-      data: mesData.map(d => d.v),
-      backgroundColor: barColors,
-      borderRadius: { topLeft: 6, topRight: 6 },
-      borderWidth: 0
-    }]
-  },
-  options: {
-    responsive: true, 
-    maintainAspectRatio: false,
-    plugins: { 
-      legend: { display: false }, 
-      tooltip: { 
-        callbacks: { label: c => c.parsed.y + ' seguidores' },
-        titleFont: { family: "'JetBrains Mono', monospace", size: 10 },
-        bodyFont: { family: "'JetBrains Mono', monospace", size: 10 }
-      } 
+  const gradGreen = ctxMes.createLinearGradient(0, 0, 0, 200);
+  gradGreen.addColorStop(0, greenColor);
+  gradGreen.addColorStop(1, greenBg);
+
+  const gradBlue = ctxMes.createLinearGradient(0, 0, 0, 200);
+  gradBlue.addColorStop(0, blueColor);
+  gradBlue.addColorStop(1, blueBg);
+
+  const gradMuted = ctxMes.createLinearGradient(0, 0, 0, 200);
+  gradMuted.addColorStop(0, pinkColor);
+  gradMuted.addColorStop(1, pinkBg);
+
+  const barColors = mesData.map(d => d.v >= 200 ? gradGreen : d.v >= 100 ? gradBlue : gradMuted);
+
+  chartMes = new Chart(ctxMes, {
+    type: 'bar',
+    data: {
+      labels: mesData.map(d => d.m),
+      datasets: [{
+        label: 'Seguidores ganhos',
+        data: mesData.map(d => d.v),
+        backgroundColor: barColors,
+        borderRadius: { topLeft: 6, topRight: 6 },
+        borderWidth: 0
+      }]
     },
-    scales: { 
-      x: { 
-        grid: { display: false },
-        ticks: { color: '#94a3b8', font: { family: "'JetBrains Mono', monospace", size: 9 } }
-      }, 
-      y: { 
-        beginAtZero: true, 
-        grid: { color: 'rgba(255,255,255,0.03)', borderDash: [2, 2] },
-        ticks: { color: '#94a3b8', font: { family: "'JetBrains Mono', monospace", size: 9 } }
-      } 
-    }
-  }
-});
-
-// Gráfico 2: acumulado vs meta
-const acumulado = [];
-let sum = 0;
-mesData.forEach(d => { sum += d.v; acumulado.push(sum); });
-// Projeção próximos 12 meses com meta 30/dia = 900/mês
-const projecaoMeta = [...acumulado];
-for (let i = 0; i < 12; i++) projecaoMeta.push(projecaoMeta[projecaoMeta.length - 1] + 900);
-const projecaoAtual = [...acumulado];
-for (let i = 0; i < 12; i++) projecaoAtual.push(projecaoAtual[projecaoAtual.length - 1] + 145);
-
-const labelsProj = [...mesData.map(d => d.m)];
-const futuros = ['jun/26', 'jul/26', 'ago/26', 'set/26', 'out/26', 'nov/26', 'dez/26', 'jan/27', 'fev/27', 'mar/27', 'abr/27', 'mai/27'];
-labelsProj.push(...futuros);
-
-const ctxProj = document.getElementById('chart-projecao').getContext('2d');
-
-const gradLineReal = ctxProj.createLinearGradient(0, 0, 0, 200);
-gradLineReal.addColorStop(0, '#00f2fe'); // Neon Cyan
-gradLineReal.addColorStop(1, '#8b5cf6'); // Violet/Purple
-
-const gradFillReal = ctxProj.createLinearGradient(0, 0, 0, 200);
-gradFillReal.addColorStop(0, 'rgba(0, 242, 254, 0.28)');
-gradFillReal.addColorStop(1, 'rgba(139, 92, 246, 0)');
-
-new Chart(ctxProj, {
-  type: 'line',
-  data: {
-    labels: labelsProj,
-    datasets: [
-      { 
-        label: 'Real (até hoje)', 
-        data: acumulado, 
-        borderColor: gradLineReal, 
-        backgroundColor: gradFillReal, 
-        fill: true, 
-        tension: 0.45, 
-        pointRadius: 4,
-        pointBackgroundColor: '#00f2fe',
-        pointBorderColor: '#0a1525',
-        pointBorderWidth: 2,
-        borderWidth: 3.5 
-      },
-      { 
-        label: 'Tendência atual', 
-        data: projecaoAtual, 
-        borderColor: '#94a3b8', 
-        borderDash: [5, 5], 
-        pointRadius: 0, 
-        borderWidth: 2, 
-        fill: false 
-      },
-      { 
-        label: 'Meta agressiva (30/dia)', 
-        data: projecaoMeta, 
-        borderColor: '#f43f5e', // Hot Pink
-        borderDash: [3, 3], 
-        pointRadius: 0, 
-        borderWidth: 3, 
-        fill: false 
-      }
-    ]
-  },
-  plugins: [{
-    id: 'glowPluginProj',
-    beforeDatasetDraw: (chart, args) => {
-      const c = chart.ctx;
-      if (args.index === 0) { // Real
-        c.save();
-        c.shadowColor = 'rgba(0, 242, 254, 0.65)';
-        c.shadowBlur = 12;
-        c.shadowOffsetX = 0;
-        c.shadowOffsetY = 4;
-      } else if (args.index === 2) { // Meta agressiva
-        c.save();
-        c.shadowColor = 'rgba(244, 63, 94, 0.65)';
-        c.shadowBlur = 10;
-        c.shadowOffsetX = 0;
-        c.shadowOffsetY = 2;
-      }
-    },
-    afterDatasetDraw: (chart, args) => {
-      if (args.index === 0 || args.index === 2) {
-        chart.ctx.restore();
-      }
-    }
-  }],
-  options: {
-    responsive: true, 
-    maintainAspectRatio: false,
-    plugins: { 
-      legend: { 
-        position: 'bottom', 
-        labels: { 
-          color: '#cbd5e1', 
-          font: { family: "'JetBrains Mono', monospace", size: 10, weight: '500' } 
+    options: {
+      responsive: true, 
+      maintainAspectRatio: false,
+      plugins: { 
+        legend: { display: false }, 
+        tooltip: { 
+          callbacks: { label: c => c.parsed.y + ' seguidores' },
+          titleFont: { family: "'JetBrains Mono', monospace", size: 10 },
+          bodyFont: { family: "'JetBrains Mono', monospace", size: 10 }
         } 
-      } 
-    },
-    scales: { 
-      x: { 
-        grid: { display: false }, 
-        ticks: { color: '#94a3b8', font: { family: "'JetBrains Mono', monospace", size: 9 } } 
-      }, 
-      y: { 
-        beginAtZero: false, 
-        grid: { color: 'rgba(255,255,255,0.03)', borderDash: [2, 2] },
-        ticks: { color: '#94a3b8', font: { family: "'JetBrains Mono', monospace", size: 9 } } 
-      } 
+      },
+      scales: { 
+        x: { 
+          grid: { display: false },
+          ticks: { color: labelColor, font: { family: "'JetBrains Mono', monospace", size: 9 } }
+        }, 
+        y: { 
+          beginAtZero: true, 
+          grid: { color: gridColor, borderDash: [2, 2] },
+          ticks: { color: labelColor, font: { family: "'JetBrains Mono', monospace", size: 9 } }
+        } 
+      }
     }
-  }
+  });
+
+  // Gráfico 2: acumulado vs meta
+  const acumulado = [];
+  let sum = 0;
+  mesData.forEach(d => { sum += d.v; acumulado.push(sum); });
+  const projecaoMeta = [...acumulado];
+  for (let i = 0; i < 12; i++) projecaoMeta.push(projecaoMeta[projecaoMeta.length - 1] + 900);
+  const projecaoAtual = [...acumulado];
+  for (let i = 0; i < 12; i++) projecaoAtual.push(projecaoAtual[projecaoAtual.length - 1] + 145);
+
+  const labelsProj = [...mesData.map(d => d.m)];
+  const futuros = ['jun/26', 'jul/26', 'ago/26', 'set/26', 'out/26', 'nov/26', 'dez/26', 'jan/27', 'fev/27', 'mar/27', 'abr/27', 'mai/27'];
+  labelsProj.push(...futuros);
+
+  const ctxProj = document.getElementById('chart-projecao').getContext('2d');
+
+  const shadowColorReal = isLight ? 'rgba(37, 99, 235, 0.4)' : 'rgba(0, 242, 254, 0.65)';
+  const shadowColorGoal = isLight ? 'rgba(219, 39, 119, 0.4)' : 'rgba(244, 63, 94, 0.65)';
+
+  const gradLineReal = ctxProj.createLinearGradient(0, 0, 0, 200);
+  gradLineReal.addColorStop(0, blueColor);
+  gradLineReal.addColorStop(1, isLight ? '#7c3aed' : '#8b5cf6');
+
+  const gradFillReal = ctxProj.createLinearGradient(0, 0, 0, 200);
+  gradFillReal.addColorStop(0, isLight ? 'rgba(37, 99, 235, 0.22)' : 'rgba(0, 242, 254, 0.28)');
+  gradFillReal.addColorStop(1, 'rgba(124, 58, 237, 0)');
+
+  chartProj = new Chart(ctxProj, {
+    type: 'line',
+    data: {
+      labels: labelsProj,
+      datasets: [
+        { 
+          label: 'Real (até hoje)', 
+          data: acumulado, 
+          borderColor: gradLineReal, 
+          backgroundColor: gradFillReal, 
+          fill: true, 
+          tension: 0.45, 
+          pointRadius: 4,
+          pointBackgroundColor: blueColor,
+          pointBorderColor: isLight ? '#ffffff' : '#0a1525',
+          pointBorderWidth: 2,
+          borderWidth: 3.5 
+        },
+        { 
+          label: 'Tendência atual', 
+          data: projecaoAtual, 
+          borderColor: labelColor, 
+          borderDash: [5, 5], 
+          pointRadius: 0, 
+          borderWidth: 2, 
+          fill: false 
+        },
+        { 
+          label: 'Meta agressiva (30/dia)', 
+          data: projecaoMeta, 
+          borderColor: isLight ? '#e11d48' : '#f43f5e', 
+          borderDash: [3, 3], 
+          pointRadius: 0, 
+          borderWidth: 3, 
+          fill: false 
+        }
+      ]
+    },
+    plugins: [{
+      id: 'glowPluginProj',
+      beforeDatasetDraw: (chart, args) => {
+        const c = chart.ctx;
+        if (args.index === 0) { // Real
+          c.save();
+          c.shadowColor = shadowColorReal;
+          c.shadowBlur = 12;
+          c.shadowOffsetX = 0;
+          c.shadowOffsetY = 4;
+        } else if (args.index === 2) { // Meta agressiva
+          c.save();
+          c.shadowColor = shadowColorGoal;
+          c.shadowBlur = 10;
+          c.shadowOffsetX = 0;
+          c.shadowOffsetY = 2;
+        }
+      },
+      afterDatasetDraw: (chart, args) => {
+        if (args.index === 0 || args.index === 2) {
+          chart.ctx.restore();
+        }
+      }
+    }],
+    options: {
+      responsive: true, 
+      maintainAspectRatio: false,
+      plugins: { 
+        legend: { 
+          position: 'bottom', 
+          labels: { 
+            color: textColor, 
+            font: { family: "'JetBrains Mono', monospace", size: 10, weight: '500' } 
+          } 
+        } 
+      },
+      scales: { 
+        x: { 
+          grid: { display: false }, 
+          ticks: { color: labelColor, font: { family: "'JetBrains Mono', monospace", size: 9 } } 
+        }, 
+        y: { 
+          beginAtZero: false, 
+          grid: { color: gridColor, borderDash: [2, 2] },
+          ticks: { color: labelColor, font: { family: "'JetBrains Mono', monospace", size: 9 } } 
+        } 
+      }
+    }
+  });
+}
+
+initCharts();
+
+window.addEventListener('office-theme-change', function() {
+  initCharts();
 });
 </script>
 </body>
