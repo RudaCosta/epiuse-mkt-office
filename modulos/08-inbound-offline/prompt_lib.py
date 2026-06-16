@@ -49,7 +49,7 @@ def build_prompt(inp, persona_key, outputs, contexto):
     if outputs.get("post"):
         pedacos.append('"post": {"headline":"4-6 palavras com *destaque*","heroNumber":"numero do input ou null - NUNCA invente","context":"1 linha max 12 palavras","linkedinCopy":"PT-BR 3-5 linhas curtas, gancho na 1a linha, pergunta/CTA no fim, sem emoji","hashtags":"5-7 hashtags","distribution":"1 linha"}')
     if outputs.get("carousel"):
-        pedacos.append('"carousel": {"cover":{"eyebrow":"ex GUIA CFO 2026","headline":"4-9 palavras com *destaque*","sub":"1 linha"},"slides":[4 itens {"tag":"PONTO 01","headline":"4-6 palavras com *destaque*","number":"so se no input senao \\"\\"","context":"1 linha ate 12 palavras","source":"instituto+ano se houver number senao \\"\\""}],"cta":{"headline":"verbo de acao com *destaque*","sub":"convite","url":"epiuse.com.br"}}')
+        pedacos.append('"carousel": {"cover":{"eyebrow":"GUIA + PERSONA + ANO (ex: GUIA CHRO 2026)","headline":"headline real da capa com *destaque* (4-9 palavras)","sub":"subtítulo real de 1 linha"},"slides":[4 itens {"tag":"título do slide","headline":"título curto com *destaque* (4-6 palavras)","number":"número estatístico real se houver no input senão \\"\\"","context":"explicação de 1 linha até 12 palavras","source":"instituto + ano da fonte se houver senão \\"\\""}],"cta":{"headline":"verbo de ação real com *destaque*","sub":"subtítulo do convite real","url":"epiuse.com.br"}}')
     if outputs.get("single"):
         pedacos.append('"single": {"tag":"categoria","headline":"4-6 palavras com *destaque*","number":"se no input senao \\"\\"","context":"1 linha","source":"se houver number"}')
     if outputs.get("blogCover"):
@@ -76,6 +76,7 @@ REGRAS:
 3. Nunca cite concorrente nominal. Nunca cliente sem aprovacao.
 4. Headline marca a palavra-chave com *asteriscos*.
 5. No objeto 'estrategia', selecione e preencha exatamente UM valor para os campos: 'persona' (escolha entre cfo, chro ou cio), 'lob' (escolha entre HCM, S4HANA, BTP, Signavio, ServiceNow, Analytics ou Cross) e 'categoria' (escolha entre thought-leadership, case, produto, evento ou cultura). NUNCA coloque as barras ou a lista de opções inteira.
+6. No carrossel ('carousel'), preencha a capa ('cover'), os slides e o 'cta' com conteúdo real e contextualizado. NUNCA copie literalmente as strings descritivas de exemplo do template (como 'headline real da capa', '4-9 palavras com destaque', 'subtítulo real de 1 linha', 'título do slide', etc.). O primeiro slide ('cover') deve conter um título e subtítulo reais sobre o tema.
 {ctx_block}
 
 INPUT:

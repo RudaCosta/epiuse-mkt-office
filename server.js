@@ -1642,6 +1642,50 @@ app.post('/api/raccoon/generate', (req, res) => {
 
     try {
       const parsed = JSON.parse(stdoutData.trim());
+      
+      // Calculate real deterministic SEO/GEO scores
+      if (parsed.success && parsed.article) {
+        const corpoText = `<h1>${parsed.article.title || ''}</h1>\n\n<p class="intro">${parsed.article.intro || ''}</p>\n\n` +
+          (parsed.article.sections || []).map(s => `<h2>${s.h2 || ''}</h2>\n<p>${s.body || ''}</p>`).join('\n\n') +
+          `\n\n<p class="conclusion">${parsed.article.conclusion || ''}</p>`;
+        
+        const seoResult = seoChecker.checkSEO({
+          titulo: parsed.article.title || '',
+          corpo: corpoText,
+          tema_keyword: tema || ''
+        });
+        
+        const geoResult = seoChecker.checkGEO({
+          titulo: parsed.article.title || '',
+          corpo: corpoText,
+          tema_keyword: tema || ''
+        });
+        
+        const realScore = Math.round((seoResult.score + geoResult.score) / 2);
+        
+        if (!parsed.revisao) {
+          parsed.revisao = { seo: {}, geo: {}, qualidade: {} };
+        }
+        if (!parsed.revisao.qualidade) {
+          parsed.revisao.qualidade = {};
+        }
+        
+        parsed.revisao.qualidade.score = realScore;
+        
+        // Propagate checklist issues to quality alerts
+        parsed.revisao.qualidade.alertas = parsed.revisao.qualidade.alertas || [];
+        const failedSeo = (seoResult.checklist || []).filter(c => !c.ok).map(c => `SEO: ${c.item} (${c.nota || 'pendente'})`);
+        const failedGeo = (geoResult.checklist || []).filter(c => !c.ok).map(c => `GEO: ${c.item}`);
+        parsed.revisao.qualidade.alertas = [...parsed.revisao.qualidade.alertas, ...failedSeo, ...failedGeo];
+        
+        // Sync the detailed meta tags
+        if (!parsed.revisao.seo) parsed.revisao.seo = {};
+        parsed.revisao.seo.metaTitle = parsed.revisao.seo.metaTitle || seoResult.metaTitle || parsed.article.title;
+        parsed.revisao.seo.metaDescription = parsed.revisao.seo.metaDescription || seoResult.metaDescription || parsed.article.intro;
+        parsed.revisao.seo.slug = parsed.revisao.seo.slug || seoResult.slug || 'artigo-gerado';
+        parsed.revisao.seo.keywords = parsed.revisao.seo.keywords || seoResult.keywords || [tema];
+      }
+      
       res.json(parsed);
     } catch (err) {
       console.error(`[raccoon-route] JSON Parse failed for stdout: ${stdoutData}. Error: ${err.message}`);
