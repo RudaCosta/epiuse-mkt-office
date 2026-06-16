@@ -6,6 +6,7 @@
 <title>Metas LinkedIn · EPI-USE Brasil</title>
 <script defer data-domain="epiuse-voices-optimizer.up.railway.app" src="https://plausible.io/js/script.js"></script>
 <link rel="stylesheet" href="/design-tokens.css">
+<link rel="stylesheet" href="/css/consulting-dark.css">
 <script type="module" src="/office-nav.js"></script>
 <script type="module" src="/office-footer.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -105,7 +106,21 @@ body { background: var(--bg); font-family: 'Inter', sans-serif; color: var(--tex
 /* ── GRAFICOS ───────────────────────────── */
 .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
 @media (max-width: 900px) { .charts-grid { grid-template-columns: 1fr; } }
-.chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; min-height: 320px; }
+.chart-card {
+  background: rgba(10, 21, 37, 0.45);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 20px;
+  min-height: 320px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.35);
+  transition: border-color .25s, box-shadow .25s;
+}
+.chart-card:hover {
+  border-color: rgba(0, 242, 254, 0.3);
+  box-shadow: 0 12px 40px rgba(0, 242, 254, 0.15);
+}
 .chart-card h3 { margin-bottom: 16px; }
 .chart-wrap { position: relative; height: 240px; }
 
@@ -496,16 +511,16 @@ const ctxMes = document.getElementById('chart-mes').getContext('2d');
 
 // Gradientes "Superpowers" para Barras
 const gradGreen = ctxMes.createLinearGradient(0, 0, 0, 200);
-gradGreen.addColorStop(0, '#10b981'); // Emerald green
-gradGreen.addColorStop(1, 'rgba(16, 185, 129, 0.1)');
+gradGreen.addColorStop(0, '#34d399'); // Neon Green
+gradGreen.addColorStop(1, 'rgba(16, 185, 129, 0.05)');
 
 const gradBlue = ctxMes.createLinearGradient(0, 0, 0, 200);
-gradBlue.addColorStop(0, '#3b82f6'); // Azure blue
-gradBlue.addColorStop(1, 'rgba(59, 130, 246, 0.1)');
+gradBlue.addColorStop(0, '#00f2fe'); // Neon Cyan
+gradBlue.addColorStop(1, 'rgba(59, 130, 246, 0.05)');
 
 const gradMuted = ctxMes.createLinearGradient(0, 0, 0, 200);
-gradMuted.addColorStop(0, '#8b5cf6'); // Purple
-gradMuted.addColorStop(1, 'rgba(139, 92, 246, 0.1)');
+gradMuted.addColorStop(0, '#ec4899'); // Neon Pink
+gradMuted.addColorStop(1, 'rgba(236, 72, 153, 0.05)');
 
 const barColors = mesData.map(d => d.v >= 200 ? gradGreen : d.v >= 100 ? gradBlue : gradMuted);
 
@@ -528,8 +543,8 @@ new Chart(ctxMes, {
       legend: { display: false }, 
       tooltip: { 
         callbacks: { label: c => c.parsed.y + ' seguidores' },
-        titleFont: { family: "'Inter', sans-serif" },
-        bodyFont: { family: "'Inter', sans-serif" }
+        titleFont: { family: "'JetBrains Mono', monospace", size: 10 },
+        bodyFont: { family: "'JetBrains Mono', monospace", size: 10 }
       } 
     },
     scales: { 
@@ -564,11 +579,11 @@ const ctxProj = document.getElementById('chart-projecao').getContext('2d');
 
 const gradLineReal = ctxProj.createLinearGradient(0, 0, 0, 200);
 gradLineReal.addColorStop(0, '#00f2fe'); // Neon Cyan
-gradLineReal.addColorStop(1, '#3b82f6'); // Azure Blue
+gradLineReal.addColorStop(1, '#8b5cf6'); // Violet/Purple
 
 const gradFillReal = ctxProj.createLinearGradient(0, 0, 0, 200);
-gradFillReal.addColorStop(0, 'rgba(0, 242, 254, 0.22)');
-gradFillReal.addColorStop(1, 'rgba(59, 130, 246, 0)');
+gradFillReal.addColorStop(0, 'rgba(0, 242, 254, 0.28)');
+gradFillReal.addColorStop(1, 'rgba(139, 92, 246, 0)');
 
 new Chart(ctxProj, {
   type: 'line',
@@ -581,12 +596,12 @@ new Chart(ctxProj, {
         borderColor: gradLineReal, 
         backgroundColor: gradFillReal, 
         fill: true, 
-        tension: 0.4, 
+        tension: 0.45, 
         pointRadius: 4,
         pointBackgroundColor: '#00f2fe',
-        pointBorderColor: '#061020',
-        pointBorderWidth: 1.5,
-        borderWidth: 3 
+        pointBorderColor: '#0a1525',
+        pointBorderWidth: 2,
+        borderWidth: 3.5 
       },
       { 
         label: 'Tendência atual', 
@@ -614,14 +629,14 @@ new Chart(ctxProj, {
       const c = chart.ctx;
       if (args.index === 0) { // Real
         c.save();
-        c.shadowColor = 'rgba(0, 242, 254, 0.45)';
-        c.shadowBlur = 10;
+        c.shadowColor = 'rgba(0, 242, 254, 0.65)';
+        c.shadowBlur = 12;
         c.shadowOffsetX = 0;
         c.shadowOffsetY = 4;
       } else if (args.index === 2) { // Meta agressiva
         c.save();
-        c.shadowColor = 'rgba(244, 63, 94, 0.45)';
-        c.shadowBlur = 8;
+        c.shadowColor = 'rgba(244, 63, 94, 0.65)';
+        c.shadowBlur = 10;
         c.shadowOffsetX = 0;
         c.shadowOffsetY = 2;
       }
@@ -640,7 +655,7 @@ new Chart(ctxProj, {
         position: 'bottom', 
         labels: { 
           color: '#cbd5e1', 
-          font: { family: "'Inter', sans-serif", size: 11, weight: '500' } 
+          font: { family: "'JetBrains Mono', monospace", size: 10, weight: '500' } 
         } 
       } 
     },

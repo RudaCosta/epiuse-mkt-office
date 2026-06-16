@@ -133,13 +133,34 @@ body {
 .perf-filter:hover { background: rgba(255,255,255,.08); }
 .perf-filter.active { background: rgba(37,99,235,.15); border-color: rgba(37,99,235,.4); color: #93c5fd; }
 .perf-mini { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-bottom: 18px; }
-.perf-mini-card { background: rgba(255,255,255,.025); border: 1px solid var(--border-light); border-radius: 10px; padding: 13px 16px; }
+.perf-mini-card {
+  background: rgba(10, 21, 37, 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 13px 16px;
+  box-shadow: 0 6px 20px 0 rgba(0, 0, 0, 0.2);
+  transition: border-color .25s, box-shadow .25s;
+}
+.perf-mini-card:hover {
+  border-color: rgba(0, 242, 254, 0.3);
+  box-shadow: 0 8px 24px rgba(0, 242, 254, 0.1);
+}
 .perf-mini-lbl { font-size: 10px; letter-spacing: .12em; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 6px; }
 .perf-mini-val { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 20px; color: var(--text); }
 .perf-mini-val.success { color: var(--success); }
 .perf-mini-val.purple { color: var(--purple); }
 .perf-mini-sub { font-size: 10px; color: var(--text-muted); margin-top: 4px; }
-.perf-tbl-wrap { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 12px; overflow: hidden; }
+.perf-tbl-wrap {
+  background: rgba(10, 21, 37, 0.45);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.35);
+}
 .perf-tbl { width: 100%; border-collapse: collapse; font-size: 12px; }
 .perf-tbl th { padding: 10px 14px; text-align: left; font-size: 10px; letter-spacing: .12em; color: var(--text-muted); text-transform: uppercase; font-weight: 700; border-bottom: 1px solid var(--border-light); background: rgba(255,255,255,.02); }
 .perf-tbl td { padding: 12px 14px; border-bottom: 1px solid var(--border-light); }
@@ -678,7 +699,7 @@ async function loadPerformance(period) {
     gradLine.addColorStop(1, '#a855f7'); // Violet/Purple
 
     const gradFill = ctx.createLinearGradient(0, 0, 0, 30);
-    gradFill.addColorStop(0, 'rgba(0, 242, 254, 0.25)');
+    gradFill.addColorStop(0, 'rgba(0, 242, 254, 0.30)');
     gradFill.addColorStop(1, 'rgba(168, 85, 247, 0)');
 
     new Chart(ctx, {
@@ -692,7 +713,7 @@ async function loadPerformance(period) {
           tension: 0.45, 
           fill: true, 
           pointRadius: 0, 
-          borderWidth: 2 
+          borderWidth: 2.5 
         }] 
       },
       plugins: [{
@@ -700,8 +721,8 @@ async function loadPerformance(period) {
         beforeDatasetDraw: (chart) => {
           const c = chart.ctx;
           c.save();
-          c.shadowColor = 'rgba(0, 242, 254, 0.4)';
-          c.shadowBlur = 6;
+          c.shadowColor = 'rgba(0, 242, 254, 0.65)';
+          c.shadowBlur = 8;
           c.shadowOffsetX = 0;
           c.shadowOffsetY = 2;
         },

@@ -108,7 +108,22 @@
   .li-big-num { font-size: 40px; font-weight: 800; font-family:'JetBrains Mono',monospace; color: var(--accent); line-height: 1; }
   .li-big-label { font-size: 12px; color: var(--muted); margin-top: 6px; letter-spacing: .04em; text-transform: uppercase }
   .li-delta { display: inline-block; padding: 4px 10px; border-radius: 6px; margin-top: 12px; font-family:'JetBrains Mono',monospace; font-size: 12px; }
-  .li-chart-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px; position: relative; height: 240px; }
+  .li-chart-card {
+    background: rgba(10, 21, 37, 0.45);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    padding: 16px;
+    position: relative;
+    height: 240px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.35);
+    transition: border-color .25s, box-shadow .25s;
+  }
+  .li-chart-card:hover {
+    border-color: rgba(0, 242, 254, 0.4);
+    box-shadow: 0 12px 40px rgba(0, 242, 254, 0.15);
+  }
 
   /* DEMO TOPS */
   .demo-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap:12px; margin-top: 14px }
@@ -621,17 +636,17 @@ function renderChart12m(serie) {
   // Gradientes e Estilos "Superpowers"
   const gradLine = ctx.createLinearGradient(0, 0, 0, 200);
   gradLine.addColorStop(0, '#00f2fe'); // Neon Cyan
-  gradLine.addColorStop(1, '#0070c0'); // Deep Blue
+  gradLine.addColorStop(1, '#8b5cf6'); // Violet/Purple
 
   const gradFill = ctx.createLinearGradient(0, 0, 0, 200);
-  gradFill.addColorStop(0, 'rgba(0, 242, 254, 0.22)');
-  gradFill.addColorStop(0.5, 'rgba(0, 112, 192, 0.05)');
-  gradFill.addColorStop(1, 'rgba(0, 112, 192, 0)');
+  gradFill.addColorStop(0, 'rgba(0, 242, 254, 0.28)');
+  gradFill.addColorStop(0.5, 'rgba(139, 92, 246, 0.08)');
+  gradFill.addColorStop(1, 'rgba(139, 92, 246, 0)');
 
   const gradBar = ctx.createLinearGradient(0, 0, 0, 200);
   gradBar.addColorStop(0, '#ec4899'); // Neon Pink
-  gradBar.addColorStop(0.6, '#a855f7'); // Violet/Purple
-  gradBar.addColorStop(1, 'rgba(168, 85, 247, 0.05)'); // Translucent
+  gradBar.addColorStop(0.6, '#8b5cf6'); // Violet/Purple
+  gradBar.addColorStop(1, 'rgba(139, 92, 246, 0.05)'); // Translucent
 
   chart12m = new Chart(ctx, {
     data: {
@@ -644,12 +659,12 @@ function renderChart12m(serie) {
           borderColor: gradLine, 
           backgroundColor: gradFill, 
           yAxisID: 'y', 
-          tension: 0.4, 
+          tension: 0.45, 
           fill: true, 
           spanGaps: true,
-          borderWidth: 3,
+          borderWidth: 3.5,
           pointBackgroundColor: '#00f2fe',
-          pointBorderColor: '#061020',
+          pointBorderColor: '#0a1525',
           pointBorderWidth: 2,
           pointRadius: 4,
           pointHoverRadius: 6,
@@ -674,8 +689,8 @@ function renderChart12m(serie) {
         if (args.index === 0) {
           const c = chart.ctx;
           c.save();
-          c.shadowColor = 'rgba(0, 242, 254, 0.5)';
-          c.shadowBlur = 10;
+          c.shadowColor = 'rgba(0, 242, 254, 0.65)';
+          c.shadowBlur = 12;
           c.shadowOffsetX = 0;
           c.shadowOffsetY = 4;
         }
@@ -693,7 +708,7 @@ function renderChart12m(serie) {
         legend: { 
           labels: { 
             color: '#cbd5e1', 
-            font: { family: "'Inter', sans-serif", size: 11, weight: '500' }
+            font: { family: "'JetBrains Mono', monospace", size: 10, weight: '500' }
           }
         }
       },
@@ -706,13 +721,13 @@ function renderChart12m(serie) {
           position: 'left', 
           ticks: { color: '#00f2fe', font: { family: "'JetBrains Mono', monospace", size: 9 }}, 
           grid: { color: 'rgba(255,255,255,0.03)', borderDash: [2, 2] }, 
-          title: { display: true, text: 'Total', color: '#00f2fe', font: { family: "'Inter', sans-serif", size: 10, weight: '600' }}
+          title: { display: true, text: 'Total', color: '#00f2fe', font: { family: "'JetBrains Mono', monospace", size: 10, weight: '600' }}
         },
         y2: { 
           position: 'right', 
           ticks: { color: '#a78bfa', font: { family: "'JetBrains Mono', monospace", size: 9 }}, 
           grid: { display: false }, 
-          title: { display: true, text: 'Novos', color: '#a78bfa', font: { family: "'Inter', sans-serif", size: 10, weight: '600' }}
+          title: { display: true, text: 'Novos', color: '#a78bfa', font: { family: "'JetBrains Mono', monospace", size: 10, weight: '600' }}
         },
       }
     }

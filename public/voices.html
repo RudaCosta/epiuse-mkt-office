@@ -11,6 +11,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <link rel="stylesheet" href="/design-tokens.css">
 <link rel="stylesheet" href="/css/office-theme.css">
+<link rel="stylesheet" href="/css/consulting-dark.css">
 <script type="module" src="/office-nav.js"></script>
 <script type="module" src="/office-footer.js"></script>
 <style>
@@ -729,8 +730,8 @@ async function renderProfile(slug) {
           <div style="font-size:10px;color:var(--text-muted);margin-top:2px;text-transform:uppercase;letter-spacing:.06em">Top post (eng)</div>
         </div>
       </div>
-      <div id="posts-chart-wrap" style="margin-top:8px;display:none">
-        <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;letter-spacing:.06em;text-transform:uppercase">Engajamento ao longo do tempo</div>
+      <div id="posts-chart-wrap" class="dk-glass" style="margin-top:16px;padding:18px;display:none">
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:12px;letter-spacing:.06em;text-transform:uppercase;font-family:'JetBrains Mono',monospace">Engajamento ao longo do tempo</div>
         <canvas id="posts-chart" style="max-height:200px"></canvas>
       </div>
     </div>
@@ -918,12 +919,12 @@ function renderPostsChart(posts) {
   // Gradientes e Estilos "Superpowers"
   const gradLine = ctx.createLinearGradient(0, 0, 0, 200);
   gradLine.addColorStop(0, '#00f2fe'); // Neon Cyan
-  gradLine.addColorStop(1, '#6366f1'); // Indigo
+  gradLine.addColorStop(1, '#8b5cf6'); // Violet/Purple
 
   const gradFill = ctx.createLinearGradient(0, 0, 0, 200);
-  gradFill.addColorStop(0, 'rgba(0, 242, 254, 0.22)');
-  gradFill.addColorStop(0.5, 'rgba(99, 102, 241, 0.05)');
-  gradFill.addColorStop(1, 'rgba(99, 102, 241, 0)');
+  gradFill.addColorStop(0, 'rgba(0, 242, 254, 0.28)');
+  gradFill.addColorStop(0.5, 'rgba(139, 92, 246, 0.08)');
+  gradFill.addColorStop(1, 'rgba(139, 92, 246, 0)');
 
   postsChart = new Chart(ctx, {
     type: 'line',
@@ -934,11 +935,11 @@ function renderPostsChart(posts) {
         data: eng,
         borderColor: gradLine,
         backgroundColor: gradFill,
-        tension: 0.4, 
+        tension: 0.45, 
         fill: true,
-        borderWidth: 3,
+        borderWidth: 3.5,
         pointBackgroundColor: '#00f2fe',
-        pointBorderColor: '#061020',
+        pointBorderColor: '#0a1525',
         pointBorderWidth: 2,
         pointRadius: 4,
         pointHoverRadius: 6,
@@ -953,8 +954,8 @@ function renderPostsChart(posts) {
         if (args.index === 0) {
           const c = chart.ctx;
           c.save();
-          c.shadowColor = 'rgba(0, 242, 254, 0.5)';
-          c.shadowBlur = 10;
+          c.shadowColor = 'rgba(0, 242, 254, 0.65)';
+          c.shadowBlur = 12;
           c.shadowOffsetX = 0;
           c.shadowOffsetY = 4;
         }
@@ -972,7 +973,7 @@ function renderPostsChart(posts) {
         legend: { 
           labels: { 
             color: '#cbd5e1', 
-            font: { family: "'Inter', sans-serif", size: 11, weight: '500' } 
+            font: { family: "'JetBrains Mono', monospace", size: 10, weight: '500' } 
           } 
         } 
       },
