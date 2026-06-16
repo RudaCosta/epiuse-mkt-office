@@ -232,6 +232,10 @@ db.exec(`
   );
   CREATE INDEX IF NOT EXISTS idx_content_estado ON content_pipeline(estado);
 `);
+// migration idempotente: colunas do produto completo do Raccoon (carrossel estruturado + arte)
+for (const _col of ['carrossel_json', 'capa_url']) {
+  try { db.exec(`ALTER TABLE content_pipeline ADD COLUMN ${_col} TEXT DEFAULT ''`); } catch (_e) { /* ja existe */ }
+}
 
 // Repositório de Ideias de Marketing (mural criativo)
 db.exec(`
@@ -1454,11 +1458,11 @@ app.post('/api/content', requireEditorToken, (req, res) => {
     const r = db.prepare(`
       INSERT INTO content_pipeline (
         external_id, titulo, tema_keyword, lob, pilar, persona_alvo, autor, estado, corpo,
-        copy_text, cta_sugerido, seo_json, geo_json, carrossel_url
+        copy_text, cta_sugerido, seo_json, geo_json, carrossel_url, carrossel_json, capa_url
       )
       VALUES (
         @external_id, @titulo, @tema_keyword, @lob, @pilar, @persona_alvo, @autor, @estado, @corpo,
-        @copy_text, @cta_sugerido, @seo_json, @geo_json, @carrossel_url
+        @copy_text, @cta_sugerido, @seo_json, @geo_json, @carrossel_url, @carrossel_json, @capa_url
       )
     `).run({
       external_id: extId,
@@ -1474,33 +1478,14 @@ app.post('/api/content', requireEditorToken, (req, res) => {
       cta_sugerido: b.cta_sugerido || '',
       seo_json: typeof b.seo_json === 'object' ? JSON.stringify(b.seo_json) : (b.seo_json || '{}'),
       geo_json: typeof b.geo_json === 'object' ? JSON.stringify(b.geo_json) : (b.geo_json || '{}'),
-      carrossel_url: b.carrossel_url || ''
+      carrossel_url: b.carrossel_url || '',
+      carrossel_json: typeof b.carrossel_json === 'object' ? JSON.stringify(b.carrossel_json) : (b.carrossel_json || ''),
+      capa_url: b.capa_url || ''
     });
 
-    // 2. Also insert into editorial_calendar (planilha da Duda / calendar editorial)
-    db.prepare(`
-      INSERT INTO editorial_calendar (
-        external_id, fonte, data, canal, autor, titulo, resumo, pilar, status, url_post, synced_at
-      )
-      VALUES (
-        @external_id, @fonte, @data, @canal, @autor, @titulo, @resumo, @pilar, @status, @url_post, datetime('now')
-      )
-      ON CONFLICT(external_id) DO UPDATE SET
-        fonte=excluded.fonte, data=excluded.data, canal=excluded.canal, autor=excluded.autor,
-        titulo=excluded.titulo, resumo=excluded.resumo, pilar=excluded.pilar, status=excluded.status,
-        url_post=excluded.url_post, synced_at=datetime('now'), updated_at=datetime('now')
-    `).run({
-      external_id: extId,
-      fonte: 'raccoon',
-      data: new Date().toISOString().slice(0,10),
-      canal: b.corpo ? 'artigo' : 'linkedin',
-      autor: b.autor || 'Rax',
-      titulo: String(b.titulo).slice(0,300),
-      resumo: String(b.copy_text || b.corpo || '').slice(0,2000).replace(/<[^>]*>/g, ''), // clean HTML if using corpo as summary fallback
-      pilar: b.lob || '',
-      status: 'planned',
-      url_post: ''
-    });
+    // NOTA: o item NAO entra no calendario/planilha da Duda no save cru.
+    // So entra quando agendado (PUT /api/content/:id com estado=agendado + agendado_para),
+    // evitando que testes/rascunhos sujem a agenda. external_id estavel: extId acima.
 
     res.json({ success: true, id: r.lastInsertRowid, external_id: extId });
   } catch (e) { res.status(500).json({ success: false, error: e.message }); }
@@ -1528,6 +1513,24 @@ app.put('/api/content/:id', requireEditorToken, (req, res) => {
       persona_alvo=@persona_alvo, autor=@autor, estado=@estado, corpo=@corpo, copy_text=@copy_text,
       cta_sugerido=@cta_sugerido, carrossel_url=@carrossel_url, agendado_para=@agendado_para,
       publicado_em=@publicado_em, url_publicado=@url_publicado, updated_at=datetime('now') WHERE id=@id`).run(m);
+
+    // Item AGENDADO (com data real) -> entra no calendario/planilha da Duda.
+    // Save cru e rascunho NAO sujam a agenda; so o agendamento explicito publica.
+    if (m.estado === 'agendado' && m.agendado_para) {
+      const calExtId = ex.external_id || `rax-content-${id}`;
+      db.prepare(`
+        INSERT INTO editorial_calendar (external_id, fonte, data, canal, autor, titulo, resumo, pilar, status, url_post, synced_at)
+        VALUES (@external_id,'raccoon',@data,@canal,@autor,@titulo,@resumo,@pilar,'planned','',datetime('now'))
+        ON CONFLICT(external_id) DO UPDATE SET data=excluded.data, canal=excluded.canal, autor=excluded.autor,
+          titulo=excluded.titulo, resumo=excluded.resumo, pilar=excluded.pilar, synced_at=datetime('now'), updated_at=datetime('now')
+      `).run({
+        external_id: calExtId, data: m.agendado_para,
+        canal: m.corpo ? 'artigo' : 'linkedin', autor: m.autor || 'Rax',
+        titulo: String(m.titulo).slice(0,300),
+        resumo: String(m.copy_text || m.corpo || '').slice(0,2000).replace(/<[^>]*>/g,''),
+        pilar: m.lob || '',
+      });
+    }
     res.json({ success: true, id });
   } catch (e) { res.status(500).json({ success: false, error: e.message }); }
 });

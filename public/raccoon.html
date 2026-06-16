@@ -1849,7 +1849,9 @@
       cta_sugerido: activeData.carousel ? `${activeData.carousel.cta.headline} - ${activeData.carousel.cta.sub}` : '',
       seo_json: activeData.revisao ? activeData.revisao.seo : {},
       geo_json: activeData.revisao ? activeData.revisao.geo : {},
-      carrossel_url: activeData.carousel ? `/inbound/carousel?tema=${encodeURIComponent($('tema').value.trim())}` : ''
+      carrossel_url: activeData.carousel ? `/inbound/carousel?tema=${encodeURIComponent($('tema').value.trim())}` : '',
+      carrossel_json: activeData.carousel ? JSON.stringify(activeData.carousel) : '',
+      capa_url: window._raxCapaDataUrl || ''
     };
 
     try {
