@@ -1446,16 +1446,63 @@ app.post('/api/content', requireEditorToken, (req, res) => {
   try {
     const b = req.body || {};
     if (!b.titulo) return res.status(400).json({ success: false, error: 'titulo obrigatório.' });
+    
+    // Generate unique external_id if not present
+    const extId = b.external_id || `rax-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    
+    // 1. Insert into content_pipeline with all generated details
     const r = db.prepare(`
-      INSERT INTO content_pipeline (external_id, titulo, tema_keyword, lob, pilar, persona_alvo, autor, estado, corpo)
-      VALUES (@external_id,@titulo,@tema_keyword,@lob,@pilar,@persona_alvo,@autor,@estado,@corpo)
+      INSERT INTO content_pipeline (
+        external_id, titulo, tema_keyword, lob, pilar, persona_alvo, autor, estado, corpo,
+        copy_text, cta_sugerido, seo_json, geo_json, carrossel_url
+      )
+      VALUES (
+        @external_id, @titulo, @tema_keyword, @lob, @pilar, @persona_alvo, @autor, @estado, @corpo,
+        @copy_text, @cta_sugerido, @seo_json, @geo_json, @carrossel_url
+      )
     `).run({
-      external_id: b.external_id || null, titulo: String(b.titulo).slice(0,300),
-      tema_keyword: b.tema_keyword || '', lob: b.lob || '', pilar: b.pilar || '',
-      persona_alvo: b.persona_alvo || '', autor: b.autor || '',
-      estado: CONTENT_ESTADOS.includes(b.estado) ? b.estado : 'recebido', corpo: b.corpo || '',
+      external_id: extId,
+      titulo: String(b.titulo).slice(0,300),
+      tema_keyword: b.tema_keyword || '',
+      lob: b.lob || '',
+      pilar: b.pilar || '',
+      persona_alvo: b.persona_alvo || '',
+      autor: b.autor || 'Rax',
+      estado: CONTENT_ESTADOS.includes(b.estado) ? b.estado : 'recebido',
+      corpo: b.corpo || '',
+      copy_text: b.copy_text || '',
+      cta_sugerido: b.cta_sugerido || '',
+      seo_json: typeof b.seo_json === 'object' ? JSON.stringify(b.seo_json) : (b.seo_json || '{}'),
+      geo_json: typeof b.geo_json === 'object' ? JSON.stringify(b.geo_json) : (b.geo_json || '{}'),
+      carrossel_url: b.carrossel_url || ''
     });
-    res.json({ success: true, id: r.lastInsertRowid });
+
+    // 2. Also insert into editorial_calendar (planilha da Duda / calendar editorial)
+    db.prepare(`
+      INSERT INTO editorial_calendar (
+        external_id, fonte, data, canal, autor, titulo, resumo, pilar, status, url_post, synced_at
+      )
+      VALUES (
+        @external_id, @fonte, @data, @canal, @autor, @titulo, @resumo, @pilar, @status, @url_post, datetime('now')
+      )
+      ON CONFLICT(external_id) DO UPDATE SET
+        fonte=excluded.fonte, data=excluded.data, canal=excluded.canal, autor=excluded.autor,
+        titulo=excluded.titulo, resumo=excluded.resumo, pilar=excluded.pilar, status=excluded.status,
+        url_post=excluded.url_post, synced_at=datetime('now'), updated_at=datetime('now')
+    `).run({
+      external_id: extId,
+      fonte: 'raccoon',
+      data: new Date().toISOString().slice(0,10),
+      canal: b.corpo ? 'artigo' : 'linkedin',
+      autor: b.autor || 'Rax',
+      titulo: String(b.titulo).slice(0,300),
+      resumo: String(b.copy_text || b.corpo || '').slice(0,2000).replace(/<[^>]*>/g, ''), // clean HTML if using corpo as summary fallback
+      pilar: b.lob || '',
+      status: 'planned',
+      url_post: ''
+    });
+
+    res.json({ success: true, id: r.lastInsertRowid, external_id: extId });
   } catch (e) { res.status(500).json({ success: false, error: e.message }); }
 });
 

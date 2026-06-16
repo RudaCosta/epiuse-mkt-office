@@ -75,6 +75,7 @@ REGRAS:
 2. PT-BR. Voz EPI-USE: sobria, confiante, especifica. Sem emoji. Sem "Hoje quero falar sobre".
 3. Nunca cite concorrente nominal. Nunca cliente sem aprovacao.
 4. Headline marca a palavra-chave com *asteriscos*.
+5. No objeto 'estrategia', selecione e preencha exatamente UM valor para os campos: 'persona' (escolha entre cfo, chro ou cio), 'lob' (escolha entre HCM, S4HANA, BTP, Signavio, ServiceNow, Analytics ou Cross) e 'categoria' (escolha entre thought-leadership, case, produto, evento ou cultura). NUNCA coloque as barras ou a lista de opções inteira.
 {ctx_block}
 
 INPUT:
