@@ -1552,7 +1552,13 @@ app.post('/api/content/:id/seo-check', requireEditorToken, (req, res) => {
 
 app.delete('/api/content/:id', requireEditorToken, (req, res) => {
   try {
-    db.prepare('DELETE FROM content_pipeline WHERE id = ?').run(parseInt(req.params.id,10));
+    const id = parseInt(req.params.id,10);
+    const ex = db.prepare('SELECT external_id FROM content_pipeline WHERE id = ?').get(id);
+    db.prepare('DELETE FROM content_pipeline WHERE id = ?').run(id);
+    // limpa tambem a linha espelhada no calendario/planilha da Duda (se houver)
+    const calExtId = (ex && ex.external_id) || `rax-content-${id}`;
+    db.prepare("DELETE FROM editorial_calendar WHERE fonte='raccoon' AND external_id IN (?,?)")
+      .run(calExtId, `rax-content-${id}`);
     res.json({ success: true });
   } catch (e) { res.status(500).json({ success: false, error: e.message }); }
 });
