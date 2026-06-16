@@ -22,7 +22,7 @@ const inboundGenLimiter = rateLimit({
 
 // ── ROTAS DE PÁGINAS (Requer Autenticação) ───────────────────────────────────
 router.get('/inbound', requireAuth, (req, res) => {
-  res.sendFile(path.join(INBOUND_DIR, 'index.html'));
+  res.redirect(301, '/raccoon');
 });
 router.get('/inbound/brief', requireAuth, (req, res) => {
   res.sendFile(path.join(INBOUND_DIR, 'brief.html'));

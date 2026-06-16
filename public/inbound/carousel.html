@@ -964,6 +964,53 @@
 
   // ===== init =====
   state.slides = buildEmptyDeck(state.contentCount);
+
+  // Intercept Raccoon Handoff
+  (function importFromRaccoon() {
+    try {
+      var isRaccoon = new URLSearchParams(location.search).get('source') === 'raccoon';
+      if (!isRaccoon) return;
+      var raw = localStorage.getItem('pending_carousel_slides');
+      if (!raw) return;
+      var data = JSON.parse(raw);
+      if (!data) return;
+
+      var newDeck = [];
+      newDeck.push({ type: 'cover', eyebrow: data.cover.eyebrow||'', headline: data.cover.headline||'', sub: data.cover.sub||'' });
+      if (Array.isArray(data.slides)) {
+        data.slides.forEach(function(sl) {
+          newDeck.push({ type: 'content', tag: sl.tag||'', headline: sl.headline||'', number: sl.number||'', context: sl.context||'', source: sl.source || 'EPI-USE Brasil' });
+        });
+      }
+      newDeck.push({ type: 'cta', headline: data.cta.headline||'', sub: data.cta.sub||'', url: data.cta.url||'' });
+
+      state.slides = newDeck;
+      state.contentCount = data.slides ? data.slides.length : 3;
+      state.activeIdx = 0;
+
+      // Import LOB if we have full data
+      var rawRaxData = localStorage.getItem('pending_raccoon_full_data');
+      if (rawRaxData) {
+        var raxData = JSON.parse(rawRaxData);
+        if (raxData && raxData.estrategia && raxData.estrategia.lob) {
+          var mappedLob = String(raxData.estrategia.lob).toLowerCase().replace(/[^a-z0-9]/g, '');
+          if (LOB[mappedLob]) {
+            state.lob = mappedLob;
+            var lobSelect = document.getElementById('lob');
+            if (lobSelect) lobSelect.value = mappedLob;
+          }
+        }
+      }
+
+      // Showing a nice feedback banner
+      var hint = document.createElement('div');
+      hint.style.cssText = 'margin:8px 0 14px;padding:10px 14px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);border-radius:6px;font-size:12px;color:#34d399';
+      hint.innerHTML = '🦝 <b>Slides carregados do Raccoon Studio!</b> O Rax já estruturou o rascunho. Você pode revisar, editar e exportar os slides.';
+      var briefField = document.getElementById('brief').closest('.field');
+      if (briefField && briefField.parentNode) briefField.parentNode.insertBefore(hint, briefField);
+    } catch(e) { console.warn('[carousel] raccoon import bridge error:', e); }
+  })();
+
   renderDeck();
   renderEditor();
 </script>

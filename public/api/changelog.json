@@ -1,6 +1,6 @@
 {
-  "current": "0.50.6",
-  "atualizado_em": "15/jun/2026",
+  "current": "0.50.7",
+  "atualizado_em": "16/jun/2026",
   "next": [
     {
       "version": "0.51.0",
@@ -40,9 +40,24 @@
   ],
   "releases": [
     {
+      "version": "0.50.7",
+      "date": "16/jun/2026",
+      "status": "current",
+      "path": null,
+      "title": "🦝 Raccoon Studio Restructure & Carousel Handoff",
+      "summary": "Decommissioned the deprecated online Inbound page, redirected `/inbound` to `/raccoon` (Raccoon Studio), adapted the widescreen input card layout, fixed mascot overflow/animation bugs, and implemented the local Carousel Studio handoff flow.",
+      "highlights": [
+        "Desativação da página online /inbound e configuração de redirecionamento 301 para /raccoon",
+        "Reestruturação do Raccoon Studio com formulário de input em largura total (100% widescreen)",
+        "Redução do tamanho do mascote Rax (scene 220px) e correção do bug de estouro/extrapolação de margem na animação de busca",
+        "Implementação de fluxo de handoff offline para o Carousel Studio (/inbound/carousel?source=raccoon) via localStorage",
+        "Centralização de navegação em office-nav.js e areas.json para apontar para Raccoon Studio"
+      ]
+    },
+    {
       "version": "0.50.6",
       "date": "15/jun/2026",
-      "status": "current",
+      "status": "released",
       "path": null,
       "title": "🦝 Raccoon Studio (Ondas 1 e 2), RAG 140x mais rápido e PPTX via Docker",
       "summary": "Implementação completa da tela do Raccoon Studio com o mascote Rax (SVG animado que reage aos estados da IA), motor real offline (Qwen2.5 + RAG) integrado e otimizações de rede local. Dockerfile configurado com Node+Python para suporte a relatórios PPTX seguros em produção na nuvem Railway.",

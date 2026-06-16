@@ -1484,7 +1484,7 @@ const OfficeCommandPalette = (() => {
       { group:'Rotas', icon:'🏠', label:'Home',                 hint:'/',           action:'/' },
       { group:'Rotas', icon:'🎮', label:'Modo Game (mapa 2D)',  hint:'/game',       action:'/game' },
       { group:'Rotas', icon:'🎙️', label:'Voice Agents',         hint:'/voices',     action:'/voices' },
-      { group:'Rotas', icon:'📡', label:'Inbound Engine',       hint:'/inbound',    action:'/inbound' },
+      { group:'Rotas', icon:'🦝', label:'Raccoon Studio',       hint:'/raccoon',    action:'/raccoon' },
       { group:'Rotas', icon:'✎',  label:'Brief → Post',         hint:'/inbound/brief',    action:'/inbound/brief' },
       { group:'Rotas', icon:'▥',  label:'Carrossel Hub',        hint:'/inbound/carousel', action:'/inbound/carousel' },
       { group:'Rotas', icon:'▦',  label:'Calendário Editorial', hint:'/inbound/calendar', action:'/inbound/calendar' },
