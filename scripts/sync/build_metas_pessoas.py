@@ -1,167 +1,169 @@
 #!/usr/bin/env python3
 """
-build_metas_pessoas.py - le os 2 xlsx de metas (Bruna Yamagami / Data Intelligence
-e Marlison / SDR Prospeccao) e gera public/api/metas-fy26.json estruturado.
+build_metas_pessoas.py - le Metas_Equipe_EUBR_RevOps_v2.xlsx e gera public/api/metas-fy26.json
 
-Substitui as metas antigas (area-KPI FY26) pelas metas das duas pessoas.
-Backup do json antigo fica em vault-backups/ (feito fora deste script).
-
-Uso:  python scripts/sync/build_metas_pessoas.py [--apply]
-      (sem --apply = dry-run, mostra resumo e nao grava)
+Fonte: data/metas/Metas_Equipe_EUBR_RevOps_v2.xlsx  (copiar xlsx atualizado pra la)
+Uso:
+  python scripts/sync/build_metas_pessoas.py          # dry-run
+  python scripts/sync/build_metas_pessoas.py --apply  # grava JSON
 """
 import json, sys, datetime
 from pathlib import Path
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[2]
-OUT = ROOT / "public" / "api" / "metas-fy26.json"
-BRUNA = r"C:\Users\Ruds\Desktop\ROADMAP MKT OFFICE JUN 2026\.goals\Metas_SMART_Bruna_Yamagami_FY27.xlsx"
-MARLISON = r"C:\Users\Ruds\Desktop\ROADMAP MKT OFFICE JUN 2026\.goals\Projeção - Metas MART + Prospeccao BIZDEV.xlsx"
+ROOT  = Path(__file__).resolve().parents[2]
+XLSX  = ROOT / "data" / "metas" / "Metas_Equipe_EUBR_RevOps_v2.xlsx"
+OUT   = ROOT / "public" / "api" / "metas-fy26.json"
 
 def s(v):
     if v is None: return ""
     if isinstance(v, float) and pd.isna(v): return ""
     return str(v).strip()
 
-def iso(v):
-    if isinstance(v, (datetime.datetime, datetime.date)):
-        return v.strftime("%Y-%m-%d")
-    t = s(v)
-    return "" if t in ("-", "") else t
-
 def num(v):
-    try:
-        f = float(v)
-        return int(f) if f == int(f) else f
-    except (TypeError, ValueError):
-        return None
+    t = s(v).replace("~","").replace("+","").replace("€","").replace("k","000").replace("≥","").replace("<","").replace("%","").strip()
+    try: f = float(t); return int(f) if f == int(f) else f
+    except: return None
 
-# ---------- BRUNA: Data Intelligence & CRM ----------
-def build_bruna():
-    xl = pd.ExcelFile(BRUNA)
-    painel = xl.parse("📊 Painel", header=None)
-    smart = xl.parse("📋 Metas SMART", header=None)
-    # SMART aba: header na linha 3, dados de 4 em diante. col0=#, 3=S,4=M,5=A,6=R,7=T,8=KPIs
-    smart_by_id = {}
-    for i in range(4, smart.shape[0]):
-        rid = s(smart.iat[i, 0])
-        if not rid: continue
-        smart_by_id[rid] = {
-            "especifico": s(smart.iat[i, 3]), "mensuravel": s(smart.iat[i, 4]),
-            "atingivel": s(smart.iat[i, 5]), "relevante": s(smart.iat[i, 6]),
-            "temporal": s(smart.iat[i, 7]), "kpis": s(smart.iat[i, 8]),
-        }
+SECTION_PREFIXES = ("🎯","📞","🌐","🌐","✅","🚫","🔑","🗓","📐","📥","📅","💰","🗂","EPI-USE")
+
+# ── MARLISON ─────────────────────────────────────────────────────────────────
+def build_marlison(xl):
+    df = xl.parse("Marlison — SDR", header=None)
     metas = []
-    # Painel: header na linha 7, dados 8+. col0=#,1=objetivo,2=horizonte,3=prazo,5=status,6=%,7=obs,8=proxima
-    for i in range(8, painel.shape[0]):
-        rid = s(painel.iat[i, 0])
-        objetivo = s(painel.iat[i, 1])
-        if not rid or not objetivo: continue
-        pct = num(painel.iat[i, 6]) or 0
-        sm = smart_by_id.get(rid, {})
+    SECOES = [
+        # (secao_label, start_row, col_mensal_plena, periodo)
+        ("Atividade Outbound",  9, 5, "diário"),
+        ("Resultado",          17, 5, "mensal"),
+        ("Presença Digital",   25, 2, "mensal"),
+    ]
+    for sec, start, cv, periodo in SECOES:
+        for i in range(start, df.shape[0]):
+            label = s(df.iat[i, 1])
+            if not label or label.startswith(SECTION_PREFIXES) or label in ("META (SMART)","O QUE VALIDAR","Fonte"): break
+            valor_raw = s(df.iat[i, cv])
+            if not valor_raw or valor_raw == "nan": continue
+            n = num(valor_raw)
+            unidade = label.rsplit("/", 1)[-1].strip().rstrip(")") if "/" in label else ""
+            metas.append({
+                "responsavel": "Marlison Estrela",
+                "area": "SDR · Prospecção (Marlison)",
+                "label": label, "secao": sec,
+                "valor": n if n is not None else valor_raw,
+                "unidade": unidade, "periodo": periodo,
+                "fonte": "Apollo / Zoho CRM",
+                "status": "Alinhado", "status_fonte": "manual",
+            })
+    return metas
+
+# ── BRUNA ─────────────────────────────────────────────────────────────────────
+def build_bruna(xl):
+    df = xl.parse("Bruna — MKT & CRM", header=None)
+    metas = []
+    for i in range(9, df.shape[0]):
+        label = s(df.iat[i, 1])
+        if not label or label.startswith(SECTION_PREFIXES) or label in ("META (SMART)","VALOR","Bruna"): continue
+        valor = s(df.iat[i, 2])
+        prazo = s(df.iat[i, 3]) if df.shape[1] > 3 else ""
+        fonte = s(df.iat[i, 4]) if df.shape[1] > 4 else ""
+        if not valor or valor in ("nan","VALOR","PRAZO"): continue
         metas.append({
             "responsavel": "Bruna Yamagami",
             "area": "Data Intelligence & CRM (Bruna)",
-            "id": rid,
-            "submeta": "." in rid or rid.startswith("B"),
-            "label": objetivo,
-            "horizonte": s(painel.iat[i, 2]),
-            "prazo": iso(painel.iat[i, 3]),
-            "status": s(painel.iat[i, 5]) or "Não Iniciado",
-            "valor": pct, "unidade": "%", "periodo": "projeto",
-            "kpis": sm.get("kpis", ""),
-            "smart": {k: sm.get(k, "") for k in ("especifico","mensuravel","atingivel","relevante","temporal")},
-            "obs": s(painel.iat[i, 7]),
-            "proxima_acao": s(painel.iat[i, 8]),
-            "fonte": "Metas SMART FY27 (Bruna)",
-            "status_fonte": "manual",
+            "label": label, "valor": valor,
+            "prazo": prazo, "fonte": fonte or "RD Station / HubSpot / Zoho",
+            "status": "Alinhado", "status_fonte": "manual",
+            "periodo": prazo.lower() if prazo else "mensal",
         })
     return metas
 
-# ---------- MARLISON: SDR / Prospeccao ----------
-def build_marlison():
-    xl = pd.ExcelFile(MARLISON)
-    sm = xl.parse("Metas SMART", header=None)
-    # Frentes SMART: header linha 2, dados 3-8. col0=Frente,1=Meta(S),2=Indicador(M),3=Como(A),4=PorQue(R),5=Prazo(T)
-    frentes = {}
-    for i in range(3, 9):
-        fr = s(sm.iat[i, 0])
-        if not fr: continue
-        frentes[fr.lower()] = {
-            "meta_s": s(sm.iat[i, 1]), "indicador": s(sm.iat[i, 2]),
-            "como": s(sm.iat[i, 3]), "porque": s(sm.iat[i, 4]), "prazo_t": s(sm.iat[i, 5]),
-        }
-    # Metas Diarias (referencia): bloco a partir da linha 12. col0=Frente,1=Diaria,2=Mensal
-    diarias = []
-    start = None
-    for i in range(sm.shape[0]):
-        if s(sm.iat[i, 0]).lower().startswith("frente") and num(sm.iat[i, 1]) is None and i > 5:
-            start = i + 1; break
-    if start:
-        for i in range(start, sm.shape[0]):
-            fr = s(sm.iat[i, 0]); d = num(sm.iat[i, 1]); m = num(sm.iat[i, 2])
-            if not fr or d is None: continue
-            diarias.append((fr, d, m))
-    # casa cada KPI diario com a frente SMART (match por palavra-chave)
-    def match_frente(nome):
-        n = nome.lower()
-        for k, v in frentes.items():
-            if k in n or n.split(" ")[0] in k: return v
-        if "ligaç" in n or "ligac" in n: return frentes.get("ligações") or frentes.get("ligacoes")
-        if "reuni" in n: return frentes.get("reuniões qualificadas") or frentes.get("reunioes qualificadas")
-        if "handover" in n: return frentes.get("handover para ae")
-        return {}
+# ── ISABELA ───────────────────────────────────────────────────────────────────
+def build_isabela(xl):
+    df = xl.parse("Isabela — Eventos & MDF", header=None)
     metas = []
-    cat = {"Ligações":"sdr_ligacoes","WhatsApp":"sdr_whatsapp","LinkedIn - Conexões":"sdr_li_conexoes",
-           "LinkedIn - Mensagens":"sdr_li_msgs","Email":"sdr_email","Reuniões Qualificadas":"sdr_reunioes",
-           "Handover para AE":"sdr_handover"}
-    unid = {"Ligações":"ligações","WhatsApp":"msgs","LinkedIn - Conexões":"conexões",
-            "LinkedIn - Mensagens":"msgs","Email":"emails","Reuniões Qualificadas":"reuniões","Handover para AE":"handovers"}
-    for fr, d, m in diarias:
-        fdef = match_frente(fr)
+    for i in range(9, df.shape[0]):
+        label = s(df.iat[i, 1])
+        if not label or label.startswith(SECTION_PREFIXES) or label in ("META (SMART)","VALOR","Isabela"): continue
+        valor = s(df.iat[i, 2])
+        prazo = s(df.iat[i, 3]) if df.shape[1] > 3 else ""
+        criterio = s(df.iat[i, 4]) if df.shape[1] > 4 else ""
+        if not valor or valor in ("nan","VALOR","META","CRITÉRIO"): continue
         metas.append({
-            "responsavel": "Marlison (SDR)",
-            "area": "SDR · Prospecção (Marlison)",
-            "label": fr,
-            "valor": d, "valor_mes": m, "unidade": unid.get(fr, ""),
-            "periodo": "diário",
-            "kpis": fdef.get("indicador", ""),
-            "meta_s": fdef.get("meta_s", ""),
-            "como": fdef.get("como", ""), "porque": fdef.get("porque", ""),
-            "categoria": cat.get(fr, "sdr_outro"),
-            "fonte": "Apollo/Zoho (manual)",
-            "status": "Alinhado",
-            "status_fonte": "manual",
+            "responsavel": "Isabela de Oliveira",
+            "area": "Eventos & Field Marketing (Isabela)",
+            "label": label, "valor": valor,
+            "prazo": prazo, "criterio": criterio,
+            "fonte": "Manual / relatório pós-evento",
+            "status": "Alinhado", "status_fonte": "manual",
+            "periodo": prazo.lower() if prazo else "anual",
         })
     return metas
 
+# ── DESIGNER ──────────────────────────────────────────────────────────────────
+def build_designer(xl):
+    df = xl.parse("Designer — Visual", header=None)
+    metas = []
+    for i in range(9, df.shape[0]):
+        label = s(df.iat[i, 1])
+        if not label or label.startswith(SECTION_PREFIXES) or label in ("ENTREGÁVEL","PRAZO","Designer"): continue
+        valor = s(df.iat[i, 2])
+        prazo = s(df.iat[i, 3]) if df.shape[1] > 3 else ""
+        criterio = s(df.iat[i, 4]) if df.shape[1] > 4 else ""
+        if not valor or valor in ("nan","META","PRAZO"): continue
+        metas.append({
+            "responsavel": "Designer Pleno/Sênior",
+            "area": "Envelopamento Visual (Designer)",
+            "label": label, "valor": valor,
+            "prazo": prazo, "criterio": criterio,
+            "fonte": "Canva / entrega manual",
+            "status": "Alinhado", "status_fonte": "manual",
+            "periodo": prazo.lower() if prazo else "mensal",
+        })
+    return metas
+
+# ── MAIN ──────────────────────────────────────────────────────────────────────
 def main():
     apply = "--apply" in sys.argv
-    bruna = build_bruna()
-    marlison = build_marlison()
-    metas = marlison + bruna
+    if not XLSX.exists():
+        print(f"[ERRO] Planilha não encontrada: {XLSX}")
+        print("Copie o xlsx atualizado para data/metas/ e rode novamente.")
+        sys.exit(1)
+
+    xl       = pd.ExcelFile(str(XLSX))
+    marlison = build_marlison(xl)
+    bruna    = build_bruna(xl)
+    isabela  = build_isabela(xl)
+    designer = build_designer(xl)
+    metas    = marlison + bruna + isabela + designer
+
+    por_status = {}
+    for m in metas:
+        k = m["status_fonte"]
+        por_status[k] = por_status.get(k, 0) + 1
+
     out = {
-        "fonte": "Metas pessoais FY27 — Bruna Yamagami (Data Intelligence & CRM) + Marlison (SDR/Prospecção BIZDEV)",
+        "fonte": "Metas Equipe RevOps EUBR FY27 — Marlison (SDR) · Bruna (MKT & CRM) · Isabela (Eventos) · Designer",
         "ano_fiscal": "FY27",
         "periodo_fiscal": "FY27",
         "gerado_em": datetime.datetime.now().isoformat(timespec="seconds"),
         "total_metas": len(metas),
-        "responsaveis": ["Marlison (SDR)", "Bruna Yamagami"],
+        "responsaveis": ["Marlison Estrela", "Bruna Yamagami", "Isabela de Oliveira", "Designer Pleno/Sênior"],
         "areas": sorted({m["area"] for m in metas}),
-        "por_status_fonte": {"manual": len(metas)},
+        "por_status_fonte": por_status,
         "metas": metas,
     }
-    print(f"[metas-pessoas] Marlison: {len(marlison)} KPIs | Bruna: {len(bruna)} metas | total {len(metas)}")
-    for m in marlison:
-        print(f"  SDR  {m['label']:<24} {m['valor']}/dia · {m.get('valor_mes')}/mês")
-    for m in bruna[:6]:
-        print(f"  DI   {m['id']:<4} {m['label'][:40]:<42} {m['status']} {m['valor']}%")
-    print(f"  ... (+{max(0,len(bruna)-6)} metas Bruna)")
+
+    print(f"\n[metas] Marlison: {len(marlison)} | Bruna: {len(bruna)} | Isabela: {len(isabela)} | Designer: {len(designer)} | TOTAL: {len(metas)}")
+    for m in metas[:8]:
+        print(f"  {m['area'][:30]:<30} {m['label'][:40]:<40} {str(m['valor'])[:15]}")
+    if len(metas) > 8: print(f"  ... (+{len(metas)-8} metas)")
+
     if apply:
+        OUT.parent.mkdir(parents=True, exist_ok=True)
         OUT.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
-        print(f"[metas-pessoas] GRAVADO em {OUT}")
+        print(f"\n[metas] GRAVADO -> {OUT}")
     else:
-        print("[metas-pessoas] DRY-RUN (use --apply para gravar)")
+        print(f"\n[metas] DRY-RUN (use --apply para gravar)")
 
 if __name__ == "__main__":
     main()
