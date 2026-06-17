@@ -47,6 +47,7 @@
   .tag.fundo { background: rgba(16,185,129,.12); color: #6ee7b7 }
   .tag.lob   { background: rgba(0,102,178,.15); color: #93c5fd }
   .tag.seo   { background: rgba(16,185,129,.10); color: #6ee7b7 }
+  .tag.geo   { background: rgba(139,92,246,.12); color: #c4b5fd }
   .card-foot { display:flex; justify-content:space-between; align-items:center; font-size:11px; color: #64748b; margin-top: 8px; padding-top: 8px; border-top: 1px dashed rgba(148,163,184,.08); }
   .card-foot a { color: #60a5fa; text-decoration: none; font-family:'JetBrains Mono',monospace; }
 
@@ -63,7 +64,7 @@
 
 <div class="container">
   <h1>📚 Artigos do Blog EPI-USE Brasil</h1>
-  <p class="sub">693 artigos classificados (via Manus AI) · score SEO médio 69→99 · fonte de matéria-prima pros Voices republicarem/comentarem/reescreverem</p>
+  <p class="sub">697 conteúdos classificados (via Manus AI) · SEO médio 53 / GEO médio 52 (cálculo real) · fonte de matéria-prima pros Voices republicarem/comentarem/reescreverem</p>
 
   <!-- STATS -->
   <div class="stats-strip" id="stats"></div>
@@ -162,7 +163,8 @@ function render() {
         ${a.ativos_nutricao && a.ativos_nutricao !== 'Institucional' ? `<span class="tag">${a.ativos_nutricao}</span>` : ''}
       </div>
       <div class="card-foot">
-        <span class="tag seo">SEO ${a.score_antes || '?'}→${a.score_depois || '?'} ${a.ganho || ''}</span>
+        <span class="tag seo" title="Score heuristico: titulo + URL + funil + LOB">SEO ${a.seo_score ?? '—'}</span>
+        <span class="tag geo" title="Generative Engine Optimization">GEO ${a.geo_score ?? '—'}</span>
         <a href="${a.url}" target="_blank">ver →</a>
       </div>
     </div>
