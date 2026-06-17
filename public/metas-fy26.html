@@ -131,9 +131,11 @@ async function carregar() {
     <div class="stat aguarda"><div class="stat-n">${s.aguarda_integracao||0}</div><div class="stat-l">🟣 Aguarda Integração</div></div>
   `;
 
-  // Agrupar por área (ordem manual)
-  const ORDEM_AREAS = ['Aquisição & Demanda', 'Conteúdo', 'Branding', 'Relacionamento', 'Programas Especiais', 'Eventos', 'Branding/Premiações'];
+  // Agrupar por área (ordem manual + áreas novas no fim)
+  const ORDEM_AREAS = ['SDR · Prospecção (Marlison)', 'Data Intelligence & CRM (Bruna)', 'Aquisição & Demanda', 'Conteúdo', 'Branding', 'Relacionamento', 'Programas Especiais', 'Eventos', 'Branding/Premiações'];
   const ICONES = {
+    'SDR · Prospecção (Marlison)': '📞',
+    'Data Intelligence & CRM (Bruna)': '📊',
     'Aquisição & Demanda': '🎯',
     'Conteúdo': '📝',
     'Branding': '💼',
@@ -144,15 +146,20 @@ async function carregar() {
   };
   const porArea = {};
   d.metas.forEach(m => { (porArea[m.area] = porArea[m.area] || []).push(m); });
+  // união: ordem conhecida + qualquer área extra que apareça nos dados
+  const ordem = [...new Set([...ORDEM_AREAS, ...Object.keys(porArea)])].filter(a => porArea[a]);
 
-  const html = ORDEM_AREAS.filter(a => porArea[a]).map(a => {
+  const html = ordem.map(a => {
     const metas = porArea[a];
-    const reais = metas.filter(m => m.status_fonte === 'real').length;
+    const concl = metas.filter(m => /conclu/i.test(m.status||'')).length;
+    const resumo = metas.some(m => m.periodo === 'projeto')
+      ? `${metas.length} metas · ${concl} concluída(s)`
+      : `${metas.length} frentes · meta diária`;
     return `
       <div class="area-card">
         <div class="area-hdr">
           <div class="area-nome">${ICONES[a]||'•'} ${a}</div>
-          <div class="area-resumo">${metas.length} metas · ${reais} com dado real</div>
+          <div class="area-resumo">${resumo}</div>
         </div>
         <div class="meta-grid">
           ${metas.map(m => renderMeta(m)).join('')}
@@ -165,6 +172,54 @@ async function carregar() {
 }
 
 function renderMeta(m) {
+  // === Marlison — KPI de atividade (meta diária + mensal) ===
+  if (m.periodo === 'diário') {
+    return `
+      <div class="meta ${m.status_fonte}">
+        <div class="meta-top">
+          <div>
+            <div class="meta-label">${m.label}</div>
+            ${m.kpis ? `<div class="meta-detalhe">${m.kpis}</div>` : ''}
+          </div>
+          <div class="meta-valor" style="white-space:nowrap">${fmt(m.valor)} <span style="font-size:12px;color:var(--color-text-muted)">${m.unidade}/dia</span></div>
+        </div>
+        <div class="meta-bottom">
+          <div class="meta-real">Meta mensal (22 dias úteis): <strong>${fmt(m.valor_mes)} ${m.unidade}</strong></div>
+          <div></div>
+        </div>
+        <div style="margin-top:6px">
+          <span class="fonte-badge manual" title="${m.fonte||''}">🟡 ${m.fonte}</span>
+        </div>
+      </div>`;
+  }
+  // === Bruna — meta de projeto SMART (status + prazo + % concluído) ===
+  if (m.periodo === 'projeto') {
+    const st = (m.status||'').toLowerCase();
+    let bar = 'danger', dot = '#94a3b8';
+    if (st.includes('conclu')) { bar = ''; dot = '#22c55e'; }
+    else if (st.includes('andamento')) { bar = 'warn'; dot = '#3b82f6'; }
+    else if (st.includes('risco') || st.includes('atras')) { bar = 'danger'; dot = '#ef4444'; }
+    const pc = m.valor || 0;
+    const prazo = m.prazo ? new Date(m.prazo + 'T00:00:00').toLocaleDateString('pt-BR') : '—';
+    const idTxt = m.submeta ? `<span style="opacity:.55">${m.id}</span> ` : `<strong>${m.id}</strong> `;
+    return `
+      <div class="meta ${m.status_fonte}"${m.submeta ? ' style="margin-left:14px;border-left:2px solid var(--color-border)"' : ''}>
+        <div class="meta-top">
+          <div>
+            <div class="meta-label">${idTxt}${m.label}</div>
+            ${m.kpis ? `<div class="meta-detalhe">${m.kpis}</div>` : ''}
+          </div>
+          <div class="meta-valor" style="white-space:nowrap;font-size:13px"><span style="color:${dot}">●</span> ${m.status}</div>
+        </div>
+        <div class="pbar-wrap"><div class="pbar ${bar}" style="width:${Math.min(100,pc)}%"></div></div>
+        <div class="meta-bottom">
+          <div class="meta-real">Prazo: <strong>${prazo}</strong>${m.horizonte ? ` · ${m.horizonte}` : ''}</div>
+          <div class="meta-pct">${pc}%</div>
+        </div>
+        ${m.obs ? `<div class="meta-detalhe" style="margin-top:6px;opacity:.85">📝 ${m.obs}</div>` : ''}
+      </div>`;
+  }
+  // === fallback (schema antigo area-KPI) ===
   const pct = m.progresso_pct;
   let pbarCls = '', pctCls = '';
   if (pct != null) {
