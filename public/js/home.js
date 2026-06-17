@@ -55,7 +55,7 @@
     const nome = await getNome();
     // saudação traduz (dict); nome é dado real → data-no-translate
     const nomeSafe = String(nome).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-    $('hero-saudacao').innerHTML = `${saudacao()}<span data-no-translate>, ${nomeSafe} 👋</span>`;
+    $('hero-saudacao').innerHTML = `ativar toda a força do MegaBrain`;
     const LOC = { pt:'pt-BR', en:'en-US', es:'es-ES' };
     const lang = (window.getLang ? window.getLang() : 'pt');
     const hoje = new Date().toLocaleDateString(LOC[lang] || 'pt-BR', { day:'2-digit', month:'long', year:'numeric' });

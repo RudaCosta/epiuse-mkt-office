@@ -3,21 +3,26 @@
 > Memória viva do CEO. Atualizado a cada sessão.
 
 ## Onboard realizado em: 2026-05-23
+## Última atualização: 2026-06-17 · usuária: Bruna Yamagami (Marketing Intelligence & CRM)
 
 ---
 
-## Estado atual dos projetos
+## Estado atual dos projetos (atualizado 17/jun/2026)
 
 | Projeto | Status | Prioridade |
 |---|---|---|
-| **Profile Optimizer (Módulo A)** | ✅ Construído e funcionando | Manutenção |
+| **Profile Optimizer (Módulo A)** | ✅ Construído e funcionando (v0.9.5+) | Manutenção |
 | **Marketing Hub (onboarding)** | ✅ Ativo em produção | Manutenção |
 | **Sales Hub** | ✅ Ativo em produção | Manutenção |
 | **EPI-USE Voices — programa** | 🟡 MVP (2/5 Voices ativos) | Alta |
-| **Office Engine (escritório virtual 2D)** | ⏳ Spec pronta, a codar | PRIORIDADE 1 |
-| **Painel da Duda (Módulo C)** | ⏳ A construir | PRIORIDADE 2 |
+| **Office Engine (escritório virtual)** | ✅ v1.0.0 localhost · prod Railway desatualizada | PUSH pendente (Rudá) |
+| **Painel da Duda (Módulo C)** | ✅ Daily Digest + Inbox por área (S15/0.11.0) | Manutenção |
 | **Voice Agents (Módulo B)** | ⏳ A construir | PRIORIDADE 3 |
 | **SAP Competitor Intelligence** | ✅ Skill ativa | Uso pontual |
+| **Field Marketing** | ✅ /field-marketing (92 eventos, S30) | Manutenção |
+| **Content Pipeline** | ✅ /content-pipeline kanban + SEO checker (S31) | Manutenção |
+| **Clientes SAP 4 ME** | ✅ /clientes-sap-4me (705 projetos, S29) | Manutenção |
+| **Railway Volume** | ✅ Volume /data persistente (09/jun) | Resolvido |
 
 ---
 
@@ -45,13 +50,14 @@
 - **Link**: https://railway.com/project/c363947a-dd68-4ba7-a715-fbaf37e932d5?environmentId=d8cc8800-a89d-4921-96ec-ef9550364dd4
 - **O que falta**: criar repo GitHub → conectar ao Railway → setar `ANTHROPIC_API_KEY` → URL pública pronta
 
-## Próximos passos sugeridos
+## Próximos passos (atualizado 17/jun/2026)
 
-1. **URGENTE** — Construir Office Engine MVP: `/lp` com spec de `EPI-USE-OFFICE-MASTER-BRIEF.md`
-2. Preencher campos em laranja do Carlos Furigo → reativar `/nova-oferta EPI-USE Voices`
-3. Onboarding de 3 novas Voices (prioridade: Signavio, Analytics, Indústria)
-4. Submeter sessão SAP NOW AI Tour 2026 até **26/06/2026**
-5. Painel da Duda (Módulo C) após Office Engine MVP
+1. **🔴 SSO Microsoft (B1)** — Azure: adicionar Redirect URIs + admin consent + setar env vars Railway (passos humanos Rudá)
+2. **S17 GA4** — `ga4_fetch.js` pronto; falta Rudá entregar Service Account JSON + Property ID
+3. **S18 Apollo cron** — Tarefa Windows diária 6h para Apollo
+4. **S19 Zoho CRM** — pipeline R$ (deals Opportunity Source=SDR)
+5. Onboarding de 3 novas Voices (prioridade: Signavio, Analytics, Indústria)
+6. Validação visual Voice Index em prod (Anderson Costa, ~5min)
 
 ## Notas operacionais
 - Sempre revisar entregas no `outbox/` antes de mover para `entregas/`
