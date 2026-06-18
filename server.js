@@ -237,6 +237,24 @@ for (const _col of ['carrossel_json', 'capa_url']) {
   try { db.exec(`ALTER TABLE content_pipeline ADD COLUMN ${_col} TEXT DEFAULT ''`); } catch (_e) { /* ja existe */ }
 }
 
+// app_blobs: KV de blobs JSON persistidos no volume (sobrevive a deploy).
+// Usado pelo events.json editado ao vivo (POST /api/events.json) p/ o prod
+// refletir sem precisar de novo deploy. (Opcao B)
+db.exec(`CREATE TABLE IF NOT EXISTS app_blobs (
+  key        TEXT PRIMARY KEY,
+  value      TEXT,
+  updated_at TEXT DEFAULT (datetime('now'))
+)`);
+// Boot-restore: se o DB (volume) tem events.json salvo, regrava o arquivo
+// (um deploy reseta public/ para a versao do repo — isto traz de volta a edicao ao vivo).
+try {
+  const _ev = db.prepare("SELECT value FROM app_blobs WHERE key = 'events.json'").get();
+  if (_ev && _ev.value) {
+    fs0.writeFileSync(require('path').join(__dirname, 'public/api/events.json'), _ev.value);
+    console.log('[boot] events.json restaurado do volume (app_blobs)');
+  }
+} catch (e) { console.warn('[boot] restore events.json falhou:', e.message); }
+
 // Repositório de Ideias de Marketing (mural criativo)
 db.exec(`
   CREATE TABLE IF NOT EXISTS ideias_mkt (
@@ -1093,6 +1111,24 @@ app.get('/api/metas', (req, res) => {
 });
 
 // POST metas (protegido — só com EDITOR_TOKEN)
+// POST /api/events.json — atualiza os eventos do Calendario Mestre AO VIVO (Opcao B).
+// Grava no arquivo (instancia viva) + no volume (app_blobs, sobrevive a deploy).
+// Alimentado por scripts/sync/sync_eventos.py --push. Protegido por EDITOR_TOKEN.
+app.post('/api/events.json', requireEditorToken, (req, res) => {
+  try {
+    const data = req.body;
+    if (!data || !data.abas || typeof data.abas !== 'object') {
+      return res.status(400).json({ success: false, error: 'payload invalido: faltou abas{}' });
+    }
+    const txt = JSON.stringify(data, null, 2);
+    fs0.writeFileSync(require('path').join(__dirname, 'public/api/events.json'), txt);
+    db.prepare(`INSERT INTO app_blobs (key, value, updated_at) VALUES ('events.json', @v, datetime('now'))
+      ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = datetime('now')`).run({ v: txt });
+    const total = Object.values(data.abas).reduce((s, a) => s + ((a.eventos || []).length), 0);
+    res.json({ success: true, bytes: txt.length, abas: Object.keys(data.abas), total_eventos: total });
+  } catch (e) { res.status(500).json({ success: false, error: e.message }); }
+});
+
 app.post('/api/metas', requireEditorToken, (req, res) => {
   const m = req.body?.metas || {};
   if (!Object.keys(m).length) return res.status(400).json({ success: false, error: 'metas{} vazio' });

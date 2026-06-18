@@ -15,12 +15,13 @@ Uso:
   python scripts/sync/sync_eventos.py          # dry-run (mostra, nao grava)
   python scripts/sync/sync_eventos.py --apply  # grava events.json (com backup)
 """
-import json, sys, datetime, shutil, os
+import json, sys, datetime, shutil, os, urllib.request
 from pathlib import Path
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT  = ROOT / "public" / "api" / "events.json"
+PROD = os.environ.get("OFFICE_URL", "https://office.epiuse.com.br")
 SOURCES = [
     ROOT / "data" / "eventos" / "EPI-USE Brasil 2026 - Eventos.xlsx",
     Path(r"C:/Users/Ruds/OneDrive - EPI USE BRASIL SERVI" + "Ç" + r"OS EM SISTEMAS LTDA/MARKETING/Planejamento/2026/EPI-USE Brasil 2026 - Eventos.xlsx"),
@@ -115,8 +116,28 @@ def main():
         OUT.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
         print(f"[eventos] backup: {bak.name}")
         print(f"[eventos] GRAVADO -> {OUT}  ({len(novos)} eventos brasil)")
+        if "--push" in sys.argv:
+            push_prod(data)
     else:
         print("[eventos] DRY-RUN (use --apply para gravar)")
+
+def push_prod(data):
+    """POSTa o events.json pro prod (Opcao B) — atualiza ao vivo, sem deploy."""
+    tok = os.environ.get("EDITOR_TOKEN")
+    if not tok:
+        print("[eventos] --push ignorado: defina EDITOR_TOKEN no ambiente.")
+        return
+    req = urllib.request.Request(
+        f"{PROD}/api/events.json",
+        data=json.dumps(data, ensure_ascii=False).encode("utf-8"),
+        headers={"Content-Type": "application/json", "x-editor-token": tok},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            print(f"[eventos] PUSH prod {PROD}: {r.status} {r.read().decode()[:120]}")
+    except Exception as e:
+        print(f"[eventos] PUSH falhou: {e}")
 
 if __name__ == "__main__":
     main()
