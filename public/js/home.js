@@ -33,7 +33,7 @@
     </svg>`;
   }
 
-  // ── NOME do usuário (SSO ou fallback) ───────────────────────────
+  // ── NOME do usuário (SSO > persona ativa > office.user) ─────────
   async function getNome() {
     try {
       const r = await fetch('/api/auth/status');
@@ -42,6 +42,11 @@
         return (d.user.name || '').split(' ')[0] || 'Rudá';
       }
     } catch {}
+    // persona selecionada no "Ver como" tem prioridade sobre office.user
+    const pid = localStorage.getItem('office.persona');
+    if (pid && PERSONAS?.personas?.[pid]?.nome) {
+      return PERSONAS.personas[pid].nome.split(' ')[0];
+    }
     try {
       let v = localStorage.getItem('office.user') || 'Rudá';
       // migra valor legado JSON {"nome":"X"} salvo por versão antiga
@@ -55,7 +60,7 @@
     const nome = await getNome();
     // saudação traduz (dict); nome é dado real → data-no-translate
     const nomeSafe = String(nome).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-    $('hero-saudacao').innerHTML = `ativar toda a força do MegaBrain`;
+    $('hero-saudacao').innerHTML = `${saudacao()}<span data-no-translate>, ${nomeSafe} 👋</span>`;
     const LOC = { pt:'pt-BR', en:'en-US', es:'es-ES' };
     const lang = (window.getLang ? window.getLang() : 'pt');
     const hoje = new Date().toLocaleDateString(LOC[lang] || 'pt-BR', { day:'2-digit', month:'long', year:'numeric' });
@@ -815,6 +820,7 @@
         sel.addEventListener('change', () => {
           localStorage.setItem('office.persona', sel.value);
           applyPersona(sel.value);
+          renderHero();
         });
       }
       applyPersona(pid);
