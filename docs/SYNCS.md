@@ -27,6 +27,7 @@ blog epiuse.com.br (693 art.) ──┘            tarefas agendadas (Windows) r
 
 | Script | O que faz | Fonte → Destino | Como rodar |
 |---|---|---|---|
+| `sync_eventos.py` | Regenera a camada **Eventos EPI-USE/SAP** do Calendário Mestre a partir da planilha de eventos (aba "Eventos 2026"). Preserva a aba LATAM. | `EPI-USE Brasil 2026 - Eventos.xlsx` → `public/api/events.json` (`abas.brasil`) | `python scripts/sync/sync_eventos.py --apply` → commit → **sobe** (events.json é estático; prod só reflete após deploy) |
 | `sync_calendario_duda.js` | Lê o calendário editorial (xlsx da Duda no OneDrive) e POSTa no app | xlsx OneDrive → `editorial_calendar` (fonte=`planilha-duda`) | `OFFICE_URL=<url> node scripts/sync/sync_calendario_duda.js` |
 | `sync_redatoria_to_calendar.js` | Cronograma da Redatoria → calendário | xlsx Redatoria → `editorial_calendar` (fonte=`redatoria`) | `node scripts/sync/sync_redatoria_to_calendar.js` |
 | `sync_cronograma_redatoria.js` | Importa cronograma de produção da Redatoria | xlsx → DB | `node scripts/sync/sync_cronograma_redatoria.js` |
