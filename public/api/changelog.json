@@ -1,6 +1,6 @@
 {
-  "current": "0.50.12",
-  "atualizado_em": "17/jun/2026",
+  "current": "0.50.13",
+  "atualizado_em": "18/jun/2026",
   "next": [
     {
       "version": "0.53.0",
@@ -54,9 +54,22 @@
   ],
   "releases": [
     {
+      "version": "0.50.13",
+      "date": "18/jun/2026",
+      "status": "current",
+      "path": null,
+      "title": "📅 Calendário Mestre: sync de eventos + edição ao vivo (sem deploy)",
+      "summary": "Corrigido o botão Atualizar do Calendário Mestre: a planilha de eventos agora sincroniza para o app. Eventos passam a refletir no prod sem precisar de novo deploy. Inclui pacote de handoff (docs) para colaboradores.",
+      "highlights": [
+        "sync_eventos.py: lê 'EPI-USE Brasil 2026 - Eventos.xlsx' → regenera events.json (camada Brasil, preserva LATAM), com backup.",
+        "POST /api/events.json (EDITOR_TOKEN) + tabela app_blobs no volume + boot-restore: prod reflete edição ao vivo, sem deploy (Opção B).",
+        "docs/HANDOFF.md + docs/SYNCS.md: pacote de passagem do projeto (syncs, tarefas agendadas, pastas)."
+      ]
+    },
+    {
       "version": "0.50.12",
       "date": "17/jun/2026",
-      "status": "current",
+      "status": "past",
       "path": null,
       "title": "🧠 Onboarding Bruna + saudação MegaBrain",
       "summary": "Onboarding da Bruna Yamagami (Marketing Intelligence & CRM) no ambiente local. Atualização dos workspaces CEO e área Intelligence com estado real dos projetos (jun/2026). Saudação da home alterada para teste de acesso de commit.",
