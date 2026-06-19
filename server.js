@@ -2152,13 +2152,19 @@ app.get('/api/linkedin/intelligence', (req, res) => {
     li_engaj_medio: c.li_posts ? +(c.li_engaj_soma / c.li_posts).toFixed(4) : null,
   })).filter(c => c.li_posts || c.pipeline || c.artigos);
 
+  // feed de posts individuais disponivel? (rotina diaria so traz seguidores/impressoes/reacoes)
+  const postsFeed = (rt.posts || []).length > 0;
+
   // insights: alto engaj + pipeline mas pouca cobertura de fundo = oportunidade
   const insights = [];
+  if (!postsFeed) {
+    insights.push({ tipo: 'pendente', lob: null, msg: '⏳ Feed de posts do LinkedIn ainda nao integrado (LinkedIn API) — engajamento por post/LOB fica pendente. Seguidores, impressoes e reacoes sao REAIS (rotina diaria).' });
+  }
   linhas.forEach(c => {
     if (c.li_engaj_medio != null && c.li_engaj_medio >= 0.10 && c.pipeline > 1e6 && c.artigos_fundo < 5) {
       insights.push({ tipo: 'oportunidade', lob: c.lob, msg: `${c.lob}: engaja no LinkedIn (${(c.li_engaj_medio*100).toFixed(1)}%) e tem R$${(c.pipeline/1e6).toFixed(1)}M em pipeline, mas só ${c.artigos_fundo} artigo(s) de fundo de funil — gap de conteúdo de decisão.` });
     }
-    if (c.pipeline > 1e6 && c.li_posts === 0) {
+    if (postsFeed && c.pipeline > 1e6 && c.li_posts === 0) {
       insights.push({ tipo: 'silencio', lob: c.lob, msg: `${c.lob}: R$${(c.pipeline/1e6).toFixed(1)}M em pipeline e ZERO post no período — marca silenciosa onde há demanda.` });
     }
     if (c.li_posts > 0 && c.pipeline === 0) {
@@ -2172,6 +2178,7 @@ app.get('/api/linkedin/intelligence', (req, res) => {
     top_posts: rt.top_posts,
     cross: linhas.sort((a, b) => b.pipeline - a.pipeline),
     insights,
+    posts_feed_disponivel: postsFeed,
     fonte: 'LinkedIn (rotina Cowork) × Zoho CRM × 693 artigos — dados REAIS',
   });
 });

@@ -1,5 +1,5 @@
 {
-  "current": "0.52.0",
+  "current": "0.52.1",
   "atualizado_em": "19/jun/2026",
   "next": [
     {
@@ -54,9 +54,21 @@
   ],
   "releases": [
     {
-      "version": "0.52.0",
+      "version": "0.52.1",
       "date": "19/jun/2026",
       "status": "current",
+      "path": null,
+      "title": "🔗 LinkedIn honesto: 'aguarda feed' em vez de '0 posts' falso",
+      "summary": "Fix da tela /linkedin: a tabela por LOB mostrava '0 posts' em tudo (parecia zero real) e gerava insight falso 'marca silenciosa', quando na verdade o feed de posts individuais ainda não é integrado. Agora mostra '⏳ aguarda feed' e suprime o insight falso (regra 7). Seguidores/impressões/reações seguem REAIS e live (10.710).",
+      "highlights": [
+        "/api/linkedin/intelligence: flag posts_feed_disponivel; insight 'silencio' só quando há feed; insight honesto de pendência quando não há.",
+        "linkedin.html: célula de posts mostra '⏳ aguarda feed' quando o feed não está integrado (em vez de '0 posts' enganoso)."
+      ]
+    },
+    {
+      "version": "0.52.0",
+      "date": "19/jun/2026",
+      "status": "past",
       "path": null,
       "title": "📞 Outreach Apollo no /relatorio + números de área LIVE + metas FY27",
       "summary": "Tile de outreach no /relatorio (Apollo real: empresas em conversa, e-mails enviados/respondidos, reuniões). Endpoint /api/areas.json com overlay LIVE em serve-time (corrige seguidores LinkedIn que ficavam chumbados em 10709 mesmo com a rotina rodando). Rota /metas-fy27. RD Station confirmado funcionando (OAuth ok). Memes: removido nome próprio, +3 memes (Trello/Two Buttons/ajustinho).",

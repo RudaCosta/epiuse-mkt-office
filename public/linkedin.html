@@ -114,7 +114,7 @@ const milhao=v=>'R$ '+(v/1e6).toFixed(1)+'M';
     </tr></thead><tbody>`;
   d.cross.forEach(c=>{
     const eng=c.li_engaj_medio!=null?(c.li_engaj_medio*100).toFixed(1)+'%':'<span class="muted">—</span>';
-    const liCell=c.li_posts?`${c.li_posts} post(s) · <b>${eng}</b>`:'<span class="warn0">0 posts</span>';
+    const liCell=c.li_posts?`${c.li_posts} post(s) · <b>${eng}</b>`:(d.posts_feed_disponivel?'<span class="warn0">0 posts</span>':'<span class="warn0">⏳ aguarda feed</span>');
     const pipePct=Math.round(c.pipeline/maxPipe*100);
     const fundo=c.artigos_fundo===0?`<span class="warn0">0 fundo</span>`:`${c.artigos_fundo} fundo`;
     h+=`<tr>
