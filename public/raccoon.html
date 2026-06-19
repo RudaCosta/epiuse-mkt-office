@@ -856,8 +856,21 @@
         <button type="button" class="btn-rax" id="btn-trigger" style="width: 100%; height: 44px; margin: 0;">
           <span>Soltar o Rax!</span> 🦝
         </button>
+        <button type="button" id="btn-revisar-existente" style="width:100%;height:40px;margin-top:8px;cursor:pointer;background:transparent;border:1px solid #2563EB;border-radius:8px;color:#60a5fa;font-weight:600;font-size:13px">🔍 Já tenho o artigo — revisar SEO/GEO</button>
       </div>
     </div>
+    <script>
+    (function(){
+      var b=document.getElementById('btn-revisar-existente'); if(!b) return;
+      b.addEventListener('click', function(){
+        var emp=document.getElementById('state-empty'); if(emp) emp.style.display='none';
+        var res=document.getElementById('state-result'); if(res) res.style.display='block';
+        var t=document.querySelector('[data-target="pane-seo"]'); if(t) t.click();
+        if(res) res.scrollIntoView({behavior:'smooth',block:'start'});
+        var ta=document.getElementById('srv-texto'); if(ta) setTimeout(function(){ta.focus()},300);
+      });
+    })();
+    </script>
   </form>
 
   <div class="layout">
@@ -1158,6 +1171,51 @@
 
         <!-- Pane 5: SEO / GEO -->
         <div class="tab-pane" id="pane-seo">
+          <div class="review-section" style="margin-bottom:18px;border-left-color:#2563EB">
+            <h3>📝 Revisar artigo colado (SEO + GEO · jun/2026)</h3>
+            <p style="font-size:12px;color:var(--color-text-muted);margin-bottom:10px">Cole o artigo completo. O Rax analisa SEO + GEO (regras jun/2026), recomenda a melhor keyword-foco, faz link juice com os 693 artigos e sugere CTA.</p>
+            <textarea id="srv-texto" placeholder="Cole o artigo completo aqui (mín. 200 caracteres)..." style="width:100%;min-height:140px;background:var(--color-bg-elev,#112540);border:1px solid var(--color-border,rgba(37,99,235,.2));border-radius:10px;color:var(--color-text,#e2e8f0);padding:10px;font-family:inherit;font-size:13px;line-height:1.5;resize:vertical"></textarea>
+            <div style="display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap">
+              <input id="srv-titulo" placeholder="Título (opcional)" style="flex:1;min-width:150px;background:var(--color-bg-elev,#112540);border:1px solid var(--color-border,rgba(37,99,235,.2));border-radius:8px;color:var(--color-text,#e2e8f0);padding:8px 10px;font-size:13px">
+              <input id="srv-lob" placeholder="LOB (opcional)" style="flex:1;min-width:140px;background:var(--color-bg-elev,#112540);border:1px solid var(--color-border,rgba(37,99,235,.2));border-radius:8px;color:var(--color-text,#e2e8f0);padding:8px 10px;font-size:13px">
+              <button id="srv-go" style="cursor:pointer;font-weight:700;font-size:13px;padding:9px 18px;border-radius:8px;border:0;background:#2563EB;color:#fff">Revisar</button>
+              <span id="srv-status" style="font-size:12px;color:var(--color-text-muted)"></span>
+            </div>
+            <div id="srv-results" style="display:none;margin-top:14px"></div>
+          </div>
+          <script>
+          (function(){
+            var $=function(id){return document.getElementById(id)};
+            var clr=function(v){return v>=75?'#10b981':v>=50?'#f59e0b':'#ef4444'};
+            var go=$('srv-go'); if(!go) return;
+            go.addEventListener('click', async function(){
+              var texto=($('srv-texto').value||'').trim(); var st=$('srv-status');
+              if(texto.length<200){ st.textContent='Cole pelo menos 200 caracteres.'; st.style.color='#fca5a5'; return; }
+              go.disabled=true; st.style.color='var(--color-text-muted)'; st.textContent='Revisando com IA...';
+              try{
+                var r=await fetch('/api/seo-review',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({texto:texto,titulo:($('srv-titulo').value||'').trim(),lob:($('srv-lob').value||'').trim()})});
+                var d=await r.json(); if(!d.success) throw new Error(d.error||'falhou'); var v=d.review;
+                var crit=function(arr){return (arr||[]).map(function(c){return '<div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06)"><b style="flex:0 0 42px;font-family:monospace;color:'+clr((c.nota||0)*10)+'">'+(c.nota!=null?c.nota:'-')+'/10</b><div><b style="font-size:12.5px">'+(c.nome||'')+'</b><div style="font-size:11.5px;color:var(--color-text-muted)">'+(c.obs||'')+'</div></div></div>'}).join('')};
+                var kw=v.keyword||{};
+                var html='<div style="display:flex;gap:10px;margin-bottom:14px">'+
+                  '<div style="flex:1;text-align:center;background:rgba(255,255,255,.03);border-radius:10px;padding:10px"><div style="font-size:10px;color:var(--color-text-muted);text-transform:uppercase">Geral</div><div style="font-size:30px;font-weight:900;color:'+clr(v.nota_geral)+'">'+(Math.round(v.nota_geral||0))+'</div></div>'+
+                  '<div style="flex:1;text-align:center;background:rgba(255,255,255,.03);border-radius:10px;padding:10px"><div style="font-size:10px;color:var(--color-text-muted);text-transform:uppercase">SEO</div><div style="font-size:30px;font-weight:900;color:'+clr(v.seo&&v.seo.score)+'">'+(Math.round((v.seo&&v.seo.score)||0))+'</div></div>'+
+                  '<div style="flex:1;text-align:center;background:rgba(255,255,255,.03);border-radius:10px;padding:10px"><div style="font-size:10px;color:var(--color-text-muted);text-transform:uppercase">GEO</div><div style="font-size:30px;font-weight:900;color:'+clr(v.geo&&v.geo.score)+'">'+(Math.round((v.geo&&v.geo.score)||0))+'</div></div></div>'+
+                  '<div style="font-size:13px;color:var(--color-text-dim,#94a3b8);margin-bottom:12px">'+(v.resumo||'')+'</div>'+
+                  '<div style="background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.3);border-radius:10px;padding:12px;margin-bottom:14px"><div style="font-size:11px;text-transform:uppercase;color:var(--color-text-muted)">🎯 Melhor keyword</div><div style="font-size:16px;font-weight:800;color:#60a5fa">'+(kw.principal||'-')+'</div><div style="font-size:12px;color:var(--color-text-dim,#94a3b8);margin-top:4px">Secundárias: '+((kw.secundarias||[]).join(', ')||'-')+'</div><div style="font-size:11.5px;color:var(--color-text-muted);margin-top:4px">'+(kw.onde_usar?'Usar em: '+kw.onde_usar+'. ':'')+(kw.motivo||'')+'</div></div>'+
+                  '<div style="font-size:12px;font-weight:800;text-transform:uppercase;color:var(--color-text-muted);margin:8px 0">⚡ Prioridades</div>'+((v.top_fixes||[]).map(function(f){return '<div style="font-size:13px;padding:5px 0">→ '+f+'</div>'}).join('')||'')+
+                  '<div style="font-size:12px;font-weight:800;text-transform:uppercase;color:var(--color-text-muted);margin:12px 0 6px">🔎 SEO</div>'+crit(v.seo&&v.seo.criterios)+
+                  '<div style="font-size:12px;font-weight:800;text-transform:uppercase;color:var(--color-text-muted);margin:12px 0 6px">🤖 GEO</div>'+crit(v.geo&&v.geo.criterios)+
+                  '<div style="font-size:12px;font-weight:800;text-transform:uppercase;color:var(--color-text-muted);margin:12px 0 6px">🔗 Link juice</div>'+((v.link_juice||[]).map(function(l){return '<div style="font-size:13px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06)">🔗 <a href="'+l.url+'" target="_blank" rel="noopener" style="color:#60a5fa">'+(l.anchor||l.url)+'</a><div style="font-size:11.5px;color:var(--color-text-muted)">'+(l.motivo||'')+'</div></div>'}).join('')||'<div style="font-size:12px;color:var(--color-text-muted)">sem sugestões internas relevantes</div>')+
+                  (v.cta?'<div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.3);border-radius:10px;padding:12px;margin-top:14px"><div style="font-size:11px;text-transform:uppercase;color:var(--color-text-muted)">📣 CTA</div><div style="font-weight:700;color:#6ee7b7">"'+(v.cta.texto||'')+'"</div><div style="font-size:11.5px;color:var(--color-text-muted);margin-top:4px">Posição: '+(v.cta.posicao||'-')+' · '+(v.cta.motivo||'')+'</div></div>':'');
+                $('srv-results').innerHTML=html; $('srv-results').style.display='block';
+                st.textContent='✓ '+d.candidatos_considerados+' artigos considerados'; st.style.color='var(--color-text-muted)';
+                var sb=$('seo-score'); if(sb) sb.textContent=Math.round(v.nota_geral||0);
+              }catch(e){ st.textContent='Erro: '+e.message; st.style.color='#fca5a5'; }
+              finally{ go.disabled=false; }
+            });
+          })();
+          </script>
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
             <span style="font-weight:600;font-size:14px">Pontuação Geral de Qualidade:</span>
             <span class="score-badge" id="seo-score">0</span>

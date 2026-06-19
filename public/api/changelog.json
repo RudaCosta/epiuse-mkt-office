@@ -1,5 +1,5 @@
 {
-  "current": "0.52.3",
+  "current": "0.53.0",
   "atualizado_em": "19/jun/2026",
   "next": [
     {
@@ -54,9 +54,22 @@
   ],
   "releases": [
     {
-      "version": "0.52.3",
+      "version": "0.53.0",
       "date": "19/jun/2026",
       "status": "current",
+      "path": null,
+      "title": "🔍 Revisor SEO & GEO no Raccoon Studio (regras jun/2026)",
+      "summary": "Nova área no Raccoon Studio/Inbound: cola um artigo e revisa SEO (Google, incl. AI Overviews) + GEO (motores generativos) com as regras de junho/2026. Dá nota 0-100, critérios detalhados, link juice (interlinking com os 693 artigos da base) e CTA sugerido. Integra a base de artigos como pool de links internos.",
+      "highlights": [
+        "POST /api/seo-review: Claude (sonnet) com rubrica SEO+GEO jun/2026; pool de link juice filtrado por LOB dos artigos já produzidos.",
+        "public/seo-review.html: input por colagem ou seleção dos 693; scorecard (geral/SEO/GEO), prioridades, critérios, link juice clicável e CTA.",
+        "Etiqueta 'gerado por IA — revisar' (regra 6). Rota /seo-review + item no nav (Voices & Optimizer)."
+      ]
+    },
+    {
+      "version": "0.52.3",
+      "date": "19/jun/2026",
+      "status": "past",
       "path": null,
       "title": "📊 Mais campos de área LIVE (overlay v3): posts, oportunidades, cases",
       "summary": "Overlay /api/areas.json estendido com fontes que já existem: brand Posts/mês (linkedin-routine, 17 reais) + Cases publicáveis (cs_clientes), pipeline Oportunidades (zoho_deals), eventos KPI 'Eventos planejados FY' (events.json). Campos sem fonte real (artigos produzidos/mês, pautas, vendas origem MKT, MDF) seguem pendentes (regra 7).",

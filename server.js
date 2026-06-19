@@ -3298,6 +3298,72 @@ Retorne APENAS JSON válido, sem texto antes/depois:
   }
 });
 
+// ── POST /api/seo-review — revisor SEO + GEO (jun/2026) + link juice + CTA via Claude ──
+app.post('/api/seo-review', async (req, res) => {
+  try {
+    const b = req.body || {};
+    const texto = (b.texto || '').trim();
+    const titulo = (b.titulo || '').trim();
+    const lob = (b.lob || '').trim();
+    if (texto.length < 200) return res.status(400).json({ success: false, error: 'Cole o artigo (minimo 200 caracteres) para revisar.' });
+
+    // pool de link juice: artigos ja produzidos (filtra por LOB se houver), compacto
+    const ad = _readJSON(ARTIGOS_JSON_PATH, { artigos: [] });
+    let pool = ad.artigos || [];
+    if (lob) { const f = pool.filter(a => (a.linha_de_negocio || '').toLowerCase().includes(lob.toLowerCase())); if (f.length >= 5) pool = f; }
+    const candidatos = pool.slice(0, 30).map(a => ({ titulo: a.titulo, url: a.url, etapa: a.etapa_funil }));
+
+    const prompt = `Voce e um especialista senior em SEO e GEO (Generative Engine Optimization) com as regras MAIS ATUAIS de junho/2026 para rankear no Google (incl. AI Overviews) e ser citado por motores generativos (ChatGPT, Gemini, Perplexity).
+
+Revise o ARTIGO abaixo e de notas 0-100. Seja rigoroso e acionavel.
+
+## Rubrica SEO (Google jun/2026)
+Intencao de busca atendida; Title/H1 otimizado; estrutura H2/H3; cobertura semantica/entidades; E-E-A-T (autoria, experiencia, fontes); helpful content (profundidade, originalidade, responde a query); links internos/externos; meta description; legibilidade; frescor/atualidade; alt de imagem; schema/dados estruturados.
+
+## Rubrica GEO (motores generativos jun/2026)
+Resposta direta e clara no topo; headings em forma de pergunta; estatisticas/fontes citaveis; clareza de entidades; dados estruturados (FAQ/HowTo); frases concisas e quotaveis; sinais de autoridade; cobertura abrangente de subtopicos; frescor; respondibilidade por LLM.
+
+## Keyword
+Analise o texto e recomende a MELHOR keyword-foco (melhor casamento de intencao de busca + potencial real de ranqueamento em jun/2026) + 2-3 secundarias/semanticas (LSI). Diga onde ela deve aparecer (title, H1, primeiros 100 palavras).
+
+## ARTIGO
+Titulo: ${titulo || '(sem titulo informado)'}
+LOB: ${lob || '(nao informado)'}
+Texto:
+"""${texto.slice(0, 12000)}"""
+
+## ARTIGOS INTERNOS DISPONIVEIS (para link juice - use SO os relevantes, com a URL exata da lista)
+${JSON.stringify(candidatos)}
+
+Retorne APENAS JSON valido, sem texto antes/depois:
+{
+  "nota_geral": 0,
+  "keyword": { "principal": "melhor keyword-foco", "secundarias": ["kw2", "kw3"], "onde_usar": "title, H1, primeiros 100 palavras", "motivo": "intencao + potencial jun/2026" },
+  "seo": { "score": 0, "criterios": [{ "nome": "string", "nota": 0, "obs": "string curta" }] },
+  "geo": { "score": 0, "criterios": [{ "nome": "string", "nota": 0, "obs": "string curta" }] },
+  "resumo": "2-3 frases de diagnostico",
+  "top_fixes": ["acao prioritaria 1", "acao 2", "acao 3"],
+  "link_juice": [{ "anchor": "texto ancora sugerido", "url": "url interna exata da lista", "motivo": "string" }],
+  "cta": { "texto": "CTA sugerido", "posicao": "topo|meio|fim", "motivo": "string" }
+}`;
+
+    const response = await client.messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 3000,
+      temperature: 0.3,
+      messages: [{ role: 'user', content: prompt }]
+    });
+    let raw = response.content[0].text.replace(/```json\s*/gi, '').replace(/```\s*/g, '');
+    const m = raw.match(/\{[\s\S]*\}/);
+    if (!m) return res.status(500).json({ success: false, error: 'IA nao retornou JSON valido' });
+    const parsed = JSON.parse(m[0]);
+    res.json({ success: true, review: parsed, candidatos_considerados: candidatos.length, gerado_em: new Date().toISOString() });
+  } catch (e) {
+    console.error('[SEO-REVIEW-FAIL]', e.message);
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
 function buildPrompt(fields) {
   const {
     linkedin_url,
