@@ -8,7 +8,7 @@
 // Fonte ÚNICA da verdade: public/api/changelog.json#current via /api/version
 // Fallback hardcoded usado SÓ se fetch falhar (offline, etc).
 // Sincronização automática — não editar manualmente, basta bumpar changelog.json.
-let OFFICE_NAV_VERSION = '0.50.13';
+let OFFICE_NAV_VERSION = '0.51.0';
 // Promise compartilhada — nav + footer reaproveitam o mesmo fetch
 window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/version')
   .then(r => r.ok ? r.json() : null)
@@ -164,6 +164,7 @@ const OFFICE_NAV_OVERFLOW = [
 
   { section: '🎮 Extras' },
   { label: '🎮 Modo Game',               href: '/game' },
+  { label: '🧠 Memes do Office',         href: '/memes' },
   { label: '🐘 ERP.ngo',                 href: 'https://erp.ngo', external: true }
 ];
 

@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memes do Office · EPI-USE Brasil</title>
+<meta name="description" content="A parede de memes radical do EPI-USE Office. Mega Brain, Doge, Stonks, Drake, This Is Fine e o folclore interno do time de RevOps & Marketing.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700;800;900&family=Bangers&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/design-tokens.css">
+<script type="module" src="/office-nav.js"></script>
+<script type="module" src="/office-footer.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0a0a1a; --bg-2: #12082b;
+  --bg-card: rgba(20, 12, 45, 0.6); --border: rgba(168,85,247,0.28); --border-light: rgba(255,255,255,0.08);
+  --border-active: rgba(236,72,153,0.6);
+  --text: #f0e9ff; --text-dim: #b9a9e0; --text-muted: #7d6ba8;
+  --neon-pink: #ff2e97; --neon-cyan: #00e5ff; --neon-purple: #a855f7; --neon-yellow: #ffe600; --neon-lime: #aaff00;
+}
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; overflow-x: hidden; position: relative; }
+/* synthwave grid + sun */
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -2;
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 8%, rgba(255,46,151,0.25), transparent 60%),
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,229,255,0.12), transparent 70%),
+    linear-gradient(180deg, var(--bg-2) 0%, var(--bg) 55%);
+}
+body::after {
+  content: ''; position: fixed; left: -10%; right: -10%; bottom: -40%; height: 80%; z-index: -1;
+  background-image:
+    linear-gradient(rgba(255,46,151,0.35) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,229,255,0.25) 1px, transparent 1px);
+  background-size: 44px 44px;
+  transform: perspective(340px) rotateX(62deg);
+  transform-origin: center bottom;
+  mask-image: linear-gradient(180deg, transparent, #000 40%);
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 40%);
+  animation: grid 6s linear infinite;
+}
+@keyframes grid { to { background-position: 0 44px, 44px 0; } }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 28px 22px 90px; position: relative; z-index: 1; }
+
+/* HEADER */
+.pg-head { text-align: center; margin: 14px 0 30px; }
+.pg-head .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--neon-cyan); text-shadow: 0 0 12px rgba(0,229,255,0.6); }
+.pg-head h1 { font-family: 'Bangers', cursive; font-size: clamp(40px, 8vw, 84px); letter-spacing: 2px; line-height: 0.95; margin: 6px 0 8px;
+  background: linear-gradient(180deg, #fff 0%, var(--neon-yellow) 45%, var(--neon-pink) 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 4px 0 rgba(168,85,247,0.5)) drop-shadow(0 0 24px rgba(255,46,151,0.5)); }
+.pg-head p { color: var(--text-dim); font-size: 14px; max-width: 580px; margin: 0 auto; }
+.tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 4px 11px; border-radius: 20px; border: 1px solid var(--border); color: var(--text-dim); margin-top: 14px; background: rgba(168,85,247,0.08); }
+
+/* shuffle / actions bar */
+.bar { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 22px 0 10px; }
+.btn { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer;
+  padding: 11px 18px; border-radius: 14px; border: 2px solid var(--neon-pink); background: rgba(255,46,151,0.12); color: #fff; transition: transform .12s, box-shadow .12s;
+  box-shadow: 0 0 0 rgba(255,46,151,0); }
+.btn:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 0 22px rgba(255,46,151,0.55); }
+.btn.cyan { border-color: var(--neon-cyan); background: rgba(0,229,255,0.10); }
+.btn.cyan:hover { box-shadow: 0 0 22px rgba(0,229,255,0.55); }
+.btn.lime { border-color: var(--neon-lime); background: rgba(170,255,0,0.10); color:#eaffd0; }
+
+/* MEGA BRAIN HERO */
+.megabrain { position: relative; margin: 26px auto 16px; max-width: 660px; border-radius: 24px; overflow: hidden;
+  border: 2px solid var(--neon-purple); background: linear-gradient(180deg, rgba(168,85,247,0.12), rgba(10,10,26,0.5));
+  box-shadow: 0 0 60px rgba(168,85,247,0.4), inset 0 0 40px rgba(255,46,151,0.08); }
+.megabrain svg { display: block; width: 100%; height: auto; }
+.megabrain .cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 24px 24px 18px; background: linear-gradient(0deg, rgba(5,3,15,0.94), transparent); }
+.megabrain .cap .who { font-weight: 900; font-size: 22px; }
+.megabrain .cap .what { color: var(--neon-cyan); font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; text-shadow: 0 0 10px rgba(0,229,255,0.5); }
+.megabrain .badge { position: absolute; top: 14px; right: 14px; font-family: 'Bangers', cursive; letter-spacing: 1px; font-size: 16px; padding: 4px 14px; border-radius: 20px; background: rgba(255,230,0,0.15); border: 2px solid var(--neon-yellow); color: var(--neon-yellow); text-shadow: 0 0 10px rgba(255,230,0,0.5); transform: rotate(6deg); }
+
+/* SECTION TITLES */
+.section-title { font-family: 'Bangers', cursive; letter-spacing: 1.5px; font-size: 26px; color: #fff; margin: 48px 0 18px; display: flex; align-items: center; gap: 12px; }
+.section-title span.l { flex: 1; height: 3px; background: linear-gradient(90deg, var(--neon-pink), transparent); border-radius: 3px; }
+
+/* GALAXY BRAIN 4-PANEL */
+.brainmeme { border: 2px solid var(--border); border-radius: 18px; overflow: hidden; margin-bottom: 8px; }
+.bm-row { display: grid; grid-template-columns: 1.1fr 1fr; align-items: center; border-bottom: 1px solid var(--border-light); }
+.bm-row:last-child { border-bottom: none; }
+.bm-text { padding: 20px 22px; font-size: 16px; font-weight: 600; line-height: 1.4; }
+.bm-text small { display: block; font-weight: 400; font-size: 12px; color: var(--text-muted); margin-top: 6px; font-family: 'JetBrains Mono', monospace; }
+.bm-art { padding: 18px; display: flex; align-items: center; justify-content: center; min-height: 120px; }
+.bm-art .glow { width: 84px; height: 84px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; }
+.bm-row:nth-child(1) .glow { box-shadow: 0 0 16px rgba(148,163,184,0.4); }
+.bm-row:nth-child(2) { background: rgba(0,229,255,0.04); }
+.bm-row:nth-child(2) .glow { box-shadow: 0 0 26px rgba(0,229,255,0.55); }
+.bm-row:nth-child(3) { background: rgba(168,85,247,0.06); }
+.bm-row:nth-child(3) .glow { box-shadow: 0 0 38px rgba(168,85,247,0.65); }
+.bm-row:nth-child(4) { background: radial-gradient(ellipse at center, rgba(255,46,151,0.14), rgba(168,85,247,0.06)); }
+.bm-row:nth-child(4) .glow { box-shadow: 0 0 60px rgba(255,46,151,0.85), 0 0 30px rgba(255,230,0,0.6); animation: pulse 2.2s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
+/* CLASSIC MEME WALL — impact-text format */
+.wall { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 18px; }
+.meme { position: relative; border-radius: 14px; overflow: hidden; border: 3px solid #000; background: #111; transition: transform .15s, box-shadow .15s; cursor: default; }
+.meme:hover { transform: translateY(-4px) rotate(-1deg); box-shadow: 0 14px 34px rgba(0,0,0,0.6), 0 0 22px rgba(255,46,151,0.4); z-index: 2; }
+.meme .scene { aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; position: relative; font-size: 76px; text-align: center; }
+.meme .impact { position: absolute; left: 6px; right: 6px; text-align: center; font-family: 'Bangers', cursive; letter-spacing: 1px; color: #fff; font-size: clamp(16px, 4.4vw, 26px); line-height: 1.05;
+  text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, 0 0 4px #000; text-transform: uppercase; }
+.meme .impact.top { top: 8px; }
+.meme .impact.bottom { bottom: 8px; }
+.meme .lbl { padding: 9px 12px; font-size: 11px; color: var(--text-dim); background: rgba(0,0,0,0.5); font-family: 'JetBrains Mono', monospace; border-top: 1px solid var(--border-light); }
+.meme.wide { grid-column: span 2; }
+.meme.wide .scene { aspect-ratio: 2/1; font-size: 60px; }
+
+/* drake format */
+.drake { display: grid; grid-template-rows: 1fr 1fr; aspect-ratio: 1/1; }
+.drake > div { display: flex; align-items: center; gap: 10px; padding: 10px 12px; }
+.drake .no { background: #f4d35e; color: #1a1a1a; }
+.drake .yes { background: #2a9d8f; color: #fff; }
+.drake .emo { font-size: 40px; flex: 0 0 auto; }
+.drake .txt { font-weight: 800; font-size: 14px; line-height: 1.2; }
+
+/* gradient scenes */
+.s-doge { background: radial-gradient(circle at 50% 45%, #2a2a4a, #0a0a1a); }
+.s-stonks { background: linear-gradient(135deg, #003d2e, #0a0a1a); }
+.s-fire { background: linear-gradient(0deg, #ff5e00, #7a1500); }
+.s-cyber { background: linear-gradient(135deg, #1a0a3a, #3a0a5a); }
+.s-gold { background: linear-gradient(135deg, #4a3a00, #1a1400); }
+.s-chad { background: linear-gradient(135deg, #1a1a2a, #000); }
+.s-pink { background: linear-gradient(135deg, #5a0a3a, #1a0a2a); }
+.doge-text { position: absolute; font-family: 'Comic Sans MS', 'Inter', cursive; font-weight: 700; font-size: 13px; }
+.doge-text.t1 { top: 14%; left: 8%; color: var(--neon-lime); transform: rotate(-4deg); }
+.doge-text.t2 { top: 38%; right: 8%; color: var(--neon-cyan); transform: rotate(3deg); }
+.doge-text.t3 { bottom: 26%; left: 12%; color: var(--neon-yellow); transform: rotate(-2deg); }
+.doge-text.t4 { bottom: 10%; right: 14%; color: var(--neon-pink); transform: rotate(4deg); }
+
+.footnote { text-align: center; color: var(--text-muted); font-size: 11px; margin-top: 48px; font-family: 'JetBrains Mono', monospace; line-height: 1.7; }
+
+/* sparkle on click */
+.spark { position: fixed; pointer-events: none; font-size: 22px; z-index: 999; animation: spk .8s ease-out forwards; }
+@keyframes spk { 0% { transform: translateY(0) scale(0.6); opacity: 1; } 100% { transform: translateY(-60px) scale(1.4) rotate(40deg); opacity: 0; } }
+
+@media (max-width: 560px) {
+  .bm-row { grid-template-columns: 1fr; } .bm-art { order: -1; }
+  .meme.wide { grid-column: span 1; } .meme.wide .scene { aspect-ratio: 1/1; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="pg-head">
+    <div class="eyebrow">◢◤ Folclore interno · RevOps &amp; Marketing ◢◤</div>
+    <h1>Memes do Office</h1>
+    <p>A parede de memes mais radical da EPI-USE Brasil. Clássicos, novos e o cérebro do Office expandindo até virar galáxia. 🧠⚡</p>
+    <div class="tag">🤖 Humor interno — não publicar externo sem aprovação Duda · arte original (sem hotlink)</div>
+    <div class="bar">
+      <button class="btn" id="shuffle">🎲 Embaralhar memes</button>
+      <button class="btn cyan" id="toMega">🧠 Ir pro Mega Brain</button>
+      <a class="btn lime" href="/ideias">💡 Mandar meme novo</a>
+    </div>
+  </div>
+
+  <!-- MEGA BRAIN — homenagem Thiago Finch -->
+  <div class="megabrain" id="mega">
+    <div class="badge">MEGA BRAIN ⚡</div>
+    <svg viewBox="0 0 640 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mega Brain brilhante — homenagem ao meme do Thiago Finch">
+      <defs>
+        <radialGradient id="halo" cx="50%" cy="42%" r="55%">
+          <stop offset="0%" stop-color="#fff0fb" stop-opacity="0.6"/>
+          <stop offset="40%" stop-color="#ff2e97" stop-opacity="0.32"/>
+          <stop offset="100%" stop-color="#0a0a1a" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="brainfill" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#ffe1fb"/><stop offset="50%" stop-color="#e9b8ff"/><stop offset="100%" stop-color="#c084fc"/>
+        </linearGradient>
+        <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      <rect width="640" height="420" fill="#0a0a1a"/>
+      <circle cx="320" cy="180" r="250" fill="url(#halo)"/>
+      <g stroke="#ffd6f4" stroke-width="2" opacity="0.55" stroke-linecap="round">
+        <line x1="320" y1="16" x2="320" y2="58"/><line x1="110" y1="56" x2="144" y2="92"/><line x1="530" y1="56" x2="496" y2="92"/>
+        <line x1="52" y1="200" x2="100" y2="200"/><line x1="588" y1="200" x2="540" y2="200"/>
+      </g>
+      <g filter="url(#soft)">
+        <path fill="url(#brainfill)" stroke="#ff2e97" stroke-width="3" d="M320 70 c-46 0 -78 22 -88 52 c-34 2 -58 26 -58 56 c0 18 9 33 23 42 c-4 26 16 50 47 52 c12 22 40 32 76 32 c2 0 2 0 2 0 c34 0 62 -10 74 -32 c31 -2 51 -26 47 -52 c14 -9 23 -24 23 -42 c0 -30 -24 -54 -58 -56 c-10 -30 -42 -52 -88 -52 Z"/>
+        <g fill="none" stroke="#9333ea" stroke-width="2.4" stroke-linecap="round" opacity="0.85">
+          <path d="M320 86 v220"/>
+          <path d="M300 110 c-26 6 -30 30 -10 40 c-22 8 -18 34 6 38 c-20 12 -8 38 16 38"/>
+          <path d="M340 110 c26 6 30 30 10 40 c22 8 18 34 -6 38 c20 12 8 38 -16 38"/>
+          <path d="M250 150 c-14 4 -16 22 0 28"/><path d="M390 150 c14 4 16 22 0 28"/>
+          <path d="M236 210 c-12 6 -10 24 4 28"/><path d="M404 210 c12 6 10 24 -4 28"/>
+        </g>
+      </g>
+      <g fill="#fff"><circle cx="108" cy="118" r="1.8"/><circle cx="542" cy="138" r="2.2"/><circle cx="88" cy="300" r="1.6"/><circle cx="560" cy="320" r="1.8"/><circle cx="200" cy="360" r="1.4"/><circle cx="432" cy="372" r="1.6"/></g>
+    </svg>
+    <div class="cap">
+      <div class="what">quando bate o insight</div>
+      <div class="who">Thiago Finch — Mega Brain 🧠⚡</div>
+    </div>
+  </div>
+
+  <!-- GALAXY BRAIN 4 PAINEIS -->
+  <h2 class="section-title">🚀 O cérebro expandindo no RevOps <span class="l"></span></h2>
+  <div class="brainmeme">
+    <div class="bm-row"><div class="bm-text">Fazer relatório mensal na mão, slide por slide<small>// 4 horas + café</small></div><div class="bm-art"><div class="glow">🧠</div></div></div>
+    <div class="bm-row"><div class="bm-text">Rodar a skill <code>relatorio-mensal</code> e gerar o PPTX sozinho<small>// /relatorio</small></div><div class="bm-art"><div class="glow">🧠✨</div></div></div>
+    <div class="bm-row"><div class="bm-text">Apollo + cases + LinkedIn sincronizando sozinhos via Tarefa Agendada<small>// dado REAL, zero mock</small></div><div class="bm-art"><div class="glow">🌌</div></div></div>
+    <div class="bm-row"><div class="bm-text">Office inteiro rodando no localhost + Railway enquanto você dorme<small>// MEGA BRAIN ativado</small></div><div class="bm-art"><div class="glow">🧠💥</div></div></div>
+  </div>
+
+  <!-- CLASSICOS -->
+  <h2 class="section-title">📼 Clássicos eternos <span class="l"></span></h2>
+  <div class="wall" id="wall">
+
+    <div class="meme">
+      <div class="drake">
+        <div class="no"><span class="emo">🙅</span><span class="txt">Mandar número fictício como se fosse real</span></div>
+        <div class="yes"><span class="emo">💪</span><span class="txt">⏳ Aguardando integração [GA4]</span></div>
+      </div>
+      <div class="lbl">// Drake · REAL DATA ONLY</div>
+    </div>
+
+    <div class="meme">
+      <div class="scene s-doge">
+        <span style="font-size:84px">🐕</span>
+        <span class="doge-text t1">much pipeline</span>
+        <span class="doge-text t2">very Apollo</span>
+        <span class="doge-text t3">so 39k contatos</span>
+        <span class="doge-text t4">wow</span>
+      </div>
+      <div class="lbl">// Doge · /pipeline</div>
+    </div>
+
+    <div class="meme">
+      <div class="scene s-stonks">
+        <span style="font-size:70px">📈</span>
+        <span class="impact bottom" style="color:var(--neon-lime)">STONKS</span>
+        <span class="impact top">SSI DO VOICE SUBIU</span>
+      </div>
+      <div class="lbl">// Stonks · Voices</div>
+    </div>
+
+    <div class="meme wide">
+      <div class="scene s-fire">
+        <span style="font-size:64px">🐶☕🔥</span>
+        <span class="impact top">DEPLOY NA SEXTA 18H</span>
+        <span class="impact bottom">"this is fine"</span>
+      </div>
+      <div class="lbl">// This Is Fine · sexta-feira</div>
+    </div>
+
+    <div class="meme">
+      <div class="scene s-cyber">
+        <span style="font-size:72px">🤝</span>
+        <span class="impact top">TRADE OFFER</span>
+        <span class="impact bottom" style="font-size:15px">VC RECEBE: deploy<br>EU RECEBO: "sobe"</span>
+      </div>
+      <div class="lbl">// Trade Offer · regra de ouro #3</div>
+    </div>
+
+    <div class="meme">
+      <div class="scene s-gold">
+        <span style="font-size:74px">🗿</span>
+        <span class="impact bottom" style="color:var(--neon-yellow)">VANILLA JS, ZERO FRAMEWORK</span>
+      </div>
+      <div class="lbl">// Gigachad · stack do Office</div>
+    </div>
+
+    <div class="meme">
+      <div class="scene s-pink">
+        <span style="font-size:78px">😮</span>
+        <span class="impact bottom">SQLITE DO RAILWAY<br>NÃO PERSISTIU DE NOVO</span>
+      </div>
+      <div class="lbl">// Surprised Pikachu · P0 histórico</div>
+    </div>
+
+    <div class="meme">
+      <div class="scene s-cyber">
+        <span style="font-size:64px">🧍↔️💃</span>
+        <span class="impact top">EU</span>
+        <span class="impact bottom">react · &nbsp; vanilla &nbsp; · vue</span>
+      </div>
+      <div class="lbl">// Distracted Boyfriend · CLAUDE.md venceu</div>
+    </div>
+
+  </div>
+
+  <!-- NOVOS -->
+  <h2 class="section-title">⚡ Era nova (2026) <span class="l"></span></h2>
+  <div class="wall" id="wall2">
+
+    <div class="meme">
+      <div class="scene s-pink">
+        <span style="font-size:72px">🧠⚡</span>
+        <span class="impact top">EU vs O OFFICE</span>
+        <span class="impact bottom">MEGA BRAIN MODE</span>
+      </div>
+      <div class="lbl">// Mega Brain · Thiago Finch homage</div>
+    </div>
+
+    <div class="meme">
+      <div class="scene s-cyber">
+        <span style="font-size:70px">🦝💻</span>
+        <span class="impact bottom">"SÓ MAIS UM CARROSSEL"<br>— o Rax, 23h</span>
+      </div>
+      <div class="lbl">// Rax Studio · /raccoon</div>
+    </div>
+
+    <div class="meme">
+      <div class="scene s-stonks">
+        <span style="font-size:64px">🤖🫡</span>
+        <span class="impact top">5 AGENTES NO COWORK</span>
+        <span class="impact bottom">brief → artigo → carrossel</span>
+      </div>
+      <div class="lbl">// NPC army · /cowork</div>
+    </div>
+
+    <div class="meme wide">
+      <div class="scene s-gold">
+        <span style="font-size:60px">🐘💜</span>
+        <span class="impact top">ERP DE GRAÇA PRA ONG</span>
+        <span class="impact bottom">REAL. NÃO É MEME. (mas é radical)</span>
+      </div>
+      <div class="lbl">// ERP.ngo · o impacto é real</div>
+    </div>
+
+    <div class="meme">
+      <div class="scene s-fire">
+        <span style="font-size:72px">📊😵</span>
+        <span class="impact top">DIRETORIA: "CADÊ O DADO?"</span>
+        <span class="impact bottom">⏳ INTEGRAÇÃO PENDENTE</span>
+      </div>
+      <div class="lbl">// Panik · roadmap S46/S47</div>
+    </div>
+
+    <div class="meme">
+      <div class="scene s-cyber">
+        <span style="font-size:74px">🧠📈</span>
+        <span class="impact bottom" style="color:var(--neon-lime)">IT'S NOT JUST A DASHBOARD<br>IT'S THE WHOLE OFFICE</span>
+      </div>
+      <div class="lbl">// Galaxy brain · v0.51.0</div>
+    </div>
+
+  </div>
+
+  <div class="footnote">
+    ◢◤ 🤖 Página de humor interno · homenagem ao meme do Mega Brain (Thiago Finch) ◢◤<br>
+    Toda arte é original (SVG/CSS/emoji) — nenhum hotlink de imagem de terceiro · EPI-USE Office
+  </div>
+
+</div>
+
+<script>
+  // shuffle os cards de cada parede
+  function shuffleWall(id) {
+    const w = document.getElementById(id); if (!w) return;
+    const kids = Array.from(w.children);
+    for (let i = kids.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      w.appendChild(kids[j]); kids.splice(j, 1);
+    }
+  }
+  document.getElementById('shuffle')?.addEventListener('click', () => {
+    shuffleWall('wall'); shuffleWall('wall2');
+    burst(window.innerWidth/2, 160);
+  });
+  document.getElementById('toMega')?.addEventListener('click', () => {
+    document.getElementById('mega')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+  // sparkle burst
+  function burst(x, y) {
+    const emos = ['🧠','⚡','✨','🚀','🔥','💥','🌌'];
+    for (let i = 0; i < 10; i++) {
+      const s = document.createElement('div'); s.className = 'spark';
+      s.textContent = emos[Math.floor(Math.random()*emos.length)];
+      s.style.left = (x + (Math.random()*120-60)) + 'px';
+      s.style.top = (y + (Math.random()*40-20)) + 'px';
+      document.body.appendChild(s); setTimeout(() => s.remove(), 800);
+    }
+  }
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('.meme')) burst(e.clientX, e.clientY);
+  });
+</script>
+</body>
+</html>
