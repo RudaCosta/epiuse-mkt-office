@@ -316,6 +316,42 @@
   <!-- ALERTAS -->
   <div id="alertas-box"></div>
 
+  <!-- OUTREACH (Apollo) -->
+  <section class="sec" id="s-outreach">
+    <div class="sec-hdr"><div class="sec-num">📞</div><div class="sec-title">Outreach — prospecção (Apollo)</div></div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 12px">
+      <span id="outreach-tag" style="font-size:11px;color:var(--muted);background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.25);padding:3px 9px;border-radius:20px">📝 snapshot — carregando…</span>
+    </div>
+    <div class="kpi-grid" id="outreach-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px">
+      <div class="gen-card" style="padding:14px"><div style="font-size:12px;color:var(--muted)">Empresas em conversa</div><div id="o-empresas" class="li-big-num" style="font-size:26px">—</div><div style="font-size:11px;color:var(--dim)">contas tocadas · 30d</div></div>
+      <div class="gen-card" style="padding:14px"><div style="font-size:12px;color:var(--muted)">E-mails enviados</div><div id="o-enviados" class="li-big-num" style="font-size:26px">—</div><div style="font-size:11px;color:var(--dim)" id="o-contatos">— contatos · 30d</div></div>
+      <div class="gen-card" style="padding:14px"><div style="font-size:12px;color:var(--muted)">Respondidos</div><div id="o-respondidos" class="li-big-num" style="font-size:26px">—</div><div style="font-size:11px;color:var(--dim)" id="o-taxa">taxa —</div></div>
+      <div class="gen-card" style="padding:14px"><div style="font-size:12px;color:var(--muted)">Reuniões geradas</div><div id="o-reunioes" class="li-big-num" style="font-size:26px">—</div><div style="font-size:11px;color:var(--dim)" id="o-agendadas">— agendadas · 30d</div></div>
+    </div>
+  </section>
+  <script>
+  (async function(){
+    try {
+      const r = await fetch('/api/relatorio-outreach.json?t=' + Date.now());
+      const d = await r.json(); const k = d.kpis || {};
+      const nf = new Intl.NumberFormat('pt-BR');
+      const set = (id,v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+      set('o-empresas', nf.format(k.empresas_em_conversa ?? 0));
+      set('o-enviados', nf.format(k.emails_enviados ?? 0));
+      set('o-respondidos', nf.format(k.emails_respondidos ?? 0));
+      set('o-reunioes', nf.format(k.reunioes_realizadas ?? 0));
+      set('o-contatos', nf.format(k.contatos_emailados ?? 0) + ' contatos · 30d');
+      set('o-taxa', 'taxa ' + (k.taxa_resposta_pct ?? 0) + '%');
+      set('o-agendadas', nf.format(k.reunioes_agendadas ?? 0) + ' agendadas · 30d');
+      const tag = document.getElementById('outreach-tag');
+      if (tag) tag.textContent = '📝 snapshot Apollo · ' + (d.capturado_em || '—') + ' (30d)';
+    } catch (e) {
+      const tag = document.getElementById('outreach-tag');
+      if (tag) tag.textContent = '⏳ outreach indisponível — rode a sync Apollo';
+    }
+  })();
+  </script>
+
   <!-- 1. KPIs DIGITAIS -->
   <section class="sec" id="s1">
     <div class="sec-hdr"><div class="sec-num">1</div><div class="sec-title">KPIs Digitais</div></div>

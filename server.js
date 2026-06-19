@@ -419,6 +419,39 @@ const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 // Trust proxy 1 hop pra Railway (rate limit reconhece IP real)
 app.set('trust proxy', 1);
 
+// ── /api/areas.json — overlay de valores LIVE em serve-time (fonte unica, v0.52) ──
+// Registrado ANTES do express.static p/ sobrepor o arquivo estatico.
+// Sobrepoe: seguidores (linkedin-routine) + contatos/empresas (apollo pipeline-snapshot).
+// Mantem null como pendente (regra 7) — nunca chumba numero.
+app.get('/api/areas.json', (req, res) => {
+  try {
+    const fsx = require('fs');
+    const apiPath = (f) => path.join(__dirname, 'public/api', f);
+    const readJSON = (f) => { try { return JSON.parse(fsx.readFileSync(apiPath(f), 'utf8')); } catch (_) { return null; } };
+    const areas = readJSON('areas.json');
+    if (!areas) return res.status(404).json({ error: 'areas.json nao encontrado' });
+    const rt = readJSON('linkedin-routine.json');
+    const pl = readJSON('pipeline-snapshot.json');
+    const seguidores = rt && rt.seguidores_atual != null ? rt.seguidores_atual : null;
+    const contatos = pl && pl.contatos_total != null ? pl.contatos_total : null;
+    const contas = pl && pl.contas_total != null ? pl.contas_total : null;
+    let n = 0;
+    const apply = (item) => {
+      if (!item || item.valor == null) return; // mantem pendente (regra 7)
+      const lbl = (item.estagio || item.label || '').toLowerCase();
+      if (/seguidor/.test(lbl) && !/(novo|ganho|atribu)/.test(lbl) && seguidores != null) { item.valor = seguidores; item._live = 'linkedin-routine'; n++; }
+      else if (/(contato|base crm)/.test(lbl) && contatos != null) { item.valor = contatos; item._live = 'apollo'; n++; }
+      else if (/(empresa|conta mapead)/.test(lbl) && contas != null) { item.valor = contas; item._live = 'apollo'; n++; }
+    };
+    (areas.areas || []).forEach(a => { (a.funil || []).forEach(apply); (a.kpis || []).forEach(apply); });
+    areas._overlay = { aplicado_em: new Date().toISOString(), live_count: n, seguidores, contatos, contas };
+    res.set('Cache-Control', 'no-store');
+    return res.json(areas);
+  } catch (e) {
+    return res.status(500).json({ error: 'overlay areas falhou', detail: String(e) });
+  }
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json({ limit: '4mb' })); // 4mb cobre syncs grandes (SAP 4 ME 705 projetos ~370KB)
 
@@ -1922,7 +1955,9 @@ app.get('/relatorio', (req, res) => res.sendFile(path.join(__dirname, 'public/re
 app.get('/artigos',   (req, res) => res.sendFile(path.join(__dirname, 'public/artigos.html')));
 app.get('/jornadas',  (req, res) => res.sendFile(path.join(__dirname, 'public/jornadas.html')));
 app.get('/metas-fy26', (req, res) => res.sendFile(path.join(__dirname, 'public/metas-fy26.html')));
-app.get('/metas/fy26', (req, res) => res.redirect(301, '/metas-fy26'));
+app.get('/metas-fy27', (req, res) => res.sendFile(path.join(__dirname, 'public/metas-fy26.html')));
+app.get('/metas/fy26', (req, res) => res.redirect(301, '/metas-fy27'));
+app.get('/metas/fy27', (req, res) => res.redirect(301, '/metas-fy27'));
 app.get('/design', (req, res) => res.sendFile(path.join(__dirname, 'public/design.html')));
 app.get('/erp-impacto', (req, res) => res.sendFile(path.join(__dirname, 'public/erp-impacto.html')));
 app.get('/pipeline',  (req, res) => res.sendFile(path.join(__dirname, 'public/pipeline.html')));

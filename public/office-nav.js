@@ -8,7 +8,7 @@
 // Fonte ÚNICA da verdade: public/api/changelog.json#current via /api/version
 // Fallback hardcoded usado SÓ se fetch falhar (offline, etc).
 // Sincronização automática — não editar manualmente, basta bumpar changelog.json.
-let OFFICE_NAV_VERSION = '0.51.0';
+let OFFICE_NAV_VERSION = '0.52.0';
 // Promise compartilhada — nav + footer reaproveitam o mesmo fetch
 window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/version')
   .then(r => r.ok ? r.json() : null)
@@ -107,7 +107,7 @@ const OFFICE_NAV_TABS = [
   { id: 'field',        label: 'Field Marketing',  icon: '📅', href: '/area/eventos',      matches: ['area-eventos','area-field'] },
   { id: 'pipeline',     label: 'Biz Dev',          icon: '📞', href: '/area/pipeline',     matches: ['area-pipeline','pipeline'] },
   { id: 'brand',        label: 'Brand Experience', icon: '🎨', href: '/area/brand',        matches: ['area-brand','voices','inbound','cases','painel','optimizer','area-conteudo','artigos','jornadas','raccoon'] },
-  { id: 'metas',        label: 'Metas FY27',       icon: '🎯', href: '/metas-fy26',        matches: ['metas','metas-fy26'] },
+  { id: 'metas',        label: 'Metas FY27',       icon: '🎯', href: '/metas-fy27',        matches: ['metas','metas-fy26','metas-fy27'] },
   { id: 'relatorio',    label: 'Relatório Mensal', icon: '📊', href: '/relatorio',         matches: ['relatorio'] }
 ];
 

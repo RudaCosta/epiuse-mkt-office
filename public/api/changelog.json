@@ -1,6 +1,6 @@
 {
-  "current": "0.51.0",
-  "atualizado_em": "18/jun/2026",
+  "current": "0.52.0",
+  "atualizado_em": "19/jun/2026",
   "next": [
     {
       "version": "0.53.0",
@@ -54,11 +54,25 @@
   ],
   "releases": [
     {
-      "version": "0.51.0",
-      "date": "18/jun/2026",
+      "version": "0.52.0",
+      "date": "19/jun/2026",
       "status": "current",
       "path": null,
-      "title": "🧠 Memes do Office: parede de memes + Mega Brain (Thiago Finch)",
+      "title": "📞 Outreach Apollo no /relatorio + números de área LIVE + metas FY27",
+      "summary": "Tile de outreach no /relatorio (Apollo real: empresas em conversa, e-mails enviados/respondidos, reuniões). Endpoint /api/areas.json com overlay LIVE em serve-time (corrige seguidores LinkedIn que ficavam chumbados em 10709 mesmo com a rotina rodando). Rota /metas-fy27. RD Station confirmado funcionando (OAuth ok). Memes: removido nome próprio, +3 memes (Trello/Two Buttons/ajustinho).",
+      "highlights": [
+        "GET /api/areas.json (antes do static): sobrepõe seguidores (linkedin-routine) + contatos/empresas (apollo) em serve-time. Mantém null como pendente (regra 7). 8 campos ficam live, sem chumbar número.",
+        "Tile Outreach no /relatorio lê public/api/relatorio-outreach.json (snapshot Apollo 30d: 1.272 enviados · 2 respondidos · 586 contas · 2 reuniões) — etiqueta snapshot+data.",
+        "RD Station reativado/confirmado: sync_rd_station.js autentica via OAuth refresh e retorna LPs/popups/emails (0 emails = sem campanha no período, real).",
+        "Rota /metas-fy27 (nav aponta pra ela); /metas-fy26 segue válido. Pendente real: eventos + pipeline-reuniões aguardam fonte dedicada (Zoho/events/Apollo-meetings)."
+      ]
+    },
+    {
+      "version": "0.51.0",
+      "date": "18/jun/2026",
+      "status": "past",
+      "path": null,
+      "title": "🧠 Memes do Office: parede de memes + Mega Brain",
       "summary": "Nova página de humor interno do time. Hero Mega Brain (homenagem ao meme do Thiago Finch) em arte SVG original, meme galaxy-brain de 4 painéis temático de RevOps e galeria de memes do folclore do Office. Acesso pelo menu Extras → Memes do Office.",
       "highlights": [
         "public/memes.html: página self-contained no Design System (tokens CSS), SVG Mega Brain brilhante com glow + galaxy-brain 4 painéis.",
