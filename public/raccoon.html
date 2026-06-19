@@ -805,6 +805,17 @@
 
 
   /* ECC Liquid Glass styling overrides & enhancements */
+  :root[data-theme="aurora"] body,
+  :root[data-theme="dark"] body {
+    background:
+      linear-gradient(rgba(134,158,195,.03) 1px, transparent 1px) 0 0/48px 48px,
+      linear-gradient(90deg, rgba(134,158,195,.03) 1px, transparent 1px) 0 0/48px 48px,
+      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(205,21,67,.12), transparent 60%),
+      radial-gradient(ellipse 60% 50% at 100% 100%, rgba(20,184,166,.05), transparent 60%),
+      #050a14 !important;
+    background-attachment: fixed !important;
+  }
+
   .rax-box, .form-panel, .right-col, .review-section, .article-preview, .linkedin-copy-box, .slide-card, .meta-card {
     background: rgba(10, 21, 37, 0.45) !important;
     backdrop-filter: blur(16px) saturate(180%) !important;
@@ -812,6 +823,16 @@
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.35) !important;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .rax-box::before, .form-panel::before, .right-col::before, .review-section::before, .article-preview::before, .linkedin-copy-box::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.15), transparent);
+    pointer-events: none;
   }
   
   .rax-box:hover, .form-panel:hover, .right-col:hover, .review-section:hover {
@@ -832,6 +853,88 @@
     border-color: #2563eb !important;
     background: rgba(0, 0, 0, 0.35) !important;
     box-shadow: 0 0 12px rgba(37, 99, 235, 0.3) !important;
+  }
+
+  /* Main Button rax style overrides */
+  .btn-rax {
+    background: linear-gradient(135deg, #cd1543 0%, #8b0827 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-radius: 10px !important;
+    color: #fff !important;
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 14px !important;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    box-shadow: 0 4px 16px rgba(205, 21, 67, 0.35), inset 0 1px 0 rgba(255,255,255,0.2) !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  }
+  .btn-rax:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(205, 21, 67, 0.5), 0 0 15px rgba(205, 21, 67, 0.25), inset 0 1px 0 rgba(255,255,255,0.3) !important;
+    border-color: rgba(255,255,255,0.3) !important;
+  }
+  .btn-rax:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(205, 21, 67, 0.4) !important;
+  }
+
+  /* Persona pills overrides */
+  .pill {
+    background: rgba(0, 0, 0, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 99px !important;
+    padding: 8px 16px !important;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text-muted, #869ec3);
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    user-select: none;
+  }
+  .pill:hover {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: #fff;
+  }
+  .pill.active {
+    background: rgba(205, 21, 67, 0.15) !important;
+    border-color: #cd1543 !important;
+    color: #fff !important;
+    box-shadow: 0 0 12px rgba(205, 21, 67, 0.3), inset 0 1px 0 rgba(255,255,255,0.15) !important;
+  }
+
+  /* Glass Tabs overrides */
+  .tab-btn {
+    background: rgba(255, 255, 255, 0.02) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-bottom: none !important;
+    color: var(--color-text-muted, #869ec3) !important;
+    font-family: 'Poppins', sans-serif;
+    font-size: 12.5px !important;
+    font-weight: 600;
+    padding: 10px 18px !important;
+    cursor: pointer;
+    border-radius: 8px 8px 0 0 !important;
+    margin-right: 4px;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+  .tab-btn:hover {
+    color: #fff !important;
+    background: rgba(255,255,255,0.06) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+  }
+  .tab-btn.active {
+    color: #fff !important;
+    background: rgba(205, 21, 67, 0.08) !important;
+    border-color: rgba(205, 21, 67, 0.3) !important;
+    border-bottom: 2px solid #cd1543 !important;
+    box-shadow: 0 -4px 12px rgba(205, 21, 67, 0.1) !important;
   }
 
   /* Custom Loading animations */
