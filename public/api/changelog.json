@@ -1,5 +1,5 @@
 {
-  "current": "0.52.2",
+  "current": "0.52.3",
   "atualizado_em": "19/jun/2026",
   "next": [
     {
@@ -54,9 +54,22 @@
   ],
   "releases": [
     {
-      "version": "0.52.2",
+      "version": "0.52.3",
       "date": "19/jun/2026",
       "status": "current",
+      "path": null,
+      "title": "📊 Mais campos de área LIVE (overlay v3): posts, oportunidades, cases",
+      "summary": "Overlay /api/areas.json estendido com fontes que já existem: brand Posts/mês (linkedin-routine, 17 reais) + Cases publicáveis (cs_clientes), pipeline Oportunidades (zoho_deals), eventos KPI 'Eventos planejados FY' (events.json). Campos sem fonte real (artigos produzidos/mês, pautas, vendas origem MKT, MDF) seguem pendentes (regra 7).",
+      "highlights": [
+        "brand: Posts/mês = posts do mês da rotina LinkedIn; Cases publicáveis = COUNT(cs_clientes) (aprovados Roberto).",
+        "pipeline: Oportunidades = COUNT(zoho_deals); eventos: KPI 'Eventos planejados FY' = total events.json.",
+        "0 ou erro de fonte → pendente, nunca chumbado. Tráfego site fica pro Sprint GA4."
+      ]
+    },
+    {
+      "version": "0.52.2",
+      "date": "19/jun/2026",
+      "status": "past",
       "path": null,
       "title": "📅 Eventos + reuniões live nas áreas + footer de versão corrigido",
       "summary": "Overlay /api/areas.json estendido: Eventos planejados/Executados vêm de events.json (aba brasil, real) e Pipeline > Reuniões vem do Apollo (reuniões realizadas 30d, com label de fonte). Footer parou de mostrar versão velha (0.50.12) — fallback alinhado + fetch /api/version.",

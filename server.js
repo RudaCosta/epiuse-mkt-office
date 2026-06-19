@@ -442,6 +442,13 @@ app.get('/api/areas.json', (req, res) => {
     const evs = (ev && ev.abas && ev.abas.brasil && ev.abas.brasil.eventos) || [];
     if (evs.length) { evTotal = evs.length; const cm = new Date().getMonth() + 1; evPast = evs.filter(e => (e.m || 99) < cm).length; }
     const reunioes = outreach && outreach.kpis ? (outreach.kpis.reunioes_realizadas ?? null) : null;
+    // posts do mes (linkedin-routine, ignora a meta-row sem resumo) — 0 vira pendente
+    const _pc = rt && Array.isArray(rt.posts) ? rt.posts.filter(p => p && p.resumo).length : 0;
+    const postsCount = _pc > 0 ? _pc : null;
+    // oportunidades (zoho_deals) + cases publicaveis (cs_clientes) — 0/erro vira pendente (regra 7)
+    let zohoOpps = null, casesCount = null;
+    try { const r = db.prepare('SELECT COUNT(*) AS n FROM zoho_deals').get(); if (r && r.n > 0) zohoOpps = r.n; } catch (_) {}
+    try { const r = db.prepare('SELECT COUNT(*) AS n FROM cs_clientes').get(); if (r && r.n > 0) casesCount = r.n; } catch (_) {}
     let n = 0;
     const apply = (item) => {
       if (!item || item.valor == null) return; // mantem pendente (regra 7)
@@ -453,17 +460,25 @@ app.get('/api/areas.json', (req, res) => {
     (areas.areas || []).forEach(a => {
       (a.funil || []).forEach(apply); (a.kpis || []).forEach(apply);
       // overlays especificos por area (label-exato pra nao cruzar com outras areas)
-      if (a.id === 'eventos') (a.funil || []).forEach(f => {
-        const l = (f.estagio || '').toLowerCase();
+      const items = [...(a.funil || []), ...(a.kpis || [])];
+      if (a.id === 'eventos') items.forEach(f => {
+        const l = (f.estagio || f.label || '').toLowerCase();
         if (l === 'eventos planejados' && evTotal != null) { f.valor = evTotal; f._live = 'events.json'; n++; }
         else if (l === 'executados' && evPast != null) { f.valor = evPast; f._live = 'events.json'; n++; }
+        else if (l === 'eventos planejados fy' && evTotal != null) { f.valor = evTotal; f._live = 'events.json'; n++; }
       });
-      if (a.id === 'pipeline') (a.funil || []).forEach(f => {
-        const l = (f.estagio || '').toLowerCase();
+      if (a.id === 'pipeline') items.forEach(f => {
+        const l = (f.estagio || f.label || '').toLowerCase();
         if (l === 'reuniões' && reunioes != null) { f.valor = reunioes; f._live = 'apollo-meetings'; f.obs = 'Apollo reunioes realizadas (30d)'; n++; }
+        else if (l === 'oportunidades' && zohoOpps != null) { f.valor = zohoOpps; f._live = 'zoho-deals'; n++; }
+      });
+      if (a.id === 'brand') items.forEach(f => {
+        const l = (f.estagio || f.label || '').toLowerCase();
+        if (l === 'posts/mês' && postsCount != null) { f.valor = postsCount; f._live = 'linkedin-routine'; n++; }
+        else if (l === 'cases publicáveis' && casesCount != null) { f.valor = casesCount; f._live = 'cs_clientes'; n++; }
       });
     });
-    areas._overlay = { aplicado_em: new Date().toISOString(), live_count: n, seguidores, contatos, contas, eventos_total: evTotal, eventos_exec: evPast, reunioes };
+    areas._overlay = { aplicado_em: new Date().toISOString(), live_count: n, seguidores, contatos, contas, eventos_total: evTotal, eventos_exec: evPast, reunioes, posts_mes: postsCount, oportunidades: zohoOpps, cases: casesCount };
     res.set('Cache-Control', 'no-store');
     return res.json(areas);
   } catch (e) {
