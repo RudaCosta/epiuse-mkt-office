@@ -1,5 +1,5 @@
 {
-  "current": "0.53.5",
+  "current": "0.53.6",
   "atualizado_em": "19/jun/2026",
   "next": [
     {
@@ -54,9 +54,23 @@
   ],
   "releases": [
     {
-      "version": "0.53.5",
+      "version": "0.53.6",
       "date": "19/jun/2026",
       "status": "current",
+      "path": null,
+      "title": "🗳️ Cópia de Artigos para CMS WorkControl (HTML e Texto Limpo)",
+      "summary": "Implementação de suporte avançado para o CMS WorkControl no Raccoon Studio. Foram adicionados dois botões de cópia na caixa de artigo otimizado: um para copiar o código HTML cru (com instruções explícitas de como colar usando o modo de código-fonte no CMS) e outro para copiar o texto limpo (removendo tags HTML).",
+      "highlights": [
+        "Adicionado botão 'Copiar HTML (WorkControl)' para copiar o código estruturado para colagem direta.",
+        "Adicionado botão 'Copiar Texto Limpo' que faz a limpeza regex/DOM de tags HTML antes da cópia.",
+        "Adicionada caixa de dica e ajuda instruindo o usuário a clicar no botão <> (Código-Fonte) do editor do post do CMS WorkControl antes de colar o HTML.",
+        "Ajustada função stripHtml utilitária para garantir compatibilidade entre navegadores."
+      ]
+    },
+    {
+      "version": "0.53.5",
+      "date": "19/jun/2026",
+      "status": "past",
       "path": null,
       "title": "🗳️ Sincronização do Artigo Otimizado com o Pipeline Editorial e Tema Aurora",
       "summary": "Integração do fluxo de colagem/revisão de artigos no Raccoon Studio ao Pipeline Editorial (SQLite). O botão de salvar agora detecta de forma inteligente se o conteúdo vem de uma geração automática (Rax) ou de uma revisão de artigo colado, salvando o artigo melhorado e as metas de SEO/GEO de forma correspondente. Atualização do seletor global para colocar o tema Aurora como primeiro da lista e como fallback absoluto.",

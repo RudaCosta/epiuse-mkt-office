@@ -1248,7 +1248,14 @@
             </p>
             <div style="position:relative">
               <textarea id="srv-texto-otimizado" readonly style="width:100%;min-height:220px;background:var(--color-bg-elev,#112540);border:1px solid rgba(16,185,129,.3);border-radius:10px;color:var(--color-text,#e2e8f0);padding:10px;font-family:inherit;font-size:13px;line-height:1.5;resize:vertical"></textarea>
-              <button id="srv-btn-copiar" style="position:absolute;top:8px;right:8px;cursor:pointer;font-weight:600;font-size:11px;padding:6px 12px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:#fff;backdrop-filter:blur(5px);transition:all 0.2s">Copiar Texto</button>
+              <div style="display:flex;gap:8px;margin-top:8px;justify-content:flex-end">
+                <button id="srv-btn-copiar" class="btn-save" style="cursor:pointer;font-weight:600;font-size:12px;padding:8px 14px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:#fff;transition:all 0.2s">Copiar HTML (WorkControl)</button>
+                <button id="srv-btn-copiar-limpo" class="btn-save" style="cursor:pointer;font-weight:600;font-size:12px;padding:8px 14px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:#fff;transition:all 0.2s">Copiar Texto Limpo</button>
+              </div>
+              <div style="font-size:11.5px;color:var(--color-text-muted);margin-top:10px;display:flex;align-items:center;gap:6px;background:rgba(245,158,11,0.05);border:1px dashed rgba(245,158,11,0.25);border-radius:8px;padding:8px 12px">
+                <span style="color:#f59e0b">💡</span>
+                <span><strong>Instrução WorkControl:</strong> Este texto está em formato HTML estruturado. No CMS WorkControl, clique no ícone <strong>&lt;&gt; (Código-Fonte)</strong> na barra de ferramentas do editor do post antes de colar o HTML copiado.</span>
+              </div>
             </div>
           </div>
 
@@ -1258,27 +1265,56 @@
             var clr=function(v){return v>=75?'#10b981':v>=50?'#f59e0b':'#ef4444'};
             var go=$('srv-go'); if(!go) return;
             
-            // Clipboard copy logic for improved article
+            function stripHtml(html) {
+              var tmp = document.createElement("DIV");
+              tmp.innerHTML = html;
+              return tmp.textContent || tmp.innerText || "";
+            }
+
+            // Clipboard copy logic for improved article (HTML code)
             var btnCopiar = $('srv-btn-copiar');
             if (btnCopiar) {
               btnCopiar.addEventListener('click', function() {
                 var txtArea = $('srv-texto-otimizado');
                 if (txtArea) {
-                  txtArea.select();
-                  txtArea.setSelectionRange(0, 99999);
                   navigator.clipboard.writeText(txtArea.value).then(function() {
-                    btnCopiar.textContent = 'Copiado! ✓';
+                    btnCopiar.textContent = 'HTML Copiado! ✓';
                     btnCopiar.style.borderColor = '#10b981';
                     btnCopiar.style.background = 'rgba(16,185,129,0.15)';
                     btnCopiar.style.color = '#10b981';
                     setTimeout(function() {
-                      btnCopiar.textContent = 'Copiar Texto';
+                      btnCopiar.textContent = 'Copiar HTML (WorkControl)';
                       btnCopiar.style.borderColor = 'rgba(255,255,255,0.15)';
                       btnCopiar.style.background = 'rgba(255,255,255,0.06)';
                       btnCopiar.style.color = '#fff';
                     }, 2500);
                   }).catch(function(err) {
-                    console.error('Failed to copy text: ', err);
+                    console.error('Failed to copy HTML code: ', err);
+                  });
+                }
+              });
+            }
+
+            // Clipboard copy logic for clean text (stripped tags)
+            var btnCopiarLimpo = $('srv-btn-copiar-limpo');
+            if (btnCopiarLimpo) {
+              btnCopiarLimpo.addEventListener('click', function() {
+                var txtArea = $('srv-texto-otimizado');
+                if (txtArea) {
+                  var clean = stripHtml(txtArea.value);
+                  navigator.clipboard.writeText(clean).then(function() {
+                    btnCopiarLimpo.textContent = 'Texto Limpo Copiado! ✓';
+                    btnCopiarLimpo.style.borderColor = '#10b981';
+                    btnCopiarLimpo.style.background = 'rgba(16,185,129,0.15)';
+                    btnCopiarLimpo.style.color = '#10b981';
+                    setTimeout(function() {
+                      btnCopiarLimpo.textContent = 'Copiar Texto Limpo';
+                      btnCopiarLimpo.style.borderColor = 'rgba(255,255,255,0.15)';
+                      btnCopiarLimpo.style.background = 'rgba(255,255,255,0.06)';
+                      btnCopiarLimpo.style.color = '#fff';
+                    }, 2500);
+                  }).catch(function(err) {
+                    console.error('Failed to copy clean text: ', err);
                   });
                 }
               });
