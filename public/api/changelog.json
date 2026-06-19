@@ -1,5 +1,5 @@
 {
-  "current": "0.52.1",
+  "current": "0.52.2",
   "atualizado_em": "19/jun/2026",
   "next": [
     {
@@ -54,9 +54,22 @@
   ],
   "releases": [
     {
-      "version": "0.52.1",
+      "version": "0.52.2",
       "date": "19/jun/2026",
       "status": "current",
+      "path": null,
+      "title": "📅 Eventos + reuniões live nas áreas + footer de versão corrigido",
+      "summary": "Overlay /api/areas.json estendido: Eventos planejados/Executados vêm de events.json (aba brasil, real) e Pipeline > Reuniões vem do Apollo (reuniões realizadas 30d, com label de fonte). Footer parou de mostrar versão velha (0.50.12) — fallback alinhado + fetch /api/version.",
+      "highlights": [
+        "Eventos: planejados = total de eventos brasil; executados = eventos de meses já passados (events.json).",
+        "Pipeline > Reuniões: Apollo num_meetings_held (30d), etiquetado com a fonte; campos sem fonte real seguem pendentes (regra 7).",
+        "office-footer.js: fallback de versão atualizado; badge não fica mais preso em 0.50.12."
+      ]
+    },
+    {
+      "version": "0.52.1",
+      "date": "19/jun/2026",
+      "status": "past",
       "path": null,
       "title": "🔗 LinkedIn honesto: 'aguarda feed' em vez de '0 posts' falso",
       "summary": "Fix da tela /linkedin: a tabela por LOB mostrava '0 posts' em tudo (parecia zero real) e gerava insight falso 'marca silenciosa', quando na verdade o feed de posts individuais ainda não é integrado. Agora mostra '⏳ aguarda feed' e suprime o insight falso (regra 7). Seguidores/impressões/reações seguem REAIS e live (10.710).",
