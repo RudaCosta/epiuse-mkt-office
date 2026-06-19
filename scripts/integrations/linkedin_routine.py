@@ -97,6 +97,21 @@ def main():
         "top_posts": ranked[:5],
         "resumo": resumo,
     }
+    # Guarda defensiva (regra 7): o xlsx pode estar atrasado vs LinkedIn ao vivo.
+    # Nunca regride o total de seguidores pra um valor MENOR que o ja publicado.
+    try:
+        if os.path.exists(OUT):
+            prev = json.load(open(OUT, encoding="utf-8"))
+            prev_seg = prev.get("seguidores_atual")
+            new_seg = payload.get("seguidores_atual")
+            if isinstance(prev_seg, int) and isinstance(new_seg, int) and prev_seg > new_seg:
+                print(f"   [defensivo] mantendo {prev_seg} (xlsx trouxe {new_seg}, menor) -- atualize o xlsx p/ subir.")
+                payload["seguidores_atual"] = prev_seg
+                if payload.get("historico"):
+                    payload["historico"][-1]["seguidores"] = prev_seg
+                payload.setdefault("resumo", {})["Total de seguidores"] = f"{prev_seg:,}".replace(",", ".")
+    except Exception as e:
+        print(f"   [defensivo] aviso: {e}")
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, indent=2)
