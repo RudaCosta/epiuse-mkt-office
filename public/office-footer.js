@@ -5,8 +5,8 @@
 
 // Fonte ÚNICA da verdade: public/api/changelog.json#current via /api/version
 // Fallback hardcoded usado SÓ se fetch falhar — sincronização automática com nav.
-let OFFICE_FOOTER_VERSION = '0.53.1';
-const OFFICE_FOOTER_BUILD = '2026-06-17';
+let OFFICE_FOOTER_VERSION = '0.53.2';
+const OFFICE_FOOTER_BUILD = '2026-06-19';
 window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/version')
   .then(r => r.ok ? r.json() : null)
   .then(d => { if (d && d.current) { OFFICE_FOOTER_VERSION = d.current; window.__officeVersion = d.current; } return d; })
@@ -16,8 +16,12 @@ window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/ver
 // Bug fix → 1.0.1 | Feature nova → 1.1.0 | Refactor grande → 2.0.0
 // Histórico pré-1.0 preservado abaixo para referência.
 const OFFICE_VERSION_HISTORY = [
+  // ─── SPRINT 46 · Revisor SEO/GEO (19/jun/2026) ───
+  { ver: '0.53.2', date: '19/jun/2026', label: 'SPRINT 46 — Correção do Revisor SEO/GEO local (memória re-sincronizada) e deploy com contingência OpenRouter gratuita.', path: null, status: 'current' },
+  { ver: '0.53.1', date: '19/jun/2026', label: 'SPRINT 46 — Revisor SEO/GEO migrado para OpenRouter (IA gratuita Qwen), com tratamento robusto de erros e limites.', path: null, status: 'snapshot' },
+  { ver: '0.53.0', date: '19/jun/2026', label: 'SPRINT 46 — Revisor SEO/GEO integrado diretamente no Raccoon Studio, com scorecard analítico, link juice de 693 artigos e sugestão de CTA.', path: null, status: 'snapshot' },
   // ─── SPRINT 43 · RD Station integrado (16/jun/2026) ───
-  { ver: '0.50.11', date: '16/jun/2026', label: 'SPRINT 43 — Integração RD Station: Canais de Aquisição & Performance de Campanhas no Relatório Mensal, Visão Executiva e Metas com suporte Aurora e simulação.', path: null, status: 'current' },
+  { ver: '0.50.11', date: '16/jun/2026', label: 'SPRINT 43 — Integração RD Station: Canais de Aquisição & Performance de Campanhas no Relatório Mensal, Visão Executiva e Metas com suporte Aurora e simulação.', path: null, status: 'snapshot' },
   // ─── SPRINT 42 · Tema Aurora padrão (16/jun/2026) ───
   { ver: '0.50.10', date: '16/jun/2026', label: 'SPRINT 42 — Consolidação do tema Aurora padrão e adaptação total de todos os gráficos e dashboards para Light, Elephant, Dark, Aurora e Liquid Glass.', path: null, status: 'snapshot' },
   // ─── SPRINT 18 · RD Station OAuth2 + KPIs e-mail reais (05/jun/2026) ───

@@ -1,5 +1,5 @@
 {
-  "current": "0.53.1",
+  "current": "0.53.2",
   "atualizado_em": "19/jun/2026",
   "next": [
     {
@@ -54,9 +54,22 @@
   ],
   "releases": [
     {
-      "version": "0.53.1",
+      "version": "0.53.2",
       "date": "19/jun/2026",
       "status": "current",
+      "path": null,
+      "title": "⚡ Correção do Revisor SEO/GEO local e deploy de contingência",
+      "summary": "Reinicialização do servidor local via Task Scheduler para propagação das alterações na memória e sincronização do status de saúde. Deploy completo em produção na Railway com suporte ao Qwen gratuito da OpenRouter.",
+      "highlights": [
+        "Corrigida dessincronização da memória do Node local reiniciando o serviço via tarefa agendada 'EPI-USE-Office'.",
+        "Garantido funcionamento local e em nuvem sob o modelo gratuito Qwen via OpenRouter, eliminando o erro de saldo de créditos da Anthropic.",
+        "Versão bumpada para 0.53.2."
+      ]
+    },
+    {
+      "version": "0.53.1",
+      "date": "19/jun/2026",
+      "status": "past",
       "path": null,
       "title": "🆓 Revisor SEO/GEO agora roda em IA gratuita (Qwen via OpenRouter)",
       "summary": "O revisor SEO+GEO do Raccoon deixou de usar IA paga e passou a rodar no Qwen (OpenRouter, plano gratuito). Mensagens de erro deixaram de vazar texto técnico cru ao usuário — agora mostram aviso amigável (ex: limite gratuito atingido).",
