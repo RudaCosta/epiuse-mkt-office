@@ -3338,13 +3338,20 @@ ${JSON.stringify(candidatos)}
 Retorne APENAS JSON valido, sem texto antes/depois:
 {
   "nota_geral": 0,
+  "metaTitle": "meta title sugerido para o artigo (max 60 caracteres)",
+  "metaDescription": "meta description sugerida para o artigo (max 160 caracteres)",
+  "slug": "url-slug-sugerido-amigavel",
   "keyword": { "principal": "melhor keyword-foco", "secundarias": ["kw2", "kw3"], "onde_usar": "title, H1, primeiros 100 palavras", "motivo": "intencao + potencial jun/2026" },
   "seo": { "score": 0, "criterios": [{ "nome": "string", "nota": 0, "obs": "string curta" }] },
   "geo": { "score": 0, "criterios": [{ "nome": "string", "nota": 0, "obs": "string curta" }] },
   "resumo": "2-3 frases de diagnostico",
   "top_fixes": ["acao prioritaria 1", "acao 2", "acao 3"],
   "link_juice": [{ "anchor": "texto ancora sugerido", "url": "url interna exata da lista", "motivo": "string" }],
-  "cta": { "texto": "CTA sugerido", "posicao": "topo|meio|fim", "motivo": "string" }
+  "cta": { "texto": "CTA sugerido", "posicao": "topo|meio|fim", "motivo": "string" },
+  "faq": [
+    { "q": "Pergunta estruturada baseada no artigo", "a": "Resposta curta, direta e citavel" }
+  ],
+  "artigo_melhorado": "O texto completo do artigo reescrito com todas as melhorias e correcoes de SEO/GEO aplicadas, incluindo a palavra-chave foco e secundarias, e inserindo os links internos de forma contextualizada."
 }`;
 
     // LLM gratis via OpenRouter (Gemma). Modelo override por env OPENROUTER_MODEL.

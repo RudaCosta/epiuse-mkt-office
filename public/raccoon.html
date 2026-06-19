@@ -803,6 +803,46 @@
   @keyframes pop{0%{opacity:0;transform:scale(.4) translateY(0)}40%{opacity:1}100%{opacity:0;transform:scale(1.3) translateY(-30px)}}
   @media(prefers-reduced-motion:reduce){.rax,.crate,#eyeL,#eyeR,#tail,#pawR,.spark{animation:none!important}}
 
+
+  /* ECC Liquid Glass styling overrides & enhancements */
+  .rax-box, .form-panel, .right-col, .review-section, .article-preview, .linkedin-copy-box, .slide-card, .meta-card {
+    background: rgba(10, 21, 37, 0.45) !important;
+    backdrop-filter: blur(16px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.35) !important;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+  
+  .rax-box:hover, .form-panel:hover, .right-col:hover, .review-section:hover {
+    border-color: rgba(37, 99, 235, 0.3) !important;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45), 0 0 15px rgba(37, 99, 235, 0.15) !important;
+  }
+
+  .form-control, #srv-texto, #srv-titulo, #srv-lob, #srv-texto-otimizado {
+    background: rgba(0, 0, 0, 0.25) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 10px !important;
+    color: #fff !important;
+    transition: all 0.25s ease !important;
+  }
+
+  .form-control:focus, #srv-texto:focus, #srv-titulo:focus, #srv-lob:focus {
+    outline: none !important;
+    border-color: #2563eb !important;
+    background: rgba(0, 0, 0, 0.35) !important;
+    box-shadow: 0 0 12px rgba(37, 99, 235, 0.3) !important;
+  }
+
+  /* Custom Loading animations */
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.15); opacity: 0.8; }
+  }
 </style>
 </head>
 <body data-route="raccoon">
@@ -1181,26 +1221,114 @@
               <button id="srv-go" style="cursor:pointer;font-weight:700;font-size:13px;padding:9px 18px;border-radius:8px;border:0;background:#2563EB;color:#fff">Revisar</button>
               <span id="srv-status" style="font-size:12px;color:var(--color-text-muted)"></span>
             </div>
+
+            <!-- Wait/Loading Design -->
+            <div id="srv-loading" style="display:none; flex-direction:column; align-items:center; justify-content:center; padding:30px 20px; gap:16px; background:rgba(37,99,235,0.04); border:1px dashed rgba(37,99,235,0.25); border-radius:12px; margin-top:14px; backdrop-filter:blur(8px); animation:fadeIn 0.3s ease-out">
+              <div style="position:relative; width:60px; height:60px; display:flex; align-items:center; justify-content:center">
+                <div style="position:absolute; width:100%; height:100%; border:3px solid rgba(37,99,235,0.1); border-top-color:#2563EB; border-radius:50%; animation:spin 1s linear infinite"></div>
+                <span style="font-size:24px; animation:pulse 1.2s ease-in-out infinite">🦝</span>
+              </div>
+              <div style="display:flex; flex-direction:column; align-items:center; gap:4px">
+                <div style="font-size:13px; font-weight:600; color:#fff; font-family:'Poppins',sans-serif" id="srv-loading-msg">Iniciando análise de SEO/GEO...</div>
+                <div style="font-size:11px; color:var(--color-text-muted)" id="srv-loading-sub">Rax está lendo o artigo e mapeando entidades semânticas</div>
+              </div>
+              <div class="loader-bar" style="width:100%; max-width:200px; height:4px; background:rgba(255,255,255,0.05); border-radius:2px; overflow:hidden; position:relative">
+                <div style="position:absolute; left:0; top:0; height:100%; width:40%; background:#2563EB; border-radius:2px; animation:loading-anim 1.5s infinite ease-in-out"></div>
+              </div>
+            </div>
+
             <div id="srv-results" style="display:none;margin-top:14px"></div>
           </div>
+
+          <!-- Optimized Article Card -->
+          <div id="srv-artigo-melhorado" style="display:none; margin-top:16px;" class="review-section">
+            <h3 style="border-left-color:#10b981;">✨ Artigo Otimizado & Corrigido pela IA</h3>
+            <p style="font-size:12px;color:var(--color-text-muted);margin-bottom:10px">
+              Esta versão foi reescrita aplicando a palavra-chave foco, otimizando headings para busca por voz/LLM e inserindo links internos de forma contextualizada.
+            </p>
+            <div style="position:relative">
+              <textarea id="srv-texto-otimizado" readonly style="width:100%;min-height:220px;background:var(--color-bg-elev,#112540);border:1px solid rgba(16,185,129,.3);border-radius:10px;color:var(--color-text,#e2e8f0);padding:10px;font-family:inherit;font-size:13px;line-height:1.5;resize:vertical"></textarea>
+              <button id="srv-btn-copiar" style="position:absolute;top:8px;right:8px;cursor:pointer;font-weight:600;font-size:11px;padding:6px 12px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:#fff;backdrop-filter:blur(5px);transition:all 0.2s">Copiar Texto</button>
+            </div>
+          </div>
+
           <script>
           (function(){
             var $=function(id){return document.getElementById(id)};
             var clr=function(v){return v>=75?'#10b981':v>=50?'#f59e0b':'#ef4444'};
             var go=$('srv-go'); if(!go) return;
+            
+            // Clipboard copy logic for improved article
+            var btnCopiar = $('srv-btn-copiar');
+            if (btnCopiar) {
+              btnCopiar.addEventListener('click', function() {
+                var txtArea = $('srv-texto-otimizado');
+                if (txtArea) {
+                  txtArea.select();
+                  txtArea.setSelectionRange(0, 99999);
+                  navigator.clipboard.writeText(txtArea.value).then(function() {
+                    btnCopiar.textContent = 'Copiado! ✓';
+                    btnCopiar.style.borderColor = '#10b981';
+                    btnCopiar.style.background = 'rgba(16,185,129,0.15)';
+                    btnCopiar.style.color = '#10b981';
+                    setTimeout(function() {
+                      btnCopiar.textContent = 'Copiar Texto';
+                      btnCopiar.style.borderColor = 'rgba(255,255,255,0.15)';
+                      btnCopiar.style.background = 'rgba(255,255,255,0.06)';
+                      btnCopiar.style.color = '#fff';
+                    }, 2500);
+                  }).catch(function(err) {
+                    console.error('Failed to copy text: ', err);
+                  });
+                }
+              });
+            }
+
             go.addEventListener('click', async function(){
               var texto=($('srv-texto').value||'').trim(); var st=$('srv-status');
               if(texto.length<200){ st.textContent='Cole pelo menos 200 caracteres.'; st.style.color='#fca5a5'; return; }
-              go.disabled=true; st.style.color='var(--color-text-muted)'; st.textContent='Revisando com IA...';
+              
+              go.disabled=true;
+              st.style.color='var(--color-text-muted)';
+              st.textContent='Revisando com IA...';
+              
+              // Show waiting state
+              $('srv-results').style.display='none';
+              $('srv-artigo-melhorado').style.display='none';
+              $('srv-loading').style.display='flex';
+              
+              // Change mascot pose
+              if (window.setRaxState) {
+                setRaxState('revisando', 'Analisando legibilidade e estrutura...');
+              }
+
+              // Dynamic waiting messages
+              var loadingPhrases = [
+                { msg: "Analisando intenção de busca...", sub: "Verificando se o título atende à query principal..." },
+                { msg: "Varrendo 693 artigos publicados...", sub: "Mapeando sugestões contextuais de link juice..." },
+                { msg: "Calculando notas de GEO/AIO...", sub: "Avaliando clareza de respostas e frases citáveis..." },
+                { msg: "Reescrevendo artigo com melhorias...", sub: "Incorporando keywords e links sugeridos..." }
+              ];
+              var phraseIdx = 0;
+              var phraseInterval = setInterval(function(){
+                phraseIdx = (phraseIdx + 1) % loadingPhrases.length;
+                var m = $('srv-loading-msg'); var s = $('srv-loading-sub');
+                if(m) m.textContent = loadingPhrases[phraseIdx].msg;
+                if(s) s.textContent = loadingPhrases[phraseIdx].sub;
+              }, 3000);
+
               try{
                 var r=await fetch('/api/seo-review',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({texto:texto,titulo:($('srv-titulo').value||'').trim(),lob:($('srv-lob').value||'').trim()})});
                 var d=await r.json(); if(!d.success) throw new Error(d.error||'falhou'); var v=d.review;
-                var crit=function(arr){return (arr||[]).map(function(c){return '<div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06)"><b style="flex:0 0 42px;font-family:monospace;color:'+clr((c.nota||0)*10)+'">'+(c.nota!=null?c.nota:'-')+'/10</b><div><b style="font-size:12.5px">'+(c.nome||'')+'</b><div style="font-size:11.5px;color:var(--color-text-muted)">'+(c.obs||'')+'</div></div></div>'}).join('')};
+                
+                // Fix denominator from /10 to /100 and evaluate color properly using clr(c.nota)
+                var crit=function(arr){return (arr||[]).map(function(c){return '<div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06)"><b style="flex:0 0 50px;font-family:monospace;color:'+clr(c.nota||0)+'">'+(c.nota!=null?c.nota:'-')+'/100</b><div><b style="font-size:12.5px">'+(c.nome||'')+'</b><div style="font-size:11.5px;color:var(--color-text-muted)">'+(c.obs||'')+'</div></div></div>'}).join('')};
                 var kw=v.keyword||{};
+                
                 var html='<div style="display:flex;gap:10px;margin-bottom:14px">'+
-                  '<div style="flex:1;text-align:center;background:rgba(255,255,255,.03);border-radius:10px;padding:10px"><div style="font-size:10px;color:var(--color-text-muted);text-transform:uppercase">Geral</div><div style="font-size:30px;font-weight:900;color:'+clr(v.nota_geral)+'">'+(Math.round(v.nota_geral||0))+'</div></div>'+
-                  '<div style="flex:1;text-align:center;background:rgba(255,255,255,.03);border-radius:10px;padding:10px"><div style="font-size:10px;color:var(--color-text-muted);text-transform:uppercase">SEO</div><div style="font-size:30px;font-weight:900;color:'+clr(v.seo&&v.seo.score)+'">'+(Math.round((v.seo&&v.seo.score)||0))+'</div></div>'+
-                  '<div style="flex:1;text-align:center;background:rgba(255,255,255,.03);border-radius:10px;padding:10px"><div style="font-size:10px;color:var(--color-text-muted);text-transform:uppercase">GEO</div><div style="font-size:30px;font-weight:900;color:'+clr(v.geo&&v.geo.score)+'">'+(Math.round((v.geo&&v.geo.score)||0))+'</div></div></div>'+
+                  '<div style="flex:1;text-align:center;background:rgba(255,255,255,0.03);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.06);border-top:3px solid '+clr(v.nota_geral)+';border-radius:12px;padding:12px;box-shadow:0 4px 15px rgba(0,0,0,0.15)"><div style="font-size:10px;color:var(--color-text-muted);text-transform:uppercase">Geral</div><div style="font-size:30px;font-weight:900;color:'+clr(v.nota_geral)+'">'+(Math.round(v.nota_geral||0))+'</div></div>'+
+                  '<div style="flex:1;text-align:center;background:rgba(255,255,255,0.03);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.06);border-top:3px solid '+clr(v.seo&&v.seo.score)+';border-radius:12px;padding:12px;box-shadow:0 4px 15px rgba(0,0,0,0.15)"><div style="font-size:10px;color:var(--color-text-muted);text-transform:uppercase">SEO</div><div style="font-size:30px;font-weight:900;color:'+clr(v.seo&&v.seo.score)+'">'+(Math.round((v.seo&&v.seo.score)||0))+'</div></div>'+
+                  '<div style="flex:1;text-align:center;background:rgba(255,255,255,0.03);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.06);border-top:3px solid '+clr(v.geo&&v.geo.score)+';border-radius:12px;padding:12px;box-shadow:0 4px 15px rgba(0,0,0,0.15)"><div style="font-size:10px;color:var(--color-text-muted);text-transform:uppercase">GEO</div><div style="font-size:30px;font-weight:900;color:'+clr(v.geo&&v.geo.score)+'">'+(Math.round((v.geo&&v.geo.score)||0))+'</div></div></div>'+
                   '<div style="font-size:13px;color:var(--color-text-dim,#94a3b8);margin-bottom:12px">'+(v.resumo||'')+'</div>'+
                   '<div style="background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.3);border-radius:10px;padding:12px;margin-bottom:14px"><div style="font-size:11px;text-transform:uppercase;color:var(--color-text-muted)">🎯 Melhor keyword</div><div style="font-size:16px;font-weight:800;color:#60a5fa">'+(kw.principal||'-')+'</div><div style="font-size:12px;color:var(--color-text-dim,#94a3b8);margin-top:4px">Secundárias: '+((kw.secundarias||[]).join(', ')||'-')+'</div><div style="font-size:11.5px;color:var(--color-text-muted);margin-top:4px">'+(kw.onde_usar?'Usar em: '+kw.onde_usar+'. ':'')+(kw.motivo||'')+'</div></div>'+
                   '<div style="font-size:12px;font-weight:800;text-transform:uppercase;color:var(--color-text-muted);margin:8px 0">⚡ Prioridades</div>'+((v.top_fixes||[]).map(function(f){return '<div style="font-size:13px;padding:5px 0">→ '+f+'</div>'}).join('')||'')+
@@ -1208,15 +1336,64 @@
                   '<div style="font-size:12px;font-weight:800;text-transform:uppercase;color:var(--color-text-muted);margin:12px 0 6px">🤖 GEO</div>'+crit(v.geo&&v.geo.criterios)+
                   '<div style="font-size:12px;font-weight:800;text-transform:uppercase;color:var(--color-text-muted);margin:12px 0 6px">🔗 Link juice</div>'+((v.link_juice||[]).map(function(l){return '<div style="font-size:13px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06)">🔗 <a href="'+l.url+'" target="_blank" rel="noopener" style="color:#60a5fa">'+(l.anchor||l.url)+'</a><div style="font-size:11.5px;color:var(--color-text-muted)">'+(l.motivo||'')+'</div></div>'}).join('')||'<div style="font-size:12px;color:var(--color-text-muted)">sem sugestões internas relevantes</div>')+
                   (v.cta?'<div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.3);border-radius:10px;padding:12px;margin-top:14px"><div style="font-size:11px;text-transform:uppercase;color:var(--color-text-muted)">📣 CTA</div><div style="font-weight:700;color:#6ee7b7">"'+(v.cta.texto||'')+'"</div><div style="font-size:11.5px;color:var(--color-text-muted);margin-top:4px">Posição: '+(v.cta.posicao||'-')+' · '+(v.cta.motivo||'')+'</div></div>':'');
+                
                 $('srv-results').innerHTML=html; $('srv-results').style.display='block';
                 st.textContent='✓ '+d.candidatos_considerados+' artigos considerados'; st.style.color='var(--color-text-muted)';
-                var sb=$('seo-score'); if(sb) sb.textContent=Math.round(v.nota_geral||0);
-              }catch(e){ st.textContent='Erro: '+e.message; st.style.color='#fca5a5'; }
-              finally{ go.disabled=false; }
+                
+                // Populate improved article
+                if (v.artigo_melhorado) {
+                  $('srv-texto-otimizado').value = v.artigo_melhorado;
+                  $('srv-artigo-melhorado').style.display = 'block';
+                }
+                
+                // Hide duplicate bottom score row
+                var scoreRow = $('srv-score-row'); if(scoreRow) scoreRow.style.display='none';
+                
+                // Update detail score and fields below
+                var sb=$('seo-score'); if(sb) {
+                  sb.textContent=Math.round(v.nota_geral||0)+'/100';
+                  sb.className = 'score-badge ' + (v.nota_geral >= 85 ? 'high' : (v.nota_geral >= 60 ? 'mid' : 'low'));
+                }
+                
+                $('seo-title').textContent = v.metaTitle || '-';
+                $('seo-desc').textContent = v.metaDescription || '-';
+                $('seo-slug').textContent = v.slug || '-';
+                $('seo-keywords').textContent = kw.principal ? [kw.principal].concat(kw.secundarias || []).join(', ') : '-';
+                
+                let faqHtml = '';
+                if (Array.isArray(v.faq)) {
+                  v.faq.forEach(item => {
+                    faqHtml += `
+                      <div class="review-item">
+                        <span class="q">Q: ${item.q}</span>
+                        <span class="a">A: ${item.a}</span>
+                      </div>
+                    `;
+                  });
+                }
+                $('geo-faq-list').innerHTML = faqHtml || '<div style="font-size:12px;color:var(--color-text-muted)">Nenhuma FAQ estruturada recomendada.</div>';
+
+                // Play chime & set happy Rax pose
+                playChime();
+                if (window.setRaxState) {
+                  setRaxState('entregue', 'Revisão concluída com sucesso! 🎉 Veja as análises e o artigo corrigido.');
+                }
+              }catch(e){ 
+                st.textContent='Erro: '+e.message; st.style.color='#fca5a5';
+                if (window.setRaxState) {
+                  setRaxState('ocioso', 'Ocorreu um erro ao revisar o artigo. Tente novamente.');
+                }
+              }
+              finally{ 
+                clearInterval(phraseInterval);
+                $('srv-loading').style.display='none';
+                go.disabled=false; 
+              }
             });
           })();
           </script>
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+          
+          <div id="srv-score-row" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
             <span style="font-weight:600;font-size:14px">Pontuação Geral de Qualidade:</span>
             <span class="score-badge" id="seo-score">0</span>
           </div>
@@ -1274,6 +1451,41 @@
 
 <script>
   const TOKEN = 'eubr-voices-edit-2026';
+
+  function playChime() {
+    try {
+      var ctx = new (window.AudioContext || window.webkitAudioContext)();
+      // note 1: G5 (783.99 Hz)
+      var osc1 = ctx.createOscillator();
+      var gain1 = ctx.createGain();
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(783.99, ctx.currentTime);
+      gain1.gain.setValueAtTime(0.001, ctx.currentTime);
+      gain1.gain.exponentialRampToValueAtTime(0.12, ctx.currentTime + 0.05);
+      gain1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.55);
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+      osc1.start();
+      osc1.stop(ctx.currentTime + 0.6);
+
+      // note 2: C6 (1046.50 Hz)
+      setTimeout(function() {
+        var osc2 = ctx.createOscillator();
+        var gain2 = ctx.createGain();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(1046.50, ctx.currentTime);
+        gain2.gain.setValueAtTime(0.001, ctx.currentTime);
+        gain2.gain.exponentialRampToValueAtTime(0.15, ctx.currentTime + 0.05);
+        gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.75);
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.start();
+        osc2.stop(ctx.currentTime + 0.8);
+      }, 110);
+    } catch (e) {
+      console.error('AudioContext chime error:', e);
+    }
+  }
   
   // DOM references
   const $ = id => document.getElementById(id);
@@ -1751,6 +1963,7 @@
     
     // 4. Entregue
     setRaxState('entregue', 'Concluído! Veja os resultados gerados na aba ao lado. 🦝🎉');
+    playChime();
     loadingState.style.display = 'none';
     renderResults(activeData);
     resultState.style.display = 'flex';
@@ -1761,6 +1974,10 @@
 
   // Render results helper
   function renderResults(data) {
+    var scoreRow = $('srv-score-row'); if(scoreRow) scoreRow.style.display='flex';
+    var srvRes = $('srv-results'); if(srvRes) srvRes.style.display='none';
+    var srvArt = $('srv-artigo-melhorado'); if(srvArt) srvArt.style.display='none';
+
     $('out-motor').textContent = `Motor: ${data.motor || 'Ollama offline'}`;
     $('out-badge').textContent = data.etiqueta || '🤖 GERADO LOCAL';
     

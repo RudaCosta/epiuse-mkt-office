@@ -1,5 +1,5 @@
 {
-  "current": "0.53.3",
+  "current": "0.53.4",
   "atualizado_em": "19/jun/2026",
   "next": [
     {
@@ -54,9 +54,25 @@
   ],
   "releases": [
     {
-      "version": "0.53.3",
+      "version": "0.53.4",
       "date": "19/jun/2026",
       "status": "current",
+      "path": null,
+      "title": "🎨 Melhorias de UI/UX, Artigo Otimizado e Áudio no Raccoon Studio",
+      "summary": "Implementação do design de espera (loading glassmorphic) na revisão de artigos, exibição do artigo reescrito otimizado (artigo_melhorado) com funcionalidade de cópia rápida, e síntese de áudio (chime) nativa no sucesso da revisão. Unificação de campos de notas, correção do formato (/100) e aplicação da estética Liquid Glass da ECC.",
+      "highlights": [
+        "Adicionado spinner de carregamento glassmorphic animado com mensagens dinâmicas de progresso na aba SEO/GEO.",
+        "Implementada visualização e cópia de um clique do artigo reescrito e melhorado (artigo_melhorado) sugerido pela IA.",
+        "Corrigido o denominador de notas dos critérios detalhados para /100 e ajustada lógica de coloração de score.",
+        "Ocultado badge de qualidade duplicado no painel inferior durante a colagem de artigos.",
+        "Adicionada síntese sonora nativa (AudioContext chime) de confirmação de sucesso na revisão e geração de conteúdo.",
+        "Refinamento de design Liquid Glass (contrast borders, backdrop filter, glows) em toda a interface do Raccoon."
+      ]
+    },
+    {
+      "version": "0.53.3",
+      "date": "19/jun/2026",
+      "status": "past",
       "path": null,
       "title": "⚡ Estabilização da API da OpenRouter (Google Gemma)",
       "summary": "Substituição do modelo padrão do revisor SEO/GEO na OpenRouter de Qwen 72B free para Gemma 31B free. O modelo Qwen gratuito foi descontinuado/bloqueado upstream pela Venice (retornando erro 404/429), enquanto o Gemma provou-se altamente disponível e responsivo.",
