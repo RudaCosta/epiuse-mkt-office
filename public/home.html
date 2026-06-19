@@ -85,6 +85,23 @@
     </div>
   </section>
 
+  <script>
+  (async function(){
+    try{
+      const sec = document.querySelector('[data-sec="growth"]'); if(!sec) return;
+      const r = await fetch('/api/linkedin/historical?t=' + Date.now()); const d = await r.json();
+      const serie = (d.serie_mensal || []).filter(x => x.total_seguidores != null);
+      if(!serie.length) return;
+      const pts = serie.map(x => x.total_seguidores);
+      const last = pts[pts.length - 1];
+      const base = pts.length >= 13 ? pts[pts.length - 13] : pts[0];
+      const num = sec.querySelector('.dk-num'); if(num) num.textContent = last.toLocaleString('pt-BR');
+      const badge = sec.querySelector('.dk-sec-badge'); if(badge){ const dl = last - base; badge.textContent = (dl >= 0 ? '+' : '') + dl.toLocaleString('pt-BR') + ' últimos 12m'; }
+      const chart = sec.querySelector('.dk-chart-preview'); if(chart){ chart.setAttribute('data-points', JSON.stringify(pts.slice(-13))); window.dispatchEvent(new Event('office-theme-change')); }
+    }catch(e){}
+  })();
+  </script>
+
   <!-- GRID 6 ÁREAS -->
   <section class="home-section" data-sec="areas">
     <h2 class="home-section-title" data-i18n="home.areas">📂 Áreas · resumo</h2>
