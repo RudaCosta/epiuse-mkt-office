@@ -1321,6 +1321,11 @@
                 var r=await fetch('/api/seo-review',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({texto:texto,titulo:($('srv-titulo').value||'').trim(),lob:($('srv-lob').value||'').trim()})});
                 var d=await r.json(); if(!d.success) throw new Error(d.error||'falhou'); var v=d.review;
                 
+                // Store review data globally for saving to pipeline
+                window.lastRaccoonSource = 'review';
+                window.activeReviewData = v;
+                window.activeReviewMeta = { titulo: ($('srv-titulo').value||'').trim(), lob: ($('srv-lob').value||'').trim() };
+
                 // Fix denominator from /10 to /100 and evaluate color properly using clr(c.nota)
                 var crit=function(arr){return (arr||[]).map(function(c){return '<div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06)"><b style="flex:0 0 50px;font-family:monospace;color:'+clr(c.nota||0)+'">'+(c.nota!=null?c.nota:'-')+'/100</b><div><b style="font-size:12.5px">'+(c.nome||'')+'</b><div style="font-size:11.5px;color:var(--color-text-muted)">'+(c.obs||'')+'</div></div></div>'}).join('')};
                 var kw=v.keyword||{};
@@ -1882,6 +1887,7 @@
 
   // Trigger main animation state loop
   triggerBtn.addEventListener('click', async () => {
+    window.lastRaccoonSource = 'generate';
     const temaVal = $('tema').value.trim();
     if (!temaVal) {
       $('tema').reportValidity();
@@ -2105,29 +2111,60 @@
 
   // Save to SQLite Pipeline editorial
   $('btn-save-pipeline').addEventListener('click', async () => {
-    if (!activeData) return;
+    var isReview = (window.lastRaccoonSource === 'review' && window.activeReviewData);
+    if (!activeData && !isReview) return;
     
     const saveBtn = $('btn-save-pipeline');
     saveBtn.disabled = true;
     saveBtn.textContent = 'Salvando...';
 
-    const payload = {
-      titulo: activeData.article ? activeData.article.title : (activeData.post ? activeData.post.headline : 'Conteúdo do Raccoon'),
-      tema_keyword: $('tema').value.trim(),
-      lob: activeData.estrategia.lob || '',
-      persona_alvo: activeData.estrategia.persona || '',
-      estado: 'recebido',
-      corpo: activeData.article ? `<h1>${activeData.article.title}</h1><p class="intro">${activeData.article.intro}</p>` + 
-             (activeData.article.sections || []).map(s => `<h2>${s.h2}</h2><p>${s.body}</p>`).join('') +
-             `<p class="conclusion">${activeData.article.conclusion}</p>` : '',
-      copy_text: activeData.post ? activeData.post.linkedinCopy : '',
-      cta_sugerido: activeData.carousel ? `${activeData.carousel.cta.headline} - ${activeData.carousel.cta.sub}` : '',
-      seo_json: activeData.revisao ? activeData.revisao.seo : {},
-      geo_json: activeData.revisao ? activeData.revisao.geo : {},
-      carrossel_url: activeData.carousel ? `/inbound/carousel?tema=${encodeURIComponent($('tema').value.trim())}` : '',
-      carrossel_json: activeData.carousel ? JSON.stringify(activeData.carousel) : '',
-      capa_url: window._raxCapaDataUrl || ''
-    };
+    var payload;
+    if (isReview) {
+      var rv = window.activeReviewData;
+      var meta = window.activeReviewMeta || {};
+      var kw = rv.keyword || {};
+      var title = meta.titulo || rv.metaTitle || kw.principal || 'Artigo Revisado';
+      payload = {
+        titulo: title,
+        tema_keyword: kw.principal || '',
+        lob: meta.lob || '',
+        persona_alvo: 'auto',
+        estado: 'recebido',
+        corpo: rv.artigo_melhorado || '',
+        copy_text: '',
+        cta_sugerido: rv.cta ? rv.cta.texto : '',
+        seo_json: {
+          metaTitle: rv.metaTitle,
+          metaDescription: rv.metaDescription,
+          slug: rv.slug,
+          keywords: [kw.principal].concat(kw.secundarias || [])
+        },
+        geo_json: {
+          faq: rv.faq
+        },
+        carrossel_url: '',
+        carrossel_json: '',
+        capa_url: ''
+      };
+    } else {
+      payload = {
+        titulo: activeData.article ? activeData.article.title : (activeData.post ? activeData.post.headline : 'Conteúdo do Raccoon'),
+        tema_keyword: $('tema').value.trim(),
+        lob: activeData.estrategia.lob || '',
+        persona_alvo: activeData.estrategia.persona || '',
+        estado: 'recebido',
+        corpo: activeData.article ? `<h1>${activeData.article.title}</h1><p class="intro">${activeData.article.intro}</p>` + 
+               (activeData.article.sections || []).map(s => `<h2>${s.h2}</h2><p>${s.body}</p>`).join('') +
+               `<p class="conclusion">${activeData.article.conclusion}</p>` : '',
+        copy_text: activeData.post ? activeData.post.linkedinCopy : '',
+        cta_sugerido: activeData.carousel ? `${activeData.carousel.cta.headline} - ${activeData.carousel.cta.sub}` : '',
+        seo_json: activeData.revisao ? activeData.revisao.seo : {},
+        geo_json: activeData.revisao ? activeData.revisao.geo : {},
+        carrossel_url: activeData.carousel ? `/inbound/carousel?tema=${encodeURIComponent($('tema').value.trim())}` : '',
+        carrossel_json: activeData.carousel ? JSON.stringify(activeData.carousel) : '',
+        capa_url: window._raxCapaDataUrl || ''
+      };
+    }
 
     try {
       const res = await fetch('/api/content', {
@@ -2143,7 +2180,7 @@
         $('save-result').style.display = 'inline-block';
         $('save-result').textContent = '✅ Salvo no Pipeline (#' + res.id + ')!';
         
-        if (activeData.carousel) {
+        if (!isReview && activeData.carousel) {
           localStorage.setItem('pending_carousel_slides', JSON.stringify(activeData.carousel));
           localStorage.setItem('pending_raccoon_full_data', JSON.stringify(activeData));
           
@@ -2155,6 +2192,8 @@
           if (handoffCard) {
             handoffCard.style.display = 'flex';
           }
+        } else if (isReview) {
+          setRaxState('entregue', 'Artigo revisado e salvo com sucesso no Pipeline Editorial! 🚀');
         }
 
         setTimeout(() => {
@@ -2170,6 +2209,11 @@
       saveBtn.textContent = 'Salvar no Pipeline Editorial';
     }
   });
+
+  // Init global source tracker
+  window.lastRaccoonSource = 'generate';
+  window.activeReviewData = null;
+  window.activeReviewMeta = null;
 
   // Init
   setRaxState('ocioso');

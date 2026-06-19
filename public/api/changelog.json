@@ -1,5 +1,5 @@
 {
-  "current": "0.53.4",
+  "current": "0.53.5",
   "atualizado_em": "19/jun/2026",
   "next": [
     {
@@ -54,9 +54,24 @@
   ],
   "releases": [
     {
-      "version": "0.53.4",
+      "version": "0.53.5",
       "date": "19/jun/2026",
       "status": "current",
+      "path": null,
+      "title": "🗳️ Sincronização do Artigo Otimizado com o Pipeline Editorial e Tema Aurora",
+      "summary": "Integração do fluxo de colagem/revisão de artigos no Raccoon Studio ao Pipeline Editorial (SQLite). O botão de salvar agora detecta de forma inteligente se o conteúdo vem de uma geração automática (Rax) ou de uma revisão de artigo colado, salvando o artigo melhorado e as metas de SEO/GEO de forma correspondente. Atualização do seletor global para colocar o tema Aurora como primeiro da lista e como fallback absoluto.",
+      "highlights": [
+        "Mapeado o botão de salvar para salvar a revisão de artigo colado (incluindo artigo_melhorado, metas e FAQs) quando este fluxo estiver ativo.",
+        "Adicionadas variáveis de estado no objeto window para persistência e detecção de contexto de origem (lastRaccoonSource).",
+        "Reordenado o dropdown de temas do menu global para colocar o tema Aurora no topo com a etiqueta '🔮 Aurora (Padrão)'.",
+        "Removido auto-detect de OS para light mode em office-nav.js, tornando o tema Aurora o default absoluto.",
+        "Correções de nomenclatura e alinhamentos finais nos scoreboards."
+      ]
+    },
+    {
+      "version": "0.53.4",
+      "date": "19/jun/2026",
+      "status": "past",
       "path": null,
       "title": "🎨 Melhorias de UI/UX, Artigo Otimizado e Áudio no Raccoon Studio",
       "summary": "Implementação do design de espera (loading glassmorphic) na revisão de artigos, exibição do artigo reescrito otimizado (artigo_melhorado) com funcionalidade de cópia rápida, e síntese de áudio (chime) nativa no sucesso da revisão. Unificação de campos de notas, correção do formato (/100) e aplicação da estética Liquid Glass da ECC.",

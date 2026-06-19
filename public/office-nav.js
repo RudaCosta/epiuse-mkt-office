@@ -8,7 +8,7 @@
 // Fonte ÚNICA da verdade: public/api/changelog.json#current via /api/version
 // Fallback hardcoded usado SÓ se fetch falhar (offline, etc).
 // Sincronização automática — não editar manualmente, basta bumpar changelog.json.
-let OFFICE_NAV_VERSION = '0.53.4';
+let OFFICE_NAV_VERSION = '0.53.5';
 // Promise compartilhada — nav + footer reaproveitam o mesmo fetch
 window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/version')
   .then(r => r.ok ? r.json() : null)
@@ -251,8 +251,6 @@ class OfficeNav extends HTMLElement {
     try {
       const saved = localStorage.getItem('office.theme');
       if (['dark','light','armory','elephant','aurora','liquid-glass'].includes(saved)) return saved;
-      // F10: auto-detect OS preference (default fallback = aurora)
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) return 'light';
       return 'aurora';
     } catch { return 'aurora'; }
   }
@@ -741,11 +739,11 @@ class OfficeNav extends HTMLElement {
             <button class="ctrl-btn" id="theme-btn" title="Selecionar tema" type="button">${themeIcon}</button>
             <div class="theme-dropdown" id="theme-dropdown" role="menu">
               <div class="td-head">Selecione o Tema</div>
-              <button class="td-item ${theme === 'dark' ? 'active' : ''}" data-theme-val="dark" type="button"><span class="ic">🌑</span> Escuro (Padrão)</button>
+              <button class="td-item ${theme === 'aurora' ? 'active' : ''}" data-theme-val="aurora" type="button"><span class="ic">🔮</span> Aurora (Padrão)</button>
+              <button class="td-item ${theme === 'dark' ? 'active' : ''}" data-theme-val="dark" type="button"><span class="ic">🌑</span> Escuro</button>
               <button class="td-item ${theme === 'armory' ? 'active' : ''}" data-theme-val="armory" type="button"><span class="ic">📟</span> Armory Tech</button>
               <button class="td-item ${theme === 'elephant' ? 'active' : ''}" data-theme-val="elephant" type="button"><span class="ic">🐘</span> Elephant Core</button>
               <button class="td-item ${theme === 'light' ? 'active' : ''}" data-theme-val="light" type="button"><span class="ic">☀️</span> Claro (Light)</button>
-              <button class="td-item ${theme === 'aurora' ? 'active' : ''}" data-theme-val="aurora" type="button"><span class="ic">🔮</span> Aurora</button>
               <button class="td-item ${theme === 'liquid-glass' ? 'active' : ''}" data-theme-val="liquid-glass" type="button"><span class="ic">💧</span> Liquid Glass</button>
             </div>
           </div>
