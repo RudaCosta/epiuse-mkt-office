@@ -1,5 +1,5 @@
 {
-  "current": "0.53.0",
+  "current": "0.53.1",
   "atualizado_em": "19/jun/2026",
   "next": [
     {
@@ -54,16 +54,29 @@
   ],
   "releases": [
     {
-      "version": "0.53.0",
+      "version": "0.53.1",
       "date": "19/jun/2026",
       "status": "current",
+      "path": null,
+      "title": "🆓 Revisor SEO/GEO agora roda em IA gratuita (Qwen via OpenRouter)",
+      "summary": "O revisor SEO+GEO do Raccoon deixou de usar IA paga e passou a rodar no Qwen (OpenRouter, plano gratuito). Mensagens de erro deixaram de vazar texto técnico cru ao usuário — agora mostram aviso amigável (ex: limite gratuito atingido).",
+      "highlights": [
+        "POST /api/seo-review migrado de Claude para Qwen via OpenRouter (env OPENROUTER_API_KEY + OPENROUTER_MODEL, default qwen-2.5-72b:free).",
+        "Erros tratados: 503 sem key, 502 indisponível/JSON inválido, 429 limite gratuito — sem expor mensagem interna da API.",
+        "Custo de IA do revisor: zero (plano gratuito)."
+      ]
+    },
+    {
+      "version": "0.53.0",
+      "date": "19/jun/2026",
+      "status": "past",
       "path": null,
       "title": "🔍 Revisor SEO & GEO no Raccoon Studio (regras jun/2026)",
       "summary": "Nova área no Raccoon Studio/Inbound: cola um artigo e revisa SEO (Google, incl. AI Overviews) + GEO (motores generativos) com as regras de junho/2026. Dá nota 0-100, critérios detalhados, link juice (interlinking com os 693 artigos da base) e CTA sugerido. Integra a base de artigos como pool de links internos.",
       "highlights": [
-        "POST /api/seo-review: Claude (sonnet) com rubrica SEO+GEO jun/2026; pool de link juice filtrado por LOB dos artigos já produzidos.",
-        "public/seo-review.html: input por colagem ou seleção dos 693; scorecard (geral/SEO/GEO), prioridades, critérios, link juice clicável e CTA.",
-        "Etiqueta 'gerado por IA — revisar' (regra 6). Rota /seo-review + item no nav (Voices & Optimizer)."
+        "POST /api/seo-review com rubrica SEO+GEO jun/2026; pool de link juice filtrado por LOB dos artigos já produzidos.",
+        "Integrado dentro do Raccoon (aba SEO/GEO): cola o artigo e revisa; scorecard (geral/SEO/GEO), prioridades, critérios, link juice clicável e CTA. Botão 'Já tenho o artigo — revisar SEO/GEO' sempre visível.",
+        "Etiqueta 'gerado por IA — revisar' (regra 6)."
       ]
     },
     {

@@ -3347,20 +3347,44 @@ Retorne APENAS JSON valido, sem texto antes/depois:
   "cta": { "texto": "CTA sugerido", "posicao": "topo|meio|fim", "motivo": "string" }
 }`;
 
-    const response = await client.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 3000,
-      temperature: 0.3,
-      messages: [{ role: 'user', content: prompt }]
+    // LLM gratis via OpenRouter (Qwen). Modelo override por env OPENROUTER_MODEL.
+    const orKey = process.env.OPENROUTER_API_KEY;
+    if (!orKey) return res.status(503).json({ success: false, error: 'Revisor indisponivel: falta configurar OPENROUTER_API_KEY no servidor.' });
+    const orModel = process.env.OPENROUTER_MODEL || 'qwen/qwen-2.5-72b-instruct:free';
+
+    const orResp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${orKey}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://epiuse-mkt-office-production.up.railway.app',
+        'X-Title': 'EPI-USE Office - Raccoon SEO/GEO'
+      },
+      body: JSON.stringify({
+        model: orModel,
+        temperature: 0.3,
+        max_tokens: 3000,
+        messages: [{ role: 'user', content: prompt }]
+      })
     });
-    let raw = response.content[0].text.replace(/```json\s*/gi, '').replace(/```\s*/g, '');
+    if (!orResp.ok) {
+      const detail = await orResp.text().catch(() => '');
+      console.error('[SEO-REVIEW-OR-FAIL]', orResp.status, detail.slice(0, 300));
+      const msg = orResp.status === 429
+        ? 'Revisor sobrecarregado (limite gratuito do Qwen atingido). Tente em alguns minutos.'
+        : 'Revisor IA indisponivel no momento. Tente novamente.';
+      return res.status(502).json({ success: false, error: msg });
+    }
+    const data = await orResp.json();
+    let raw = ((data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '')
+      .replace(/```json\s*/gi, '').replace(/```\s*/g, '');
     const m = raw.match(/\{[\s\S]*\}/);
-    if (!m) return res.status(500).json({ success: false, error: 'IA nao retornou JSON valido' });
+    if (!m) return res.status(502).json({ success: false, error: 'IA nao retornou JSON valido. Tente de novo.' });
     const parsed = JSON.parse(m[0]);
-    res.json({ success: true, review: parsed, candidatos_considerados: candidatos.length, gerado_em: new Date().toISOString() });
+    res.json({ success: true, review: parsed, modelo: orModel, candidatos_considerados: candidatos.length, gerado_em: new Date().toISOString() });
   } catch (e) {
     console.error('[SEO-REVIEW-FAIL]', e.message);
-    res.status(500).json({ success: false, error: e.message });
+    res.status(500).json({ success: false, error: 'Falha ao revisar o artigo. Tente novamente.' });
   }
 });
 
