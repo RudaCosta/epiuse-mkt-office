@@ -5,7 +5,7 @@
 
 // Fonte ÚNICA da verdade: public/api/changelog.json#current via /api/version
 // Fallback hardcoded usado SÓ se fetch falhar — sincronização automática com nav.
-let OFFICE_FOOTER_VERSION = '0.53.2';
+let OFFICE_FOOTER_VERSION = '0.53.3';
 const OFFICE_FOOTER_BUILD = '2026-06-19';
 window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/version')
   .then(r => r.ok ? r.json() : null)
@@ -17,7 +17,8 @@ window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/ver
 // Histórico pré-1.0 preservado abaixo para referência.
 const OFFICE_VERSION_HISTORY = [
   // ─── SPRINT 46 · Revisor SEO/GEO (19/jun/2026) ───
-  { ver: '0.53.2', date: '19/jun/2026', label: 'SPRINT 46 — Correção do Revisor SEO/GEO local (memória re-sincronizada) e deploy com contingência OpenRouter gratuita.', path: null, status: 'current' },
+  { ver: '0.53.3', date: '19/jun/2026', label: 'SPRINT 46 — Estabilização da API da OpenRouter (Google Gemma), resolvendo erros upstream de rate limit.', path: null, status: 'current' },
+  { ver: '0.53.2', date: '19/jun/2026', label: 'SPRINT 46 — Correção do Revisor SEO/GEO local (memória re-sincronizada) e deploy com contingência OpenRouter gratuita.', path: null, status: 'snapshot' },
   { ver: '0.53.1', date: '19/jun/2026', label: 'SPRINT 46 — Revisor SEO/GEO migrado para OpenRouter (IA gratuita Qwen), com tratamento robusto de erros e limites.', path: null, status: 'snapshot' },
   { ver: '0.53.0', date: '19/jun/2026', label: 'SPRINT 46 — Revisor SEO/GEO integrado diretamente no Raccoon Studio, com scorecard analítico, link juice de 693 artigos e sugestão de CTA.', path: null, status: 'snapshot' },
   // ─── SPRINT 43 · RD Station integrado (16/jun/2026) ───

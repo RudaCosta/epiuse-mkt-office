@@ -1,5 +1,5 @@
 {
-  "current": "0.53.2",
+  "current": "0.53.3",
   "atualizado_em": "19/jun/2026",
   "next": [
     {
@@ -54,9 +54,22 @@
   ],
   "releases": [
     {
-      "version": "0.53.2",
+      "version": "0.53.3",
       "date": "19/jun/2026",
       "status": "current",
+      "path": null,
+      "title": "⚡ Estabilização da API da OpenRouter (Google Gemma)",
+      "summary": "Substituição do modelo padrão do revisor SEO/GEO na OpenRouter de Qwen 72B free para Gemma 31B free. O modelo Qwen gratuito foi descontinuado/bloqueado upstream pela Venice (retornando erro 404/429), enquanto o Gemma provou-se altamente disponível e responsivo.",
+      "highlights": [
+        "Migrado modelo de LLM gratuito padrão de qwen-2.5-72b:free para google/gemma-4-31b-it:free.",
+        "Resolvido o erro 'Revisor IA indisponivel' causado por limitações upstream de parceiros da OpenRouter.",
+        "Versão bumpada para 0.53.3."
+      ]
+    },
+    {
+      "version": "0.53.2",
+      "date": "19/jun/2026",
+      "status": "past",
       "path": null,
       "title": "⚡ Correção do Revisor SEO/GEO local e deploy de contingência",
       "summary": "Reinicialização do servidor local via Task Scheduler para propagação das alterações na memória e sincronização do status de saúde. Deploy completo em produção na Railway com suporte ao Qwen gratuito da OpenRouter.",

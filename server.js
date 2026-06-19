@@ -3347,10 +3347,10 @@ Retorne APENAS JSON valido, sem texto antes/depois:
   "cta": { "texto": "CTA sugerido", "posicao": "topo|meio|fim", "motivo": "string" }
 }`;
 
-    // LLM gratis via OpenRouter (Qwen). Modelo override por env OPENROUTER_MODEL.
+    // LLM gratis via OpenRouter (Gemma). Modelo override por env OPENROUTER_MODEL.
     const orKey = process.env.OPENROUTER_API_KEY;
     if (!orKey) return res.status(503).json({ success: false, error: 'Revisor indisponivel: falta configurar OPENROUTER_API_KEY no servidor.' });
-    const orModel = process.env.OPENROUTER_MODEL || 'qwen/qwen-2.5-72b-instruct:free';
+    const orModel = process.env.OPENROUTER_MODEL || 'google/gemma-4-31b-it:free';
 
     const orResp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
