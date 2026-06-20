@@ -59,8 +59,8 @@ window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/ver
     document.head.appendChild(fontsLink);
   }
 
-  // polish-pro.css + consulting-dark.css
-  ['/css/polish-pro.css', '/css/consulting-dark.css'].forEach(href => {
+  // polish-pro.css + consulting-dark.css + epiuse-theme.css + atlas-theme.css
+  ['/css/polish-pro.css', '/css/consulting-dark.css', '/css/epiuse-theme.css', '/css/atlas-theme.css'].forEach(href => {
     if (document.querySelector(`link[href="${href}"]`)) return;
     const l = document.createElement('link');
     l.rel = 'stylesheet'; l.href = href;
@@ -250,9 +250,17 @@ class OfficeNav extends HTMLElement {
   getTheme() {
     try {
       const saved = localStorage.getItem('office.theme');
-      if (['dark','light','armory','elephant','aurora','liquid-glass'].includes(saved)) return saved;
-      return 'aurora';
-    } catch { return 'aurora'; }
+      if (['epiuse-light','epiuse-dark','atlas-light','atlas-dark','dark','light','armory','elephant','aurora','liquid-glass'].includes(saved)) return saved;
+      return 'epiuse-light';
+    } catch { return 'epiuse-light'; }
+  }
+
+  getScreenV2(name) {
+    try {
+      return localStorage.getItem('office.v2.' + name) === '1';
+    } catch {
+      return false;
+    }
   }
 
   render() {
@@ -261,9 +269,9 @@ class OfficeNav extends HTMLElement {
     const breadcrumb = OFFICE_NAV_BREADCRUMBS[activeRoute] || null;
     const user = this.getUser();
     const theme = this.getTheme();
-    const THEME_ICON = { dark: '☾', light: '☀', armory: '◆', elephant: '🐘', aurora: '🔮', 'liquid-glass': '💧' };
-    const THEME_LABEL = { dark: 'escuro', light: 'claro', armory: 'armory', elephant: 'elephant', aurora: 'aurora', 'liquid-glass': 'liquid glass' };
-    const themeIcon = THEME_ICON[theme] || '☾';
+    const THEME_ICON = { 'epiuse-light': '◐', 'epiuse-dark': '◑', 'atlas-light': '◐', 'atlas-dark': '◑', dark: '☾', light: '☀', armory: '◆', elephant: '🐘', aurora: '🔮', 'liquid-glass': '💧' };
+    const THEME_LABEL = { 'epiuse-light': 'EPI-USE · claro', 'epiuse-dark': 'EPI-USE · escuro', 'atlas-light': 'nova · claro', 'atlas-dark': 'nova · escuro', dark: 'escuro', light: 'claro', armory: 'armory', elephant: 'elephant', aurora: 'aurora', 'liquid-glass': 'liquid glass' };
+    const themeIcon = THEME_ICON[theme] || '◐';
 
     this.shadowRoot.innerHTML = `
       <style>
@@ -739,12 +747,23 @@ class OfficeNav extends HTMLElement {
             <button class="ctrl-btn" id="theme-btn" title="Selecionar tema" type="button">${themeIcon}</button>
             <div class="theme-dropdown" id="theme-dropdown" role="menu">
               <div class="td-head">Selecione o Tema</div>
-              <button class="td-item ${theme === 'aurora' ? 'active' : ''}" data-theme-val="aurora" type="button"><span class="ic">🔮</span> Aurora (Padrão)</button>
-              <button class="td-item ${theme === 'dark' ? 'active' : ''}" data-theme-val="dark" type="button"><span class="ic">🌑</span> Escuro</button>
+              <div class="td-head" style="margin-top:6px">Tema EPI-USE (novo)</div>
+              <button class="td-item ${theme === 'epiuse-light' ? 'active' : ''}" data-theme-val="epiuse-light" type="button"><span class="ic">◐</span> EPI-USE · Claro</button>
+              <button class="td-item ${theme === 'epiuse-dark' ? 'active' : ''}" data-theme-val="epiuse-dark" type="button"><span class="ic">◑</span> EPI-USE · Escuro</button>
+              <div class="td-head" style="margin-top:6px">Tema Atlas (novo)</div>
+              <button class="td-item ${theme === 'atlas-light' ? 'active' : ''}" data-theme-val="atlas-light" type="button"><span class="ic">◐</span> Nova · Claro</button>
+              <button class="td-item ${theme === 'atlas-dark' ? 'active' : ''}" data-theme-val="atlas-dark" type="button"><span class="ic">◑</span> Nova · Escuro</button>
+              <div class="td-head" style="margin-top:6px">Outros Temas</div>
+              <button class="td-item ${theme === 'aurora' ? 'active' : ''}" data-theme-val="aurora" type="button"><span class="ic">🔮</span> Aurora (Legado)</button>
+              <button class="td-item ${theme === 'dark' ? 'active' : ''}" data-theme-val="dark" type="button"><span class="ic">🌑</span> Escuro (Legado)</button>
               <button class="td-item ${theme === 'armory' ? 'active' : ''}" data-theme-val="armory" type="button"><span class="ic">📟</span> Armory Tech</button>
               <button class="td-item ${theme === 'elephant' ? 'active' : ''}" data-theme-val="elephant" type="button"><span class="ic">🐘</span> Elephant Core</button>
               <button class="td-item ${theme === 'light' ? 'active' : ''}" data-theme-val="light" type="button"><span class="ic">☀️</span> Claro (Light)</button>
               <button class="td-item ${theme === 'liquid-glass' ? 'active' : ''}" data-theme-val="liquid-glass" type="button"><span class="ic">💧</span> Liquid Glass</button>
+
+              <div class="td-head" style="margin-top:6px">Telas v2</div>
+              <button class="td-item" data-screen-val="raccoon" type="button"><span class="ic">🦝</span> Raccoon v2 ${this.getScreenV2('raccoon') ? '· ON' : ''}</button>
+              <button class="td-item" data-screen-val="memes" type="button"><span class="ic">🧠</span> Memes v2 ${this.getScreenV2('memes') ? '· ON' : ''}</button>
             </div>
           </div>
           <div class="user-wrap">
@@ -859,7 +878,7 @@ class OfficeNav extends HTMLElement {
     });
 
     $('um-theme')?.addEventListener('click', () => {
-      const ORDER = ['aurora','dark','armory','elephant','light','liquid-glass'];
+      const ORDER = ['epiuse-light','epiuse-dark','atlas-light','atlas-dark','aurora','dark','armory','elephant','light','liquid-glass'];
       const cur = this.getTheme();
       const next = ORDER[(ORDER.indexOf(cur) + 1) % ORDER.length];
       try { localStorage.setItem('office.theme', next); } catch {}
@@ -901,10 +920,27 @@ class OfficeNav extends HTMLElement {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         const next = btn.dataset.themeVal;
-        try { localStorage.setItem('office.theme', next); } catch {}
-        applyTheme(next);
+        if (next) {
+          try { localStorage.setItem('office.theme', next); } catch {}
+          applyTheme(next);
+          this.render();
+          this.hookEvents();
+        }
+      });
+    });
+
+    this.shadowRoot.querySelectorAll('[data-screen-val]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const name = btn.dataset.screenVal;
+        const next = this.getScreenV2(name) ? '0' : '1';
+        try { localStorage.setItem('office.v2.' + name, next); } catch {}
         this.render();
         this.hookEvents();
+        // se já estiver na tela afetada, recarrega pra aplicar a v2
+        if (location.pathname.startsWith('/' + name)) {
+          location.reload();
+        }
       });
     });
 
@@ -950,8 +986,8 @@ function applyTheme(theme) {
   const html = document.documentElement;
   // SEMPRE seta o atributo explicitamente. Páginas como /optimizer dependem
   // do CSS `[data-theme="dark"]` ativar (não funciona se o atributo for removido).
-  const valid = ['dark','light','armory','elephant','aurora','liquid-glass'];
-  const t = valid.includes(theme) ? theme : 'aurora';
+  const valid = ['epiuse-light','epiuse-dark','atlas-light','atlas-dark','dark','light','armory','elephant','aurora','liquid-glass'];
+  const t = valid.includes(theme) ? theme : 'epiuse-light';
   html.setAttribute('data-theme', t);
 
   // Dispara evento de mudança de tema para atualizar gráficos e outros componentes
@@ -1465,8 +1501,8 @@ function applyTheme(theme) {
 // Aplica o tema salvo o quanto antes (evita FOUC se o nav demorar pra montar)
 (function preApplyTheme() {
   try {
-    const saved = localStorage.getItem('office.theme') || 'aurora';
-    const valid = ['dark','light','armory','elephant','aurora','liquid-glass'].includes(saved) ? saved : 'aurora';
+    const saved = localStorage.getItem('office.theme') || 'epiuse-light';
+    const valid = ['epiuse-light','epiuse-dark','atlas-light','atlas-dark','dark','light','armory','elephant','aurora','liquid-glass'].includes(saved) ? saved : 'epiuse-light';
     applyTheme(valid);
   } catch {}
 })();
@@ -1500,9 +1536,9 @@ const OfficeCommandPalette = (() => {
       { group:'Rotas', icon:'📨', label:'LP Seja um Voice',     hint:'/seja-voice', action:'/seja-voice' },
       { group:'Rotas', icon:'📜', label:'Changelog',            hint:'/changelog',  action:'/changelog' },
       // Ações
-      { group:'Ações', icon:'🔮',  label:'Alternar tema (aurora→dark→armory→elephant→light→liquid-glass)', hint:'persiste', action: () => {
-          const ORDER = ['aurora','dark','armory','elephant','light','liquid-glass'];
-          const cur = (localStorage.getItem('office.theme') || 'aurora');
+      { group:'Ações', icon:'🔮',  label:'Alternar tema (EPI-USE Claro/Escuro, Atlas, aurora, dark, etc)', hint:'persiste', action: () => {
+          const ORDER = ['epiuse-light','epiuse-dark','atlas-light','atlas-dark','aurora','dark','armory','elephant','light','liquid-glass'];
+          const cur = (localStorage.getItem('office.theme') || 'epiuse-light');
           const next = ORDER[(ORDER.indexOf(cur) + 1) % ORDER.length];
           try { localStorage.setItem('office.theme', next); } catch {}
           applyTheme(next);

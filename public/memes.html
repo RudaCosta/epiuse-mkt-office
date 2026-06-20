@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+<script>
+  if (localStorage.getItem('office.v2.memes') === '1') {
+    document.documentElement.setAttribute('data-v2', '1');
+  }
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Memes do Office · EPI-USE Brasil</title>
@@ -11,6 +16,32 @@
 <script type="module" src="/office-nav.js"></script>
 <script type="module" src="/office-footer.js"></script>
 <style>
+  /* Controla visibilidade de v1 e v2 */
+  html[data-v2="1"] .v1-only { display: none !important; }
+  html:not([data-v2="1"]) .v2-only { display: none !important; }
+
+  /* Fontes e classes auxiliares v2 */
+  .v2-only .disp { font-family: 'Space Grotesk', 'Poppins', sans-serif; }
+  .v2-only .mono { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+  
+  .v2-only .mm-filter {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    border-radius: 20px;
+    padding: 7px 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .v2-only .mm-filter.active {
+    border-color: var(--primary);
+    background: color-mix(in srgb, var(--primary) 16%, transparent);
+    color: var(--text);
+  }
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
   --bg: #0a0a1a; --bg-2: #12082b;
@@ -149,6 +180,9 @@ body::after {
 </style>
 </head>
 <body>
+<office-nav></office-nav>
+
+<div class="v1-only">
 <div class="wrap">
 
   <div class="pg-head">
@@ -422,6 +456,124 @@ body::after {
   </div>
 
 </div>
+</div>
+
+<div class="v2-only">
+  <div class="wrap">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap">
+      <div>
+        <div class="mono" style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--text-muted);margin-bottom:9px">Folclore interno · RevOps &amp; Marketing</div>
+        <h1 class="disp" style="margin:0;font-size:38px;font-weight:700;letter-spacing:-.025em;line-height:1;display:flex;align-items:center;gap:11px">Memes <span style="color:var(--primary)">v2</span></h1>
+      </div>
+      <button id="v2-shuffle" class="mono" style="font-size:11px;font-weight:600;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:11px 16px;cursor:pointer;box-shadow:var(--eu-shadow)">🔀 Embaralhar</button>
+    </div>
+
+    <!-- filter -->
+    <div style="display:flex;gap:7px;margin-bottom:16px;flex-wrap:wrap" id="v2-filter-group">
+      <button data-cat="all" class="mm-filter active" type="button">Todos</button>
+      <button data-cat="SAP" class="mm-filter" type="button">SAP</button>
+      <button data-cat="RevOps" class="mm-filter" type="button">RevOps</button>
+      <button data-cat="Field" class="mm-filter" type="button">Field</button>
+      <button data-cat="ERP.ngo" class="mm-filter" type="button">🐘 ERP.ngo</button>
+    </div>
+
+    <!-- featured -->
+    <div class="card" data-cat="SAP" style="display:grid;grid-template-columns:1.1fr 1fr;gap:0;overflow:hidden;margin-bottom:14px">
+      <div style="position:relative;background:linear-gradient(135deg,color-mix(in srgb,var(--primary) 30%,var(--surface)),color-mix(in srgb,var(--warning) 22%,var(--surface)));min-height:240px;display:flex;align-items:center;justify-content:center;padding:24px">
+        <div style="font-size:96px;line-height:1;filter:drop-shadow(0 8px 20px rgba(0,0,0,.3))">🔥</div>
+        <div class="disp" style="position:absolute;top:18px;left:20px;right:20px;font-size:19px;font-weight:700;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.5)">"ESTÁ TUDO BEM."</div>
+        <div class="disp" style="position:absolute;bottom:18px;left:20px;right:20px;font-size:15px;font-weight:600;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.5)">— CFO vendo o fim do suporte ao ECC chegar em 2027</div>
+      </div>
+      <div style="padding:24px;display:flex;flex-direction:column;justify-content:center">
+        <div class="mono" style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--primary);margin-bottom:10px">★ Meme da semana</div>
+        <div class="disp" style="font-size:21px;font-weight:700;letter-spacing:-.01em;line-height:1.25;margin-bottom:8px">This Is Fine — edição fiscal</div>
+        <p style="font-size:13px;line-height:1.6;color:var(--text-dim);margin:0 0 18px">O clássico do cachorro na sala em chamas, mas a sala é o fechamento de janeiro com a Reforma Tributária rodando no Excel.</p>
+        <div style="display:flex;align-items:center;gap:12px">
+          <button class="v2-like-btn mono" style="display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--text);background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:9px 14px;cursor:pointer" type="button">🔥 <span data-likes>248</span></button>
+          <span class="mono" style="font-size:10px;color:var(--text-muted);background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:7px 11px">#SAP</span>
+          <span class="mono" style="font-size:10px;color:var(--text-muted)">format · This Is Fine</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- grid -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px" id="v2-grid-wall">
+
+      <div class="card mm-card" data-cat="SAP" style="overflow:hidden">
+        <div style="background:linear-gradient(160deg,color-mix(in srgb,var(--primary-light) 26%,var(--surface)),var(--surface));padding:0">
+          <div style="border-bottom:1px solid var(--border);display:flex;align-items:center;"><div style="flex:1;padding:14px;font-size:12.5px;font-weight:600;color:var(--text)">🙅 Esperar 2026 pra migrar</div><div style="width:64px;display:flex;align-items:center;justify-content:center;font-size:26px;background:color-mix(in srgb,var(--primary) 14%,transparent)">👈</div></div>
+          <div style="display:flex;align-items:center;"><div style="flex:1;padding:14px;font-size:12.5px;font-weight:600;color:var(--text)">🤙 Começar o S/4HANA agora</div><div style="width:64px;display:flex;align-items:center;justify-content:center;font-size:26px;background:color-mix(in srgb,var(--accent) 14%,transparent)">👈</div></div>
+        </div>
+        <div style="padding:13px 15px;display:flex;align-items:center;justify-content:space-between">
+          <span class="mono" style="font-size:9.5px;color:var(--text-muted)">Drake · #SAP</span>
+          <button class="v2-like-btn mono" style="font-size:11px;font-weight:600;color:var(--text);background:transparent;border:1px solid var(--border);border-radius:8px;padding:5px 10px;cursor:pointer" type="button">🔥 <span data-likes>187</span></button>
+        </div>
+      </div>
+
+      <div class="card mm-card" data-cat="Field" style="overflow:hidden">
+        <div style="background:linear-gradient(160deg,color-mix(in srgb,var(--accent) 26%,var(--surface)),var(--surface));min-height:130px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:18px">
+          <div style="font-size:46px">📈</div>
+          <div class="disp" style="font-size:17px;font-weight:700;color:var(--text)">STONKS</div>
+          <div style="font-size:12px;color:var(--text-dim);text-align:center">Pipeline na semana pós-SAP NOW</div>
+        </div>
+        <div style="padding:13px 15px;display:flex;align-items:center;justify-content:space-between">
+          <span class="mono" style="font-size:9.5px;color:var(--text-muted)">Stonks · #Field</span>
+          <button class="v2-like-btn mono" style="font-size:11px;font-weight:600;color:var(--text);background:transparent;border:1px solid var(--border);border-radius:8px;padding:5px 10px;cursor:pointer" type="button">🔥 <span data-likes>203</span></button>
+        </div>
+      </div>
+
+      <div class="card mm-card" data-cat="RevOps" style="overflow:hidden">
+        <div style="background:linear-gradient(160deg,color-mix(in srgb,var(--primary) 26%,var(--surface)),var(--surface));min-height:130px;display:flex;flex-direction:column;justify-content:center;gap:7px;padding:16px 18px">
+          <div style="display:flex;align-items:center;gap:9px;font-size:12px;color:var(--text-dim)"><span style="font-size:20px">🧠</span> Planilha de leads</div>
+          <div style="display:flex;align-items:center;gap:9px;font-size:12px;color:var(--text-dim)"><span style="font-size:20px">🧠✨</span> Dashboard no Office</div>
+          <div style="display:flex;align-items:center;gap:9px;font-size:12.5px;font-weight:600;color:var(--text)"><span style="font-size:20px">🌌</span> Resolver antes de virar manchete</div>
+        </div>
+        <div style="padding:13px 15px;display:flex;align-items:center;justify-content:space-between">
+          <span class="mono" style="font-size:9.5px;color:var(--text-muted)">Galaxy Brain · #RevOps</span>
+          <button class="v2-like-btn mono" style="font-size:11px;font-weight:600;color:var(--text);background:transparent;border:1px solid var(--border);border-radius:8px;padding:5px 10px;cursor:pointer" type="button">🔥 <span data-likes>156</span></button>
+        </div>
+      </div>
+
+      <div class="card mm-card" data-cat="SAP" style="overflow:hidden">
+        <div style="background:linear-gradient(160deg,color-mix(in srgb,var(--warning) 26%,var(--surface)),var(--surface));min-height:130px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:18px">
+          <div style="font-size:42px">😰🔴🔴</div>
+          <div style="font-size:12px;color:var(--text-dim);text-align:center">Reforma Tributária <b style="color:var(--text)">ou</b> fechar o trimestre?</div>
+        </div>
+        <div style="padding:13px 15px;display:flex;align-items:center;justify-content:space-between">
+          <span class="mono" style="font-size:9.5px;color:var(--text-muted)">Two Buttons · #SAP</span>
+          <button class="v2-like-btn mono" style="font-size:11px;font-weight:600;color:var(--text);background:transparent;border:1px solid var(--border);border-radius:8px;padding:5px 10px;cursor:pointer" type="button">🔥 <span data-likes>134</span></button>
+        </div>
+      </div>
+
+      <div class="card mm-card" data-cat="RevOps" style="overflow:hidden">
+        <div style="background:linear-gradient(160deg,color-mix(in srgb,var(--primary) 22%,var(--surface)),var(--surface));min-height:130px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:18px;position:relative">
+          <div style="font-size:50px">🐕</div>
+          <div class="disp" style="font-size:11px;color:var(--warning);position:absolute;top:16px;left:18px">much pipeline</div>
+          <div class="disp" style="font-size:11px;color:var(--accent);position:absolute;bottom:46px;right:20px">very FY27</div>
+          <div class="disp" style="font-size:11px;color:var(--primary-light);position:absolute;bottom:18px;left:24px">so MQL · wow</div>
+        </div>
+        <div style="padding:13px 15px;display:flex;align-items:center;justify-content:space-between">
+          <span class="mono" style="font-size:9.5px;color:var(--text-muted)">Doge · #RevOps</span>
+          <button class="v2-like-btn mono" style="font-size:11px;font-weight:600;color:var(--text);background:transparent;border:1px solid var(--border);border-radius:8px;padding:5px 10px;cursor:pointer" type="button">🔥 <span data-likes>219</span></button>
+        </div>
+      </div>
+
+      <div class="card mm-card" data-cat="ERP.ngo" style="overflow:hidden">
+        <div style="background:linear-gradient(160deg,color-mix(in srgb,var(--accent) 24%,var(--surface)),color-mix(in srgb,var(--primary-light) 16%,var(--surface)));min-height:130px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:18px">
+          <div style="font-size:50px">🐘</div>
+          <div style="font-size:12px;color:var(--text);text-align:center;font-weight:600">1% do faturamento → elefantes &amp; rinocerontes protegidos</div>
+        </div>
+        <div style="padding:13px 15px;display:flex;align-items:center;justify-content:space-between">
+          <span class="mono" style="font-size:9.5px;color:var(--text-muted)">Wholesome · #ERP.ngo</span>
+          <button class="v2-like-btn mono" style="font-size:11px;font-weight:600;color:var(--text);background:transparent;border:1px solid var(--border);border-radius:8px;padding:5px 10px;cursor:pointer" type="button">🔥 <span data-likes>312</span></button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<office-footer></office-footer>
 
 <script>
   // shuffle os cards de cada parede
@@ -486,6 +638,56 @@ body::after {
   document.addEventListener('click', (e) => {
     if (e.target.closest('.meme')) burst(e.clientX, e.clientY);
   });
+
+  // Lógica de Memes v2
+  (function initMemesV2() {
+    if (localStorage.getItem('office.v2.memes') !== '1') return;
+
+    const filterGroup = document.getElementById('v2-filter-group');
+    const gridWall = document.getElementById('v2-grid-wall');
+    const shuffleBtn = document.getElementById('v2-shuffle');
+
+    // Likes reativos
+    document.querySelectorAll('.v2-only .v2-like-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const s = btn.querySelector('[data-likes]');
+        if (s) {
+          s.textContent = parseInt(s.textContent, 10) + 1;
+        }
+        btn.style.transition = 'transform .15s';
+        btn.style.transform = 'scale(1.12)';
+        setTimeout(() => { btn.style.transform = 'scale(1)'; }, 150);
+      });
+    });
+
+    // Filtragem
+    if (filterGroup && gridWall) {
+      filterGroup.querySelectorAll('.mm-filter').forEach(btn => {
+        btn.addEventListener('click', () => {
+          filterGroup.querySelectorAll('.mm-filter').forEach(b => {
+            b.classList.toggle('active', b === btn);
+          });
+          const cat = btn.getAttribute('data-cat');
+          gridWall.querySelectorAll('.mm-card').forEach(card => {
+            const match = cat === 'all' || card.getAttribute('data-cat') === cat;
+            card.style.display = match ? '' : 'none';
+          });
+        });
+      });
+    }
+
+    // Embaralhar
+    if (shuffleBtn && gridWall) {
+      shuffleBtn.addEventListener('click', () => {
+        const cards = [...gridWall.children];
+        for (let i = cards.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          gridWall.appendChild(cards[j]);
+          cards.splice(j, 1);
+        }
+      });
+    }
+  })();
 </script>
 </body>
 </html>

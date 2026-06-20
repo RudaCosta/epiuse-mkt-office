@@ -1,0 +1,126 @@
+/* ════════════════════════════════════════════════════════════════════════
+   ATLAS THEME · EPI-USE Office  —  global theme override (Claro + Escuro)
+   Drop em /public/css/atlas-theme.css e linka 1x (igual polish-pro.css).
+   Ativado por data-theme="atlas-light" | "atlas-dark" no <html>.
+   Mirror do padrão dos temas atuais (aurora/elephant) em office-nav.js.
+   Paleta nova, fora da paleta atual: bone + obsidian + spark vermelho.
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* ── TOKENS ──────────────────────────────────────────────────────────── */
+:root[data-theme="atlas-dark"]{
+  --bg:#0c0d11; --bg-2:#08090c; --surface:#15171d; --surface-2:#1b1e26;
+  --border:rgba(236,234,225,.11); --border-light:rgba(236,234,225,.055);
+  --text:#eceae1; --text-dim:#b4b1a8; --text-muted:#797d86;
+  --primary:#ff3355; --primary-light:#ff5e79;
+  --accent:#3fd6bc; --danger:#ff3355; --success:#3fd6bc; --warning:#e6b53c;
+  --color-primary-500:#ff3355; --color-primary-600:#e0223f;
+  --color-surface-0:#0c0d11; --color-surface-1:#15171d; --color-surface-2:#1b1e26;
+  --color-text-primary:#eceae1; --color-text-secondary:#b4b1a8; --color-text-muted:#797d86;
+  --color-border:rgba(236,234,225,.11);
+  --dk-surface:#15171d; --dk-text:#eceae1; --dk-text-muted:#797d86;
+  --home-text:#eceae1; --home-text-muted:#797d86;
+  --atlas-grid:rgba(236,234,225,.04);
+  --atlas-navy:#9db6e8; --atlas-blue:#6e97ff; --atlas-teal:#3fd6bc; --atlas-gold:#e6b53c; --atlas-violet:#b58cff;
+  --atlas-shadow:0 1px 2px rgba(0,0,0,.4),0 18px 44px -18px rgba(0,0,0,.7);
+  color-scheme:dark;
+}
+:root[data-theme="atlas-light"]{
+  --bg:#efebe0; --bg-2:#e4dfd1; --surface:#fbfaf4; --surface-2:#f3efe5;
+  --border:rgba(21,23,28,.12); --border-light:rgba(21,23,28,.06);
+  --text:#15171c; --text-dim:#494d56; --text-muted:#8b8f98;
+  --primary:#d6173c; --primary-light:#e8324f;
+  --accent:#0e8a72; --danger:#d6173c; --success:#0e8a72; --warning:#b9871a;
+  --color-primary-500:#d6173c; --color-primary-600:#b3122f;
+  --color-surface-0:#efebe0; --color-surface-1:#fbfaf4; --color-surface-2:#f3efe5;
+  --color-text-primary:#15171c; --color-text-secondary:#494d56; --color-text-muted:#8b8f98;
+  --color-border:rgba(21,23,28,.12);
+  --dk-surface:#fbfaf4; --dk-text:#15171c; --dk-text-muted:#8b8f98;
+  --home-text:#15171c; --home-text-muted:#8b8f98;
+  --atlas-grid:rgba(21,23,28,.045);
+  --atlas-navy:#16356b; --atlas-blue:#2e63e0; --atlas-teal:#0e8a72; --atlas-gold:#b9871a; --atlas-violet:#7a52d6;
+  --atlas-shadow:0 1px 2px rgba(21,23,28,.05),0 14px 32px -14px rgba(21,23,28,.2);
+  color-scheme:light;
+}
+
+/* ── BODY / GRID BACKGROUND ──────────────────────────────────────────── */
+:root[data-theme="atlas-dark"] body,
+:root[data-theme="atlas-dark"] body[data-route]:not([data-route="seja-voice"]),
+:root[data-theme="atlas-light"] body,
+:root[data-theme="atlas-light"] body[data-route]:not([data-route="seja-voice"]){
+  background:
+    radial-gradient(900px 520px at 88% -8%, color-mix(in srgb,var(--primary) 14%,transparent), transparent 60%),
+    radial-gradient(820px 520px at 4% 6%, color-mix(in srgb,var(--atlas-blue) 12%,transparent), transparent 55%),
+    linear-gradient(var(--atlas-grid) 1px,transparent 1px) 0 0/44px 44px,
+    linear-gradient(90deg,var(--atlas-grid) 1px,transparent 1px) 0 0/44px 44px,
+    var(--bg) !important;
+  background-attachment:fixed !important;
+  color:var(--text) !important;
+  font-family:'Open Sans','Source Sans 3',system-ui,sans-serif !important;
+}
+
+:root[data-theme="atlas-dark"] h1, :root[data-theme="atlas-dark"] h2, :root[data-theme="atlas-dark"] h3,
+:root[data-theme="atlas-dark"] h4, :root[data-theme="atlas-dark"] .home-section-title,
+:root[data-theme="atlas-light"] h1, :root[data-theme="atlas-light"] h2, :root[data-theme="atlas-light"] h3,
+:root[data-theme="atlas-light"] h4, :root[data-theme="atlas-light"] .home-section-title{
+  font-family:'Space Grotesk','Poppins',sans-serif !important;
+  letter-spacing:-.022em !important; color:var(--text) !important; font-weight:700 !important;
+}
+
+/* ── CARDS / KPIs / SURFACES ─────────────────────────────────────────── */
+:root[data-theme="atlas-dark"] .kpi, :root[data-theme="atlas-dark"] .card,
+:root[data-theme="atlas-dark"] .home-area-card, :root[data-theme="atlas-dark"] .home-digest-card,
+:root[data-theme="atlas-dark"] .dk-glass, :root[data-theme="atlas-dark"] .panel,
+:root[data-theme="atlas-dark"] .tbl-wrap, :root[data-theme="atlas-dark"] .rep-header,
+:root[data-theme="atlas-light"] .kpi, :root[data-theme="atlas-light"] .card,
+:root[data-theme="atlas-light"] .home-area-card, :root[data-theme="atlas-light"] .home-digest-card,
+:root[data-theme="atlas-light"] .dk-glass, :root[data-theme="atlas-light"] .panel,
+:root[data-theme="atlas-light"] .tbl-wrap, :root[data-theme="atlas-light"] .rep-header{
+  background:var(--surface) !important;
+  border:1px solid var(--border) !important;
+  border-radius:16px !important;
+  box-shadow:var(--atlas-shadow) !important;
+  color:var(--text) !important;
+  position:relative;
+  transition:transform .25s cubic-bezier(.16,1,.3,1), box-shadow .25s, border-color .25s !important;
+}
+/* accent strip no topo dos KPIs (assinatura Atlas) */
+:root[data-theme="atlas-dark"] .kpi::after,
+:root[data-theme="atlas-light"] .kpi::after{
+  content:''; position:absolute; top:0; right:0; width:3px; height:100%;
+  background:var(--primary); border-radius:0 16px 16px 0; opacity:.9;
+}
+/* hover lift */
+:root[data-theme="atlas-dark"] .kpi:hover, :root[data-theme="atlas-dark"] .card:hover,
+:root[data-theme="atlas-dark"] .home-area-card:hover, :root[data-theme="atlas-dark"] .home-digest-card:hover,
+:root[data-theme="atlas-light"] .kpi:hover, :root[data-theme="atlas-light"] .card:hover,
+:root[data-theme="atlas-light"] .home-area-card:hover, :root[data-theme="atlas-light"] .home-digest-card:hover{
+  transform:translateY(-3px) !important;
+  border-color:color-mix(in srgb,var(--text) 22%,transparent) !important;
+}
+
+/* números grandes nos KPIs em Space Grotesk */
+:root[data-theme="atlas-dark"] .kpi .num, :root[data-theme="atlas-dark"] .dk-num, :root[data-theme="atlas-dark"] .hero-kpi,
+:root[data-theme="atlas-light"] .kpi .num, :root[data-theme="atlas-light"] .dk-num, :root[data-theme="atlas-light"] .hero-kpi{
+  font-family:'Space Grotesk','Poppins',sans-serif !important;
+  letter-spacing:-.03em !important; color:var(--text) !important;
+}
+
+/* ── LINKS / CHIPS / BOTÕES ──────────────────────────────────────────── */
+:root[data-theme="atlas-dark"] a, :root[data-theme="atlas-light"] a{ color:var(--primary) !important; }
+:root[data-theme="atlas-dark"] .chip-online, :root[data-theme="atlas-light"] .chip-online{
+  background:color-mix(in srgb,var(--accent) 16%,transparent) !important;
+  color:var(--accent) !important;
+  border:1px solid color-mix(in srgb,var(--accent) 40%,transparent) !important;
+}
+:root[data-theme="atlas-dark"] .btn-primary, :root[data-theme="atlas-light"] .btn-primary{
+  background:var(--primary) !important; color:#fff !important; border:0 !important;
+  box-shadow:0 10px 24px -10px var(--primary) !important;
+}
+
+/* tabelas */
+:root[data-theme="atlas-dark"] .perf-tbl th, :root[data-theme="atlas-light"] .perf-tbl th{
+  color:var(--text-muted) !important; border-bottom:1px solid var(--border) !important;
+}
+:root[data-theme="atlas-dark"] .perf-tbl td, :root[data-theme="atlas-light"] .perf-tbl td{
+  color:var(--text) !important; border-bottom:1px solid var(--border-light) !important;
+}
