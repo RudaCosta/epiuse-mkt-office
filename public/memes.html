@@ -63,6 +63,13 @@ body::after {
 .btn.cyan:hover { box-shadow: 0 0 22px rgba(0,229,255,0.55); }
 .btn.lime { border-color: var(--neon-lime); background: rgba(170,255,0,0.10); color:#eaffd0; }
 
+/* category filter menu */
+.meme-nav { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 24px 0 16px; }
+.meme-nav .nav-item { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer;
+  padding: 10px 18px; border-radius: 16px; border: 1px solid var(--border); background: rgba(168,85,247,0.06); color: var(--text-dim); transition: all 0.2s ease; }
+.meme-nav .nav-item:hover { background: rgba(168,85,247,0.18); border-color: var(--neon-purple); color: #fff; box-shadow: 0 0 15px rgba(168,85,247,0.4); }
+.meme-nav .nav-item.active { background: rgba(255,46,151,0.18); border-color: var(--neon-pink); color: #fff; box-shadow: 0 0 20px rgba(255,46,151,0.5); }
+
 /* MEGA BRAIN HERO */
 .megabrain { position: relative; margin: 26px auto 16px; max-width: 660px; border-radius: 24px; overflow: hidden;
   border: 2px solid var(--neon-purple); background: linear-gradient(180deg, rgba(168,85,247,0.12), rgba(10,10,26,0.5));
@@ -154,10 +161,19 @@ body::after {
       <button class="btn cyan" id="toMega">🧠 Ir pro Mega Brain</button>
       <a class="btn lime" href="/ideias">💡 Mandar meme novo</a>
     </div>
+
+    <div class="meme-nav">
+      <button class="nav-item active" data-filter="all">🌈 Todos</button>
+      <button class="nav-item" data-filter="mega">🧠 Mega Brain</button>
+      <button class="nav-item" data-filter="galaxy">🌌 Galaxy Brain</button>
+      <button class="nav-item" data-filter="classicos">📼 Clássicos</button>
+      <button class="nav-item" data-filter="era-nova">⚡ Era Nova</button>
+    </div>
   </div>
 
   <!-- MEGA BRAIN — cerebro gigante -->
-  <div class="megabrain" id="mega">
+  <section data-category="mega">
+    <div class="megabrain" id="mega">
     <div class="badge">MEGA BRAIN ⚡</div>
     <svg viewBox="0 0 640 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mega Brain brilhante — meme do cérebro gigante">
       <defs>
@@ -196,19 +212,23 @@ body::after {
       <div class="who">Mega Brain 🧠⚡</div>
     </div>
   </div>
+  </section>
 
   <!-- GALAXY BRAIN 4 PAINEIS -->
-  <h2 class="section-title">🚀 O cérebro expandindo no RevOps <span class="l"></span></h2>
-  <div class="brainmeme">
-    <div class="bm-row"><div class="bm-text">Fazer relatório mensal na mão, slide por slide<small>// 4 horas + café</small></div><div class="bm-art"><div class="glow">🧠</div></div></div>
-    <div class="bm-row"><div class="bm-text">Rodar a skill <code>relatorio-mensal</code> e gerar o PPTX sozinho<small>// /relatorio</small></div><div class="bm-art"><div class="glow">🧠✨</div></div></div>
-    <div class="bm-row"><div class="bm-text">Apollo + cases + LinkedIn sincronizando sozinhos via Tarefa Agendada<small>// dado REAL, zero mock</small></div><div class="bm-art"><div class="glow">🌌</div></div></div>
-    <div class="bm-row"><div class="bm-text">Office inteiro rodando no localhost + Railway enquanto você dorme<small>// MEGA BRAIN ativado</small></div><div class="bm-art"><div class="glow">🧠💥</div></div></div>
-  </div>
+  <section data-category="galaxy">
+    <h2 class="section-title">🚀 O cérebro expandindo no RevOps <span class="l"></span></h2>
+    <div class="brainmeme">
+      <div class="bm-row"><div class="bm-text">Fazer relatório mensal na mão, slide por slide<small>// 4 horas + café</small></div><div class="bm-art"><div class="glow">🧠</div></div></div>
+      <div class="bm-row"><div class="bm-text">Rodar a skill <code>relatorio-mensal</code> e gerar o PPTX sozinho<small>// /relatorio</small></div><div class="bm-art"><div class="glow">🧠✨</div></div></div>
+      <div class="bm-row"><div class="bm-text">Apollo + cases + LinkedIn sincronizando sozinhos via Tarefa Agendada<small>// dado REAL, zero mock</small></div><div class="bm-art"><div class="glow">🌌</div></div></div>
+      <div class="bm-row"><div class="bm-text">Office inteiro rodando no localhost + Railway enquanto você dorme<small>// MEGA BRAIN ativado</small></div><div class="bm-art"><div class="glow">🧠💥</div></div></div>
+    </div>
+  </section>
 
   <!-- CLASSICOS -->
-  <h2 class="section-title">📼 Clássicos eternos <span class="l"></span></h2>
-  <div class="wall" id="wall">
+  <section data-category="classicos">
+    <h2 class="section-title">📼 Clássicos eternos <span class="l"></span></h2>
+    <div class="wall" id="wall">
 
     <div class="meme">
       <div class="drake">
@@ -281,11 +301,32 @@ body::after {
       <div class="lbl">// Distracted Boyfriend · CLAUDE.md venceu</div>
     </div>
 
+    <!-- Novos clássicos da vault -->
+    <div class="meme">
+      <div class="scene" style="background: linear-gradient(135deg, #7a1500, #4a0000);">
+        <span style="font-size:74px">🏎️💨</span>
+        <span class="impact top">"TACALHE PAU NESTE CARRINHO!"</span>
+        <span class="impact bottom">MÁRCO VÉIO</span>
+      </div>
+      <div class="lbl">// Marco Véio · sem parar pra pensar, acelera!</div>
+    </div>
+
+    <div class="meme">
+      <div class="scene" style="background: linear-gradient(135deg, #0d1e36, #111);">
+        <span style="font-size:74px">❌🎙️</span>
+        <span class="impact top">ERROUUU!</span>
+        <span class="impact bottom" style="font-size: 15px;">Tom de zoeira, sem bronca</span>
+      </div>
+      <div class="lbl">// Faustão · bug de leve</div>
+    </div>
+
   </div>
+  </section>
 
   <!-- NOVOS -->
-  <h2 class="section-title">⚡ Era nova (2026) <span class="l"></span></h2>
-  <div class="wall" id="wall2">
+  <section data-category="era-nova">
+    <h2 class="section-title">⚡ Era nova (2026) <span class="l"></span></h2>
+    <div class="wall" id="wall2">
 
     <div class="meme">
       <div class="scene" style="background:#1d2125; padding:16px; flex-direction:column; align-items:stretch; justify-content:center; gap:10px;">
@@ -373,6 +414,7 @@ body::after {
     </div>
 
   </div>
+  </section>
 
   <div class="footnote">
     ◢◤ 🤖 Página de humor interno · homenagem ao meme do Mega Brain (cérebro gigante) ◢◤<br>
@@ -396,8 +438,40 @@ body::after {
     burst(window.innerWidth/2, 160);
   });
   document.getElementById('toMega')?.addEventListener('click', () => {
-    document.getElementById('mega')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // Se o mega estiver oculto pela filtragem, ativa a aba correspondente
+    const megaBtn = document.querySelector('.meme-nav .nav-item[data-filter="mega"]');
+    if (megaBtn && !megaBtn.classList.contains('active')) {
+      megaBtn.click();
+    }
+    setTimeout(() => {
+      document.getElementById('mega')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 50);
   });
+
+  // Lógica de filtragem das categorias de memes
+  const menuItems = document.querySelectorAll('.meme-nav .nav-item');
+  const sections = document.querySelectorAll('section[data-category]');
+
+  menuItems.forEach(item => {
+    item.addEventListener('click', () => {
+      menuItems.forEach(i => i.classList.remove('active'));
+      item.classList.add('active');
+
+      const filter = item.dataset.filter;
+
+      sections.forEach(sec => {
+        if (filter === 'all' || sec.dataset.category === filter) {
+          sec.style.display = 'block';
+        } else {
+          sec.style.display = 'none';
+        }
+      });
+
+      // Estourar sparkles no meio da tela
+      burst(window.innerWidth/2, window.innerHeight/3);
+    });
+  });
+
   // sparkle burst
   function burst(x, y) {
     const emos = ['🧠','⚡','✨','🚀','🔥','💥','🌌'];
