@@ -27,35 +27,35 @@
     font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
     font-weight: 600;
-    border: 1px solid var(--border);
+    border: 1px solid var(--line);
     background: transparent;
-    color: var(--text-muted);
+    color: var(--muted);
     border-radius: 9px;
     padding: 9px 0;
     cursor: pointer;
     transition: all 0.2s;
   }
   .v2-only .rc-chip.active {
-    border-color: var(--primary);
-    background: color-mix(in srgb, var(--primary) 16%, transparent);
-    color: var(--text);
+    border-color: var(--red);
+    background: color-mix(in srgb, var(--red) 16%, transparent);
+    color: var(--ink);
   }
 
   .v2-only .rc-hook {
     font-family: 'JetBrains Mono', monospace;
     font-size: 10.5px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--line);
     background: transparent;
-    color: var(--text-muted);
+    color: var(--muted);
     border-radius: 20px;
     padding: 6px 12px;
     cursor: pointer;
     transition: all 0.2s;
   }
   .v2-only .rc-hook.active {
-    border-color: var(--warning);
-    background: color-mix(in srgb, var(--warning) 16%, transparent);
-    color: var(--text);
+    border-color: var(--gold);
+    background: color-mix(in srgb, var(--gold) 16%, transparent);
+    color: var(--ink);
   }
 
   .v2-only .rc-var {
@@ -63,7 +63,7 @@
     font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
     font-weight: 600;
-    color: var(--text-muted);
+    color: var(--muted);
     background: transparent;
     border: 0;
     border-bottom: 2px solid transparent;
@@ -72,10 +72,33 @@
     transition: all 0.2s;
   }
   .v2-only .rc-var.active {
-    color: var(--text);
-    background: var(--surface-2);
-    border-bottom: 2px solid var(--primary);
+    color: var(--ink);
+    background: var(--panel2);
+    border-bottom: 2px solid var(--red);
   }
+
+  /* Estilos do layout v2 originais do Claude Design */
+  .v2-only.atlas .card {
+    background: var(--panel) !important;
+    border: 1px solid var(--line) !important;
+    border-radius: 16px !important;
+    box-shadow: var(--shadow) !important;
+    color: var(--ink) !important;
+  }
+  .v2-only.atlas .hov {
+    transition: transform .25s cubic-bezier(.16,1,.3,1), box-shadow .25s, border-color .25s !important;
+  }
+  .v2-only.atlas .hov:hover {
+    transform: translateY(-3px) !important;
+    border-color: color-mix(in srgb, var(--ink) 22%, transparent) !important;
+  }
+  @keyframes drawln { from { stroke-dashoffset: 1100 } to { stroke-dashoffset: 0 } }
+  @keyframes pulsedot { 0%, 100% { transform: scale(1); opacity: 1 } 50% { transform: scale(1.9); opacity: .35 } }
+  @keyframes growbar { from { transform: scaleX(0) } to { transform: scaleX(1) } }
+  @keyframes rise { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: none } }
+  @keyframes mar { from { transform: translateX(0) } to { transform: translateX(-50%) } }
+  @keyframes spin { to { transform: rotate(360deg) } }
+  .v2-only.atlas .rise {}
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -1661,31 +1684,31 @@
 </main>
 </div>
 
-<div class="v2-only">
+<div class="v2-only atlas">
   <!-- Layout de Raccoon v2 -->
   <main class="wrap">
     <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap">
       <div>
-        <div class="mono" style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--text-muted);margin-bottom:9px">Estúdio de conteúdo · IA</div>
-        <h1 class="disp" style="margin:0;font-size:38px;font-weight:700;letter-spacing:-.025em;line-height:1;display:flex;align-items:center;gap:11px"><span style="font-size:34px">🦝</span>Raccoon <span style="color:var(--primary)">v2</span></h1>
+        <div class="mono" style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:9px">Estúdio de conteúdo · IA</div>
+        <h1 class="disp" style="margin:0;font-size:38px;font-weight:700;letter-spacing:-.025em;line-height:1;display:flex;align-items:center;gap:11px"><span style="font-size:34px">🦝</span>Raccoon <span style="color:var(--red)">v2</span></h1>
       </div>
-      <div class="mono" style="font-size:10.5px;color:var(--text);background:color-mix(in srgb,var(--accent) 16%,transparent);border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);border-radius:9px;padding:8px 13px">engine · gui-playbook-3.1</div>
+      <div class="mono" style="font-size:10.5px;color:var(--ink);background:color-mix(in srgb,var(--violet) 16%,transparent);border:1px solid color-mix(in srgb,var(--violet) 40%,transparent);border-radius:9px;padding:8px 13px">engine · gui-playbook-3.1</div>
     </div>
 
     <div style="display:grid;grid-template-columns:300px 1fr 270px;gap:14px;align-items:start">
 
       <!-- BRIEF -->
       <div class="card" style="padding:20px;position:sticky;top:108px">
-        <div class="mono" style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:13px">Brief</div>
+        <div class="mono" style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:13px">Brief</div>
 
-        <div class="mono" style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px">Persona</div>
+        <div class="mono" style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:8px">Persona</div>
         <div style="display:flex;gap:6px;margin-bottom:16px" id="v2-persona-group">
           <button data-v="CFO" class="rc-chip active" type="button">CFO</button>
           <button data-v="CHRO" class="rc-chip" type="button">CHRO</button>
           <button data-v="CIO" class="rc-chip" type="button">CIO</button>
         </div>
 
-        <div class="mono" style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px">Gancho / metáfora</div>
+        <div class="mono" style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:8px">Gancho / metáfora</div>
         <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px" id="v2-hook-group">
           <button data-v="Oscar" class="rc-hook active" type="button">🏆 Oscar</button>
           <button data-v="BBB" class="rc-hook" type="button">📺 BBB</button>
@@ -1693,21 +1716,21 @@
           <button data-v="MasterChef" class="rc-hook" type="button">👨‍🍳 MasterChef</button>
         </div>
 
-        <div class="mono" style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px">Tema / dor</div>
-        <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:11px 12px;font-size:12.5px;line-height:1.5;color:var(--text-dim);margin-bottom:16px" id="v2-theme-desc">Fim do suporte ao ECC é risco fiscal do CFO, não decisão de TI.</div>
+        <div class="mono" style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:8px">Tema / dor</div>
+        <div style="background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:12.5px;line-height:1.5;color:var(--dim);margin-bottom:16px" id="v2-theme-desc">Fim do suporte ao ECC é risco fiscal do CFO, não decisão de TI.</div>
 
-        <div class="mono" style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px">Formato</div>
+        <div class="mono" style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:8px">Formato</div>
         <div style="display:flex;gap:6px;margin-bottom:20px">
-          <span class="mono" style="font-size:10px;color:var(--text);background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:7px 10px">Post único</span>
-          <span class="mono" style="font-size:10px;color:var(--text-muted);border:1px solid var(--border);border-radius:8px;padding:7px 10px">Carrossel</span>
+          <span class="mono" style="font-size:10px;color:var(--ink);background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:7px 10px">Post único</span>
+          <span class="mono" style="font-size:10px;color:var(--muted);border:1px solid var(--line);border-radius:8px;padding:7px 10px">Carrossel</span>
         </div>
 
-        <button id="v2-generate-btn" style="width:100%;font-family:'JetBrains Mono';font-size:12px;font-weight:600;letter-spacing:.04em;color:#fff;background:var(--primary);border:0;border-radius:11px;padding:13px 0;cursor:pointer;box-shadow:0 10px 24px -10px var(--primary);transition:transform .2s" type="button">✦ Gerar conteúdo</button>
+        <button id="v2-generate-btn" style="width:100%;font-family:'JetBrains Mono';font-size:12px;font-weight:600;letter-spacing:.04em;color:#fff;background:var(--red);border:0;border-radius:11px;padding:13px 0;cursor:pointer;box-shadow:0 10px 24px -10px var(--red);transition:transform .2s" type="button">✦ Gerar conteúdo</button>
       </div>
 
       <!-- PREVIEW -->
       <div class="card" style="padding:0;overflow:hidden">
-        <div style="display:flex;border-bottom:1px solid var(--border)" id="v2-var-group">
+        <div style="display:flex;border-bottom:1px solid var(--line)" id="v2-var-group">
           <button data-v="0" class="rc-var active" type="button">Variação A</button>
           <button data-v="1" class="rc-var" type="button">Variação B</button>
           <button data-v="2" class="rc-var" type="button">Variação C</button>
@@ -1715,12 +1738,12 @@
         <!-- LinkedIn-style card -->
         <div style="padding:22px 24px 26px">
           <div style="display:flex;align-items:center;gap:11px;margin-bottom:15px">
-            <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--warning));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-family:'Space Grotesk',sans-serif;font-size:16px" id="v2-avatar">GM</div>
-            <div><div style="font-size:13.5px;font-weight:700;color:var(--text)">Gui Marbackian</div><div class="mono" style="font-size:10.5px;color:var(--text-muted)">CMO @ EPI-USE Brasil · agora</div></div>
-            <div style="margin-left:auto;color:var(--text-muted);font-size:18px">···</div>
+            <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--gold));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-family:'Space Grotesk',sans-serif;font-size:16px" id="v2-avatar">GM</div>
+            <div><div style="font-size:13.5px;font-weight:700;color:var(--ink)">Gui Marbackian</div><div class="mono" style="font-size:10.5px;color:var(--muted)">CMO @ EPI-USE Brasil · agora</div></div>
+            <div style="margin-left:auto;color:var(--muted);font-size:18px">···</div>
           </div>
-          <div id="v2-post-content" style="font-size:14.5px;line-height:1.62;color:var(--text);white-space:pre-wrap;min-height:230px"><span style="color:var(--text-muted)">Configure o brief e clique em <b style="color:var(--text)">Gerar conteúdo</b> — o Raccoon escreve 3 variações no tom do Gui playbook, com o gancho escolhido.</span></div>
-          <div style="display:flex;gap:18px;border-top:1px solid var(--border);margin-top:18px;padding-top:14px;color:var(--text-muted)">
+          <div id="v2-post-content" style="font-size:14.5px;line-height:1.62;color:var(--ink);white-space:pre-wrap;min-height:230px"><span style="color:var(--muted)">Configure o brief e clique em <b style="color:var(--ink)">Gerar conteúdo</b> — o Raccoon escreve 3 variações no tom do Gui playbook, com o gancho escolhido.</span></div>
+          <div style="display:flex;gap:18px;border-top:1px solid var(--line);margin-top:18px;padding-top:14px;color:var(--muted)">
             <span class="mono" style="font-size:11px">👍 likes</span><span class="mono" style="font-size:11px">💬 comentários</span><span class="mono" style="font-size:11px">↻ repostar</span><span class="mono" style="font-size:11px;margin-left:auto">🔖</span>
           </div>
         </div>
@@ -1728,23 +1751,23 @@
 
       <!-- INSIGHTS -->
       <div class="card" style="padding:20px;position:sticky;top:108px">
-        <div class="mono" style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:14px">Score editorial</div>
+        <div class="mono" style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:14px">Score editorial</div>
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">
-          <div style="position:relative;width:78px;height:78px;border-radius:50%;background:conic-gradient(var(--accent) 0% 87%, var(--border) 87% 100%)" id="v2-score-radial">
-            <div style="position:absolute;inset:9px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center"><span class="disp" style="font-size:24px;font-weight:700" id="v2-score-num">87</span></div>
+          <div style="position:relative;width:78px;height:78px;border-radius:50%;background:conic-gradient(var(--teal) 0% 87%, var(--line) 87% 100%)" id="v2-score-radial">
+            <div style="position:absolute;inset:9px;border-radius:50%;background:var(--panel);display:flex;align-items:center;justify-content:center"><span class="disp" style="font-size:24px;font-weight:700" id="v2-score-num">87</span></div>
           </div>
-          <div><div style="font-size:12.5px;font-weight:600;color:var(--accent)">Forte</div><div class="mono" style="font-size:10px;color:var(--text-muted);line-height:1.5;margin-top:3px">Lead com número ✓<br>Persona explícita ✓<br>1 gancho, 0 clichê ✓</div></div>
+          <div><div style="font-size:12.5px;font-weight:600;color:var(--teal)">Forte</div><div class="mono" style="font-size:10px;color:var(--muted);line-height:1.5;margin-top:3px">Lead com número ✓<br>Persona explícita ✓<br>1 gancho, 0 clichê ✓</div></div>
         </div>
-        <div class="mono" style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px">Sinais</div>
+        <div class="mono" style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:10px">Sinais</div>
         <div style="display:flex;flex-direction:column;gap:10px">
-          <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px"><span style="color:var(--text-dim)">Especificidade</span><span class="mono" style="color:var(--text)">9/10</span></div><div style="height:6px;border-radius:4px;background:var(--border)"><div style="height:100%;width:90%;border-radius:4px;background:var(--accent)"></div></div></div>
-          <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px"><span style="color:var(--text-dim)">Tom (sóbrio)</span><span class="mono" style="color:var(--text)">8/10</span></div><div style="height:6px;border-radius:4px;background:var(--border)"><div style="height:100%;width:80%;border-radius:4px;background:var(--primary)"></div></div></div>
-          <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px"><span style="color:var(--text-dim)">Gancho/clareza</span><span class="mono" style="color:var(--text)">9/10</span></div><div style="height:6px;border-radius:4px;background:var(--border)"><div style="height:100%;width:88%;border-radius:4px;background:var(--warning)"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px"><span style="color:var(--dim)">Especificidade</span><span class="mono" style="color:var(--ink)">9/10</span></div><div style="height:6px;border-radius:4px;background:var(--line)"><div style="height:100%;width:90%;border-radius:4px;background:var(--teal)"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px"><span style="color:var(--dim)">Tom (sóbrio)</span><span class="mono" style="color:var(--ink)">8/10</span></div><div style="height:6px;border-radius:4px;background:var(--line)"><div style="height:100%;width:80%;border-radius:4px;background:var(--blue)"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px"><span style="color:var(--dim)">Gancho/clareza</span><span class="mono" style="color:var(--ink)">9/10</span></div><div style="height:6px;border-radius:4px;background:var(--line)"><div style="height:100%;width:88%;border-radius:4px;background:var(--gold)"></div></div></div>
         </div>
-        <div style="border-top:1px solid var(--border);margin-top:16px;padding-top:14px">
-          <div class="mono" style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px">Caso citado</div>
-          <div style="font-size:12px;color:var(--text);font-weight:600" id="v2-case-title">TEVA · migração S/4HANA</div>
-          <div class="mono" style="font-size:10px;color:var(--text-muted);margin-top:2px" id="v2-case-proof">prova: -40% no fechamento fiscal</div>
+        <div style="border-top:1px solid var(--line);margin-top:16px;padding-top:14px">
+          <div class="mono" style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:8px">Caso citado</div>
+          <div style="font-size:12px;color:var(--ink);font-weight:600" id="v2-case-title">TEVA · migração S/4HANA</div>
+          <div class="mono" style="font-size:10px;color:var(--muted);margin-top:2px" id="v2-case-proof">prova: -40% no fechamento fiscal</div>
         </div>
       </div>
     </div>
@@ -2620,7 +2643,7 @@
 
       const s = 84 + Math.floor(Math.random() * 8);
       scoreNum.textContent = s;
-      scoreRadial.style.background = `conic-gradient(var(--accent) 0% ${s}%, var(--border) ${s}% 100%)`;
+      scoreRadial.style.background = `conic-gradient(var(--teal) 0% ${s}%, var(--line) ${s}% 100%)`;
     }
 
     personaGroup.querySelectorAll('.rc-chip').forEach(btn => {

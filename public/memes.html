@@ -28,18 +28,34 @@
     font-family: 'JetBrains Mono', monospace;
     font-size: 10.5px;
     font-weight: 600;
-    border: 1px solid var(--border);
+    border: 1px solid var(--line);
     background: transparent;
-    color: var(--text-muted);
+    color: var(--muted);
     border-radius: 20px;
     padding: 7px 14px;
     cursor: pointer;
     transition: all 0.2s;
   }
   .v2-only .mm-filter.active {
-    border-color: var(--primary);
-    background: color-mix(in srgb, var(--primary) 16%, transparent);
-    color: var(--text);
+    border-color: var(--red);
+    background: color-mix(in srgb, var(--red) 16%, transparent);
+    color: var(--ink);
+  }
+
+  /* Estilos do layout v2 originais do Claude Design */
+  .v2-only.atlas .card {
+    background: var(--panel) !important;
+    border: 1px solid var(--line) !important;
+    border-radius: 16px !important;
+    box-shadow: var(--shadow) !important;
+    color: var(--ink) !important;
+  }
+  .v2-only.atlas .hov {
+    transition: transform .25s cubic-bezier(.16,1,.3,1), box-shadow .25s, border-color .25s !important;
+  }
+  .v2-only.atlas .hov:hover {
+    transform: translateY(-3px) !important;
+    border-color: color-mix(in srgb, var(--ink) 22%, transparent) !important;
   }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -458,14 +474,14 @@ body::after {
 </div>
 </div>
 
-<div class="v2-only">
+<div class="v2-only atlas">
   <div class="wrap">
     <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap">
       <div>
-        <div class="mono" style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--text-muted);margin-bottom:9px">Folclore interno · RevOps &amp; Marketing</div>
-        <h1 class="disp" style="margin:0;font-size:38px;font-weight:700;letter-spacing:-.025em;line-height:1;display:flex;align-items:center;gap:11px">Memes <span style="color:var(--primary)">v2</span></h1>
+        <div class="mono" style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:9px">Folclore interno · RevOps &amp; Marketing</div>
+        <h1 class="disp" style="margin:0;font-size:38px;font-weight:700;letter-spacing:-.025em;line-height:1;display:flex;align-items:center;gap:11px">Memes <span style="color:var(--red)">v2</span></h1>
       </div>
-      <button id="v2-shuffle" class="mono" style="font-size:11px;font-weight:600;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:11px 16px;cursor:pointer;box-shadow:var(--eu-shadow)">🔀 Embaralhar</button>
+      <button id="v2-shuffle" class="mono" style="font-size:11px;font-weight:600;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:11px 16px;cursor:pointer;box-shadow:var(--shadow)">🔀 Embaralhar</button>
     </div>
 
     <!-- filter -->
@@ -478,20 +494,20 @@ body::after {
     </div>
 
     <!-- featured -->
-    <div class="card" data-cat="SAP" style="display:grid;grid-template-columns:1.1fr 1fr;gap:0;overflow:hidden;margin-bottom:14px">
-      <div style="position:relative;background:linear-gradient(135deg,color-mix(in srgb,var(--primary) 30%,var(--surface)),color-mix(in srgb,var(--warning) 22%,var(--surface)));min-height:240px;display:flex;align-items:center;justify-content:center;padding:24px">
+    <div class="card hov" data-cat="SAP" style="display:grid;grid-template-columns:1.1fr 1fr;gap:0;overflow:hidden;margin-bottom:14px">
+      <div style="position:relative;background:linear-gradient(135deg,color-mix(in srgb,var(--red) 30%,var(--panel)),color-mix(in srgb,var(--gold) 22%,var(--panel)));min-height:240px;display:flex;align-items:center;justify-content:center;padding:24px">
         <div style="font-size:96px;line-height:1;filter:drop-shadow(0 8px 20px rgba(0,0,0,.3))">🔥</div>
         <div class="disp" style="position:absolute;top:18px;left:20px;right:20px;font-size:19px;font-weight:700;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.5)">"ESTÁ TUDO BEM."</div>
         <div class="disp" style="position:absolute;bottom:18px;left:20px;right:20px;font-size:15px;font-weight:600;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.5)">— CFO vendo o fim do suporte ao ECC chegar em 2027</div>
       </div>
       <div style="padding:24px;display:flex;flex-direction:column;justify-content:center">
-        <div class="mono" style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--primary);margin-bottom:10px">★ Meme da semana</div>
+        <div class="mono" style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--red);margin-bottom:10px">★ Meme da semana</div>
         <div class="disp" style="font-size:21px;font-weight:700;letter-spacing:-.01em;line-height:1.25;margin-bottom:8px">This Is Fine — edição fiscal</div>
-        <p style="font-size:13px;line-height:1.6;color:var(--text-dim);margin:0 0 18px">O clássico do cachorro na sala em chamas, mas a sala é o fechamento de janeiro com a Reforma Tributária rodando no Excel.</p>
+        <p style="font-size:13px;line-height:1.6;color:var(--dim);margin:0 0 18px">O clássico do cachorro na sala em chamas, mas a sala é o fechamento de janeiro com a Reforma Tributária rodando no Excel.</p>
         <div style="display:flex;align-items:center;gap:12px">
-          <button class="v2-like-btn mono" style="display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--text);background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:9px 14px;cursor:pointer" type="button">🔥 <span data-likes>248</span></button>
-          <span class="mono" style="font-size:10px;color:var(--text-muted);background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:7px 11px">#SAP</span>
-          <span class="mono" style="font-size:10px;color:var(--text-muted)">format · This Is Fine</span>
+          <button class="v2-like-btn mono" style="display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--ink);background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:9px 14px;cursor:pointer" type="button">🔥 <span data-likes>248</span></button>
+          <span class="mono" style="font-size:10px;color:var(--muted);background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:7px 11px">#SAP</span>
+          <span class="mono" style="font-size:10px;color:var(--muted)">format · This Is Fine</span>
         </div>
       </div>
     </div>
@@ -499,73 +515,73 @@ body::after {
     <!-- grid -->
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px" id="v2-grid-wall">
 
-      <div class="card mm-card" data-cat="SAP" style="overflow:hidden">
-        <div style="background:linear-gradient(160deg,color-mix(in srgb,var(--primary-light) 26%,var(--surface)),var(--surface));padding:0">
-          <div style="border-bottom:1px solid var(--border);display:flex;align-items:center;"><div style="flex:1;padding:14px;font-size:12.5px;font-weight:600;color:var(--text)">🙅 Esperar 2026 pra migrar</div><div style="width:64px;display:flex;align-items:center;justify-content:center;font-size:26px;background:color-mix(in srgb,var(--primary) 14%,transparent)">👈</div></div>
-          <div style="display:flex;align-items:center;"><div style="flex:1;padding:14px;font-size:12.5px;font-weight:600;color:var(--text)">🤙 Começar o S/4HANA agora</div><div style="width:64px;display:flex;align-items:center;justify-content:center;font-size:26px;background:color-mix(in srgb,var(--accent) 14%,transparent)">👈</div></div>
+      <div class="card hov mm-card" data-cat="SAP" style="overflow:hidden">
+        <div style="background:linear-gradient(160deg,color-mix(in srgb,var(--blue) 26%,var(--panel)),var(--panel));padding:0">
+          <div style="border-bottom:1px solid var(--line);display:flex;align-items:center;"><div style="flex:1;padding:14px;font-size:12.5px;font-weight:600;color:var(--ink)">🙅 Esperar 2026 pra migrar</div><div style="width:64px;display:flex;align-items:center;justify-content:center;font-size:26px;background:color-mix(in srgb,var(--red) 14%,transparent)">👈</div></div>
+          <div style="display:flex;align-items:center;"><div style="flex:1;padding:14px;font-size:12.5px;font-weight:600;color:var(--ink)">🤙 Começar o S/4HANA agora</div><div style="width:64px;display:flex;align-items:center;justify-content:center;font-size:26px;background:color-mix(in srgb,var(--teal) 14%,transparent)">👈</div></div>
         </div>
         <div style="padding:13px 15px;display:flex;align-items:center;justify-content:space-between">
-          <span class="mono" style="font-size:9.5px;color:var(--text-muted)">Drake · #SAP</span>
-          <button class="v2-like-btn mono" style="font-size:11px;font-weight:600;color:var(--text);background:transparent;border:1px solid var(--border);border-radius:8px;padding:5px 10px;cursor:pointer" type="button">🔥 <span data-likes>187</span></button>
+          <span class="mono" style="font-size:9.5px;color:var(--muted)">Drake · #SAP</span>
+          <button class="v2-like-btn mono" style="font-size:11px;font-weight:600;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:8px;padding:5px 10px;cursor:pointer" type="button">🔥 <span data-likes>187</span></button>
         </div>
       </div>
 
-      <div class="card mm-card" data-cat="Field" style="overflow:hidden">
-        <div style="background:linear-gradient(160deg,color-mix(in srgb,var(--accent) 26%,var(--surface)),var(--surface));min-height:130px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:18px">
+      <div class="card hov mm-card" data-cat="Field" style="overflow:hidden">
+        <div style="background:linear-gradient(160deg,color-mix(in srgb,var(--teal) 26%,var(--panel)),var(--panel));min-height:130px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:18px">
           <div style="font-size:46px">📈</div>
-          <div class="disp" style="font-size:17px;font-weight:700;color:var(--text)">STONKS</div>
-          <div style="font-size:12px;color:var(--text-dim);text-align:center">Pipeline na semana pós-SAP NOW</div>
+          <div class="disp" style="font-size:17px;font-weight:700;color:var(--ink)">STONKS</div>
+          <div style="font-size:12px;color:var(--dim);text-align:center">Pipeline na semana pós-SAP NOW</div>
         </div>
         <div style="padding:13px 15px;display:flex;align-items:center;justify-content:space-between">
-          <span class="mono" style="font-size:9.5px;color:var(--text-muted)">Stonks · #Field</span>
-          <button class="v2-like-btn mono" style="font-size:11px;font-weight:600;color:var(--text);background:transparent;border:1px solid var(--border);border-radius:8px;padding:5px 10px;cursor:pointer" type="button">🔥 <span data-likes>203</span></button>
+          <span class="mono" style="font-size:9.5px;color:var(--muted)">Stonks · #Field</span>
+          <button class="v2-like-btn mono" style="font-size:11px;font-weight:600;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:8px;padding:5px 10px;cursor:pointer" type="button">🔥 <span data-likes>203</span></button>
         </div>
       </div>
 
-      <div class="card mm-card" data-cat="RevOps" style="overflow:hidden">
-        <div style="background:linear-gradient(160deg,color-mix(in srgb,var(--primary) 26%,var(--surface)),var(--surface));min-height:130px;display:flex;flex-direction:column;justify-content:center;gap:7px;padding:16px 18px">
-          <div style="display:flex;align-items:center;gap:9px;font-size:12px;color:var(--text-dim)"><span style="font-size:20px">🧠</span> Planilha de leads</div>
-          <div style="display:flex;align-items:center;gap:9px;font-size:12px;color:var(--text-dim)"><span style="font-size:20px">🧠✨</span> Dashboard no Office</div>
-          <div style="display:flex;align-items:center;gap:9px;font-size:12.5px;font-weight:600;color:var(--text)"><span style="font-size:20px">🌌</span> Resolver antes de virar manchete</div>
+      <div class="card hov mm-card" data-cat="RevOps" style="overflow:hidden">
+        <div style="background:linear-gradient(160deg,color-mix(in srgb,var(--violet) 26%,var(--panel)),var(--panel));min-height:130px;display:flex;flex-direction:column;justify-content:center;gap:7px;padding:16px 18px">
+          <div style="display:flex;align-items:center;gap:9px;font-size:12px;color:var(--dim)"><span style="font-size:20px">🧠</span> Planilha de leads</div>
+          <div style="display:flex;align-items:center;gap:9px;font-size:12px;color:var(--dim)"><span style="font-size:20px">🧠✨</span> Dashboard no Office</div>
+          <div style="display:flex;align-items:center;gap:9px;font-size:12.5px;font-weight:600;color:var(--ink)"><span style="font-size:20px">🌌</span> Resolver antes de virar manchete</div>
         </div>
         <div style="padding:13px 15px;display:flex;align-items:center;justify-content:space-between">
-          <span class="mono" style="font-size:9.5px;color:var(--text-muted)">Galaxy Brain · #RevOps</span>
-          <button class="v2-like-btn mono" style="font-size:11px;font-weight:600;color:var(--text);background:transparent;border:1px solid var(--border);border-radius:8px;padding:5px 10px;cursor:pointer" type="button">🔥 <span data-likes>156</span></button>
+          <span class="mono" style="font-size:9.5px;color:var(--muted)">Galaxy Brain · #RevOps</span>
+          <button class="v2-like-btn mono" style="font-size:11px;font-weight:600;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:8px;padding:5px 10px;cursor:pointer" type="button">🔥 <span data-likes>156</span></button>
         </div>
       </div>
 
-      <div class="card mm-card" data-cat="SAP" style="overflow:hidden">
-        <div style="background:linear-gradient(160deg,color-mix(in srgb,var(--warning) 26%,var(--surface)),var(--surface));min-height:130px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:18px">
+      <div class="card hov mm-card" data-cat="SAP" style="overflow:hidden">
+        <div style="background:linear-gradient(160deg,color-mix(in srgb,var(--gold) 26%,var(--panel)),var(--panel));min-height:130px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:18px">
           <div style="font-size:42px">😰🔴🔴</div>
-          <div style="font-size:12px;color:var(--text-dim);text-align:center">Reforma Tributária <b style="color:var(--text)">ou</b> fechar o trimestre?</div>
+          <div style="font-size:12px;color:var(--dim);text-align:center">Reforma Tributária <b style="color:var(--ink)">ou</b> fechar o trimestre?</div>
         </div>
         <div style="padding:13px 15px;display:flex;align-items:center;justify-content:space-between">
-          <span class="mono" style="font-size:9.5px;color:var(--text-muted)">Two Buttons · #SAP</span>
-          <button class="v2-like-btn mono" style="font-size:11px;font-weight:600;color:var(--text);background:transparent;border:1px solid var(--border);border-radius:8px;padding:5px 10px;cursor:pointer" type="button">🔥 <span data-likes>134</span></button>
+          <span class="mono" style="font-size:9.5px;color:var(--muted)">Two Buttons · #SAP</span>
+          <button class="v2-like-btn mono" style="font-size:11px;font-weight:600;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:8px;padding:5px 10px;cursor:pointer" type="button">🔥 <span data-likes>134</span></button>
         </div>
       </div>
 
-      <div class="card mm-card" data-cat="RevOps" style="overflow:hidden">
-        <div style="background:linear-gradient(160deg,color-mix(in srgb,var(--primary) 22%,var(--surface)),var(--surface));min-height:130px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:18px;position:relative">
+      <div class="card hov mm-card" data-cat="RevOps" style="overflow:hidden">
+        <div style="background:linear-gradient(160deg,color-mix(in srgb,var(--red) 22%,var(--panel)),var(--panel));min-height:130px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:18px;position:relative">
           <div style="font-size:50px">🐕</div>
-          <div class="disp" style="font-size:11px;color:var(--warning);position:absolute;top:16px;left:18px">much pipeline</div>
-          <div class="disp" style="font-size:11px;color:var(--accent);position:absolute;bottom:46px;right:20px">very FY27</div>
-          <div class="disp" style="font-size:11px;color:var(--primary-light);position:absolute;bottom:18px;left:24px">so MQL · wow</div>
+          <div class="disp" style="font-size:11px;color:var(--gold);position:absolute;top:16px;left:18px">much pipeline</div>
+          <div class="disp" style="font-size:11px;color:var(--teal);position:absolute;bottom:46px;right:20px">very FY27</div>
+          <div class="disp" style="font-size:11px;color:var(--blue);position:absolute;bottom:18px;left:24px">so MQL · wow</div>
         </div>
         <div style="padding:13px 15px;display:flex;align-items:center;justify-content:space-between">
-          <span class="mono" style="font-size:9.5px;color:var(--text-muted)">Doge · #RevOps</span>
-          <button class="v2-like-btn mono" style="font-size:11px;font-weight:600;color:var(--text);background:transparent;border:1px solid var(--border);border-radius:8px;padding:5px 10px;cursor:pointer" type="button">🔥 <span data-likes>219</span></button>
+          <span class="mono" style="font-size:9.5px;color:var(--muted)">Doge · #RevOps</span>
+          <button class="v2-like-btn mono" style="font-size:11px;font-weight:600;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:8px;padding:5px 10px;cursor:pointer" type="button">🔥 <span data-likes>219</span></button>
         </div>
       </div>
 
-      <div class="card mm-card" data-cat="ERP.ngo" style="overflow:hidden">
-        <div style="background:linear-gradient(160deg,color-mix(in srgb,var(--accent) 24%,var(--surface)),color-mix(in srgb,var(--primary-light) 16%,var(--surface)));min-height:130px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:18px">
+      <div class="card hov mm-card" data-cat="ERP.ngo" style="overflow:hidden">
+        <div style="background:linear-gradient(160deg,color-mix(in srgb,var(--teal) 24%,var(--panel)),color-mix(in srgb,var(--blue) 16%,var(--panel)));min-height:130px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:18px">
           <div style="font-size:50px">🐘</div>
-          <div style="font-size:12px;color:var(--text);text-align:center;font-weight:600">1% do faturamento → elefantes &amp; rinocerontes protegidos</div>
+          <div style="font-size:12px;color:var(--ink);text-align:center;font-weight:600">1% do faturamento → elefantes &amp; rinocerontes protegidos</div>
         </div>
         <div style="padding:13px 15px;display:flex;align-items:center;justify-content:space-between">
-          <span class="mono" style="font-size:9.5px;color:var(--text-muted)">Wholesome · #ERP.ngo</span>
-          <button class="v2-like-btn mono" style="font-size:11px;font-weight:600;color:var(--text);background:transparent;border:1px solid var(--border);border-radius:8px;padding:5px 10px;cursor:pointer" type="button">🔥 <span data-likes>312</span></button>
+          <span class="mono" style="font-size:9.5px;color:var(--muted)">Wholesome · #ERP.ngo</span>
+          <button class="v2-like-btn mono" style="font-size:11px;font-weight:600;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:8px;padding:5px 10px;cursor:pointer" type="button">🔥 <span data-likes>312</span></button>
         </div>
       </div>
 
