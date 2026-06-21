@@ -8,7 +8,7 @@
 // Fonte ÚNICA da verdade: public/api/changelog.json#current via /api/version
 // Fallback hardcoded usado SÓ se fetch falhar (offline, etc).
 // Sincronização automática — não editar manualmente, basta bumpar changelog.json.
-let OFFICE_NAV_VERSION = '0.54.0';
+let OFFICE_NAV_VERSION = '0.54.1';
 // Promise compartilhada — nav + footer reaproveitam o mesmo fetch
 window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/version')
   .then(r => r.ok ? r.json() : null)
@@ -57,6 +57,27 @@ window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/ver
     fontsLink.rel = 'stylesheet';
     fontsLink.href = 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&family=Fira+Code:wght@500;600;700&display=swap';
     document.head.appendChild(fontsLink);
+  }
+
+  // FONTE GLOBAL PADRAO = Poppins (sobrepoe Inter/Open Sans/etc das telas).
+  // Mono (code/pre) preservado. Aplicado 1x via <style> de alta especificidade.
+  if (!document.getElementById('office-global-font')) {
+    const fs = document.createElement('style');
+    fs.id = 'office-global-font';
+    fs.textContent = `
+      :root { --font-base: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+      html, body, button, input, select, textarea,
+      h1, h2, h3, h4, h5, h6, p, a, span, div, li, td, th, label, strong, em, small {
+        font-family: var(--font-base) !important;
+      }
+      code, pre, kbd, samp, .mono, [class*="mono"], [style*="JetBrains"], [style*="Fira"], [style*="Courier"] {
+        font-family: 'Fira Code', 'JetBrains Mono', ui-monospace, monospace !important;
+      }
+      /* icones (emoji/material/etc) nao herdam Poppins */
+      .material-icons, .material-symbols-outlined, [class*="fa-"], .ic {
+        font-family: revert !important;
+      }`;
+    document.head.appendChild(fs);
   }
 
   // polish-pro.css + consulting-dark.css + epiuse-theme.css + atlas-theme.css
