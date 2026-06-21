@@ -5,7 +5,7 @@
 
 // Fonte ÚNICA da verdade: public/api/changelog.json#current via /api/version
 // Fallback hardcoded usado SÓ se fetch falhar — sincronização automática com nav.
-let OFFICE_FOOTER_VERSION = '0.53.7';
+let OFFICE_FOOTER_VERSION = '0.54.0';
 const OFFICE_FOOTER_BUILD = '2026-06-19';
 window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/version')
   .then(r => r.ok ? r.json() : null)
@@ -16,8 +16,10 @@ window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/ver
 // Bug fix → 1.0.1 | Feature nova → 1.1.0 | Refactor grande → 2.0.0
 // Histórico pré-1.0 preservado abaixo para referência.
 const OFFICE_VERSION_HISTORY = [
+  // ─── SPRINT 47 · Tema global EPI-USE/Atlas (21/jun/2026) ───
+  { ver: '0.54.0', date: '21/jun/2026', label: 'SPRINT 47 — Tema global EPI-USE/Atlas (claro+escuro) em todas as 32 páginas. Conserta cards pretos no modo claro (bindings de --card/--bg/--text nos temas) + remap hex->token. Trocar para um modo CLARO no seletor para ver.', path: null, status: 'current' },
   // ─── SPRINT 46 · Revisor SEO/GEO (19/jun/2026) ───
-  { ver: '0.53.7', date: '19/jun/2026', label: 'SPRINT 46 — Upgrades de UI/UX no Raccoon Studio (design ECC), inclusão de tema Aurora como padrão e sincronização do artigo de revisão com o Pipeline Editorial.', path: null, status: 'current' },
+  { ver: '0.53.7', date: '19/jun/2026', label: 'SPRINT 46 — Upgrades de UI/UX no Raccoon Studio (design ECC), inclusão de tema Aurora como padrão e sincronização do artigo de revisão com o Pipeline Editorial.', path: null, status: 'snapshot' },
   { ver: '0.53.6', date: '19/jun/2026', label: 'SPRINT 46 — Adicionados botões de cópia HTML (WorkControl) e Texto Limpo, além de dica para colagem no CMS.', path: null, status: 'snapshot' },
   { ver: '0.53.5', date: '19/jun/2026', label: 'SPRINT 46 — Integração da revisão colada ao Pipeline Editorial do Raccoon e consolidação do tema Aurora como padrão do Office.', path: null, status: 'snapshot' },
   { ver: '0.53.4', date: '19/jun/2026', label: 'SPRINT 46 — Melhorias de UI/UX, Artigo Otimizado e Áudio no Raccoon Studio, com spinner de progresso, cópia de artigo sugerido e chime de sucesso.', path: null, status: 'snapshot' },

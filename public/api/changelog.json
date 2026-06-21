@@ -1,6 +1,6 @@
 {
-  "current": "0.53.7",
-  "atualizado_em": "19/jun/2026",
+  "current": "0.54.0",
+  "atualizado_em": "21/jun/2026",
   "next": [
     {
       "version": "0.53.0",
@@ -54,9 +54,23 @@
   ],
   "releases": [
     {
+      "version": "0.54.0",
+      "date": "21/jun/2026",
+      "status": "current",
+      "path": null,
+      "title": "🎨 Tema global EPI-USE/Atlas (claro + escuro) em todas as páginas",
+      "summary": "Os temas EPI-USE e Atlas (claro e escuro) agora funcionam globalmente em todas as 32 páginas do Office. Corrigido o bug de cards pretos no modo claro (tokens --card/--bg/--text não eram redefinidos pelos temas). Cada página re-tematiza sem edição individual.",
+      "highlights": [
+        "Bloco de bindings em epiuse-theme.css + atlas-theme.css: espelha o binding [data-theme] do design-tokens p/ os 4 modos.",
+        "Remap #hex → var(--token,#hex) em 32 páginas (fallback preserva legado; <script> intactos; nada deletado).",
+        "Conserta cards/blocos quebrados no tema claro (relatorio, war-room, office, pipeline etc).",
+        "Para ver: trocar no seletor de tema para um modo CLARO — no escuro a aparência já estava correta."
+      ]
+    },
+    {
       "version": "0.53.7",
       "date": "19/jun/2026",
-      "status": "current",
+      "status": "past",
       "path": null,
       "title": "🎨 Upgrades de UI/UX no Raccoon Studio baseados no design system ECC",
       "summary": "Upgrade visual completo do Raccoon Studio para seguir a diretriz estética Liquid Glass da ECC, incluindo grid de fundo responsivo, tabs de vidro, brilhos e glows ativos, e popups aprimorados. Sincronização direta de revisões com o Pipeline Editorial (SQLite) e consolidação do tema Aurora como padrão.",
