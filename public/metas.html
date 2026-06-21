@@ -17,25 +17,25 @@
   --surface: rgba(255,255,255,0.025);
   --surface-2: rgba(255,255,255,0.05);
   --border: rgba(255,255,255,0.08);
-  --text: #e2e8f0;
-  --text-dim: #cbd5e1;
-  --text-muted: #94a3b8;
-  --primary: #2563eb;
-  --primary-light: #60a5fa;
-  --success: #10b981;
-  --success-light: #34d399;
-  --warning: #f59e0b;
-  --danger: #ef4444;
-  --pink: #ec4899;
+  --text: var(--text,#e2e8f0);
+  --text-dim: var(--text-dim,#cbd5e1);
+  --text-muted: var(--muted,#94a3b8);
+  --primary: var(--blue,#2563eb);
+  --primary-light: var(--blue,#60a5fa);
+  --success: var(--teal,#10b981);
+  --success-light: var(--teal,#34d399);
+  --warning: var(--gold,#f59e0b);
+  --danger: var(--red,#ef4444);
+  --pink: var(--violet,#ec4899);
 }
 [data-theme="light"] {
   --bg: #f8fafc;
   --surface: rgba(0,0,0,0.025);
   --surface-2: rgba(0,0,0,0.05);
   --border: rgba(0,0,0,0.08);
-  --text: #0f172a;
-  --text-dim: #1e293b;
-  --text-muted: #64748b;
+  --text: var(--bg,#0f172a);
+  --text-dim: var(--surface-2,#1e293b);
+  --text-muted: var(--muted,#64748b);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: var(--bg); font-family: 'Inter', sans-serif; color: var(--text); min-height: 100vh; }
@@ -61,7 +61,7 @@ body { background: var(--bg); font-family: 'Inter', sans-serif; color: var(--tex
 }
 .hero-eyebrow { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 11px; letter-spacing: .2em; color: var(--primary-light); margin-bottom: 12px; }
 .hero-h1 { font-size: 32px; font-weight: 800; line-height: 1.1; margin-bottom: 8px; }
-.hero-h1 em { font-style: normal; background: linear-gradient(135deg, #60a5fa, #ec4899); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero-h1 em { font-style: normal; background: linear-gradient(135deg, var(--blue,#60a5fa), var(--violet,#ec4899)); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .hero-sub { font-size: 14px; color: var(--text-muted); max-width: 720px; line-height: 1.6; margin-bottom: 22px; }
 
 .hero-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; position: relative; z-index: 1; }
@@ -89,9 +89,9 @@ body { background: var(--bg); font-family: 'Inter', sans-serif; color: var(--tex
 .eventos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-bottom: 8px; }
 .evento-card { background: linear-gradient(135deg, var(--surface), var(--surface-2)); border: 1px solid var(--border); border-radius: 12px; padding: 18px; position: relative; transition: transform .15s, border-color .15s; }
 .evento-card:hover { transform: translateY(-2px); border-color: var(--primary-light); }
-.evento-rank { position: absolute; top: 14px; right: 14px; width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #1a1a1a; font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 13px; font-family: 'JetBrains Mono', monospace; }
-.evento-rank.silver { background: linear-gradient(135deg, #cbd5e1, #94a3b8); }
-.evento-rank.bronze { background: linear-gradient(135deg, #d97706, #b45309); color: #fff; }
+.evento-rank { position: absolute; top: 14px; right: 14px; width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--gold,#fbbf24), var(--gold,#f59e0b)); color: #1a1a1a; font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 13px; font-family: 'JetBrains Mono', monospace; }
+.evento-rank.silver { background: linear-gradient(135deg, var(--text-dim,#cbd5e1), var(--muted,#94a3b8)); }
+.evento-rank.bronze { background: linear-gradient(135deg, #d97706, var(--gold,#b45309)); color: #fff; }
 .evento-rank.normal { background: rgba(96,165,250,0.18); color: var(--primary-light); }
 .evento-nome { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 6px; padding-right: 40px; }
 .evento-data { font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; margin-bottom: 14px; }
@@ -191,17 +191,17 @@ body { background: var(--bg); font-family: 'Inter', sans-serif; color: var(--tex
   :root[data-theme="light"] textarea,
   :root[data-theme="elephant"] textarea {
     background: rgba(255, 255, 255, 0.85) !important;
-    color: #0f172a !important;
+    color: var(--bg,#0f172a) !important;
   }
   :root[data-theme="light"] .meta-row-input .input-meta,
   :root[data-theme="elephant"] .meta-row-input .input-meta {
     background: rgba(255, 255, 255, 0.85) !important;
-    color: #0f172a !important;
+    color: var(--bg,#0f172a) !important;
   }
   :root[data-theme="light"] .meta-acoes textarea,
   :root[data-theme="elephant"] .meta-acoes textarea {
     background: rgba(255, 255, 255, 0.85) !important;
-    color: #0f172a !important;
+    color: var(--bg,#0f172a) !important;
   }
   :root[data-theme="light"] .dist-row,
   :root[data-theme="elephant"] .dist-row {
@@ -249,7 +249,7 @@ body { background: var(--bg); font-family: 'Inter', sans-serif; color: var(--tex
   </div>
 
   <!-- Atualizador rápido do nº de seguidores (interim ate LinkedIn Marketing API) -->
-  <div style="max-width:1200px;margin:0 auto 18px;padding:10px 14px;background:var(--color-surface,#0f1e35);border:1px solid var(--color-border,rgba(134,158,195,.18));border-radius:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px">
+  <div style="max-width:1200px;margin:0 auto 18px;padding:10px 14px;background:var(--color-surface,var(--surface,#0f1e35));border:1px solid var(--color-border,rgba(134,158,195,.18));border-radius:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px">
     <span style="font-weight:700">📊 Atualizar seguidores de hoje:</span>
     <input id="li-today-input" type="number" placeholder="ex: 10640" style="width:130px;padding:6px 8px;border-radius:6px;border:1px solid var(--color-border,rgba(134,158,195,.3));background:transparent;color:inherit;font:inherit">
     <button id="li-today-btn" style="padding:6px 14px;border-radius:6px;border:0;background:var(--color-primary-500,#013a6a);color:#fff;font-weight:700;cursor:pointer">Salvar</button>

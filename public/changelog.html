@@ -15,9 +15,9 @@
 :root {
   --bg: #0a1628; --bg-card: rgba(15, 30, 53, 0.6); --bg-card-2: rgba(15, 30, 53, 0.4);
   --border: rgba(37,99,235,0.18); --border-light: rgba(255,255,255,0.06);
-  --text: #e2e8f0; --text-dim: #94a3b8; --text-muted: #64748b;
-  --primary: #2563EB; --primary-light: #60a5fa;
-  --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --purple: #a78bfa;
+  --text: var(--text,#e2e8f0); --text-dim: var(--muted,#94a3b8); --text-muted: var(--muted,#64748b);
+  --primary: var(--blue,#2563eb); --primary-light: var(--blue,#60a5fa);
+  --success: var(--teal,#10b981); --warning: var(--gold,#f59e0b); --danger: var(--red,#ef4444); --purple: var(--violet,#a78bfa);
 }
 html, body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
 body {

@@ -140,3 +140,42 @@
 :root[data-theme="atlas-dark"] .perf-tbl td, :root[data-theme="atlas-light"] .perf-tbl td{
   color:var(--text) !important; border-bottom:1px solid var(--border-light) !important;
 }
+
+/* ════════════════════════════════════════════════════════════════════════
+   FIX · THEME BINDINGS (global)
+   Espelha o binding de --color-* / aliases do design-tokens.css p/ Atlas,
+   então TODAS as telas re-tematizam sem editar página. No Atlas o vermelho
+   É a cor primária (--red = --primary), por design.
+   ════════════════════════════════════════════════════════════════════════ */
+:root[data-theme="atlas-dark"]{
+  --color-surface:#15171d; --color-surface-2:#1b1e26;
+  --color-bg:#0c0d11; --color-bg-2:#08090c;
+  --color-border:rgba(236,234,225,.11); --color-border-2:rgba(236,234,225,.055);
+  --color-text:#eceae1; --color-text-dim:#b4b1a8; --color-text-muted:#797d86; --color-text-dimmest:#6a6e77;
+  --color-divider:rgba(236,234,225,.08);
+  --color-info-500:#3fd6bc; --color-primary-500:#ff3355; --color-primary-400:#ff5e79;
+  --color-success-500:#3fd6bc; --color-warning-500:#e6b53c; --color-danger-500:#ff3355;
+  --color-accent-purple-500:#b58cff;
+  --card:#15171d; --card-2:#1b1e26; --bg:#0c0d11; --bg-2:#08090c;
+  --text:#eceae1; --text-dim:#b4b1a8; --text-muted:#797d86;
+  --muted:#797d86; --dim:#6a6e77; --border:rgba(236,234,225,.11);
+  --accent:#3fd6bc; --primary:#ff3355; --primary-light:#ff5e79;
+  --success:#3fd6bc; --warning:#e6b53c; --danger:#ff3355;
+  --green:#3fd6bc; --yellow:#e6b53c; --purple:#b58cff; --red:#ff3355;
+}
+:root[data-theme="atlas-light"]{
+  --color-surface:#fbfaf4; --color-surface-2:#f3efe5;
+  --color-bg:#efebe0; --color-bg-2:#e4dfd1;
+  --color-border:rgba(21,23,28,.12); --color-border-2:rgba(21,23,28,.06);
+  --color-text:#15171c; --color-text-dim:#494d56; --color-text-muted:#8b8f98; --color-text-dimmest:#a0a4ad;
+  --color-divider:rgba(21,23,28,.08);
+  --color-info-500:#0e8a72; --color-primary-500:#d6173c; --color-primary-400:#e8324f;
+  --color-success-500:#0e8a72; --color-warning-500:#b9871a; --color-danger-500:#d6173c;
+  --color-accent-purple-500:#7a52d6;
+  --card:#fbfaf4; --card-2:#f3efe5; --bg:#efebe0; --bg-2:#e4dfd1;
+  --text:#15171c; --text-dim:#494d56; --text-muted:#8b8f98;
+  --muted:#8b8f98; --dim:#a0a4ad; --border:rgba(21,23,28,.12);
+  --accent:#0e8a72; --primary:#d6173c; --primary-light:#e8324f;
+  --success:#0e8a72; --warning:#b9871a; --danger:#d6173c;
+  --green:#0e8a72; --yellow:#b9871a; --purple:#7a52d6; --red:#d6173c;
+}

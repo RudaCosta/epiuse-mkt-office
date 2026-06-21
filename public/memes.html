@@ -60,11 +60,11 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --bg: #0a0a1a; --bg-2: #12082b;
+  --bg: var(--bg,#0a0a1a); --bg-2: #12082b;
   --bg-card: rgba(20, 12, 45, 0.6); --border: rgba(168,85,247,0.28); --border-light: rgba(255,255,255,0.08);
   --border-active: rgba(236,72,153,0.6);
   --text: #f0e9ff; --text-dim: #b9a9e0; --text-muted: #7d6ba8;
-  --neon-pink: #ff2e97; --neon-cyan: #00e5ff; --neon-purple: #a855f7; --neon-yellow: #ffe600; --neon-lime: #aaff00;
+  --neon-pink: #ff2e97; --neon-cyan: #00e5ff; --neon-purple: var(--violet,#a855f7); --neon-yellow: #ffe600; --neon-lime: #aaff00;
 }
 html { scroll-behavior: smooth; }
 body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; overflow-x: hidden; position: relative; }
@@ -170,8 +170,8 @@ body::after {
 .drake .txt { font-weight: 800; font-size: 14px; line-height: 1.2; }
 
 /* gradient scenes */
-.s-doge { background: radial-gradient(circle at 50% 45%, #2a2a4a, #0a0a1a); }
-.s-stonks { background: linear-gradient(135deg, #003d2e, #0a0a1a); }
+.s-doge { background: radial-gradient(circle at 50% 45%, #2a2a4a, var(--bg,#0a0a1a)); }
+.s-stonks { background: linear-gradient(135deg, #003d2e, var(--bg,#0a0a1a)); }
 .s-fire { background: linear-gradient(0deg, #ff5e00, #7a1500); }
 .s-cyber { background: linear-gradient(135deg, #1a0a3a, #3a0a5a); }
 .s-gold { background: linear-gradient(135deg, #4a3a00, #1a1400); }
@@ -230,16 +230,16 @@ body::after {
         <radialGradient id="halo" cx="50%" cy="42%" r="55%">
           <stop offset="0%" stop-color="#fff0fb" stop-opacity="0.6"/>
           <stop offset="40%" stop-color="#ff2e97" stop-opacity="0.32"/>
-          <stop offset="100%" stop-color="#0a0a1a" stop-opacity="0"/>
+          <stop offset="100%" stop-color="var(--bg,#0a0a1a)" stop-opacity="0"/>
         </radialGradient>
         <linearGradient id="brainfill" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stop-color="#ffe1fb"/><stop offset="50%" stop-color="#e9b8ff"/><stop offset="100%" stop-color="#c084fc"/>
+          <stop offset="0%" stop-color="#ffe1fb"/><stop offset="50%" stop-color="#e9b8ff"/><stop offset="100%" stop-color="var(--violet,#c084fc)"/>
         </linearGradient>
         <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
           <feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
         </filter>
       </defs>
-      <rect width="640" height="420" fill="#0a0a1a"/>
+      <rect width="640" height="420" fill="var(--bg,#0a0a1a)"/>
       <circle cx="320" cy="180" r="250" fill="url(#halo)"/>
       <g stroke="#ffd6f4" stroke-width="2" opacity="0.55" stroke-linecap="round">
         <line x1="320" y1="16" x2="320" y2="58"/><line x1="110" y1="56" x2="144" y2="92"/><line x1="530" y1="56" x2="496" y2="92"/>
@@ -362,7 +362,7 @@ body::after {
     </div>
 
     <div class="meme">
-      <div class="scene" style="background: linear-gradient(135deg, #0d1e36, #111);">
+      <div class="scene" style="background: linear-gradient(135deg, var(--surface,#0d1e36), #111);">
         <span style="font-size:74px">❌🎙️</span>
         <span class="impact top">ERROUUU!</span>
         <span class="impact bottom" style="font-size: 15px;">Tom de zoeira, sem bronca</span>

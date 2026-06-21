@@ -10,53 +10,53 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
 <style>
   *,*::before,*::after { box-sizing:border-box; margin:0; padding:0 }
-  body { background: linear-gradient(180deg,#061020 0%,#0a1525 100%); color: #e2e8f0; font-family: 'Inter',sans-serif; min-height: 100vh; padding-bottom: 60px; }
+  body { background: linear-gradient(180deg,var(--bg,#061020) 0%,var(--bg,#0a1525) 100%); color: var(--text,#e2e8f0); font-family: 'Inter',sans-serif; min-height: 100vh; padding-bottom: 60px; }
   .container { max-width: 1280px; margin: 0 auto; padding: 24px; }
   h1 { font-size: 26px; margin-bottom: 4px; }
-  .sub { color: #94a3b8; font-size: 13px; margin-bottom: 22px; }
+  .sub { color: var(--muted,#94a3b8); font-size: 13px; margin-bottom: 22px; }
 
   .filters { display:grid; grid-template-columns: 1.5fr 1fr 1fr 1fr 80px; gap: 10px; margin-bottom: 18px; }
   .filters input, .filters select {
-    background: rgba(15,30,53,.6); border: 1px solid rgba(96,165,250,.18); color: #e2e8f0;
+    background: rgba(15,30,53,.6); border: 1px solid rgba(96,165,250,.18); color: var(--text,#e2e8f0);
     padding: 10px 14px; border-radius: 8px; font-size: 13px; font-family: inherit;
   }
-  .filters input:focus, .filters select:focus { outline: none; border-color: #60a5fa; }
-  .filters button { background: rgba(96,165,250,.15); border: 1px solid rgba(96,165,250,.30); color: #60a5fa; border-radius: 8px; cursor: pointer; font-size: 12px; }
+  .filters input:focus, .filters select:focus { outline: none; border-color: var(--blue,#60a5fa); }
+  .filters button { background: rgba(96,165,250,.15); border: 1px solid rgba(96,165,250,.30); color: var(--blue,#60a5fa); border-radius: 8px; cursor: pointer; font-size: 12px; }
 
   .stats-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 12px; margin-bottom: 22px; }
   .stat { background: rgba(15,30,53,.6); border: 1px solid rgba(96,165,250,.15); padding: 14px; border-radius: 10px; }
-  .stat-num { font-family:'JetBrains Mono',monospace; font-weight:700; font-size: 22px; color: #60a5fa; }
-  .stat-lbl { font-size: 11px; color: #94a3b8; letter-spacing: .08em; text-transform: uppercase; margin-top: 4px; }
+  .stat-num { font-family:'JetBrains Mono',monospace; font-weight:700; font-size: 22px; color: var(--blue,#60a5fa); }
+  .stat-lbl { font-size: 11px; color: var(--muted,#94a3b8); letter-spacing: .08em; text-transform: uppercase; margin-top: 4px; }
 
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px,1fr)); gap: 14px; }
   .card {
-    background: #0f1e35; border: 1px solid rgba(96,165,250,.12); border-radius: 12px; padding: 16px;
+    background: var(--surface,#0f1e35); border: 1px solid rgba(96,165,250,.12); border-radius: 12px; padding: 16px;
     transition: transform .12s, border-color .12s;
   }
   .card:hover { transform: translateY(-2px); border-color: rgba(96,165,250,.30); }
-  .card-titulo { font-size: 14px; font-weight: 600; margin-bottom: 10px; line-height: 1.35; color: #e2e8f0; }
+  .card-titulo { font-size: 14px; font-weight: 600; margin-bottom: 10px; line-height: 1.35; color: var(--text,#e2e8f0); }
   .card-titulo a { color: inherit; text-decoration: none; }
-  .card-titulo a:hover { color: #60a5fa; }
+  .card-titulo a:hover { color: var(--blue,#60a5fa); }
   .card-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
   .tag {
     font-size: 10px; padding: 3px 8px; border-radius: 4px; font-family:'JetBrains Mono',monospace;
-    background: rgba(96,165,250,.10); color: #93c5fd;
+    background: rgba(96,165,250,.10); color: var(--blue,#93c5fd);
   }
-  .tag.topo  { background: rgba(167,139,250,.12); color: #c4b5fd }
-  .tag.meio  { background: rgba(251,191,36,.12); color: #fcd34d }
-  .tag.fundo { background: rgba(16,185,129,.12); color: #6ee7b7 }
-  .tag.lob   { background: rgba(0,102,178,.15); color: #93c5fd }
-  .tag.seo   { background: rgba(16,185,129,.10); color: #6ee7b7 }
-  .tag.geo   { background: rgba(139,92,246,.12); color: #c4b5fd }
-  .card-foot { display:flex; justify-content:space-between; align-items:center; font-size:11px; color: #64748b; margin-top: 8px; padding-top: 8px; border-top: 1px dashed rgba(148,163,184,.08); }
-  .card-foot a { color: #60a5fa; text-decoration: none; font-family:'JetBrains Mono',monospace; }
+  .tag.topo  { background: rgba(167,139,250,.12); color: var(--violet,#c4b5fd) }
+  .tag.meio  { background: rgba(251,191,36,.12); color: var(--gold,#fcd34d) }
+  .tag.fundo { background: rgba(16,185,129,.12); color: var(--teal,#6ee7b7) }
+  .tag.lob   { background: rgba(0,102,178,.15); color: var(--blue,#93c5fd) }
+  .tag.seo   { background: rgba(16,185,129,.10); color: var(--teal,#6ee7b7) }
+  .tag.geo   { background: rgba(139,92,246,.12); color: var(--violet,#c4b5fd) }
+  .card-foot { display:flex; justify-content:space-between; align-items:center; font-size:11px; color: var(--muted,#64748b); margin-top: 8px; padding-top: 8px; border-top: 1px dashed rgba(148,163,184,.08); }
+  .card-foot a { color: var(--blue,#60a5fa); text-decoration: none; font-family:'JetBrains Mono',monospace; }
 
   .pagination { display:flex; justify-content:center; gap: 8px; margin-top: 22px; }
-  .pagination button { background: rgba(96,165,250,.10); border: 1px solid rgba(96,165,250,.20); color: #60a5fa; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+  .pagination button { background: rgba(96,165,250,.10); border: 1px solid rgba(96,165,250,.20); color: var(--blue,#60a5fa); padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; }
   .pagination button:disabled { opacity: 0.4; cursor: not-allowed; }
 
-  .empty { text-align:center; padding: 40px; color: #94a3b8; }
-  .loading { text-align:center; padding: 40px; color: #60a5fa; font-style: italic; }
+  .empty { text-align:center; padding: 40px; color: var(--muted,#94a3b8); }
+  .loading { text-align:center; padding: 40px; color: var(--blue,#60a5fa); font-style: italic; }
 </style>
 </head>
 <body data-route="artigos">

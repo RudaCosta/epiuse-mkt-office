@@ -7,22 +7,22 @@
 <link rel="stylesheet" href="/design-tokens.css">
 <style>
   :root {
-    --bg: #0a1525; --card: #0f1e35; --text: #e6ebf2; --muted: #869ec3;
-    --border: rgba(134,158,195,.22); --primary: #2563eb; --primary-light: #60a5fa;
-    --navy: #001844; --red: #cd1543; --green: #10b981; --yellow: #fcd34d;
+    --bg: var(--bg,#0a1525); --card: var(--surface,#0f1e35); --text: var(--text,#e6ebf2); --muted: var(--muted,#869ec3);
+    --border: rgba(134,158,195,.22); --primary: var(--blue,#2563eb); --primary-light: var(--blue,#60a5fa);
+    --navy: var(--surface,#001844); --red: var(--red,#cd1543); --green: var(--teal,#10b981); --yellow: var(--gold,#fcd34d);
   }
   body { margin:0; background:var(--bg); color:var(--text); font-family:'Open Sans',-apple-system,system-ui,sans-serif; font-size:14px; line-height:1.6; }
   .wrap { max-width:1100px; margin:0 auto; padding:24px 18px 80px; }
   h1 { font-size:26px; margin:6px 0 4px; color:#fff; font-weight:800; letter-spacing:-0.02em; }
   .sub { font-size:13px; color:var(--muted); margin-bottom:14px; }
-  .badge { display:inline-block; font-size:10px; background:rgba(192,132,252,.18); color:#d8b4fe; padding:3px 10px; border-radius:99px; font-weight:700; letter-spacing:.04em; margin-left:8px; }
+  .badge { display:inline-block; font-size:10px; background:rgba(192,132,252,.18); color:var(--violet,#d8b4fe); padding:3px 10px; border-radius:99px; font-weight:700; letter-spacing:.04em; margin-left:8px; }
   .v1-link { display:inline-block; font-size:11px; color:var(--muted); margin-bottom:20px; padding:6px 10px; background:rgba(96,165,250,.08); border:1px solid rgba(96,165,250,.2); border-radius:6px; text-decoration:none; }
   .v1-link:hover { color:var(--primary-light); }
 
   .hero { background:linear-gradient(135deg, rgba(192,132,252,0.08), rgba(205,21,67,0.05)); border:1px solid rgba(192,132,252,0.25); border-radius:14px; padding:22px 24px; margin-bottom:22px; }
   .hero h2 { margin:0 0 14px; font-size:15px; color:#fff; font-weight:700; }
   .hero p { margin:0 0 10px; font-size:12.5px; color:var(--muted); line-height:1.6; }
-  .hero strong { color:#d8b4fe; }
+  .hero strong { color:var(--violet,#d8b4fe); }
 
   .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:18px 20px; margin-bottom:14px; }
   .card-h { font-size:14px; font-weight:700; color:#fff; margin:0 0 6px; display:flex; align-items:center; gap:8px; }
@@ -42,16 +42,16 @@
 
   .btn { font-family:inherit; cursor:pointer; border:none; padding:11px 18px; border-radius:8px; font-weight:700; font-size:13px; transition:opacity .15s; display:inline-flex; align-items:center; gap:8px; }
   .btn:hover { opacity:.9; }
-  .btn-primary { background:linear-gradient(135deg,var(--navy),#7c3aed); color:#fff; }
-  .btn-secondary { background:rgba(192,132,252,.12); color:#d8b4fe; border:1px solid rgba(192,132,252,.3); }
+  .btn-primary { background:linear-gradient(135deg,var(--navy),var(--violet,#7c3aed)); color:#fff; }
+  .btn-secondary { background:rgba(192,132,252,.12); color:var(--violet,#d8b4fe); border:1px solid rgba(192,132,252,.3); }
   .btn-row { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
 
   /* CAREER GOAL — 3 cards */
   .goal-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-top:6px; }
   @media (max-width:720px){ .goal-grid{grid-template-columns:1fr} }
   .goal-card { background:rgba(0,0,0,.18); border:2px solid var(--border); border-radius:10px; padding:14px; cursor:pointer; transition:all .15s; text-align:center; }
-  .goal-card:hover { border-color:#d8b4fe; }
-  .goal-card.selected { border-color:#d8b4fe; background:rgba(192,132,252,.10); }
+  .goal-card:hover { border-color:var(--violet,#d8b4fe); }
+  .goal-card.selected { border-color:var(--violet,#d8b4fe); background:rgba(192,132,252,.10); }
   .goal-card .ic { font-size:24px; margin-bottom:6px; }
   .goal-card .gt { font-weight:700; font-size:13px; margin-bottom:4px; color:#fff; }
   .goal-card .gd { font-size:11px; color:var(--muted); line-height:1.4; }
@@ -59,14 +59,14 @@
   /* VOICE CHIPS */
   .voices-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
   .voice-chip { background:rgba(0,0,0,.2); border:1px solid var(--border); border-radius:99px; padding:6px 12px; font-size:12px; cursor:pointer; color:var(--text); transition:all .15s; }
-  .voice-chip:hover { border-color:#d8b4fe; }
-  .voice-chip.active { background:rgba(192,132,252,.2); border-color:#d8b4fe; color:#fff; }
+  .voice-chip:hover { border-color:var(--violet,#d8b4fe); }
+  .voice-chip.active { background:rgba(192,132,252,.2); border-color:var(--violet,#d8b4fe); color:#fff; }
 
   details { margin-top:14px; }
-  summary { cursor:pointer; font-size:12px; color:#d8b4fe; padding:8px 0; user-select:none; }
+  summary { cursor:pointer; font-size:12px; color:var(--violet,#d8b4fe); padding:8px 0; user-select:none; }
   pre.tpl-preview { background:rgba(0,0,0,.30); border:1px solid var(--border); border-radius:8px; padding:14px; font-family:'JetBrains Mono',monospace; font-size:11px; line-height:1.55; max-height:340px; overflow:auto; white-space:pre-wrap; word-break:break-word; color:var(--text); }
 
-  .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#7c3aed; color:#fff; padding:12px 22px; border-radius:8px; font-weight:700; font-size:13px; box-shadow:0 8px 24px rgba(0,0,0,.3); display:none; z-index:300; }
+  .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--violet,#7c3aed); color:#fff; padding:12px 22px; border-radius:8px; font-weight:700; font-size:13px; box-shadow:0 8px 24px rgba(0,0,0,.3); display:none; z-index:300; }
   .toast.show { display:block; animation: slideUp .25s ease-out; }
   @keyframes slideUp { from{ opacity:0; transform:translate(-50%,12px); } to{ opacity:1; transform:translate(-50%,0); } }
 </style>
@@ -76,7 +76,7 @@
 
 <div class="wrap">
   <h1>🪪 Profile Optimizer <span class="badge">V2 · framework findskill.ai</span></h1>
-  <div class="sub">Versão alternativa baseada no <a href="https://findskill.ai" target="_blank" style="color:#d8b4fe">findskill.ai · LinkedIn Profile Optimizer</a> adaptado pra EPI-USE Voices. <b>5 variáveis estruturadas</b> + transcrição opcional → kit em <b>10 páginas A4</b> (Quick Wins · Headline · Sobre · Experiência · Skills · Featured · Foto/Banner · Keywords · URL/ERP.ngo).</div>
+  <div class="sub">Versão alternativa baseada no <a href="https://findskill.ai" target="_blank" style="color:var(--violet,#d8b4fe)">findskill.ai · LinkedIn Profile Optimizer</a> adaptado pra EPI-USE Voices. <b>5 variáveis estruturadas</b> + transcrição opcional → kit em <b>10 páginas A4</b> (Quick Wins · Headline · Sobre · Experiência · Skills · Featured · Foto/Banner · Keywords · URL/ERP.ngo).</div>
   <a class="v1-link" href="/optimizer">← Voltar pra V1 (transcrição livre · 7 páginas)</a>
 
   <!-- HERO -->

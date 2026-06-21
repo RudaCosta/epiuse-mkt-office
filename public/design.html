@@ -23,7 +23,7 @@
   .toc { position: sticky; top: 64px; align-self: start; font-size: 12px; }
   .toc .toc-hdr { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--color-text-muted); margin-bottom: 10px; font-family: 'JetBrains Mono', monospace; }
   .toc a { display: block; color: var(--color-text-muted); text-decoration: none; padding: 5px 10px; border-left: 2px solid var(--color-border); transition: all .12s; }
-  .toc a:hover, .toc a.active { color: var(--color-text); border-left-color: var(--color-primary-400, #0070bf); background: rgba(0,112,191,.06); }
+  .toc a:hover, .toc a.active { color: var(--color-text); border-left-color: var(--color-primary-400, var(--blue,#0070bf)); background: rgba(0,112,191,.06); }
 
   /* ── Hero ── */
   .hero { margin-bottom: 34px; }
@@ -67,7 +67,7 @@
   .layer-card:first-child { border-radius: var(--rounded-lg, 12px) 0 0 var(--rounded-lg, 12px); }
   .layer-card:last-child { border-radius: 0 var(--rounded-lg, 12px) var(--rounded-lg, 12px) 0; }
   .layer-card + .layer-card { border-left: none; }
-  .layer-card .n { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--color-primary-400, #0070bf); letter-spacing: .1em; }
+  .layer-card .n { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--color-primary-400, var(--blue,#0070bf)); letter-spacing: .1em; }
   .layer-card h3 { font-size: 14px; margin: 4px 0 8px; font-family: 'Poppins', 'Lexend', sans-serif; }
   .layer-card p { font-size: 12px; color: var(--color-text-muted); line-height: 1.55; margin-bottom: 10px; }
   .layer-card code { display: block; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; background: var(--color-bg-2, rgba(0,0,0,.25)); border: 1px solid var(--color-border); border-radius: 6px; padding: 8px 10px; color: var(--color-text-dim, var(--color-text)); overflow-x: auto; white-space: nowrap; }
@@ -76,7 +76,7 @@
   /* ── Color swatches + WCAG ── */
   .color-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(195px, 1fr)); gap: 10px; }
   .swatch { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--rounded-md, 8px); overflow: hidden; cursor: pointer; transition: border-color .12s; }
-  .swatch:hover { border-color: var(--color-primary-400, #0070bf); }
+  .swatch:hover { border-color: var(--color-primary-400, var(--blue,#0070bf)); }
   .swatch-color { height: 56px; display: flex; align-items: flex-end; padding: 6px; gap: 4px; }
   .swatch-meta { padding: 8px 10px; }
   .swatch-name { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--color-text); word-break: break-all; }
@@ -89,7 +89,7 @@
 
   /* ── Typography ── */
   .type-row { display: grid; grid-template-columns: 220px 1fr; gap: 18px; padding: 12px 0; border-bottom: 1px solid var(--color-border); align-items: center; }
-  .type-name code { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--color-primary-400, #0070bf); }
+  .type-name code { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--color-primary-400, var(--blue,#0070bf)); }
   .type-name .uso { font-size: 10px; color: var(--color-text-muted); display: block; margin-top: 3px; line-height: 1.45; }
   .type-preview { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
   @media (max-width: 720px) { .type-row { grid-template-columns: 1fr; gap: 6px; } }
@@ -101,7 +101,7 @@
   .spacing-val { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--color-text-muted); }
   .spacing-bar { height: 14px; background: var(--color-primary-500, #013a6a); border-radius: 3px; min-width: 2px; }
   .rounded-grid, .elev-grid { display: flex; gap: 14px; flex-wrap: wrap; }
-  .rounded-box { width: 86px; height: 86px; background: var(--color-surface); border: 1.5px solid var(--color-primary-400, #0070bf); display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-align: center; }
+  .rounded-box { width: 86px; height: 86px; background: var(--color-surface); border: 1.5px solid var(--color-primary-400, var(--blue,#0070bf)); display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-align: center; }
   .elev-box { width: 120px; height: 80px; background: var(--color-surface); border-radius: var(--rounded-md, 8px); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 10px; }
 
   /* ── Atomic design ── */
@@ -116,18 +116,18 @@
 
   /* átomos demo */
   .btn-primary-demo { background: var(--color-primary-500, #013a6a); color: #fff; border: none; padding: 10px 18px; min-height: 44px; border-radius: var(--rounded-md, 8px); font-weight: 600; font-size: 13px; cursor: pointer; font-family: inherit; }
-  .btn-primary-demo:hover { background: var(--color-primary-400, #0070bf); }
+  .btn-primary-demo:hover { background: var(--color-primary-400, var(--blue,#0070bf)); }
   .btn-secondary-demo { background: transparent; color: var(--color-text); border: 1px solid var(--color-border); padding: 10px 18px; min-height: 44px; border-radius: var(--rounded-md, 8px); font-weight: 600; font-size: 13px; cursor: pointer; font-family: inherit; }
-  .btn-secondary-demo:hover { border-color: var(--color-primary-400, #0070bf); }
+  .btn-secondary-demo:hover { border-color: var(--color-primary-400, var(--blue,#0070bf)); }
   .badge { font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 99px; font-family: 'JetBrains Mono', monospace; }
-  .badge.real     { background: rgba(5,150,105,.15);  color: #6ee7b7; border: 1px solid rgba(5,150,105,.35); }
-  .badge.manual   { background: rgba(217,119,6,.15);  color: #fcd34d; border: 1px solid rgba(217,119,6,.35); }
+  .badge.real     { background: rgba(5,150,105,.15);  color: var(--teal,#6ee7b7); border: 1px solid rgba(5,150,105,.35); }
+  .badge.manual   { background: rgba(217,119,6,.15);  color: var(--gold,#fcd34d); border: 1px solid rgba(217,119,6,.35); }
   .badge.pending  { background: rgba(234,88,12,.15);  color: #fdba74; border: 1px solid rgba(234,88,12,.35); }
-  .badge.aguarda  { background: rgba(167,139,250,.15);color: #c4b5fd; border: 1px solid rgba(167,139,250,.35); }
-  .badge.ia       { background: rgba(96,165,250,.15); color: #93c5fd; border: 1px solid rgba(96,165,250,.35); }
+  .badge.aguarda  { background: rgba(167,139,250,.15);color: var(--violet,#c4b5fd); border: 1px solid rgba(167,139,250,.35); }
+  .badge.ia       { background: rgba(96,165,250,.15); color: var(--blue,#93c5fd); border: 1px solid rgba(96,165,250,.35); }
   .badge.projecao { background: rgba(244,114,182,.15);color: #f9a8d4; border: 1px solid rgba(244,114,182,.35); }
   .input-demo { background: var(--color-bg-2, rgba(0,0,0,.2)); border: 1px solid var(--color-border); color: var(--color-text); border-radius: var(--rounded-md, 8px); padding: 10px 12px; min-height: 44px; font-size: 13px; font-family: inherit; width: 200px; }
-  .input-demo:focus { outline: 2px solid var(--color-primary-400, #0070bf); outline-offset: 1px; border-color: transparent; }
+  .input-demo:focus { outline: 2px solid var(--color-primary-400, var(--blue,#0070bf)); outline-offset: 1px; border-color: transparent; }
 
   /* moléculas demo */
   .kpi-demo { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--rounded-lg, 12px); padding: 14px; min-width: 180px; }
@@ -135,9 +135,9 @@
   .kpi-demo .val { font-size: 26px; font-weight: 800; font-family: 'Poppins', 'Lexend', sans-serif; margin: 4px 0; }
   .kpi-demo .src { font-size: 9.5px; color: var(--color-text-muted); font-family: 'JetBrains Mono', monospace; }
   .alert { padding: 10px 14px; border-radius: var(--rounded-md, 8px); font-size: 12.5px; line-height: 1.5; border: 1px solid; width: 100%; }
-  .alert.warn   { background: rgba(217,119,6,.08);  border-color: rgba(217,119,6,.3);  color: #fcd34d; }
-  .alert.info   { background: rgba(0,112,191,.08);  border-color: rgba(0,112,191,.3);  color: #93c5fd; }
-  .alert.danger { background: rgba(220,38,38,.08);  border-color: rgba(220,38,38,.3);  color: #fca5a5; }
+  .alert.warn   { background: rgba(217,119,6,.08);  border-color: rgba(217,119,6,.3);  color: var(--gold,#fcd34d); }
+  .alert.info   { background: rgba(0,112,191,.08);  border-color: rgba(0,112,191,.3);  color: var(--blue,#93c5fd); }
+  .alert.danger { background: rgba(220,38,38,.08);  border-color: rgba(220,38,38,.3);  color: var(--red,#fca5a5); }
 
   /* ── UX writing ── */
   .uxw-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
@@ -145,29 +145,29 @@
   .uxw-card h3 { font-size: 13px; font-family: 'Poppins', 'Lexend', sans-serif; margin-bottom: 10px; }
   .uxw-card .ex { font-size: 12px; line-height: 1.6; padding: 8px 10px; border-radius: 6px; margin-bottom: 6px; }
   .uxw-card .ex.sim { background: rgba(5,150,105,.08); border-left: 3px solid #059669; }
-  .uxw-card .ex.nao { background: rgba(220,38,38,.07); border-left: 3px solid #dc2626; color: var(--color-text-muted); }
+  .uxw-card .ex.nao { background: rgba(220,38,38,.07); border-left: 3px solid var(--red,#dc2626); color: var(--color-text-muted); }
 
   /* ── Rules / governança ── */
   .rules-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
   .rules-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--rounded-lg, 12px); padding: 16px 18px; }
   .rules-card.do { border-left: 4px solid #059669; }
-  .rules-card.dont { border-left: 4px solid #dc2626; }
+  .rules-card.dont { border-left: 4px solid var(--red,#dc2626); }
   .rules-card h3 { font-size: 14px; margin-bottom: 10px; }
   .rules-card ul { list-style: none; }
   .rules-card li { font-size: 12.5px; line-height: 1.55; padding: 5px 0; border-bottom: 1px dashed var(--color-border); }
   .rules-card li:last-child { border-bottom: none; }
-  .rules-card code { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--color-primary-400, #0070bf); }
+  .rules-card code { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--color-primary-400, var(--blue,#0070bf)); }
 
   .gov-flow { display: flex; gap: 0; flex-wrap: wrap; align-items: stretch; margin-top: 14px; }
   .gov-step { background: var(--color-surface); border: 1px solid var(--color-border); padding: 12px 16px; font-size: 12px; display: flex; flex-direction: column; gap: 3px; min-width: 170px; flex: 1; }
   .gov-step:first-child { border-radius: var(--rounded-md, 8px) 0 0 var(--rounded-md, 8px); }
   .gov-step:last-child { border-radius: 0 var(--rounded-md, 8px) var(--rounded-md, 8px) 0; }
   .gov-step + .gov-step { border-left: none; }
-  .gov-step b { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--color-primary-400, #0070bf); }
+  .gov-step b { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--color-primary-400, var(--blue,#0070bf)); }
   .gov-step code { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--color-text-muted); }
 
   .theme-toggle { background: var(--color-surface); border: 1px solid var(--color-border); color: var(--color-text); padding: 8px 16px; min-height: 40px; border-radius: var(--rounded-md, 8px); cursor: pointer; font-family: inherit; font-size: 12px; font-weight: 600; }
-  .theme-toggle:hover { border-color: var(--color-primary-400, #0070bf); }
+  .theme-toggle:hover { border-color: var(--color-primary-400, var(--blue,#0070bf)); }
 </style>
 </head>
 <body data-route="design">
@@ -208,22 +208,22 @@
       <p class="desc">Todo token e componente deste sistema é rastreável a um dos três atributos da marca. Se uma decisão visual não serve a nenhum deles (nem à usabilidade), ela não entra.</p>
       <div class="attr-grid">
         <div class="attr-card">
-          <div class="swatch-dot" style="background:#001844"></div>
+          <div class="swatch-dot" style="background:var(--surface,#001844)"></div>
           <h3>Expertise profunda</h3>
           <div class="valor">Maior consultoria SAP HCM/Payroll do Brasil — especialista, não generalista. 42+ anos de grupo global.</div>
-          <div class="ui-rule">→ na UI: <b>navy #001844</b> como cor master, precisão tipográfica (Lexend para títulos, mono para números) e <b>todo dado com fonte citada</b> (chip de origem).</div>
+          <div class="ui-rule">→ na UI: <b>navy var(--surface,#001844)</b> como cor master, precisão tipográfica (Lexend para títulos, mono para números) e <b>todo dado com fonte citada</b> (chip de origem).</div>
         </div>
         <div class="attr-card">
-          <div class="swatch-dot" style="background:#cd1543"></div>
+          <div class="swatch-dot" style="background:var(--red,#cd1543)"></div>
           <h3>Humano em primeiro lugar</h3>
           <div class="valor">HCM é sobre gente. Programa Voices dá voz real ao time. Tom acessível, sem jargão desnecessário.</div>
-          <div class="ui-rule">→ na UI: <b>red #cd1543</b> como energia/calor em acentos, microcopy direto em PT-BR, saudação com nome, avatares e mesas personalizadas no /game.</div>
+          <div class="ui-rule">→ na UI: <b>red var(--red,#cd1543)</b> como energia/calor em acentos, microcopy direto em PT-BR, saudação com nome, avatares e mesas personalizadas no /game.</div>
         </div>
         <div class="attr-card">
-          <div class="swatch-dot" style="background:linear-gradient(135deg,#131B41 50%,#0066B2 50%)"></div>
+          <div class="swatch-dot" style="background:linear-gradient(135deg,var(--surface,#131b41) 50%,var(--blue,#0066b2) 50%)"></div>
           <h3>Propósito além do negócio</h3>
           <div class="valor">ERP.ngo: 1% da receita global → conservação de elefantes + combate à pobreza rural na África.</div>
-          <div class="ui-rule">→ na UI: sub-paleta <b>ERP.ngo</b> preservada (#131B41 · #0066B2), presença do elefante (tema <b>elephant</b>, jardim no /game), menção obrigatória em conteúdo institucional.</div>
+          <div class="ui-rule">→ na UI: sub-paleta <b>ERP.ngo</b> preservada (var(--surface,#131b41) · var(--blue,#0066b2)), presença do elefante (tema <b>elephant</b>, jardim no /game), menção obrigatória em conteúdo institucional.</div>
         </div>
       </div>
     </section>
@@ -246,44 +246,44 @@
           </div>
           <div class="src">GE Colour Palette 2019 · Brand Guide Apr 2024</div>
         </div>
-        <div class="brand-card" style="border-left:4px solid #001844">
+        <div class="brand-card" style="border-left:4px solid var(--surface,#001844)">
           <div class="ttl">🔵 EPI-USE Brasil</div>
           <div class="role">Operação · consultoria SAP HCM → EPI-USE 5.0</div>
           <div class="logo-box"><img src="/assets/logos-epi-use/epi-use-logo-rgb.svg" alt="EPI-USE Brasil" style="max-height:38px"></div>
           <div class="pal">
-            <span style="background:#001844" onclick="copyHex('#001844')" title="#001844"></span>
-            <span style="background:#cd1543" onclick="copyHex('#cd1543')" title="#cd1543"></span>
+            <span style="background:var(--surface,#001844)" onclick="copyHex('var(--surface,#001844)')" title="var(--surface,#001844)"></span>
+            <span style="background:var(--red,#cd1543)" onclick="copyHex('var(--red,#cd1543)')" title="var(--red,#cd1543)"></span>
             <span style="background:#272F3A" onclick="copyHex('#272F3A')" title="#272F3A"></span>
-            <span style="background:#869ec3" onclick="copyHex('#869ec3')" title="#869ec3"></span>
-            <span style="background:#cfd1d3" onclick="copyHex('#cfd1d3')" title="#cfd1d3"></span>
+            <span style="background:var(--muted,#869ec3)" onclick="copyHex('var(--muted,#869ec3)')" title="var(--muted,#869ec3)"></span>
+            <span style="background:var(--text-dim,#cfd1d3)" onclick="copyHex('var(--text-dim,#cfd1d3)')" title="var(--text-dim,#cfd1d3)"></span>
           </div>
           <div class="src">Brand Guide V1.1 + uso real PPT Template Jan 2026</div>
         </div>
-        <div class="brand-card" style="border-left:4px solid #131B41">
+        <div class="brand-card" style="border-left:4px solid var(--surface,#131b41)">
           <div class="ttl">🦏 ERP.ngo</div>
           <div class="role">NGO institucional · 1% receita global → conservação</div>
           <div class="logo-box"><img src="/assets/logos-erp-ngo/erp-logo-blue.svg" alt="ERP.ngo" style="max-height:46px"></div>
           <div class="pal">
-            <span style="background:#131B41" onclick="copyHex('#131B41')" title="#131B41"></span>
-            <span style="background:#0066B2" onclick="copyHex('#0066B2')" title="#0066B2"></span>
+            <span style="background:var(--surface,#131b41)" onclick="copyHex('var(--surface,#131b41)')" title="var(--surface,#131b41)"></span>
+            <span style="background:var(--blue,#0066b2)" onclick="copyHex('var(--blue,#0066b2)')" title="var(--blue,#0066b2)"></span>
             <span style="background:#BFDCF3" onclick="copyHex('#BFDCF3')" title="#BFDCF3"></span>
             <span style="background:#74685B" onclick="copyHex('#74685B')" title="#74685B"></span>
             <span style="background:#BBA997" onclick="copyHex('#BBA997')" title="#BBA997"></span>
           </div>
           <div class="src">Brand Guide V1.0 (2016) · tagline obrigatória</div>
         </div>
-        <div class="brand-card" style="border-left:4px solid #0083B3">
+        <div class="brand-card" style="border-left:4px solid var(--blue,#0083b3)">
           <div class="ttl">📊 Stratview</div>
           <div class="role">Analytics / Reporting · Group Company</div>
           <div class="logo-box"><img src="/assets/logos-stratview/stratview-logo.svg" alt="Stratview" style="max-height:42px"></div>
           <div class="pal">
-            <span style="background:#0083B3" onclick="copyHex('#0083B3')" title="#0083B3"></span>
+            <span style="background:var(--blue,#0083b3)" onclick="copyHex('var(--blue,#0083b3)')" title="var(--blue,#0083b3)"></span>
             <span style="background:#005F82" onclick="copyHex('#005F82')" title="#005F82"></span>
             <span style="background:#003D54" onclick="copyHex('#003D54')" title="#003D54"></span>
             <span style="background:#7CC4DE" onclick="copyHex('#7CC4DE')" title="#7CC4DE"></span>
             <span style="background:#D6EEF7" onclick="copyHex('#D6EEF7')" title="#D6EEF7"></span>
           </div>
-          <div class="src">🤖 sistema proposto por IA — único asset oficial é o logo (#0083B3 do SVG) · validar antes de uso externo</div>
+          <div class="src">🤖 sistema proposto por IA — único asset oficial é o logo (var(--blue,#0083b3) do SVG) · validar antes de uso externo</div>
         </div>
       </div>
 

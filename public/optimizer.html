@@ -7,15 +7,15 @@
 <link rel="stylesheet" href="/design-tokens.css">
 <style>
   :root {
-    --bg: #0a1525; --card: #0f1e35; --text: #e6ebf2; --muted: #869ec3;
-    --border: rgba(134,158,195,.22); --primary: #2563eb; --primary-light: #60a5fa;
-    --navy: #001844; --red: #cd1543; --green: #10b981; --yellow: #fcd34d;
+    --bg: var(--bg,#0a1525); --card: var(--surface,#0f1e35); --text: var(--text,#e6ebf2); --muted: var(--muted,#869ec3);
+    --border: rgba(134,158,195,.22); --primary: var(--blue,#2563eb); --primary-light: var(--blue,#60a5fa);
+    --navy: var(--surface,#001844); --red: var(--red,#cd1543); --green: var(--teal,#10b981); --yellow: var(--gold,#fcd34d);
   }
   body { margin:0; background:var(--bg); color:var(--text); font-family:'Open Sans',-apple-system,system-ui,sans-serif; font-size:14px; line-height:1.6; }
   .wrap { max-width:1100px; margin:0 auto; padding:24px 18px 80px; }
   h1 { font-size:26px; margin:6px 0 4px; color:#fff; font-weight:800; letter-spacing:-0.02em; }
   .sub { font-size:13px; color:var(--muted); margin-bottom:24px; }
-  .badge { display:inline-block; font-size:10px; background:rgba(16,185,129,.18); color:#6ee7b7; padding:3px 10px; border-radius:99px; font-weight:700; letter-spacing:.04em; margin-left:8px; }
+  .badge { display:inline-block; font-size:10px; background:rgba(16,185,129,.18); color:var(--teal,#6ee7b7); padding:3px 10px; border-radius:99px; font-weight:700; letter-spacing:.04em; margin-left:8px; }
 
   /* HERO — passos */
   .hero { background:linear-gradient(135deg, rgba(0,75,141,0.08), rgba(205,21,67,0.06)); border:1px solid rgba(96,165,250,0.25); border-radius:14px; padding:22px 24px; margin-bottom:22px; }
@@ -41,7 +41,7 @@
   textarea { resize:vertical; min-height:200px; font-family:'JetBrains Mono','Consolas',monospace; font-size:12px; }
   textarea:focus, select:focus, input:focus { outline:2px solid rgba(96,165,250,.5); outline-offset:1px; }
   .char-counter { font-size:10px; color:var(--muted); margin-top:4px; text-align:right; }
-  .char-counter.ok { color:#6ee7b7; }
+  .char-counter.ok { color:var(--teal,#6ee7b7); }
 
   /* BOTÕES */
   .btn { font-family:inherit; cursor:pointer; border:none; padding:11px 18px; border-radius:8px; font-weight:700; font-size:13px; transition:opacity .15s, transform .1s; display:inline-flex; align-items:center; gap:8px; }
@@ -111,7 +111,7 @@
   <!-- TRANSCRIÇÃO -->
   <div class="card">
     <div class="card-h"><span class="ico">🎙️</span>Transcrição da reunião com o Voice</div>
-    <p class="card-sub">Cola aqui o texto integral da entrevista/conversa. Se ainda não tem reunião feita: deixa em branco — a IA gera o template com <code style="background:rgba(0,0,0,.25);padding:1px 5px;border-radius:3px;color:#fcd34d">[preencher: ...]</code> em todos os campos pra você completar manual depois.</p>
+    <p class="card-sub">Cola aqui o texto integral da entrevista/conversa. Se ainda não tem reunião feita: deixa em branco — a IA gera o template com <code style="background:rgba(0,0,0,.25);padding:1px 5px;border-radius:3px;color:var(--gold,#fcd34d)">[preencher: ...]</code> em todos os campos pra você completar manual depois.</p>
     <label for="transcricao">Transcrição</label>
     <textarea id="transcricao" placeholder="Exemplo:
 

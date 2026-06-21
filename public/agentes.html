@@ -6,43 +6,43 @@
 <title>🤖 Agentes & Contexto · EPI-USE Office</title>
 <link rel="stylesheet" href="/design-tokens.css">
 <style>
-  body { margin:0; background:var(--color-bg,#0a1525); color:var(--color-text,#e6ebf2); font-family:'Open Sans',Arial,sans-serif; }
+  body { margin:0; background:var(--color-bg,var(--bg,#0a1525)); color:var(--color-text,var(--text,#e6ebf2)); font-family:'Open Sans',Arial,sans-serif; }
   .wrap { max-width:1200px; margin:0 auto; padding:18px 16px 60px; }
   h1 { font-size:22px; margin:6px 0 2px; }
-  .sub { font-size:13px; color:var(--color-text-muted,#869ec3); margin-bottom:20px; }
+  .sub { font-size:13px; color:var(--color-text-muted,var(--muted,#869ec3)); margin-bottom:20px; }
   .sec-t { font-size:12px; font-weight:800; letter-spacing:.06em; text-transform:uppercase;
-           color:var(--color-text-muted,#869ec3); margin:24px 0 12px; }
+           color:var(--color-text-muted,var(--muted,#869ec3)); margin:24px 0 12px; }
   /* mestre */
   .mestre { background:rgba(251,191,36,.08); border:1px solid rgba(251,191,36,.3); border-radius:14px; padding:16px; margin-bottom:6px; }
-  .mestre h2 { margin:0 0 4px; font-size:15px; color:#fcd34d; }
+  .mestre h2 { margin:0 0 4px; font-size:15px; color:var(--gold,#fcd34d); }
   .mestre .files { display:flex; gap:7px; flex-wrap:wrap; margin-top:10px; }
   .file-chip { font-size:11px; font-family:'JetBrains Mono',monospace; padding:4px 10px; border-radius:7px;
-               background:var(--color-surface,#0f1e35); border:1px solid var(--color-border,rgba(134,158,195,.18)); }
-  .flow { text-align:center; color:var(--color-text-muted,#869ec3); font-size:20px; margin:8px 0; }
+               background:var(--color-surface,var(--surface,#0f1e35)); border:1px solid var(--color-border,rgba(134,158,195,.18)); }
+  .flow { text-align:center; color:var(--color-text-muted,var(--muted,#869ec3)); font-size:20px; margin:8px 0; }
   /* grid de agentes */
   .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:14px; }
-  .ag { background:var(--color-surface,#0f1e35); border:1px solid var(--color-border,rgba(134,158,195,.18)); border-radius:14px; padding:16px; border-left-width:4px; }
+  .ag { background:var(--color-surface,var(--surface,#0f1e35)); border:1px solid var(--color-border,rgba(134,158,195,.18)); border-radius:14px; padding:16px; border-left-width:4px; }
   .ag-hdr { display:flex; align-items:center; gap:10px; }
   .ag-ico { font-size:26px; }
   .ag-nome { font-size:16px; font-weight:800; }
-  .ag-cargo { font-size:11px; color:var(--color-text-muted,#869ec3); }
-  .ag-papel { font-size:12.5px; color:var(--color-text-dim,#c0ccd9); margin:10px 0 12px; line-height:1.4; }
+  .ag-cargo { font-size:11px; color:var(--color-text-muted,var(--muted,#869ec3)); }
+  .ag-papel { font-size:12.5px; color:var(--color-text-dim,var(--text-dim,#c0ccd9)); margin:10px 0 12px; line-height:1.4; }
   .ag-row { font-size:11px; margin:7px 0; }
-  .ag-row .lbl { font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--color-text-muted,#869ec3); font-size:10px; display:block; margin-bottom:4px; }
+  .ag-row .lbl { font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--color-text-muted,var(--muted,#869ec3)); font-size:10px; display:block; margin-bottom:4px; }
   .tag { display:inline-block; font-size:10px; font-family:'JetBrains Mono',monospace; padding:3px 7px; border-radius:6px; margin:0 4px 4px 0; }
-  .tag.le  { background:rgba(16,185,129,.12); color:#6ee7b7; }
-  .tag.no  { background:rgba(248,113,113,.1); color:#fca5a5; text-decoration:line-through; opacity:.8; }
-  .tag.tool{ background:rgba(96,165,250,.12); color:#93c5fd; }
-  .tag.cmd { background:rgba(192,132,252,.12); color:#d8b4fe; }
-  .tag.act { background:rgba(251,191,36,.12); color:#fcd34d; }
-  .ag-dona { font-size:11px; color:#fcd34d; font-weight:700; margin:6px 0 2px; }
+  .tag.le  { background:rgba(16,185,129,.12); color:var(--teal,#6ee7b7); }
+  .tag.no  { background:rgba(248,113,113,.1); color:var(--red,#fca5a5); text-decoration:line-through; opacity:.8; }
+  .tag.tool{ background:rgba(96,165,250,.12); color:var(--blue,#93c5fd); }
+  .tag.cmd { background:rgba(192,132,252,.12); color:var(--violet,#d8b4fe); }
+  .tag.act { background:rgba(251,191,36,.12); color:var(--gold,#fcd34d); }
+  .ag-dona { font-size:11px; color:var(--gold,#fcd34d); font-weight:700; margin:6px 0 2px; }
   .modbtn { display:inline-block; margin-top:10px; font-size:11px; font-weight:700; text-decoration:none;
-            color:var(--color-info-500,#60a5fa); padding:5px 10px; border-radius:7px; border:1px solid rgba(96,165,250,.3); }
+            color:var(--color-info-500,var(--blue,#60a5fa)); padding:5px 10px; border-radius:7px; border:1px solid rgba(96,165,250,.3); }
   .modbtn:hover { background:rgba(96,165,250,.1); }
-  .ag-foot { font-size:10.5px; color:var(--color-text-muted,#869ec3); margin-top:10px; font-family:'JetBrains Mono',monospace; }
-  .pill-tudo { font-size:10px; background:rgba(251,191,36,.16); color:#fcd34d; padding:3px 9px; border-radius:99px; font-weight:700; margin-left:auto; }
-  .note { font-size:11.5px; color:var(--color-text-muted,#869ec3); margin-top:18px; line-height:1.55;
-          background:var(--color-surface,#0f1e35); border:1px solid var(--color-border,rgba(134,158,195,.18)); border-radius:10px; padding:12px 14px; }
+  .ag-foot { font-size:10.5px; color:var(--color-text-muted,var(--muted,#869ec3)); margin-top:10px; font-family:'JetBrains Mono',monospace; }
+  .pill-tudo { font-size:10px; background:rgba(251,191,36,.16); color:var(--gold,#fcd34d); padding:3px 9px; border-radius:99px; font-weight:700; margin-left:auto; }
+  .note { font-size:11.5px; color:var(--color-text-muted,var(--muted,#869ec3)); margin-top:18px; line-height:1.55;
+          background:var(--color-surface,var(--surface,#0f1e35)); border:1px solid var(--color-border,rgba(134,158,195,.18)); border-radius:10px; padding:12px 14px; }
 </style>
 </head>
 <body class="home-root" data-route="agentes">

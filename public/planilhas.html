@@ -6,34 +6,34 @@
 <title>📊 Planilhas (Live API) · EPI-USE Office</title>
 <link rel="stylesheet" href="/design-tokens.css">
 <style>
-  body { margin:0; background:var(--color-bg,#0a1525); color:var(--color-text,#e6ebf2); font-family:'Open Sans',Arial,sans-serif; }
+  body { margin:0; background:var(--color-bg,var(--bg,#0a1525)); color:var(--color-text,var(--text,#e6ebf2)); font-family:'Open Sans',Arial,sans-serif; }
   .wrap { max-width:1280px; margin:0 auto; padding:18px 16px 60px; }
   h1 { font-size:22px; margin:6px 0 2px; }
-  .sub { font-size:13px; color:var(--color-text-muted,#869ec3); margin-bottom:18px; }
+  .sub { font-size:13px; color:var(--color-text-muted,var(--muted,#869ec3)); margin-bottom:18px; }
   .stats { display:flex; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
-  .stat { background:var(--color-surface,#0f1e35); border:1px solid var(--color-border,rgba(134,158,195,.18)); border-radius:10px; padding:10px 14px; font-size:12px; }
+  .stat { background:var(--color-surface,var(--surface,#0f1e35)); border:1px solid var(--color-border,rgba(134,158,195,.18)); border-radius:10px; padding:10px 14px; font-size:12px; }
   .stat strong { font-size:18px; font-family:'JetBrains Mono',monospace; display:block; margin-bottom:2px; }
   .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(360px,1fr)); gap:14px; }
-  .card { background:var(--color-surface,#0f1e35); border:1px solid var(--color-border,rgba(134,158,195,.18)); border-radius:14px; padding:16px 18px; position:relative; overflow:hidden; }
+  .card { background:var(--color-surface,var(--surface,#0f1e35)); border:1px solid var(--color-border,rgba(134,158,195,.18)); border-radius:14px; padding:16px 18px; position:relative; overflow:hidden; }
   .card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
-  .card.ok::before { background:#10b981; }
-  .card.off::before { background:#ef4444; }
+  .card.ok::before { background:var(--teal,#10b981); }
+  .card.off::before { background:var(--red,#ef4444); }
   .card h3 { margin:0 0 4px; font-size:14px; }
   .card .meta { display:flex; gap:8px; flex-wrap:wrap; margin:8px 0; font-size:10.5px; font-family:'JetBrains Mono',monospace; }
-  .card .meta span { background:rgba(134,158,195,.08); color:var(--color-text-muted,#869ec3); padding:3px 8px; border-radius:6px; }
-  .card .meta span.dona { background:rgba(168,85,247,.12); color:#c4b5fd; }
-  .card .meta span.cat { background:rgba(96,165,250,.12); color:#93c5fd; }
-  .card .desc { font-size:12px; color:var(--color-text-dim,#c0ccd9); line-height:1.45; margin-bottom:10px; }
-  .card .path { font-size:10.5px; color:var(--color-text-muted,#869ec3); font-family:'JetBrains Mono',monospace; background:rgba(255,255,255,.02); padding:6px 8px; border-radius:6px; word-break:break-all; margin-bottom:8px; }
-  .card .stamp { font-size:10.5px; color:var(--color-text-muted,#869ec3); margin-bottom:10px; }
-  .card .stamp.fresh { color:#6ee7b7; }
-  .card .stamp.stale { color:#fcd34d; }
+  .card .meta span { background:rgba(134,158,195,.08); color:var(--color-text-muted,var(--muted,#869ec3)); padding:3px 8px; border-radius:6px; }
+  .card .meta span.dona { background:rgba(168,85,247,.12); color:var(--violet,#c4b5fd); }
+  .card .meta span.cat { background:rgba(96,165,250,.12); color:var(--blue,#93c5fd); }
+  .card .desc { font-size:12px; color:var(--color-text-dim,var(--text-dim,#c0ccd9)); line-height:1.45; margin-bottom:10px; }
+  .card .path { font-size:10.5px; color:var(--color-text-muted,var(--muted,#869ec3)); font-family:'JetBrains Mono',monospace; background:rgba(255,255,255,.02); padding:6px 8px; border-radius:6px; word-break:break-all; margin-bottom:8px; }
+  .card .stamp { font-size:10.5px; color:var(--color-text-muted,var(--muted,#869ec3)); margin-bottom:10px; }
+  .card .stamp.fresh { color:var(--teal,#6ee7b7); }
+  .card .stamp.stale { color:var(--gold,#fcd34d); }
   .card .links { display:flex; gap:6px; flex-wrap:wrap; }
   .btn { display:inline-block; padding:5px 10px; font-size:11px; font-weight:700; text-decoration:none; border-radius:7px; }
-  .btn.api { background:rgba(96,165,250,.12); color:#93c5fd; border:1px solid rgba(96,165,250,.3); }
-  .btn.alias { background:rgba(16,185,129,.12); color:#6ee7b7; border:1px solid rgba(16,185,129,.3); }
-  .btn.refresh { background:transparent; color:var(--color-text-muted,#869ec3); border:1px solid var(--color-border,rgba(134,158,195,.2)); cursor:pointer; }
-  .badge-off { display:inline-block; font-size:10px; background:rgba(248,113,113,.14); color:#fca5a5; padding:2px 7px; border-radius:99px; font-weight:700; }
+  .btn.api { background:rgba(96,165,250,.12); color:var(--blue,#93c5fd); border:1px solid rgba(96,165,250,.3); }
+  .btn.alias { background:rgba(16,185,129,.12); color:var(--teal,#6ee7b7); border:1px solid rgba(16,185,129,.3); }
+  .btn.refresh { background:transparent; color:var(--color-text-muted,var(--muted,#869ec3)); border:1px solid var(--color-border,rgba(134,158,195,.2)); cursor:pointer; }
+  .badge-off { display:inline-block; font-size:10px; background:rgba(248,113,113,.14); color:var(--red,#fca5a5); padding:2px 7px; border-radius:99px; font-weight:700; }
 </style>
 </head>
 <body class="home-root" data-route="planilhas">

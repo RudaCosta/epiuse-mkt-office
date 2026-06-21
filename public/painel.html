@@ -15,12 +15,12 @@
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --bg: #0a1628; --bg-2: #0d1e36; --bg-3: #112540;
+  --bg: #0a1628; --bg-2: var(--surface,#0d1e36); --bg-3: var(--surface,#112540);
   --bg-card: rgba(15, 30, 53, 0.6);
   --border: rgba(37,99,235,0.18); --border-light: rgba(255,255,255,0.06); --border-active: rgba(37,99,235,0.5);
-  --text: #e2e8f0; --text-dim: #94a3b8; --text-muted: #64748b;
-  --primary: #2563EB; --primary-light: #60a5fa;
-  --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --info: #06b6d4; --purple: #a855f7;
+  --text: var(--text,#e2e8f0); --text-dim: var(--muted,#94a3b8); --text-muted: var(--muted,#64748b);
+  --primary: var(--blue,#2563eb); --primary-light: var(--blue,#60a5fa);
+  --success: var(--teal,#10b981); --warning: var(--gold,#f59e0b); --danger: var(--red,#ef4444); --info: #06b6d4; --purple: var(--violet,#a855f7);
 }
 html, body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
 body {
@@ -43,13 +43,13 @@ body {
 .hdr::before { content: ''; position: absolute; inset: 0;
   background: radial-gradient(circle at 0% 0%, rgba(217,119,6,0.12), transparent 50%); pointer-events: none; }
 .hdr-l { position: relative; z-index: 1; }
-.hdr-title { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 22px; color: #f59e0b; letter-spacing: 0.04em; line-height: 1.5; }
+.hdr-title { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 22px; color: var(--gold,#f59e0b); letter-spacing: 0.04em; line-height: 1.5; }
 .hdr-sub { font-size: 11px; color: var(--text-muted); letter-spacing: 0.25em; margin-top: 6px; font-weight: 500; }
 .hdr-r { display: flex; align-items: center; gap: 10px; position: relative; z-index: 1; }
 .hdr-chip { font-size: 13px; color: var(--text-dim); background: rgba(255,255,255,0.04); border: 1px solid var(--border-light); padding: 6px 14px; border-radius: 20px; text-decoration: none; }
 .hdr-chip.online { color: var(--success); background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.3); display: flex; align-items: center; gap: 7px; }
 .hdr-chip.online::before { content: ''; width: 7px; height: 7px; background: var(--success); border-radius: 50%; box-shadow: 0 0 8px var(--success); animation: pulse 2s ease-in-out infinite; }
-.hdr-chip.link { color: #93c5fd; background: rgba(37,99,235,0.12); border-color: rgba(37,99,235,0.3); }
+.hdr-chip.link { color: var(--blue,#93c5fd); background: rgba(37,99,235,0.12); border-color: rgba(37,99,235,0.3); }
 .hdr-chip.link:hover { background: rgba(37,99,235,0.22); }
 @keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.7; transform:scale(0.92); } }
 
@@ -70,7 +70,7 @@ body {
 .kpi-val.dim { color: var(--text-muted); font-size: 18px; }
 .kpi-sub { font-size: 11px; color: var(--text-muted); }
 .kpi-bar { height: 5px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden; margin-top: 10px; }
-.kpi-bar-fill { height: 100%; background: linear-gradient(90deg, var(--warning), #fbbf24); border-radius: 3px; }
+.kpi-bar-fill { height: 100%; background: linear-gradient(90deg, var(--warning), var(--gold,#fbbf24)); border-radius: 3px; }
 
 /* VOICES TABLE */
 .tbl-wrap { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 14px; overflow: hidden; margin-bottom: 32px; }
@@ -131,7 +131,7 @@ body {
 .perf-filters { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
 .perf-filter { font-size: 11px; padding: 6px 14px; background: rgba(255,255,255,.04); border: 1px solid var(--border-light); color: var(--text-dim); border-radius: 16px; cursor: pointer; transition: all .15s; }
 .perf-filter:hover { background: rgba(255,255,255,.08); }
-.perf-filter.active { background: rgba(37,99,235,.15); border-color: rgba(37,99,235,.4); color: #93c5fd; }
+.perf-filter.active { background: rgba(37,99,235,.15); border-color: rgba(37,99,235,.4); color: var(--blue,#93c5fd); }
 .perf-mini { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-bottom: 18px; }
 .perf-mini-card {
   background: rgba(10, 21, 37, 0.45);
@@ -171,11 +171,11 @@ body {
 .top-post-card { background: linear-gradient(135deg, rgba(168,85,247,.10), rgba(37,99,235,.05)); border: 1px solid rgba(168,85,247,.3); border-radius: 12px; padding: 16px 20px; margin-bottom: 18px; display: flex; gap: 16px; align-items: center; }
 .top-post-card .crown { font-size: 32px; }
 .top-post-card .body { flex: 1; min-width: 0; }
-.top-post-card .label { font-size: 10px; letter-spacing: .14em; color: #c084fc; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
+.top-post-card .label { font-size: 10px; letter-spacing: .14em; color: var(--violet,#c084fc); font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
 .top-post-card .voice-name { font-size: 14px; font-weight: 700; color: var(--text); }
 .top-post-card .preview { font-size: 13px; color: var(--text-dim); margin: 4px 0; line-height: 1.4; }
 .top-post-card .metrics { display: flex; gap: 12px; font-size: 12px; color: var(--text-muted); }
-.top-post-card .open-btn { background: rgba(168,85,247,.18); color: #c084fc; padding: 8px 14px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 600; border: 1px solid rgba(168,85,247,.3); }
+.top-post-card .open-btn { background: rgba(168,85,247,.18); color: var(--violet,#c084fc); padding: 8px 14px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 600; border: 1px solid rgba(168,85,247,.3); }
 .top-post-card .open-btn:hover { background: rgba(168,85,247,.28); }
 .trend-up { color: var(--success); }
 .trend-down { color: var(--danger); }
@@ -208,7 +208,7 @@ body {
   :root[data-theme="elephant"] .hdr {
     background: rgba(255, 255, 255, 0.65) !important;
     border-color: rgba(15, 23, 42, 0.08) !important;
-    color: #0f172a !important;
+    color: var(--bg,#0f172a) !important;
   }
   :root[data-theme="light"] .hdr::before,
   :root[data-theme="elephant"] .hdr::before {
@@ -264,7 +264,7 @@ body {
   :root[data-theme="elephant"] .perf-filter.active {
     background: rgba(37, 99, 235, 0.12) !important;
     border-color: rgba(37, 99, 235, 0.35) !important;
-    color: #2563eb !important;
+    color: var(--blue,#2563eb) !important;
   }
   :root[data-theme="light"] .top-post-card,
   :root[data-theme="elephant"] .top-post-card {
@@ -273,12 +273,12 @@ body {
   }
   :root[data-theme="light"] .top-post-card .label,
   :root[data-theme="elephant"] .top-post-card .label {
-    color: #7c3aed !important;
+    color: var(--violet,#7c3aed) !important;
   }
   :root[data-theme="light"] .top-post-card .open-btn,
   :root[data-theme="elephant"] .top-post-card .open-btn {
     background: rgba(37,99,235,0.08) !important;
-    color: #2563eb !important;
+    color: var(--blue,#2563eb) !important;
     border-color: rgba(37,99,235,0.25) !important;
   }
   :root[data-theme="light"] .top-post-card .open-btn:hover,
@@ -308,10 +308,10 @@ body {
     <div id="duda-digest" style="background:linear-gradient(135deg,rgba(217,119,6,.08),rgba(15,30,53,.6));border:1px solid rgba(217,119,6,.25);border-radius:16px;padding:22px 26px;">
       <div style="display:flex;align-items:baseline;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:14px;">
         <div>
-          <div id="digest-saudacao" style="font-size:20px;font-weight:700;color:#fbbf24;">Carregando…</div>
+          <div id="digest-saudacao" style="font-size:20px;font-weight:700;color:var(--gold,#fbbf24);">Carregando…</div>
           <div id="digest-resumo" style="font-size:13px;color:var(--text-dim);margin-top:4px;">Calculando o que merece sua atenção…</div>
         </div>
-        <a href="/cowork" style="font-size:11px;font-weight:700;color:#93c5fd;background:rgba(37,99,235,.15);padding:6px 12px;border-radius:99px;text-decoration:none;border:1px solid rgba(37,99,235,.3);">🤝 Cowork →</a>
+        <a href="/cowork" style="font-size:11px;font-weight:700;color:var(--blue,#93c5fd);background:rgba(37,99,235,.15);padding:6px 12px;border-radius:99px;text-decoration:none;border:1px solid rgba(37,99,235,.3);">🤝 Cowork →</a>
       </div>
       <div id="digest-pills" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;"></div>
       <div id="digest-acoes" style="display:grid;gap:8px;"></div>

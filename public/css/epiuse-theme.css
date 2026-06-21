@@ -119,3 +119,48 @@
 /* tabelas */
 :root[data-theme="epiuse-dark"] .perf-tbl th, :root[data-theme="epiuse-light"] .perf-tbl th{ color:var(--text-muted) !important; border-bottom:1px solid var(--border) !important; }
 :root[data-theme="epiuse-dark"] .perf-tbl td, :root[data-theme="epiuse-light"] .perf-tbl td{ color:var(--text) !important; border-bottom:1px solid var(--border-light) !important; }
+
+/* ════════════════════════════════════════════════════════════════════════
+   FIX · THEME BINDINGS (global)
+   As páginas consomem aliases do design-tokens.css (--card, --bg, --text,
+   --muted, --border, --accent, --green/--yellow/--purple…) que resolvem de
+   --color-* base — trocados só em [data-theme="dark"|"light"]. Aqui espelhamos
+   esse binding p/ EPI-USE, então TODAS as telas re-tematizam sem editar página.
+   Regra de marca: --red (decorativo) = navy; vermelho real só em --spark.
+   ════════════════════════════════════════════════════════════════════════ */
+:root[data-theme="epiuse-dark"]{
+  /* base color bindings (espelha design-tokens · dark) */
+  --color-surface:#0f2236; --color-surface-2:#163150;
+  --color-bg:#0a1726; --color-bg-2:#06101b;
+  --color-border:rgba(180,202,228,.13); --color-border-2:rgba(180,202,228,.06);
+  --color-text:#e8eef6; --color-text-dim:#a9bdd4; --color-text-muted:#6f86a3; --color-text-dimmest:#5b7088;
+  --color-divider:rgba(180,202,228,.10);
+  --color-info-500:#2fa395; --color-primary-500:#5b93c7; --color-primary-400:#8fb6da;
+  --color-success-500:#2fa395; --color-warning-500:#e6b53c; --color-danger-500:#e0252c;
+  --color-accent-purple-500:#7e9fd0;
+  /* aliases usados direto nas telas */
+  --card:#0f2236; --card-2:#163150; --bg:#0a1726; --bg-2:#06101b;
+  --text:#e8eef6; --text-dim:#a9bdd4; --text-muted:#6f86a3;
+  --muted:#6f86a3; --dim:#5b7088; --border:rgba(180,202,228,.13);
+  --accent:#2fa395; --primary:#5b93c7; --primary-light:#8fb6da;
+  --success:#2fa395; --warning:#e6b53c; --danger:#e0252c;
+  --green:#2fa395; --yellow:#e6b53c; --purple:#7e9fd0; --red:#5b93c7;
+}
+:root[data-theme="epiuse-light"]{
+  /* base color bindings (espelha design-tokens · light) */
+  --color-surface:#ffffff; --color-surface-2:#f3f6f9;
+  --color-bg:#eef1f5; --color-bg-2:#e3e8ee;
+  --color-border:rgba(0,40,80,.12); --color-border-2:rgba(0,40,80,.06);
+  --color-text:#13212f; --color-text-dim:#42576b; --color-text-muted:#7c8da0; --color-text-dimmest:#90a0b2;
+  --color-divider:rgba(0,40,80,.08);
+  --color-info-500:#0e8a72; --color-primary-500:#003a6b; --color-primary-400:#16356b;
+  --color-success-500:#0e8a72; --color-warning-500:#c8951e; --color-danger-500:#e0252c;
+  --color-accent-purple-500:#5a6fb0;
+  /* aliases usados direto nas telas */
+  --card:#ffffff; --card-2:#f3f6f9; --bg:#eef1f5; --bg-2:#e3e8ee;
+  --text:#13212f; --text-dim:#42576b; --text-muted:#7c8da0;
+  --muted:#7c8da0; --dim:#90a0b2; --border:rgba(0,40,80,.12);
+  --accent:#0e8a72; --primary:#003a6b; --primary-light:#16356b;
+  --success:#0e8a72; --warning:#c8951e; --danger:#e0252c;
+  --green:#0e8a72; --yellow:#c8951e; --purple:#5a6fb0; --red:#003a6b;
+}

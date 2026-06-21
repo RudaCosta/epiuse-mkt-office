@@ -10,21 +10,21 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
 <style>
   *,*::before,*::after { box-sizing:border-box; margin:0; padding:0 }
-  body { background: linear-gradient(180deg,#061020 0%,#0a1525 100%); color: #e2e8f0; font-family: 'Inter',sans-serif; min-height: 100vh; padding-bottom: 60px; }
+  body { background: linear-gradient(180deg,var(--bg,#061020) 0%,var(--bg,#0a1525) 100%); color: var(--text,#e2e8f0); font-family: 'Inter',sans-serif; min-height: 100vh; padding-bottom: 60px; }
   .container { max-width: 1280px; margin: 0 auto; padding: 24px; }
   h1 { font-size: 26px; margin-bottom: 4px; }
-  .sub { color: #94a3b8; font-size: 13px; margin-bottom: 22px; }
+  .sub { color: var(--muted,#94a3b8); font-size: 13px; margin-bottom: 22px; }
 
   .insight {
     background: linear-gradient(135deg, rgba(251,191,36,.12), rgba(239,68,68,.08));
     border: 1px solid rgba(251,191,36,.30); border-radius: 12px; padding: 14px 18px;
     margin-bottom: 22px; font-size: 13px; line-height: 1.5;
   }
-  .insight b { color: #fcd34d }
+  .insight b { color: var(--gold,#fcd34d) }
 
   .matriz { display: grid; gap: 14px; }
   .lob-row {
-    background: #0f1e35; border: 1px solid rgba(96,165,250,.12);
+    background: var(--surface,#0f1e35); border: 1px solid rgba(96,165,250,.12);
     border-radius: 12px; padding: 16px;
   }
   .lob-hdr {
@@ -32,32 +32,32 @@
     margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid rgba(96,165,250,.10);
   }
   .lob-nome { font-size: 16px; font-weight: 600; }
-  .lob-total { font-size: 12px; color: #94a3b8; font-family:'JetBrains Mono',monospace; }
+  .lob-total { font-size: 12px; color: var(--muted,#94a3b8); font-family:'JetBrains Mono',monospace; }
   .funnel { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
   .funnel-cell {
     background: rgba(15,30,53,.4); border-radius: 8px; padding: 12px;
     border-left: 3px solid transparent;
   }
-  .funnel-cell.topo  { border-left-color: #a78bfa }
-  .funnel-cell.meio  { border-left-color: #fbbf24 }
-  .funnel-cell.fundo { border-left-color: #10b981 }
-  .funnel-cell.gap-critico { background: rgba(239,68,68,.10); border-left-color: #ef4444 }
-  .funnel-cell.gap-insuficiente { background: rgba(251,191,36,.06); border-left-color: #fbbf24 }
+  .funnel-cell.topo  { border-left-color: var(--violet,#a78bfa) }
+  .funnel-cell.meio  { border-left-color: var(--gold,#fbbf24) }
+  .funnel-cell.fundo { border-left-color: var(--teal,#10b981) }
+  .funnel-cell.gap-critico { background: rgba(239,68,68,.10); border-left-color: var(--red,#ef4444) }
+  .funnel-cell.gap-insuficiente { background: rgba(251,191,36,.06); border-left-color: var(--gold,#fbbf24) }
   .fc-hdr { display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px; }
-  .fc-etapa { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #94a3b8 }
-  .fc-count { font-family:'JetBrains Mono',monospace; font-weight: 700; font-size: 18px; color: #60a5fa; }
-  .fc-count.zero { color: #ef4444; }
-  .fc-count.low { color: #fbbf24; }
-  .fc-titulos { font-size: 11px; color: #cbd5e1; max-height: 80px; overflow: hidden; line-height: 1.4; }
+  .fc-etapa { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted,#94a3b8) }
+  .fc-count { font-family:'JetBrains Mono',monospace; font-weight: 700; font-size: 18px; color: var(--blue,#60a5fa); }
+  .fc-count.zero { color: var(--red,#ef4444); }
+  .fc-count.low { color: var(--gold,#fbbf24); }
+  .fc-titulos { font-size: 11px; color: var(--text-dim,#cbd5e1); max-height: 80px; overflow: hidden; line-height: 1.4; }
   .fc-titulos a { color: inherit; text-decoration: none; display: block; padding: 2px 0; }
-  .fc-titulos a:hover { color: #60a5fa; }
-  .fc-empty { color: #ef4444; font-size: 12px; font-style: italic; padding: 8px 0; }
+  .fc-titulos a:hover { color: var(--blue,#60a5fa); }
+  .fc-empty { color: var(--red,#ef4444); font-size: 12px; font-style: italic; padding: 8px 0; }
 
   .gaps-panel {
     background: rgba(239,68,68,.06); border: 1px solid rgba(239,68,68,.20);
     border-radius: 12px; padding: 18px; margin-top: 28px;
   }
-  .gaps-panel h2 { font-size: 16px; color: #fca5a5; margin-bottom: 12px; }
+  .gaps-panel h2 { font-size: 16px; color: var(--red,#fca5a5); margin-bottom: 12px; }
   .gap-item { padding: 8px 0; border-bottom: 1px dashed rgba(239,68,68,.15); font-size: 13px; display:flex; justify-content:space-between }
   .gap-item:last-child { border: 0 }
 </style>
@@ -74,7 +74,7 @@
   </div>
 
   <div class="matriz" id="matriz">
-    <div style="text-align:center;padding:40px;color:#60a5fa;font-style:italic">carregando matriz...</div>
+    <div style="text-align:center;padding:40px;color:var(--blue,#60a5fa);font-style:italic">carregando matriz...</div>
   </div>
 
   <div class="gaps-panel" id="gaps-panel" style="display:none">

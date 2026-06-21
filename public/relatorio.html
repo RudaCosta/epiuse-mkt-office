@@ -39,8 +39,8 @@
   .rep-controls select { min-width: 110px; }
   .rep-controls button { min-width: 36px; }
   .rep-controls button:hover, .rep-controls select:hover { background: rgba(96,165,250,.20) }
-  .rep-controls button.primary { background: var(--accent); color: #0a1525; font-weight: 700; }
-  .rep-controls button.primary:hover { background: #93c5fd }
+  .rep-controls button.primary { background: var(--accent); color: var(--bg,#0a1525); font-weight: 700; }
+  .rep-controls button.primary:hover { background: var(--blue,#93c5fd) }
 
   /* AGENDA / NAV STICKY */
   .agenda {
@@ -69,7 +69,7 @@
   .sec-num {
     width: 32px; height: 32px; display:flex; align-items:center; justify-content:center;
     border-radius: 8px; background: linear-gradient(135deg, var(--accent), var(--purple));
-    color: #0a1525; font-weight: 800; font-size: 14px;
+    color: var(--bg,#0a1525); font-weight: 800; font-size: 14px;
   }
   .sec-title { font-size: 18px; font-weight: 700; }
 
@@ -162,9 +162,9 @@
     padding: 10px 14px; border-radius: 8px; font-size: 13px;
     border-left: 4px solid; display:flex; align-items:center; gap: 10px;
   }
-  .alert.warn { background: rgba(251,191,36,.08); border-color: var(--yellow); color: #fcd34d; }
-  .alert.info { background: rgba(96,165,250,.08); border-color: var(--accent); color: #93c5fd; }
-  .alert.err { background: rgba(239,68,68,.08); border-color: var(--red); color: #fca5a5; }
+  .alert.warn { background: rgba(251,191,36,.08); border-color: var(--yellow); color: var(--gold,#fcd34d); }
+  .alert.info { background: rgba(96,165,250,.08); border-color: var(--accent); color: var(--blue,#93c5fd); }
+  .alert.err { background: rgba(239,68,68,.08); border-color: var(--red); color: var(--red,#fca5a5); }
 
   /* CONTEUDO/EVENTOS/VOICES — cards genéricos */
   .gen-card {
@@ -188,7 +188,7 @@
   .eleph-row:last-child { border-bottom: 0 }
   .eleph-date { font-family: 'JetBrains Mono', monospace; color: var(--muted); font-size: 11px; }
   .eleph-name { color: var(--text); }
-  .eleph-seg { text-align:right; font-family: 'JetBrains Mono', monospace; font-weight:700; color: #fbbf24 }
+  .eleph-seg { text-align:right; font-family: 'JetBrains Mono', monospace; font-weight:700; color: var(--gold,#fbbf24) }
 
   /* RESPONSIVE */
   @media (max-width: 900px) {
@@ -267,11 +267,11 @@
   @media print {
     @page { size: A4; margin: 12mm }
     .rep-controls, office-nav, office-footer, .agenda { display: none !important; }
-    body { background: white; color: #1e293b; }
-    .gen-card, .kpi-canal, .demo-card, .li-chart-card, .li-hero-card { background: white !important; border-color: #e2e8f0 !important; box-shadow: none; break-inside: avoid; }
+    body { background: white; color: var(--surface-2,#1e293b); }
+    .gen-card, .kpi-canal, .demo-card, .li-chart-card, .li-hero-card { background: white !important; border-color: var(--text,#e2e8f0) !important; box-shadow: none; break-inside: avoid; }
     .sec { break-inside: avoid; }
-    .kpi-val, .li-big-num, .gen-row-val, .eleph-seg { color: #0066B2 !important; }
-    .demo-bar-val { color: #131B41 !important; }
+    .kpi-val, .li-big-num, .gen-row-val, .eleph-seg { color: var(--blue,#0066b2) !important; }
+    .demo-bar-val { color: var(--surface,#131b41) !important; }
   }
 </style>
 </head>
@@ -294,7 +294,7 @@
     </div>
   </div>
 
-  <div style="background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.25);border-radius:8px;padding:10px 14px;margin-bottom:18px;font-size:11.5px;color:#fcd34d;line-height:1.5">
+  <div style="background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.25);border-radius:8px;padding:10px 14px;margin-bottom:18px;font-size:11.5px;color:var(--gold,#fcd34d);line-height:1.5">
     ⚠️ <b>Transparência de dados (Regra 7):</b> LinkedIn · Cases · Voices · Metas FY26 = real · Site/Instagram/Email = aguardam integração (GA4/Graph/RD) · Eventos sem o mês = top históricos com label · Pipeline = aguarda Apollo sync
   </div>
 
@@ -523,7 +523,7 @@
       </div>
 
       <!-- Informative banner -->
-      <div style="background:rgba(139,92,246,.08);border-left:4px solid #8b5cf6;padding:15px;border-radius:8px;font-size:12px;line-height:1.6;color:var(--muted);margin-bottom:14px">
+      <div style="background:rgba(139,92,246,.08);border-left:4px solid var(--violet,#8b5cf6);padding:15px;border-radius:8px;font-size:12px;line-height:1.6;color:var(--muted);margin-bottom:14px">
         <ul style="margin-left:20px;list-style-type:disc">
           <li>Compare a performance através da variação percentual entre as etapas.</li>
           <li>Atualmente, o WhatsApp não possui taxa de cliques nativa reportada no RD.</li>
@@ -554,7 +554,7 @@
       <div id="elefantes-rows"></div>
       <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(148,163,184,.15); display:flex; justify-content:space-between; font-size: 13px;">
         <span style="color: var(--muted)">Total ganho via eventos</span>
-        <span style="font-family:'JetBrains Mono',monospace; font-weight:700; color: #fbbf24">
+        <span style="font-family:'JetBrains Mono',monospace; font-weight:700; color: var(--gold,#fbbf24)">
           <span id="elef-total">—</span> seg · <span id="elef-pct">—</span>% do total
         </span>
       </div>
