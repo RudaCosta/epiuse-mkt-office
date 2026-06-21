@@ -1,9 +1,6 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-v2="1">
 <head>
-<script>
-  window.location.replace('/cockpit?sec=memes');
-</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Memes do Office · EPI-USE Brasil</title>
@@ -655,7 +652,7 @@ body::after {
 
   // Lógica de Memes v2
   (function initMemesV2() {
-    if (localStorage.getItem('office.v2.memes') !== '1') return;
+    if (document.documentElement.getAttribute('data-v2') !== '1') return;
 
     const filterGroup = document.getElementById('v2-filter-group');
     const gridWall = document.getElementById('v2-grid-wall');

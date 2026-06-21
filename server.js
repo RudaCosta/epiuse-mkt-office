@@ -570,14 +570,13 @@ app.get('/api/optimizer/template-v2', (req, res) => {
 });
 
 // Páginas v3.0 — servem do public/ em qualquer ambiente
-const PAINEL_PATH     = path.join(__dirname, 'public/painel.html');
 const VOICES_PATH     = path.join(__dirname, 'public/voices.html');
 const SEJA_VOICE_PATH = path.join(__dirname, 'public/seja-voice.html');
 const CHANGELOG_PATH  = path.join(__dirname, 'public/changelog.html');
-app.get('/painel',     (req, res) => res.sendFile(PAINEL_PATH));
+app.get('/painel',     (req, res) => res.redirect(301, '/area/brand'));
 // /voices/painel é o caminho canônico (Painel da Duda é parte do projeto Voices) —
-// redireciona pro /painel real mantendo URLs antigas válidas.
-app.get('/voices/painel', (req, res) => res.redirect(301, '/painel'));
+// redireciona pro módulo de Brand Experience.
+app.get('/voices/painel', (req, res) => res.redirect(301, '/area/brand'));
 app.get('/voices',     (req, res) => res.sendFile(VOICES_PATH));
 app.get('/seja-voice', (req, res) => res.sendFile(SEJA_VOICE_PATH));
 app.get('/changelog',  (req, res) => res.sendFile(CHANGELOG_PATH));
@@ -1934,7 +1933,7 @@ const HOME_HTML      = path.join(__dirname, 'public/home.html');
 app.get('/',          (req, res) => res.sendFile(HOME_HTML));
 app.get('/game',      (req, res) => res.sendFile(OFFICE_HTML));
 app.get('/memes',     (req, res) => res.sendFile(path.join(__dirname, 'public/memes.html')));
-app.get('/cockpit',   (req, res) => res.sendFile(path.join(__dirname, 'public/cockpit.html')));
+app.get('/cockpit',   (req, res) => res.redirect(301, '/'));
 
 // ── /api/pendencias — parsea vault/00-contexto/pendencias.md em 5 buckets ──
 app.get('/api/pendencias', (req, res) => {

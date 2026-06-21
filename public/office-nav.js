@@ -141,7 +141,7 @@ const OFFICE_NAV_BREADCRUMBS = {
   'inbound-studio': ['🎨 Brand Experience', '📡 Inbound', 'Template Studio'],
   'inbound-playbook': ['🎨 Brand Experience', '📡 Inbound', 'Playbook'],
   'voices': ['🎨 Brand Experience', '🎙️ Voices'],
-  'painel': ['🎨 Brand Experience', '🎙️ Voices', '🎯 Painel da Duda'],
+  'painel': ['🎨 Brand Experience', '🎙️ Voices'],
   'optimizer': ['🎨 Brand Experience', '🪪 Profile Optimizer'],
   'cases': ['🎨 Brand Experience', '🤝 Cases & CS'],
   'artigos': ['🎨 Brand Experience', '📚 Artigos do Blog'],
@@ -170,13 +170,9 @@ const OFFICE_NAV_OVERFLOW = [
   { label: '📊 Planilhas (Live API)',    href: '/planilhas' },
 
   { section: '🎙️ Voices & Optimizer' },
-  { label: '📊 Cockpit FY27',            href: '/cockpit' },
-  { label: '🦝 Raccoon v2',              href: '/cockpit?sec=raccoon' },
-  { label: '🎭 Memes v2',                href: '/cockpit?sec=memes' },
-  { label: '🦝 Raccoon v1 (Legado)',     href: '/raccoon' },
+  { label: '🦝 Raccoon Studio',          href: '/raccoon' },
   { label: '🪪 Profile Optimizer (V1)',   href: '/optimizer' },
   { label: '🪪 Profile Optimizer V2 (findskill)', href: '/optimizer-v2' },
-  { label: '🎯 Painel da Duda',          href: '/voices/painel' },
   { label: '📨 Seja um Voice (LP)',      href: '/seja-voice' },
 
   { section: '🎨 Design & Sistema' },
@@ -188,7 +184,7 @@ const OFFICE_NAV_OVERFLOW = [
 
   { section: '🎮 Extras' },
   { label: '🎮 Modo Game',               href: '/game' },
-  { label: '🧠 Memes v1 (Legado)',       href: '/memes' },
+  { label: '🧠 Memes do Office',         href: '/memes' },
   { label: '🐘 ERP.ngo',                 href: 'https://erp.ngo', external: true }
 ];
 
@@ -234,7 +230,7 @@ class OfficeNav extends HTMLElement {
     // 2. fallback: detecta da URL
     const path = location.pathname;
     if (path === '/' || path === '/dashboard' || path.startsWith('/game')) return 'hub';
-    if (path.startsWith('/painel') || path === '/voices/painel') return 'painel';
+    if (path.startsWith('/painel') || path === '/voices/painel') return 'brand';
     if (path.startsWith('/raccoon')) return 'raccoon';
     if (path.startsWith('/voices') || path.startsWith('/optimizer') || path.startsWith('/seja-voice')) return 'voices';
     if (path === '/inbound/brief') return 'inbound-brief';
@@ -851,7 +847,7 @@ class OfficeNav extends HTMLElement {
           <div class="bell-wrap">
             <button class="bell-btn" id="bell-btn" type="button" title="Notificações" aria-label="Notificações">🔔<span class="bell-badge" id="bell-badge" style="display:none">0</span></button>
             <div class="bell-panel" id="bell-panel" role="menu">
-              <div class="bp-head"><span>Notificações</span><a href="/painel" style="color:var(--nav-accent);text-decoration:none;font-size:10px">Ver tudo →</a></div>
+              <div class="bp-head"><span>Notificações</span><a href="/area/brand" style="color:var(--nav-accent);text-decoration:none;font-size:10px">Ver tudo →</a></div>
               <div id="bell-items"><div class="bp-item empty">Carregando…</div></div>
             </div>
           </div>
@@ -1071,7 +1067,7 @@ class OfficeNav extends HTMLElement {
       items.innerHTML = alerts.slice(0, 10).map(a => {
         const tagCls = a.tipo === 'warn' ? 'warn' : 'info';
         const tagLbl = a.tipo === 'warn' ? '⚠' : 'i';
-        return `<a class="bp-item" href="/painel"><span class="bp-tag ${tagCls}">${tagLbl}</span>${(a.msg || '').slice(0, 140)}</a>`;
+        return `<a class="bp-item" href="/area/brand"><span class="bp-tag ${tagCls}">${tagLbl}</span>${(a.msg || '').slice(0, 140)}</a>`;
       }).join('');
     } catch (e) {
       items.innerHTML = '<div class="bp-item empty">Não foi possível carregar alertas.</div>';
@@ -1635,7 +1631,7 @@ const OfficeCommandPalette = (() => {
       { group:'Rotas', icon:'▥',  label:'Carrossel Hub',        hint:'/inbound/carousel', action:'/inbound/carousel' },
       { group:'Rotas', icon:'▦',  label:'Calendário Editorial', hint:'/inbound/calendar', action:'/inbound/calendar' },
       { group:'Rotas', icon:'▤',  label:'Playbook (deck 19 slides)', hint:'/inbound/playbook', action:'/inbound/playbook' },
-      { group:'Rotas', icon:'⚙️', label:'Painel da Duda',       hint:'/painel',     action:'/painel' },
+      { group:'Rotas', icon:'🎨', label:'Brand Experience / Voices', hint:'/area/brand', action:'/area/brand' },
       { group:'Rotas', icon:'🪪', label:'Profile Optimizer',    hint:'/optimizer',  action:'/optimizer' },
       { group:'Rotas', icon:'📨', label:'LP Seja um Voice',     hint:'/seja-voice', action:'/seja-voice' },
       { group:'Rotas', icon:'📜', label:'Changelog',            hint:'/changelog',  action:'/changelog' },
