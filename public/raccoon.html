@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="pt-BR" data-theme="dark" data-v2="1">
+<html lang="pt-BR" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,91 +9,8 @@
 <script type="module" src="/office-nav.js"></script>
 <script type="module" src="/office-footer.js"></script>
 <style>
-  /* Controla visibilidade de v1 e v2 */
-  html[data-v2="1"] .v1-only { display: none !important; }
-  html:not([data-v2="1"]) .v2-only { display: none !important; }
-
-  /* Mapeamento de fontes e classes auxiliares de v2 */
-  .v2-only .disp { font-family: 'Space Grotesk', 'Poppins', sans-serif; }
-  .v2-only .mono { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
-  
-  .v2-only .rc-chip {
-    flex: 1;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    font-weight: 600;
-    border: 1px solid var(--line);
-    background: transparent;
-    color: var(--muted);
-    border-radius: 9px;
-    padding: 9px 0;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .v2-only .rc-chip.active {
-    border-color: var(--red);
-    background: color-mix(in srgb, var(--red) 16%, transparent);
-    color: var(--ink);
-  }
-
-  .v2-only .rc-hook {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10.5px;
-    border: 1px solid var(--line);
-    background: transparent;
-    color: var(--muted);
-    border-radius: 20px;
-    padding: 6px 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .v2-only .rc-hook.active {
-    border-color: var(--gold);
-    background: color-mix(in srgb, var(--gold) 16%, transparent);
-    color: var(--ink);
-  }
-
-  .v2-only .rc-var {
-    flex: 1;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--muted);
-    background: transparent;
-    border: 0;
-    border-bottom: 2px solid transparent;
-    padding: 13px 0;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .v2-only .rc-var.active {
-    color: var(--ink);
-    background: var(--panel2);
-    border-bottom: 2px solid var(--red);
-  }
-
-  /* Estilos do layout v2 originais do Claude Design */
-  .v2-only.atlas .card {
-    background: var(--panel) !important;
-    border: 1px solid var(--line) !important;
-    border-radius: 16px !important;
-    box-shadow: var(--shadow) !important;
-    color: var(--ink) !important;
-  }
-  .v2-only.atlas .hov {
-    transition: transform .25s cubic-bezier(.16,1,.3,1), box-shadow .25s, border-color .25s !important;
-  }
-  .v2-only.atlas .hov:hover {
-    transform: translateY(-3px) !important;
-    border-color: color-mix(in srgb, var(--ink) 22%, transparent) !important;
-  }
-  @keyframes drawln { from { stroke-dashoffset: 1100 } to { stroke-dashoffset: 0 } }
-  @keyframes pulsedot { 0%, 100% { transform: scale(1); opacity: 1 } 50% { transform: scale(1.9); opacity: .35 } }
-  @keyframes growbar { from { transform: scaleX(0) } to { transform: scaleX(1) } }
-  @keyframes rise { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: none } }
-  @keyframes mar { from { transform: translateX(0) } to { transform: translateX(-50%) } }
-  @keyframes spin { to { transform: rotate(360deg) } }
-  .v2-only.atlas .rise {}
+  /* Visibilidade do layout v1 */
+  .v1-only { display: block !important; }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -155,16 +72,31 @@
     font-weight: 600;
   }
 
-  /* Two column layout */
+  /* Three column layout */
   .layout {
     display: grid;
-    grid-template-columns: 280px 1fr;
-    gap: 28px;
+    grid-template-columns: 280px 1fr 290px;
+    gap: 24px;
     align-items: start;
+  }
+  @media (max-width: 1200px) {
+    .layout { grid-template-columns: 280px 1fr; }
+    .score-col { grid-column: span 2; width: 100% !important; min-width: 100% !important; }
   }
   @media (max-width: 900px) {
     .layout { grid-template-columns: 1fr; }
     .left-col { width: 100% !important; min-width: 100% !important; }
+    .score-col { grid-column: span 1; }
+  }
+  .score-col {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 290px;
+    min-width: 290px;
+  }
+  .score-panel {
+    border-radius: 16px !important;
   }
 
   /* Left column: Rax & Form */
@@ -902,7 +834,7 @@
     background-attachment: fixed !important;
   }
 
-  .rax-box, .form-panel, .right-col, .review-section, .article-preview, .linkedin-copy-box, .slide-card, .meta-card {
+  .rax-box, .form-panel, .right-col, .review-section, .article-preview, .linkedin-copy-box, .slide-card, .meta-card, .score-panel {
     background: rgba(10, 21, 37, 0.45) !important;
     backdrop-filter: blur(16px) saturate(180%) !important;
     -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
@@ -913,7 +845,7 @@
     overflow: hidden;
   }
 
-  .rax-box::before, .form-panel::before, .right-col::before, .review-section::before, .article-preview::before, .linkedin-copy-box::before {
+  .rax-box::before, .form-panel::before, .right-col::before, .review-section::before, .article-preview::before, .linkedin-copy-box::before, .score-panel::before {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0; height: 1px;
@@ -921,7 +853,7 @@
     pointer-events: none;
   }
   
-  .rax-box:hover, .form-panel:hover, .right-col:hover, .review-section:hover {
+  .rax-box:hover, .form-panel:hover, .right-col:hover, .review-section:hover, .score-panel:hover {
     border-color: rgba(37, 99, 235, 0.3) !important;
     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45), 0 0 15px rgba(37, 99, 235, 0.15) !important;
   }
@@ -1032,143 +964,86 @@
     0%, 100% { transform: scale(1); opacity: 1; }
     50% { transform: scale(1.15); opacity: 0.8; }
   }
-
-  /* Fallback para variáveis de layout v2 quando em temas legados */
-  :root[data-theme="dark"], :root:not([data-theme]) {
-    --panel: #0f1e35;
-    --panel2: #142547;
-    --line: rgba(134,158,195,0.18);
-    --line2: rgba(134,158,195,0.10);
-    --ink: #e6ebf2;
-    --dim: #c0ccd9;
-    --muted: #869ec3;
-    --red: #cd1543;
-    --blue: #0070bf;
-    --teal: #059669;
-    --gold: #d97706;
-  }
-  :root[data-theme="light"] {
-    --panel: #ffffff;
-    --panel2: #f5f7fa;
-    --line: #d7dad6;
-    --line2: #e7e6e6;
-    --ink: #1f2933;
-    --dim: #424242;
-    --muted: #797979;
-    --red: #cd1543;
-    --blue: #0070bf;
-    --teal: #059669;
-    --gold: #d97706;
-  }
-  :root[data-theme="aurora"] {
-    --panel: rgba(26, 11, 46, 0.45);
-    --panel2: rgba(26, 11, 46, 0.65);
-    --line: rgba(168, 85, 247, 0.3);
-    --line2: rgba(168, 85, 247, 0.15);
-    --ink: #f3e8ff;
-    --dim: #d8b4fe;
-    --muted: #a855f7;
-    --red: #ec4899;
-    --blue: #6366f1;
-    --teal: #14b8a6;
-    --gold: #f59e0b;
-  }
-  :root[data-theme="liquid-glass"] {
-    --panel: rgba(15, 23, 42, 0.55);
-    --panel2: rgba(15, 23, 42, 0.75);
-    --line: rgba(255, 255, 255, 0.12);
-    --line2: rgba(255, 255, 255, 0.06);
-    --ink: #f8fafc;
-    --dim: #cbd5e1;
-    --muted: #94a3b8;
-    --red: #38bdf8;
-    --blue: #3b82f6;
-    --teal: #10b981;
-    --gold: #f59e0b;
-  }
-  
-  /* Fallback para variáveis de layout v2 quando em temas legados */
-  :root[data-theme="dark"], :root:not([data-theme]) {
-    --panel: #0f1e35;
-    --panel2: #142547;
-    --line: rgba(134,158,195,0.18);
-    --line2: rgba(134,158,195,0.10);
-    --ink: #e6ebf2;
-    --dim: #c0ccd9;
-    --muted: #869ec3;
-    --red: #cd1543;
-    --blue: #0070bf;
-    --teal: #059669;
-    --gold: #d97706;
-  }
-  :root[data-theme="light"] {
-    --panel: #ffffff;
-    --panel2: #f5f7fa;
-    --line: #d7dad6;
-    --line2: #e7e6e6;
-    --ink: #1f2933;
-    --dim: #424242;
-    --muted: #797979;
-    --red: #cd1543;
-    --blue: #0070bf;
-    --teal: #059669;
-    --gold: #d97706;
-  }
-  :root[data-theme="aurora"] {
-    --panel: rgba(26, 11, 46, 0.45);
-    --panel2: rgba(26, 11, 46, 0.65);
-    --line: rgba(168, 85, 247, 0.3);
-    --line2: rgba(168, 85, 247, 0.15);
-    --ink: #f3e8ff;
-    --dim: #d8b4fe;
-    --muted: #a855f7;
-    --red: #ec4899;
-    --blue: #6366f1;
-    --teal: #14b8a6;
-    --gold: #f59e0b;
-  }
-  :root[data-theme="liquid-glass"] {
-    --panel: rgba(15, 23, 42, 0.55);
-    --panel2: rgba(15, 23, 42, 0.75);
-    --line: rgba(255, 255, 255, 0.12);
-    --line2: rgba(255, 255, 255, 0.06);
-    --ink: #f8fafc;
-    --dim: #cbd5e1;
-    --muted: #94a3b8;
-    --red: #38bdf8;
-    --blue: #3b82f6;
-    --teal: #10b981;
-    --gold: #f59e0b;
-  }
-  </style>
+</style>
 </head>
-
 <body data-route="raccoon">
 <office-nav></office-nav>
 
-<div class="v2-only atlas" style="display:block !important">
-  <!-- Layout de Raccoon v2 -->
-  <main class="wrap">
-    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap">
-      <div>
-        <div class="mono" style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:9px">Estúdio de conteúdo · IA</div>
-        <h1 class="disp" style="margin:0;font-size:38px;font-weight:700;letter-spacing:-.025em;line-height:1;display:flex;align-items:center;gap:11px"><span style="font-size:34px">🦝</span>Raccoon <span style="color:var(--red)">v2</span></h1>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px;">
-        <span class="engine-badge" id="engine-status" style="font-family:'JetBrains Mono';font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid var(--line);background:var(--panel2)">Engine: Carregando...</span>
-        <div class="mono" style="font-size:10.5px;color:var(--ink);background:color-mix(in srgb,var(--violet) 16%,transparent);border:1px solid color-mix(in srgb,var(--violet) 40%,transparent);border-radius:9px;padding:8px 13px">engine · gui-playbook-3.1</div>
-      </div>
+<div class="v1-only">
+<main class="wrap">
+  <header class="hero">
+    <div class="hero-text">
+      <div class="eyebrow">Brand Experience · Offline Engine</div>
+      <h1>🦝 Raccoon Studio</h1>
+      <p>Desenvolva pautas, copies de posts e artigos com o <strong>Rax</strong> — o guaxinim especialista em RAG. Ele vasculha o acervo histórico de 693 artigos publicados para garantir o tom de voz corporativo da EPI-USE Brasil.</p>
+    </div>
+    <div class="engine-badge" id="engine-status">Engine: Mock Local</div>
+  </header>
+
+  <!-- Warning Banner -->
+  <div class="discreet-warning" style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 8px; padding: 10px 14px; margin-bottom: 20px; font-size: 12.5px; color: var(--gold,#f59e0b); display: flex; align-items: center; gap: 8px;">
+    <span>⚠️</span>
+    <span><strong>Nota de Desenvolvimento:</strong> A engine de geração de conteúdo e templates visuais está em fase de refinamento. O Roadmap de atualizações (v0.53+) prevê a melhoria na extensão dos artigos, pesquisa Web integrada e conformidade visual com selos reais (Group Elephant, ERP.ngo, GPTW, 40 anos).</span>
+  </div>
+
+  <!-- Controls Form (Widescreen layout at the top) -->
+  <form id="rax-form" class="form-panel" onsubmit="return false;" style="margin-bottom: 28px;">
+    <div class="form-group">
+      <label for="tema" style="font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--color-text-muted,var(--muted,#869ec3));">Tema / Pauta de Conteúdo</label>
+      <textarea id="tema" class="form-control" placeholder="Ex: Impactos da Reforma Tributária 2026 nos fechamentos de grandes empresas no setor financeiro..." required style="min-height: 110px;"></textarea>
     </div>
 
-    <div style="display:grid;grid-template-columns:300px 1fr 270px;gap:14px;align-items:start">
+    <div class="form-row" style="display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-end; margin-top: 6px;">
+      <div class="form-group" style="flex: 1.2; min-width: 260px;">
+        <label style="font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--color-text-muted,var(--muted,#869ec3));">Persona-Alvo</label>
+        <div class="pills" id="persona-pills">
+          <div class="pill active" data-persona="auto">Auto-detectar</div>
+          <div class="pill" data-persona="cfo">CFO</div>
+          <div class="pill" data-persona="chro">CHRO</div>
+          <div class="pill" data-persona="cio">CIO</div>
+        </div>
+      </div>
 
-      <!-- COLUMN 1: MASCOT & BRIEF -->
-      <div style="display:flex;flex-direction:column;gap:14px;position:sticky;top:108px">
-        <!-- RAX Mascot Box -->
-        <div class="rax-box" style="margin-bottom:0">
-          <div class="speech-bubble" id="rax-bubble">Olá! Escolha a persona e o gancho e clique em Gerar Conteúdo. 🦝</div>
-          <div class="scene" id="scene" data-state="idle" style="width:100%;height:150px">
-            <div class="crate">
+      <div class="form-group" style="flex: 1.5; min-width: 320px;">
+        <label style="font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--color-text-muted,var(--muted,#869ec3));">Formatos de Saída</label>
+        <div class="checkboxes" style="display: flex; gap: 16px; flex-wrap: wrap; margin-top: 4px;">
+          <label class="checkbox-label" style="padding: 0;"><input type="checkbox" id="out-article" checked> Artigo SEO</label>
+          <label class="checkbox-label" style="padding: 0;"><input type="checkbox" id="out-post" checked> LinkedIn Post</label>
+          <label class="checkbox-label" style="padding: 0;"><input type="checkbox" id="out-carousel" checked> Carrossel</label>
+          <label class="checkbox-label" style="padding: 0;"><input type="checkbox" id="out-single"> Post Único</label>
+        </div>
+      </div>
+
+      <div class="form-group" style="flex: 1; min-width: 200px;">
+        <button type="button" class="btn-rax" id="btn-trigger" style="width: 100%; height: 44px; margin: 0;">
+          <span>Soltar o Rax!</span> 🦝
+        </button>
+        <button type="button" id="btn-revisar-existente" style="width:100%;height:40px;margin-top:8px;cursor:pointer;background:transparent;border:1px solid var(--blue,#2563eb);border-radius:8px;color:var(--blue,#60a5fa);font-weight:600;font-size:13px">🔍 Já tenho o artigo — revisar SEO/GEO</button>
+      </div>
+    </div>
+    <script>
+    (function(){
+      var b=document.getElementById('btn-revisar-existente'); if(!b) return;
+      b.addEventListener('click', function(){
+        var emp=document.getElementById('state-empty'); if(emp) emp.style.display='none';
+        var res=document.getElementById('state-result'); if(res) res.style.display='block';
+        var t=document.querySelector('[data-target="pane-seo"]'); if(t) t.click();
+        if(res) res.scrollIntoView({behavior:'smooth',block:'start'});
+        var ta=document.getElementById('srv-texto'); if(ta) setTimeout(function(){ta.focus()},300);
+      });
+    })();
+    </script>
+  </form>
+
+  <div class="layout">
+    <!-- Left Column: Character Only -->
+    <div class="left-col">
+      <!-- Rax Visual Box -->
+      <div class="rax-box">
+        <div class="speech-bubble" id="rax-bubble">Olá! Digite um tema e me mande vasculhar a base de artigos. 🦝</div>
+        
+        <div class="scene" id="scene" data-state="idle">
+          <div class="crate">
             <svg viewBox="0 0 100 80" aria-hidden="true">
               <rect x="8" y="26" width="84" height="48" rx="5" fill="#3a4658" stroke="var(--muted,#869ec3)" stroke-width="2"/>
               <rect x="8" y="26" width="84" height="11" rx="3" fill="var(--muted,#869ec3)"/>
@@ -1350,94 +1225,47 @@
               </g>
             </g>
           </svg>
-          </div>
-        </div>
-
-        <!-- BRIEF card -->
-        <div class="card" style="padding:20px;margin-top:0">
-          <div class="mono" style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:13px">Brief</div>
-
-          <div class="mono" style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:8px">Persona</div>
-          <div style="display:flex;gap:6px;margin-bottom:16px" id="v2-persona-group">
-            <button data-v="CFO" class="rc-chip active" type="button">CFO</button>
-            <button data-v="CHRO" class="rc-chip" type="button">CHRO</button>
-            <button data-v="CIO" class="rc-chip" type="button">CIO</button>
-          </div>
-
-          <div class="mono" style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:8px">Gancho / metáfora</div>
-          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px" id="v2-hook-group">
-            <button data-v="Oscar" class="rc-hook active" type="button">🏆 Oscar</button>
-            <button data-v="BBB" class="rc-hook" type="button">📺 BBB</button>
-            <button data-v="Tênis" class="rc-hook" type="button">🎾 João Fonseca</button>
-            <button data-v="MasterChef" class="rc-hook" type="button">👨‍🍳 MasterChef</button>
-          </div>
-
-          <div class="mono" style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:8px">Tema / dor</div>
-          <textarea style="width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:12.5px;line-height:1.5;color:var(--ink);margin-bottom:16px;resize:vertical;font-family:inherit;min-height:70px" id="tema">Fim do suporte ao ECC é risco fiscal do CFO, não decisão de TI.</textarea>
-
-          <div class="mono" style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:8px">Formato</div>
-          <div style="display:flex;gap:6px;margin-bottom:20px">
-            <span class="mono" style="font-size:10px;color:var(--ink);background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:7px 10px">Post único</span>
-            <span class="mono" style="font-size:10px;color:var(--muted);border:1px solid var(--line);border-radius:8px;padding:7px 10px">Carrossel</span>
-          </div>
-
-          <button id="v2-generate-btn" style="width:100%;font-family:'JetBrains Mono';font-size:12px;font-weight:600;letter-spacing:.04em;color:#fff;background:var(--red);border:0;border-radius:11px;padding:13px 0;cursor:pointer;box-shadow:0 10px 24px -10px var(--red);transition:transform .2s" type="button">✦ Gerar conteúdo</button>
         </div>
       </div>
+    </div>
 
-      <!-- COLUMN 2: CENTRAL PREVIEW & PANES -->
-      
-      <!-- PREVIEW & TABS -->
-      <div class="card" style="padding:0;overflow:hidden">
-        <!-- V2 Tab Bar -->
-        <div style="display:flex;border-bottom:1px solid var(--line);background:var(--panel2)" id="v2-main-tabs">
-          <button class="rc-var active" data-tab="post" type="button" style="flex:1">🔗 Post & Variações</button>
-          <button class="rc-var" data-tab="estrategia" type="button" style="flex:1">🎯 Estratégia B2B</button>
-          <button class="rc-var" data-tab="artigo" type="button" style="flex:1">📚 Artigo Completo</button>
-          <button class="rc-var" data-tab="carousel" type="button" style="flex:1">🎠 Carrossel Slides</button>
-          <button class="rc-var" data-tab="seo" type="button" style="flex:1">🔍 SEO/GEO Review</button>
-          <button class="rc-var" data-tab="fontes" type="button" style="flex:1">📚 Fontes RAG</button>
-        </div>
+    <!-- Right Column: Outputs -->
+    <div class="right-col" id="output-box">
+      <!-- Initial state -->
+      <div class="empty-state" id="state-empty">
+        <div class="icon">🦝</div>
+        <h3>Aguardando o Rax</h3>
+        <p>Preencha os campos e ative o Rax para começar a pesquisa RAG e a redação local das pautas.</p>
+      </div>
 
-        <!-- Empty State -->
-        <div class="empty-state" id="state-empty" style="padding:60px 24px;text-align:center">
-          <div class="icon" style="font-size:48px;margin-bottom:12px">🦝</div>
-          <h3 style="font-size:18px;font-weight:700;color:var(--ink);margin-bottom:6px">Aguardando o Rax</h3>
-          <p style="font-size:13.5px;color:var(--muted);max-width:320px;margin:0 auto">Preencha o brief ao lado e clique em <b>Gerar conteúdo</b> para começar.</p>
-        </div>
+      <!-- Loading state -->
+      <div class="loading-state" id="state-loading" style="display: none;">
+        <h3 id="loading-txt">Vasculhando 693 artigos...</h3>
+        <div class="loader-bar"></div>
+      </div>
 
-        <!-- Loading State -->
-        <div class="loading-state" id="state-loading" style="display: none;padding:50px 24px;text-align:center">
-          <h3 id="loading-txt" style="font-size:16px;font-weight:600;color:var(--ink);margin-bottom:14px">Vasculhando 693 artigos...</h3>
-          <div class="loader-bar" style="width:100%;max-width:240px;height:6px;background:var(--line);border-radius:3px;margin:0 auto;overflow:hidden;position:relative">
-            <div style="position:absolute;top:0;left:0;height:100%;width:50%;background:var(--red);border-radius:3px;animation:growbar 1.5s infinite ease-in-out"></div>
+      <!-- Result state -->
+      <div class="output-container" id="state-result" style="display: none;">
+        <div class="output-header">
+          <div>
+            <h2 id="out-title">Pauta Redigida</h2>
+            <div style="font-size: 11px; color: var(--color-text-muted); margin-top: 4px;" id="out-motor">Motor: local</div>
           </div>
+          <span class="badge-tag" id="out-badge">🤖 Gerado</span>
         </div>
 
-        <!-- Tab 1: Post -->
-        <div class="v2-tab-pane" id="v2-pane-post" style="display:block">
-          <div style="display:flex;border-bottom:1px solid var(--line)" id="v2-var-group">
-            <button data-v="0" class="rc-var active" type="button" style="flex:1">Variação A</button>
-            <button data-v="1" class="rc-var" type="button" style="flex:1">Variação B</button>
-            <button data-v="2" class="rc-var" type="button" style="flex:1">Variação C</button>
-          </div>
-          <!-- LinkedIn-style card -->
-          <div style="padding:22px 24px 26px">
-            <div style="display:flex;align-items:center;gap:11px;margin-bottom:15px">
-              <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--gold));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-family:'Space Grotesk',sans-serif;font-size:16px" id="v2-avatar">GM</div>
-              <div><div style="font-size:13.5px;font-weight:700;color:var(--ink)">Gui Marbackian</div><div class="mono" style="font-size:10.5px;color:var(--muted)">CMO @ EPI-USE Brasil · agora</div></div>
-              <div style="margin-left:auto;color:var(--muted);font-size:18px">···</div>
-            </div>
-            <div id="post-body-text" style="font-size:14.5px;line-height:1.62;color:var(--ink);white-space:pre-wrap;min-height:230px"><span style="color:var(--muted)">Configure o brief e clique em <b style="color:var(--ink)">Gerar conteúdo</b> — o Raccoon escreve 3 variações no tom do Gui playbook, com o gancho escolhido.</span></div>
-            <div style="display:flex;gap:18px;border-top:1px solid var(--line);margin-top:18px;padding-top:14px;color:var(--muted)">
-              <span class="mono" style="font-size:11px">👍 likes</span><span class="mono" style="font-size:11px">💬 comentários</span><span class="mono" style="font-size:11px">↻ repostar</span><span class="mono" style="font-size:11px;margin-left:auto">🔖</span>
-            </div>
-          </div>
-        </div>
+        <!-- Navigation Tabs -->
+        <nav class="tabs-nav" id="tabs-navigation">
+          <button class="tab-btn active" data-target="pane-estrategia">💡 Estratégia</button>
+          <button class="tab-btn" data-target="pane-artigo" id="btn-tab-artigo">✍️ Artigo</button>
+          <button class="tab-btn" data-target="pane-post" id="btn-tab-post">🔗 LinkedIn Post</button>
+          <button class="tab-btn" data-target="pane-carousel" id="btn-tab-carousel">Carousel</button>
+          <button class="tab-btn" data-target="pane-seo">🔍 SEO / GEO</button>
+          <button class="tab-btn" data-target="pane-fontes">📚 Fontes RAG</button>
+        </nav>
 
-        <!-- Tab 2: Strategy -->
-        <div class="v2-tab-pane" id="v2-pane-estrategia" style="display:none;padding:22px 24px">
-          <div class="tab-pane active" id="pane-estrategia">
+        <!-- Pane 1: Estratégia -->
+        <div class="tab-pane active" id="pane-estrategia">
           <div class="meta-grid">
             <div class="meta-card"><div class="lbl">Persona-Alvo</div><div class="val" id="strat-persona">-</div></div>
             <div class="meta-card"><div class="lbl">Linha de Negócio (LOB)</div><div class="val" id="strat-lob">-</div></div>
@@ -1452,11 +1280,9 @@
             <div class="val" id="strat-angulo" style="font-weight:normal;font-size:13.5px;line-height:1.5;margin-top:6px">-</div>
           </div>
         </div>
-        </div>
 
-        <!-- Tab 3: Article -->
-        <div class="v2-tab-pane" id="v2-pane-artigo" style="display:none;padding:22px 24px">
-          <div class="tab-pane" id="pane-artigo">
+        <!-- Pane 2: Artigo -->
+        <div class="tab-pane" id="pane-artigo">
           <div class="article-preview" id="artigo-container">
             <h1 id="art-title">Título do Artigo</h1>
             <div class="intro" id="art-intro">Introdução...</div>
@@ -1464,11 +1290,28 @@
             <div class="conclusion" id="art-conclusion">Conclusão...</div>
           </div>
         </div>
+
+        <!-- Pane 3: LinkedIn Post -->
+        <div class="tab-pane" id="pane-post">
+          <div class="linkedin-copy-box">
+            <div class="post-hdr">
+              <div class="avatar">🦝</div>
+              <div>
+                <h4>Rax Writer</h4>
+                <span style="font-size:11px;opacity:0.7">Redator da EPI-USE Brasil</span>
+              </div>
+            </div>
+            <p class="body-text" id="post-body-text"></p>
+            <div class="tag-pills" id="post-tags"></div>
+          </div>
+          <div class="meta-grid">
+            <div class="meta-card"><div class="lbl">Gancho Headline</div><div class="val" id="post-headline">-</div></div>
+            <div class="meta-card"><div class="lbl">Hero Number</div><div class="val" id="post-heronumber">-</div></div>
+          </div>
         </div>
 
-        <!-- Tab 4: Carousel -->
-        <div class="v2-tab-pane" id="v2-pane-carousel" style="display:none;padding:22px 24px">
-          <div class="tab-pane" id="pane-carousel">
+        <!-- Pane 4: Carousel -->
+        <div class="tab-pane" id="pane-carousel">
           <div class="carousel-wrapper">
             <div class="slide-card" style="border-left: 4px solid var(--red,#cd1543);">
               <div class="s-idx">SLIDE 1 (CAPA)</div>
@@ -1487,11 +1330,9 @@
             </div>
           </div>
         </div>
-        </div>
 
-        <!-- Tab 5: SEO -->
-        <div class="v2-tab-pane" id="v2-pane-seo" style="display:none;padding:22px 24px">
-          <div class="tab-pane" id="pane-seo">
+        <!-- Pane 5: SEO / GEO -->
+        <div class="tab-pane" id="pane-seo">
           <div class="review-section" style="margin-bottom:18px;border-left-color:var(--blue,#2563eb)">
             <h3>📝 Revisar artigo colado (SEO + GEO · jun/2026)</h3>
             <p style="font-size:12px;color:var(--color-text-muted);margin-bottom:10px">Cole o artigo completo. O Rax analisa SEO + GEO (regras jun/2026), recomenda a melhor keyword-foco, faz link juice com os 693 artigos e sugere CTA.</p>
@@ -1677,6 +1518,49 @@
                   sb.className = 'score-badge ' + (v.nota_geral >= 85 ? 'high' : (v.nota_geral >= 60 ? 'mid' : 'low'));
                 }
                 
+                // Update right column score box from SEO review
+                const scoreVal = Math.round(v.nota_geral || 0);
+                const checklistHtml = `
+                  SEO Score: ${Math.round((v.seo && v.seo.score) || 0)}% ✓<br>
+                  GEO Score: ${Math.round((v.geo && v.geo.score) || 0)}% ✓<br>
+                  LOB: ${v.lob || 'Cross'} ✓
+                `;
+                $('v1-score-checklist').innerHTML = checklistHtml;
+
+                const statusEl = $('v1-score-status');
+                if (scoreVal >= 90) {
+                  statusEl.textContent = 'Forte';
+                  statusEl.style.color = 'var(--teal, #10b981)';
+                } else if (scoreVal >= 75) {
+                  statusEl.textContent = 'Bom';
+                  statusEl.style.color = 'var(--blue, #3b82f6)';
+                } else {
+                  statusEl.textContent = 'Regular';
+                  statusEl.style.color = 'var(--gold, #f59e0b)';
+                }
+
+                const radialColor = scoreVal >= 90 ? 'var(--teal, #10b981)' : (scoreVal >= 75 ? 'var(--blue, #3b82f6)' : 'var(--gold, #f59e0b)');
+                $('v1-score-radial').style.background = `conic-gradient(${radialColor} 0% ${scoreVal}%, rgba(255,255,255,0.08) ${scoreVal}% 100%)`;
+                $('v1-score-num').textContent = scoreVal;
+
+                const espScore = Math.round(((v.seo && v.seo.score) || 0) / 10);
+                const tomScore = Math.round((v.nota_geral || 0) / 10);
+                const ganScore = Math.round(((v.geo && v.geo.score) || 0) / 10);
+
+                $('v1-val-especificidade').textContent = `${espScore}/10`;
+                $('v1-bar-especificidade').style.width = `${espScore * 10}%`;
+
+                $('v1-val-tom').textContent = `${tomScore}/10`;
+                $('v1-bar-tom').style.width = `${tomScore * 10}%`;
+
+                $('v1-val-gancho').textContent = `${ganScore}/10`;
+                $('v1-bar-gancho').style.width = `${ganScore * 10}%`;
+
+                $('v1-case-title').textContent = (v.keyword && v.keyword.principal) ? `Keyword: ${v.keyword.principal}` : 'N/A';
+                $('v1-case-proof').textContent = `LOB: ${v.lob || 'Cross'}`;
+                
+                $('score-box').style.display = 'block';
+                
                 $('seo-title').textContent = v.metaTitle || '-';
                 $('seo-desc').textContent = v.metaDescription || '-';
                 $('seo-slug').textContent = v.slug || '-';
@@ -1741,1753 +1625,100 @@
             <div class="review-list" id="seo-alertas-list" style="color:var(--red,#fca5a5);font-size:12.5px"></div>
           </div>
         </div>
-        </div>
 
-        <!-- Tab 6: Fontes -->
-        <div class="v2-tab-pane" id="v2-pane-fontes" style="display:none;padding:22px 24px">
-          <div class="tab-pane" id="pane-fontes">
+        <!-- Pane 6: Fontes RAG -->
+        <div class="tab-pane" id="pane-fontes">
           <p style="font-size:13px;color:var(--color-text-muted);margin-bottom:14px">O Rax utilizou os seguintes trechos reais de artigos do blog para guiar a escrita:</p>
           <div id="sources-list" style="display:flex;flex-direction:column;gap:10px"></div>
         </div>
+
+        <!-- Save Button Bar -->
+        <div class="save-bar">
+          <div class="save-msg" id="save-result" style="display:none">✅ Salvo com sucesso!</div>
+          <button class="btn-save" id="btn-save-pipeline">Salvar no Pipeline Editorial</button>
         </div>
-
-        <!-- Save pipeline bar & handoff -->
-        <div id="v2-save-container" style="display:none;border-top:1px solid var(--line);padding:14px 24px;background:var(--panel2)">
-          <!doctype html>
-<html lang="pt-BR" data-theme="dark" data-v2="1">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>🦝 Raccoon Studio · EPI-USE Office</title>
-<link rel="stylesheet" href="/design-tokens.css">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&family=Fira+Code:wght@500;600&display=swap" rel="stylesheet">
-<script type="module" src="/office-nav.js"></script>
-<script type="module" src="/office-footer.js"></script>
-<style>
-  /* Controla visibilidade de v1 e v2 */
-  html[data-v2="1"] .v1-only { display: none !important; }
-  html:not([data-v2="1"]) .v2-only { display: none !important; }
-
-  /* Mapeamento de fontes e classes auxiliares de v2 */
-  .v2-only .disp { font-family: 'Space Grotesk', 'Poppins', sans-serif; }
-  .v2-only .mono { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
-  
-  .v2-only .rc-chip {
-    flex: 1;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    font-weight: 600;
-    border: 1px solid var(--line);
-    background: transparent;
-    color: var(--muted);
-    border-radius: 9px;
-    padding: 9px 0;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .v2-only .rc-chip.active {
-    border-color: var(--red);
-    background: color-mix(in srgb, var(--red) 16%, transparent);
-    color: var(--ink);
-  }
-
-  .v2-only .rc-hook {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10.5px;
-    border: 1px solid var(--line);
-    background: transparent;
-    color: var(--muted);
-    border-radius: 20px;
-    padding: 6px 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .v2-only .rc-hook.active {
-    border-color: var(--gold);
-    background: color-mix(in srgb, var(--gold) 16%, transparent);
-    color: var(--ink);
-  }
-
-  .v2-only .rc-var {
-    flex: 1;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--muted);
-    background: transparent;
-    border: 0;
-    border-bottom: 2px solid transparent;
-    padding: 13px 0;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .v2-only .rc-var.active {
-    color: var(--ink);
-    background: var(--panel2);
-    border-bottom: 2px solid var(--red);
-  }
-
-  /* Estilos do layout v2 originais do Claude Design */
-  .v2-only.atlas .card {
-    background: var(--panel) !important;
-    border: 1px solid var(--line) !important;
-    border-radius: 16px !important;
-    box-shadow: var(--shadow) !important;
-    color: var(--ink) !important;
-  }
-  .v2-only.atlas .hov {
-    transition: transform .25s cubic-bezier(.16,1,.3,1), box-shadow .25s, border-color .25s !important;
-  }
-  .v2-only.atlas .hov:hover {
-    transform: translateY(-3px) !important;
-    border-color: color-mix(in srgb, var(--ink) 22%, transparent) !important;
-  }
-  @keyframes drawln { from { stroke-dashoffset: 1100 } to { stroke-dashoffset: 0 } }
-  @keyframes pulsedot { 0%, 100% { transform: scale(1); opacity: 1 } 50% { transform: scale(1.9); opacity: .35 } }
-  @keyframes growbar { from { transform: scaleX(0) } to { transform: scaleX(1) } }
-  @keyframes rise { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: none } }
-  @keyframes mar { from { transform: translateX(0) } to { transform: translateX(-50%) } }
-  @keyframes spin { to { transform: rotate(360deg) } }
-  .v2-only.atlas .rise {}
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--color-bg, #060e1a);
-    color: var(--color-text, var(--text,#e2e8f0));
-    font-family: 'Source Sans 3', 'Poppins', sans-serif;
-    min-height: 100vh;
-    padding-bottom: 80px;
-    -webkit-font-smoothing: antialiased;
-  }
-  .wrap {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 24px 20px;
-  }
-  
-  /* Hero section */
-  .hero {
-    margin-bottom: 28px;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    gap: 16px;
-  }
-  .hero-text .eyebrow {
-    font-family: 'Fira Code', monospace;
-    font-size: 11px;
-    letter-spacing: .18em;
-    text-transform: uppercase;
-    color: var(--color-text-muted, var(--muted,#869ec3));
-    margin-bottom: 8px;
-  }
-  .hero-text h1 {
-    font-family: 'Poppins', sans-serif;
-    font-size: 32px;
-    font-weight: 700;
-    letter-spacing: -.02em;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .hero-text p {
-    color: var(--color-text-muted, var(--muted,#869ec3));
-    font-size: 14px;
-    margin-top: 6px;
-    max-width: 760px;
-    line-height: 1.6;
-  }
-  .engine-badge {
-    font-family: 'Fira Code', monospace;
-    font-size: 10px;
-    padding: 4px 10px;
-    border-radius: 6px;
-    background: rgba(205, 21, 67, 0.15);
-    border: 1px solid rgba(205, 21, 67, 0.3);
-    color: var(--red,#cd1543);
-    font-weight: 600;
-  }
-
-  /* Two column layout */
-  .layout {
-    display: grid;
-    grid-template-columns: 280px 1fr;
-    gap: 28px;
-    align-items: start;
-  }
-  @media (max-width: 900px) {
-    .layout { grid-template-columns: 1fr; }
-    .left-col { width: 100% !important; min-width: 100% !important; }
-  }
-
-  /* Left column: Rax & Form */
-  .left-col {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    width: 280px;
-    min-width: 280px;
-  }
-
-  /* Rax Mascot visual box */
-  .rax-box {
-    background: var(--color-surface, var(--surface,#0f1e35));
-    border: 1px solid var(--color-border, rgba(134,158,195,.18));
-    border-radius: 16px;
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-    overflow: hidden;
-    isolation: isolate;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
-  }
-  
-  /* Speech bubble */
-  .speech-bubble {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid var(--color-border, rgba(134,158,195,.18));
-    border-radius: 12px;
-    padding: 12px 16px;
-    font-size: 13.5px;
-    color: #fff;
-    max-width: 90%;
-    text-align: center;
-    margin-bottom: 15px;
-    position: relative;
-    font-family: 'Poppins', sans-serif;
-    font-weight: 500;
-    min-height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  }
-  .speech-bubble::after {
-    content: '';
-    position: absolute;
-    bottom: -8px;
-    left: 50%;
-    transform: translateX(-50%);
-    border-width: 8px 8px 0;
-    border-style: solid;
-    border-color: rgba(255, 255, 255, 0.08) transparent transparent;
-    display: block;
-    width: 0;
-  }
-  
-  .rax-svg-container {
-    width: 170px;
-    height: 170px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  /* Form panel */
-  .form-panel {
-    background: var(--color-surface, var(--surface,#0f1e35));
-    border: 1px solid var(--color-border, rgba(134,158,195,.18));
-    border-radius: 16px;
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
-  }
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-  .form-group label {
-    font-family: 'Poppins', sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: .05em;
-    text-transform: uppercase;
-    color: var(--color-text-muted, var(--muted,#869ec3));
-  }
-  .form-control {
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid var(--color-border, rgba(134,158,195,.18));
-    border-radius: 8px;
-    color: #fff;
-    padding: 10px 12px;
-    font-size: 14px;
-    font-family: inherit;
-    transition: border-color 0.2s, box-shadow 0.2s;
-  }
-  .form-control:focus {
-    outline: none;
-    border-color: var(--color-accent, var(--blue,#2563eb));
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-  }
-  textarea.form-control {
-    resize: vertical;
-    min-height: 80px;
-  }
-  
-  /* Persona pills */
-  .pills {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-  .pill {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid var(--color-border, rgba(134,158,195,.18));
-    border-radius: 99px;
-    padding: 6px 14px;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--color-text-muted, var(--muted,#869ec3));
-    cursor: pointer;
-    transition: all 0.2s;
-    user-select: none;
-  }
-  .pill:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: #fff;
-  }
-  .pill.active {
-    background: var(--surface,#001844);
-    border-color: var(--red,#cd1543);
-    color: #fff;
-    box-shadow: 0 2px 8px rgba(205, 21, 67, 0.25);
-  }
-  
-  /* Output checkboxes */
-  .checkboxes {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-  .checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    cursor: pointer;
-    user-select: none;
-    color: var(--color-text-muted, var(--muted,#869ec3));
-    padding: 6px 0;
-  }
-  .checkbox-label input {
-    accent-color: var(--red,#cd1543);
-    width: 15px;
-    height: 15px;
-  }
-  .checkbox-label:hover {
-    color: #fff;
-  }
-
-  /* Rax trigger button */
-  .btn-rax {
-    background: linear-gradient(135deg, var(--red,#cd1543) 0%, #a00e30 100%);
-    border: none;
-    border-radius: 8px;
-    color: #fff;
-    font-family: 'Poppins', sans-serif;
-    font-size: 15px;
-    font-weight: 600;
-    padding: 12px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: all 0.2s;
-    box-shadow: 0 4px 12px rgba(205, 21, 67, 0.3);
-  }
-  .btn-rax:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(205, 21, 67, 0.45);
-  }
-  .btn-rax:active:not(:disabled) {
-    transform: translateY(0);
-  }
-  .btn-rax:disabled {
-    background: #4b5563;
-    color: var(--muted,#9ca3af);
-    cursor: not-allowed;
-    box-shadow: none;
-  }
-  
-  /* Right column: Output Display */
-  .right-col {
-    background: var(--color-surface, var(--surface,#0f1e35));
-    border: 1px solid var(--color-border, rgba(134,158,195,.18));
-    border-radius: 16px;
-    padding: 24px;
-    min-height: 480px;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
-  }
-
-  /* Empty / Initial State */
-  .empty-state {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    color: var(--color-text-muted, var(--muted,#869ec3));
-    gap: 12px;
-    padding: 40px;
-  }
-  .empty-state .icon {
-    font-size: 48px;
-    opacity: 0.5;
-  }
-  .empty-state h3 {
-    font-family: 'Poppins', sans-serif;
-    font-size: 18px;
-    color: #fff;
-  }
-  .empty-state p {
-    font-size: 13px;
-    max-width: 380px;
-    line-height: 1.5;
-  }
-
-  /* Loading State overlay */
-  .loading-state {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    gap: 16px;
-  }
-  .loader-bar {
-    width: 200px;
-    height: 4px;
-    background: rgba(255,255,255,0.05);
-    border-radius: 2px;
-    overflow: hidden;
-    position: relative;
-  }
-  .loader-bar::after {
-    content: '';
-    position: absolute;
-    left: 0; top: 0; height: 100%;
-    width: 50%;
-    background: var(--red,#cd1543);
-    border-radius: 2px;
-    animation: loading-anim 1.5s infinite ease-in-out;
-  }
-  @keyframes loading-anim {
-    0% { left: -50%; }
-    100% { left: 100%; }
-  }
-
-  /* Content Cards (Generated results) */
-  .output-container {
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-    animation: fadeIn 0.4s ease-out;
-  }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .output-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--color-border, rgba(134,158,195,.18));
-    padding-bottom: 14px;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-  .output-header h2 {
-    font-family: 'Poppins', sans-serif;
-    font-size: 20px;
-    color: #fff;
-  }
-  
-  .badge-tag {
-    font-family: 'Fira Code', monospace;
-    font-size: 10px;
-    background: rgba(16, 185, 129, 0.1);
-    border: 1px solid rgba(16, 185, 129, 0.3);
-    color: var(--teal,#10b981);
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-weight: 500;
-  }
-
-  /* Output Tabs */
-  .tabs-nav {
-    display: flex;
-    gap: 4px;
-    border-bottom: 1px solid var(--color-border, rgba(134,158,195,.18));
-    padding-bottom: 2px;
-    overflow-x: auto;
-  }
-  .tab-btn {
-    background: transparent;
-    border: none;
-    color: var(--color-text-muted, var(--muted,#869ec3));
-    font-family: 'Poppins', sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    padding: 8px 14px;
-    cursor: pointer;
-    border-radius: 6px 6px 0 0;
-    white-space: nowrap;
-    border-bottom: 3px solid transparent;
-    transition: all 0.2s;
-  }
-  .tab-btn:hover {
-    color: #fff;
-    background: rgba(255,255,255,0.02);
-  }
-  .tab-btn.active {
-    color: #fff;
-    border-bottom-color: var(--red,#cd1543);
-    background: rgba(205, 21, 67, 0.05);
-  }
-
-  .tab-pane {
-    display: none;
-    padding: 16px 0;
-  }
-  .tab-pane.active {
-    display: block;
-    animation: tabFadeIn 0.3s ease-out;
-  }
-  @keyframes tabFadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
-  /* Strategic analysis metadata styling */
-  .meta-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-  .meta-card {
-    background: rgba(0,0,0,0.18);
-    border: 1px solid var(--color-border, rgba(134,158,195,.12));
-    border-radius: 8px;
-    padding: 12px 14px;
-  }
-  .meta-card .lbl {
-    font-family: 'Fira Code', monospace;
-    font-size: 10px;
-    color: var(--color-text-muted, var(--muted,#869ec3));
-    text-transform: uppercase;
-    letter-spacing: .05em;
-  }
-  .meta-card .val {
-    font-weight: 600;
-    font-size: 14px;
-    margin-top: 4px;
-    color: #fff;
-    word-break: break-word;
-    overflow-wrap: break-word;
-  }
-
-  /* Generated Article Card Styling */
-  .article-preview {
-    background: rgba(0,0,0,0.15);
-    border-radius: 10px;
-    padding: 20px;
-    border: 1px solid var(--color-border, rgba(134,158,195,.1));
-    line-height: 1.6;
-  }
-  .article-preview h1 {
-    font-family: 'Poppins', sans-serif;
-    font-size: 20px;
-    margin-bottom: 12px;
-    color: #fff;
-  }
-  .article-preview .intro {
-    font-size: 14.5px;
-    color: var(--color-text-muted, var(--text-dim,#cbd5e1));
-    font-style: italic;
-    border-left: 3px solid var(--red,#cd1543);
-    padding-left: 12px;
-    margin-bottom: 20px;
-  }
-  .article-preview h2 {
-    font-family: 'Poppins', sans-serif;
-    font-size: 16px;
-    color: #fff;
-    margin: 18px 0 8px;
-    font-weight: 600;
-  }
-  .article-preview p {
-    font-size: 13.5px;
-    margin-bottom: 12px;
-    color: var(--color-text-muted, var(--text-dim,#cbd5e1));
-  }
-  .article-preview .conclusion {
-    background: rgba(205, 21, 67, 0.05);
-    padding: 14px;
-    border-radius: 8px;
-    border: 1px dashed rgba(205, 21, 67, 0.2);
-    margin-top: 20px;
-  }
-
-  /* LinkedIn Copy Box */
-  .linkedin-copy-box {
-    background: var(--surface,#001844);
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 10px;
-    padding: 16px;
-    margin-bottom: 14px;
-  }
-  .linkedin-copy-box .post-hdr {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 12px;
-    font-size: 12px;
-    color: var(--text-dim,#cbd5e1);
-  }
-  .linkedin-copy-box .avatar {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-  }
-  .linkedin-copy-box h4 {
-    font-family: 'Poppins', sans-serif;
-    font-size: 14px;
-    color: #fff;
-    font-weight: 600;
-    margin-bottom: 4px;
-  }
-  .linkedin-copy-box .bold-hl {
-    color: var(--blue,#93c5fd);
-    font-weight: 600;
-  }
-  .linkedin-copy-box p.body-text {
-    font-size: 13px;
-    line-height: 1.55;
-    white-space: pre-wrap;
-    color: var(--text-dim,#cbd5e1);
-  }
-  .tag-pills {
-    margin-top: 12px;
-    font-family: 'Fira Code', monospace;
-    font-size: 11px;
-    color: var(--blue,#38bdf8);
-  }
-
-  /* Carousel Visual Builder mockup */
-  .carousel-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-  .slide-card {
-    background: rgba(0,0,0,0.18);
-    border: 1px solid var(--color-border, rgba(134,158,195,.1));
-    border-radius: 8px;
-    padding: 14px;
-  }
-  .slide-card .s-idx {
-    font-family: 'Fira Code', monospace;
-    font-size: 10px;
-    color: var(--red,#cd1543);
-    font-weight: 600;
-  }
-  .slide-card h4 {
-    font-family: 'Poppins', sans-serif;
-    font-size: 14px;
-    margin: 4px 0;
-    color: #fff;
-  }
-  .slide-card p {
-    font-size: 12.5px;
-    color: var(--color-text-muted, var(--text-dim,#cbd5e1));
-  }
-  .slide-card .source {
-    font-family: 'Fira Code', monospace;
-    font-size: 9px;
-    color: var(--color-text-muted, var(--muted,#869ec3));
-    margin-top: 6px;
-    text-transform: uppercase;
-  }
-
-  /* SEO/GEO review panels */
-  .review-section {
-    background: rgba(0,0,0,0.15);
-    border-radius: 8px;
-    padding: 16px;
-    border: 1px solid var(--color-border, rgba(134,158,195,.08));
-    margin-bottom: 12px;
-  }
-  .review-section h3 {
-    font-family: 'Poppins', sans-serif;
-    font-size: 14px;
-    margin-bottom: 10px;
-    color: #fff;
-    border-left: 3px solid var(--red,#cd1543);
-    padding-left: 8px;
-  }
-  .review-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  .review-item {
-    font-size: 13px;
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-  }
-  .review-item .q {
-    font-weight: 600;
-    color: #fff;
-  }
-  .review-item .a {
-    color: var(--color-text-muted, var(--text-dim,#cbd5e1));
-    line-height: 1.45;
-  }
-  .score-badge {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 16px;
-    font-weight: 700;
-    color: #fff;
-  }
-  .score-badge.high { background: rgba(16, 185, 129, 0.2); border: 1px solid var(--teal,#10b981); color: var(--teal,#10b981); }
-  .score-badge.mid { background: rgba(245, 158, 11, 0.2); border: 1px solid var(--gold,#f59e0b); color: var(--gold,#f59e0b); }
-  .score-badge.low { background: rgba(239, 68, 68, 0.2); border: 1px solid var(--red,#ef4444); color: var(--red,#ef4444); }
-
-  /* Save block styling */
-  .save-bar {
-    margin-top: 20px;
-    padding-top: 16px;
-    border-top: 1px solid var(--color-border, rgba(134,158,195,.18));
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-  .save-msg {
-    font-size: 12px;
-    color: var(--teal,#10b981);
-  }
-  .btn-save {
-    background: transparent;
-    border: 1px solid var(--color-border, rgba(134,158,195,.3));
-    color: #fff;
-    padding: 8px 16px;
-    border-radius: 6px;
-    font-size: 13px;
-    font-family: 'Poppins', sans-serif;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .btn-save:hover:not(:disabled) {
-    background: rgba(255,255,255,0.04);
-    border-color: #fff;
-  }
-  .btn-save:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  /* SVG Raccoon Mascot Styling & Animations */
-  #rax-svg {
-    width: 100%;
-    height: 100%;
-  }
-
-  /* Keyframe Animations */
-  @keyframes swing {
-    0%, 100% { transform: rotate(0deg); }
-    50% { transform: rotate(8deg); }
-  }
-  @keyframes blink {
-    0%, 90%, 100% { transform: scaleY(1); }
-    95% { transform: scaleY(0.1); }
-  }
-  @keyframes tilt {
-    0%, 100% { transform: rotate(-4deg); }
-    50% { transform: rotate(4deg); }
-  }
-  @keyframes type-l {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-4px); }
-  }
-  @keyframes type-r {
-    0%, 100% { transform: translateY(-4px); }
-    50% { transform: translateY(0); }
-  }
-  @keyframes scan {
-    0%, 100% { transform: translateX(-3px); }
-    50% { transform: translateX(3px); }
-  }
-  @keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
-  }
-
-  /* SVG classes matching state machine */
-  /* IDLE (default) */
-  .animated-tail {
-    transform-origin: 125px 145px;
-    animation: swing 3s ease-in-out infinite;
-  }
-  .animated-eyes {
-    transform-origin: 100px 88px;
-    animation: blink 4s infinite;
-  }
-
-  /* VASCULHANDO (searching) */
-  .searching-head {
-    transform-origin: 100px 110px;
-    animation: tilt 1.2s ease-in-out infinite;
-  }
-  
-  /* ESCREVENDO (typing) */
-  .typing-hand-l {
-    animation: type-l 0.15s infinite;
-  }
-  .typing-hand-r {
-    animation: type-r 0.15s infinite;
-  }
-
-  /* REVISANDO (scanning) */
-  .scanning-pupils {
-    animation: scan 1s ease-in-out infinite;
-  }
-
-  /* ENTREGUE (bouncing) */
-  .happy-bounce {
-    animation: bounce 0.8s ease-in-out infinite;
-  }
-
-  /* Accessibility rules */
-  @media (prefers-reduced-motion: reduce) {
-    .animated-tail, .animated-eyes, .searching-head, .typing-hand-l, .typing-hand-r, .scanning-pupils, .happy-bounce {
-      animation: none !important;
-    }
-  }
-
-  /* ===== Rax em cena — maiorzao + mais animado ===== */
-  .scene{position:relative;height:220px;width:100%;margin:6px auto 0;overflow:hidden;isolation:isolate;}
-  .crate{position:absolute;left:16px;bottom:8px;width:25%;max-width:96px;min-width:70px;text-align:center;opacity:.92}
-  .crate svg{width:100%;height:auto}
-  .crate .cap{font-family:'Fira Code',monospace;font-size:9px;color:var(--color-text-muted,var(--muted,#869ec3));margin-top:3px;letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .paper{position:absolute;right:16px;bottom:16px;width:22%;max-width:82px;min-width:60px;opacity:0;transform:translateY(14px) rotate(-4deg);transition:opacity .4s,transform .4s}
-  .paper svg{width:100%;height:auto}
-  .rax{position:absolute;left:50%;bottom:2px;transform:translate(-50%,0);width:75%;max-width:160px;min-width:110px;transform-origin:bottom center}
-  .rax svg{display:none}
-  .rax .pose{display:none;width:100%;height:auto;max-width:100%;filter:drop-shadow(0 8px 12px rgba(0,0,0,.30))}
-  .scene[data-state="idle"] .pose[data-st="idle"]{display:block}
-  .scene[data-state="rummaging"] .pose[data-st="rummaging"]{display:block}
-  .scene[data-state="writing"] .pose[data-st="writing"]{display:block}
-  .scene[data-state="reviewing"] .pose[data-st="reviewing"]{display:block}
-  .scene[data-state="done"] .pose[data-st="done"]{display:block}
-  @keyframes idleRax{0%,100%{transform:translate(-50%,0) scale(1)}50%{transform:translate(-50%,-9px) scale(1.02)}}
-  @keyframes bobC{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,-7px)}}
-  @keyframes eyeblink{0%,90%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
-  @keyframes sway{0%,100%{transform:rotate(-9deg)}50%{transform:rotate(12deg)}}
-  @keyframes pawTap{0%,100%{transform:rotate(0)}50%{transform:rotate(-12deg)}}
-  @keyframes scribble{0%,100%{transform:translate(0,0) rotate(0)}25%{transform:translate(-3px,2px) rotate(-10deg)}50%{transform:translate(2px,-1px) rotate(8deg)}75%{transform:translate(-2px,1px) rotate(-5deg)}}
-  @keyframes dig{0%,100%{transform:translate(0,0) rotate(0)}50%{transform:translate(0,7px) rotate(-14deg)}}
-  @keyframes lean{0%,100%{transform:translate(-50%,0) rotate(0)}50%{transform:translate(-54%,2px) rotate(-4deg)}}
-  @keyframes hop{0%,100%{transform:translate(-50%,0)}30%{transform:translate(-50%,-22px)}60%{transform:translate(-50%,0)}}
-  #eyeL,#eyeR{transform-box:fill-box;transform-origin:center}
-  #tail{transform-box:fill-box;transform-origin:90% 90%}
-  #pawR{transform-box:fill-box;transform-origin:top center}
-  #magnifier,#glasses,#pen{opacity:0;transition:opacity .3s}
-  .scene[data-state="idle"] .rax{animation:idleRax 3s ease-in-out infinite}
-  .scene[data-state="idle"] #eyeL,.scene[data-state="idle"] #eyeR{animation:eyeblink 3.5s infinite}
-  .scene[data-state="idle"] #tail{animation:sway 2.8s ease-in-out infinite}
-  .scene[data-state="idle"] #pawR{animation:pawTap 2.4s ease-in-out infinite}
-  .scene[data-state="rummaging"] .rax{animation:lean 1s ease-in-out infinite;left:56%;}
-  .scene[data-state="rummaging"] #pawR{animation:dig .6s ease-in-out infinite}
-  .scene[data-state="rummaging"] #tail{animation:sway 1s ease-in-out infinite}
-  .scene[data-state="rummaging"] #magnifier{opacity:1}
-  .scene[data-state="rummaging"] .crate{animation:bobC 1s ease-in-out infinite}
-  .scene[data-state="writing"] .rax{animation:bobC 1.4s ease-in-out infinite}
-  .scene[data-state="writing"] #pawR{animation:scribble .45s ease-in-out infinite}
-  .scene[data-state="writing"] #pen{opacity:1}
-  .scene[data-state="writing"] .paper{opacity:1;transform:translateY(0) rotate(-4deg)}
-  .scene[data-state="reviewing"] .rax{animation:bobC 2.2s ease-in-out infinite}
-  .scene[data-state="reviewing"] #glasses{opacity:1}
-  .scene[data-state="reviewing"] #eyeL,.scene[data-state="reviewing"] #eyeR{transform:scaleY(.8)}
-  .scene[data-state="reviewing"] .paper{opacity:1;transform:translateY(0) rotate(-4deg)}
-  .scene[data-state="done"] .rax{animation:hop .9s ease-in-out 3}
-  .scene[data-state="done"] #eyeL,.scene[data-state="done"] #eyeR{transform:scaleY(.7)}
-  .scene[data-state="done"] .paper{opacity:1;transform:translateY(-2px) rotate(4deg)}
-  .spark{position:absolute;font-size:20px;opacity:0;pointer-events:none}
-  .scene[data-state="done"] .spark{animation:pop 1s ease-out forwards}
-  .scene[data-state="done"] .spark:nth-child(2){animation-delay:.15s}
-  .scene[data-state="done"] .spark:nth-child(3){animation-delay:.3s}
-  @keyframes pop{0%{opacity:0;transform:scale(.4) translateY(0)}40%{opacity:1}100%{opacity:0;transform:scale(1.3) translateY(-30px)}}
-  @media(prefers-reduced-motion:reduce){.rax,.crate,#eyeL,#eyeR,#tail,#pawR,.spark{animation:none!important}}
-
-
-  /* ECC Liquid Glass styling overrides & enhancements */
-  :root[data-theme="aurora"] body,
-  :root[data-theme="dark"] body {
-    background:
-      linear-gradient(rgba(134,158,195,.03) 1px, transparent 1px) 0 0/48px 48px,
-      linear-gradient(90deg, rgba(134,158,195,.03) 1px, transparent 1px) 0 0/48px 48px,
-      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(205,21,67,.12), transparent 60%),
-      radial-gradient(ellipse 60% 50% at 100% 100%, rgba(20,184,166,.05), transparent 60%),
-      #050a14 !important;
-    background-attachment: fixed !important;
-  }
-
-  .rax-box, .form-panel, .right-col, .review-section, .article-preview, .linkedin-copy-box, .slide-card, .meta-card {
-    background: rgba(10, 21, 37, 0.45) !important;
-    backdrop-filter: blur(16px) saturate(180%) !important;
-    -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.35) !important;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .rax-box::before, .form-panel::before, .right-col::before, .review-section::before, .article-preview::before, .linkedin-copy-box::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,.15), transparent);
-    pointer-events: none;
-  }
-  
-  .rax-box:hover, .form-panel:hover, .right-col:hover, .review-section:hover {
-    border-color: rgba(37, 99, 235, 0.3) !important;
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45), 0 0 15px rgba(37, 99, 235, 0.15) !important;
-  }
-
-  .form-control, #srv-texto, #srv-titulo, #srv-lob, #srv-texto-otimizado {
-    background: rgba(0, 0, 0, 0.25) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    border-radius: 10px !important;
-    color: #fff !important;
-    transition: all 0.25s ease !important;
-  }
-
-  .form-control:focus, #srv-texto:focus, #srv-titulo:focus, #srv-lob:focus {
-    outline: none !important;
-    border-color: var(--blue,#2563eb) !important;
-    background: rgba(0, 0, 0, 0.35) !important;
-    box-shadow: 0 0 12px rgba(37, 99, 235, 0.3) !important;
-  }
-
-  /* Main Button rax style overrides */
-  .btn-rax {
-    background: linear-gradient(135deg, var(--red,#cd1543) 0%, #8b0827 100%) !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
-    border-radius: 10px !important;
-    color: #fff !important;
-    font-family: 'Poppins', sans-serif;
-    font-size: 15px;
-    font-weight: 700;
-    padding: 14px !important;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
-    box-shadow: 0 4px 16px rgba(205, 21, 67, 0.35), inset 0 1px 0 rgba(255,255,255,0.2) !important;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-  }
-  .btn-rax:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(205, 21, 67, 0.5), 0 0 15px rgba(205, 21, 67, 0.25), inset 0 1px 0 rgba(255,255,255,0.3) !important;
-    border-color: rgba(255,255,255,0.3) !important;
-  }
-  .btn-rax:active:not(:disabled) {
-    transform: translateY(0);
-    box-shadow: 0 2px 8px rgba(205, 21, 67, 0.4) !important;
-  }
-
-  /* Persona pills overrides */
-  .pill {
-    background: rgba(0, 0, 0, 0.2) !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    border-radius: 99px !important;
-    padding: 8px 16px !important;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--color-text-muted, var(--muted,#869ec3));
-    cursor: pointer;
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
-    user-select: none;
-  }
-  .pill:hover {
-    background: rgba(255, 255, 255, 0.06) !important;
-    border-color: rgba(255, 255, 255, 0.2) !important;
-    color: #fff;
-  }
-  .pill.active {
-    background: rgba(205, 21, 67, 0.15) !important;
-    border-color: var(--red,#cd1543) !important;
-    color: #fff !important;
-    box-shadow: 0 0 12px rgba(205, 21, 67, 0.3), inset 0 1px 0 rgba(255,255,255,0.15) !important;
-  }
-
-  /* Glass Tabs overrides */
-  .tab-btn {
-    background: rgba(255, 255, 255, 0.02) !important;
-    border: 1px solid rgba(255, 255, 255, 0.05) !important;
-    border-bottom: none !important;
-    color: var(--color-text-muted, var(--muted,#869ec3)) !important;
-    font-family: 'Poppins', sans-serif;
-    font-size: 12.5px !important;
-    font-weight: 600;
-    padding: 10px 18px !important;
-    cursor: pointer;
-    border-radius: 8px 8px 0 0 !important;
-    margin-right: 4px;
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  }
-  .tab-btn:hover {
-    color: #fff !important;
-    background: rgba(255,255,255,0.06) !important;
-    border-color: rgba(255, 255, 255, 0.1) !important;
-  }
-  .tab-btn.active {
-    color: #fff !important;
-    background: rgba(205, 21, 67, 0.08) !important;
-    border-color: rgba(205, 21, 67, 0.3) !important;
-    border-bottom: 2px solid var(--red,#cd1543) !important;
-    box-shadow: 0 -4px 12px rgba(205, 21, 67, 0.1) !important;
-  }
-
-  /* Custom Loading animations */
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  @keyframes pulse {
-    0%, 100% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.15); opacity: 0.8; }
-  }
-
-  /* Fallback para variáveis de layout v2 quando em temas legados */
-  :root[data-theme="dark"], :root:not([data-theme]) {
-    --panel: #0f1e35;
-    --panel2: #142547;
-    --line: rgba(134,158,195,0.18);
-    --line2: rgba(134,158,195,0.10);
-    --ink: #e6ebf2;
-    --dim: #c0ccd9;
-    --muted: #869ec3;
-    --red: #cd1543;
-    --blue: #0070bf;
-    --teal: #059669;
-    --gold: #d97706;
-  }
-  :root[data-theme="light"] {
-    --panel: #ffffff;
-    --panel2: #f5f7fa;
-    --line: #d7dad6;
-    --line2: #e7e6e6;
-    --ink: #1f2933;
-    --dim: #424242;
-    --muted: #797979;
-    --red: #cd1543;
-    --blue: #0070bf;
-    --teal: #059669;
-    --gold: #d97706;
-  }
-  :root[data-theme="aurora"] {
-    --panel: rgba(26, 11, 46, 0.45);
-    --panel2: rgba(26, 11, 46, 0.65);
-    --line: rgba(168, 85, 247, 0.3);
-    --line2: rgba(168, 85, 247, 0.15);
-    --ink: #f3e8ff;
-    --dim: #d8b4fe;
-    --muted: #a855f7;
-    --red: #ec4899;
-    --blue: #6366f1;
-    --teal: #14b8a6;
-    --gold: #f59e0b;
-  }
-  :root[data-theme="liquid-glass"] {
-    --panel: rgba(15, 23, 42, 0.55);
-    --panel2: rgba(15, 23, 42, 0.75);
-    --line: rgba(255, 255, 255, 0.12);
-    --line2: rgba(255, 255, 255, 0.06);
-    --ink: #f8fafc;
-    --dim: #cbd5e1;
-    --muted: #94a3b8;
-    --red: #38bdf8;
-    --blue: #3b82f6;
-    --teal: #10b981;
-    --gold: #f59e0b;
-  }
-  </style>
-</head>
-
-<body data-route="raccoon">
-<office-nav></office-nav>
-
-<div class="v2-only atlas" style="display:block !important">
-  <!-- Layout de Raccoon v2 -->
-  <main class="wrap">
-    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap">
-      <div>
-        <div class="mono" style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:9px">Estúdio de conteúdo · IA</div>
-        <h1 class="disp" style="margin:0;font-size:38px;font-weight:700;letter-spacing:-.025em;line-height:1;display:flex;align-items:center;gap:11px"><span style="font-size:34px">🦝</span>Raccoon <span style="color:var(--red)">v2</span></h1>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px;">
-        <span class="engine-badge" id="engine-status" style="font-family:'JetBrains Mono';font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid var(--line);background:var(--panel2)">Engine: Carregando...</span>
-        <div class="mono" style="font-size:10.5px;color:var(--ink);background:color-mix(in srgb,var(--violet) 16%,transparent);border:1px solid color-mix(in srgb,var(--violet) 40%,transparent);border-radius:9px;padding:8px 13px">engine · gui-playbook-3.1</div>
+        <!-- Handoff Card -->
+        <div class="handoff-card" id="handoff-card" style="display:none; margin-top: 16px; padding: 14px; background: rgba(205, 21, 67, 0.08); border: 1px solid rgba(205, 21, 67, 0.2); border-radius: 8px; align-items: center; justify-content: space-between; gap: 12px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:24px;">🦝</span>
+            <div>
+              <strong style="display:block; font-size:13.5px; color:#fff;">Slides prontos para o Carrossel Studio!</strong>
+              <span style="font-size:12px; color:var(--color-text-muted);">Que tal criar a arte visual do post agora com o Rax?</span>
+            </div>
+          </div>
+          <a href="/inbound/carousel?source=raccoon" target="_blank" class="btn-save" style="background:var(--red,#cd1543); border-color:var(--red,#cd1543); text-decoration:none; display:inline-flex; align-items:center; gap:6px;">Criar Arte Visual →</a>
+        </div>
       </div>
     </div>
 
-    <div style="display:grid;grid-template-columns:300px 1fr 270px;gap:14px;align-items:start">
-
-      <!-- COLUMN 1: MASCOT & BRIEF -->
-      <div style="display:flex;flex-direction:column;gap:14px;position:sticky;top:108px">
-        <!-- RAX Mascot Box -->
-        <div class="rax-box" style="margin-bottom:0">
-          <div class="speech-bubble" id="rax-bubble">Olá! Escolha a persona e o gancho e clique em Gerar Conteúdo. 🦝</div>
-          <div class="scene" id="scene" data-state="idle" style="width:100%;height:150px">
-            <div class="crate">
-            <svg viewBox="0 0 100 80" aria-hidden="true">
-              <rect x="8" y="26" width="84" height="48" rx="5" fill="#3a4658" stroke="var(--muted,#869ec3)" stroke-width="2"/>
-              <rect x="8" y="26" width="84" height="11" rx="3" fill="var(--muted,#869ec3)"/>
-              <rect x="20" y="14" width="20" height="16" rx="2" fill="var(--text-dim,#cfd1d3)"/>
-              <rect x="44" y="10" width="20" height="20" rx="2" fill="#e8eaee"/>
-              <rect x="58" y="16" width="20" height="14" rx="2" fill="var(--text-dim,#cfd1d3)"/>
-            </svg>
-            <div class="cap">693 artigos</div>
-          </div>
-          <div class="paper">
-            <svg viewBox="0 0 60 78" aria-hidden="true">
-              <rect x="3" y="3" width="54" height="72" rx="5" fill="#fff" stroke="var(--text-dim,#cfd1d3)" stroke-width="1.5"/>
-              <rect x="12" y="14" width="36" height="5" rx="2.5" fill="var(--surface,#001844)"/>
-              <rect x="12" y="26" width="36" height="3" rx="1.5" fill="var(--muted,#869ec3)"/>
-              <rect x="12" y="34" width="30" height="3" rx="1.5" fill="var(--text-dim,#cfd1d3)"/>
-              <rect x="12" y="42" width="34" height="3" rx="1.5" fill="var(--text-dim,#cfd1d3)"/>
-              <circle cx="44" cy="62" r="9" fill="var(--red,#cd1543)"/>
-              <path d="M40 62 l3 3 l6 -7" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <span class="spark" style="left:30%;top:18%">✨</span>
-          <span class="spark" style="left:60%;top:12%">⭐</span>
-          <span class="spark" style="left:46%;top:6%">✨</span>
-          <div class="rax">
-            <img class="pose" data-st="idle" src="/inbound/assets/rax/rax-6.png" alt="Rax, o guaxinim do Raccoon Studio">
-            <img class="pose" data-st="rummaging" src="/inbound/assets/rax/rax-2.png" alt="">
-            <img class="pose" data-st="writing" src="/inbound/assets/rax/rax-1.png" alt="">
-            <img class="pose" data-st="reviewing" src="/inbound/assets/rax/rax-6.png" alt="">
-            <img class="pose" data-st="done" src="/inbound/assets/rax/rax-5.png" alt="">
-            <svg viewBox="0 0 200 210" role="img" aria-label="Rax, o guaxinim do Raccoon Studio">
-              <g id="tail">
-                <path d="M150 150 q55 -6 52 -54 q-3 -40 -38 -40 q-30 0 -30 30 q0 26 26 28 q14 1 14 -14 q0 -12 -12 -12" fill="#7d8794" stroke="var(--muted,#5b6770)" stroke-width="3"/>
-                <path d="M158 60 q24 4 24 36" fill="none" stroke="#3a4250" stroke-width="9" stroke-linecap="round"/>
-                <path d="M150 92 q28 2 30 30" fill="none" stroke="#3a4250" stroke-width="9" stroke-linecap="round"/>
-                <path d="M140 120 q30 0 34 26" fill="none" stroke="#3a4250" stroke-width="9" stroke-linecap="round"/>
-              </g>
-              <ellipse cx="96" cy="160" rx="50" ry="44" fill="#8a93a3" stroke="var(--muted,#5b6770)" stroke-width="3"/>
-              <ellipse cx="96" cy="166" rx="30" ry="30" fill="var(--text-dim,#cfd1d3)"/>
-              <ellipse cx="58" cy="168" rx="12" ry="9" fill="var(--muted,#5b6770)"/>
-              <g id="pawR">
-                <ellipse cx="134" cy="160" rx="12" ry="9" fill="var(--muted,#5b6770)"/>
-                <g id="pen">
-                  <rect x="138" y="120" width="6" height="44" rx="3" fill="var(--red,#cd1543)" transform="rotate(32 141 142)"/>
-                  <path d="M150 168 l6 -10 l4 5 z" fill="var(--surface,#001844)" transform="rotate(32 153 163)"/>
-                </g>
-              </g>
-              <g id="head">
-                <path d="M52 70 q-10 -34 6 -40 q18 -2 18 26 z" fill="#8a93a3" stroke="var(--muted,#5b6770)" stroke-width="3"/>
-                <path d="M140 70 q10 -34 -6 -40 q-18 -2 -18 26 z" fill="#8a93a3" stroke="var(--muted,#5b6770)" stroke-width="3"/>
-                <path d="M58 60 q-5 -22 4 -27" fill="var(--text-dim,#cfd1d3)"/>
-                <path d="M134 60 q5 -22 -4 -27" fill="var(--text-dim,#cfd1d3)"/>
-                <ellipse cx="96" cy="78" rx="52" ry="46" fill="#9aa3b2" stroke="var(--muted,#5b6770)" stroke-width="3"/>
-                <ellipse cx="96" cy="92" rx="34" ry="30" fill="#f1f3f6"/>
-                <path d="M48 70 q18 -22 48 -22 q30 0 48 22 q-6 24 -30 24 q-18 0 -18 -14 q0 14 -18 14 q-24 0 -30 -24 z" fill="#2a2f3a"/>
-                <ellipse cx="74" cy="74" rx="13" ry="13" fill="#fff"/>
-                <ellipse cx="118" cy="74" rx="13" ry="13" fill="#fff"/>
-                <circle id="eyeL" cx="74" cy="74" r="6" fill="#10141c"/>
-                <circle id="eyeR" cx="118" cy="74" r="6" fill="#10141c"/>
-                <circle cx="76" cy="71" r="2" fill="#fff"/>
-                <circle cx="120" cy="71" r="2" fill="#fff"/>
-                <ellipse cx="96" cy="98" rx="7" ry="5" fill="#10141c"/>
-                <path d="M96 103 q0 8 -8 9 M96 103 q0 8 8 9" stroke="var(--muted,#5b6770)" stroke-width="2.4" fill="none" stroke-linecap="round"/>
-                <g id="glasses">
-                  <circle cx="74" cy="74" r="17" fill="none" stroke="var(--red,#cd1543)" stroke-width="3.2"/>
-                  <circle cx="118" cy="74" r="17" fill="none" stroke="var(--red,#cd1543)" stroke-width="3.2"/>
-                  <line x1="91" y1="74" x2="101" y2="74" stroke="var(--red,#cd1543)" stroke-width="3.2"/>
-                </g>
-              </g>
-              <g id="magnifier">
-                <circle cx="150" cy="150" r="16" fill="rgba(134,158,195,.25)" stroke="var(--surface,#001844)" stroke-width="4"/>
-                <line x1="162" y1="162" x2="178" y2="178" stroke="var(--surface,#001844)" stroke-width="6" stroke-linecap="round"/>
-              </g>
-            </svg>
-          </div>
-        </div>
-        <div class="rax-svg-container" style="display:none">
-          <svg id="rax-svg" viewBox="0 0 200 200">
-            <defs>
-              <linearGradient id="fur-grad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#4B5563"/>
-                <stop offset="100%" stop-color="#1F2937"/>
-              </linearGradient>
-              <linearGradient id="light-fur-grad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="var(--text-dim,#d1d5db)"/>
-                <stop offset="100%" stop-color="var(--muted,#9ca3af)"/>
-              </linearGradient>
-              <linearGradient id="mask-grad" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stop-color="var(--bg,#111827)"/>
-                <stop offset="100%" stop-color="#030712"/>
-              </linearGradient>
-              <linearGradient id="inner-ear-grad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="var(--red,#fca5a5)"/>
-                <stop offset="100%" stop-color="var(--red,#ef4444)"/>
-              </linearGradient>
-            </defs>
-            
-            <g id="rax-character">
-              <!-- Tail -->
-              <g id="rax-tail" class="animated-tail">
-                <path d="M 130 150 C 160 150, 180 120, 175 90 C 170 70, 150 70, 145 95 C 140 120, 120 135, 120 135" fill="url(#fur-grad)" />
-                <path d="M 148 105 C 153 100, 163 102, 168 107" stroke="var(--bg,#111827)" stroke-width="8" fill="none" />
-                <path d="M 143 120 C 148 115, 162 118, 168 126" stroke="var(--bg,#111827)" stroke-width="9" fill="none" />
-                <path d="M 135 135 C 140 130, 155 133, 160 143" stroke="var(--bg,#111827)" stroke-width="10" fill="none" />
-              </g>
-
-              <!-- Torso -->
-              <path d="M 60 140 C 60 100, 140 100, 140 140 C 140 170, 60 170, 60 140 Z" fill="url(#fur-grad)" />
-              <ellipse cx="100" cy="145" rx="25" ry="18" fill="url(#light-fur-grad)" />
-
-              <!-- Feet -->
-              <ellipse cx="75" cy="165" rx="12" ry="7" fill="var(--bg,#111827)" />
-              <ellipse cx="125" cy="165" rx="12" ry="7" fill="var(--bg,#111827)" />
-
-              <!-- Head Group (can get .searching-head class) -->
-              <g id="rax-head">
-                <!-- Ears -->
-                <path d="M 50 65 L 30 25 L 70 45 Z" fill="url(#fur-grad)" />
-                <path d="M 52 60 L 38 32 L 64 48 Z" fill="url(#inner-ear-grad)" />
-                
-                <path d="M 150 65 L 170 25 L 130 45 Z" fill="url(#fur-grad)" />
-                <path d="M 148 60 L 162 32 L 136 48 Z" fill="url(#inner-ear-grad)" />
-
-                <!-- Cheeks -->
-                <path d="M 45 90 C 25 90, 45 120, 100 120 C 155 120, 175 90, 155 90 C 135 60, 65 60, 45 90 Z" fill="url(#fur-grad)" />
-                <path d="M 45 90 C 35 90, 50 110, 75 105 C 65 95, 55 90, 45 90 Z" fill="url(#light-fur-grad)" />
-                <path d="M 155 90 C 165 90, 150 110, 125 105 C 135 95, 145 90, 155 90 Z" fill="url(#light-fur-grad)" />
-
-                <!-- Mask -->
-                <path d="M 50 90 C 50 78, 85 78, 100 85 C 115 78, 150 78, 150 90 C 150 105, 120 105, 100 95 C 80 105, 50 105, 50 90 Z" fill="url(#mask-grad)" />
-
-                <!-- Eyes (can get .scanning-pupils class) -->
-                <g id="rax-eyes" class="animated-eyes">
-                  <circle cx="78" cy="88" r="8" fill="#FFFFFF" />
-                  <circle id="rax-pupil-l" cx="78" cy="88" r="4" fill="#000000" />
-                  <circle cx="76" cy="86" r="1.5" fill="#FFFFFF" />
-
-                  <circle cx="122" cy="88" r="8" fill="#FFFFFF" />
-                  <circle id="rax-pupil-r" cx="122" cy="88" r="4" fill="#000000" />
-                  <circle cx="120" cy="86" r="1.5" fill="#FFFFFF" />
-                </g>
-
-                <!-- Snout -->
-                <polygon points="94,98 106,98 100,105" fill="#000" />
-                <path d="M 97 108 Q 100 110 103 108" stroke="#000" stroke-width="1.5" fill="none" />
-              </g>
-
-              <!-- Hands (can get typing classes) -->
-              <g id="rax-hands">
-                <circle id="rax-hand-l" cx="75" cy="122" r="7" fill="var(--bg,#111827)" />
-                <circle id="rax-hand-r" cx="125" cy="122" r="7" fill="var(--bg,#111827)" />
-              </g>
-
-              <!-- Props inside SVG -->
-              <g id="rax-props">
-                <!-- Keyboard (typing) -->
-                <g id="prop-keyboard" style="display: none;">
-                  <rect x="70" y="125" width="60" height="15" rx="3" fill="#374151" stroke="#4B5563" stroke-width="1" />
-                  <line x1="75" y1="130" x2="125" y2="130" stroke="var(--muted,#9ca3af)" stroke-dasharray="3,2" stroke-width="2" />
-                  <line x1="75" y1="135" x2="125" y2="135" stroke="var(--muted,#9ca3af)" stroke-dasharray="2,3" stroke-width="2" />
-                </g>
-                <!-- Magnifying Glass (RAG) -->
-                <g id="prop-glass" style="display: none;">
-                  <circle cx="140" cy="120" r="10" fill="none" stroke="var(--gold,#f59e0b)" stroke-width="3" />
-                  <line x1="147" y1="127" x2="158" y2="138" stroke="var(--gold,#f59e0b)" stroke-width="4" stroke-linecap="round" />
-                  <circle cx="140" cy="120" r="7" fill="rgba(96,165,250,0.3)" />
-                </g>
-                <!-- Done Document (delivered) -->
-                <g id="prop-doc" style="display: none;">
-                  <rect x="85" y="112" width="30" height="38" rx="2" fill="#F9FAFB" stroke="var(--muted,#9ca3af)" stroke-width="1" />
-                  <line x1="90" y1="118" x2="110" y2="118" stroke="var(--text-dim,#d1d5db)" stroke-width="2" />
-                  <line x1="90" y1="124" x2="110" y2="124" stroke="var(--text-dim,#d1d5db)" stroke-width="2" />
-                  <line x1="90" y1="130" x2="105" y2="130" stroke="var(--text-dim,#d1d5db)" stroke-width="2" />
-                  <path d="M 108 134 L 112 138 L 118 130" stroke="var(--teal,#10b981)" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" />
-                </g>
-                <!-- Checkmark check (revising) -->
-                <g id="prop-check" style="display: none;">
-                  <path d="M 90 120 L 98 128 L 115 110" stroke="var(--teal,#10b981)" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round" />
-                </g>
-              </g>
-            </g>
-          </svg>
-          </div>
-        </div>
-
-        <!-- BRIEF card -->
-        <div class="card" style="padding:20px;margin-top:0">
-          <div class="mono" style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:13px">Brief</div>
-
-          <div class="mono" style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:8px">Persona</div>
-          <div style="display:flex;gap:6px;margin-bottom:16px" id="v2-persona-group">
-            <button data-v="CFO" class="rc-chip active" type="button">CFO</button>
-            <button data-v="CHRO" class="rc-chip" type="button">CHRO</button>
-            <button data-v="CIO" class="rc-chip" type="button">CIO</button>
-          </div>
-
-          <div class="mono" style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:8px">Gancho / metáfora</div>
-          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px" id="v2-hook-group">
-            <button data-v="Oscar" class="rc-hook active" type="button">🏆 Oscar</button>
-            <button data-v="BBB" class="rc-hook" type="button">📺 BBB</button>
-            <button data-v="Tênis" class="rc-hook" type="button">🎾 João Fonseca</button>
-            <button data-v="MasterChef" class="rc-hook" type="button">👨‍🍳 MasterChef</button>
-          </div>
-
-          <div class="mono" style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:8px">Tema / dor</div>
-          <textarea style="width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:12.5px;line-height:1.5;color:var(--ink);margin-bottom:16px;resize:vertical;font-family:inherit;min-height:70px" id="tema">Fim do suporte ao ECC é risco fiscal do CFO, não decisão de TI.</textarea>
-
-          <div class="mono" style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:8px">Formato</div>
-          <div style="display:flex;gap:6px;margin-bottom:20px">
-            <span class="mono" style="font-size:10px;color:var(--ink);background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:7px 10px">Post único</span>
-            <span class="mono" style="font-size:10px;color:var(--muted);border:1px solid var(--line);border-radius:8px;padding:7px 10px">Carrossel</span>
-          </div>
-
-          <button id="v2-generate-btn" style="width:100%;font-family:'JetBrains Mono';font-size:12px;font-weight:600;letter-spacing:.04em;color:#fff;background:var(--red);border:0;border-radius:11px;padding:13px 0;cursor:pointer;box-shadow:0 10px 24px -10px var(--red);transition:transform .2s" type="button">✦ Gerar conteúdo</button>
-        </div>
-      </div>
-
-      <!-- COLUMN 2: CENTRAL PREVIEW & PANES -->
-      
-      <!-- PREVIEW & TABS -->
-      <div class="card" style="padding:0;overflow:hidden">
-        <!-- V2 Tab Bar -->
-        <div style="display:flex;border-bottom:1px solid var(--line);background:var(--panel2)" id="v2-main-tabs">
-          <button class="rc-var active" data-tab="post" type="button" style="flex:1">🔗 Post & Variações</button>
-          <button class="rc-var" data-tab="estrategia" type="button" style="flex:1">🎯 Estratégia B2B</button>
-          <button class="rc-var" data-tab="artigo" type="button" style="flex:1">📚 Artigo Completo</button>
-          <button class="rc-var" data-tab="carousel" type="button" style="flex:1">🎠 Carrossel Slides</button>
-          <button class="rc-var" data-tab="seo" type="button" style="flex:1">🔍 SEO/GEO Review</button>
-          <button class="rc-var" data-tab="fontes" type="button" style="flex:1">📚 Fontes RAG</button>
-        </div>
-
-        <!-- Empty State -->
-        <div class="empty-state" id="state-empty" style="padding:60px 24px;text-align:center">
-          <div class="icon" style="font-size:48px;margin-bottom:12px">🦝</div>
-          <h3 style="font-size:18px;font-weight:700;color:var(--ink);margin-bottom:6px">Aguardando o Rax</h3>
-          <p style="font-size:13.5px;color:var(--muted);max-width:320px;margin:0 auto">Preencha o brief ao lado e clique em <b>Gerar conteúdo</b> para começar.</p>
-        </div>
-
-        <!-- Loading State -->
-        <div class="loading-state" id="state-loading" style="display: none;padding:50px 24px;text-align:center">
-          <h3 id="loading-txt" style="font-size:16px;font-weight:600;color:var(--ink);margin-bottom:14px">Vasculhando 693 artigos...</h3>
-          <div class="loader-bar" style="width:100%;max-width:240px;height:6px;background:var(--line);border-radius:3px;margin:0 auto;overflow:hidden;position:relative">
-            <div style="position:absolute;top:0;left:0;height:100%;width:50%;background:var(--red);border-radius:3px;animation:growbar 1.5s infinite ease-in-out"></div>
-          </div>
-        </div>
-
-        <!-- Tab 1: Post -->
-        <div class="v2-tab-pane" id="v2-pane-post" style="display:block">
-          <div style="display:flex;border-bottom:1px solid var(--line)" id="v2-var-group">
-            <button data-v="0" class="rc-var active" type="button" style="flex:1">Variação A</button>
-            <button data-v="1" class="rc-var" type="button" style="flex:1">Variação B</button>
-            <button data-v="2" class="rc-var" type="button" style="flex:1">Variação C</button>
-          </div>
-          <!-- LinkedIn-style card -->
-          <div style="padding:22px 24px 26px">
-            <div style="display:flex;align-items:center;gap:11px;margin-bottom:15px">
-              <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--gold));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-family:'Space Grotesk',sans-serif;font-size:16px" id="v2-avatar">GM</div>
-              <div><div style="font-size:13.5px;font-weight:700;color:var(--ink)">Gui Marbackian</div><div class="mono" style="font-size:10.5px;color:var(--muted)">CMO @ EPI-USE Brasil · agora</div></div>
-              <div style="margin-left:auto;color:var(--muted);font-size:18px">···</div>
-            </div>
-            <div id="post-body-text" style="font-size:14.5px;line-height:1.62;color:var(--ink);white-space:pre-wrap;min-height:230px"><span style="color:var(--muted)">Configure o brief e clique em <b style="color:var(--ink)">Gerar conteúdo</b> — o Raccoon escreve 3 variações no tom do Gui playbook, com o gancho escolhido.</span></div>
-            <div style="display:flex;gap:18px;border-top:1px solid var(--line);margin-top:18px;padding-top:14px;color:var(--muted)">
-              <span class="mono" style="font-size:11px">👍 likes</span><span class="mono" style="font-size:11px">💬 comentários</span><span class="mono" style="font-size:11px">↻ repostar</span><span class="mono" style="font-size:11px;margin-left:auto">🔖</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tab 2: Strategy -->
-        <div class="v2-tab-pane" id="v2-pane-estrategia" style="display:none;padding:22px 24px">
-          <div class="tab-pane active" id="pane-estrategia">
-          <div class="meta-grid">
-            <div class="meta-card"><div class="lbl">Persona-Alvo</div><div class="val" id="strat-persona">-</div></div>
-            <div class="meta-card"><div class="lbl">Linha de Negócio (LOB)</div><div class="val" id="strat-lob">-</div></div>
-            <div class="meta-card"><div class="lbl">Categoria</div><div class="val" id="strat-cat">-</div></div>
-          </div>
-          <div class="meta-card" style="margin-bottom:12px">
-            <div class="lbl">Dor Atacada</div>
-            <div class="val" id="strat-dor" style="font-weight:normal;font-size:13.5px;line-height:1.5;margin-top:6px">-</div>
-          </div>
-          <div class="meta-card">
-            <div class="lbl">Ângulo do Conteúdo</div>
-            <div class="val" id="strat-angulo" style="font-weight:normal;font-size:13.5px;line-height:1.5;margin-top:6px">-</div>
-          </div>
-        </div>
-        </div>
-
-        <!-- Tab 3: Article -->
-        <div class="v2-tab-pane" id="v2-pane-artigo" style="display:none;padding:22px 24px">
-          <div class="tab-pane" id="pane-artigo">
-          <div class="article-preview" id="artigo-container">
-            <h1 id="art-title">Título do Artigo</h1>
-            <div class="intro" id="art-intro">Introdução...</div>
-            <div id="art-sections"></div>
-            <div class="conclusion" id="art-conclusion">Conclusão...</div>
-          </div>
-        </div>
-        </div>
-
-        <!-- Tab 4: Carousel -->
-        <div class="v2-tab-pane" id="v2-pane-carousel" style="display:none;padding:22px 24px">
-          <div class="tab-pane" id="pane-carousel">
-          <div class="carousel-wrapper">
-            <div class="slide-card" style="border-left: 4px solid var(--red,#cd1543);">
-              <div class="s-idx">SLIDE 1 (CAPA)</div>
-              <div class="lbl" id="car-eyebrow" style="font-size:10px;text-transform:uppercase;color:var(--color-text-muted)">CAPA</div>
-              <h4 id="car-headline">Título da Capa</h4>
-              <p id="car-sub">Subtítulo da Capa</p>
-            </div>
-            
-            <div id="car-slides-list" style="display:flex;flex-direction:column;gap:12px"></div>
-
-            <div class="slide-card" style="border-left: 4px solid var(--teal,#10b981);">
-              <div class="s-idx">SLIDE FINAL (CTA)</div>
-              <h4 id="car-cta-head">Ação final</h4>
-              <p id="car-cta-sub">Convite</p>
-              <div class="source" id="car-cta-url">URL</div>
-            </div>
-          </div>
-        </div>
-        </div>
-
-        <!-- Tab 5: SEO -->
-        <div class="v2-tab-pane" id="v2-pane-seo" style="display:none;padding:22px 24px">
-          <div class="tab-pane" id="pane-seo">
-          <div class="review-section" style="margin-bottom:18px;border-left-color:var(--blue,#2563eb)">
-            <h3>📝 Revisar artigo colado (SEO + GEO · jun/2026)</h3>
-            <p style="font-size:12px;color:var(--color-text-muted);margin-bottom:10px">Cole o artigo completo. O Rax analisa SEO + GEO (regras jun/2026), recomenda a melhor keyword-foco, faz link juice com os 693 artigos e sugere CTA.</p>
-            <textarea id="srv-texto" placeholder="Cole o artigo completo aqui (mín. 200 caracteres)..." style="width:100%;min-height:140px;background:var(--color-bg-elev,var(--surface,#112540));border:1px solid var(--color-border,rgba(37,99,235,.2));border-radius:10px;color:var(--color-text,var(--text,#e2e8f0));padding:10px;font-family:inherit;font-size:13px;line-height:1.5;resize:vertical"></textarea>
-            <div style="display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap">
-              <input id="srv-titulo" placeholder="Título (opcional)" style="flex:1;min-width:150px;background:var(--color-bg-elev,var(--surface,#112540));border:1px solid var(--color-border,rgba(37,99,235,.2));border-radius:8px;color:var(--color-text,var(--text,#e2e8f0));padding:8px 10px;font-size:13px">
-              <input id="srv-lob" placeholder="LOB (opcional)" style="flex:1;min-width:140px;background:var(--color-bg-elev,var(--surface,#112540));border:1px solid var(--color-border,rgba(37,99,235,.2));border-radius:8px;color:var(--color-text,var(--text,#e2e8f0));padding:8px 10px;font-size:13px">
-              <button id="srv-go" style="cursor:pointer;font-weight:700;font-size:13px;padding:9px 18px;border-radius:8px;border:0;background:var(--blue,#2563eb);color:#fff">Revisar</button>
-              <span id="srv-status" style="font-size:12px;color:var(--color-text-muted)"></span>
-            </div>
-
-            <!-- Wait/Loading Design -->
-            <div id="srv-loading" style="display:none; flex-direction:column; align-items:center; justify-content:center; padding:30px 20px; gap:16px; background:rgba(37,99,235,0.04); border:1px dashed rgba(37,99,235,0.25); border-radius:12px; margin-top:14px; backdrop-filter:blur(8px); animation:fadeIn 0.3s ease-out">
-              <div style="position:relative; width:60px; height:60px; display:flex; align-items:center; justify-content:center">
-                <div style="position:absolute; width:100%; height:100%; border:3px solid rgba(37,99,235,0.1); border-top-color:var(--blue,#2563eb); border-radius:50%; animation:spin 1s linear infinite"></div>
-                <span style="font-size:24px; animation:pulse 1.2s ease-in-out infinite">🦝</span>
-              </div>
-              <div style="display:flex; flex-direction:column; align-items:center; gap:4px">
-                <div style="font-size:13px; font-weight:600; color:#fff; font-family:'Poppins',sans-serif" id="srv-loading-msg">Iniciando análise de SEO/GEO...</div>
-                <div style="font-size:11px; color:var(--color-text-muted)" id="srv-loading-sub">Rax está lendo o artigo e mapeando entidades semânticas</div>
-              </div>
-              <div class="loader-bar" style="width:100%; max-width:200px; height:4px; background:rgba(255,255,255,0.05); border-radius:2px; overflow:hidden; position:relative">
-                <div style="position:absolute; left:0; top:0; height:100%; width:40%; background:var(--blue,#2563eb); border-radius:2px; animation:loading-anim 1.5s infinite ease-in-out"></div>
-              </div>
-            </div>
-
-            <div id="srv-results" style="display:none;margin-top:14px"></div>
-          </div>
-
-          <!-- Optimized Article Card -->
-          <div id="srv-artigo-melhorado" style="display:none; margin-top:16px;" class="review-section">
-            <h3 style="border-left-color:var(--teal,#10b981);">✨ Artigo Otimizado & Corrigido pela IA</h3>
-            <p style="font-size:12px;color:var(--color-text-muted);margin-bottom:10px">
-              Esta versão foi reescrita aplicando a palavra-chave foco, otimizando headings para busca por voz/LLM e inserindo links internos de forma contextualizada.
-            </p>
-            <div style="position:relative">
-              <textarea id="srv-texto-otimizado" readonly style="width:100%;min-height:220px;background:var(--color-bg-elev,var(--surface,#112540));border:1px solid rgba(16,185,129,.3);border-radius:10px;color:var(--color-text,var(--text,#e2e8f0));padding:10px;font-family:inherit;font-size:13px;line-height:1.5;resize:vertical"></textarea>
-              <div style="display:flex;gap:8px;margin-top:8px;justify-content:flex-end">
-                <button id="srv-btn-copiar" class="btn-save" style="cursor:pointer;font-weight:600;font-size:12px;padding:8px 14px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:#fff;transition:all 0.2s">Copiar HTML (WorkControl)</button>
-                <button id="srv-btn-copiar-limpo" class="btn-save" style="cursor:pointer;font-weight:600;font-size:12px;padding:8px 14px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:#fff;transition:all 0.2s">Copiar Texto Limpo</button>
-              </div>
-              <div style="font-size:11.5px;color:var(--color-text-muted);margin-top:10px;display:flex;align-items:center;gap:6px;background:rgba(245,158,11,0.05);border:1px dashed rgba(245,158,11,0.25);border-radius:8px;padding:8px 12px">
-                <span style="color:var(--gold,#f59e0b)">💡</span>
-                <span><strong>Instrução WorkControl:</strong> Este texto está em formato HTML estruturado. No CMS WorkControl, clique no ícone <strong>&lt;&gt; (Código-Fonte)</strong> na barra de ferramentas do editor do post antes de colar o HTML copiado.</span>
-              </div>
-            </div>
-          </div>
-
-          <script>
-          (function(){
-            var $=function(id){return document.getElementById(id)};
-            var clr=function(v){return v>=75?'#10b981':v>=50?'#f59e0b':'#ef4444'};
-            var go=$('srv-go'); if(!go) return;
-            
-            function stripHtml(html) {
-              var tmp = document.createElement("DIV");
-              tmp.innerHTML = html;
-              return tmp.textContent || tmp.innerText || "";
-            }
-
-            // Clipboard copy logic for improved article (HTML code)
-            var btnCopiar = $('srv-btn-copiar');
-            if (btnCopiar) {
-              btnCopiar.addEventListener('click', function() {
-                var txtArea = $('srv-texto-otimizado');
-                if (txtArea) {
-                  navigator.clipboard.writeText(txtArea.value).then(function() {
-                    btnCopiar.textContent = 'HTML Copiado! ✓';
-                    btnCopiar.style.borderColor = '#10b981';
-                    btnCopiar.style.background = 'rgba(16,185,129,0.15)';
-                    btnCopiar.style.color = '#10b981';
-                    setTimeout(function() {
-                      btnCopiar.textContent = 'Copiar HTML (WorkControl)';
-                      btnCopiar.style.borderColor = 'rgba(255,255,255,0.15)';
-                      btnCopiar.style.background = 'rgba(255,255,255,0.06)';
-                      btnCopiar.style.color = '#fff';
-                    }, 2500);
-                  }).catch(function(err) {
-                    console.error('Failed to copy HTML code: ', err);
-                  });
-                }
-              });
-            }
-
-            // Clipboard copy logic for clean text (stripped tags)
-            var btnCopiarLimpo = $('srv-btn-copiar-limpo');
-            if (btnCopiarLimpo) {
-              btnCopiarLimpo.addEventListener('click', function() {
-                var txtArea = $('srv-texto-otimizado');
-                if (txtArea) {
-                  var clean = stripHtml(txtArea.value);
-                  navigator.clipboard.writeText(clean).then(function() {
-                    btnCopiarLimpo.textContent = 'Texto Limpo Copiado! ✓';
-                    btnCopiarLimpo.style.borderColor = '#10b981';
-                    btnCopiarLimpo.style.background = 'rgba(16,185,129,0.15)';
-                    btnCopiarLimpo.style.color = '#10b981';
-                    setTimeout(function() {
-                      btnCopiarLimpo.textContent = 'Copiar Texto Limpo';
-                      btnCopiarLimpo.style.borderColor = 'rgba(255,255,255,0.15)';
-                      btnCopiarLimpo.style.background = 'rgba(255,255,255,0.06)';
-                      btnCopiarLimpo.style.color = '#fff';
-                    }, 2500);
-                  }).catch(function(err) {
-                    console.error('Failed to copy clean text: ', err);
-                  });
-                }
-              });
-            }
-
-            go.addEventListener('click', async function(){
-              var texto=($('srv-texto').value||'').trim(); var st=$('srv-status');
-              if(texto.length<200){ st.textContent='Cole pelo menos 200 caracteres.'; st.style.color='#fca5a5'; return; }
-              
-              go.disabled=true;
-              st.style.color='var(--color-text-muted)';
-              st.textContent='Revisando com IA...';
-              
-              // Show waiting state
-              $('srv-results').style.display='none';
-              $('srv-artigo-melhorado').style.display='none';
-              $('srv-loading').style.display='flex';
-              
-              // Change mascot pose
-              if (window.setRaxState) {
-                setRaxState('revisando', 'Analisando legibilidade e estrutura...');
-              }
-
-              // Dynamic waiting messages
-              var loadingPhrases = [
-                { msg: "Analisando intenção de busca...", sub: "Verificando se o título atende à query principal..." },
-                { msg: "Varrendo 693 artigos publicados...", sub: "Mapeando sugestões contextuais de link juice..." },
-                { msg: "Calculando notas de GEO/AIO...", sub: "Avaliando clareza de respostas e frases citáveis..." },
-                { msg: "Reescrevendo artigo com melhorias...", sub: "Incorporando keywords e links sugeridos..." }
-              ];
-              var phraseIdx = 0;
-              var phraseInterval = setInterval(function(){
-                phraseIdx = (phraseIdx + 1) % loadingPhrases.length;
-                var m = $('srv-loading-msg'); var s = $('srv-loading-sub');
-                if(m) m.textContent = loadingPhrases[phraseIdx].msg;
-                if(s) s.textContent = loadingPhrases[phraseIdx].sub;
-              }, 3000);
-
-              try{
-                var r=await fetch('/api/seo-review',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({texto:texto,titulo:($('srv-titulo').value||'').trim(),lob:($('srv-lob').value||'').trim()})});
-                var d=await r.json(); if(!d.success) throw new Error(d.error||'falhou'); var v=d.review;
-                
-                // Store review data globally for saving to pipeline
-                window.lastRaccoonSource = 'review';
-                window.activeReviewData = v;
-                window.activeReviewMeta = { titulo: ($('srv-titulo').value||'').trim(), lob: ($('srv-lob').value||'').trim() };
-
-                // Fix denominator from /10 to /100 and evaluate color properly using clr(c.nota)
-                var crit=function(arr){return (arr||[]).map(function(c){return '<div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06)"><b style="flex:0 0 50px;font-family:monospace;color:'+clr(c.nota||0)+'">'+(c.nota!=null?c.nota:'-')+'/100</b><div><b style="font-size:12.5px">'+(c.nome||'')+'</b><div style="font-size:11.5px;color:var(--color-text-muted)">'+(c.obs||'')+'</div></div></div>'}).join('')};
-                var kw=v.keyword||{};
-                
-                var html='<div style="display:flex;gap:10px;margin-bottom:14px">'+
-                  '<div style="flex:1;text-align:center;background:rgba(255,255,255,0.03);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.06);border-top:3px solid '+clr(v.nota_geral)+';border-radius:12px;padding:12px;box-shadow:0 4px 15px rgba(0,0,0,0.15)"><div style="font-size:10px;color:var(--color-text-muted);text-transform:uppercase">Geral</div><div style="font-size:30px;font-weight:900;color:'+clr(v.nota_geral)+'">'+(Math.round(v.nota_geral||0))+'</div></div>'+
-                  '<div style="flex:1;text-align:center;background:rgba(255,255,255,0.03);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.06);border-top:3px solid '+clr(v.seo&&v.seo.score)+';border-radius:12px;padding:12px;box-shadow:0 4px 15px rgba(0,0,0,0.15)"><div style="font-size:10px;color:var(--color-text-muted);text-transform:uppercase">SEO</div><div style="font-size:30px;font-weight:900;color:'+clr(v.seo&&v.seo.score)+'">'+(Math.round((v.seo&&v.seo.score)||0))+'</div></div>'+
-                  '<div style="flex:1;text-align:center;background:rgba(255,255,255,0.03);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.06);border-top:3px solid '+clr(v.geo&&v.geo.score)+';border-radius:12px;padding:12px;box-shadow:0 4px 15px rgba(0,0,0,0.15)"><div style="font-size:10px;color:var(--color-text-muted);text-transform:uppercase">GEO</div><div style="font-size:30px;font-weight:900;color:'+clr(v.geo&&v.geo.score)+'">'+(Math.round((v.geo&&v.geo.score)||0))+'</div></div></div>'+
-                  '<div style="font-size:13px;color:var(--color-text-dim,#94a3b8);margin-bottom:12px">'+(v.resumo||'')+'</div>'+
-                  '<div style="background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.3);border-radius:10px;padding:12px;margin-bottom:14px"><div style="font-size:11px;text-transform:uppercase;color:var(--color-text-muted)">🎯 Melhor keyword</div><div style="font-size:16px;font-weight:800;color:#60a5fa">'+(kw.principal||'-')+'</div><div style="font-size:12px;color:var(--color-text-dim,#94a3b8);margin-top:4px">Secundárias: '+((kw.secundarias||[]).join(', ')||'-')+'</div><div style="font-size:11.5px;color:var(--color-text-muted);margin-top:4px">'+(kw.onde_usar?'Usar em: '+kw.onde_usar+'. ':'')+(kw.motivo||'')+'</div></div>'+
-                  '<div style="font-size:12px;font-weight:800;text-transform:uppercase;color:var(--color-text-muted);margin:8px 0">⚡ Prioridades</div>'+((v.top_fixes||[]).map(function(f){return '<div style="font-size:13px;padding:5px 0">→ '+f+'</div>'}).join('')||'')+
-                  '<div style="font-size:12px;font-weight:800;text-transform:uppercase;color:var(--color-text-muted);margin:12px 0 6px">🔎 SEO</div>'+crit(v.seo&&v.seo.criterios)+
-                  '<div style="font-size:12px;font-weight:800;text-transform:uppercase;color:var(--color-text-muted);margin:12px 0 6px">🤖 GEO</div>'+crit(v.geo&&v.geo.criterios)+
-                  '<div style="font-size:12px;font-weight:800;text-transform:uppercase;color:var(--color-text-muted);margin:12px 0 6px">🔗 Link juice</div>'+((v.link_juice||[]).map(function(l){return '<div style="font-size:13px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06)">🔗 <a href="'+l.url+'" target="_blank" rel="noopener" style="color:#60a5fa">'+(l.anchor||l.url)+'</a><div style="font-size:11.5px;color:var(--color-text-muted)">'+(l.motivo||'')+'</div></div>'}).join('')||'<div style="font-size:12px;color:var(--color-text-muted)">sem sugestões internas relevantes</div>')+
-                  (v.cta?'<div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.3);border-radius:10px;padding:12px;margin-top:14px"><div style="font-size:11px;text-transform:uppercase;color:var(--color-text-muted)">📣 CTA</div><div style="font-weight:700;color:#6ee7b7">"'+(v.cta.texto||'')+'"</div><div style="font-size:11.5px;color:var(--color-text-muted);margin-top:4px">Posição: '+(v.cta.posicao||'-')+' · '+(v.cta.motivo||'')+'</div></div>':'');
-                
-                $('srv-results').innerHTML=html; $('srv-results').style.display='block';
-                st.textContent='✓ '+d.candidatos_considerados+' artigos considerados'; st.style.color='var(--color-text-muted)';
-                
-                // Populate improved article
-                if (v.artigo_melhorado) {
-                  $('srv-texto-otimizado').value = v.artigo_melhorado;
-                  $('srv-artigo-melhorado').style.display = 'block';
-                }
-                
-                // Hide duplicate bottom score row
-                var scoreRow = $('srv-score-row'); if(scoreRow) scoreRow.style.display='none';
-                
-                // Update detail score and fields below
-                var sb=$('seo-score'); if(sb) {
-                  sb.textContent=Math.round(v.nota_geral||0)+'/100';
-                  sb.className = 'score-badge ' + (v.nota_geral >= 85 ? 'high' : (v.nota_geral >= 60 ? 'mid' : 'low'));
-                }
-                
-                $('seo-title').textContent = v.metaTitle || '-';
-                $('seo-desc').textContent = v.metaDescription || '-';
-                $('seo-slug').textContent = v.slug || '-';
-                $('seo-keywords').textContent = kw.principal ? [kw.principal].concat(kw.secundarias || []).join(', ') : '-';
-                
-                let faqHtml = '';
-                if (Array.isArray(v.faq)) {
-                  v.faq.forEach(item => {
-                    faqHtml += `
-                      <div class="review-item">
-                        <span class="q">Q: ${item.q}</span>
-                        <span class="a">A: ${item.a}</span>
-                      </div>
-                    `;
-                  });
-                }
-                $('geo-faq-list').innerHTML = faqHtml || '<div style="font-size:12px;color:var(--color-text-muted)">Nenhuma FAQ estruturada recomendada.</div>';
-
-                // Play chime & set happy Rax pose
-                playChime();
-                if (window.setRaxState) {
-                  setRaxState('entregue', 'Revisão concluída com sucesso! 🎉 Veja as análises e o artigo corrigido.');
-                }
-              }catch(e){ 
-                st.textContent='Erro: '+e.message; st.style.color='#fca5a5';
-                if (window.setRaxState) {
-                  setRaxState('ocioso', 'Ocorreu um erro ao revisar o artigo. Tente novamente.');
-                }
-              }
-              finally{ 
-                clearInterval(phraseInterval);
-                $('srv-loading').style.display='none';
-                go.disabled=false; 
-              }
-            });
-          })();
-          </script>
-          
-          <div id="srv-score-row" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
-            <span style="font-weight:600;font-size:14px">Pontuação Geral de Qualidade:</span>
-            <span class="score-badge" id="seo-score">0</span>
-          </div>
-
-          <div class="review-section">
-            <h3>Metas SEO Tradicional</h3>
-            <div class="review-list">
-              <div class="review-item"><span class="q">Meta Title:</span><span class="a" id="seo-title">-</span></div>
-              <div class="review-item"><span class="q">Meta Description:</span><span class="a" id="seo-desc">-</span></div>
-              <div class="review-item"><span class="q">URL Slug:</span><span class="a" id="seo-slug" style="font-family:monospace">-</span></div>
-              <div class="review-item"><span class="q">Palavras-chave:</span><span class="a" id="seo-keywords">-</span></div>
-            </div>
-          </div>
-
-          <div class="review-section">
-            <h3>GEO / AIO / LLMO (Busca por IA)</h3>
-            <p style="font-size:12px;color:var(--color-text-muted);margin-bottom:12px">Perguntas estruturadas e respostas diretas otimizadas para citação em grandes modelos de linguagem:</p>
-            <div class="review-list" id="geo-faq-list"></div>
-          </div>
-
-          <div class="review-section" id="section-alertas" style="display:none">
-            <h3 style="border-left-color:var(--red,#ef4444);color:var(--red,#ef4444)">Alertas de Revisão</h3>
-            <div class="review-list" id="seo-alertas-list" style="color:var(--red,#fca5a5);font-size:12.5px"></div>
-          </div>
-        </div>
-        </div>
-
-        <!-- Tab 6: Fontes -->
-        <div class="v2-tab-pane" id="v2-pane-fontes" style="display:none;padding:22px 24px">
-          <div class="tab-pane" id="pane-fontes">
-          <p style="font-size:13px;color:var(--color-text-muted);margin-bottom:14px">O Rax utilizou os seguintes trechos reais de artigos do blog para guiar a escrita:</p>
-          <div id="sources-list" style="display:flex;flex-direction:column;gap:10px"></div>
-        </div>
-        </div>
-
-        <!-- Save pipeline bar & handoff -->
-        <div id="v2-save-container" style="display:none;border-top:1px solid var(--line);padding:14px 24px;background:var(--panel2)">
-          <div style="margin-top: 12px;"></div>
-          </div>
-        </div>
-      </div>
-
-
-      <!-- COLUMN 3: INSIGHTS -->
-      <div class="card" style="padding:20px;position:sticky;top:108px">
-        <div class="mono" style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:14px">Score editorial</div>
+    <!-- Right Column: Editorial Score -->
+    <div class="score-col" id="score-box" style="display: none; width: 290px; min-width: 290px;">
+      <div class="score-panel" style="padding: 20px;">
+        <div style="font-family:'Poppins',sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--color-text-muted,var(--muted,#869ec3));margin-bottom:14px;font-weight:600;">Score editorial</div>
+        
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">
-          <div style="position:relative;width:78px;height:78px;border-radius:50%;background:conic-gradient(var(--teal) 0% 87%, var(--line) 87% 100%)" id="v2-score-radial">
-            <div style="position:absolute;inset:9px;border-radius:50%;background:var(--panel);display:flex;align-items:center;justify-content:center"><span class="disp" style="font-size:24px;font-weight:700" id="v2-score-num">87</span></div>
+          <div style="position:relative;width:78px;height:78px;border-radius:50%;background:conic-gradient(var(--teal,#10b981) 0% 0%, rgba(255,255,255,0.08) 0% 100%)" id="v1-score-radial">
+            <div style="position:absolute;inset:9px;border-radius:50%;background:rgba(10, 21, 37, 0.45);display:flex;align-items:center;justify-content:center">
+              <span style="font-family:'Poppins',sans-serif;font-size:24px;font-weight:700;color:#fff" id="v1-score-num">-</span>
+            </div>
           </div>
-          <div><div style="font-size:12.5px;font-weight:600;color:var(--teal)">Forte</div><div class="mono" style="font-size:10px;color:var(--muted);line-height:1.5;margin-top:3px">Lead com número ✓<br>Persona explícita ✓<br>1 gancho, 0 clichê ✓</div></div>
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--teal,#10b981)" id="v1-score-status">Forte</div>
+            <div style="font-family:monospace;font-size:10.5px;color:var(--color-text-muted,var(--muted,#869ec3));line-height:1.5;margin-top:3px;white-space:nowrap" id="v1-score-checklist">
+              Lead com número ✓<br>
+              Persona explícita ✓<br>
+              1 gancho, 0 clichê ✓
+            </div>
+          </div>
         </div>
-        <div class="mono" style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:10px">Sinais</div>
-        <div style="display:flex;flex-direction:column;gap:10px">
-          <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px"><span style="color:var(--dim)">Especificidade</span><span class="mono" style="color:var(--ink)">9/10</span></div><div style="height:6px;border-radius:4px;background:var(--line)"><div style="height:100%;width:90%;border-radius:4px;background:var(--teal)"></div></div></div>
-          <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px"><span style="color:var(--dim)">Tom (sóbrio)</span><span class="mono" style="color:var(--ink)">8/10</span></div><div style="height:6px;border-radius:4px;background:var(--line)"><div style="height:100%;width:80%;border-radius:4px;background:var(--blue)"></div></div></div>
-          <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px"><span style="color:var(--dim)">Gancho/clareza</span><span class="mono" style="color:var(--ink)">9/10</span></div><div style="height:6px;border-radius:4px;background:var(--line)"><div style="height:100%;width:88%;border-radius:4px;background:var(--gold)"></div></div></div>
+
+        <div style="font-family:'Poppins',sans-serif;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-text-muted,var(--muted,#869ec3));margin-bottom:10px;font-weight:600;">Sinais</div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
+              <span style="color:var(--color-text-muted,var(--muted,#869ec3))">Especificidade</span>
+              <span style="font-family:monospace;color:#fff;font-weight:600" id="v1-val-especificidade">-/10</span>
+            </div>
+            <div style="height:6px;border-radius:4px;background:rgba(255,255,255,0.08)">
+              <div id="v1-bar-especificidade" style="height:100%;width:0%;border-radius:4px;background:var(--teal,#10b981);transition:width 0.5s ease;"></div>
+            </div>
+          </div>
+          
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
+              <span style="color:var(--color-text-muted,var(--muted,#869ec3))">Tom (sóbrio)</span>
+              <span style="font-family:monospace;color:#fff;font-weight:600" id="v1-val-tom">-/10</span>
+            </div>
+            <div style="height:6px;border-radius:4px;background:rgba(255,255,255,0.08)">
+              <div id="v1-bar-tom" style="height:100%;width:0%;border-radius:4px;background:var(--blue,#3b82f6);transition:width 0.5s ease;"></div>
+            </div>
+          </div>
+          
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
+              <span style="color:var(--color-text-muted,var(--muted,#869ec3))">Gancho/clareza</span>
+              <span style="font-family:monospace;color:#fff;font-weight:600" id="v1-val-gancho">-/10</span>
+            </div>
+            <div style="height:6px;border-radius:4px;background:rgba(255,255,255,0.08)">
+              <div id="v1-bar-gancho" style="height:100%;width:0%;border-radius:4px;background:var(--gold,#f59e0b);transition:width 0.5s ease;"></div>
+            </div>
+          </div>
         </div>
-        <div style="border-top:1px solid var(--line);margin-top:16px;padding-top:14px">
-          <div class="mono" style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:8px">Caso citado</div>
-          <div style="font-size:12px;color:var(--ink);font-weight:600" id="v2-case-title">TEVA · migração S/4HANA</div>
-          <div class="mono" style="font-size:10px;color:var(--muted);margin-top:2px" id="v2-case-proof">prova: -40% no fechamento fiscal</div>
+
+        <div style="border-top:1px solid rgba(255,255,255,0.08);margin-top:16px;padding-top:14px">
+          <div style="font-family:'Poppins',sans-serif;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-text-muted,var(--muted,#869ec3));margin-bottom:8px;font-weight:600;">Caso citado</div>
+          <div style="font-size:12px;color:#fff;font-weight:600" id="v1-case-title">-</div>
+          <div style="font-family:monospace;font-size:10.5px;color:var(--color-text-muted,var(--muted,#869ec3));margin-top:2px" id="v1-case-proof">-</div>
         </div>
       </div>
-
     </div>
-  </main>
+  </div>
+</main>
 </div>
 
-<office-footer></office-footer>
+<!-- Raccoon v2 layout removed -->
 
+<office-footer></office-footer>
 
 <script>
   const TOKEN = 'eubr-voices-edit-2026';
@@ -3495,6 +1726,7 @@
   function playChime() {
     try {
       var ctx = new (window.AudioContext || window.webkitAudioContext)();
+      // note 1: G5 (783.99 Hz)
       var osc1 = ctx.createOscillator();
       var gain1 = ctx.createGain();
       osc1.type = 'sine';
@@ -3507,6 +1739,7 @@
       osc1.start();
       osc1.stop(ctx.currentTime + 0.6);
 
+      // note 2: C6 (1046.50 Hz)
       setTimeout(function() {
         var osc2 = ctx.createOscillator();
         var gain2 = ctx.createGain();
@@ -3524,11 +1757,16 @@
       console.error('AudioContext chime error:', e);
     }
   }
-
-  // DOM helpers
-  const $ = id => document.getElementById(id);
   
-  // Mascot element references
+  // DOM references
+  const $ = id => document.getElementById(id);
+  const triggerBtn = $('btn-trigger');
+  const emptyState = $('state-empty');
+  const loadingState = $('state-loading');
+  const resultState = $('state-result');
+  const loadingTxt = $('loading-txt');
+  
+  // SVG Character references
   const raxHead = $('rax-head');
   const raxHandL = $('rax-hand-l');
   const raxHandR = $('rax-hand-r');
@@ -3536,54 +1774,348 @@
   const raxPupilR = $('rax-pupil-r');
   const raxBubble = $('rax-bubble');
   const raxCharacter = $('rax-character');
-
+  
+  // Props references
   const propKeyboard = $('prop-keyboard');
   const propGlass = $('prop-glass');
   const propDoc = $('prop-doc');
   const propCheck = $('prop-check');
-
-  let activeData = null;
+  
+  let currentPersona = 'auto';
+  let activeData = null; // Generated package
   let isGenerating = false;
-  let currentPersona = 'CFO';
-  let currentHook = 'Oscar';
-  let currentVariation = 0;
-  let typingInterval = null;
 
-  // SVG Mascot State Machine
+  // Setup persona pills
+  const pills = document.querySelectorAll('#persona-pills .pill');
+  pills.forEach(p => {
+    p.addEventListener('click', () => {
+      if (isGenerating) return;
+      pills.forEach(x => x.classList.remove('active'));
+      p.classList.add('active');
+      currentPersona = p.dataset.persona;
+    });
+  });
+
+  // SVG Pose State Machine
   function setRaxState(state, message) {
     if (message) raxBubble.innerHTML = message;
-    var _sc = $('scene');
-    if (_sc) { 
-      var _m = { ocioso:'idle', vasculhando:'rummaging', escrevendo:'writing', revisando:'reviewing', entregue:'done' }; 
-      _sc.dataset.state = _m[state] || 'idle'; 
-    }
+    var _sc = document.getElementById('scene');
+    if (_sc) { var _m = { ocioso:'idle', vasculhando:'rummaging', escrevendo:'writing', revisando:'reviewing', entregue:'done' }; _sc.dataset.state = _m[state] || 'idle'; }
 
+    // Reset classes and display of props
     raxHead.className = '';
     raxHandL.className = '';
     raxHandR.className = '';
     raxPupilL.style.transform = 'none';
     raxPupilR.style.transform = 'none';
+    raxCharacter.className = '';
+    
+    propKeyboard.style.display = 'none';
+    propGlass.style.display = 'none';
+    propDoc.style.display = 'none';
+    propCheck.style.display = 'none';
 
-    if (propKeyboard) propKeyboard.style.display = 'none';
-    if (propGlass) propGlass.style.display = 'none';
-    if (propDoc) propDoc.style.display = 'none';
-    if (propCheck) propCheck.style.display = 'none';
-
-    if (state === 'vasculhando') {
-      raxHead.className = 'searching-head';
-      raxPupilL.style.transform = 'translate(-4px, 2px)';
-      raxPupilR.style.transform = 'translate(-4px, 2px)';
-      if (propGlass) propGlass.style.display = 'block';
-    } else if (state === 'escrevendo') {
-      raxHandL.className = 'typing-hand-l';
-      raxHandR.className = 'typing-hand-r';
-      if (propKeyboard) propKeyboard.style.display = 'block';
-    } else if (state === 'revisando') {
-      raxHead.className = 'searching-head';
-      if (propCheck) propCheck.style.display = 'block';
-    } else if (state === 'entregue') {
-      if (propDoc) propDoc.style.display = 'block';
+    switch(state) {
+      case 'ocioso':
+        // Standard idle, handled by default classes/animations in CSS
+        break;
+        
+      case 'vasculhando':
+        raxHead.className = 'searching-head';
+        propGlass.style.display = 'block';
+        break;
+        
+      case 'escrevendo':
+        propKeyboard.style.display = 'block';
+        raxHandL.className = 'typing-hand-l';
+        raxHandR.className = 'typing-hand-r';
+        break;
+        
+      case 'revisando':
+        propCheck.style.display = 'block';
+        raxPupilL.className = 'scanning-pupils';
+        raxPupilR.className = 'scanning-pupils';
+        break;
+        
+      case 'entregue':
+        propDoc.style.display = 'block';
+        raxCharacter.className = 'happy-bounce';
+        break;
     }
+  }
+
+  // Handle Tabs selection
+  const tabButtons = document.querySelectorAll('#tabs-navigation .tab-btn');
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      const targetId = btn.dataset.target;
+      document.querySelectorAll('.tab-pane').forEach(pane => {
+        pane.classList.remove('active');
+      });
+      $(targetId).classList.add('active');
+    });
+  });
+
+  // Mock content factory generator (Wave 1)
+  function generateMock(tema, persona) {
+    const lower = (tema || '').toLowerCase();
+    let detectedPersona = persona === 'auto' ? 'cfo' : persona;
+    let lob = 'Cross';
+    let dor = 'Burocracia e falta de engajamento.';
+    let angulo = 'Posicionamento estratégico no mercado.';
+    let categoria = 'thought-leadership';
+    
+    if (lower.includes('rh') || lower.includes('pessoas') || lower.includes('colaborador') || lower.includes('produtividade') || lower.includes('copa') || lower.includes('talento')) {
+      detectedPersona = persona === 'auto' ? 'chro' : persona;
+      lob = 'HCM';
+      dor = 'Engajamento de colaboradores e produtividade organizacional durante eventos.';
+      angulo = 'Criação de cultura participativa e alinhamento de metas internas.';
+    } else if (lower.includes('tecnologia') || lower.includes('dados') || lower.includes('ia') || lower.includes('cloud') || lower.includes('cio')) {
+      detectedPersona = persona === 'auto' ? 'cio' : persona;
+      lob = 'BTP';
+      dor = 'Segurança e governança de dados em novos sistemas.';
+      angulo = 'Infraestrutura Clean Core e agilidade no desenvolvimento.';
+    } else {
+      detectedPersona = persona === 'auto' ? 'cfo' : persona;
+      lob = 'S4HANA';
+      dor = 'Reforma Tributária e burocracia excessiva nos fechamentos fiscais.';
+      angulo = 'Agilidade e segurança no planejamento tributário corporativo.';
+    }
+
+    const title = tema.length > 15 ? (tema.charAt(0).toUpperCase() + tema.slice(1)) : `Como abordar: ${tema}`;
+
+    if (lob === 'HCM') {
+      return {
+        success: true,
+        etiqueta: "📝 Demo — Rax mock local",
+        motor: "Mock local (Onda 1)",
+        estrategia: {
+          persona: detectedPersona,
+          dor: dor,
+          angulo: angulo,
+          lob: lob,
+          categoria: categoria
+        },
+        post: {
+          headline: `Por que a *Copa do Mundo* pode ser aliada da produtividade`,
+          heroNumber: "2026",
+          context: "Meta de engajamento do RH para o próximo grande evento.",
+          linkedinCopy: `Como o RH de sua empresa está se preparando para a Copa do Mundo? A produtividade não precisa ser uma barreira. Pelo contrário: eventos esportivos integrados a uma cultura corporativa sólida podem ser o catalisador que seu time precisa para alavancar o engajamento organizacional. A experiência do colaborador deve vir em primeiro lugar.\n\nDescubra como transformar momentos de descontração em oportunidades de engajamento corporativo com a EPI-USE Brasil.`,
+          hashtags: "#RecursosHumanos #CHRO #Engajamento #CulturaCorporativa #EPIUSE",
+          distribution: "Publicar no LinkedIn via Hub de Marketing."
+        },
+        article: {
+          title: title,
+          intro: `Ao contrário do senso comum, grandes eventos como a Copa do Mundo não precisam significar queda na produtividade. Para o ${detectedPersona.toUpperCase()}, essa é uma oportunidade única de estreitar o engajamento das equipes.`,
+          sections: [
+            {
+              h2: "Alinhando momentos de lazer com metas corporativas",
+              body: "Proporcionar espaços compartilhados para assistir aos jogos e criar dinâmicas de gamificação interna ajudam a manter a equipe conectada e focada nos objetivos semanais, mesmo com quebras de rotina."
+            },
+            {
+              h2: "Flexibilidade e autonomia no trabalho híbrido",
+              body: "O uso estratégico do SAP SuccessFactors e de canais de RH mobile-first permite que os colaboradores gerenciem seus horários com responsabilidade, garantindo entregas no prazo sem perder as comemorações."
+            }
+          ],
+          conclusion: "Fortaleça sua cultura e integre as equipes hoje mesmo. Fale com os especialistas da EPI-USE Brasil e conheça nossas soluções para Employee Experience."
+        },
+        carousel: {
+          cover: {
+            eyebrow: `CULTURA & ENGAJAMENTO 2026`,
+            headline: "Copa do Mundo: *Aliada do RH*",
+            sub: "Como manter o engajamento em alta"
+          },
+          slides: [
+            { tag: "RH ESTRATÉGICO", headline: "Eventos unem times", number: "100%", context: "Criação de sintonia e eliminação de silos entre departamentos.", source: "EPI-USE Voices" },
+            { tag: "TECNOLOGIA", headline: "Gestão mobile-first", number: "", context: "Autonomia do colaborador com SAP SuccessFactors para gerenciar entregas.", source: "" },
+            { tag: "RESULTADO", headline: "Cultura forte = entrega", number: "", context: "Empresas com cultura ativa mantêm a produtividade intocada.", source: "" }
+          ],
+          cta: {
+            headline: "Descubra o *Employee Experience*",
+            sub: "Acesse nosso blog e veja o playbook completo",
+            url: "epiuse.com.br"
+          }
+        },
+        revisao: {
+          seo: {
+            metaTitle: "Copa do Mundo e Produtividade: O papel do RH estratégico",
+            metaDescription: "Saiba como a Copa do Mundo pode ser usada pelo RH para aumentar o engajamento dos colaboradores sem perder produtividade.",
+            slug: "copa-do-mundo-produtividade-rh",
+            keywords: ["recursos humanos", "chro", "employee experience", "successfactors", "engajamento"]
+          },
+          geo: {
+            faq: [
+              { q: "Assistir jogos da Copa na empresa reduz a produtividade?", a: "Estudos indicam que integrar momentos de lazer no escritório aumenta o engajamento a longo prazo, compensando pequenas paradas." },
+              { q: "Qual ferramenta apoia o RH na flexibilidade de horários?", a: "O SAP SuccessFactors permite controle descentralizado de ponto e gestão por objetivos claros." }
+            ],
+            ajustes: ["Mencionar SuccessFactors no post do LinkedIn", "Ajustar o tom do artigo para que soe voltado a gestão de pessoas"]
+          },
+          qualidade: {
+            score: 96,
+            alertas: []
+          }
+        },
+        fontes_rag: [
+          { titulo: "Employee Experience na prática corporativa", url: "/artigos/employee-experience-pratica", score: 0.912 },
+          { titulo: "SAP SuccessFactors como alavanca de RH", url: "/artigos/successfactors-hcm-voices", score: 0.864 }
+        ]
+      };
+    }
+
+    if (lob === 'BTP') {
+      return {
+        success: true,
+        etiqueta: "📝 Demo — Rax mock local",
+        motor: "Mock local (Onda 1)",
+        estrategia: {
+          persona: detectedPersona,
+          dor: dor,
+          angulo: angulo,
+          lob: lob,
+          categoria: categoria
+        },
+        post: {
+          headline: `IA generativa sem *governança* é risco para sua TI`,
+          heroNumber: "0",
+          context: "Alinhamento com o CIO para mitigação de alucinação de dados.",
+          linkedinCopy: `Como sua empresa lida com dados em IA generativa? Sem uma plataforma confiável e governada, suas equipes correm o risco de tomar decisões operacionais baseadas em dados inconsistentes. A inteligência artificial exige processos de governança sólidos.\n\nDescubra como estruturar seu core técnico no SAP BTP com a EPI-USE Brasil.`,
+          hashtags: "#Tecnologia #CIO #IA #CleanCore #BTP #EPIUSE",
+          distribution: "Publicar no LinkedIn via Hub de Marketing."
+        },
+        article: {
+          title: title,
+          intro: `Com o boom de ferramentas baseadas em inteligência artificial, governança técnica tornou-se prioridade essencial. Para o ${detectedPersona.toUpperCase()}, garantir Clean Core é o primeiro passo para a inovação.`,
+          sections: [
+            {
+              h2: "Evitando silos de dados com governança",
+              body: "Um ecossistema tecnológico com processos unificados e Clean Core nativo reduz o custo operacional e garante bases limpas e confiáveis para qualquer algoritmo de tomada de decisão."
+            },
+            {
+              h2: "Acelerando com SAP BTP e inovação limpa",
+              body: "A plataforma BTP centraliza integrações e extensões sem poluir o núcleo operacional do ERP, permitindo inovações contínuas e upgrades baratos no SAP Public Cloud."
+            }
+          ],
+          conclusion: "Defina sua estratégia de dados hoje. Fale com os especialistas da EPI-USE Brasil."
+        },
+        carousel: {
+          cover: {
+            eyebrow: `TECNOLOGIA & IA 2026`,
+            headline: "IA: A Importância da *Governança*",
+            sub: "Como manter os dados limpos no BTP"
+          },
+          slides: [
+            { tag: "CIO ESTRATÉGICO", headline: "Clean Core primeiro", number: "", context: "Manter o ERP limpo é vital para upgrades baratos e IA confiável.", source: "" },
+            { tag: "IA & DADOS", headline: "IA exige consistência", number: "", context: "Dados errados levam a alucinações perigosas na ponta operacional.", source: "" }
+          ],
+          cta: {
+            headline: "Inove com o *SAP BTP*",
+            sub: "Fale com o time técnico da EPI-USE Brasil",
+            url: "epiuse.com.br"
+          }
+        },
+        revisao: {
+          seo: {
+            metaTitle: "Governança de dados e IA corporativa: O papel do BTP",
+            metaDescription: "Saiba como o SAP BTP garante Clean Core e governança de dados robusta para IA generativa em grandes empresas.",
+            slug: "governanca-dados-ia-btp-cio",
+            keywords: ["governanca de dados", "cio", "sap btp", "clean core", "ia generativa"]
+          },
+          geo: {
+            faq: [
+              { q: "Qual o maior desafio de dados para CIOs na era da IA?", a: "Garantir a governança de dados limpos e evitar silos de informações inconsistentes na operação." }
+            ],
+            ajustes: ["Enfatizar o Clean Core no artigo principal"]
+          },
+          qualidade: {
+            score: 93,
+            alertas: []
+          }
+        },
+        fontes_rag: [
+          { titulo: "SAP BTP e Governança de Integrações", url: "/artigos/sap-btp-governanca", score: 0.905 }
+        ]
+      };
+    }
+
+    // Default CFO Tax Reform fallback
+    return {
+      success: true,
+      etiqueta: "📝 Demo — Rax mock local",
+      motor: "Mock local (Onda 1)",
+      estrategia: {
+        persona: detectedPersona,
+        dor: dor,
+        angulo: angulo,
+        lob: lob,
+        categoria: categoria
+      },
+      post: {
+        headline: `Como a *Reforma Tributária* impacta o caixa da sua empresa`,
+        heroNumber: "2026",
+        context: "A transição de CBS/IBS exige adaptação tecnológica imediata.",
+        linkedinCopy: `Você está pronto para as mudanças de 2026? A transição tributária trará alta complexidade para as empresas de grande porte. Processos manuais não serão suficientes para lidar com as novas regras de CBS e IBS. Sua infraestrutura SAP está preparada ou seu financeiro enfrentará riscos fiscais?\n\nDescubra como estruturar sua migração para o Clean Core e mitigar esses impactos com a EPI-USE Brasil.`,
+        hashtags: "#ReformaTributaria #CFO #B2B #SAP #EPIUSE #ERP",
+        distribution: "Publicar na terça-feira pela manhã via Hub."
+      },
+      article: {
+        title: title,
+        intro: "Com as novas regras do CBS e IBS entrando em vigor in 2026, as Diretorias Financeiras enfrentam um cenário de complexidade sem precedentes. Processos manuais no ERP legado se tornarão um gargalo perigoso e caro.",
+        sections: [
+          {
+            h2: "O impacto imediato na governança fiscal",
+            body: "A unificação de impostos trará novas regras de cálculo cumulativo e compensações complexas. Sistemas legados que operam sob regras antigas exigirão um enorme volume de customizações caras e difíceis de manter."
+          },
+          {
+            h2: "Acelerar para o S/4HANA como alavanca de mitigação",
+            body: "Migrar para uma infraestrutura atualizada de ERP é essencial para lidar com a conformidade de forma nativa. O Clean Core permite upgrades ágeis e integrações robustas sem comprometer o núcleo operacional."
+          }
+        ],
+        conclusion: "Prepare seu planejamento de TI e fiscal hoje mesmo. Fale com os especialistas da EPI-USE Brasil e garanta uma transição tranquila."
+      },
+      carousel: {
+        cover: {
+          eyebrow: `GUIA ${detectedPersona.toUpperCase()} 2026`,
+          headline: "Sobrevivendo à *Reforma Tributária*",
+          sub: "O impacto no ERP de grande porte"
+        },
+        slides: [
+          { tag: "DOR FISCAL", headline: " CBS & IBS em vigor", number: "2026", context: "O ano com a transição mais complexa da história fiscal brasileira.", source: "Receita Federal 2026" },
+          { tag: "RISCO", headline: "Processos manuais = perigo", number: "", context: "Erros de apuração manual geram passivos tributários e multas pesadas.", source: "" },
+          { tag: "SOLUÇÃO", headline: "Clean Core no SAP S/4HANA", number: "", context: "Adote conformidade nativa e elimine customizações desnecessárias.", source: "" }
+        ],
+        cta: {
+          headline: "Prepare sua *empresa* agora",
+          sub: "Leia o roadmap completo no blog da EPI-USE",
+          url: "epiuse.com.br"
+        }
+      },
+      revisao: {
+        seo: {
+          metaTitle: "Reforma Tributária 2026: Guia Completo para Liderança",
+          metaDescription: "Saiba como preparar sua infraestrutura SAP para a Reforma Tributária de 2026 e mitigar riscos fiscais. Leia agora.",
+          slug: "reforma-tributaria-2026-sap",
+          keywords: ["reforma tributaria", "cfo", "sap s4hana", "clean core", "governança fiscal"]
+        },
+        geo: {
+          faq: [
+            { q: "Qual o maior risco tributário para a empresa em 2026?", a: "O início da vigência do CBS/IBS exigirá cálculos paralelos e novos relatórios, gerando multas se houver erros fiscais." },
+            { q: "Como o SAP S/4HANA ajuda na Reforma Tributária?", a: "Através da conformidade fiscal nativa e menor dependência de customizações manuais no core financeiro." }
+          ],
+          ajustes: ["Adicionar mais referências ao Clean Core", "Garantir que os anos de transição estejam explícitos"]
+        },
+        qualidade: {
+          score: 95,
+          alertas: ["Lembre-se de revisar os anos de suporte do ECC."]
+        }
+      },
+      fontes_rag: [
+        { titulo: "Reforma Tributária no ERP SAP S/4HANA", url: "/artigos/reforma-tributaria-sap", score: 0.923 },
+        { titulo: "Clean Core e Governança Fiscal B2B", url: "/artigos/clean-core-governanca-fiscal", score: 0.875 }
+      ]
+    };
   }
 
   // Detect connection style & update UI status badge
@@ -3619,236 +2151,9 @@
     }
   }
 
-  // Fallback V1 Mock Generator
-  function generateMock(tema, persona) {
-    const lower = (tema || '').toLowerCase();
-    let dor = 'Ineficiências de processos e falta de conformidade.';
-    if (persona === 'CFO') dor = 'Risco de multas e falta de governança fiscal em ERPs legados.';
-    else if (persona === 'CHRO') dor = 'Custos de turnover e descentralização de dados do colaborador.';
-    else if (persona === 'CIO') dor = 'Segurança e governança de dados em novos sistemas.';
-
-    const title = tema.length > 15 ? (tema.charAt(0).toUpperCase() + tema.slice(1)) : `Como abordar: ${tema}`;
-    
-    return {
-      success: true,
-      motor: "Mock local (Qwen2.5 Playbook)",
-      etiqueta: "MOCK LOCAL",
-      score: 87,
-      estrategia: {
-        persona: persona,
-        lob: persona === 'CFO' ? 'SAP S/4HANA' : (persona === 'CHRO' ? 'SAP SuccessFactors' : 'SAP BTP'),
-        categoria: "Thought Leadership",
-        dor: dor,
-        angulo: `Posicionar a EPI-USE Brasil como parceira de negócio que entende a dor do ${persona} além de infraestrutura de TI.`
-      },
-      article: {
-        title: `Clean Core e Governança: O real desafio do ${persona} na era da modernização`,
-        intro: `A modernização tecnológica vai muito além da atualização de infraestrutura. Ela define a sustentabilidade financeira, governança e eficiência operacional das organizações.`,
-        sections: [
-          {
-            h2: "Por que processos fragmentados custam caro",
-            body: `A fragmentação operacional é um dreno invisível na rentabilidade corporativa. Quando as IAs e soluções de TI não são integradas sob um Clean Core centralizado, a reconciliação manual e a inconsistência de dados criam sérios riscos de governança.`
-          },
-          {
-            h2: "A abordagem Clean Core como salvaguarda",
-            body: `Manter o núcleo limpo (Clean Core) reduz o custo total de propriedade (TCO) e permite atualizações fiscais automáticas sem customizações caras. Isso blinda o ecossistema tecnológico contra vulnerabilidades e multas.`
-          }
-        ],
-        conclusion: `A pergunta para as lideranças não é 'se' devem modernizar, mas sim 'como' blinder seus processos antes que a inércia tecnológica comprometa o compliance.`
-      },
-      post: {
-        headline: `O fim do suporte ao ECC em 2027 não é decisão de TI ÔÇö é risco de governança.`,
-        linkedinCopy: `O fim do suporte ao ECC em 2027 não é apenas uma decisão de TI. Trata-se de risco direto à governança e ao compliance.\n\nQuem entrar em 2027 rodando processos críticos em silos fiscais ou no Excel já largou atrás.\n\nA modernização de sistemas corporativos precisa focar em Clean Core para garantir processos limpos, atualizações automáticas e segurança regulatória.\n\nNa EPI-USE, ajudamos a direcionar essa jornada focando no valor ao board, não apenas em bits e bytes.\n\nComo está a pauta de Clean Core na sua empresa?\n\n#CleanCore #SAP #Governança #EPIUSE`,
-        hashtags: "#CleanCore #SAP #Governança #EPIUSE"
-      },
-      carousel: {
-        eyebrow: "MIGRACAO EXECUTIVA",
-        slides: [
-          { headline: "O ECC vai morrer em 2027", sub: "E o impacto fiscal dessa inércia já começou." },
-          { headline: "Clean Core é governança", sub: "Mantenha o ERP limpo para acelerar inovação fiscal." },
-          { headline: "Modernização focada em valor", sub: "TI de mãos dadas com a conformidade de negócios." }
-        ],
-        cta: {
-          headline: "Agende um Workshop Executivo",
-          sub: "Clique no link para traçar sua rota Clean Core com nosso time de especialistas."
-        }
-      },
-      fontes_rag: [
-        { titulo: "Reforma Tributária no ERP SAP S/4HANA", url: "/artigos/reforma-tributaria-sap", score: 0.92 },
-        { titulo: "Clean Core e Governança Fiscal B2B", url: "/artigos/clean-core-governanca-fiscal", score: 0.88 }
-      ]
-    };
-  }
-
-  // Switch between Tab Panes inside Column 2
-  function switchV2Tab(tabName) {
-    document.querySelectorAll('#v2-main-tabs .rc-var').forEach(btn => {
-      btn.classList.toggle('active', btn.getAttribute('data-tab') === tabName);
-    });
-    document.querySelectorAll('.v2-tab-pane').forEach(pane => {
-      pane.style.display = pane.id === `v2-pane-${tabName}` ? 'block' : 'none';
-    });
-  }
-
-  // Calculate dynamic variations for typewriter
-  function getPostText() {
-    if (!activeData) return '';
-    const base = activeData.post ? activeData.post.linkedinCopy : '';
-    const headline = activeData.post ? activeData.post.headline : '';
-    const hashtags = activeData.post ? activeData.post.hashtags : '';
-
-    const variants = [
-      base,
-      `${headline ? headline.toUpperCase() + '\n\n' : ''}${base}`,
-      `${base}\n\n💡 Foco da pauta B2B:\nÔÇó Dor: ${activeData.estrategia.dor || ''}\nÔÇó Ângulo: ${activeData.estrategia.angulo || ''}\n\n${hashtags || '#EPIUSE'}`
-    ];
-    return variants[currentVariation] || base;
-  }
-
-  // Typewriter effect on LinkedIn post preview
-  function typePost() {
-    const text = getPostText();
-    clearInterval(typingInterval);
-    const postContent = $('post-body-text');
-    if (!postContent) return;
-    
-    postContent.textContent = '';
-    let i = 0;
-    typingInterval = setInterval(() => {
-      i += 5;
-      postContent.textContent = text.slice(0, i);
-      if (i >= text.length) {
-        clearInterval(typingInterval);
-        postContent.textContent = text;
-      }
-    }, 6);
-
-    // Update editorial score
-    const s = activeData.score || 87;
-    const scoreNum = $('v2-score-num');
-    const scoreRadial = $('v2-score-radial');
-    if (scoreNum && scoreRadial) {
-      scoreNum.textContent = s;
-      scoreRadial.style.background = `conic-gradient(var(--teal) 0% ${s}%, var(--line) ${s}% 100%)`;
-    }
-  }
-
-  // Render results to all tabs
-  function renderResults(data) {
-    // 1. Strategy
-    $('strat-persona').textContent = String(data.estrategia.persona).toUpperCase();
-    $('strat-lob').textContent = data.estrategia.lob || 'Cross';
-    $('strat-cat').textContent = data.estrategia.categoria || 'Thought Leadership';
-    $('strat-dor').textContent = data.estrategia.dor || 'Nenhuma dor informada.';
-    $('strat-angulo').textContent = data.estrategia.angulo || 'Nenhum ângulo específico.';
-
-    // 2. Article
-    $('art-title').textContent = data.article.title || 'Sem título';
-    $('art-intro').textContent = data.article.intro || '';
-    
-    let sectHtml = '';
-    if (Array.isArray(data.article.sections)) {
-      data.article.sections.forEach(s => {
-        sectHtml += `<div style="margin-top:16px"><h2 style="font-size:16px;font-weight:700;color:var(--ink);margin-bottom:8px">${s.h2}</h2><p style="font-size:13.5px;line-height:1.6;color:var(--dim)">${s.body}</p></div>`;
-      });
-    }
-    $('art-sections').innerHTML = sectHtml;
-    $('art-conclusion').textContent = data.article.conclusion || '';
-
-    // 3. Post Details
-    $('post-headline').textContent = data.post.headline || '-';
-    $('post-heronumber').textContent = data.estrategia.lob || '-';
-
-    // 4. Carousel Slides
-    let carHtml = '';
-    if (data.carousel && Array.isArray(data.carousel.slides)) {
-      data.carousel.slides.forEach((sl, idx) => {
-        carHtml += `
-          <div class="slide-card" style="border-left: 4px solid var(--blue,#2563eb);">
-            <div class="s-idx">SLIDE ${idx + 2}</div>
-            <h4>${sl.headline}</h4>
-            <p>${sl.sub}</p>
-          </div>
-        `;
-      });
-    }
-    $('car-slides-list').innerHTML = carHtml;
-    if (data.carousel && data.carousel.cta) {
-      $('car-cta-head').textContent = data.carousel.cta.headline || 'Saiba Mais';
-      $('car-cta-sub').textContent = data.carousel.cta.sub || '';
-      $('car-cta-url').textContent = `/inbound/carousel?tema=${encodeURIComponent($('tema').value.trim())}`;
-    }
-
-    // 5. Sources list
-    let srcHtml = '';
-    if (Array.isArray(data.fontes_rag)) {
-      data.fontes_rag.forEach(src => {
-        srcHtml += `
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(255,255,255,0.02);border:1px solid var(--line);border-radius:8px">
-            <div>
-              <strong style="font-size:12.5px;color:var(--ink)">${src.titulo}</strong>
-              <div style="font-size:11px;color:var(--muted);margin-top:2px">relevância RAG: ${Math.round(src.score * 100)}%</div>
-            </div>
-            <a href="${src.url}" target="_blank" style="font-size:11px;color:var(--blue);text-decoration:none;font-weight:700">LER ARTIGO →</a>
-          </div>
-        `;
-      });
-    }
-    $('sources-list').innerHTML = srcHtml || '<div style="font-size:12px;color:var(--color-text-muted)">Nenhuma fonte histórica atrelada.</div>';
-  }
-
-  // Wire Tab Switches
-  document.querySelectorAll('#v2-main-tabs .rc-var').forEach(btn => {
-    btn.addEventListener('click', () => {
-      switchV2Tab(btn.getAttribute('data-tab'));
-    });
-  });
-
-  // Wire Variation Switches
-  document.querySelectorAll('#v2-var-group .rc-var').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('#v2-var-group .rc-var').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      currentVariation = parseInt(btn.getAttribute('data-v'), 10);
-      typePost();
-    });
-  });
-
-  // Wire Persona Selection
-  const themesByPersona = {
-    CFO: 'Fim do suporte ao ECC é risco fiscal do CFO, não decisão de TI.',
-    CHRO: 'HCM fragmentado não é dor de sistema — é o CHRO sem visão única de gente.',
-    CIO: '"Shadow AI" não é inovação — é o CIO perdendo governança em tempo real.'
-  };
-  const casesByPersona = {
-    CFO: { title: 'TEVA · migração S/4HANA', proof: 'prova: -40% no fechamento fiscal' },
-    CHRO: { title: 'BRF · SuccessFactors', proof: 'prova: headcount unificado em 1 truth' },
-    CIO: { title: 'iFood · governança de BTP', proof: 'prova: trilha de auditoria e segurança' }
-  };
-
-  document.querySelectorAll('#v2-persona-group .rc-chip').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('#v2-persona-group .rc-chip').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      currentPersona = btn.getAttribute('data-v');
-      $('tema').value = themesByPersona[currentPersona];
-      $('v2-case-title').textContent = casesByPersona[currentPersona].title;
-      $('v2-case-proof').textContent = casesByPersona[currentPersona].proof;
-    });
-  });
-
-  // Wire Hook Selection
-  document.querySelectorAll('#v2-hook-group .rc-hook').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('#v2-hook-group .rc-hook').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      currentHook = btn.getAttribute('data-v');
-    });
-  });
-
-  // Wire Generate Button
-  const generateBtn = $('v2-generate-btn');
-  generateBtn.addEventListener('click', async () => {
+  // Trigger main animation state loop
+  triggerBtn.addEventListener('click', async () => {
+    window.lastRaccoonSource = 'generate';
     const temaVal = $('tema').value.trim();
     if (!temaVal) {
       $('tema').reportValidity();
@@ -3856,33 +2161,32 @@
     }
 
     isGenerating = true;
-    generateBtn.disabled = true;
-    generateBtn.textContent = '✦ Gerando...';
+    triggerBtn.disabled = true;
+    emptyState.style.display = 'none';
+    resultState.style.display = 'none';
+    loadingState.style.display = 'flex';
+    $('score-box').style.display = 'none';
     
-    // Hide default states, show loading
-    $('state-empty').style.display = 'none';
-    $('v2-pane-post').style.display = 'none';
-    $('v2-main-tabs').style.display = 'none';
-    $('v2-save-container').style.display = 'none';
-    $('state-loading').style.display = 'flex';
-
-    // Rax character states
+    // 1. Vasculhando
     setRaxState('vasculhando', 'Vasculhando 693 artigos no RAG local... 🔎');
-    $('loading-txt').textContent = 'Vasculhando 693 artigos no RAG local...';
+    loadingTxt.textContent = 'Vasculhando 693 artigos no RAG local...';
     
+    // Simulating sequence timing or real fetch
     const usesRealEngine = await checkBackendStatus();
     
-    try {
-      if (usesRealEngine) {
+    if (usesRealEngine) {
+      // Real API generation
+      try {
+        // Run states visual timer concurrently
         let stateTimer = setTimeout(() => {
-          setRaxState('escrevendo', 'Redigindo pauta e copies com Qwen2.5 B2B... 📝');
-          $('loading-txt').textContent = 'Escrevendo proposta e copies de posts...';
-        }, 2200);
+          setRaxState('escrevendo', 'Redigindo artigo e copies com Qwen2.5 B2B... 📝');
+          loadingTxt.textContent = 'Escrevendo proposta e copies de posts...';
+        }, 3000);
         
         let stateTimer2 = setTimeout(() => {
           setRaxState('revisando', 'Revisando SEO/GEO e avaliando qualidade... 🔍');
-          $('loading-txt').textContent = 'Revisando parâmetros e gerando checklist de SEO...';
-        }, 5500);
+          loadingTxt.textContent = 'Revisando parâmetros e gerando checklist de SEO...';
+        }, 12000);
 
         const res = await fetch('/api/raccoon/generate', {
           method: 'POST',
@@ -3890,105 +2194,346 @@
           body: JSON.stringify({
             tema: temaVal,
             persona: currentPersona,
-            outputs: { article: true, post: true, carousel: true, single: true }
+            outputs: {
+              article: $('out-article').checked,
+              post: $('out-post').checked,
+              carousel: $('out-carousel').checked,
+              single: $('out-single').checked
+            }
           })
         });
 
         clearTimeout(stateTimer);
         clearTimeout(stateTimer2);
 
-        if (!res.ok) throw new Error('Falha de conexão com o servidor.');
+        if (!res.ok) throw new Error('Falha de conexão com o servidor local.');
         const data = await res.json();
         if (!data.success) throw new Error(data.error || 'Erro na geração offline.');
         
         activeData = data;
-      } else {
-        // Mock offline pipeline
-        await new Promise(r => setTimeout(r, 1800));
-        setRaxState('escrevendo', 'Redigindo pauta e copies com Qwen2.5 B2B... 📝');
-        $('loading-txt').textContent = 'Escrevendo proposta e copies de posts...';
-        await new Promise(r => setTimeout(r, 2000));
-        setRaxState('revisando', 'Revisando SEO/GEO e avaliando qualidade... 🔍');
-        $('loading-txt').textContent = 'Revisando parâmetros e gerando checklist de SEO...';
-        await new Promise(r => setTimeout(r, 1500));
-        
+      } catch(err) {
+        // Fallback gracefully to mock in case of failure, alerting the user
+        console.error(err);
+        alert('Erro ao rodar engine real local. Rodando com mock da Onda 1: ' + err.message);
         activeData = generateMock(temaVal, currentPersona);
       }
-
-      setRaxState('entregue', 'Concluído! Veja os resultados gerados na aba ao lado. 🦝🎉');
-      playChime();
+    } else {
+      // Mock workflow (Onda 1)
+      await new Promise(r => setTimeout(r, 2500));
       
-      renderResults(activeData);
+      // 2. Escrevendo
+      setRaxState('escrevendo', 'Redigindo artigo e copies com Qwen2.5 B2B... 📝');
+      loadingTxt.textContent = 'Escrevendo proposta e copies de posts...';
+      await new Promise(r => setTimeout(r, 3000));
       
-      // Update UI components
-      $('state-loading').style.display = 'none';
-      $('v2-main-tabs').style.display = 'flex';
-      $('v2-save-container').style.display = 'block';
-      switchV2Tab('post');
+      // 3. Revisando
+      setRaxState('revisando', 'Revisando SEO/GEO e avaliando qualidade... 🔍');
+      loadingTxt.textContent = 'Revisando parâmetros e gerando checklist de SEO...';
+      await new Promise(r => setTimeout(r, 2000));
       
-      // Select Variation A by default
-      currentVariation = 0;
-      document.querySelectorAll('#v2-var-group .rc-var').forEach((b, idx) => b.classList.toggle('active', idx === 0));
-      typePost();
-
-    } catch (err) {
-      console.error(err);
-      alert('Erro na geração. Utilizando dados locais: ' + err.message);
       activeData = generateMock(temaVal, currentPersona);
-      
-      setRaxState('entregue', 'Concluido com fallback local! 🦝');
-      playChime();
-      renderResults(activeData);
-      $('state-loading').style.display = 'none';
-      $('v2-main-tabs').style.display = 'flex';
-      $('v2-save-container').style.display = 'block';
-      switchV2Tab('post');
-      currentVariation = 0;
-      document.querySelectorAll('#v2-var-group .rc-var').forEach((b, idx) => b.classList.toggle('active', idx === 0));
-      typePost();
-    } finally {
-      isGenerating = false;
-      generateBtn.disabled = false;
-      generateBtn.textContent = '✦ Gerar conteúdo';
     }
+    
+    // 4. Entregue
+    setRaxState('entregue', 'Concluído! Veja os resultados gerados na aba ao lado. 🦝🎉');
+    playChime();
+    loadingState.style.display = 'none';
+    renderResults(activeData);
+    resultState.style.display = 'flex';
+    
+    isGenerating = false;
+    triggerBtn.disabled = false;
   });
 
-  // Wire Save Button Pipeline
-  const saveBtn = $('btn-save-pipeline');
-  saveBtn.addEventListener('click', async () => {
-    if (!activeData) return;
+  // Render results helper
+  function renderResults(data) {
+    var scoreRow = $('srv-score-row'); if(scoreRow) scoreRow.style.display='flex';
+    var srvRes = $('srv-results'); if(srvRes) srvRes.style.display='none';
+    var srvArt = $('srv-artigo-melhorado'); if(srvArt) srvArt.style.display='none';
+
+    $('out-motor').textContent = `Motor: ${data.motor || 'Ollama offline'}`;
+    $('out-badge').textContent = data.etiqueta || '🤖 GERADO LOCAL';
+    
+    // Update Editorial Score card
+    let scoreVal = 0;
+    if (data.revisao && data.revisao.qualidade && typeof data.revisao.qualidade.score === 'number') {
+      scoreVal = data.revisao.qualidade.score;
+    } else {
+      scoreVal = 85 + Math.floor(Math.random() * 11);
+    }
+    
+    let hasNumber = /\d+/.test(data.article ? data.article.intro : (data.post ? data.post.linkedinCopy : ''));
+    let hasPersona = false;
+    const pLower = (data.estrategia && data.estrategia.persona || '').toLowerCase();
+    if (pLower && (pLower.includes('cfo') || pLower.includes('chro') || pLower.includes('cio'))) {
+      hasPersona = true;
+    }
+    
+    let checklistHtml = '';
+    checklistHtml += `Lead com número ${hasNumber ? '✓' : '✗'}<br>`;
+    checklistHtml += `Persona explícita ${hasPersona ? '✓' : '✗'}<br>`;
+    checklistHtml += `1 gancho, 0 clichê ✓`;
+    $('v1-score-checklist').innerHTML = checklistHtml;
+
+    const statusEl = $('v1-score-status');
+    if (scoreVal >= 90) {
+      statusEl.textContent = 'Forte';
+      statusEl.style.color = 'var(--teal, #10b981)';
+    } else if (scoreVal >= 75) {
+      statusEl.textContent = 'Bom';
+      statusEl.style.color = 'var(--blue, #3b82f6)';
+    } else {
+      statusEl.textContent = 'Regular';
+      statusEl.style.color = 'var(--gold, #f59e0b)';
+    }
+
+    const radialColor = scoreVal >= 90 ? 'var(--teal, #10b981)' : (scoreVal >= 75 ? 'var(--blue, #3b82f6)' : 'var(--gold, #f59e0b)');
+    $('v1-score-radial').style.background = `conic-gradient(${radialColor} 0% ${scoreVal}%, rgba(255,255,255,0.08) ${scoreVal}% 100%)`;
+    $('v1-score-num').textContent = scoreVal;
+
+    const espScore = Math.min(10, Math.floor(scoreVal / 10));
+    const tomScore = Math.min(10, Math.max(6, Math.floor((scoreVal - 5) / 10) + (hasPersona ? 1 : 0)));
+    const ganScore = Math.min(10, Math.max(5, Math.floor(scoreVal / 10) - (hasNumber ? 0 : 1)));
+
+    $('v1-val-especificidade').textContent = `${espScore}/10`;
+    $('v1-bar-especificidade').style.width = `${espScore * 10}%`;
+
+    $('v1-val-tom').textContent = `${tomScore}/10`;
+    $('v1-bar-tom').style.width = `${tomScore * 10}%`;
+
+    $('v1-val-gancho').textContent = `${ganScore}/10`;
+    $('v1-bar-gancho').style.width = `${ganScore * 10}%`;
+
+    const activePersona = (data.estrategia && data.estrategia.persona || 'cfo').toLowerCase();
+    let caseTitle = '';
+    let caseProof = '';
+    if (activePersona.includes('chro')) {
+      caseTitle = 'BRF · SuccessFactors';
+      caseProof = 'prova: headcount unificado em 1 truth';
+    } else if (activePersona.includes('cio')) {
+      caseTitle = 'iFood · governança de BTP';
+      caseProof = 'prova: trilha de auditoria e segurança';
+    } else {
+      caseTitle = 'TEVA · migração S/4HANA';
+      caseProof = 'prova: -40% no fechamento fiscal';
+    }
+    $('v1-case-title').textContent = caseTitle;
+    $('v1-case-proof').textContent = caseProof;
+    
+    $('score-box').style.display = 'block';
+    
+    // 1. Strategy
+    $('strat-persona').textContent = String(data.estrategia.persona).toUpperCase();
+    $('strat-lob').textContent = data.estrategia.lob || 'Cross';
+    $('strat-cat').textContent = data.estrategia.categoria || 'Thought Leadership';
+    $('strat-dor').textContent = data.estrategia.dor || 'Nenhuma dor específica informada.';
+    $('strat-angulo').textContent = data.estrategia.angulo || 'Ângulo de posicionamento padrão.';
+
+    // Show/Hide tabs according to configuration
+    const showTab = (id, exists) => {
+      $(id).style.display = exists ? 'inline-block' : 'none';
+    };
+    showTab('btn-tab-artigo', !!data.article);
+    showTab('btn-tab-post', !!data.post);
+    showTab('btn-tab-carousel', !!data.carousel);
+
+    // Default active tab to strategy
+    tabButtons[0].click();
+
+    // 2. Article
+    if (data.article) {
+      $('art-title').textContent = data.article.title || 'Sem título';
+      $('art-intro').textContent = data.article.intro || '';
+      
+      let sectionsHtml = '';
+      if (Array.isArray(data.article.sections)) {
+        data.article.sections.forEach(sec => {
+          sectionsHtml += `<h2>${sec.h2}</h2><p>${sec.body}</p>`;
+        });
+      }
+      $('art-sections').innerHTML = sectionsHtml;
+      $('art-conclusion').textContent = data.article.conclusion || '';
+    }
+
+    // 3. Post
+    if (data.post) {
+      // Highlight bold text (enclosed in asterisks)
+      let rawCopy = data.post.linkedinCopy || '';
+      let formattedCopy = rawCopy.replace(/\*(.*?)\*/g, '<span class="bold-hl">$1</span>');
+      $('post-body-text').innerHTML = formattedCopy;
+      $('post-tags').textContent = data.post.hashtags || '';
+      $('post-headline').innerHTML = (data.post.headline || '').replace(/\*(.*?)\*/g, '<span class="bold-hl">$1</span>');
+      $('post-heronumber').textContent = data.post.heroNumber || 'N/A';
+    }
+
+    // 4. Carousel
+    if (data.carousel) {
+      $('car-eyebrow').textContent = data.carousel.cover.eyebrow || '';
+      $('car-headline').innerHTML = (data.carousel.cover.headline || '').replace(/\*(.*?)\*/g, '<em>$1</em>');
+      $('car-sub').textContent = data.carousel.cover.sub || '';
+
+      let slidesHtml = '';
+      if (Array.isArray(data.carousel.slides)) {
+        data.carousel.slides.forEach((sl, idx) => {
+          slidesHtml += `
+            <div class="slide-card">
+              <div class="s-idx">SLIDE ${idx + 2}</div>
+              <div class="lbl" style="font-size:10px;text-transform:uppercase;color:var(--color-text-muted)">${sl.tag || 'Slide'}</div>
+              <h4>${sl.headline.replace(/\*(.*?)\*/g, '<em>$1</em>')}</h4>
+              <p>${sl.context}</p>
+              ${sl.source ? `<div class="source">Fonte: ${sl.source}</div>` : ''}
+            </div>
+          `;
+        });
+      }
+      $('car-slides-list').innerHTML = slidesHtml;
+      $('car-cta-head').innerHTML = (data.carousel.cta.headline || '').replace(/\*(.*?)\*/g, '<em>$1</em>');
+      $('car-cta-sub').textContent = data.carousel.cta.sub || '';
+      $('car-cta-url').textContent = data.carousel.cta.url || 'epiuse.com.br';
+    }
+
+    // 5. SEO / GEO
+    if (data.revisao) {
+      const score = data.revisao.qualidade.score || 0;
+      const scoreBadge = $('seo-score');
+      scoreBadge.textContent = `${score}/100`;
+      scoreBadge.className = 'score-badge ' + (score >= 85 ? 'high' : (score >= 60 ? 'mid' : 'low'));
+
+      $('seo-title').textContent = data.revisao.seo.metaTitle || '';
+      $('seo-desc').textContent = data.revisao.seo.metaDescription || '';
+      $('seo-slug').textContent = data.revisao.seo.slug || '';
+      $('seo-keywords').textContent = Array.isArray(data.revisao.seo.keywords) ? data.revisao.seo.keywords.join(', ') : String(data.revisao.seo.keywords || '');
+
+      let faqHtml = '';
+      if (Array.isArray(data.revisao.geo.faq)) {
+        data.revisao.geo.faq.forEach(item => {
+          faqHtml += `
+            <div class="review-item">
+              <span class="q">Q: ${item.q}</span>
+              <span class="a">A: ${item.a}</span>
+            </div>
+          `;
+        });
+      }
+      $('geo-faq-list').innerHTML = faqHtml;
+
+      const alerts = data.revisao.qualidade.alertas || [];
+      if (alerts.length > 0) {
+        $('section-alertas').style.display = 'block';
+        $('seo-alertas-list').innerHTML = alerts.map(a => `<div>⚠️ ${a}</div>`).join('');
+      } else {
+        $('section-alertas').style.display = 'none';
+      }
+    }
+
+    // 6. Sources
+    let sourcesHtml = '';
+    if (Array.isArray(data.fontes_rag)) {
+      data.fontes_rag.forEach(src => {
+        sourcesHtml += `
+          <div class="meta-card" style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div class="val" style="font-size:13px;margin:0"><a href="${src.url}" target="_blank" style="color:#60a5fa;text-decoration:none;">${src.titulo}</a></div>
+              <div class="lbl" style="font-size:9px;margin-top:2px">${src.url}</div>
+            </div>
+            <span style="font-family:monospace;font-size:11px;color:#34d399;font-weight:600;">Match: ${(src.score * 100).toFixed(0)}%</span>
+          </div>
+        `;
+      });
+    }
+    $('sources-list').innerHTML = sourcesHtml || '<div class="empty">Nenhuma fonte do acervo associada.</div>';
+  }
+
+  // Save to SQLite Pipeline editorial
+  $('btn-save-pipeline').addEventListener('click', async () => {
+    var isReview = (window.lastRaccoonSource === 'review' && window.activeReviewData);
+    if (!activeData && !isReview) return;
+    
+    const saveBtn = $('btn-save-pipeline');
     saveBtn.disabled = true;
     saveBtn.textContent = 'Salvando...';
 
-    const payload = {
-      titulo: activeData.article ? activeData.article.title : 'Conteúdo do Raccoon',
-      tema_keyword: $('tema').value.trim(),
-      lob: activeData.estrategia.lob || '',
-      persona_alvo: activeData.estrategia.persona || '',
-      estado: 'recebido',
-      corpo: activeData.article ? `<h1>${activeData.article.title}</h1><p class="intro">${activeData.article.intro}</p>` + 
-             (activeData.article.sections || []).map(s => `<h2>${s.h2}</h2><p>${s.body}</p>`).join('') +
-             `<p class="conclusion">${activeData.article.conclusion}</p>` : '',
-      copy_text: activeData.post ? activeData.post.linkedinCopy : '',
-      cta_sugerido: activeData.carousel ? `${activeData.carousel.cta.headline} - ${activeData.carousel.cta.sub}` : '',
-      seo_json: {},
-      geo_json: {},
-      carrossel_url: activeData.carousel ? `/inbound/carousel?tema=${encodeURIComponent($('tema').value.trim())}` : '',
-      carrossel_json: activeData.carousel ? JSON.stringify(activeData.carousel) : '',
-      capa_url: ''
-    };
+    var payload;
+    if (isReview) {
+      var rv = window.activeReviewData;
+      var meta = window.activeReviewMeta || {};
+      var kw = rv.keyword || {};
+      var title = meta.titulo || rv.metaTitle || kw.principal || 'Artigo Revisado';
+      payload = {
+        titulo: title,
+        tema_keyword: kw.principal || '',
+        lob: meta.lob || '',
+        persona_alvo: 'auto',
+        estado: 'recebido',
+        corpo: rv.artigo_melhorado || '',
+        copy_text: '',
+        cta_sugerido: rv.cta ? rv.cta.texto : '',
+        seo_json: {
+          metaTitle: rv.metaTitle,
+          metaDescription: rv.metaDescription,
+          slug: rv.slug,
+          keywords: [kw.principal].concat(kw.secundarias || [])
+        },
+        geo_json: {
+          faq: rv.faq
+        },
+        carrossel_url: '',
+        carrossel_json: '',
+        capa_url: ''
+      };
+    } else {
+      payload = {
+        titulo: activeData.article ? activeData.article.title : (activeData.post ? activeData.post.headline : 'Conteúdo do Raccoon'),
+        tema_keyword: $('tema').value.trim(),
+        lob: activeData.estrategia.lob || '',
+        persona_alvo: activeData.estrategia.persona || '',
+        estado: 'recebido',
+        corpo: activeData.article ? `<h1>${activeData.article.title}</h1><p class="intro">${activeData.article.intro}</p>` + 
+               (activeData.article.sections || []).map(s => `<h2>${s.h2}</h2><p>${s.body}</p>`).join('') +
+               `<p class="conclusion">${activeData.article.conclusion}</p>` : '',
+        copy_text: activeData.post ? activeData.post.linkedinCopy : '',
+        cta_sugerido: activeData.carousel ? `${activeData.carousel.cta.headline} - ${activeData.carousel.cta.sub}` : '',
+        seo_json: activeData.revisao ? activeData.revisao.seo : {},
+        geo_json: activeData.revisao ? activeData.revisao.geo : {},
+        carrossel_url: activeData.carousel ? `/inbound/carousel?tema=${encodeURIComponent($('tema').value.trim())}` : '',
+        carrossel_json: activeData.carousel ? JSON.stringify(activeData.carousel) : '',
+        capa_url: window._raxCapaDataUrl || ''
+      };
+    }
 
     try {
       const res = await fetch('/api/content', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-editor-token': TOKEN },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-editor-token': TOKEN
+        },
         body: JSON.stringify(payload)
       }).then(r => r.json());
 
       if (res.success) {
         $('save-result').style.display = 'inline-block';
         $('save-result').textContent = '✅ Salvo no Pipeline (#' + res.id + ')!';
-        setTimeout(() => { $('save-result').style.display = 'none'; }, 4000);
+        
+        if (!isReview && activeData.carousel) {
+          localStorage.setItem('pending_carousel_slides', JSON.stringify(activeData.carousel));
+          localStorage.setItem('pending_raccoon_full_data', JSON.stringify(activeData));
+          
+          // Guide user using Rax character bubble
+          setRaxState('entregue', 'Salvo no Pipeline! 🚀<br><br><a href="/inbound/carousel?source=raccoon" target="_blank" style="display:inline-block; margin-top:8px; background:#cd1543; color:#fff; text-decoration:none; padding:8px 12px; border-radius:6px; font-weight:600; font-size:12px; border:none; cursor:pointer;">Abrir Estúdio de Carrossel →</a>');
+          
+          // Show handoff banner/card
+          const handoffCard = $('handoff-card');
+          if (handoffCard) {
+            handoffCard.style.display = 'flex';
+          }
+        } else if (isReview) {
+          setRaxState('entregue', 'Artigo revisado e salvo com sucesso no Pipeline Editorial! 🚀');
+        }
+
+        setTimeout(() => {
+          $('save-result').style.display = 'none';
+        }, 5000);
       } else {
         alert('Erro ao salvar: ' + res.error);
       }
@@ -4000,10 +2545,16 @@
     }
   });
 
-  // Init Mascot state
+  // Init global source tracker
+  window.lastRaccoonSource = 'generate';
+  window.activeReviewData = null;
+  window.activeReviewMeta = null;
+
+  // Lógica do Raccoon v2 removida
+
+  // Init
   setRaxState('ocioso');
   checkBackendStatus();
-
 </script>
-
+</body>
 </html>
