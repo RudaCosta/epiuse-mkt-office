@@ -549,7 +549,6 @@ async function init(){
     initBrandVoicesPanel();
   }
 }
-init();
 
 // Global states for Voices Dashboard
 let cachedVoices = null;
@@ -639,7 +638,7 @@ async function renderBrandVoicesSection(cor) {
     
     html += `
       <div class="brand-voices-digest" style="background: linear-gradient(135deg, rgba(168,85,247,.08), rgba(37,99,235,.04)); border: 1px solid rgba(168,85,247,.2); border-radius: 14px; padding: 18px 20px; margin-bottom: 20px;">
-        <h3 id="digest-saudacao" style="margin: 0 0 6px 0; font-size: 15px; color: var(--home-text, #e6ebf2);">\${digestData.cumprimento || 'Olá'}, Duda 👋</h3>
+        <h3 id="digest-saudacao" style="margin: 0 0 6px 0; font-size: 15px; color: var(--home-text, #e6ebf2);">${digestData.cumprimento || 'Olá'}, Duda 👋</h3>
         <p id="digest-resumo" style="font-size: 12.5px; color: var(--home-text-dim, #c0ccd9); margin-bottom: 12px;"></p>
         <div id="digest-pills" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;"></div>
         <div id="digest-acoes" style="display: flex; flex-direction: column; gap: 8px;"></div>
@@ -648,27 +647,27 @@ async function renderBrandVoicesSection(cor) {
 
     html += `
       <div class="kpi-grid">
-        <div class="kpi-card \${ativos < meta ? 'warn' : 'ok'}">
+        <div class="kpi-card ${ativos < meta ? 'warn' : 'ok'}">
           <div class="kpi-lbl">Voices Ativos</div>
-          <div class="kpi-val \${ativos < meta ? 'warn' : 'ok'}">\${ativos}/\${meta}</div>
-          <div class="kpi-sub">\${meta-ativos} vagas abertas</div>
-          <div class="kpi-bar"><div class="kpi-bar-fill" style="width:\${(ativos/meta*100)}%"></div></div>
+          <div class="kpi-val ${ativos < meta ? 'warn' : 'ok'}">${ativos}/${meta}</div>
+          <div class="kpi-sub">${meta-ativos} vagas abertas</div>
+          <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${(ativos/meta*100)}%"></div></div>
         </div>
-        <div class="kpi-card \${postsMes < metaPostsMes ? 'warn' : 'ok'}">
+        <div class="kpi-card ${postsMes < metaPostsMes ? 'warn' : 'ok'}">
           <div class="kpi-lbl">Posts no Mês</div>
-          <div class="kpi-val \${postsMes < metaPostsMes ? 'warn' : 'ok'}">\${postsMes}/\&nbsp;\${metaPostsMes}</div>
+          <div class="kpi-val ${postsMes < metaPostsMes ? 'warn' : 'ok'}">${postsMes}/\&nbsp;${metaPostsMes}</div>
           <div class="kpi-sub">meta: 2/sem × Voice</div>
-          <div class="kpi-bar"><div class="kpi-bar-fill" style="width:\${Math.min(100,(postsMes/Math.max(1,metaPostsMes)*100))}%"></div></div>
+          <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${Math.min(100,(postsMes/Math.max(1,metaPostsMes)*100))}%"></div></div>
         </div>
-        <div class="kpi-card \${ssiMedio === null ? 'warn' : ''}">
+        <div class="kpi-card ${ssiMedio === null ? 'warn' : ''}">
           <div class="kpi-lbl">SSI Médio do Grupo</div>
-          <div class="kpi-val \${ssiMedio === null ? 'dim' : ''}">\${ssiMedio === null ? '—' : ssiMedio}</div>
-          <div class="kpi-sub">\${ssiMedio === null ? 'baseline a coletar' : 'baseline registrado'}</div>
+          <div class="kpi-val ${ssiMedio === null ? 'dim' : ''}">${ssiMedio === null ? '—' : ssiMedio}</div>
+          <div class="kpi-sub">${ssiMedio === null ? 'baseline a coletar' : 'baseline registrado'}</div>
         </div>
-        <div class="kpi-card \${provisorios > 0 ? 'warn' : 'ok'}">
+        <div class="kpi-card ${provisorios > 0 ? 'warn' : 'ok'}">
           <div class="kpi-lbl">Dados Confirmados</div>
-          <div class="kpi-val \${provisorios > 0 ? 'warn' : 'ok'}">\${ativos - provisorios}/\${ativos}</div>
-          <div class="kpi-sub">\${provisorios > 0 ? \`\${provisorios} Voice(s) provisório(s)\` : 'todos os perfis validados'}</div>
+          <div class="kpi-val ${provisorios > 0 ? 'warn' : 'ok'}">${ativos - provisorios}/${ativos}</div>
+          <div class="kpi-sub">${provisorios > 0 ? `${provisorios} Voice(s) provisório(s)` : 'todos os perfis validados'}</div>
         </div>
       </div>
     `;
@@ -684,36 +683,36 @@ async function renderBrandVoicesSection(cor) {
     const tableVoicesRows = voicesData.voices.map(v => {
       const provCount = (v.dados_a_confirmar||[]).length;
       const dadosChip = provCount > 0
-        ? \`<span class="chip" style="background:rgba(245,158,11,0.10);color:#fbbf24;border:1px solid rgba(245,158,11,0.3);font-size:10px" title="\${v.dados_a_confirmar.join(', ')}">⚠️ \${provCount} provisório\${provCount>1?'s':''}</span>\`
-        : \`<span class="chip kit-ok">✓ confirmados</span>\`;
-      return \`
+        ? `<span class="chip" style="background:rgba(245,158,11,0.10);color:#fbbf24;border:1px solid rgba(245,158,11,0.3);font-size:10px" title="${v.dados_a_confirmar.join(', ')}">⚠️ ${provCount} provisório${provCount>1?'s':''}</span>`
+        : `<span class="chip kit-ok">✓ confirmados</span>`;
+      return `
       <tr>
         <td>
-          <div class="tbl-name">\${v.nome}</div>
-          <div class="tbl-niche">\${v.nicho}</div>
+          <div class="tbl-name">${v.nome}</div>
+          <div class="tbl-niche">${v.nicho}</div>
         </td>
-        <td><span class="chip \${v.status}">\${v.status_label}</span></td>
-        <td><span class="chip \${v.kit_gerado ? 'kit-ok' : 'kit-no'}">\${v.kit_gerado ? '✓ gerado' : '○ pendente'}</span></td>
-        <td>\${dadosChip}</td>
-        <td><span class="muted">\${v.posts_mes_atual||0}</span></td>
-        <td><span class="muted">\${voicesData.programa.meta_posts_mes*4}/mês</span></td>
-        <td><span class="muted">\${v.ssi_baseline === null ? '—' : v.ssi_baseline}</span></td>
-        <td><span class="muted">\${v.ultimo_post || '—'}</span></td>
-        <td><span class="muted">\${v.pendencia || '—'}</span></td>
-        <td><a class="tbl-action" href="/voices?v=\${v.id}" target="_blank">Abrir →</a></td>
-      </tr>\`;
-    }).join('') + voicesData.vagas_abertas.map(vg => \`
+        <td><span class="chip ${v.status}">${v.status_label}</span></td>
+        <td><span class="chip ${v.kit_gerado ? 'kit-ok' : 'kit-no'}">${v.kit_gerado ? '✓ gerado' : '○ pendente'}</span></td>
+        <td>${dadosChip}</td>
+        <td><span class="muted">${v.posts_mes_atual||0}</span></td>
+        <td><span class="muted">${voicesData.programa.meta_posts_mes*4}/mês</span></td>
+        <td><span class="muted">${v.ssi_baseline === null ? '—' : v.ssi_baseline}</span></td>
+        <td><span class="muted">${v.ultimo_post || '—'}</span></td>
+        <td><span class="muted">${v.pendencia || '—'}</span></td>
+        <td><a class="tbl-action" href="/voices?v=${v.id}" target="_blank">Abrir →</a></td>
+      </tr>`;
+    }).join('') + voicesData.vagas_abertas.map(vg => `
       <tr style="opacity:0.6">
         <td>
-          <div class="tbl-name" style="color:#94a3b8">Vaga #\${vg.numero}</div>
-          <div class="tbl-niche">\${vg.nicho}</div>
+          <div class="tbl-name" style="color:#94a3b8">Vaga #${vg.numero}</div>
+          <div class="tbl-niche">${vg.nicho}</div>
         </td>
         <td><span class="chip" style="background:rgba(148,163,184,0.08);color:#94a3b8;border:1px solid rgba(148,163,184,0.2)">aberta</span></td>
-        <td colspan="6"><span class="muted">\${vg.perfil_ideal}</span></td>
+        <td colspan="6"><span class="muted">${vg.perfil_ideal}</span></td>
         <td></td>
         <td><a class="tbl-action" href="/seja-voice" target="_blank">Recrutar →</a></td>
       </tr>
-    \`).join('');
+    `).join('');
 
     html += `
       <div class="voices-tab-content" id="voices-tab-status">
@@ -723,7 +722,7 @@ async function renderBrandVoicesSection(cor) {
               <tr><th>Voice / Nicho</th><th>Status</th><th>Kit Design</th><th>Cadastro</th><th>Posts</th><th>Meta</th><th>SSI</th><th>Último Post</th><th>Pendência</th><th>Ações</th></tr>
             </thead>
             <tbody>
-              \${tableVoicesRows}
+              ${tableVoicesRows}
             </tbody>
           </table>
         </div>
@@ -751,7 +750,7 @@ async function renderBrandVoicesSection(cor) {
     html += `
       <div class="voices-tab-content" id="voices-tab-inbox" style="display: none;">
         <div class="tbl-wrap" style="padding: 8px 0;">
-          \${inboxCells.length ? inboxCells.join('') : \`<div style="padding:24px;text-align:center;color:var(--home-text-muted,#869ec3);font-size:13px;">Suas áreas estão sem atividade pendente no momento.</div>\`}
+          ${inboxCells.length ? inboxCells.join('') : `<div style="padding:24px;text-align:center;color:var(--home-text-muted,#869ec3);font-size:13px;">Suas áreas estão sem atividade pendente no momento.</div>`}
         </div>
       </div>
     `;
@@ -765,7 +764,7 @@ async function renderBrandVoicesSection(cor) {
   } catch (e) {
     console.error(e);
     return {
-      html: \`<div class="perf-empty">Erro ao carregar o painel: \${e.message}</div>\`
+      html: `<div class="perf-empty">Erro ao carregar o painel: ${e.message}</div>`
     };
   }
 }
@@ -794,7 +793,7 @@ async function loadPerformance(period) {
       posts = cachedPostsMap[period];
     }
   } catch (e) {
-    perfTblArea.innerHTML = `<div class="perf-empty">Erro ao carregar performance: \${e.message}</div>`;
+    perfTblArea.innerHTML = `<div class="perf-empty">Erro ao carregar performance: ${e.message}</div>`;
     return;
   }
   
@@ -833,23 +832,23 @@ async function loadPerformance(period) {
     miniKpisEl.innerHTML = `
       <div class="perf-mini-card">
         <div class="perf-mini-lbl">Posts no período</div>
-        <div class="perf-mini-val success">\${totalPosts}</div>
-        <div class="perf-mini-sub">\${period === 'all' ? 'desde o início' : 'janela ' + period}</div>
+        <div class="perf-mini-val success">${totalPosts}</div>
+        <div class="perf-mini-sub">${period === 'all' ? 'desde o início' : 'janela ' + period}</div>
       </div>
       <div class="perf-mini-card">
         <div class="perf-mini-lbl">Engajamento total</div>
-        <div class="perf-mini-val success">\${totalEng}</div>
+        <div class="perf-mini-val success">${totalEng}</div>
         <div class="perf-mini-sub">likes + coments + reposts</div>
       </div>
       <div class="perf-mini-card">
         <div class="perf-mini-lbl">Eng. médio por post</div>
-        <div class="perf-mini-val success">\${avgEng}</div>
+        <div class="perf-mini-val success">${avgEng}</div>
         <div class="perf-mini-sub">média da janela</div>
       </div>
       <div class="perf-mini-card">
         <div class="perf-mini-lbl">Top Performer</div>
-        <div class="perf-mini-val purple" style="font-size:13px">\${topVoice ? topVoice.nome.split(' ')[0] : '—'}</div>
-        <div class="perf-mini-sub">\${topVoice ? \`eng. médio: \${Math.round(topAvg)}\` : 'sem dados ainda'}</div>
+        <div class="perf-mini-val purple" style="font-size:13px">${topVoice ? topVoice.nome.split(' ')[0] : '—'}</div>
+        <div class="perf-mini-sub">${topVoice ? `eng. médio: ${Math.round(topAvg)}` : 'sem dados ainda'}</div>
       </div>
     `;
   }
@@ -864,16 +863,16 @@ async function loadPerformance(period) {
           <div class="crown">🏆</div>
           <div class="body">
             <div class="label">Top post da semana</div>
-            <div class="voice-name">\${topVoiceObj ? topVoiceObj.nome : topPost.voice_id}</div>
-            <div class="preview">\${(topPost.content_preview||'(sem preview)').slice(0,140)}\${(topPost.content_preview||'').length>140?'…':''}</div>
+            <div class="voice-name">${topVoiceObj ? topVoiceObj.nome : topPost.voice_id}</div>
+            <div class="preview">${(topPost.content_preview||'(sem preview)').slice(0,140)}${(topPost.content_preview||'').length>140?'…':''}</div>
             <div class="metrics">
-              <span>❤️ \${topPost.metrics.likes}</span>
-              <span>💬 \${topPost.metrics.comments}</span>
-              <span>🔄 \${topPost.metrics.reposts}</span>
-              <span><b>\${totalE}</b> total</span>
+              <span>❤️ ${topPost.metrics.likes}</span>
+              <span>💬 ${topPost.metrics.comments}</span>
+              <span>🔄 ${topPost.metrics.reposts}</span>
+              <span><b>${totalE}</b> total</span>
             </div>
           </div>
-          <a class="open-btn" href="\${topPost.post_url}" target="_blank">↗ Abrir no LinkedIn</a>
+          <a class="open-btn" href="${topPost.post_url}" target="_blank">↗ Abrir no LinkedIn</a>
         </div>`;
     } else {
       topPostArea.innerHTML = '';
@@ -885,7 +884,7 @@ async function loadPerformance(period) {
     .sort((a,b) => (b.totalEng / Math.max(1,b.count)) - (a.totalEng / Math.max(1,a.count)));
     
   if (rows.length === 0) {
-    perfTblArea.innerHTML = \`<div class="perf-empty">Nenhum post registrado ainda.</div>\`;
+    perfTblArea.innerHTML = `<div class="perf-empty">Nenhum post registrado ainda.</div>`;
     return;
   }
   
@@ -896,7 +895,7 @@ async function loadPerformance(period) {
           <th>Voice</th><th>Posts</th><th>Eng. total</th><th>Eng. médio</th><th>Melhor post</th><th>Tendência</th><th></th>
         </tr></thead>
         <tbody>
-        \${rows.map((b, i) => {
+        ${rows.map((b, i) => {
           const avg = Math.round(b.totalEng / b.count);
           const bestPost = b.posts.reduce((top, p) => {
             const e = (p.metrics.likes||0)+(p.metrics.comments||0)+(p.metrics.reposts||0);
@@ -912,19 +911,19 @@ async function loadPerformance(period) {
             if (e2 > e1 * 1.1) { trend = 'up'; trendIcon = '▲'; }
             else if (e2 < e1 * 0.9) { trend = 'down'; trendIcon = '▼'; }
           }
-          return \`
-          <tr class="clickable" onclick="window.open('/voices?v=\${b.voice.id}', '_blank')">
+          return `
+          <tr class="clickable" onclick="window.open('/voices?v=${b.voice.id}', '_blank')">
             <td>
-              <div style="font-weight:700;color:var(--home-text, #e6ebf2)">\${b.voice.nome}</div>
-              <div style="font-size:11px;color:var(--home-text-muted, #869ec3)">\${b.voice.nicho}</div>
+              <div style="font-weight:700;color:var(--home-text, #e6ebf2)">${b.voice.nome}</div>
+              <div style="font-size:11px;color:var(--home-text-muted, #869ec3)">${b.voice.nicho}</div>
             </td>
-            <td>\${b.count}</td>
-            <td><b>\${b.totalEng}</b></td>
-            <td>\${avg}</td>
-            <td>\${bestPost ? \`<a href="\${bestPost.post_url}" target="_blank" style="color:#60a5fa;text-decoration:none" onclick="event.stopPropagation()">\${(bestPost.metrics.likes||0)+(bestPost.metrics.comments||0)+(bestPost.metrics.reposts||0)} ↗</a>\` : '—'}</td>
-            <td><span class="trend-\${trend}" style="font-size:14px">\${trendIcon}</span> <canvas class="perf-spark" id="spark-\${b.voice.id}"></canvas></td>
-            <td><a class="tbl-action" href="/voices?v=\${b.voice.id}" target="_blank" onclick="event.stopPropagation()">Abrir →</a></td>
-          </tr>\`;
+            <td>${b.count}</td>
+            <td><b>${b.totalEng}</b></td>
+            <td>${avg}</td>
+            <td>${bestPost ? `<a href="${bestPost.post_url}" target="_blank" style="color:#60a5fa;text-decoration:none" onclick="event.stopPropagation()">${(bestPost.metrics.likes||0)+(bestPost.metrics.comments||0)+(bestPost.metrics.reposts||0)} ↗</a>` : '—'}</td>
+            <td><span class="trend-${trend}" style="font-size:14px">${trendIcon}</span> <canvas class="perf-spark" id="spark-${b.voice.id}"></canvas></td>
+            <td><a class="tbl-action" href="/voices?v=${b.voice.id}" target="_blank" onclick="event.stopPropagation()">Abrir →</a></td>
+          </tr>`;
         }).join('')}
         </tbody>
       </table>
@@ -949,10 +948,14 @@ async function initBrandVoicesPanel() {
   panel.innerHTML = res.html;
   
   const digest = res.digest;
+  if (!digest) {
+    console.warn('Digest data is missing or failed to load.');
+    return;
+  }
   const summaryParts = [];
-  if (digest.inbox_areas && digest.inbox_areas.hoje > 0) summaryParts.push(`<strong style="color:#fbbf24">\${digest.inbox_areas.hoje}</strong> \${digest.inbox_areas.hoje===1?'novo pedido hoje':'novos pedidos hoje'}`);
-  if (digest.pendencias && digest.pendencias.total > 0) summaryParts.push(`<strong style="color:#f59e0b">\${digest.pendencias.total}</strong> \${digest.pendencias.total===1?'pendência':'pendências'} nos Voices`);
-  if (digest.workflows_ativos_7d > 0) summaryParts.push(`<strong style="color:#93c5fd">\${digest.workflows_ativos_7d}</strong> \${digest.workflows_ativos_7d===1?'workflow disparado':'workflows disparados'} nos últimos 7d`);
+  if (digest.inbox_areas && digest.inbox_areas.hoje > 0) summaryParts.push(`<strong style="color:#fbbf24">${digest.inbox_areas.hoje}</strong> ${digest.inbox_areas.hoje===1?'novo pedido hoje':'novos pedidos hoje'}`);
+  if (digest.pendencias && digest.pendencias.total > 0) summaryParts.push(`<strong style="color:#f59e0b">${digest.pendencias.total}</strong> ${digest.pendencias.total===1?'pendência':'pendências'} nos Voices`);
+  if (digest.workflows_ativos_7d > 0) summaryParts.push(`<strong style="color:#93c5fd">${digest.workflows_ativos_7d}</strong> ${digest.workflows_ativos_7d===1?'workflow disparado':'workflows disparados'} nos últimos 7d`);
   if (summaryParts.length === 0) summaryParts.push('Tudo no eixo. Use o tempo pra revisar performance dos Voices ↓');
   
   const summaryEl = document.getElementById('digest-resumo');
@@ -961,9 +964,9 @@ async function initBrandVoicesPanel() {
   const pillsEl = document.getElementById('digest-pills');
   if (pillsEl && digest.inbox_areas) {
     const pills = [];
-    pills.push(\`<span style="font-size:11px;font-family:'JetBrains Mono',monospace;background:rgba(37,99,235,.12);color:#93c5fd;padding:5px 11px;border-radius:99px;">🎙️ \${digest.voices_ativos}/\${digest.voices_meta} Voices</span>\`);
-    pills.push(\`<span style="font-size:11px;font-family:'JetBrains Mono',monospace;background:rgba(245,158,11,.12);color:#fbbf24;padding:5px 11px;border-radius:99px;">📥 \${digest.inbox_areas.total} no inbox total</span>\`);
-    pills.push(\`<span style="font-size:11px;font-family:'JetBrains Mono',monospace;background:rgba(168,85,247,.12);color:#c4b5fd;padding:5px 11px;border-radius:99px;">📋 \${digest.inbox_areas.semana} esta semana</span>\`);
+    pills.push(`<span style="font-size:11px;font-family:'JetBrains Mono',monospace;background:rgba(37,99,235,.12);color:#93c5fd;padding:5px 11px;border-radius:99px;">🎙️ ${digest.voices_ativos}/${digest.voices_meta} Voices</span>`);
+    pills.push(`<span style="font-size:11px;font-family:'JetBrains Mono',monospace;background:rgba(245,158,11,.12);color:#fbbf24;padding:5px 11px;border-radius:99px;">📥 ${digest.inbox_areas.total} no inbox total</span>`);
+    pills.push(`<span style="font-size:11px;font-family:'JetBrains Mono',monospace;background:rgba(168,85,247,.12);color:#c4b5fd;padding:5px 11px;border-radius:99px;">📋 ${digest.inbox_areas.semana} esta semana</span>`);
     pillsEl.innerHTML = pills.join('');
   }
   
@@ -972,13 +975,13 @@ async function initBrandVoicesPanel() {
     const acoes = [];
     if (digest.pendencias && digest.pendencias.lista && digest.pendencias.lista.length) {
       digest.pendencias.lista.forEach(p => {
-        acoes.push(\`<div style="display:flex;align-items:center;gap:10px;background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:9px 14px;font-size:12.5px;"><span style="color:#fbbf24;">⚠️</span><strong>\${esc(p.nome)}</strong><span style="color:var(--home-text-muted);font-size:11px;flex:1;">\${esc(p.motivo)}</span><a href="#voices-tab-status" onclick="switchVoicesTab('status')" style="font-size:10px;color:#93c5fd;text-decoration:none;font-weight:700;">RESOLVER →</a></div>\`);
+        acoes.push(`<div style="display:flex;align-items:center;gap:10px;background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:9px 14px;font-size:12.5px;"><span style="color:#fbbf24;">⚠️</span><strong>${esc(p.nome)}</strong><span style="color:var(--home-text-muted);font-size:11px;flex:1;">${esc(p.motivo)}</span><a href="#voices-tab-status" onclick="switchVoicesTab('status')" style="font-size:10px;color:#93c5fd;text-decoration:none;font-weight:700;">RESOLVER →</a></div>`);
       });
     }
     if (digest.inbox_areas && digest.inbox_areas.novos_hoje && digest.inbox_areas.novos_hoje.length) {
       digest.inbox_areas.novos_hoje.forEach(it => {
-        const title = it.arquivo.replace(/^\\d{4}-\\d{2}-\\d{2}-/,'').replace(/\\.md$/,'').replace(/-/g,' ');
-        acoes.push(\`<div style="display:flex;align-items:center;gap:10px;background:rgba(37,99,235,.06);border:1px solid rgba(37,99,235,.18);border-radius:8px;padding:9px 14px;font-size:12.5px;"><span style="font-family:'JetBrains Mono',monospace;font-size:10px;background:rgba(37,99,235,.15);color:#93c5fd;padding:2px 7px;border-radius:5px;">\${esc(it.agente)}</span><strong style="flex:1;text-transform:capitalize;">\${esc(title)}</strong><a href="/agentes/\${esc(it.agente)}" style="font-size:10px;color:#93c5fd;text-decoration:none;font-weight:700;">ABRIR →</a></div>\`);
+        const title = it.arquivo.replace(/^\d{4}-\d{2}-\d{2}-/,'').replace(/\.md$/,'').replace(/-/g,' ');
+        acoes.push(`<div style="display:flex;align-items:center;gap:10px;background:rgba(37,99,235,.06);border:1px solid rgba(37,99,235,.18);border-radius:8px;padding:9px 14px;font-size:12.5px;"><span style="font-family:'JetBrains Mono',monospace;font-size:10px;background:rgba(37,99,235,.15);color:#93c5fd;padding:2px 7px;border-radius:5px;">${esc(it.agente)}</span><strong style="flex:1;text-transform:capitalize;">${esc(title)}</strong><a href="/agentes/${esc(it.agente)}" style="font-size:10px;color:#93c5fd;text-decoration:none;font-weight:700;">ABRIR →</a></div>`);
       });
     }
     acoesEl.innerHTML = acoes.join('') || '<div style="font-size:12px;color:var(--home-text-muted);text-align:center;padding:8px;">Sem ações pendentes pra hoje 🎉</div>';

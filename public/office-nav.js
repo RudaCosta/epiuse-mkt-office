@@ -885,6 +885,8 @@ class OfficeNav extends HTMLElement {
               <div class="overflow-col">${col3Html}</div>
             </div>
           </div>
+        </div>
+      </nav>
 
       <div class="mobile-tabs" id="mobile-tabs" role="menu">
         ${OFFICE_NAV_TABS.map(t => {
