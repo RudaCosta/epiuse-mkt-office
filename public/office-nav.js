@@ -170,7 +170,10 @@ const OFFICE_NAV_OVERFLOW = [
   { label: '📊 Planilhas (Live API)',    href: '/planilhas' },
 
   { section: '🎙️ Voices & Optimizer' },
-  { label: '🦝 Raccoon Studio',          href: '/raccoon' },
+  { label: '📊 Cockpit FY27',            href: '/cockpit' },
+  { label: '🦝 Raccoon v2',              href: '/cockpit?sec=raccoon' },
+  { label: '🎭 Memes v2',                href: '/cockpit?sec=memes' },
+  { label: '🦝 Raccoon v1 (Legado)',     href: '/raccoon' },
   { label: '🪪 Profile Optimizer (V1)',   href: '/optimizer' },
   { label: '🪪 Profile Optimizer V2 (findskill)', href: '/optimizer-v2' },
   { label: '🎯 Painel da Duda',          href: '/voices/painel' },
@@ -185,7 +188,7 @@ const OFFICE_NAV_OVERFLOW = [
 
   { section: '🎮 Extras' },
   { label: '🎮 Modo Game',               href: '/game' },
-  { label: '🧠 Memes do Office',         href: '/memes' },
+  { label: '🧠 Memes v1 (Legado)',       href: '/memes' },
   { label: '🐘 ERP.ngo',                 href: 'https://erp.ngo', external: true }
 ];
 
@@ -272,8 +275,8 @@ class OfficeNav extends HTMLElement {
     try {
       const saved = localStorage.getItem('office.theme');
       if (['epiuse-light','epiuse-dark','atlas-light','atlas-dark','dark','light','armory','elephant','aurora','liquid-glass'].includes(saved)) return saved;
-      return 'atlas-dark';
-    } catch { return 'atlas-dark'; }
+      return 'dark';
+    } catch { return 'dark'; }
   }
 
   getScreenV2(name) {
@@ -292,7 +295,50 @@ class OfficeNav extends HTMLElement {
     const theme = this.getTheme();
     const THEME_ICON = { 'epiuse-light': '◐', 'epiuse-dark': '◑', 'atlas-light': '◐', 'atlas-dark': '◑', dark: '☾', light: '☀', armory: '◆', elephant: '🐘', aurora: '🔮', 'liquid-glass': '💧' };
     const THEME_LABEL = { 'epiuse-light': 'EPI-USE · claro', 'epiuse-dark': 'EPI-USE · escuro', 'atlas-light': 'nova · claro', 'atlas-dark': 'nova · escuro', dark: 'escuro', light: 'claro', armory: 'armory', elephant: 'elephant', aurora: 'aurora', 'liquid-glass': 'liquid glass' };
-    const themeIcon = THEME_ICON[theme] || '◑';
+    const themeIcon = THEME_ICON[theme] || '☾';
+
+    // Agrupa e distribui os itens em 3 colunas lógicas
+    const col1Items = [];
+    const col2Items = [];
+    const col3Items = [];
+    
+    let currentSection = '';
+    OFFICE_NAV_OVERFLOW.forEach(it => {
+      if (it.section) {
+        currentSection = it.section;
+        const group = { section: it.section, links: [] };
+        if (['🤖 Escritório Virtual', '🎙️ Voices & Optimizer'].includes(currentSection)) {
+          col1Items.push(group);
+        } else if (['📊 Reports & Análises'].includes(currentSection)) {
+          col2Items.push(group);
+        } else {
+          col3Items.push(group);
+        }
+      } else {
+        const targetCols = ['🤖 Escritório Virtual', '🎙️ Voices & Optimizer'].includes(currentSection) ? col1Items 
+                         : ['📊 Reports & Análises'].includes(currentSection) ? col2Items 
+                         : col3Items;
+        if (targetCols.length > 0) {
+          targetCols[targetCols.length - 1].links.push(it);
+        }
+      }
+    });
+
+    const renderColumn = (groups) => {
+      return groups.map(g => `
+        <div class="overflow-group">
+          <div class="overflow-section">${g.section}</div>
+          ${g.links.map(it => {
+            const tgt = it.external ? ' target="_blank" rel="noopener"' : '';
+            return `<a class="overflow-item" href="${it.href}"${tgt}>${it.label}</a>`;
+          }).join('')}
+        </div>
+      `).join('');
+    };
+
+    const col1Html = renderColumn(col1Items);
+    const col2Html = renderColumn(col2Items);
+    const col3Html = renderColumn(col3Items);
 
     this.shadowRoot.innerHTML = `
       <style>
@@ -463,81 +509,54 @@ class OfficeNav extends HTMLElement {
           display: none;
           position: fixed;
           top: 0; left: 0; right: 0; bottom: 0;
-          background: rgba(4, 10, 20, 0.4);
-          backdrop-filter: blur(4px);
-          -webkit-backdrop-filter: blur(4px);
-          z-index: 999;
-          opacity: 0;
-          transition: opacity 0.3s ease;
+          background: transparent;
+          z-index: 98;
         }
         .overflow-overlay.open {
           display: block;
-          opacity: 1;
         }
 
         .overflow-menu {
-          position: fixed;
-          top: 0;
-          right: -360px;
-          bottom: 0;
-          width: 360px;
-          max-width: 100vw;
-          background: rgba(13, 30, 54, 0.96);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          border-left: 1px solid var(--nav-border);
-          box-shadow: -8px 0 32px rgba(0, 0, 0, 0.5);
-          z-index: 1000;
-          display: flex;
-          flex-direction: column;
-          transition: right 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+          display: none;
+          position: absolute;
+          right: 0;
+          top: calc(100% + 8px);
+          width: 680px;
+          background: rgba(13, 30, 54, 0.98);
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
+          border: 1px solid var(--nav-border);
+          border-radius: 12px;
+          padding: 16px 20px;
+          box-shadow: 0 16px 36px rgba(0,0,0,0.6);
+          z-index: 99;
         }
         .overflow-menu.open {
-          right: 0;
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 16px;
         }
 
-        .overflow-header {
+        .overflow-col {
           display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 16px 20px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .overflow-header span {
-          font-weight: 600;
-          font-size: 15px;
-          color: var(--nav-text);
-          letter-spacing: 0.5px;
-        }
-        .overflow-close {
-          background: transparent;
-          border: none;
-          color: var(--nav-text-muted, #869ec3);
-          font-size: 24px;
-          cursor: pointer;
-          line-height: 1;
-          padding: 4px;
-          transition: color 0.2s;
-        }
-        .overflow-close:hover {
-          color: var(--nav-accent);
+          flex-direction: column;
+          gap: 14px;
         }
 
-        .overflow-content {
-          flex: 1;
-          overflow-y: auto;
-          padding: 12px 16px;
+        .overflow-group {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
         }
 
         .overflow-item {
           display: block;
-          font-size: 13px;
+          font-size: 12.5px;
           color: var(--nav-text);
           text-decoration: none;
-          padding: 8px 12px;
+          padding: 7px 10px;
           border-radius: 6px;
           transition: background .12s, color .12s;
-          margin-bottom: 2px;
         }
         .overflow-item:hover {
           background: var(--nav-hover-bg);
@@ -550,75 +569,22 @@ class OfficeNav extends HTMLElement {
           letter-spacing: .08em;
           text-transform: uppercase;
           color: var(--nav-accent, #2563eb);
-          padding: 14px 12px 6px;
-          margin-top: 8px;
-          border-top: 1px solid rgba(134,158,195,.1);
-          opacity: .9;
-        }
-        .overflow-section:first-child {
-          border-top: none;
-          margin-top: 0;
-          padding-top: 4px;
+          padding: 6px 10px 4px;
+          opacity: .95;
+          border-bottom: 1px solid rgba(134,158,195,.15);
+          margin-bottom: 4px;
         }
 
-        /* Rodapé do drawer com Toggles v2 */
-        .overflow-footer {
-          padding: 16px 20px;
-          background: rgba(8, 20, 36, 0.7);
-          border-top: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .overflow-footer .footer-title {
-          font-size: 11px;
-          font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-          color: var(--nav-text-muted, #869ec3);
-          margin-bottom: 10px;
-        }
-        .overflow-footer .toggle-row {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 10px;
-        }
-        .overflow-footer .toggle-btn {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          gap: 6px;
-          padding: 10px 8px;
-          border-radius: 8px;
-          background: rgba(255, 255, 255, 0.03);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          color: var(--nav-text);
-          cursor: pointer;
-          font-family: inherit;
-          transition: all 0.2s;
-          text-align: center;
-        }
-        .overflow-footer .toggle-btn:hover {
-          background: rgba(255, 255, 255, 0.06);
-          border-color: rgba(255, 255, 255, 0.15);
-        }
-        .overflow-footer .toggle-btn.active {
-          background: rgba(37, 99, 235, 0.12);
-          border-color: var(--nav-accent);
-          color: var(--nav-accent);
-        }
-        .overflow-footer .toggle-btn .ic {
-          font-size: 18px;
-        }
-        .overflow-footer .toggle-btn .status-badge {
-          font-size: 9px;
-          font-weight: 700;
-          padding: 2px 6px;
-          border-radius: 10px;
-          background: rgba(255, 255, 255, 0.1);
-          color: var(--nav-text-muted, #869ec3);
-        }
-        .overflow-footer .toggle-btn.active .status-badge {
-          background: var(--nav-accent);
-          color: #ffffff;
+        @media (max-width: 720px) {
+          .overflow-menu {
+            width: calc(100vw - 20px);
+            right: -60px;
+          }
+          .overflow-menu.open {
+            grid-template-columns: 1fr;
+            max-height: 60vh;
+            overflow-y: auto;
+          }
         }
 
         /* ── Breadcrumb sutil ── */
@@ -893,8 +859,11 @@ class OfficeNav extends HTMLElement {
             <button class="ctrl-btn" id="theme-btn" title="Selecionar tema" type="button">${themeIcon}</button>
             <div class="theme-dropdown" id="theme-dropdown" role="menu">
               <div class="td-head">Selecione o Tema</div>
+              <button class="td-item ${theme === 'dark' ? 'active' : ''}" data-theme-val="dark" type="button"><span class="ic">🌑</span> Escuro (Legado)</button>
               <button class="td-item ${theme === 'atlas-dark' ? 'active' : ''}" data-theme-val="atlas-dark" type="button"><span class="ic">◑</span> Nova · Escuro</button>
               <button class="td-item ${theme === 'aurora' ? 'active' : ''}" data-theme-val="aurora" type="button"><span class="ic">🔮</span> Aurora (Legado)</button>
+              <button class="td-item ${theme === 'light' ? 'active' : ''}" data-theme-val="light" type="button"><span class="ic">☀️</span> Claro (Light)</button>
+              <button class="td-item ${theme === 'liquid-glass' ? 'active' : ''}" data-theme-val="liquid-glass" type="button"><span class="ic">💧</span> Liquid Glass</button>
             </div>
           </div>
           <div class="user-wrap">
@@ -913,39 +882,13 @@ class OfficeNav extends HTMLElement {
           </div>
           <div class="overflow-wrap">
             <button class="ctrl-btn" id="more-btn" title="Mais opções" type="button">⋯</button>
+            <div class="overflow-overlay" id="overflow-overlay"></div>
+            <div class="overflow-menu" id="overflow-menu">
+              <div class="overflow-col">${col1Html}</div>
+              <div class="overflow-col">${col2Html}</div>
+              <div class="overflow-col">${col3Html}</div>
+            </div>
           </div>
-        </div>
-      </nav>
-
-      <div class="overflow-overlay" id="overflow-overlay"></div>
-      <div class="overflow-menu" id="overflow-menu">
-        <div class="overflow-header">
-          <span>Mais Opções</span>
-          <button class="overflow-close" id="overflow-close-btn" type="button">&times;</button>
-        </div>
-        <div class="overflow-content">
-          ${OFFICE_NAV_OVERFLOW.map(it => {
-            if (it.section) {
-              return `<div class="overflow-section">${it.section}</div>`;
-            }
-            const tgt = it.external ? ' target="_blank" rel="noopener"' : '';
-            return `<a class="overflow-item" href="${it.href}"${tgt}>${it.label}</a>`;
-          }).join('')}
-        </div>
-        <div class="overflow-footer">
-          <div class="footer-title">Telas V2</div>
-          <div class="toggle-row">
-            <button class="toggle-btn ${this.getScreenV2('raccoon') ? 'active' : ''}" data-screen-val="raccoon" type="button">
-              <span class="ic">🦝</span> Raccoon v2
-              <span class="status-badge">${this.getScreenV2('raccoon') ? 'ON' : 'OFF'}</span>
-            </button>
-            <button class="toggle-btn ${this.getScreenV2('memes') ? 'active' : ''}" data-screen-val="memes" type="button">
-              <span class="ic">🧠</span> Memes v2
-              <span class="status-badge">${this.getScreenV2('memes') ? 'ON' : 'OFF'}</span>
-            </button>
-          </div>
-        </div>
-      </div>
 
       <div class="mobile-tabs" id="mobile-tabs" role="menu">
         ${OFFICE_NAV_TABS.map(t => {
@@ -1002,11 +945,6 @@ class OfficeNav extends HTMLElement {
       closeAll();
     });
 
-    $('overflow-close-btn')?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      closeAll();
-    });
-
     userBtn?.addEventListener('click', (e) => {
       e.stopPropagation();
       const isOpen = userMenu.classList.contains('open');
@@ -1044,7 +982,7 @@ class OfficeNav extends HTMLElement {
     });
 
     $('um-theme')?.addEventListener('click', () => {
-      const ORDER = ['atlas-dark','aurora'];
+      const ORDER = ['dark', 'atlas-dark', 'aurora', 'light', 'liquid-glass'];
       const cur = this.getTheme();
       const next = ORDER[(ORDER.indexOf(cur) + 1) % ORDER.length];
       try { localStorage.setItem('office.theme', next); } catch {}
@@ -1667,8 +1605,8 @@ function applyTheme(theme) {
 // Aplica o tema salvo o quanto antes (evita FOUC se o nav demorar pra montar)
 (function preApplyTheme() {
   try {
-    const saved = localStorage.getItem('office.theme') || 'atlas-dark';
-    const valid = ['epiuse-light','epiuse-dark','atlas-light','atlas-dark','dark','light','armory','elephant','aurora','liquid-glass'].includes(saved) ? saved : 'atlas-dark';
+    const saved = localStorage.getItem('office.theme') || 'dark';
+    const valid = ['epiuse-light','epiuse-dark','atlas-light','atlas-dark','dark','light','armory','elephant','aurora','liquid-glass'].includes(saved) ? saved : 'dark';
     applyTheme(valid);
   } catch {}
 })();
@@ -1702,9 +1640,9 @@ const OfficeCommandPalette = (() => {
       { group:'Rotas', icon:'📨', label:'LP Seja um Voice',     hint:'/seja-voice', action:'/seja-voice' },
       { group:'Rotas', icon:'📜', label:'Changelog',            hint:'/changelog',  action:'/changelog' },
       // Ações
-      { group:'Ações', icon:'🔮',  label:'Alternar tema (Atlas Escuro / Aurora)', hint:'persiste', action: () => {
-          const ORDER = ['atlas-dark','aurora'];
-          const cur = (localStorage.getItem('office.theme') || 'atlas-dark');
+      { group:'Ações', icon:'🔮',  label:'Alternar tema (Legado / Atlas / Aurora / Light / Glass)', hint:'persiste', action: () => {
+          const ORDER = ['dark', 'atlas-dark', 'aurora', 'light', 'liquid-glass'];
+          const cur = (localStorage.getItem('office.theme') || 'dark');
           const next = ORDER[(ORDER.indexOf(cur) + 1) % ORDER.length];
           try { localStorage.setItem('office.theme', next); } catch {}
           applyTheme(next);

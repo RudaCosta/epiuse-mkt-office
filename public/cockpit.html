@@ -609,6 +609,13 @@ class Component {
     // reveal "LIVE" chip on wide screens
     const w = this.root && this.root.querySelector('[data-wide]');
     if (w && window.innerWidth > 900) w.style.display = 'flex';
+
+    // Inicializa na seção especificada pela URL (se existir)
+    const params = new URLSearchParams(window.location.search);
+    const sec = params.get('sec') || window.location.hash.replace('#', '');
+    if (['cockpit', 'raccoon', 'memes'].includes(sec)) {
+      this.show(sec);
+    }
   }
 
   runCounts() {
