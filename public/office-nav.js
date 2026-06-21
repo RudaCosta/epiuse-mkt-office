@@ -8,7 +8,7 @@
 // Fonte ÚNICA da verdade: public/api/changelog.json#current via /api/version
 // Fallback hardcoded usado SÓ se fetch falhar (offline, etc).
 // Sincronização automática — não editar manualmente, basta bumpar changelog.json.
-let OFFICE_NAV_VERSION = '0.54.1';
+let OFFICE_NAV_VERSION = '0.55.0';
 // Promise compartilhada — nav + footer reaproveitam o mesmo fetch
 window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/version')
   .then(r => r.ok ? r.json() : null)
@@ -81,7 +81,7 @@ window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/ver
   }
 
   // polish-pro.css + consulting-dark.css + epiuse-theme.css + atlas-theme.css
-  ['/css/polish-pro.css', '/css/consulting-dark.css', '/css/epiuse-theme.css', '/css/atlas-theme.css'].forEach(href => {
+  ['/css/polish-pro.css', '/css/consulting-dark.css', '/css/epiuse-theme.css', '/css/atlas-theme.css', '/css/atlas-components.css'].forEach(href => {
     if (document.querySelector(`link[href="${href}"]`)) return;
     const l = document.createElement('link');
     l.rel = 'stylesheet'; l.href = href;

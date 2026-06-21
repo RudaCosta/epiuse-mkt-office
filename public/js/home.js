@@ -140,11 +140,10 @@
       if (!top.length) { target.innerHTML = '<div class="home-empty">Sem metas com valor real ainda.</div>'; return; }
       target.innerHTML = top.map(m => {
         const cls = m.pct >= 75 ? 'ok' : m.pct >= 50 ? 'warn' : 'off';
-        const fill = m.pct >= 75 ? '#10b981' : m.pct >= 50 ? '#fbbf24' : '#ef4444';
         return `<div class="home-meta-cell">
           <div class="nome">${esc(m.nome)} · ${esc(m.estagio.slice(0, 20))}</div>
           <div class="pct ${cls}">${m.pct}%</div>
-          <div class="bar"><i style="width:${Math.min(100,m.pct)}%;background:${fill}"></i></div>
+          <div class="bar"><i class="${cls}" style="width:${Math.min(100,m.pct)}%"></i></div>
         </div>`;
       }).join('');
     } catch {

@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="/css/consulting-dark.css">
 <link rel="stylesheet" href="/css/home.css">
 </head>
-<body class="home-root" data-route="home">
+<body class="home-root atlas" data-route="home">
 <office-nav></office-nav>
 <div class="home-wrap">
 
@@ -28,6 +28,96 @@
       <image href="/assets/logos-group-elephant/ge-logo.svg" width="100" height="100" preserveAspectRatio="xMidYMid meet"/>
     </svg>
   </header>
+
+  <!-- ════ COCKPIT (faixa executiva · dado real) ════ -->
+  <section class="cockpit-strip">
+    <div class="ck-head">
+      <div>
+        <div class="mono eyebrow">Cockpit · RevOps &amp; Marketing</div>
+        <h2 class="disp ck-title">Visão executiva</h2>
+      </div>
+      <span class="ck-livechip mono"><i></i> AO VIVO · <span id="ck-live">—</span></span>
+    </div>
+
+    <!-- KPI ROW -->
+    <div class="bento bento-kpi ck-kpis">
+      <div class="card hov">
+        <div class="kpi-accent" style="background:var(--home-accent-red)"></div>
+        <div class="mono eyebrow">Oportunidades · Zoho</div>
+        <div class="disp ck-num"><span id="ck-opps">—</span></div>
+        <div class="mono ck-sub">deals no CRM</div>
+      </div>
+      <div class="card hov">
+        <div class="kpi-accent" style="background:var(--home-accent-blue)"></div>
+        <div class="mono eyebrow">Contatos · Apollo</div>
+        <div class="disp ck-num"><span id="ck-contatos">—</span></div>
+        <div class="mono ck-sub"><span id="ck-empresas2">—</span> empresas mapeadas</div>
+      </div>
+      <div class="card hov">
+        <div class="kpi-accent" style="background:var(--home-success)"></div>
+        <div class="mono eyebrow">Seguidores · LinkedIn</div>
+        <div class="disp ck-num"><span id="ck-seguidores">—</span></div>
+        <div class="mono ck-sub" style="color:var(--home-success)"><span id="ck-ganho">+2.279</span> em 12m</div>
+      </div>
+      <div class="card hov">
+        <div class="kpi-accent" style="background:var(--home-warning)"></div>
+        <div class="mono eyebrow">Eventos FY · BR</div>
+        <div class="disp ck-num"><span id="ck-eventos">—</span></div>
+        <div class="mono ck-sub"><span id="ck-evexec">—</span> já realizados</div>
+      </div>
+    </div>
+
+    <!-- BENTO: funil + destaques -->
+    <div class="bento ck-bento2">
+      <div class="card ck-funnel">
+        <div class="mono eyebrow">Funil de aquisição · real</div>
+        <div class="ck-fn-rows">
+          <div class="ck-fn"><div class="ck-fn-top"><span>Contatos (Apollo)</span><b class="disp" id="fnv-contatos">—</b></div><div class="ck-fn-bar"><i id="fn-contatos" style="background:var(--home-accent-blue)"></i></div></div>
+          <div class="ck-fn"><div class="ck-fn-top"><span>Empresas mapeadas</span><b class="disp" id="fnv-empresas">—</b></div><div class="ck-fn-bar"><i id="fn-empresas" style="background:var(--home-accent-blue)"></i></div></div>
+          <div class="ck-fn"><div class="ck-fn-top"><span>Reuniões (30d)</span><b class="disp" id="fnv-reunioes">—</b></div><div class="ck-fn-bar"><i id="fn-reunioes" style="background:var(--home-success)"></i></div></div>
+          <div class="ck-fn"><div class="ck-fn-top"><span>Oportunidades (Zoho)</span><b class="disp" id="fnv-opps">—</b></div><div class="ck-fn-bar"><i id="fn-opps" style="background:var(--home-accent-red)"></i></div></div>
+        </div>
+      </div>
+      <div class="card ck-destaques">
+        <div class="mono eyebrow">Destaques do mês · real</div>
+        <div class="ck-dgrid">
+          <div class="ck-d"><div class="disp" id="ck-posts">—</div><div class="mono">posts/mês</div></div>
+          <div class="ck-d"><div class="disp" id="ck-cases">—</div><div class="mono">cases</div></div>
+          <div class="ck-d"><div class="disp" id="ck-voices">—</div><div class="mono">Voices ativos</div></div>
+          <div class="ck-d"><div class="disp" id="ck-artigos">—</div><div class="mono">artigos na base</div></div>
+        </div>
+        <div class="ck-pipe"><div class="disp" id="ck-pipe">—</div><div class="mono">Pipeline FY · Zoho CRM</div></div>
+      </div>
+    </div>
+  </section>
+  <script>
+  (function(){
+    var nf = function(n){ return n==null ? null : Number(n).toLocaleString('pt-BR'); };
+    function put(id,v){ var el=document.getElementById(id); if(el) el.textContent = (v==null?'—':nf(v)); }
+    function bar(id,pct){ var el=document.getElementById(id); if(el) el.style.width = Math.max(0,Math.min(100,pct))+'%'; }
+    fetch('/api/areas.json?t='+Date.now()).then(function(r){return r.json();}).then(function(d){
+      var o=d._overlay||{};
+      put('ck-opps',o.oportunidades); put('ck-contatos',o.contatos); put('ck-seguidores',o.seguidores); put('ck-eventos',o.eventos_total);
+      put('ck-empresas2',o.contas); put('ck-evexec',o.eventos_exec);
+      put('ck-posts',o.posts_mes); put('ck-cases',o.cases);
+      put('fnv-contatos',o.contatos); put('fnv-empresas',o.contas); put('fnv-reunioes',o.reunioes); put('fnv-opps',o.oportunidades);
+      var max=o.contatos||1;
+      bar('fn-contatos',100); bar('fn-empresas',(o.contas/max)*100); bar('fn-reunioes',Math.max((o.reunioes/max)*100,1.2)); bar('fn-opps',Math.max((o.oportunidades/max)*100,1.5));
+      var A=d.areas||[];
+      var brand=A.filter(function(a){return a.id==='brand';})[0];
+      var vk=brand&&(brand.kpis||[]).filter(function(k){return /voices ativos/i.test(k.label||'');})[0];
+      var vEl=document.getElementById('ck-voices'); if(vEl) vEl.textContent=(vk&&vk.valor)||'—';
+      var cont=A.filter(function(a){return a.id==='conteudo';})[0];
+      var ak=cont&&(cont.kpis||[]).filter(function(k){return /artigos na base/i.test(k.label||'');})[0];
+      var aEl=document.getElementById('ck-artigos'); if(aEl) aEl.textContent=(ak&&ak.valor!=null)?nf(ak.valor):'—';
+      var live=document.getElementById('ck-live'); if(live) live.textContent=(o.live_count||0)+' fontes';
+    }).catch(function(){ var live=document.getElementById('ck-live'); if(live) live.textContent='offline'; });
+    fetch('/api/zoho/pipeline?t='+Date.now()).then(function(r){return r.json();}).then(function(z){
+      var v = z&&z.kpis&&z.kpis.ultimo_fy ? z.kpis.ultimo_fy.valor : null;
+      var el=document.getElementById('ck-pipe'); if(el) el.textContent = (v!=null) ? ('R$ '+(v/1e6).toFixed(1).replace('.',',')+'M') : '—';
+    }).catch(function(){});
+  })();
+  </script>
 
   <!-- NORTH-STAR STRIP (3 números que importam) -->
   <section class="home-section" data-sec="northstar" style="display:none">

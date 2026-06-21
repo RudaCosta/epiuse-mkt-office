@@ -750,3 +750,123 @@ html.js-loaded .home-section.visible { opacity: 1; transform: none; }
   .home-hero { grid-template-columns: 1fr; }
   .home-hero .chip-online { justify-self: start; }
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   ATLAS RE-SKIN + COCKPIT STRIP (Claude Design · jun/2026)
+   Só sob .home-root.atlas → reversível, não vaza. Faixa Cockpit usa os
+   primitives .card/.disp/.mono/.bento (atlas-components.css) remapeando
+   os tokens atlas (--panel/--ink/--line/--shadow) p/ os tokens da home.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* remap de tokens: .card etc passam a usar a paleta da home (qualquer tema) */
+.cockpit-strip {
+  --panel: var(--home-surface);
+  --ink: var(--home-text);
+  --line: var(--home-border);
+  --muted: var(--home-text-muted);
+  --shadow: var(--home-shadow);
+  --red: var(--home-accent-red);
+  display: block;
+  margin-bottom: 36px;
+}
+.cockpit-strip .ck-head {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap; margin-bottom: 16px;
+}
+.cockpit-strip .ck-title {
+  margin: 2px 0 0; font-size: 26px; font-weight: 700;
+  letter-spacing: -.02em; color: var(--home-text);
+}
+.cockpit-strip .ck-livechip {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 10.5px; color: var(--home-success);
+  background: rgba(16,185,129,.12); border: 1px solid rgba(16,185,129,.32);
+  border-radius: 99px; padding: 6px 12px; white-space: nowrap;
+}
+.cockpit-strip .ck-livechip i {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--home-success); box-shadow: 0 0 8px var(--home-success);
+  animation: pulse 2s ease-in-out infinite;
+}
+.cockpit-strip .ck-kpis { margin-bottom: 14px; }
+.cockpit-strip .ck-kpis .card { padding: 16px 17px 15px; position: relative; overflow: hidden; }
+.cockpit-strip .ck-num {
+  font-size: 34px; font-weight: 700; letter-spacing: -.02em;
+  margin-top: 6px; line-height: 1; color: var(--home-text);
+  font-variant-numeric: tabular-nums;
+}
+.cockpit-strip .ck-sub { font-size: 11px; color: var(--home-text-muted); margin-top: 8px; }
+.cockpit-strip .eyebrow { color: var(--home-text-muted); }
+.cockpit-strip .ck-bento2 { grid-template-columns: 1.4fr 1fr; }
+.cockpit-strip .ck-funnel,
+.cockpit-strip .ck-destaques { padding: 20px; }
+.cockpit-strip .ck-fn-rows { display: flex; flex-direction: column; gap: 13px; margin-top: 14px; }
+.cockpit-strip .ck-fn-top {
+  display: flex; justify-content: space-between;
+  font-size: 12px; color: var(--home-text-dim); margin-bottom: 6px;
+}
+.cockpit-strip .ck-fn-top b { font-weight: 700; color: var(--home-text); font-variant-numeric: tabular-nums; }
+.cockpit-strip .ck-fn-bar { height: 9px; border-radius: 6px; background: rgba(134,158,195,.15); overflow: hidden; }
+.cockpit-strip .ck-fn-bar > i {
+  display: block; height: 100%; width: 0; border-radius: 6px;
+  transition: width .9s cubic-bezier(.16,1,.3,1);
+}
+.cockpit-strip .ck-dgrid { display: grid; grid-template-columns: repeat(2,1fr); gap: 14px; margin-top: 14px; }
+.cockpit-strip .ck-d .disp {
+  font-size: 24px; font-weight: 700; color: var(--home-text);
+  font-variant-numeric: tabular-nums; line-height: 1;
+}
+.cockpit-strip .ck-d .mono {
+  font-size: 10px; color: var(--home-text-muted);
+  text-transform: uppercase; letter-spacing: .08em; margin-top: 3px;
+}
+.cockpit-strip .ck-pipe {
+  margin-top: 16px; padding: 12px 14px;
+  display: flex; align-items: baseline; gap: 12px;
+  border: 1px solid var(--home-border);
+  border-left: 3px solid var(--home-accent-red);
+  border-radius: 10px; background: rgba(205,21,67,.06);
+}
+.cockpit-strip .ck-pipe .disp {
+  font-size: 22px; font-weight: 700; color: var(--home-text);
+  font-variant-numeric: tabular-nums; line-height: 1;
+}
+.cockpit-strip .ck-pipe .mono {
+  font-size: 10px; color: var(--home-text-muted);
+  text-transform: uppercase; letter-spacing: .08em;
+}
+@media (max-width: 760px) { .cockpit-strip .ck-bento2 { grid-template-columns: 1fr; } }
+
+/* RE-SKIN painéis existentes: glassmorphism → flat bento (Atlas) */
+.home-root.atlas .home-digest-card,
+.home-root.atlas .home-area-card,
+.home-root.atlas .home-team-card,
+.home-root.atlas .home-metas-strip,
+.home-root.atlas .home-alerts,
+.home-root.atlas .home-evt-month,
+.home-root.atlas .home-bday-card,
+.home-root.atlas .dk-glass {
+  background: var(--home-surface) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  border: 1px solid var(--home-border) !important;
+  border-radius: 16px !important;
+  box-shadow: var(--home-shadow) !important;
+}
+.home-root.atlas .home-section-title {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+/* HERO · texto sempre claro (fundo navy nos 2 temas) — fix legibilidade no claro */
+.home-root.atlas .home-hero { color: rgba(255,255,255,.9); }
+.home-root.atlas .home-hero h1 { color: #fff !important; }
+.home-root.atlas .home-hero .subtitle { color: rgba(255,255,255,.82) !important; }
+
+/* METAS · barra theme-aware (sem hex hardcoded; mais clara no modo claro) */
+.home-meta-cell .bar > i { background-image: none; }
+.home-meta-cell .bar > i.ok   { background: var(--home-success); }
+.home-meta-cell .bar > i.warn { background: var(--home-warning); }
+.home-meta-cell .bar > i.off  { background: var(--home-danger); }
+[data-theme="light"] .home-meta-cell .bar > i.ok   { background: #34d399; }
+[data-theme="light"] .home-meta-cell .bar > i.warn { background: #f59e0b; }
+[data-theme="light"] .home-meta-cell .bar > i.off  { background: #f87171; }

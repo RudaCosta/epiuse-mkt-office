@@ -1,5 +1,5 @@
 {
-  "current": "0.54.1",
+  "current": "0.55.0",
   "atualizado_em": "21/jun/2026",
   "next": [
     {
@@ -54,9 +54,24 @@
   ],
   "releases": [
     {
-      "version": "0.54.0",
+      "version": "0.55.0",
       "date": "21/jun/2026",
       "status": "current",
+      "path": null,
+      "title": "🚀 Home = Cockpit executivo (Atlas) com dado real + componentes Atlas globais",
+      "summary": "A Home (/) ganhou a faixa Cockpit no topo no estilo Claude Design (Atlas), com KPIs 100% reais ao vivo: oportunidades (Zoho), contatos/empresas (Apollo), seguidores (LinkedIn), eventos (calendário), funil de aquisição, destaques do mês e pipeline R$ (Zoho). Os painéis existentes foram re-vestidos no estilo bento flat. Novo atlas-components.css reutilizável por todas as páginas.",
+      "highlights": [
+        "Novo atlas-components.css: primitives .card/.disp/.mono/.navtab/.rise/.hov + grids bento, escopados em .atlas (zero regressão nas telas legadas).",
+        "Faixa Cockpit na Home com dado REAL via /api/areas.json (overlay live) + /api/zoho/pipeline — nenhum número fake.",
+        "Re-skin não-destrutivo dos painéis da home (glassmorphism -> flat bento) sob .home-root.atlas.",
+        "Fix modo claro: titulo do hero ilegivel (navy sobre navy) agora branco; barra de metas #10b981 hardcoded -> cor theme-aware mais clara.",
+        "Tokens --shadow/--grid/--line2 adicionados ao tema EPI-USE (claro+escuro)."
+      ]
+    },
+    {
+      "version": "0.54.0",
+      "date": "21/jun/2026",
+      "status": "past",
       "path": null,
       "title": "🎨 Tema global EPI-USE/Atlas (claro + escuro) em todas as páginas",
       "summary": "Os temas EPI-USE e Atlas (claro e escuro) agora funcionam globalmente em todas as 32 páginas do Office. Corrigido o bug de cards pretos no modo claro (tokens --card/--bg/--text não eram redefinidos pelos temas). Cada página re-tematiza sem edição individual.",
