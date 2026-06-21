@@ -1934,6 +1934,7 @@ const HOME_HTML      = path.join(__dirname, 'public/home.html');
 app.get('/',          (req, res) => res.sendFile(HOME_HTML));
 app.get('/game',      (req, res) => res.sendFile(OFFICE_HTML));
 app.get('/memes',     (req, res) => res.sendFile(path.join(__dirname, 'public/memes.html')));
+app.get('/cockpit',   (req, res) => res.sendFile(path.join(__dirname, 'public/cockpit.html')));
 
 // ── /api/pendencias — parsea vault/00-contexto/pendencias.md em 5 buckets ──
 app.get('/api/pendencias', (req, res) => {
