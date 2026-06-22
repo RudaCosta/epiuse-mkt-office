@@ -3356,38 +3356,155 @@ Retorne APENAS JSON valido, sem texto antes/depois:
 
     // LLM gratis via OpenRouter (Gemma). Modelo override por env OPENROUTER_MODEL.
     const orKey = process.env.OPENROUTER_API_KEY;
-    if (!orKey) return res.status(503).json({ success: false, error: 'Revisor indisponivel: falta configurar OPENROUTER_API_KEY no servidor.' });
-    const orModel = process.env.OPENROUTER_MODEL || 'google/gemma-4-31b-it:free';
+    let useFallback = false;
+    let fallbackReason = '';
 
-    const orResp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${orKey}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://epiuse-mkt-office-production.up.railway.app',
-        'X-Title': 'EPI-USE Office - Raccoon SEO/GEO'
-      },
-      body: JSON.stringify({
-        model: orModel,
-        temperature: 0.3,
-        max_tokens: 3000,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    if (!orResp.ok) {
-      const detail = await orResp.text().catch(() => '');
-      console.error('[SEO-REVIEW-OR-FAIL]', orResp.status, detail.slice(0, 300));
-      const msg = orResp.status === 429
-        ? 'Revisor sobrecarregado (limite gratuito do Qwen atingido). Tente em alguns minutos.'
-        : 'Revisor IA indisponivel no momento. Tente novamente.';
-      return res.status(502).json({ success: false, error: msg });
+    if (!orKey) {
+      useFallback = true;
+      fallbackReason = 'Falta configurar OPENROUTER_API_KEY no servidor';
     }
-    const data = await orResp.json();
-    let raw = ((data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '')
-      .replace(/```json\s*/gi, '').replace(/```\s*/g, '');
-    const m = raw.match(/\{[\s\S]*\}/);
-    if (!m) return res.status(502).json({ success: false, error: 'IA nao retornou JSON valido. Tente de novo.' });
-    const parsed = JSON.parse(m[0]);
+
+    let parsed = null;
+    let orModel = process.env.OPENROUTER_MODEL || 'google/gemma-4-31b-it:free';
+
+    if (!useFallback) {
+      try {
+        const orResp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${orKey}`,
+            'Content-Type': 'application/json',
+            'HTTP-Referer': 'https://epiuse-mkt-office-production.up.railway.app',
+            'X-Title': 'EPI-USE Office - Raccoon SEO/GEO'
+          },
+          body: JSON.stringify({
+            model: orModel,
+            temperature: 0.3,
+            max_tokens: 3000,
+            messages: [{ role: 'user', content: prompt }]
+          })
+        });
+
+        if (!orResp.ok) {
+          const detail = await orResp.text().catch(() => '');
+          console.error('[SEO-REVIEW-OR-FAIL]', orResp.status, detail.slice(0, 300));
+          useFallback = true;
+          fallbackReason = orResp.status === 429
+            ? 'Limite gratuito do Qwen atingido no OpenRouter'
+            : `OpenRouter respondeu com status ${orResp.status}`;
+        } else {
+          const data = await orResp.json();
+          let raw = ((data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '')
+            .replace(/```json\s*/gi, '').replace(/```\s*/g, '');
+          const m = raw.match(/\{[\s\S]*\}/);
+          if (!m) {
+            useFallback = true;
+            fallbackReason = 'IA não retornou um JSON estruturado';
+          } else {
+            parsed = JSON.parse(m[0]);
+          }
+        }
+      } catch (err) {
+        console.error('[SEO-REVIEW-LLM-EXCEPTION]', err.message);
+        useFallback = true;
+        fallbackReason = `Exceção na chamada LLM: ${err.message}`;
+      }
+    }
+
+    if (useFallback) {
+      console.warn(`[SEO-REVIEW] Falling back to local deterministic checker. Reason: ${fallbackReason}`);
+      
+      const seoResult = seoChecker.checkSEO({
+        titulo: titulo || 'Artigo de Marketing',
+        corpo: texto,
+        tema_keyword: lob || 'EPI-USE'
+      });
+      
+      const geoResult = seoChecker.checkGEO({
+        titulo: titulo || 'Artigo de Marketing',
+        corpo: texto,
+        tema_keyword: lob || 'EPI-USE'
+      });
+      
+      const ctaResult = seoChecker.suggestCTA({ lob, pilar: '' });
+
+      const metaTitle = titulo ? (titulo.length > 60 ? titulo.slice(0, 57) + '...' : titulo) : 'Artigo de Marketing';
+      const metaDescription = texto.slice(0, 150).trim() + '...';
+      const slug = (titulo || 'artigo').toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+
+      const seoCriterios = (seoResult.checklist || []).map(c => ({
+        nome: c.item,
+        nota: c.ok ? 100 : 0,
+        obs: c.nota || (c.ok ? 'Atende perfeitamente' : 'Precisa melhorar')
+      }));
+
+      const geoCriterios = (geoResult.checklist || []).map(c => ({
+        nome: c.item,
+        nota: c.ok ? 100 : 0,
+        obs: c.nota || (c.ok ? 'Bom posicionamento' : 'Otimizar estrutura')
+      }));
+
+      const top_fixes = [];
+      (seoResult.checklist || []).filter(c => !c.ok).forEach(c => top_fixes.push(`SEO: ${c.item}`));
+      (geoResult.checklist || []).filter(c => !c.ok).forEach(c => top_fixes.push(`GEO: ${c.item}`));
+      if (top_fixes.length === 0) {
+        top_fixes.push('Nenhuma melhoria crítica identificada.');
+      }
+
+      const link_juice = [];
+      candidatos.slice(0, 3).forEach(c => {
+        link_juice.push({
+          anchor: c.titulo,
+          url: c.url,
+          motivo: 'Artigo relacionado no acervo'
+        });
+      });
+
+      parsed = {
+        nota_geral: Math.round((seoResult.score + geoResult.score) / 2),
+        metaTitle,
+        metaDescription,
+        slug,
+        keyword: {
+          principal: lob || 'EPI-USE',
+          secundarias: ['SAP', 'Inovação B2B'],
+          onde_usar: 'title, H1, primeiros 100 palavras',
+          motivo: 'Otimização com base na linha de negócio'
+        },
+        seo: {
+          score: seoResult.score,
+          criterios: seoCriterios
+        },
+        geo: {
+          score: geoResult.score,
+          criterios: geoCriterios
+        },
+        resumo: `Análise determinística local (Fallback). O artigo apresenta score SEO de ${seoResult.score}% e GEO de ${geoResult.score}%.`,
+        top_fixes: top_fixes.slice(0, 5),
+        link_juice,
+        cta: {
+          texto: ctaResult.cta,
+          posicao: 'fim',
+          motivo: 'CTA alinhado à linha de negócio'
+        },
+        faq: [
+          { q: 'Como otimizar este artigo para SEO?', a: 'Inclua a palavra-chave no título e nos primeiros parágrafos, além de subtítulos H2/H3.' }
+        ],
+        artigo_melhorado: texto
+      };
+      
+      return res.json({
+        success: true,
+        review: parsed,
+        modelo: 'local-deterministic-fallback',
+        candidatos_considerados: candidatos.length,
+        gerado_em: new Date().toISOString(),
+        warning: `Análise local ativa devido à sobrecarga temporária da IA (${fallbackReason}).`
+      });
+    }
+
     res.json({ success: true, review: parsed, modelo: orModel, candidatos_considerados: candidatos.length, gerado_em: new Date().toISOString() });
   } catch (e) {
     console.error('[SEO-REVIEW-FAIL]', e.message);
