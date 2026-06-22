@@ -363,6 +363,8 @@ class OfficeNav extends HTMLElement {
           height: 48px;
           padding: 0 14px;
           gap: 8px;
+          position: relative;
+          z-index: 10;
         }
         .logo {
           display: inline-flex;
@@ -506,7 +508,7 @@ class OfficeNav extends HTMLElement {
           position: fixed;
           top: 0; left: 0; right: 0; bottom: 0;
           background: transparent;
-          z-index: 98;
+          z-index: 998;
         }
         .overflow-overlay.open {
           display: block;
@@ -525,7 +527,7 @@ class OfficeNav extends HTMLElement {
           border-radius: 12px;
           padding: 16px 20px;
           box-shadow: 0 16px 36px rgba(0,0,0,0.6);
-          z-index: 99;
+          z-index: 999;
         }
         .overflow-menu.open {
           display: grid;
@@ -596,6 +598,8 @@ class OfficeNav extends HTMLElement {
           gap: 6px;
           align-items: center;
           letter-spacing: 0.02em;
+          position: relative;
+          z-index: 9;
         }
         .crumbs .sep { opacity: 0.4; }
         .crumbs .item { color: var(--nav-muted); }

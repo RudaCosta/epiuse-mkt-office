@@ -4,9 +4,8 @@
 // ════════════════════════════════════════════════════════════════════════════
 
 // Fonte ÚNICA da verdade: public/api/changelog.json#current via /api/version
-// Fallback hardcoded usado SÓ se fetch falhar — sincronização automática com nav.
-let OFFICE_FOOTER_VERSION = '0.55.0';
-const OFFICE_FOOTER_BUILD = '2026-06-19';
+let OFFICE_FOOTER_VERSION = '0.56.0';
+const OFFICE_FOOTER_BUILD = '2026-06-21';
 window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/version')
   .then(r => r.ok ? r.json() : null)
   .then(d => { if (d && d.current) { OFFICE_FOOTER_VERSION = d.current; window.__officeVersion = d.current; } return d; })
@@ -16,8 +15,10 @@ window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/ver
 // Bug fix → 1.0.1 | Feature nova → 1.1.0 | Refactor grande → 2.0.0
 // Histórico pré-1.0 preservado abaixo para referência.
 const OFFICE_VERSION_HISTORY = [
-  // ─── SPRINT 47 · Tema global EPI-USE/Atlas (21/jun/2026) ───
-  { ver: '0.54.1', date: '21/jun/2026', label: 'SPRINT 47 — Tema EPI-USE claro/escuro refeito do design (tokens .atlas exatos) + FONTE GLOBAL padronizada para Poppins em todas as telas. Mono preservado em codigo.', path: null, status: 'current' },
+  // ─── SPRINT 47 · Tema global EPI-USE/Atlas + Raccoon Redesign (21/jun/2026) ───
+  { ver: '0.56.0', date: '21/jun/2026', label: 'Redesign Premium do Raccoon Studio + Suporte Dinâmico a Temas (Claro/Escuro/Aurora/Liquid Glass) + Correção de z-index do mega menu dropdown.', path: null, status: 'current' },
+  { ver: '0.55.0', date: '21/jun/2026', label: 'SPRINT 47 — Home = Cockpit executivo (Atlas) com dado real + componentes Atlas globais.', path: null, status: 'snapshot' },
+  { ver: '0.54.1', date: '21/jun/2026', label: 'SPRINT 47 — Tema EPI-USE claro/escuro refeito do design (tokens .atlas exatos) + FONTE GLOBAL padronizada para Poppins em todas as telas. Mono preservado em codigo.', path: null, status: 'snapshot' },
   { ver: '0.54.0', date: '21/jun/2026', label: 'SPRINT 47 — Tema global EPI-USE/Atlas (claro+escuro) em todas as 32 páginas. Conserta cards pretos no modo claro (bindings de --card/--bg/--text nos temas) + remap hex->token. Trocar para um modo CLARO no seletor para ver.', path: null, status: 'snapshot' },
   // ─── SPRINT 46 · Revisor SEO/GEO (19/jun/2026) ───
   { ver: '0.53.7', date: '19/jun/2026', label: 'SPRINT 46 — Upgrades de UI/UX no Raccoon Studio (design ECC), inclusão de tema Aurora como padrão e sincronização do artigo de revisão com o Pipeline Editorial.', path: null, status: 'snapshot' },
