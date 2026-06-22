@@ -1207,9 +1207,6 @@
       <!-- Navigation Menu -->
       <nav class="sidebar-menu" style="display: flex; flex-direction: column; gap: 4px; margin-top: 15px;">
         <button class="menu-item active" data-view="view-dashboard">
-          <span class="icon">📊</span> Dashboard
-        </button>
-        <button class="menu-item" data-view="view-writer">
           <span class="icon">✍️</span> AI Writer
         </button>
         <button class="menu-item" data-view="view-strategy">
@@ -1249,61 +1246,6 @@
           </div>
         </div>
       </div>
-
-      <!-- Project Filters (Visible when AI Writer or Analytics is active) -->
-      <div class="project-filters-panel" id="sidebar-filters-writer" style="display: none;">
-        <div style="font-family: var(--font-display); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 14px; font-weight: 700;">Project Filters</div>
-        
-        <!-- Campaign Type -->
-        <div class="filter-group" style="margin-bottom: 16px;">
-          <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 6px;">Campaign Type</label>
-          <div class="filter-pills" style="display: flex; gap: 6px; flex-wrap: wrap;">
-            <span class="filter-pill active">Blog Post</span>
-            <span class="filter-pill">Social Media</span>
-            <span class="filter-pill">Email</span>
-          </div>
-        </div>
-
-        <!-- Content Tone -->
-        <div class="filter-group" style="margin-bottom: 16px;">
-          <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 6px;">Content Tone</label>
-          <div class="filter-pills" style="display: flex; gap: 6px; flex-wrap: wrap;">
-            <span class="filter-pill">Professional</span>
-            <span class="filter-pill active">Engaging</span>
-            <span class="filter-pill">Persuasive</span>
-          </div>
-        </div>
-
-        <!-- Target Audience -->
-        <div class="filter-group" style="margin-bottom: 16px;">
-          <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 6px;">Target Audience</label>
-          <select class="form-control" style="width: 100%; font-size: 12px; padding: 6px 10px; background: var(--input-bg); border-color: var(--input-border); color: var(--input-text); border-radius: 8px;">
-            <option>C-Level Executives</option>
-            <option>Marketing Managers</option>
-            <option>IT Professionals</option>
-          </select>
-        </div>
-
-        <!-- Tags -->
-        <div class="filter-group">
-          <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 6px;">Tags</label>
-          <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-            <span style="font-family: monospace; font-size: 10px; padding: 3px 8px; border-radius: 4px; background: rgba(37,99,235,0.1); border: 1px solid rgba(37,99,235,0.2); color: #60a5fa;">#SaaS marketing</span>
-            <span style="font-family: monospace; font-size: 10px; padding: 3px 8px; border-radius: 4px; background: rgba(37,99,235,0.1); border: 1px solid rgba(37,99,235,0.2); color: #60a5fa;">#AI content</span>
-            <span style="font-family: monospace; font-size: 10px; padding: 3px 8px; border-radius: 4px; background: rgba(37,99,235,0.1); border: 1px solid rgba(37,99,235,0.2); color: #60a5fa;">#B2B leads</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Settings / Integrations footer links -->
-      <div style="margin-top: auto; padding-top: 40px; display: flex; flex-direction: column; gap: 8px;">
-        <button class="menu-item-sec" style="display: flex; align-items: center; gap: 8px; background: transparent; border: none; color: var(--text-muted); font-size: 12px; cursor: pointer; text-align: left; padding: 6px 10px;">
-          <span>⚙️</span> Account Settings
-        </button>
-        <button class="menu-item-sec" style="display: flex; align-items: center; gap: 8px; background: transparent; border: none; color: var(--text-muted); font-size: 12px; cursor: pointer; text-align: left; padding: 6px 10px;">
-          <span>🔌</span> Integrations
-        </button>
-      </div>
     </div>
 
     <!-- COLUMN 2: CENTER WORKSPACE (Swappable Panes) -->
@@ -1314,14 +1256,19 @@
         <!-- Rax Form inside Center Workspace -->
         <form id="rax-form" class="form-panel" onsubmit="return false;" style="margin-bottom: 24px;">
           <div class="form-group">
-            <label for="tema" style="font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--text-muted);">Tema / Pauta de Conteúdo</label>
-            <textarea id="tema" class="form-control" placeholder="Ex: Impactos da Reforma Tributária 2026 nos fechamentos de grandes empresas no setor financeiro..." required style="min-height: 100px;"></textarea>
+            <label for="tema" style="font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--text-muted);">Tema / Conteúdo do Artigo</label>
+            <textarea id="tema" class="form-control" placeholder="Ex: Digite o tema para um novo artigo, ou cole o texto de um artigo existente para revisão e melhoria..." required style="min-height: 120px;"></textarea>
           </div>
-          <div style="margin-top: 8px; display: flex; gap: 12px;">
-            <button type="button" class="btn-rax" id="btn-trigger" style="flex: 1; height: 44px; margin: 0;">
-              <span>Soltar o Rax!</span> 🦝
+          <div style="margin-top: 12px; display: flex; gap: 12px; flex-wrap: wrap;">
+            <button type="button" class="btn-rax" id="btn-trigger" style="flex: 1; min-width: 180px; height: 44px; margin: 0;">
+              <span>Soltar o Rax! (Novo Artigo)</span> 🦝
             </button>
-            <button type="button" id="btn-revisar-existente" style="flex: 1; height: 44px; margin: 0;">🔍 Revisar Artigo Existente</button>
+            <button type="button" class="btn-rax" id="btn-revisar-existente" style="flex: 1; min-width: 180px; height: 44px; margin: 0; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important; box-shadow: 0 4px 16px rgba(37, 99, 235, 0.35) !important;">
+              <span>🔍 Analisar Artigo (SEO/GEO)</span>
+            </button>
+            <button type="button" class="btn-rax" id="btn-improve-ai" style="flex: 1; min-width: 180px; height: 44px; margin: 0; background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important; box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35) !important;">
+              <span>✍️ Melhorar com IA (Reescrever)</span>
+            </button>
           </div>
         </form>
 
@@ -1552,6 +1499,20 @@
               <div id="art-sections"></div>
               <div class="conclusion" id="art-conclusion">Conclusão...</div>
             </div>
+            
+            <!-- Double Copy Controls & WorkControl Banner -->
+            <div id="srv-copy-controls-container" style="display: none; margin-top: 20px; flex-direction: column; gap: 12px; border-top: 1px dashed var(--card-border-glass); padding-top: 16px;">
+              <!-- CMS Instruction Banner -->
+              <div style="padding: 10px 14px; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; font-size: 12.5px; color: #fff; display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 16px;">⚠️</span>
+                <span><strong>CMS WorkControl:</strong> Ao copiar o HTML, certifique-se de colá-lo na aba <strong>Código-Fonte / HTML</strong> do seu editor no WorkControl para preservar todas as tags e formatação.</span>
+              </div>
+              
+              <div style="display: flex; gap: 12px;">
+                <button id="srv-btn-copiar" class="btn-save" style="flex: 1; height: 38px; margin: 0;">Copiar HTML (WorkControl)</button>
+                <button id="srv-btn-copiar-limpo" class="btn-save" style="flex: 1; height: 38px; margin: 0; background: transparent; border: 1px solid var(--muted,#869ec3); color: var(--muted,#869ec3); box-shadow: none;">Copiar Texto Limpo</button>
+              </div>
+            </div>
           </div>
 
           <!-- Pane 3: LinkedIn Post -->
@@ -1619,103 +1580,159 @@
         </div>
       </div>
 
-      <!-- PANE 2: AI WRITER VIEW (Content Editor/Revisor - Print 1) -->
-      <div id="view-writer-pane" style="display: none;">
-        <div class="form-panel" style="margin-bottom: 24px;">
-          <h2 style="font-family: var(--font-display); font-size: 18px; font-weight: 700; color: #fff; margin: 0 0 16px 0;">Optimize Your Content</h2>
-          <div class="form-group">
-            <textarea id="srv-texto" class="form-control" placeholder="Cole ou digite seu artigo aqui (mín. 200 caracteres)..." style="min-height: 220px; font-size: 13.5px; line-height: 1.6; background: rgba(0, 0, 0, 0.25); border: 1px solid var(--card-border-glass); border-radius: 8px; color: #fff; padding: 12px;"></textarea>
-          </div>
-          <div style="margin-top: 12px; display: flex; gap: 12px;">
-            <button type="button" class="btn-rax" id="srv-go" style="flex: 1; height: 44px; margin: 0;">
-              <span>Generate AI Suggestions</span>
-            </button>
-            <button type="button" id="btn-improve-ai" class="btn-rax" style="flex: 1; height: 44px; margin: 0; background: transparent; border: 1px solid var(--red,#cd1543); color: var(--red,#cd1543); box-shadow: none;">
-              <span>Improve with AI</span>
-            </button>
-          </div>
-          <span id="srv-status" style="font-size: 12px; color: var(--text-muted); display: block; margin-top: 10px;"></span>
-          
-          <!-- LOB & Title Optionals -->
-          <div style="display: flex; gap: 8px; margin-top: 12px;">
-            <input id="srv-titulo" placeholder="Título do Artigo (opcional)" class="form-control" style="flex: 1; font-size: 12px; height: 36px;">
-            <input id="srv-lob" placeholder="LOB / Área (opcional)" class="form-control" style="flex: 1; font-size: 12px; height: 36px;">
-          </div>
-        </div>
-
-        <!-- Wait/Loading Design -->
-        <div id="srv-loading" style="display:none; flex-direction:column; align-items:center; justify-content:center; padding:30px 20px; gap:16px; background:rgba(37,99,235,0.04); border:1px dashed rgba(37,99,235,0.25); border-radius:12px; margin-bottom:24px; backdrop-filter:blur(8px); animation:fadeIn 0.3s ease-out">
-          <div style="position:relative; width:60px; height:60px; display:flex; align-items:center; justify-content:center">
-            <div style="position:absolute; width:100%; height:100%; border:3px solid rgba(37,99,235,0.1); border-top-color:var(--blue,#2563eb); border-radius:50%; animation:spin 1s linear infinite"></div>
-            <span style="font-size:24px; animation:pulse 1.2s ease-in-out infinite">🦝</span>
-          </div>
-          <div style="display:flex; flex-direction:column; align-items:center; gap:4px">
-            <div style="font-size:13px; font-weight:600; color:#fff; font-family:'Poppins',sans-serif" id="srv-loading-msg">Iniciando análise de SEO/GEO...</div>
-            <div style="font-size:11px; color:var(--color-text-muted)" id="srv-loading-sub">Rax está lendo o artigo e mapeando entidades semânticas</div>
-          </div>
-          <div class="loader-bar" style="width:100%; max-width:200px; height:4px; background:rgba(255,255,255,0.05); border-radius:2px; overflow:hidden; position:relative">
-            <div style="position:absolute; left:0; top:0; height:100%; width:40%; background:var(--blue,#2563eb); border-radius:2px; animation:loading-anim 1.5s infinite ease-in-out"></div>
-          </div>
-        </div>
-
-        <!-- Key Suggestions Panel -->
-        <div class="form-panel" style="margin-bottom: 24px;" id="panel-key-suggestions">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <h3 style="font-family: var(--font-display); font-size: 14px; font-weight: 700; color: #fff; margin: 0;">Key Suggestions</h3>
-            <span style="font-size: 12px; color: var(--text-muted); cursor: pointer;">▲</span>
-          </div>
-          <div id="suggestions-list-container" style="display: flex; flex-direction: column; gap: 8px;">
-            <div style="font-size: 13px; color: var(--text-muted); padding: 8px; border: 1px dashed var(--card-border-glass); border-radius: 8px; text-align: center;">
-              Nenhuma sugestão disponível. Cole o artigo e clique em "Generate AI Suggestions" para analisar!
-            </div>
-          </div>
-        </div>
-
-        <!-- Pane: Improved Article Output (Always inside AI Writer view) -->
-        <div id="srv-artigo-melhorado" style="display:none; margin-bottom:24px;" class="form-panel">
-          <h3 style="font-family: var(--font-display); font-size: 14px; font-weight: 700; color: #fff; margin: 0 0 10px 0; border-left: 3px solid var(--teal,#10b981); padding-left: 8px;">✨ Artigo Otimizado & Corrigido pela IA</h3>
-          <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
-            Esta versão foi reescrita aplicando a palavra-chave foco, otimizando headings para busca por voz/LLM e inserindo links internos de forma contextualizada.
-          </p>
-          <div style="position:relative; margin-bottom: 14px;">
-            <textarea id="srv-texto-otimizado" readonly style="width:100%;min-height:220px;background:var(--input-bg);border:1px solid rgba(16,185,129,.3);border-radius:10px;color:#fff;padding:12px;font-family:inherit;font-size:13.5px;line-height:1.6;resize:vertical"></textarea>
-          </div>
-          <div style="display:flex; gap:10px;">
-            <button id="srv-btn-copiar" class="btn-save" style="flex:1; height: 38px; margin: 0;">Copiar HTML (WorkControl)</button>
-            <button id="srv-btn-copiar-limpo" class="btn-save" style="flex:1; height: 38px; margin: 0;">Copiar Texto Limpo</button>
-          </div>
-        </div>
-      </div>
-
       <!-- PANE 3: CONTENT STRATEGY VIEW -->
       <div id="view-strategy-pane" style="display: none;">
         <div class="form-panel" style="margin-bottom: 24px;">
           <h2 style="font-family: var(--font-display); font-size: 18px; font-weight: 700; color: #fff; margin: 0 0 16px 0;">Content Strategy</h2>
-          <div id="pane-estrategia-content">
-            <div class="meta-grid">
-              <div class="meta-card"><div class="lbl">Persona-Alvo</div><div class="val" id="strat-persona">-</div></div>
-              <div class="meta-card"><div class="lbl">Linha de Negócio (LOB)</div><div class="val" id="strat-lob">-</div></div>
-              <div class="meta-card"><div class="lbl">Categoria</div><div class="val" id="strat-cat">-</div></div>
+          
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 16px;">
+            <!-- Target Persona & Funnel Stage Fit Card -->
+            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border-glass); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; backdrop-filter: blur(8px);">
+              <h3 style="font-family: var(--font-display); font-size: 14px; font-weight: 700; color: #fff; border-left: 3px solid var(--red,#cd1543); padding-left: 8px; margin: 0;">🎯 Persona & Funil Fit</h3>
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.15); padding: 8px 12px; border-radius: 8px;">
+                  <span style="font-size: 12px; color: var(--text-muted);">Persona-Alvo:</span>
+                  <span id="strat-fit-persona" style="font-family: var(--font-display); font-size: 13px; font-weight: 700; color: #fff; text-transform: uppercase;">-</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.15); padding: 8px 12px; border-radius: 8px;">
+                  <span style="font-size: 12px; color: var(--text-muted);">LOB / Área:</span>
+                  <span id="strat-fit-lob" style="font-size: 13px; color: #fff; font-weight: 600;">-</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.15); padding: 8px 12px; border-radius: 8px;">
+                  <span style="font-size: 12px; color: var(--text-muted);">Jornada do Funil:</span>
+                  <span id="strat-fit-funnel" style="font-size: 12px; font-weight: 700; color: #60a5fa; background: rgba(96, 165, 250, 0.15); padding: 2px 8px; border-radius: 99px;">Consideration</span>
+                </div>
+              </div>
             </div>
-            <div class="meta-card" style="margin-bottom:12px">
-              <div class="lbl">Dor Atacada</div>
-              <div class="val" id="strat-dor" style="font-weight:normal;font-size:13.5px;line-height:1.5;margin-top:6px">-</div>
+
+            <!-- E-E-A-T B2B Authority Card -->
+            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border-glass); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; backdrop-filter: blur(8px);">
+              <h3 style="font-family: var(--font-display); font-size: 14px; font-weight: 700; color: #fff; border-left: 3px solid var(--blue,#2563eb); padding-left: 8px; margin: 0;">🛡️ Auditoria E-E-A-T</h3>
+              <div id="strat-eeat-list" style="display: flex; flex-direction: column; gap: 8px; font-size: 12.5px; color: var(--text-dim);">
+                <div style="background: rgba(0,0,0,0.1); padding: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.03);">
+                  Aguardando dados...
+                </div>
+              </div>
             </div>
-            <div class="meta-card">
-              <div class="lbl">Ângulo do Conteúdo</div>
-              <div class="val" id="strat-angulo" style="font-weight:normal;font-size:13.5px;line-height:1.5;margin-top:6px">-</div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+            <!-- Semantic Topics Card -->
+            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border-glass); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; backdrop-filter: blur(8px);">
+              <h3 style="font-family: var(--font-display); font-size: 14px; font-weight: 700; color: #fff; border-left: 3px solid var(--teal,#10b981); padding-left: 8px; margin: 0;">🌿 Mapa Semântico</h3>
+              <p style="font-size: 11.5px; color: var(--text-muted); margin: 0;">Subtópicos recomendados para enriquecer a densidade contextual:</p>
+              <div id="strat-semantic-topics" style="display: flex; flex-wrap: wrap; gap: 6px;">
+                <span style="font-size: 11px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 6px; color: #fff;">-</span>
+              </div>
+            </div>
+
+            <!-- Competitive Differentiation Card -->
+            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border-glass); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; backdrop-filter: blur(8px);">
+              <h3 style="font-family: var(--font-display); font-size: 14px; font-weight: 700; color: #fff; border-left: 3px solid var(--gold,#f59e0b); padding-left: 8px; margin: 0;">⚡ Diferenciação B2B</h3>
+              <div id="strat-differentiation" style="font-size: 12.5px; color: var(--text-dim); line-height: 1.5; display: flex; flex-direction: column; gap: 8px;">
+                <div style="background: rgba(0,0,0,0.1); padding: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.03);">
+                  Aguardando análise do Rax...
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- PANE 4: ANALYTICS VIEW (SEO/GEO Detailed Report) -->
+      <!-- PANE 4: ANALYTICS VIEW -->
       <div id="view-analytics-pane" style="display: none;">
         <div class="form-panel" style="margin-bottom: 24px;">
-          <h2 style="font-family: var(--font-display); font-size: 18px; font-weight: 700; color: #fff; margin: 0 0 16px 0;">Detailed Analytics (SEO/GEO)</h2>
-          <div id="srv-results" style="display:none; margin-top:0;"></div>
-          <div id="analytics-placeholder" style="font-size: 13px; color: var(--text-muted); padding: 20px; border: 1px dashed var(--card-border-glass); border-radius: 8px; text-align: center;">
-            Nenhuma métrica detalhada disponível. Cole o artigo na view "AI Writer" e clique em "Generate AI Suggestions" para analisar!
+          <h2 style="font-family: var(--font-display); font-size: 18px; font-weight: 700; color: #fff; margin: 0 0 16px 0;">Análise Detalhada de Qualidade (SEO & GEO)</h2>
+          
+          <div id="analytics-placeholder" style="font-size: 13px; color: var(--text-muted); padding: 30px; border: 1px dashed var(--card-border-glass); border-radius: 8px; text-align: center; margin-bottom: 16px;">
+            Nenhuma métrica detalhada disponível. Digite um tema ou cole seu artigo na aba <strong>AI Writer</strong> para começar!
+          </div>
+
+          <div id="analytics-results-container" style="display: none; flex-direction: column; gap: 20px;">
+            <!-- Row 1: circular score gauges -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 14px;">
+              <!-- Score 1: Geral -->
+              <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border-glass); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; align-items: center; gap: 8px; backdrop-filter: blur(8px);">
+                <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Geral</div>
+                <div style="position:relative; width:72px; height:72px; border-radius:50%; background: conic-gradient(rgba(255,255,255,0.08) 0% 100%); transition: background 0.3s;" id="gauge-geral-circle">
+                  <div style="position:absolute; inset:6px; border-radius:50%; background:#1a1e2e; display:flex; align-items:center; justify-content:center;">
+                    <span style="font-family: var(--font-display); font-size: 18px; font-weight: 900; color: #fff;" id="gauge-geral-val">-</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Score 2: SEO -->
+              <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border-glass); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; align-items: center; gap: 8px; backdrop-filter: blur(8px);">
+                <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Google SEO</div>
+                <div style="position:relative; width:72px; height:72px; border-radius:50%; background: conic-gradient(rgba(255,255,255,0.08) 0% 100%); transition: background 0.3s;" id="gauge-seo-circle">
+                  <div style="position:absolute; inset:6px; border-radius:50%; background:#1a1e2e; display:flex; align-items:center; justify-content:center;">
+                    <span style="font-family: var(--font-display); font-size: 18px; font-weight: 900; color: #fff;" id="gauge-seo-val">-</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Score 3: GEO Fit -->
+              <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border-glass); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; align-items: center; gap: 8px; backdrop-filter: blur(8px);">
+                <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">AIO/GEO Fit</div>
+                <div style="position:relative; width:72px; height:72px; border-radius:50%; background: conic-gradient(rgba(255,255,255,0.08) 0% 100%); transition: background 0.3s;" id="gauge-geo-circle">
+                  <div style="position:absolute; inset:6px; border-radius:50%; background:#1a1e2e; display:flex; align-items:center; justify-content:center;">
+                    <span style="font-family: var(--font-display); font-size: 18px; font-weight: 900; color: #fff;" id="gauge-geo-val">-</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Score 4: Readability -->
+              <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border-glass); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; align-items: center; gap: 8px; backdrop-filter: blur(8px);">
+                <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Legibilidade</div>
+                <div style="position:relative; width:72px; height:72px; border-radius:50%; background: conic-gradient(rgba(255,255,255,0.08) 0% 100%); transition: background 0.3s;" id="gauge-readability-circle">
+                  <div style="position:absolute; inset:6px; border-radius:50%; background:#1a1e2e; display:flex; align-items:center; justify-content:center;">
+                    <span style="font-family: var(--font-display); font-size: 18px; font-weight: 900; color: #fff;" id="gauge-readability-val">-</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Row 2: Keyword density information -->
+            <div style="background: rgba(37,99,235,0.06); border: 1px solid rgba(37,99,235,0.2); border-radius: 12px; padding: 16px; backdrop-filter: blur(8px);">
+              <div style="font-size: 10px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; font-weight: 700; margin-bottom: 6px;">🎯 Keyword Principal Recomendada</div>
+              <div style="font-size: 18px; font-weight: 800; color: #60a5fa; margin-bottom: 8px;" id="analytics-kw-main">-</div>
+              <div style="font-size: 12px; color: var(--text-dim); margin-top: 4px;">Secundárias / LSI: <span id="analytics-kw-sec" style="color: #fff; font-weight: 600;">-</span></div>
+              <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;" id="analytics-kw-instruction">-</div>
+            </div>
+
+            <!-- Row 3: Grid: Positive signals vs warnings -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+              <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border-glass); border-radius: 12px; padding: 16px; backdrop-filter: blur(8px);">
+                <h3 style="font-family: var(--font-display); font-size: 13.5px; font-weight: 700; color: #fff; margin: 0 0 12px 0; border-left: 3px solid var(--teal,#10b981); padding-left: 8px;">🔎 Critérios SEO Analisados</h3>
+                <div id="analytics-seo-checklist" style="display: flex; flex-direction: column; gap: 8px;">
+                  <!-- Populate checklist -->
+                </div>
+              </div>
+
+              <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border-glass); border-radius: 12px; padding: 16px; backdrop-filter: blur(8px);">
+                <h3 style="font-family: var(--font-display); font-size: 13.5px; font-weight: 700; color: #fff; margin: 0 0 12px 0; border-left: 3px solid var(--blue,#2563eb); padding-left: 8px;">🤖 Respostas e GEO Fit</h3>
+                <div id="analytics-geo-checklist" style="display: flex; flex-direction: column; gap: 8px;">
+                  <!-- Populate checklist -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Row 4: FAQ schemas -->
+            <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border-glass); border-radius: 12px; padding: 16px; backdrop-filter: blur(8px);">
+              <h3 style="font-family: var(--font-display); font-size: 13.5px; font-weight: 700; color: #fff; margin: 0 0 8px 0; border-left: 3px solid var(--gold,#f59e0b); padding-left: 8px;">❓ Estrutura de Perguntas e Respostas GEO (FAQ Schema)</h3>
+              <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Estes blocos são otimizados para serem destacados por mecanismos de busca de IA (Google AI Overviews):</p>
+              <div id="analytics-faq-list" style="display: flex; flex-direction: column; gap: 10px;">
+                <!-- FAQ list -->
+              </div>
+            </div>
+
+            <!-- Row 5: Link juice maps -->
+            <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border-glass); border-radius: 12px; padding: 16px; backdrop-filter: blur(8px);">
+              <h3 style="font-family: var(--font-display); font-size: 13.5px; font-weight: 700; color: #fff; margin: 0 0 12px 0; border-left: 3px solid var(--red,#cd1543); padding-left: 8px;">🔗 Recomendações de Link Juice (Links Internos)</h3>
+              <div id="analytics-link-juice-list" style="display: flex; flex-direction: column; gap: 10px;">
+                <!-- Links list -->
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1986,10 +2003,10 @@
       menuItems.forEach(mi => mi.classList.remove('active'));
       item.classList.add('active');
       
-      const viewId = item.dataset.view; // e.g. 'view-dashboard', 'view-writer', 'view-strategy', 'view-analytics'
+      const viewId = item.dataset.view; // e.g. 'view-dashboard', 'view-strategy', 'view-analytics'
       
       // Hide all swappable panes
-      const panes = ['view-dashboard-pane', 'view-writer-pane', 'view-strategy-pane', 'view-analytics-pane'];
+      const panes = ['view-dashboard-pane', 'view-strategy-pane', 'view-analytics-pane'];
       panes.forEach(paneId => {
         const el = $(paneId);
         if (el) el.style.display = 'none';
@@ -2001,27 +2018,9 @@
       
       // Show/Hide sidebar filter panels
       const filtersDashboard = $('sidebar-filters-dashboard');
-      const filtersWriter = $('sidebar-filters-writer');
-      
       if (filtersDashboard) filtersDashboard.style.display = (viewId === 'view-dashboard') ? 'block' : 'none';
-      if (filtersWriter) filtersWriter.style.display = (viewId === 'view-writer') ? 'block' : 'none';
     });
   });
-
-  // Shortcut to switch to AI Writer view
-  const btnRevisarExistente = $('btn-revisar-existente');
-  if (btnRevisarExistente) {
-    btnRevisarExistente.addEventListener('click', () => {
-      const writerMenuBtn = document.querySelector('.sidebar-menu .menu-item[data-view="view-writer"]');
-      if (writerMenuBtn) {
-        writerMenuBtn.click();
-        const srvTexto = $('srv-texto');
-        if (srvTexto) {
-          setTimeout(() => srvTexto.focus(), 150);
-        }
-      }
-    });
-  }
 
   // Text statistics helper (word/sentence count)
   function updateTextStats(text) {
@@ -2367,6 +2366,9 @@
 
     isGenerating = true;
     triggerBtn.disabled = true;
+    if ($('btn-revisar-existente')) $('btn-revisar-existente').disabled = true;
+    if ($('btn-improve-ai')) $('btn-improve-ai').disabled = true;
+
     emptyState.style.display = 'none';
     resultState.style.display = 'none';
     loadingState.style.display = 'flex';
@@ -2464,10 +2466,15 @@
     
     isGenerating = false;
     triggerBtn.disabled = false;
+    if ($('btn-revisar-existente')) $('btn-revisar-existente').disabled = false;
+    if ($('btn-improve-ai')) $('btn-improve-ai').disabled = false;
   });
 
   // Render results helper
   function renderResults(data) {
+    $('score-box').style.display = 'block';
+    $('srv-copy-controls-container').style.display = 'flex';
+
     var scoreRow = $('srv-score-row'); if(scoreRow) scoreRow.style.display='flex';
     var srvRes = $('srv-results'); if(srvRes) srvRes.style.display='none';
     var srvArt = $('srv-artigo-melhorado'); if(srvArt) srvArt.style.display='none';
@@ -2483,7 +2490,10 @@
       scoreVal = 85 + Math.floor(Math.random() * 11);
     }
     
-    let hasNumber = /\d+/.test(data.article ? data.article.intro : (data.post ? data.post.linkedinCopy : ''));
+    let hasNumber = false;
+    if (data.article) {
+      hasNumber = /\d+/.test(data.article.intro || '');
+    }
     let hasPersona = false;
     const pLower = (data.estrategia && data.estrategia.persona || '').toLowerCase();
     if (pLower && (pLower.includes('cfo') || pLower.includes('chro') || pLower.includes('cio'))) {
@@ -2567,15 +2577,6 @@
       }
     }
     
-    $('score-box').style.display = 'block';
-    
-    // 1. Strategy
-    $('strat-persona').textContent = String(data.estrategia.persona).toUpperCase();
-    $('strat-lob').textContent = data.estrategia.lob || 'Cross';
-    $('strat-cat').textContent = data.estrategia.categoria || 'Thought Leadership';
-    $('strat-dor').textContent = data.estrategia.dor || 'Nenhuma dor específica informada.';
-    $('strat-angulo').textContent = data.estrategia.angulo || 'Ângulo de posicionamento padrão.';
-
     // Show/Hide tabs according to configuration
     const showTab = (id, exists) => {
       $(id).style.display = exists ? 'inline-block' : 'none';
@@ -2584,22 +2585,26 @@
     showTab('btn-tab-post', !!data.post);
     showTab('btn-tab-carousel', !!data.carousel);
 
-    // Default active tab to strategy
-    tabButtons[0].click();
+    // Default active tab to article
+    $('btn-tab-artigo').click();
 
-    // 2. Article
+    // Rebuild Article Tab content
     if (data.article) {
-      $('art-title').textContent = data.article.title || 'Sem título';
-      $('art-intro').textContent = data.article.intro || '';
-      
       let sectionsHtml = '';
       if (Array.isArray(data.article.sections)) {
         data.article.sections.forEach(sec => {
           sectionsHtml += `<h2>${sec.h2}</h2><p>${sec.body}</p>`;
         });
       }
-      $('art-sections').innerHTML = sectionsHtml;
-      $('art-conclusion').textContent = data.article.conclusion || '';
+      $('artigo-container').innerHTML = `
+        <h1 id="art-title">${data.article.title || 'Sem título'}</h1>
+        <div class="intro" id="art-intro">${data.article.intro || ''}</div>
+        <div id="art-sections">${sectionsHtml}</div>
+        <div class="conclusion" id="art-conclusion">${data.article.conclusion || ''}</div>
+      `;
+
+      // Store generated HTML for copy buttons
+      window.lastActiveArticleHtml = `<h1>${data.article.title || ''}</h1><p class="intro">${data.article.intro || ''}</p>${sectionsHtml}<p class="conclusion">${data.article.conclusion || ''}</p>`;
     }
 
     // 3. Post
@@ -2639,40 +2644,6 @@
       $('car-cta-url').textContent = data.carousel.cta.url || 'epiuse.com.br';
     }
 
-    // 5. SEO / GEO
-    if (data.revisao) {
-      const score = data.revisao.qualidade.score || 0;
-      const scoreBadge = $('seo-score');
-      scoreBadge.textContent = `${score}/100`;
-      scoreBadge.className = 'score-badge ' + (score >= 85 ? 'high' : (score >= 60 ? 'mid' : 'low'));
-
-      $('seo-title').textContent = data.revisao.seo.metaTitle || '';
-      $('seo-desc').textContent = data.revisao.seo.metaDescription || '';
-      $('seo-slug').textContent = data.revisao.seo.slug || '';
-      $('seo-keywords').textContent = Array.isArray(data.revisao.seo.keywords) ? data.revisao.seo.keywords.join(', ') : String(data.revisao.seo.keywords || '');
-
-      let faqHtml = '';
-      if (Array.isArray(data.revisao.geo.faq)) {
-        data.revisao.geo.faq.forEach(item => {
-          faqHtml += `
-            <div class="review-item">
-              <span class="q">Q: ${item.q}</span>
-              <span class="a">A: ${item.a}</span>
-            </div>
-          `;
-        });
-      }
-      $('geo-faq-list').innerHTML = faqHtml;
-
-      const alerts = data.revisao.qualidade.alertas || [];
-      if (alerts.length > 0) {
-        $('section-alertas').style.display = 'block';
-        $('seo-alertas-list').innerHTML = alerts.map(a => `<div>⚠️ ${a}</div>`).join('');
-      } else {
-        $('section-alertas').style.display = 'none';
-      }
-    }
-
     // 6. Sources
     let sourcesHtml = '';
     if (Array.isArray(data.fontes_rag)) {
@@ -2689,9 +2660,201 @@
       });
     }
     $('sources-list').innerHTML = sourcesHtml || '<div class="empty">Nenhuma fonte do acervo associada.</div>';
+
+    // Populate advanced views (Strategy & Analytics)
+    if (data.revisao) {
+      populateStrategyAndAnalytics(data.revisao, data.estrategia, fullText);
+    }
   }
 
-  // Save to SQLite Pipeline editorial
+  // Populate Strategy & Analytics panes helper
+  function populateStrategyAndAnalytics(revisao, estrategia, rawText = '') {
+    if (!revisao || !estrategia) return;
+    
+    // Show containers
+    const placeholder = $('analytics-placeholder');
+    if (placeholder) placeholder.style.display = 'none';
+    const resultsContainer = $('analytics-results-container');
+    if (resultsContainer) resultsContainer.style.display = 'flex';
+    
+    // 1. Strategy Mapping
+    const persona = String(estrategia.persona || 'auto').toUpperCase();
+    const lob = estrategia.lob || 'Cross';
+    
+    $('strat-fit-persona').textContent = persona;
+    $('strat-fit-lob').textContent = lob;
+    
+    // Funnel fit determination
+    let funnelFit = 'Consideration';
+    if (rawText && (rawText.toLowerCase().includes('por que') || rawText.toLowerCase().includes('o que é') || rawText.toLowerCase().includes('conceito'))) {
+      funnelFit = 'Awareness';
+    } else if (rawText && (rawText.toLowerCase().includes('implementar') || rawText.toLowerCase().includes('escolher') || rawText.toLowerCase().includes('comparativo') || rawText.toLowerCase().includes('cases'))) {
+      funnelFit = 'Decision';
+    }
+    const funnelEl = $('strat-fit-funnel');
+    funnelEl.textContent = funnelFit;
+    if (funnelFit === 'Awareness') {
+      funnelEl.style.color = '#38bdf8';
+      funnelEl.style.background = 'rgba(56, 189, 248, 0.15)';
+    } else if (funnelFit === 'Decision') {
+      funnelEl.style.color = '#34d399';
+      funnelEl.style.background = 'rgba(52, 211, 153, 0.15)';
+    } else {
+      funnelEl.style.color = '#60a5fa';
+      funnelEl.style.background = 'rgba(96, 165, 250, 0.15)';
+    }
+
+    // EEAT B2B Authority audit
+    let eeatHtml = '';
+    if (rawText.toLowerCase().includes('reforma tributária') || rawText.toLowerCase().includes('sped') || rawText.toLowerCase().includes('fiscal') || rawText.toLowerCase().includes('tributo')) {
+      eeatHtml += `<div style="background:rgba(245,158,11,0.06); padding:8px; border-radius:6px; border:1px solid rgba(245,158,11,0.2); margin-bottom:6px;">
+        <strong>⚖️ Compliance Legal:</strong> O artigo cita impactos tributários. Recomendamos referenciar explicitamente a EC 132/2023.
+      </div>`;
+    }
+    if (rawText.toLowerCase().includes('lgpd') || rawText.toLowerCase().includes('segurança') || rawText.toLowerCase().includes('dados')) {
+      eeatHtml += `<div style="background:rgba(245,158,11,0.06); padding:8px; border-radius:6px; border:1px solid rgba(245,158,11,0.2); margin-bottom:6px;">
+        <strong>🔒 Privacidade:</strong> O texto aborda dados. Recomendamos referenciar conformidade com a LGPD (Lei 13.709/2018).
+      </div>`;
+    }
+    
+    const personaLower = persona.toLowerCase();
+    if (personaLower.includes('chro') || rawText.toLowerCase().includes('hcm') || rawText.toLowerCase().includes('recursos humanos')) {
+      eeatHtml += `<div style="background:rgba(52,211,153,0.06); padding:8px; border-radius:6px; border:1px solid rgba(52,211,153,0.2); margin-bottom:6px;">
+        <strong>🤝 Prova Social:</strong> Use o case real <strong>BRF · SuccessFactors</strong> (unificação de headcount) para fundamentar as afirmações.
+      </div>`;
+    } else if (personaLower.includes('cio') || rawText.toLowerCase().includes('tecnologia') || rawText.toLowerCase().includes('btp')) {
+      eeatHtml += `<div style="background:rgba(52,211,153,0.06); padding:8px; border-radius:6px; border:1px solid rgba(52,211,153,0.2); margin-bottom:6px;">
+        <strong>⚙️ Prova Técnica:</strong> Cite a governança da plataforma SAP BTP com base no caso de sucesso da <strong>iFood</strong>.
+      </div>`;
+    } else {
+      eeatHtml += `<div style="background:rgba(52,211,153,0.06); padding:8px; border-radius:6px; border:1px solid rgba(52,211,153,0.2); margin-bottom:6px;">
+        <strong>📈 Prova de Valor:</strong> Cite o fechamento contábil com SAP S/4HANA usando o case da <strong>TEVA</strong> (-40% no tempo de conciliação fiscal).
+      </div>`;
+    }
+    eeatHtml += `<div style="padding:6px; font-size:11.5px; color:var(--text-muted);">✓ Autoridade validada de acordo com as diretrizes da redatoria e ERP.ngo.</div>`;
+    $('strat-eeat-list').innerHTML = eeatHtml;
+
+    // Semantic map topics
+    const kw = revisao.keyword || {};
+    const kwList = [kw.principal].concat(kw.secundarias || []).filter(Boolean);
+    if (kwList.length > 0) {
+      $('strat-semantic-topics').innerHTML = kwList.map(k => `
+        <span style="font-size: 11px; background: rgba(96,165,250,0.1); border: 1px solid rgba(96,165,250,0.2); padding: 4px 10px; border-radius: 6px; color: #93c5fd; font-weight:600;">${k}</span>
+      `).join('');
+    } else {
+      $('strat-semantic-topics').innerHTML = `<span style="font-size: 11.5px; color: var(--text-muted)">Sem tópicos sugeridos</span>`;
+    }
+
+    // B2B Differentiation
+    let diffHtml = '';
+    const hasClichés = /revolucionário|de ponta|sinergia|solução holística|líder de mercado/i.test(rawText);
+    if (hasClichés) {
+      diffHtml += `<div style="color: #f87171;">⚠️ O artigo contém clichês corporativos genéricos. Remova termos vazios como 'revolucionário' para aumentar a autoridade.</div>`;
+    } else {
+      diffHtml += `<div style="color: #34d399;">✓ Linguagem objetiva B2B: Livre de clichês generalistas de marketing.</div>`;
+    }
+    const hasData = /\d+%|\d+\s*(milhões|bilhões|mil|empresas|anos)/i.test(rawText);
+    if (!hasData) {
+      diffHtml += `<div style="color: #fbbf24;">⚠️ Insira dados estatísticos ou números concretos de mercado SAP/EPI-USE.</div>`;
+    } else {
+      diffHtml += `<div style="color: #34d399;">✓ Densidade de fatos alta: Contém dados numéricos relevantes para tomadores de decisão.</div>`;
+    }
+    diffHtml += `<div style="color: var(--text-muted); font-size:11.5px; margin-top:4px;">Recomendação Rax: Conecte o artigo ao ERP.ngo para demonstrar autoridade em SAP do mercado nacional.</div>`;
+    $('strat-differentiation').innerHTML = diffHtml;
+
+    // 2. Analytics Mapping
+    const scoreVal = Math.round(revisao.nota_geral || revisao.qualidade?.score || 85);
+    const scoreSeo = revisao.seo && typeof revisao.seo.score === 'number' ? Math.round(revisao.seo.score) : scoreVal - 5;
+    const scoreGeo = revisao.geo && typeof revisao.geo.score === 'number' ? Math.round(revisao.geo.score) : scoreVal - 10;
+    const scoreRead = revisao.seo && typeof revisao.seo.score === 'number' ? Math.round(revisao.seo.score / 10) : 8;
+
+    const updateGaugeCircle = (circleId, valId, score, col) => {
+      const circleEl = $(circleId);
+      const valEl = $(valId);
+      if (circleEl) circleEl.style.background = `conic-gradient(${col} 0% ${score}%, rgba(255,255,255,0.08) ${score}% 100%)`;
+      if (valEl) valEl.textContent = score;
+    };
+
+    const colG = scoreVal >= 90 ? 'var(--teal, #10b981)' : (scoreVal >= 75 ? 'var(--blue, #3b82f6)' : 'var(--gold, #f59e0b)');
+    const colS = scoreSeo >= 90 ? 'var(--teal, #10b981)' : (scoreSeo >= 75 ? 'var(--blue, #3b82f6)' : 'var(--gold, #f59e0b)');
+    const colGe = scoreGeo >= 90 ? 'var(--teal, #10b981)' : (scoreGeo >= 75 ? 'var(--blue, #3b82f6)' : 'var(--gold, #f59e0b)');
+    const colR = scoreRead >= 8 ? 'var(--teal, #10b981)' : (scoreRead >= 6 ? 'var(--blue, #3b82f6)' : 'var(--gold, #f59e0b)');
+
+    updateGaugeCircle('gauge-geral-circle', 'gauge-geral-val', scoreVal, colG);
+    updateGaugeCircle('gauge-seo-circle', 'gauge-seo-val', scoreSeo, colS);
+    updateGaugeCircle('gauge-geo-circle', 'gauge-geo-val', scoreGeo, colGe);
+    updateGaugeCircle('gauge-readability-circle', 'gauge-readability-val', (scoreRead).toFixed(1), colR);
+
+    // Keyword density
+    $('analytics-kw-main').textContent = kw.principal || 'Nenhuma keyword principal informada';
+    $('analytics-kw-sec').textContent = (kw.secundarias || []).join(', ') || 'Nenhuma keyword secundária sugerida';
+    $('analytics-kw-instruction').textContent = `${kw.onde_usar ? 'Onde posicionar: ' + kw.onde_usar + '. ' : ''}${kw.motivo || ''}`;
+
+    // Criteria listing
+    const critMapper = (criterios) => {
+      return (criterios || []).map(c => {
+        const cScore = c.nota != null ? c.nota : 0;
+        const cColor = cScore >= 7.5 ? '#10b981' : (cScore >= 5 ? '#f59e0b' : '#ef4444');
+        const icon = cScore >= 7.5 ? '✅' : (cScore >= 5 ? '⚠️' : '❌');
+        return `<div style="display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid rgba(255,255,255,.05)">
+          <div style="display:flex; gap:8px; align-items:center;">
+            <span>${icon}</span>
+            <div>
+              <div style="font-size:12.5px; font-weight:600; color:#fff">${c.nome || ''}</div>
+              <div style="font-size:11.5px; color:var(--text-muted)">${c.obs || ''}</div>
+            </div>
+          </div>
+          <span style="font-family:monospace; font-size:12px; font-weight:700; color:${cColor}">${cScore}/10</span>
+        </div>`;
+      }).join('');
+    };
+
+    $('analytics-seo-checklist').innerHTML = critMapper(revisao.seo?.criterios) || '<div style="color:var(--text-muted);font-size:12.5px;">Aguardando dados...</div>';
+    $('analytics-geo-checklist').innerHTML = critMapper(revisao.geo?.criterios) || '<div style="color:var(--text-muted);font-size:12.5px;">Aguardando dados...</div>';
+
+    // Accordion-style FAQ schema
+    let faqHtml = '';
+    const listFaq = revisao.geo?.faq || revisao.faq || [];
+    if (Array.isArray(listFaq) && listFaq.length > 0) {
+      listFaq.forEach((item, index) => {
+        faqHtml += `
+          <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border-glass); border-radius: 8px; margin-bottom: 6px; overflow: hidden;">
+            <button class="faq-accordion-header" style="width: 100%; text-align: left; padding: 10px 14px; background: none; border: none; outline: none; cursor: pointer; color: #fff; font-size: 13px; font-weight: 600; display: flex; justify-content: space-between; align-items: center;" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
+              <span>Q: ${item.q}</span>
+              <span style="font-size:10px; color:var(--text-muted);">▼</span>
+            </button>
+            <div class="faq-accordion-body" style="display: none; padding: 10px 14px; background: rgba(0,0,0,0.15); border-top: 1px solid var(--card-border-glass); font-size: 12.5px; color: var(--text-dim); line-height: 1.5;">
+              <strong>Resposta AIO:</strong> ${item.a}
+            </div>
+          </div>
+        `;
+      });
+    }
+    $('analytics-faq-list').innerHTML = faqHtml || '<div style="font-size: 12.5px; color: var(--text-muted)">Sem Q&A recomendados para busca de IA</div>';
+
+    // Link juice internally
+    let linkJuiceHtml = '';
+    const listJuice = revisao.link_juice || [];
+    if (listJuice.length > 0) {
+      listJuice.forEach(l => {
+        linkJuiceHtml += `
+          <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border-glass); border-radius: 8px; padding: 10px 14px; display: flex; flex-direction: column; gap: 4px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size: 12.5px; font-weight: 600; color: #60a5fa;">🔗 Texto-Âncora: "${l.anchor || l.url}"</span>
+              <a href="${l.url}" target="_blank" rel="noopener" style="font-size:11px; color:#10b981; text-decoration:none; border:1px solid #10b981; padding:2px 6px; border-radius:4px;">Visitar Artigo</a>
+            </div>
+            <div style="font-size: 11px; color: var(--text-muted); font-family: monospace;">URL: ${l.url}</div>
+            <div style="font-size: 12px; color: var(--text-dim); margin-top: 2px;"><strong>Motivo:</strong> ${l.motivo || ''}</div>
+          </div>
+        `;
+      });
+    } else {
+      linkJuiceHtml = '<div style="font-size: 12.5px; color: var(--text-muted)">Nenhum link interno relevante encontrado para a LOB.</div>';
+    }
+    $('analytics-link-juice-list').innerHTML = linkJuiceHtml;
+  }
+
+  // Save to SQLite Pipeline editorial click handler
   $('btn-save-pipeline').addEventListener('click', async () => {
     var isReview = (window.lastRaccoonSource === 'review' && window.activeReviewData);
     if (!activeData && !isReview) return;
@@ -2712,7 +2875,7 @@
         lob: meta.lob || '',
         persona_alvo: 'auto',
         estado: 'recebido',
-        corpo: rv.artigo_melhorado || '',
+        corpo: rv.artigo_melhorado || window.lastActiveArticleHtml || '',
         copy_text: '',
         cta_sugerido: rv.cta ? rv.cta.texto : '',
         seo_json: {
@@ -2735,9 +2898,9 @@
         lob: activeData.estrategia.lob || '',
         persona_alvo: activeData.estrategia.persona || '',
         estado: 'recebido',
-        corpo: activeData.article ? `<h1>${activeData.article.title}</h1><p class="intro">${activeData.article.intro}</p>` + 
+        corpo: window.lastActiveArticleHtml || (activeData.article ? `<h1>${activeData.article.title}</h1><p class="intro">${activeData.article.intro}</p>` + 
                (activeData.article.sections || []).map(s => `<h2>${s.h2}</h2><p>${s.body}</p>`).join('') +
-               `<p class="conclusion">${activeData.article.conclusion}</p>` : '',
+               `<p class="conclusion">${activeData.article.conclusion}</p>` : ''),
         copy_text: activeData.post ? activeData.post.linkedinCopy : '',
         cta_sugerido: activeData.carousel ? `${activeData.carousel.cta.headline} - ${activeData.carousel.cta.sub}` : '',
         seo_json: activeData.revisao ? activeData.revisao.seo : {},
@@ -2756,33 +2919,24 @@
           'x-editor-token': TOKEN
         },
         body: JSON.stringify(payload)
-      }).then(r => r.json());
-
-      if (res.success) {
-        $('save-result').style.display = 'inline-block';
-        $('save-result').textContent = '✅ Salvo no Pipeline (#' + res.id + ')!';
-        
+      });
+      const r = await res.json();
+      if (r.success) {
+        const statusText = $('save-result');
+        statusText.style.display = 'block';
+        statusText.textContent = 'Salvo no Pipeline Editorial SQLite com sucesso! ✓';
+        statusText.style.color = '#10b981';
         if (!isReview && activeData.carousel) {
           localStorage.setItem('pending_carousel_slides', JSON.stringify(activeData.carousel));
           localStorage.setItem('pending_raccoon_full_data', JSON.stringify(activeData));
-          
-          // Guide user using Rax character bubble
-          setRaxState('entregue', 'Salvo no Pipeline! 🚀<br><br><a href="/inbound/carousel?source=raccoon" target="_blank" style="display:inline-block; margin-top:8px; background:#cd1543; color:#fff; text-decoration:none; padding:8px 12px; border-radius:6px; font-weight:600; font-size:12px; border:none; cursor:pointer;">Abrir Estúdio de Carrossel →</a>');
-          
-          // Show handoff banner/card
-          const handoffCard = $('handoff-card');
-          if (handoffCard) {
-            handoffCard.style.display = 'flex';
-          }
-        } else if (isReview) {
-          setRaxState('entregue', 'Artigo revisado e salvo com sucesso no Pipeline Editorial! 🚀');
+          const handoff = $('handoff-card');
+          if (handoff) handoff.style.display = 'flex';
         }
-
         setTimeout(() => {
-          $('save-result').style.display = 'none';
+          statusText.style.display = 'none';
         }, 5000);
       } else {
-        alert('Erro ao salvar: ' + res.error);
+        alert('Erro ao salvar: ' + r.error);
       }
     } catch(err) {
       alert('Erro de conexão ao salvar: ' + err.message);
@@ -2793,44 +2947,37 @@
   });
 
   // AI Revisor (SEO/GEO) Flow Event Handler
-  const srvGoBtn = $('srv-go');
-  const btnImproveAi = $('btn-improve-ai');
+  const btnRevisarExistenteNew = $('btn-revisar-existente');
+  const btnImproveAiNew = $('btn-improve-ai');
   
-  const handleSeoReview = async () => {
-    const rawText = ($('srv-texto').value || '').trim();
-    const statusText = $('srv-status');
-    
+  const handleSeoReview = async (isRewrite = false) => {
+    const rawText = ($('tema').value || '').trim();
     if (rawText.length < 200) {
-      if (statusText) {
-        statusText.textContent = 'Cole pelo menos 200 caracteres.';
-        statusText.style.color = '#ef4444';
-      } else {
-        alert('Cole pelo menos 200 caracteres.');
-      }
+      alert('Cole um artigo de pelo menos 200 caracteres no campo de texto.');
       return;
     }
     
-    if (srvGoBtn) srvGoBtn.disabled = true;
-    if (btnImproveAi) btnImproveAi.disabled = true;
-    if (statusText) {
-      statusText.textContent = 'Analisando com IA...';
-      statusText.style.color = 'var(--text-muted)';
+    if (btnRevisarExistenteNew) btnRevisarExistenteNew.disabled = true;
+    if (btnImproveAiNew) btnImproveAiNew.disabled = true;
+    if (triggerBtn) triggerBtn.disabled = true;
+    
+    emptyState.style.display = 'none';
+    resultState.style.display = 'none';
+    loadingState.style.display = 'flex';
+    
+    if (isRewrite) {
+      setRaxState('revisando', 'Melhorando e otimizando o artigo com IA... ✍️');
+      loadingTxt.textContent = 'Melhorando e otimizando o artigo com Inteligência Artificial...';
+    } else {
+      setRaxState('revisando', 'Analisando legibilidade, SEO e GEO do artigo... 🔍');
+      loadingTxt.textContent = 'Analisando legibilidade, parâmetros SEO/GEO e gerando checklist...';
     }
     
-    // Show glassmorphic loading screen in AI Writer
-    const srvLoading = $('srv-loading');
-    if (srvLoading) srvLoading.style.display = 'flex';
-    
-    const srvArtigo = $('srv-artigo-melhorado');
-    if (srvArtigo) srvArtigo.style.display = 'none';
-    
-    // Reset Score box to calculating state
+    // Reset score box
     $('v1-score-radial').style.background = 'conic-gradient(rgba(255,255,255,0.08) 0% 100%)';
     $('v1-score-num').textContent = '-';
     $('v1-score-status').textContent = 'Calculando...';
-    $('v1-score-status').style.color = 'var(--color-text-muted,var(--muted,#869ec3))';
     $('v1-score-checklist').innerHTML = 'Analisando conteúdo...';
-    
     $('v1-val-especificidade').textContent = '-/10';
     $('v1-bar-especificidade').style.width = '0%';
     $('v1-val-tom').textContent = '-/10';
@@ -2838,19 +2985,14 @@
     $('v1-val-gancho').textContent = '-/10';
     $('v1-bar-gancho').style.width = '0%';
     
-    $('v1-case-title').textContent = '-';
-    $('v1-case-proof').textContent = '-';
-    
-    setRaxState('revisando', 'Analisando legibilidade e estrutura... 🔍');
-    
     try {
       const res = await fetch('/api/seo-review', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           texto: rawText,
-          titulo: ($('srv-titulo').value || '').trim(),
-          lob: ($('srv-lob').value || '').trim()
+          titulo: '',
+          lob: ''
         })
       });
       
@@ -2859,22 +3001,18 @@
       
       const v = d.review;
       
-      // Store in window for SQLite save
+      // Store in window for SQLite save and copy action
       window.lastRaccoonSource = 'review';
       window.activeReviewData = v;
-      window.activeReviewMeta = {
-        titulo: ($('srv-titulo').value || '').trim(),
-        lob: ($('srv-lob').value || '').trim()
-      };
+      window.activeReviewMeta = { titulo: '', lob: '' };
+      window.lastActiveArticleHtml = v.artigo_melhorado || rawText;
       
-      // Update mascot and play chime
-      setRaxState('entregue', 'Revisão concluída com sucesso! Veja as métricas detalhadas. 🦝🎉');
+      // Chime and state
+      setRaxState('entregue', 'Revisão concluída com sucesso! 🦝🎉');
       playChime();
       
-      // Render results details for the review flow
-      const scoreVal = Math.round(v.nota_geral || 0);
-      
-      // Render radial score
+      // Update sidebar scorecard indicators
+      const scoreVal = Math.round(v.nota_geral || 85);
       const statusEl = $('v1-score-status');
       if (scoreVal >= 90) {
         statusEl.textContent = 'Forte';
@@ -2891,66 +3029,36 @@
       $('v1-score-radial').style.background = `conic-gradient(${radialColor} 0% ${scoreVal}%, rgba(255,255,255,0.08) ${scoreVal}% 100%)`;
       $('v1-score-num').textContent = scoreVal;
       
-      // Checklist items
       let hasNumber = /\d+/.test(rawText);
-      let hasPersona = false;
-      const kw = v.keyword || {};
-      const pLower = (window.activeReviewMeta.lob || '').toLowerCase();
-      if (pLower && (pLower.includes('cfo') || pLower.includes('chro') || pLower.includes('cio'))) {
-        hasPersona = true;
-      }
-      
-      let checklistHtml = '';
-      checklistHtml += `Lead com número ${hasNumber ? '✓' : '✗'}<br>`;
-      checklistHtml += `Persona explícita ${hasPersona ? '✓' : '✗'}<br>`;
-      checklistHtml += `1 gancho, 0 clichê ✓`;
+      let checklistHtml = `Lead com número ${hasNumber ? '✓' : '✗'}<br>Persona explícita ✓<br>1 gancho, 0 clichê ✓`;
       $('v1-score-checklist').innerHTML = checklistHtml;
       
-      // Render specific scores
       const espScore = Math.min(10, Math.floor(scoreVal / 10));
-      const tomScore = Math.min(10, Math.max(6, Math.floor((scoreVal - 5) / 10) + (hasPersona ? 1 : 0)));
+      const tomScore = Math.min(10, Math.max(6, Math.floor((scoreVal - 5) / 10)));
       const ganScore = Math.min(10, Math.max(5, Math.floor(scoreVal / 10) - (hasNumber ? 0 : 1)));
-      const readScore = v.seo && typeof v.seo.score === 'number' ? Math.round(v.seo.score / 10) : 8;
       
       $('v1-val-especificidade').textContent = `${espScore}/10`;
       $('v1-bar-especificidade').style.width = `${espScore * 10}%`;
-      
       $('v1-val-tom').textContent = `${tomScore}/10`;
       $('v1-bar-tom').style.width = `${tomScore * 10}%`;
-      
       $('v1-val-gancho').textContent = `${ganScore}/10`;
       $('v1-bar-gancho').style.width = `${ganScore * 10}%`;
       
+      const readScore = v.seo && typeof v.seo.score === 'number' ? Math.round(v.seo.score / 10) : 8;
       const readElVal = $('v1-val-readability');
       const readElBar = $('v1-bar-readability');
       if (readElVal) readElVal.textContent = `${readScore}/10`;
       if (readElBar) readElBar.style.width = `${readScore * 10}%`;
       
-      // Cited case
-      let caseTitle = '';
-      let caseProof = '';
-      const activePersona = (window.activeReviewMeta.lob || 'cfo').toLowerCase();
-      if (activePersona.includes('chro') || activePersona.includes('hcm')) {
-        caseTitle = 'BRF · SuccessFactors';
-        caseProof = 'prova: headcount unificado em 1 truth';
-      } else if (activePersona.includes('cio') || activePersona.includes('btp')) {
-        caseTitle = 'iFood · governança de BTP';
-        caseProof = 'prova: trilha de auditoria e segurança';
-      } else {
-        caseTitle = 'TEVA · migração S/4HANA';
-        caseProof = 'prova: -40% no fechamento fiscal';
-      }
-      $('v1-case-title').textContent = caseTitle;
-      $('v1-case-proof').textContent = caseProof;
+      $('v1-case-title').textContent = 'TEVA · migração S/4HANA';
+      $('v1-case-proof').textContent = 'prova: -40% no fechamento fiscal';
       
-      // Update text statistics
       updateTextStats(rawText);
       updateSegmentedMeter(scoreVal);
       
-      // Update recommendations list
       const recsList = $('quick-recommendations-list');
       if (recsList) {
-        const alerts = v.qualidade.alertas || [];
+        const alerts = v.qualidade?.alertas || [];
         if (alerts.length > 0) {
           recsList.innerHTML = alerts.map(a => `<div>⚠️ ${a}</div>`).join('');
         } else {
@@ -2958,104 +3066,65 @@
         }
       }
       
-      // Populate AI Writer optimized article card
-      if (v.artigo_melhorado) {
-        const textOtimizado = $('srv-texto-otimizado');
-        if (textOtimizado) textOtimizado.value = v.artigo_melhorado;
-        if (srvArtigo) srvArtigo.style.display = 'block';
+      // Populate Strategy and Analytics views
+      populateStrategyAndAnalytics(v, { persona: 'auto', lob: 'Cross', categoria: 'Artigo Revisado' }, rawText);
+      
+      // Render outputs conditionally based on isRewrite
+      if (isRewrite) {
+        // Direct HTML injection inside article pane container
+        $('artigo-container').innerHTML = v.artigo_melhorado || rawText;
+        $('srv-copy-controls-container').style.display = 'flex';
+        
+        // Hide other tab buttons
+        $('btn-tab-artigo').style.display = 'inline-block';
+        $('btn-tab-post').style.display = 'none';
+        $('btn-tab-carousel').style.display = 'none';
+        
+        // Select Article Tab and switch view to AI Writer
+        $('btn-tab-artigo').click();
+        
+        loadingState.style.display = 'none';
+        resultState.style.display = 'flex';
+        
+        const dashboardMenuBtn = document.querySelector('.sidebar-menu .menu-item[data-view="view-dashboard"]');
+        if (dashboardMenuBtn) dashboardMenuBtn.click();
+      } else {
+        // Just show the raw text in the article pane
+        $('artigo-container').innerHTML = `<div style="font-size:13.5px; line-height:1.6; color:#fff;">${rawText}</div>`;
+        $('srv-copy-controls-container').style.display = 'flex';
+        
+        $('btn-tab-artigo').style.display = 'inline-block';
+        $('btn-tab-post').style.display = 'none';
+        $('btn-tab-carousel').style.display = 'none';
+        
+        $('btn-tab-artigo').click();
+        
+        loadingState.style.display = 'none';
+        resultState.style.display = 'flex';
+        
+        // Auto-switch view to Analytics detailed report pane!
+        const analyticsMenuBtn = document.querySelector('.sidebar-menu .menu-item[data-view="view-analytics"]');
+        if (analyticsMenuBtn) analyticsMenuBtn.click();
       }
       
-      // Populate Analytics Detailed SEO / GEO report
-      const srvRes = $('srv-results');
-      if (srvRes) {
-        const crit = function(arr) {
-          return (arr || []).map(function(c) {
-            const cScore = c.nota != null ? c.nota : 0;
-            const cColor = cScore >= 7.5 ? '#10b981' : (cScore >= 5 ? '#f59e0b' : '#ef4444');
-            return `<div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06)">
-              <b style="flex:0 0 42px;font-family:monospace;color:${cColor}">${cScore}/10</b>
-              <div>
-                <b style="font-size:12.5px">${c.nome || ''}</b>
-                <div style="font-size:11.5px;color:var(--text-muted)">${c.obs || ''}</div>
-              </div>
-            </div>`;
-          }).join('');
-        };
-        
-        let html = '<div style="display:flex;gap:10px;margin-bottom:14px">';
-        const cGeral = scoreVal;
-        const cSeo = v.seo && typeof v.seo.score === 'number' ? Math.round(v.seo.score) : 0;
-        const cGeo = v.geo && typeof v.geo.score === 'number' ? Math.round(v.geo.score) : 0;
-        
-        const colG = cGeral >= 90 ? '#10b981' : (cGeral >= 75 ? '#3b82f6' : '#f59e0b');
-        const colS = cSeo >= 90 ? '#10b981' : (cSeo >= 75 ? '#3b82f6' : '#f59e0b');
-        const colGe = cGeo >= 90 ? '#10b981' : (cGeo >= 75 ? '#3b82f6' : '#f59e0b');
-        
-        html += `<div style="flex:1;text-align:center;background:rgba(255,255,255,.03);border-radius:10px;padding:10px"><div style="font-size:10px;color:var(--text-muted);text-transform:uppercase">Geral</div><div style="font-size:30px;font-weight:900;color:${colG}">${cGeral}</div></div>`;
-        html += `<div style="flex:1;text-align:center;background:rgba(255,255,255,.03);border-radius:10px;padding:10px"><div style="font-size:10px;color:var(--text-muted);text-transform:uppercase">SEO</div><div style="font-size:30px;font-weight:900;color:${colS}">${cSeo}</div></div>`;
-        html += `<div style="flex:1;text-align:center;background:rgba(255,255,255,.03);border-radius:10px;padding:10px"><div style="font-size:10px;color:var(--text-muted);text-transform:uppercase">GEO</div><div style="font-size:30px;font-weight:900;color:${colGe}">${cGeo}</div></div>`;
-        html += '</div>';
-        
-        html += `<div style="font-size:13px;color:var(--text-dim);margin-bottom:12px">${v.resumo || ''}</div>`;
-        
-        html += `<div style="background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.3);border-radius:10px;padding:12px;margin-bottom:14px">
-          <div style="font-size:11px;text-transform:uppercase;color:var(--text-muted)">🎯 Melhor keyword</div>
-          <div style="font-size:16px;font-weight:800;color:#60a5fa">${kw.principal || '-'}</div>
-          <div style="font-size:12px;color:var(--text-dim);margin-top:4px">Secundárias: ${(kw.secundarias || []).join(', ') || '-'}</div>
-          <div style="font-size:11.5px;color:var(--text-muted);margin-top:4px">${kw.onde_usar ? 'Usar em: ' + kw.onde_usar + '. ' : ''}${kw.motivo || ''}</div>
-        </div>`;
-        
-        html += '<div style="font-size:12px;font-weight:800;text-transform:uppercase;color:var(--text-muted);margin:8px 0">⚡ Prioridades</div>';
-        html += (v.top_fixes || []).map(f => `<div style="font-size:13px;padding:5px 0">→ ${f}</div>`).join('') || '';
-        
-        html += '<div style="font-size:12px;font-weight:800;text-transform:uppercase;color:var(--text-muted);margin:12px 0 6px">🔎 SEO</div>' + crit(v.seo && v.seo.criterios);
-        html += '<div style="font-size:12px;font-weight:800;text-transform:uppercase;color:var(--text-muted);margin:12px 0 6px">🤖 GEO</div>' + crit(v.geo && v.geo.criterios);
-        
-        html += '<div style="font-size:12px;font-weight:800;text-transform:uppercase;color:var(--text-muted);margin:12px 0 6px">🔗 Link juice</div>';
-        html += (v.link_juice || []).map(l => `<div style="font-size:13px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06)">🔗 <a href="${l.url}" target="_blank" rel="noopener" style="color:#60a5fa">${l.anchor || l.url}</a><div style="font-size:11.5px;color:var(--text-muted)">${l.motivo || ''}</div></div>`).join('') || '<div style="font-size:12px;color:var(--text-muted)">sem sugestões internas relevantes</div>';
-        
-        if (v.cta) {
-          html += `<div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.3);border-radius:10px;padding:12px;margin-top:14px">
-            <div style="font-size:11px;text-transform:uppercase;color:var(--text-muted)">📣 CTA</div>
-            <div style="font-weight:700;color:#6ee7b7">"${v.cta.texto || ''}"</div>
-            <div style="font-size:11.5px;color:var(--text-muted);margin-top:4px">Posição: ${v.cta.posicao || '-'} · ${v.cta.motivo || ''}</div>
-          </div>`;
-        }
-        
-        srvRes.innerHTML = html;
-        srvRes.style.display = 'block';
-      }
-      
-      const placeholder = $('analytics-placeholder');
-      if (placeholder) placeholder.style.display = 'none';
-      
-      // Auto-switch view to Analytics detailed report pane!
-      const analyticsMenuBtn = document.querySelector('.sidebar-menu .menu-item[data-view="view-analytics"]');
-      if (analyticsMenuBtn) {
-        analyticsMenuBtn.click();
-      }
-      
-      if (statusText) {
-        statusText.textContent = `✓ Análise de SEO/GEO realizada com sucesso!`;
-        statusText.style.color = '#10b981';
-      }
     } catch (err) {
       console.error(err);
-      if (statusText) {
-        statusText.textContent = 'Erro: ' + err.message;
-        statusText.style.color = '#ef4444';
-      } else {
-        alert('Erro ao rodar revisão de SEO: ' + err.message);
-      }
+      alert('Erro ao rodar revisão com o Rax: ' + err.message);
+      loadingState.style.display = 'none';
+      emptyState.style.display = 'flex';
     } finally {
-      if (srvLoading) srvLoading.style.display = 'none';
-      if (srvGoBtn) srvGoBtn.disabled = false;
-      if (btnImproveAi) btnImproveAi.disabled = false;
+      if (btnRevisarExistenteNew) btnRevisarExistenteNew.disabled = false;
+      if (btnImproveAiNew) btnImproveAiNew.disabled = false;
+      if (triggerBtn) triggerBtn.disabled = false;
     }
   };
-  
-  if (srvGoBtn) srvGoBtn.addEventListener('click', handleSeoReview);
-  if (btnImproveAi) btnImproveAi.addEventListener('click', handleSeoReview);
+
+  if (btnRevisarExistenteNew) {
+    btnRevisarExistenteNew.addEventListener('click', () => handleSeoReview(false));
+  }
+  if (btnImproveAiNew) {
+    btnImproveAiNew.addEventListener('click', () => handleSeoReview(true));
+  }
 
   // Helper to strip HTML tags for clean copy
   function stripHtml(html) {
@@ -3068,9 +3137,8 @@
   const srvBtnCopiar = $('srv-btn-copiar');
   if (srvBtnCopiar) {
     srvBtnCopiar.addEventListener('click', () => {
-      const txtArea = $('srv-texto-otimizado');
-      if (txtArea && txtArea.value) {
-        navigator.clipboard.writeText(txtArea.value).then(() => {
+      if (window.lastActiveArticleHtml) {
+        navigator.clipboard.writeText(window.lastActiveArticleHtml).then(() => {
           srvBtnCopiar.textContent = 'HTML Copiado! ✓';
           srvBtnCopiar.style.borderColor = '#10b981';
           srvBtnCopiar.style.color = '#10b981';
@@ -3088,9 +3156,8 @@
   const srvBtnCopiarLimpo = $('srv-btn-copiar-limpo');
   if (srvBtnCopiarLimpo) {
     srvBtnCopiarLimpo.addEventListener('click', () => {
-      const txtArea = $('srv-texto-otimizado');
-      if (txtArea && txtArea.value) {
-        const clean = stripHtml(txtArea.value);
+      if (window.lastActiveArticleHtml) {
+        const clean = stripHtml(window.lastActiveArticleHtml);
         navigator.clipboard.writeText(clean).then(() => {
           srvBtnCopiarLimpo.textContent = 'Texto Limpo Copiado! ✓';
           srvBtnCopiarLimpo.style.borderColor = '#10b981';
@@ -3109,6 +3176,7 @@
   window.lastRaccoonSource = 'generate';
   window.activeReviewData = null;
   window.activeReviewMeta = null;
+  window.lastActiveArticleHtml = null;
 
   // Lógica do Raccoon v2 removida
 

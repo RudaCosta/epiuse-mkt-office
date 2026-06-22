@@ -4,7 +4,7 @@
 // ════════════════════════════════════════════════════════════════════════════
 
 // Fonte ÚNICA da verdade: public/api/changelog.json#current via /api/version
-let OFFICE_FOOTER_VERSION = '0.56.2';
+let OFFICE_FOOTER_VERSION = '0.56.3';
 const OFFICE_FOOTER_BUILD = '2026-06-22';
 window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/version')
   .then(r => r.ok ? r.json() : null)
@@ -16,7 +16,8 @@ window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/ver
 // Histórico pré-1.0 preservado abaixo para referência.
 const OFFICE_VERSION_HISTORY = [
   // ─── SPRINT 47 · Tema global EPI-USE/Atlas + Raccoon Redesign (21/jun/2026) ───
-  { ver: '0.56.2', date: '22/jun/2026', label: 'Correção de navegação swappable, estilização do menu lateral, integração completa do AI Revisor (SEO/GEO) e contador estatístico no Raccoon Studio.', path: null, status: 'current' },
+  { ver: '0.56.3', date: '22/jun/2026', label: 'Unificação dos fluxos de revisão e geração de artigos, integração direta de controles de cópia e CMS WorkControl no AI Writer, e implementação de auditorias estratégicas e widgets dinâmicos de Analytics.', path: null, status: 'current' },
+  { ver: '0.56.2', date: '22/jun/2026', label: 'Correção de navegação swappable, estilização do menu lateral, integração completa do AI Revisor (SEO/GEO) e contador estatístico no Raccoon Studio.', path: null, status: 'snapshot' },
   { ver: '0.56.1', date: '21/jun/2026', label: 'Correção do Layout de 3 Colunas no Raccoon Studio (mockup vertical: controles na esquerda, 340px).', path: null, status: 'snapshot' },
   { ver: '0.56.0', date: '21/jun/2026', label: 'Redesign Premium do Raccoon Studio + Suporte Dinâmico a Temas (Claro/Escuro/Aurora/Liquid Glass) + Correção de z-index do mega menu dropdown.', path: null, status: 'snapshot' },
   { ver: '0.55.0', date: '21/jun/2026', label: 'SPRINT 47 — Home = Cockpit executivo (Atlas) com dado real + componentes Atlas globais.', path: null, status: 'snapshot' },
