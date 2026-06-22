@@ -1,5 +1,5 @@
 {
-  "current": "0.56.3",
+  "current": "0.56.4",
   "atualizado_em": "22/jun/2026",
   "next": [
     {
@@ -54,9 +54,23 @@
   ],
   "releases": [
     {
-      "version": "0.56.3",
+      "version": "0.56.4",
       "date": "22/jun/2026",
       "status": "current",
+      "path": null,
+      "title": "🦝 Rax Animado e Persistente durante Processamento",
+      "summary": "Implementação do contêiner de visualização comum para o mascote Raccoon (Rax), garantindo que ele permaneça ativo, visível e animando em suas respectivas poses (vasculhando, escrevendo, revisando) abaixo do formulário de entrada durante todas as chamadas de API, com a barra de progresso exibida diretamente abaixo dele.",
+      "highlights": [
+        "Extraído o box do mascote Rax (.rax-box) para um contêiner pai comum (#rax-waiting-container) compartilhado entre os estados de espera e processamento.",
+        "Ajustada a reestruturação e as propriedades de exibição flex do CSS/HTML, garantindo que o guaxinim e sua bubble de falas fiquem visíveis o tempo todo.",
+        "Refatoradas as funções de toggle de estado em Javascript (btn-trigger e handleSeoReview) para exibir a barra de progresso diretamente abaixo do mascote sem ocultá-lo.",
+        "Garantido o fechamento do contêiner do mascote somente quando os resultados finais (artigos e relatórios) são exibidos em tela cheia."
+      ]
+    },
+    {
+      "version": "0.56.3",
+      "date": "22/jun/2026",
+      "status": "snapshot",
       "path": null,
       "title": "✍️ Unificação de Fluxos e Auditorias Avançadas no Raccoon Studio",
       "summary": "Consolidação das ações de geração, revisão e melhoria de artigos em um único formulário e painel de controle (AI Writer), integração direta de controles de cópia com instruções para o CMS WorkControl, e implementação completa de auditorias estratégicas de funil/EEAT e widgets analíticos de GEO.",

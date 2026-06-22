@@ -1272,8 +1272,8 @@
           </div>
         </form>
 
-        <!-- Initial/Empty State -->
-        <div class="empty-state" id="state-empty" style="margin-bottom: 24px;">
+        <!-- Rax Interactive Wait/Loading Container -->
+        <div id="rax-waiting-container" class="empty-state" style="margin-bottom: 24px; padding: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
           <!-- Rax Mascot Visual Box inside dashboard empty state -->
           <div class="rax-box">
         <div class="speech-bubble" id="rax-bubble">Olá! Digite um tema e me mande vasculhar a base de artigos. 🦝</div>
@@ -1463,14 +1463,18 @@
           </svg>
         </div>
       </div>
-          <h3 style="margin-top: 15px;">Aguardando o Rax</h3>
-          <p>Preencha os campos e ative o Rax para começar a pesquisa RAG e a redação local das pautas.</p>
-        </div>
 
-        <!-- Loading state -->
-        <div class="loading-state" id="state-loading" style="display: none; margin-bottom: 24px;">
-          <h3 id="loading-txt">Vasculhando 693 artigos...</h3>
-          <div class="loader-bar"></div>
+          <!-- Initial/Empty State Info -->
+          <div id="state-empty" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 12px; margin-top: 15px;">
+            <h3>Aguardando o Rax</h3>
+            <p>Preencha os campos e ative o Rax para começar a pesquisa RAG e a redação local das pautas.</p>
+          </div>
+
+          <!-- Loading state progress -->
+          <div class="loading-state" id="state-loading" style="display: none; width: 100%; flex-direction: column; align-items: center; justify-content: center; margin-top: 20px; gap: 16px;">
+            <h3 id="loading-txt">Vasculhando 693 artigos...</h3>
+            <div class="loader-bar"></div>
+          </div>
         </div>
 
         <!-- Result state (Generated brief tabs preview) -->
@@ -1917,6 +1921,7 @@
   const loadingState = $('state-loading');
   const resultState = $('state-result');
   const loadingTxt = $('loading-txt');
+  const raxWaitingContainer = $('rax-waiting-container');
   
   // SVG Character references
   const raxHead = $('rax-head');
@@ -2369,6 +2374,7 @@
     if ($('btn-revisar-existente')) $('btn-revisar-existente').disabled = true;
     if ($('btn-improve-ai')) $('btn-improve-ai').disabled = true;
 
+    raxWaitingContainer.style.display = 'flex';
     emptyState.style.display = 'none';
     resultState.style.display = 'none';
     loadingState.style.display = 'flex';
@@ -2460,6 +2466,7 @@
     // 4. Entregue
     setRaxState('entregue', 'Concluído! Veja os resultados gerados na aba ao lado. 🦝🎉');
     playChime();
+    raxWaitingContainer.style.display = 'none';
     loadingState.style.display = 'none';
     renderResults(activeData);
     resultState.style.display = 'flex';
@@ -2961,6 +2968,7 @@
     if (btnImproveAiNew) btnImproveAiNew.disabled = true;
     if (triggerBtn) triggerBtn.disabled = true;
     
+    raxWaitingContainer.style.display = 'flex';
     emptyState.style.display = 'none';
     resultState.style.display = 'none';
     loadingState.style.display = 'flex';
@@ -3083,6 +3091,7 @@
         // Select Article Tab and switch view to AI Writer
         $('btn-tab-artigo').click();
         
+        raxWaitingContainer.style.display = 'none';
         loadingState.style.display = 'none';
         resultState.style.display = 'flex';
         
@@ -3099,6 +3108,7 @@
         
         $('btn-tab-artigo').click();
         
+        raxWaitingContainer.style.display = 'none';
         loadingState.style.display = 'none';
         resultState.style.display = 'flex';
         
@@ -3110,6 +3120,7 @@
     } catch (err) {
       console.error(err);
       alert('Erro ao rodar revisão com o Rax: ' + err.message);
+      raxWaitingContainer.style.display = 'flex';
       loadingState.style.display = 'none';
       emptyState.style.display = 'flex';
     } finally {
