@@ -1,6 +1,6 @@
 {
-  "current": "0.56.1",
-  "atualizado_em": "21/jun/2026",
+  "current": "0.56.2",
+  "atualizado_em": "22/jun/2026",
   "next": [
     {
       "version": "0.53.0",
@@ -54,9 +54,26 @@
   ],
   "releases": [
     {
+      "version": "0.56.2",
+      "date": "22/jun/2026",
+      "status": "current",
+      "path": null,
+      "title": "⚡ Integração de Funcionalidades e Interatividade no Raccoon Studio",
+      "summary": "Implementação completa da lógica de comutação de views e painéis de filtros a partir do menu lateral, integração do Revisor de Artigo com o backend (/api/seo-review), contadores de palavras em tempo real e respostas interativas no rodapé da sidebar.",
+      "highlights": [
+        "Sidebar de navegação agora alterna dinamicamente os panes de visualização (Dashboard, AI Writer, Content Strategy e Analytics).",
+        "Configurações da pauta e filtros de projeto da sidebar agora comutam de acordo com a aba de workspace ativa.",
+        "Integração do botão de 'Revisar Artigo Existente' para mudar para o AI Writer e focar na área de texto srv-texto automaticamente.",
+        "Mecanismo de contagem de palavras e sentenças em tempo real funcionando no Briefing/Tema e no Revisor/Editor de Artigos.",
+        "Funcionamento completo do botão 'Generate AI Suggestions' chamando /api/seo-review no local e exibindo o estado de carregamento e progresso do Rax.",
+        "Respostas interativas com toasts premium e reações do Rax nos botões de rodapé (Account Settings e Integrations) explicando seu propósito.",
+        "Correção do medidor segmentado e gauges laterais após o término do review."
+      ]
+    },
+    {
       "version": "0.56.1",
       "date": "21/jun/2026",
-      "status": "current",
+      "status": "past",
       "path": null,
       "title": "🎨 Correção do Layout de 3 Colunas no Raccoon Studio (mockup vertical)",
       "summary": "Implementação do layout de 3 colunas verticais completo com o formulário de controles movido para o sidebar esquerdo (340px) e alinhado verticalmente para seguir o mockup original.",

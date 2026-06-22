@@ -1112,6 +1112,202 @@
     color: var(--pill-text) !important;
     font-family: var(--font-body) !important;
   }
+.scene[data-state="writing"] #pawR{animation:scribble .45s ease-in-out infinite}
+  .scene[data-state="writing"] #pen{opacity:1}
+  .scene[data-state="writing"] .paper{opacity:1;transform:translateY(0) rotate(-4deg)}
+  .scene[data-state="reviewing"] .rax{animation:bobC 2.2s ease-in-out infinite}
+  .scene[data-state="reviewing"] #glasses{opacity:1}
+  .scene[data-state="reviewing"] #eyeL,.scene[data-state="reviewing"] #eyeR{transform:scaleY(.8)}
+  .scene[data-state="reviewing"] .paper{opacity:1;transform:translateY(0) rotate(-4deg)}
+  .scene[data-state="done"] .rax{animation:hop .9s ease-in-out 3}
+  .scene[data-state="done"] #eyeL,.scene[data-state="done"] #eyeR{transform:scaleY(.7)}
+  .scene[data-state="done"] .paper{opacity:1;transform:translateY(-2px) rotate(4deg)}
+  .spark{position:absolute;font-size:20px;opacity:0;pointer-events:none}
+  .scene[data-state="done"] .spark{animation:pop 1s ease-out forwards}
+  .scene[data-state="done"] .spark:nth-child(2){animation-delay:.15s}
+  .scene[data-state="done"] .spark:nth-child(3){animation-delay:.3s}
+  @keyframes pop{0%{opacity:0;transform:scale(.4) translateY(0)}40%{opacity:1}100%{opacity:0;transform:scale(1.3) translateY(-30px)}}
+  @media(prefers-reduced-motion:reduce){.rax,.crate,#eyeL,#eyeR,#tail,#pawR,.spark{animation:none!important}}
+
+
+  /* ECC Liquid Glass styling overrides & enhancements */
+  :root[data-theme="aurora"] body,
+  :root[data-theme="dark"] body {
+    background:
+      linear-gradient(rgba(134,158,195,.03) 1px, transparent 1px) 0 0/48px 48px,
+      linear-gradient(90deg, rgba(134,158,195,.03) 1px, transparent 1px) 0 0/48px 48px,
+      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(205,21,67,.12), transparent 60%),
+      radial-gradient(ellipse 60% 50% at 100% 100%, rgba(20,184,166,.05), transparent 60%),
+      #050a14 !important;
+    background-attachment: fixed !important;
+  }
+
+  .rax-box, .form-panel, .right-col, .review-section, .article-preview, .linkedin-copy-box, .slide-card, .meta-card, .score-panel {
+    background: var(--card-bg-glass) !important;
+    backdrop-filter: blur(16px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+    border: 1px solid var(--card-border-glass) !important;
+    box-shadow: var(--card-shadow-glass) !important;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .rax-box::before, .form-panel::before, .right-col::before, .review-section::before, .article-preview::before, .linkedin-copy-box::before, .score-panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 1px;
+    background: var(--card-top-glow);
+    pointer-events: none;
+  }
+  
+  .rax-box:hover, .form-panel:hover, .right-col:hover, .review-section:hover, .score-panel:hover {
+    border-color: var(--card-border-hover) !important;
+    box-shadow: var(--card-shadow-hover) !important;
+  }
+
+  .form-control, #srv-texto, #srv-titulo, #srv-lob, #srv-texto-otimizado {
+    background: var(--input-bg) !important;
+    border: 1px solid var(--input-border) !important;
+    border-radius: 10px !important;
+    color: var(--input-text) !important;
+    font-family: var(--font-body) !important;
+    transition: all 0.25s ease !important;
+  }
+
+  .form-control:focus, #srv-texto:focus, #srv-titulo:focus, #srv-lob:focus {
+    outline: none !important;
+    border-color: var(--input-focus-border) !important;
+    background: var(--input-focus-bg) !important;
+    box-shadow: var(--input-focus-shadow) !important;
+  }
+  
+  .form-control::placeholder, #srv-texto::placeholder, #srv-titulo::placeholder, #srv-lob::placeholder {
+    color: var(--text-muted) !important;
+    opacity: 0.6;
+  }
+
+  /* Main Button rax style overrides */
+  .btn-rax {
+    background: linear-gradient(135deg, var(--red,#cd1543) 0%, #8b0827 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-radius: 10px !important;
+    color: #fff !important;
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 700;
+    padding: 14px !important;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    box-shadow: 0 4px 16px rgba(205, 21, 67, 0.35), inset 0 1px 0 rgba(255,255,255,0.2) !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  }
+  .btn-rax:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(205, 21, 67, 0.5), 0 0 15px rgba(205, 21, 67, 0.25), inset 0 1px 0 rgba(255,255,255,0.3) !important;
+    border-color: rgba(255,255,255,0.3) !important;
+  }
+  .btn-rax:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(205, 21, 67, 0.4) !important;
+  }
+
+  /* Persona pills overrides */
+  .pill {
+    background: var(--pill-bg) !important;
+    border: 1px solid var(--pill-border) !important;
+    border-radius: 99px !important;
+    padding: 8px 16px !important;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--pill-text) !important;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    user-select: none;
+  }
+  .pill:hover {
+    background: var(--pill-bg-hover) !important;
+    border-color: var(--pill-border-hover) !important;
+    color: var(--pill-text-hover) !important;
+  }
+  .pill.active {
+    background: var(--pill-bg-active) !important;
+    border-color: var(--pill-border-active) !important;
+    color: var(--pill-text-active) !important;
+    box-shadow: var(--pill-shadow-active) !important;
+  }
+
+  /* Glass Tabs overrides */
+  .tab-btn {
+    background: var(--tab-btn-bg) !important;
+    border: 1px solid var(--tab-btn-border) !important;
+    border-bottom: none !important;
+    color: var(--text-muted) !important;
+    font-family: var(--font-display);
+    font-size: 12.5px !important;
+    font-weight: 600;
+    padding: 10px 18px !important;
+    cursor: pointer;
+    border-radius: 8px 8px 0 0 !important;
+    margin-right: 4px;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+  .tab-btn:hover {
+    color: var(--text-highlight) !important;
+    background: var(--tab-btn-bg-hover) !important;
+    border-color: var(--tab-btn-border-hover) !important;
+  }
+  .tab-btn.active {
+    color: var(--tab-btn-text-active) !important;
+    background: var(--tab-btn-bg-active) !important;
+    border-color: var(--tab-btn-border-active) !important;
+    border-bottom: 2px solid var(--red,#cd1543) !important;
+    box-shadow: 0 -4px 12px rgba(205, 21, 67, 0.1) !important;
+  }
+
+  /* Theme-aware Speech bubble overrides */
+  .speech-bubble {
+    background: var(--rax-bubble-bg) !important;
+    border: 1px solid var(--rax-bubble-border) !important;
+    color: var(--rax-bubble-text) !important;
+    box-shadow: 0 4px 12px var(--shadow-color) !important;
+  }
+  .speech-bubble::after {
+    border-color: var(--rax-bubble-bg) transparent transparent !important;
+  }
+
+  /* Universal typography and colors overrides for theme coherence */
+  h1, h2, h3, h4, h5, h6, .hero-text h1, .output-header h2, .article-preview h1, .article-preview h2, .linkedin-copy-box h4, .slide-card h4 {
+    font-family: var(--font-display) !important;
+    color: var(--text-highlight) !important;
+  }
+  
+  body, p, span, label, .form-group label, .checkbox-label, .empty-state p, .article-preview p, .linkedin-copy-box p.body-text, .slide-card p {
+    font-family: var(--font-body) !important;
+  }
+
+  .hero-text p, .empty-state p, .form-group label, .checkbox-label, .meta-card .lbl, #v1-score-status, #v1-score-checklist, #v1-case-proof, .tag-pills {
+    color: var(--text-muted) !important;
+  }
+  
+  .article-preview p, .linkedin-copy-box p.body-text, .slide-card p, .article-preview .intro {
+    color: var(--text-dim) !important;
+  }
+
+  .meta-card .val, #v1-score-num, #v1-val-especificidade, #v1-val-tom, #v1-val-gancho, #v1-case-title, #srv-loading-msg, .slide-card strong, .output-container strong {
+    color: var(--text-highlight) !important;
+  }
+
+  .btn-save, #srv-btn-copiar, #srv-btn-copiar-limpo {
+    background: var(--pill-bg) !important;
+    border: 1px solid var(--pill-border) !important;
+    color: var(--pill-text) !important;
+    font-family: var(--font-body) !important;
+  }
   .btn-save:hover, #srv-btn-copiar:hover, #srv-btn-copiar-limpo:hover {
     background: var(--pill-bg-hover) !important;
     border-color: var(--pill-border-hover) !important;
@@ -1126,6 +1322,189 @@
   @keyframes pulse {
     0%, 100% { transform: scale(1); opacity: 1; }
     50% { transform: scale(1.15); opacity: 0.8; }
+  }
+
+  /* Left Sidebar Navigation & Filter styling */
+  .sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 20px;
+    width: 100%;
+  }
+  .menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-family: var(--font-display), sans-serif;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    width: 100%;
+    outline: none;
+  }
+  .menu-item .icon {
+    font-size: 15px;
+    transition: transform 0.2s ease;
+  }
+  .menu-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-highlight);
+    transform: translateX(4px);
+  }
+  .menu-item:hover .icon {
+    transform: scale(1.15);
+  }
+  .menu-item.active {
+    background: linear-gradient(90deg, rgba(205, 21, 67, 0.12) 0%, rgba(205, 21, 67, 0.04) 100%);
+    border: 1px solid rgba(205, 21, 67, 0.35);
+    border-left: 4px solid var(--red, #cd1543);
+    color: var(--text-highlight);
+    font-weight: 600;
+    box-shadow: 0 4px 20px rgba(205, 21, 67, 0.08);
+  }
+
+  /* Secondary footer menu buttons */
+  .menu-item-sec {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: transparent !important;
+    border: 1px dashed rgba(255, 255, 255, 0.06) !important;
+    border-radius: 8px;
+    color: var(--text-muted) !important;
+    font-family: var(--font-body), sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    text-align: left;
+    padding: 8px 12px !important;
+    transition: all 0.2s ease;
+    width: 100%;
+  }
+  .menu-item-sec:hover {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    color: var(--text-highlight) !important;
+  }
+
+  /* Light theme active styles overrides */
+  [data-theme="light"] .menu-item {
+    background: rgba(0, 0, 0, 0.02);
+    border-color: rgba(0, 0, 0, 0.05);
+    color: var(--text-muted);
+  }
+  [data-theme="light"] .menu-item:hover {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.08);
+    color: var(--text-highlight);
+  }
+  [data-theme="light"] .menu-item.active {
+    background: linear-gradient(90deg, rgba(205, 21, 67, 0.06) 0%, rgba(205, 21, 67, 0.02) 100%);
+    border: 1px solid rgba(205, 21, 67, 0.18);
+    border-left: 4px solid var(--red, #cd1543);
+    color: var(--red, #cd1543);
+  }
+  [data-theme="light"] .menu-item-sec {
+    border-color: rgba(0, 0, 0, 0.08) !important;
+  }
+  [data-theme="light"] .menu-item-sec:hover {
+    background: rgba(0, 0, 0, 0.02) !important;
+    border-color: rgba(0, 0, 0, 0.15) !important;
+  }
+
+  /* Secondary outlined button stylings */
+  #btn-revisar-existente {
+    background: transparent !important;
+    border: 1px solid var(--color-accent, var(--blue, #2563eb)) !important;
+    border-radius: 8px !important;
+    color: var(--color-accent, var(--blue, #60a5fa)) !important;
+    font-family: var(--font-display), sans-serif !important;
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    transition: all 0.25s ease !important;
+    height: 44px !important;
+    padding: 0 16px !important;
+  }
+  #btn-revisar-existente:hover {
+    background: rgba(37, 99, 235, 0.08) !important;
+    border-color: var(--color-accent-hover, #60a5fa) !important;
+    color: var(--color-accent-hover, #60a5fa) !important;
+  }
+  [data-theme="light"] #btn-revisar-existente {
+    color: var(--blue, #2563eb) !important;
+    border-color: var(--blue, #2563eb) !important;
+  }
+  [data-theme="light"] #btn-revisar-existente:hover {
+    background: rgba(37, 99, 235, 0.04) !important;
+  }
+
+  /* Premium overrides for Left Sidebar Navigation items to avoid browser styling issues */
+  .sidebar-menu button.menu-item {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    color: var(--text-muted) !important;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 13.5px;
+    font-weight: 500;
+    width: 100%;
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-sizing: border-box;
+    box-shadow: none;
+    outline: none;
+    margin: 0;
+    height: 46px;
+    min-height: 46px;
+  }
+  .sidebar-menu button.menu-item:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    color: var(--text-highlight) !important;
+    transform: translateX(4px);
+  }
+  .sidebar-menu button.menu-item.active {
+    background: linear-gradient(90deg, rgba(205, 21, 67, 0.15) 0%, rgba(205, 21, 67, 0.05) 100%) !important;
+    border: 1px solid rgba(205, 21, 67, 0.4) !important;
+    border-left: 4px solid var(--red, #cd1543) !important;
+    color: var(--text-highlight) !important;
+    font-weight: 600 !important;
+    box-shadow: 0 4px 20px rgba(205, 21, 67, 0.1) !important;
+    transform: none !important;
+  }
+
+  [data-theme="light"] .sidebar-menu button.menu-item {
+    background: rgba(0, 0, 0, 0.02) !important;
+    border: 1px solid rgba(0, 0, 0, 0.06) !important;
+    color: var(--text-muted) !important;
+  }
+  [data-theme="light"] .sidebar-menu button.menu-item:hover {
+    background: rgba(0, 0, 0, 0.05) !important;
+    border-color: rgba(0, 0, 0, 0.12) !important;
+    color: var(--text-highlight) !important;
+  }
+  [data-theme="light"] .sidebar-menu button.menu-item.active {
+    background: linear-gradient(90deg, rgba(205, 21, 67, 0.08) 0%, rgba(205, 21, 67, 0.02) 100%) !important;
+    border: 1px solid rgba(205, 21, 67, 0.25) !important;
+    border-left: 4px solid var(--red, #cd1543) !important;
+    color: var(--red, #cd1543) !important;
   }
 </style>
 </head>
@@ -1246,10 +1625,10 @@
 
       <!-- Settings / Integrations footer links -->
       <div style="margin-top: auto; padding-top: 40px; display: flex; flex-direction: column; gap: 8px;">
-        <button class="menu-item-sec" style="display: flex; align-items: center; gap: 8px; background: transparent; border: none; color: var(--text-muted); font-size: 12px; cursor: pointer; text-align: left; padding: 6px 10px;">
+        <button id="btn-account-settings" class="menu-item-sec" style="display: flex; align-items: center; gap: 8px; background: transparent; border: none; color: var(--text-muted); font-size: 12px; cursor: pointer; text-align: left; padding: 6px 10px;">
           <span>⚙️</span> Account Settings
         </button>
-        <button class="menu-item-sec" style="display: flex; align-items: center; gap: 8px; background: transparent; border: none; color: var(--text-muted); font-size: 12px; cursor: pointer; text-align: left; padding: 6px 10px;">
+        <button id="btn-integrations" class="menu-item-sec" style="display: flex; align-items: center; gap: 8px; background: transparent; border: none; color: var(--text-muted); font-size: 12px; cursor: pointer; text-align: left; padding: 6px 10px;">
           <span>🔌</span> Integrations
         </button>
       </div>
@@ -1662,9 +2041,42 @@
       <div id="view-analytics-pane" style="display: none;">
         <div class="form-panel" style="margin-bottom: 24px;">
           <h2 style="font-family: var(--font-display); font-size: 18px; font-weight: 700; color: #fff; margin: 0 0 16px 0;">Detailed Analytics (SEO/GEO)</h2>
+          
+          <!-- Dynamic results from article review (/api/seo-review) -->
           <div id="srv-results" style="display:none; margin-top:0;"></div>
+          
+          <!-- Dynamic results from pauta generation (/api/raccoon/generate) -->
+          <div id="gen-analytics-results" style="display:none; margin-top:0; flex-direction:column; gap:20px;">
+            <div id="srv-score-row" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+              <span style="font-weight:600;font-size:14px;color:#fff;">Pontuação Geral de Qualidade:</span>
+              <span class="score-badge" id="seo-score" style="background:var(--red,#cd1543);color:#fff;padding:4px 10px;border-radius:6px;font-family:monospace;font-weight:700;">0/100</span>
+            </div>
+
+            <div class="review-section" style="border-left: 3px solid var(--color-accent, var(--blue, #2563eb)); padding-left: 12px; margin-bottom: 12px; background: transparent; border-radius: 0; box-shadow: none;">
+              <h3 style="font-family:var(--font-display);font-size:14px;font-weight:700;color:#fff;margin:0 0 8px 0;">Metas SEO Tradicional</h3>
+              <div class="review-list" style="display:flex;flex-direction:column;gap:6px;">
+                <div class="review-item" style="font-size:13px;"><span class="q" style="color:var(--text-muted);font-weight:600;">Meta Title: </span><span class="a" id="seo-title" style="color:#fff;">-</span></div>
+                <div class="review-item" style="font-size:13px;"><span class="q" style="color:var(--text-muted);font-weight:600;">Meta Description: </span><span class="a" id="seo-desc" style="color:#fff;">-</span></div>
+                <div class="review-item" style="font-size:13px;"><span class="q" style="color:var(--text-muted);font-weight:600;">URL Slug: </span><span class="a" id="seo-slug" style="font-family:monospace;color:#fff;">-</span></div>
+                <div class="review-item" style="font-size:13px;"><span class="q" style="color:var(--text-muted);font-weight:600;">Palavras-chave: </span><span class="a" id="seo-keywords" style="color:#fff;">-</span></div>
+              </div>
+            </div>
+
+            <div class="review-section" style="border-left: 3px solid var(--teal, #10b981); padding-left: 12px; margin-bottom: 12px; background: transparent; border-radius: 0; box-shadow: none;">
+              <h3 style="font-family:var(--font-display);font-size:14px;font-weight:700;color:#fff;margin:0 0 8px 0;">GEO / AIO / LLMO (Busca por IA)</h3>
+              <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px">Perguntas estruturadas e respostas diretas otimizadas para citação em grandes modelos de linguagem:</p>
+              <div class="review-list" id="geo-faq-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+            </div>
+
+            <div class="review-section" id="section-alertas" style="display:none; border-left: 3px solid var(--red, #ef4444); padding-left: 12px; background: transparent; border-radius: 0; box-shadow: none;">
+              <h3 style="font-family:var(--font-display);font-size:14px;font-weight:700;color:var(--red,#ef4444);margin:0 0 8px 0;">Alertas de Revisão</h3>
+              <div class="review-list" id="seo-alertas-list" style="color:var(--red,#fca5a5);font-size:12.5px"></div>
+            </div>
+          </div>
+
+          <!-- Empty State Placeholder -->
           <div id="analytics-placeholder" style="font-size: 13px; color: var(--text-muted); padding: 20px; border: 1px dashed var(--card-border-glass); border-radius: 8px; text-align: center;">
-            Nenhuma métrica detalhada disponível. Cole o artigo na view "AI Writer" e clique em "Generate AI Suggestions" para analisar!
+            Nenhuma métrica detalhada disponível. Cole o artigo na view "AI Writer" ou gere uma pauta no "Dashboard" para começar!
           </div>
         </div>
       </div>
@@ -2351,6 +2763,10 @@
     var srvRes = $('srv-results'); if(srvRes) srvRes.style.display='none';
     var srvArt = $('srv-artigo-melhorado'); if(srvArt) srvArt.style.display='none';
 
+    // Show generated analytics and hide review results/placeholder
+    const genAnal = $('gen-analytics-results'); if(genAnal) genAnal.style.display = 'flex';
+    const placeholder = $('analytics-placeholder'); if(placeholder) placeholder.style.display = 'none';
+
     $('out-motor').textContent = `Motor: ${data.motor || 'Ollama offline'}`;
     $('out-badge').textContent = data.etiqueta || '🤖 GERADO LOCAL';
     
@@ -2391,9 +2807,13 @@
     $('v1-score-radial').style.background = `conic-gradient(${radialColor} 0% ${scoreVal}%, rgba(255,255,255,0.08) ${scoreVal}% 100%)`;
     $('v1-score-num').textContent = scoreVal;
 
+    // Fill segmented meter
+    if (window.fillSegmentedMeter) fillSegmentedMeter(scoreVal);
+
     const espScore = Math.min(10, Math.floor(scoreVal / 10));
     const tomScore = Math.min(10, Math.max(6, Math.floor((scoreVal - 5) / 10) + (hasPersona ? 1 : 0)));
     const ganScore = Math.min(10, Math.max(5, Math.floor(scoreVal / 10) - (hasNumber ? 0 : 1)));
+    const readScore = Math.min(10, Math.max(6, Math.floor((scoreVal - 2) / 10)));
 
     $('v1-val-especificidade').textContent = `${espScore}/10`;
     $('v1-bar-especificidade').style.width = `${espScore * 10}%`;
@@ -2403,6 +2823,9 @@
 
     $('v1-val-gancho').textContent = `${ganScore}/10`;
     $('v1-bar-gancho').style.width = `${ganScore * 10}%`;
+
+    $('v1-val-readability').textContent = `${readScore}/10`;
+    $('v1-bar-readability').style.width = `${readScore * 10}%`;
 
     const activePersona = (data.estrategia && data.estrategia.persona || 'cfo').toLowerCase();
     let caseTitle = '';
@@ -2650,7 +3073,449 @@
   window.activeReviewData = null;
   window.activeReviewMeta = null;
 
-  // Lógica do Raccoon v2 removida
+  // Segmented Score Meter Animator
+  window.fillSegmentedMeter = function(score) {
+    const segments = document.querySelectorAll('#score-segmented-meter .meter-segment');
+    if (!segments.length) return;
+    
+    const activeCount = Math.round((score / 100) * segments.length);
+    let color = 'var(--gold, #f59e0b)';
+    if (score >= 90) {
+      color = 'var(--teal, #10b981)';
+    } else if (score >= 75) {
+      color = 'var(--blue, #3b82f6)';
+    }
+    
+    segments.forEach((seg, idx) => {
+      if (idx < activeCount) {
+        seg.style.background = color;
+      } else {
+        seg.style.background = 'rgba(255, 255, 255, 0.08)';
+      }
+    });
+  };
+
+  // Word and Sentence Counters Utility
+  function updateCounters(text) {
+    const trimmed = (text || '').trim();
+    if (!trimmed) {
+      $('breakdown-word-count').textContent = '0';
+      $('breakdown-sentence-count').textContent = '0';
+      return;
+    }
+    const words = trimmed.split(/\\s+/).filter(Boolean).length;
+    const sentences = trimmed.split(/[.!?]+/).filter(s => s.trim().length > 0).length;
+    
+    $('breakdown-word-count').textContent = words;
+    $('breakdown-sentence-count').textContent = sentences;
+  }
+
+  $('tema').addEventListener('input', (e) => {
+    const activeItem = document.querySelector('.sidebar-menu .menu-item.active');
+    if (activeItem && activeItem.dataset.view === 'view-dashboard') {
+      updateCounters(e.target.value);
+    }
+  });
+
+  $('srv-texto').addEventListener('input', (e) => {
+    const activeItem = document.querySelector('.sidebar-menu .menu-item.active');
+    if (activeItem && activeItem.dataset.view === 'view-writer') {
+      updateCounters(e.target.value);
+    }
+  });
+
+  // Premium Toast Notification System
+  function showToast(message, type = 'info') {
+    let toast = $('raccoon-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'raccoon-toast';
+      toast.style.position = 'fixed';
+      toast.style.bottom = '24px';
+      toast.style.right = '24px';
+      toast.style.padding = '12px 20px';
+      toast.style.borderRadius = '10px';
+      toast.style.color = '#fff';
+      toast.style.fontFamily = 'var(--font-base), sans-serif';
+      toast.style.fontSize = '13.5px';
+      toast.style.fontWeight = '500';
+      toast.style.boxShadow = '0 10px 30px rgba(0,0,0,0.3)';
+      toast.style.zIndex = '99999';
+      toast.style.transition = 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)';
+      toast.style.transform = 'translateY(100px)';
+      toast.style.opacity = '0';
+      document.body.appendChild(toast);
+    }
+
+    if (type === 'success') {
+      toast.style.background = 'linear-gradient(135deg, var(--teal, #10b981) 0%, #059669 100%)';
+      toast.style.border = '1px solid rgba(16, 185, 129, 0.3)';
+    } else if (type === 'warning') {
+      toast.style.background = 'linear-gradient(135deg, var(--gold, #f59e0b) 0%, #d97706 100%)';
+      toast.style.border = '1px solid rgba(245, 158, 11, 0.3)';
+    } else {
+      toast.style.background = 'linear-gradient(135deg, var(--color-primary-navy, #001844) 0%, #112540 100%)';
+      toast.style.border = '1px solid rgba(255, 255, 255, 0.1)';
+    }
+
+    toast.innerHTML = message;
+    toast.style.transform = 'none';
+    toast.style.opacity = '1';
+
+    setTimeout(() => {
+      toast.style.transform = 'translateY(100px)';
+      toast.style.opacity = '0';
+    }, 4500);
+  }
+
+  // Sidebar Menu Toggling logic
+  const viewPanes = {
+    'view-dashboard': { pane: $('view-dashboard-pane'), filters: $('sidebar-filters-dashboard') },
+    'view-writer': { pane: $('view-writer-pane'), filters: $('sidebar-filters-writer') },
+    'view-strategy': { pane: $('view-strategy-pane'), filters: $('sidebar-filters-dashboard') },
+    'view-analytics': { pane: $('view-analytics-pane'), filters: $('sidebar-filters-writer') }
+  };
+
+  const menuItems = document.querySelectorAll('.sidebar-menu .menu-item');
+  menuItems.forEach(item => {
+    item.addEventListener('click', () => {
+      menuItems.forEach(i => i.classList.remove('active'));
+      item.classList.add('active');
+
+      const targetView = item.dataset.view;
+      
+      // Hide all panes and filter panels
+      Object.keys(viewPanes).forEach(viewKey => {
+        if (viewPanes[viewKey].pane) {
+          viewPanes[viewKey].pane.style.display = 'none';
+        }
+        if (viewPanes[viewKey].filters) {
+          viewPanes[viewKey].filters.style.display = 'none';
+        }
+      });
+
+      // Show target pane and its respective filters panel
+      const target = viewPanes[targetView];
+      if (target) {
+        if (target.pane) target.pane.style.display = 'block';
+        if (target.filters) target.filters.style.display = 'block';
+      }
+
+      // Update counters based on active view input
+      if (targetView === 'view-dashboard') {
+        updateCounters($('tema').value);
+      } else if (targetView === 'view-writer') {
+        updateCounters($('srv-texto').value);
+      }
+    });
+  });
+
+  // Dashboard -> Revisor Redirect Button
+  const btnRevisarExistente = $('btn-revisar-existente');
+  if (btnRevisarExistente) {
+    btnRevisarExistente.addEventListener('click', () => {
+      const writerMenuBtn = document.querySelector('.sidebar-menu button[data-view="view-writer"]');
+      if (writerMenuBtn) {
+        writerMenuBtn.click();
+      }
+      const ta = $('srv-texto');
+      if (ta) {
+        setTimeout(() => ta.focus(), 150);
+      }
+    });
+  }
+
+  // Footer buttons mock interactions
+  const btnSettings = $('btn-account-settings');
+  if (btnSettings) {
+    btnSettings.addEventListener('click', () => {
+      showToast('⚙️ <strong>Configurações da Conta:</strong> Gerencie chaves de API e preferências. (Disponível em breve)', 'info');
+      setRaxState('entregue', 'Nas configurações você poderá gerenciar chaves de API e preferências da conta. Em breve! 🦝');
+    });
+  }
+
+  const btnIntegrations = $('btn-integrations');
+  if (btnIntegrations) {
+    btnIntegrations.addEventListener('click', () => {
+      showToast('🔌 <strong>Integrações:</strong> Conecte com SAP BTP, SuccessFactors, Apollo e WordPress. (Disponível em breve)', 'info');
+      setRaxState('entregue', 'Aqui você poderá conectar o Raccoon com SAP BTP, SuccessFactors, Apollo e WordPress. Em breve! 🦝');
+    });
+  }
+
+  // Clipboard copy logic for improved article (HTML code)
+  const btnCopiar = $('srv-btn-copiar');
+  if (btnCopiar) {
+    btnCopiar.addEventListener('click', function() {
+      const txtArea = $('srv-texto-otimizado');
+      if (txtArea && txtArea.value) {
+        navigator.clipboard.writeText(txtArea.value).then(function() {
+          btnCopiar.textContent = 'HTML Copiado! ✓';
+          btnCopiar.style.borderColor = '#10b981';
+          btnCopiar.style.background = 'rgba(16,185,129,0.15)';
+          btnCopiar.style.color = '#10b981';
+          setTimeout(function() {
+            btnCopiar.textContent = 'Copiar HTML (WorkControl)';
+            btnCopiar.style.borderColor = '';
+            btnCopiar.style.background = '';
+            btnCopiar.style.color = '';
+          }, 2500);
+        });
+      }
+    });
+  }
+
+  // Clipboard copy logic for clean text (stripped tags)
+  const btnCopiarLimpo = $('srv-btn-copiar-limpo');
+  if (btnCopiarLimpo) {
+    btnCopiarLimpo.addEventListener('click', function() {
+      const txtArea = $('srv-texto-otimizado');
+      if (txtArea && txtArea.value) {
+        const tmp = document.createElement("DIV");
+        tmp.innerHTML = txtArea.value;
+        const clean = tmp.textContent || tmp.innerText || "";
+        navigator.clipboard.writeText(clean).then(function() {
+          btnCopiarLimpo.textContent = 'Texto Limpo Copiado! ✓';
+          btnCopiarLimpo.style.borderColor = '#10b981';
+          btnCopiarLimpo.style.background = 'rgba(16,185,129,0.15)';
+          btnCopiarLimpo.style.color = '#10b981';
+          setTimeout(function() {
+            btnCopiarLimpo.textContent = 'Copiar Texto Limpo';
+            btnCopiarLimpo.style.borderColor = '';
+            btnCopiarLimpo.style.background = '';
+            btnCopiarLimpo.style.color = '';
+          }, 2500);
+        });
+      }
+    });
+  }
+
+  // Article Revisor action handler
+  const srvGo = $('srv-go');
+  if (srvGo) {
+    srvGo.addEventListener('click', async () => {
+      const textoVal = ($('srv-texto').value || '').trim();
+      
+      if (textoVal.length < 200) {
+        showToast('⚠️ O artigo deve conter no mínimo 200 caracteres para ser revisado.', 'warning');
+        return;
+      }
+
+      srvGo.disabled = true;
+      
+      // Hide results & show loading spinner
+      $('srv-results').style.display = 'none';
+      $('srv-artigo-melhorado').style.display = 'none';
+      $('srv-loading').style.display = 'flex';
+
+      setRaxState('revisando', 'Analisando legibilidade e estrutura do artigo... 🔍');
+
+      // Alternating progress messages
+      const loadingPhrases = [
+        { msg: "Analisando intenção de busca...", sub: "Verificando se o título atende à query principal..." },
+        { msg: "Varrendo base de dados...", sub: "Mapeando sugestões contextuais de link juice..." },
+        { msg: "Calculando notas de GEO/AIO...", sub: "Avaliando clareza de respostas e frases citáveis..." },
+        { msg: "Reescrevendo artigo com melhorias...", sub: "Incorporando keywords e links sugeridos..." }
+      ];
+      
+      let phraseIdx = 0;
+      const phraseInterval = setInterval(() => {
+        phraseIdx = (phraseIdx + 1) % loadingPhrases.length;
+        $('srv-loading-msg').textContent = loadingPhrases[phraseIdx].msg;
+        $('srv-loading-sub').textContent = loadingPhrases[phraseIdx].sub;
+      }, 3000);
+
+      try {
+        const response = await fetch('/api/seo-review', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            texto: textoVal,
+            titulo: ($('srv-titulo').value || '').trim(),
+            lob: ($('srv-lob').value || '').trim()
+          })
+        });
+
+        if (!response.ok) throw new Error('Falha de conexão com o servidor.');
+        const resData = await response.json();
+        if (!resData.success) throw new Error(resData.error || 'Erro interno na revisão.');
+
+        const review = resData.review;
+        window.lastRaccoonSource = 'review';
+        window.activeReviewData = review;
+        window.activeReviewMeta = {
+          titulo: ($('srv-titulo').value || '').trim(),
+          lob: ($('srv-lob').value || '').trim()
+        };
+
+        // Render Quality Dial Score
+        const score = Math.round(review.nota_geral || 0);
+        $('v1-score-num').textContent = score;
+        const radialColor = score >= 90 ? 'var(--teal, #10b981)' : (score >= 75 ? 'var(--blue, #3b82f6)' : 'var(--gold, #f59e0b)');
+        $('v1-score-radial').style.background = `conic-gradient(${radialColor} 0% ${score}%, rgba(255,255,255,0.08) ${score}% 100%)`;
+
+        const statusEl = $('v1-score-status');
+        if (score >= 90) {
+          statusEl.textContent = 'Forte';
+          statusEl.style.color = 'var(--teal, #10b981)';
+        } else if (score >= 75) {
+          statusEl.textContent = 'Bom';
+          statusEl.style.color = 'var(--blue, #3b82f6)';
+        } else {
+          statusEl.textContent = 'Regular';
+          statusEl.style.color = 'var(--gold, #f59e0b)';
+        }
+
+        // Fill horizontal segmented meter
+        fillSegmentedMeter(score);
+
+        // Update checklist
+        $('v1-score-checklist').innerHTML = `
+          SEO Score: ${Math.round((review.seo && review.seo.score) || 0)}% ✓<br>
+          GEO Score: ${Math.round((review.geo && review.geo.score) || 0)}% ✓<br>
+          LOB: ${review.lob || 'Cross'} ✓
+        `;
+
+        // Update progress bars
+        const espScore = Math.round(((review.seo && review.seo.score) || 0) / 10);
+        const tomScore = Math.round(score / 10);
+        const ganScore = Math.round(((review.geo && review.geo.score) || 0) / 10);
+        const readScore = Math.max(5, Math.round(score / 10));
+
+        $('v1-val-especificidade').textContent = `${espScore}/10`;
+        $('v1-bar-especificidade').style.width = `${espScore * 10}%`;
+
+        $('v1-val-tom').textContent = `${tomScore}/10`;
+        $('v1-bar-tom').style.width = `${tomScore * 10}%`;
+
+        $('v1-val-gancho').textContent = `${ganScore}/10`;
+        $('v1-bar-gancho').style.width = `${ganScore * 10}%`;
+
+        $('v1-val-readability').textContent = `${readScore}/10`;
+        $('v1-bar-readability').style.width = `${readScore * 10}%`;
+
+        // Update case cards
+        $('v1-case-title').textContent = (review.keyword && review.keyword.principal) ? `Keyword: ${review.keyword.principal}` : 'N/A';
+        $('v1-case-proof').textContent = `LOB: ${review.lob || 'Cross'}`;
+
+        // Populate detail analytics view
+        $('seo-title').textContent = review.metaTitle || '-';
+        $('seo-desc').textContent = review.metaDescription || '-';
+        $('seo-slug').textContent = review.slug || '-';
+        
+        const kw = review.keyword || {};
+        $('seo-keywords').textContent = kw.principal ? [kw.principal].concat(kw.secundarias || []).join(', ') : '-';
+
+        let faqHtml = '';
+        if (Array.isArray(review.faq)) {
+          review.faq.forEach(item => {
+            faqHtml += `
+              <div class="review-item">
+                <span class="q">Q: ${item.q}</span>
+                <span class="a">A: ${item.a}</span>
+              </div>
+            `;
+          });
+        }
+        $('geo-faq-list').innerHTML = faqHtml || '<div style="font-size:12px;color:var(--color-text-muted)">Nenhuma FAQ estruturada recomendada.</div>';
+
+        const alerts = review.qualidade ? (review.qualidade.alertas || []) : [];
+        if (alerts.length > 0) {
+          $('section-alertas').style.display = 'block';
+          $('seo-alertas-list').innerHTML = alerts.map(a => `<div>⚠️ ${a}</div>`).join('');
+        } else {
+          $('section-alertas').style.display = 'none';
+        }
+
+        // Fill dynamic HTML recommendations in central view results
+        const clr = (v) => v >= 75 ? '#10b981' : v >= 50 ? '#f59e0b' : '#ef4444';
+        const crit = (arr) => (arr || []).map(c => `
+          <div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06)">
+            <b style="flex:0 0 50px;font-family:monospace;color:${clr(c.nota || 0)}">${c.nota != null ? c.nota : '-'} / 100</b>
+            <div>
+              <b style="font-size:12.5px">${c.nome || ''}</b>
+              <div style="font-size:11.5px;color:var(--color-text-muted)">${c.obs || ''}</div>
+            </div>
+          </div>
+        `).join('');
+
+        let resultsHtml = `
+          <div style="display:flex;gap:10px;margin-bottom:14px">
+            <div style="flex:1;text-align:center;background:rgba(255,255,255,0.03);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.06);border-top:3px solid ${clr(score)};border-radius:12px;padding:12px;box-shadow:0 4px 15px rgba(0,0,0,0.15)">
+              <div style="font-size:10px;color:var(--color-text-muted);text-transform:uppercase">Geral</div>
+              <div style="font-size:30px;font-weight:900;color:${clr(score)}">${score}</div>
+            </div>
+            <div style="flex:1;text-align:center;background:rgba(255,255,255,0.03);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.06);border-top:3px solid ${clr((review.seo && review.seo.score) || 0)};border-radius:12px;padding:12px;box-shadow:0 4px 15px rgba(0,0,0,0.15)">
+              <div style="font-size:10px;color:var(--color-text-muted);text-transform:uppercase">SEO</div>
+              <div style="font-size:30px;font-weight:900;color:${clr((review.seo && review.seo.score) || 0)}">${Math.round((review.seo && review.seo.score) || 0)}</div>
+            </div>
+            <div style="flex:1;text-align:center;background:rgba(255,255,255,0.03);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.06);border-top:3px solid ${clr((review.geo && review.geo.score) || 0)};border-radius:12px;padding:12px;box-shadow:0 4px 15px rgba(0,0,0,0.15)">
+              <div style="font-size:10px;color:var(--color-text-muted);text-transform:uppercase">GEO</div>
+              <div style="font-size:30px;font-weight:900;color:${clr((review.geo && review.geo.score) || 0)}">${Math.round((review.geo && review.geo.score) || 0)}</div>
+            </div>
+          </div>
+          <div style="font-size:13px;color:var(--color-text-dim,#94a3b8);margin-bottom:12px">${review.resumo || ''}</div>
+          <div style="background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.3);border-radius:10px;padding:12px;margin-bottom:14px">
+            <div style="font-size:11px;text-transform:uppercase;color:var(--color-text-muted)">📝 Melhor keyword</div>
+            <div style="font-size:16px;font-weight:800;color:#60a5fa">${kw.principal || '-'}</div>
+            <div style="font-size:12px;color:var(--color-text-dim,#94a3b8);margin-top:4px">Secundárias: ${((kw.secundarias || []).join(', ') || '-')}</div>
+            <div style="font-size:11.5px;color:var(--color-text-muted);margin-top:4px">${kw.onde_usar ? 'Usar em: ' + kw.onde_usar + '. ' : ''}${kw.motivo || ''}</div>
+          </div>
+          <div style="font-size:12px;font-weight:800;text-transform:uppercase;color:var(--color-text-muted);margin:8px 0">⚠️ Prioridades</div>
+          ${(review.top_fixes || []).map(f => `<div style="font-size:13px;padding:5px 0">➔ ${f}</div>`).join('')}
+          <div style="font-size:12px;font-weight:800;text-transform:uppercase;color:var(--color-text-muted);margin:12px 0 6px">🔍 SEO</div>
+          ${crit(review.seo && review.seo.criterios)}
+          <div style="font-size:12px;font-weight:800;text-transform:uppercase;color:var(--color-text-muted);margin:12px 0 6px">🤖 GEO</div>
+          ${crit(review.geo && review.geo.criterios)}
+          <div style="font-size:12px;font-weight:800;text-transform:uppercase;color:var(--color-text-muted);margin:12px 0 6px">🔗 Link juice</div>
+          ${(review.link_juice || []).map(l => `
+            <div style="font-size:13px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06)">
+              🔗 <a href="${l.url}" target="_blank" rel="noopener" style="color:#60a5fa">${l.anchor || l.url}</a>
+              <div style="font-size:11.5px;color:var(--color-text-muted)">${l.motivo || ''}</div>
+            </div>
+          `).join('') || '<div style="font-size:12px;color:var(--color-text-muted)">sem sugestões internas relevantes</div>'}
+          ${review.cta ? `
+            <div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.3);border-radius:10px;padding:12px;margin-top:14px">
+              <div style="font-size:11px;text-transform:uppercase;color:var(--color-text-muted)">📢 CTA</div>
+              <div style="font-weight:700;color:#6ee7b7">"${review.cta.texto || ''}"</div>
+              <div style="font-size:11.5px;color:var(--color-text-muted);margin-top:4px">Posição: ${review.cta.posicao || '-'} · ${review.cta.motivo || ''}</div>
+            </div>
+          ` : ''}
+        `;
+
+        $('srv-results').innerHTML = resultsHtml;
+        $('srv-results').style.display = 'block';
+
+        // Populate improved article
+        if (review.artigo_melhorado) {
+          $('srv-texto-otimizado').value = review.artigo_melhorado;
+          $('srv-artigo-melhorado').style.display = 'block';
+        }
+
+        // Hide duplicate bottom score row if any, and show dashboard analytics results panel
+        const scoreRow = $('srv-score-row');
+        if (scoreRow) scoreRow.style.display = 'none';
+
+        const genAnal = $('gen-analytics-results');
+        if (genAnal) genAnal.style.display = 'flex';
+        
+        const placeholder = $('analytics-placeholder');
+        if (placeholder) placeholder.style.display = 'none';
+
+        playChime();
+        setRaxState('entregue', 'Revisão concluída com sucesso! 🎉 Veja as sugestões de otimização.');
+        showToast('🎉 Revisão concluída!', 'success');
+
+      } catch (err) {
+        console.error(err);
+        showToast('❌ Erro na revisão: ' + err.message, 'warning');
+        setRaxState('ocioso', 'Erro ao revisar o artigo. Tente novamente.');
+      } finally {
+        clearInterval(phraseInterval);
+        $('srv-loading').style.display = 'none';
+        srvGo.disabled = false;
+      }
+    });
+  }
 
   // Init
   setRaxState('ocioso');
