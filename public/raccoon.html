@@ -1132,79 +1132,152 @@
 <body data-route="raccoon">
 <office-nav></office-nav>
 
+
 <div class="v1-only">
 <main class="wrap">
-  <header class="hero">
-    <div class="hero-text">
-      <div class="eyebrow">Brand Experience · Offline Engine</div>
-      <h1>🦝 Raccoon Studio</h1>
-      <p>Desenvolva pautas, copies de posts e artigos com o <strong>Rax</strong> — o guaxinim especialista em RAG. Ele vasculha o acervo histórico de 693 artigos publicados para garantir o tom de voz corporativo da EPI-USE Brasil.</p>
-    </div>
-    <div class="engine-badge" id="engine-status">Engine: Mock Local</div>
-  </header>
-
-  <!-- Warning Banner -->
+    <!-- Warning Banner -->
   <div class="discreet-warning" style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 8px; padding: 10px 14px; margin-bottom: 20px; font-size: 12.5px; color: var(--gold,#f59e0b); display: flex; align-items: center; gap: 8px;">
     <span>⚠️</span>
     <span><strong>Nota de Desenvolvimento:</strong> A engine de geração de conteúdo e templates visuais está em fase de refinamento. O Roadmap de atualizações (v0.53+) prevê a melhoria na extensão dos artigos, pesquisa Web integrada e conformidade visual com selos reais (Group Elephant, ERP.ngo, GPTW, 40 anos).</span>
   </div>
 
-  <!-- Controls Form (Widescreen layout at the top) -->
-  <form id="rax-form" class="form-panel" onsubmit="return false;" style="margin-bottom: 28px;">
-    <div class="form-group">
-      <label for="tema" style="font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--color-text-muted,var(--muted,#869ec3));">Tema / Pauta de Conteúdo</label>
-      <textarea id="tema" class="form-control" placeholder="Ex: Impactos da Reforma Tributária 2026 nos fechamentos de grandes empresas no setor financeiro..." required style="min-height: 110px;"></textarea>
-    </div>
-
-    <div class="form-row" style="display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-end; margin-top: 6px;">
-      <div class="form-group" style="flex: 1.2; min-width: 260px;">
-        <label style="font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--color-text-muted,var(--muted,#869ec3));">Persona-Alvo</label>
-        <div class="pills" id="persona-pills">
-          <div class="pill active" data-persona="auto">Auto-detectar</div>
-          <div class="pill" data-persona="cfo">CFO</div>
-          <div class="pill" data-persona="chro">CHRO</div>
-          <div class="pill" data-persona="cio">CIO</div>
-        </div>
-      </div>
-
-      <div class="form-group" style="flex: 1.5; min-width: 320px;">
-        <label style="font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--color-text-muted,var(--muted,#869ec3));">Formatos de Saída</label>
-        <div class="checkboxes" style="display: flex; gap: 16px; flex-wrap: wrap; margin-top: 4px;">
-          <label class="checkbox-label" style="padding: 0;"><input type="checkbox" id="out-article" checked> Artigo SEO</label>
-          <label class="checkbox-label" style="padding: 0;"><input type="checkbox" id="out-post" checked> LinkedIn Post</label>
-          <label class="checkbox-label" style="padding: 0;"><input type="checkbox" id="out-carousel" checked> Carrossel</label>
-          <label class="checkbox-label" style="padding: 0;"><input type="checkbox" id="out-single"> Post Único</label>
-        </div>
-      </div>
-
-      <div class="form-group" style="flex: 2; min-width: 380px;">
-        <div style="display: flex; gap: 12px; width: 100%;">
-          <button type="button" class="btn-rax" id="btn-trigger" style="flex: 1; height: 44px; margin: 0; padding: 0 8px;">
-            <span>Soltar o Rax!</span> 🦝
-          </button>
-          <button type="button" id="btn-revisar-existente" style="flex: 1.2; height: 44px; margin: 0; cursor:pointer; background:transparent; border:1px solid var(--blue,#2563eb); border-radius:8px; color:var(--blue,#60a5fa); font-weight:600; font-size:12px; white-space: nowrap; padding: 0 8px;">🔍 Revisar Artigo Existente</button>
-        </div>
-      </div>
-    </div>
-    <script>
-    (function(){
-      var b=document.getElementById('btn-revisar-existente'); if(!b) return;
-      b.addEventListener('click', function(){
-        var emp=document.getElementById('state-empty'); if(emp) emp.style.display='none';
-        var res=document.getElementById('state-result'); if(res) res.style.display='block';
-        var t=document.querySelector('[data-target="pane-seo"]'); if(t) t.click();
-        if(res) res.scrollIntoView({behavior:'smooth',block:'start'});
-        var ta=document.getElementById('srv-texto'); if(ta) setTimeout(function(){ta.focus()},300);
-      });
-    })();
-    </script>
-  </form>
-
   <div class="layout">
-    <!-- Left Column: Character Only -->
-    <div class="left-col">
-      <!-- Rax Visual Box -->
-      <div class="rax-box">
+    <!-- COLUMN 1: LEFT SIDEBAR (Navigation, Configs/Filters, Brand) -->
+    <div class="left-col" style="background: var(--card-bg-glass); border: 1px solid var(--card-border-glass); border-radius: 16px; padding: 20px; height: auto;">
+      <!-- Brand Header -->
+      <div style="display: flex; align-items: center; gap: 12px; padding: 10px 0 20px 0; border-bottom: 1px solid var(--card-border-glass);">
+        <span style="font-size: 26px;">🦝</span>
+        <div>
+          <h2 style="font-family: var(--font-display); font-size: 18px; font-weight: 700; color: var(--text-highlight); margin: 0;">Raccoon Studio</h2>
+          <span style="font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">v0.56.1</span>
+        </div>
+      </div>
+
+      <!-- Navigation Menu -->
+      <nav class="sidebar-menu" style="display: flex; flex-direction: column; gap: 4px; margin-top: 15px;">
+        <button class="menu-item active" data-view="view-dashboard">
+          <span class="icon">📊</span> Dashboard
+        </button>
+        <button class="menu-item" data-view="view-writer">
+          <span class="icon">✍️</span> AI Writer
+        </button>
+        <button class="menu-item" data-view="view-strategy">
+          <span class="icon">💡</span> Content Strategy
+        </button>
+        <button class="menu-item" data-view="view-analytics">
+          <span class="icon">📈</span> Analytics
+        </button>
+      </nav>
+
+      <!-- Divider -->
+      <div style="height: 1px; background: var(--card-border-glass); margin: 20px 0;"></div>
+
+      <!-- Pauta Generation Configs (Visible when Dashboard or Strategy is active) -->
+      <div class="project-filters-panel" id="sidebar-filters-dashboard">
+        <div style="font-family: var(--font-display); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 14px; font-weight: 700;">Configurações de Pauta</div>
+        
+        <!-- Persona Pills -->
+        <div class="filter-group" style="margin-bottom: 16px;">
+          <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 6px;">Persona-Alvo</label>
+          <div class="pills" id="persona-pills">
+            <div class="pill active" data-persona="auto">Auto-detectar</div>
+            <div class="pill" data-persona="cfo">CFO</div>
+            <div class="pill" data-persona="chro">CHRO</div>
+            <div class="pill" data-persona="cio">CIO</div>
+          </div>
+        </div>
+
+        <!-- Output Format Checkboxes -->
+        <div class="filter-group">
+          <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 6px;">Formatos de Saída</label>
+          <div class="checkboxes">
+            <label class="checkbox-label" style="padding: 0;"><input type="checkbox" id="out-article" checked> Artigo SEO</label>
+            <label class="checkbox-label" style="padding: 0;"><input type="checkbox" id="out-post" checked> LinkedIn Post</label>
+            <label class="checkbox-label" style="padding: 0;"><input type="checkbox" id="out-carousel" checked> Carrossel</label>
+            <label class="checkbox-label" style="padding: 0;"><input type="checkbox" id="out-single"> Post Único</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Project Filters (Visible when AI Writer or Analytics is active) -->
+      <div class="project-filters-panel" id="sidebar-filters-writer" style="display: none;">
+        <div style="font-family: var(--font-display); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 14px; font-weight: 700;">Project Filters</div>
+        
+        <!-- Campaign Type -->
+        <div class="filter-group" style="margin-bottom: 16px;">
+          <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 6px;">Campaign Type</label>
+          <div class="filter-pills" style="display: flex; gap: 6px; flex-wrap: wrap;">
+            <span class="filter-pill active">Blog Post</span>
+            <span class="filter-pill">Social Media</span>
+            <span class="filter-pill">Email</span>
+          </div>
+        </div>
+
+        <!-- Content Tone -->
+        <div class="filter-group" style="margin-bottom: 16px;">
+          <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 6px;">Content Tone</label>
+          <div class="filter-pills" style="display: flex; gap: 6px; flex-wrap: wrap;">
+            <span class="filter-pill">Professional</span>
+            <span class="filter-pill active">Engaging</span>
+            <span class="filter-pill">Persuasive</span>
+          </div>
+        </div>
+
+        <!-- Target Audience -->
+        <div class="filter-group" style="margin-bottom: 16px;">
+          <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 6px;">Target Audience</label>
+          <select class="form-control" style="width: 100%; font-size: 12px; padding: 6px 10px; background: var(--input-bg); border-color: var(--input-border); color: var(--input-text); border-radius: 8px;">
+            <option>C-Level Executives</option>
+            <option>Marketing Managers</option>
+            <option>IT Professionals</option>
+          </select>
+        </div>
+
+        <!-- Tags -->
+        <div class="filter-group">
+          <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 6px;">Tags</label>
+          <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+            <span style="font-family: monospace; font-size: 10px; padding: 3px 8px; border-radius: 4px; background: rgba(37,99,235,0.1); border: 1px solid rgba(37,99,235,0.2); color: #60a5fa;">#SaaS marketing</span>
+            <span style="font-family: monospace; font-size: 10px; padding: 3px 8px; border-radius: 4px; background: rgba(37,99,235,0.1); border: 1px solid rgba(37,99,235,0.2); color: #60a5fa;">#AI content</span>
+            <span style="font-family: monospace; font-size: 10px; padding: 3px 8px; border-radius: 4px; background: rgba(37,99,235,0.1); border: 1px solid rgba(37,99,235,0.2); color: #60a5fa;">#B2B leads</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings / Integrations footer links -->
+      <div style="margin-top: auto; padding-top: 40px; display: flex; flex-direction: column; gap: 8px;">
+        <button class="menu-item-sec" style="display: flex; align-items: center; gap: 8px; background: transparent; border: none; color: var(--text-muted); font-size: 12px; cursor: pointer; text-align: left; padding: 6px 10px;">
+          <span>⚙️</span> Account Settings
+        </button>
+        <button class="menu-item-sec" style="display: flex; align-items: center; gap: 8px; background: transparent; border: none; color: var(--text-muted); font-size: 12px; cursor: pointer; text-align: left; padding: 6px 10px;">
+          <span>🔌</span> Integrations
+        </button>
+      </div>
+    </div>
+
+    <!-- COLUMN 2: CENTER WORKSPACE (Swappable Panes) -->
+    <div class="workspace-col" style="flex: 1; min-width: 0;">
+      
+      <!-- PANE 1: DASHBOARD VIEW (Brief Generator + Output Preview Tabs) -->
+      <div id="view-dashboard-pane">
+        <!-- Rax Form inside Center Workspace -->
+        <form id="rax-form" class="form-panel" onsubmit="return false;" style="margin-bottom: 24px;">
+          <div class="form-group">
+            <label for="tema" style="font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--text-muted);">Tema / Pauta de Conteúdo</label>
+            <textarea id="tema" class="form-control" placeholder="Ex: Impactos da Reforma Tributária 2026 nos fechamentos de grandes empresas no setor financeiro..." required style="min-height: 100px;"></textarea>
+          </div>
+          <div style="margin-top: 8px; display: flex; gap: 12px;">
+            <button type="button" class="btn-rax" id="btn-trigger" style="flex: 1; height: 44px; margin: 0;">
+              <span>Soltar o Rax!</span> 🦝
+            </button>
+            <button type="button" id="btn-revisar-existente" style="flex: 1; height: 44px; margin: 0;">🔍 Revisar Artigo Existente</button>
+          </div>
+        </form>
+
+        <!-- Initial/Empty State -->
+        <div class="empty-state" id="state-empty" style="margin-bottom: 24px;">
+          <!-- Rax Mascot Visual Box inside dashboard empty state -->
+          <div class="rax-box">
         <div class="speech-bubble" id="rax-bubble">Olá! Digite um tema e me mande vasculhar a base de artigos. 🦝</div>
         
         <div class="scene" id="scene" data-state="idle">
@@ -1392,510 +1465,336 @@
           </svg>
         </div>
       </div>
-    </div>
-
-    <!-- Right Column: Outputs -->
-    <div class="right-col" id="output-box">
-      <!-- Initial state -->
-      <div class="empty-state" id="state-empty">
-        <div class="icon">🦝</div>
-        <h3>Aguardando o Rax</h3>
-        <p>Preencha os campos e ative o Rax para começar a pesquisa RAG e a redação local das pautas.</p>
-      </div>
-
-      <!-- Loading state -->
-      <div class="loading-state" id="state-loading" style="display: none;">
-        <h3 id="loading-txt">Vasculhando 693 artigos...</h3>
-        <div class="loader-bar"></div>
-      </div>
-
-      <!-- Result state -->
-      <div class="output-container" id="state-result" style="display: none;">
-        <div class="output-header">
-          <div>
-            <h2 id="out-title">Pauta Redigida</h2>
-            <div style="font-size: 11px; color: var(--color-text-muted); margin-top: 4px;" id="out-motor">Motor: local</div>
-          </div>
-          <span class="badge-tag" id="out-badge">🤖 Gerado</span>
+          <h3 style="margin-top: 15px;">Aguardando o Rax</h3>
+          <p>Preencha os campos e ative o Rax para começar a pesquisa RAG e a redação local das pautas.</p>
         </div>
 
-        <!-- Navigation Tabs -->
-        <nav class="tabs-nav" id="tabs-navigation">
-          <button class="tab-btn active" data-target="pane-estrategia">💡 Estratégia</button>
-          <button class="tab-btn" data-target="pane-artigo" id="btn-tab-artigo">✍️ Artigo</button>
-          <button class="tab-btn" data-target="pane-post" id="btn-tab-post">🔗 LinkedIn Post</button>
-          <button class="tab-btn" data-target="pane-carousel" id="btn-tab-carousel">Carousel</button>
-          <button class="tab-btn" data-target="pane-seo">🔍 SEO / GEO</button>
-          <button class="tab-btn" data-target="pane-fontes">📚 Fontes RAG</button>
-        </nav>
-
-        <!-- Pane 1: Estratégia -->
-        <div class="tab-pane active" id="pane-estrategia">
-          <div class="meta-grid">
-            <div class="meta-card"><div class="lbl">Persona-Alvo</div><div class="val" id="strat-persona">-</div></div>
-            <div class="meta-card"><div class="lbl">Linha de Negócio (LOB)</div><div class="val" id="strat-lob">-</div></div>
-            <div class="meta-card"><div class="lbl">Categoria</div><div class="val" id="strat-cat">-</div></div>
-          </div>
-          <div class="meta-card" style="margin-bottom:12px">
-            <div class="lbl">Dor Atacada</div>
-            <div class="val" id="strat-dor" style="font-weight:normal;font-size:13.5px;line-height:1.5;margin-top:6px">-</div>
-          </div>
-          <div class="meta-card">
-            <div class="lbl">Ângulo do Conteúdo</div>
-            <div class="val" id="strat-angulo" style="font-weight:normal;font-size:13.5px;line-height:1.5;margin-top:6px">-</div>
-          </div>
+        <!-- Loading state -->
+        <div class="loading-state" id="state-loading" style="display: none; margin-bottom: 24px;">
+          <h3 id="loading-txt">Vasculhando 693 artigos...</h3>
+          <div class="loader-bar"></div>
         </div>
 
-        <!-- Pane 2: Artigo -->
-        <div class="tab-pane" id="pane-artigo">
-          <div class="article-preview" id="artigo-container">
-            <h1 id="art-title">Título do Artigo</h1>
-            <div class="intro" id="art-intro">Introdução...</div>
-            <div id="art-sections"></div>
-            <div class="conclusion" id="art-conclusion">Conclusão...</div>
-          </div>
-        </div>
-
-        <!-- Pane 3: LinkedIn Post -->
-        <div class="tab-pane" id="pane-post">
-          <div class="linkedin-copy-box">
-            <div class="post-hdr">
-              <div class="avatar">🦝</div>
-              <div>
-                <h4>Rax Writer</h4>
-                <span style="font-size:11px;opacity:0.7">Redator da EPI-USE Brasil</span>
-              </div>
-            </div>
-            <p class="body-text" id="post-body-text"></p>
-            <div class="tag-pills" id="post-tags"></div>
-          </div>
-          <div class="meta-grid">
-            <div class="meta-card"><div class="lbl">Gancho Headline</div><div class="val" id="post-headline">-</div></div>
-            <div class="meta-card"><div class="lbl">Hero Number</div><div class="val" id="post-heronumber">-</div></div>
-          </div>
-        </div>
-
-        <!-- Pane 4: Carousel -->
-        <div class="tab-pane" id="pane-carousel">
-          <div class="carousel-wrapper">
-            <div class="slide-card" style="border-left: 4px solid var(--red,#cd1543);">
-              <div class="s-idx">SLIDE 1 (CAPA)</div>
-              <div class="lbl" id="car-eyebrow" style="font-size:10px;text-transform:uppercase;color:var(--color-text-muted)">CAPA</div>
-              <h4 id="car-headline">Título da Capa</h4>
-              <p id="car-sub">Subtítulo da Capa</p>
-            </div>
-            
-            <div id="car-slides-list" style="display:flex;flex-direction:column;gap:12px"></div>
-
-            <div class="slide-card" style="border-left: 4px solid var(--teal,#10b981);">
-              <div class="s-idx">SLIDE FINAL (CTA)</div>
-              <h4 id="car-cta-head">Ação final</h4>
-              <p id="car-cta-sub">Convite</p>
-              <div class="source" id="car-cta-url">URL</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Pane 5: SEO / GEO -->
-        <div class="tab-pane" id="pane-seo">
-          <div class="review-section" style="margin-bottom:18px;border-left-color:var(--blue,#2563eb)">
-            <h3>📝 Revisar artigo colado (SEO + GEO · jun/2026)</h3>
-            <p style="font-size:12px;color:var(--color-text-muted);margin-bottom:10px">Cole o artigo completo. O Rax analisa SEO + GEO (regras jun/2026), recomenda a melhor keyword-foco, faz link juice com os 693 artigos e sugere CTA.</p>
-            <textarea id="srv-texto" placeholder="Cole o artigo completo aqui (mín. 200 caracteres)..." style="width:100%;min-height:140px;background:var(--color-bg-elev,var(--surface,#112540));border:1px solid var(--color-border,rgba(37,99,235,.2));border-radius:10px;color:var(--color-text,var(--text,#e2e8f0));padding:10px;font-family:inherit;font-size:13px;line-height:1.5;resize:vertical"></textarea>
-            <div style="display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap">
-              <input id="srv-titulo" placeholder="Título (opcional)" style="flex:1;min-width:150px;background:var(--color-bg-elev,var(--surface,#112540));border:1px solid var(--color-border,rgba(37,99,235,.2));border-radius:8px;color:var(--color-text,var(--text,#e2e8f0));padding:8px 10px;font-size:13px">
-              <input id="srv-lob" placeholder="LOB (opcional)" style="flex:1;min-width:140px;background:var(--color-bg-elev,var(--surface,#112540));border:1px solid var(--color-border,rgba(37,99,235,.2));border-radius:8px;color:var(--color-text,var(--text,#e2e8f0));padding:8px 10px;font-size:13px">
-              <button id="srv-go" style="cursor:pointer;font-weight:700;font-size:13px;padding:9px 18px;border-radius:8px;border:0;background:var(--blue,#2563eb);color:#fff">Revisar</button>
-              <span id="srv-status" style="font-size:12px;color:var(--color-text-muted)"></span>
-            </div>
-
-            <!-- Wait/Loading Design -->
-            <div id="srv-loading" style="display:none; flex-direction:column; align-items:center; justify-content:center; padding:30px 20px; gap:16px; background:rgba(37,99,235,0.04); border:1px dashed rgba(37,99,235,0.25); border-radius:12px; margin-top:14px; backdrop-filter:blur(8px); animation:fadeIn 0.3s ease-out">
-              <div style="position:relative; width:60px; height:60px; display:flex; align-items:center; justify-content:center">
-                <div style="position:absolute; width:100%; height:100%; border:3px solid rgba(37,99,235,0.1); border-top-color:var(--blue,#2563eb); border-radius:50%; animation:spin 1s linear infinite"></div>
-                <span style="font-size:24px; animation:pulse 1.2s ease-in-out infinite">🦝</span>
-              </div>
-              <div style="display:flex; flex-direction:column; align-items:center; gap:4px">
-                <div style="font-size:13px; font-weight:600; color:#fff; font-family:'Poppins',sans-serif" id="srv-loading-msg">Iniciando análise de SEO/GEO...</div>
-                <div style="font-size:11px; color:var(--color-text-muted)" id="srv-loading-sub">Rax está lendo o artigo e mapeando entidades semânticas</div>
-              </div>
-              <div class="loader-bar" style="width:100%; max-width:200px; height:4px; background:rgba(255,255,255,0.05); border-radius:2px; overflow:hidden; position:relative">
-                <div style="position:absolute; left:0; top:0; height:100%; width:40%; background:var(--blue,#2563eb); border-radius:2px; animation:loading-anim 1.5s infinite ease-in-out"></div>
-              </div>
-            </div>
-
-            <div id="srv-results" style="display:none;margin-top:14px"></div>
-          </div>
-
-          <!-- Optimized Article Card -->
-          <div id="srv-artigo-melhorado" style="display:none; margin-top:16px;" class="review-section">
-            <h3 style="border-left-color:var(--teal,#10b981);">✨ Artigo Otimizado & Corrigido pela IA</h3>
-            <p style="font-size:12px;color:var(--color-text-muted);margin-bottom:10px">
-              Esta versão foi reescrita aplicando a palavra-chave foco, otimizando headings para busca por voz/LLM e inserindo links internos de forma contextualizada.
-            </p>
-            <div style="position:relative">
-              <textarea id="srv-texto-otimizado" readonly style="width:100%;min-height:220px;background:var(--color-bg-elev,var(--surface,#112540));border:1px solid rgba(16,185,129,.3);border-radius:10px;color:var(--color-text,var(--text,#e2e8f0));padding:10px;font-family:inherit;font-size:13px;line-height:1.5;resize:vertical"></textarea>
-              <div style="display:flex;gap:8px;margin-top:8px;justify-content:flex-end">
-                <button id="srv-btn-copiar" class="btn-save" style="cursor:pointer;font-weight:600;font-size:12px;padding:8px 14px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:#fff;transition:all 0.2s">Copiar HTML (WorkControl)</button>
-                <button id="srv-btn-copiar-limpo" class="btn-save" style="cursor:pointer;font-weight:600;font-size:12px;padding:8px 14px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:#fff;transition:all 0.2s">Copiar Texto Limpo</button>
-              </div>
-              <div style="font-size:11.5px;color:var(--color-text-muted);margin-top:10px;display:flex;align-items:center;gap:6px;background:rgba(245,158,11,0.05);border:1px dashed rgba(245,158,11,0.25);border-radius:8px;padding:8px 12px">
-                <span style="color:var(--gold,#f59e0b)">💡</span>
-                <span><strong>Instrução WorkControl:</strong> Este texto está em formato HTML estruturado. No CMS WorkControl, clique no ícone <strong>&lt;&gt; (Código-Fonte)</strong> na barra de ferramentas do editor do post antes de colar o HTML copiado.</span>
-              </div>
-            </div>
-          </div>
-
-          <script>
-          (function(){
-            var $=function(id){return document.getElementById(id)};
-            var clr=function(v){return v>=75?'#10b981':v>=50?'#f59e0b':'#ef4444'};
-            var go=$('srv-go'); if(!go) return;
-            
-            function stripHtml(html) {
-              var tmp = document.createElement("DIV");
-              tmp.innerHTML = html;
-              return tmp.textContent || tmp.innerText || "";
-            }
-
-            // Clipboard copy logic for improved article (HTML code)
-            var btnCopiar = $('srv-btn-copiar');
-            if (btnCopiar) {
-              btnCopiar.addEventListener('click', function() {
-                var txtArea = $('srv-texto-otimizado');
-                if (txtArea) {
-                  navigator.clipboard.writeText(txtArea.value).then(function() {
-                    btnCopiar.textContent = 'HTML Copiado! ✓';
-                    btnCopiar.style.borderColor = '#10b981';
-                    btnCopiar.style.background = 'rgba(16,185,129,0.15)';
-                    btnCopiar.style.color = '#10b981';
-                    setTimeout(function() {
-                      btnCopiar.textContent = 'Copiar HTML (WorkControl)';
-                      btnCopiar.style.borderColor = 'rgba(255,255,255,0.15)';
-                      btnCopiar.style.background = 'rgba(255,255,255,0.06)';
-                      btnCopiar.style.color = '#fff';
-                    }, 2500);
-                  }).catch(function(err) {
-                    console.error('Failed to copy HTML code: ', err);
-                  });
-                }
-              });
-            }
-
-            // Clipboard copy logic for clean text (stripped tags)
-            var btnCopiarLimpo = $('srv-btn-copiar-limpo');
-            if (btnCopiarLimpo) {
-              btnCopiarLimpo.addEventListener('click', function() {
-                var txtArea = $('srv-texto-otimizado');
-                if (txtArea) {
-                  var clean = stripHtml(txtArea.value);
-                  navigator.clipboard.writeText(clean).then(function() {
-                    btnCopiarLimpo.textContent = 'Texto Limpo Copiado! ✓';
-                    btnCopiarLimpo.style.borderColor = '#10b981';
-                    btnCopiarLimpo.style.background = 'rgba(16,185,129,0.15)';
-                    btnCopiarLimpo.style.color = '#10b981';
-                    setTimeout(function() {
-                      btnCopiarLimpo.textContent = 'Copiar Texto Limpo';
-                      btnCopiarLimpo.style.borderColor = 'rgba(255,255,255,0.15)';
-                      btnCopiarLimpo.style.background = 'rgba(255,255,255,0.06)';
-                      btnCopiarLimpo.style.color = '#fff';
-                    }, 2500);
-                  }).catch(function(err) {
-                    console.error('Failed to copy clean text: ', err);
-                  });
-                }
-              });
-            }
-
-            go.addEventListener('click', async function(){
-              var texto=($('srv-texto').value||'').trim(); var st=$('srv-status');
-              if(texto.length<200){ st.textContent='Cole pelo menos 200 caracteres.'; st.style.color='#fca5a5'; return; }
-              
-              go.disabled=true;
-              st.style.color='var(--color-text-muted)';
-              st.textContent='Revisando com IA...';
-              
-              // Show waiting state
-              $('srv-results').style.display='none';
-              $('srv-artigo-melhorado').style.display='none';
-              $('srv-loading').style.display='flex';
-
-              // Reset Score box to calculating state
-              $('v1-score-radial').style.background = 'conic-gradient(rgba(255,255,255,0.08) 0% 100%)';
-              $('v1-score-num').textContent = '-';
-              $('v1-score-status').textContent = 'Calculando...';
-              $('v1-score-status').style.color = 'var(--color-text-muted,var(--muted,#869ec3))';
-              $('v1-score-checklist').innerHTML = 'Analisando conteúdo...';
-              
-              $('v1-val-especificidade').textContent = '-/10';
-              $('v1-bar-especificidade').style.width = '0%';
-              $('v1-val-tom').textContent = '-/10';
-              $('v1-bar-tom').style.width = '0%';
-              $('v1-val-gancho').textContent = '-/10';
-              $('v1-bar-gancho').style.width = '0%';
-              
-              $('v1-case-title').textContent = '-';
-              $('v1-case-proof').textContent = '-';
-              
-              // Change mascot pose
-              if (window.setRaxState) {
-                setRaxState('revisando', 'Analisando legibilidade e estrutura...');
-              }
-
-              // Dynamic waiting messages
-              var loadingPhrases = [
-                { msg: "Analisando intenção de busca...", sub: "Verificando se o título atende à query principal..." },
-                { msg: "Varrendo 693 artigos publicados...", sub: "Mapeando sugestões contextuais de link juice..." },
-                { msg: "Calculando notas de GEO/AIO...", sub: "Avaliando clareza de respostas e frases citáveis..." },
-                { msg: "Reescrevendo artigo com melhorias...", sub: "Incorporando keywords e links sugeridos..." }
-              ];
-              var phraseIdx = 0;
-              var phraseInterval = setInterval(function(){
-                phraseIdx = (phraseIdx + 1) % loadingPhrases.length;
-                var m = $('srv-loading-msg'); var s = $('srv-loading-sub');
-                if(m) m.textContent = loadingPhrases[phraseIdx].msg;
-                if(s) s.textContent = loadingPhrases[phraseIdx].sub;
-              }, 3000);
-
-              try{
-                var r=await fetch('/api/seo-review',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({texto:texto,titulo:($('srv-titulo').value||'').trim(),lob:($('srv-lob').value||'').trim()})});
-                var d=await r.json(); if(!d.success) throw new Error(d.error||'falhou'); var v=d.review;
-                
-                // Store review data globally for saving to pipeline
-                window.lastRaccoonSource = 'review';
-                window.activeReviewData = v;
-                window.activeReviewMeta = { titulo: ($('srv-titulo').value||'').trim(), lob: ($('srv-lob').value||'').trim() };
-
-                // Fix denominator from /10 to /100 and evaluate color properly using clr(c.nota)
-                var crit=function(arr){return (arr||[]).map(function(c){return '<div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06)"><b style="flex:0 0 50px;font-family:monospace;color:'+clr(c.nota||0)+'">'+(c.nota!=null?c.nota:'-')+'/100</b><div><b style="font-size:12.5px">'+(c.nome||'')+'</b><div style="font-size:11.5px;color:var(--color-text-muted)">'+(c.obs||'')+'</div></div></div>'}).join('')};
-                var kw=v.keyword||{};
-                
-                var html='<div style="display:flex;gap:10px;margin-bottom:14px">'+
-                  '<div style="flex:1;text-align:center;background:rgba(255,255,255,0.03);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.06);border-top:3px solid '+clr(v.nota_geral)+';border-radius:12px;padding:12px;box-shadow:0 4px 15px rgba(0,0,0,0.15)"><div style="font-size:10px;color:var(--color-text-muted);text-transform:uppercase">Geral</div><div style="font-size:30px;font-weight:900;color:'+clr(v.nota_geral)+'">'+(Math.round(v.nota_geral||0))+'</div></div>'+
-                  '<div style="flex:1;text-align:center;background:rgba(255,255,255,0.03);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.06);border-top:3px solid '+clr(v.seo&&v.seo.score)+';border-radius:12px;padding:12px;box-shadow:0 4px 15px rgba(0,0,0,0.15)"><div style="font-size:10px;color:var(--color-text-muted);text-transform:uppercase">SEO</div><div style="font-size:30px;font-weight:900;color:'+clr(v.seo&&v.seo.score)+'">'+(Math.round((v.seo&&v.seo.score)||0))+'</div></div>'+
-                  '<div style="flex:1;text-align:center;background:rgba(255,255,255,0.03);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.06);border-top:3px solid '+clr(v.geo&&v.geo.score)+';border-radius:12px;padding:12px;box-shadow:0 4px 15px rgba(0,0,0,0.15)"><div style="font-size:10px;color:var(--color-text-muted);text-transform:uppercase">GEO</div><div style="font-size:30px;font-weight:900;color:'+clr(v.geo&&v.geo.score)+'">'+(Math.round((v.geo&&v.geo.score)||0))+'</div></div></div>'+
-                  '<div style="font-size:13px;color:var(--color-text-dim,#94a3b8);margin-bottom:12px">'+(v.resumo||'')+'</div>'+
-                  '<div style="background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.3);border-radius:10px;padding:12px;margin-bottom:14px"><div style="font-size:11px;text-transform:uppercase;color:var(--color-text-muted)">🎯 Melhor keyword</div><div style="font-size:16px;font-weight:800;color:#60a5fa">'+(kw.principal||'-')+'</div><div style="font-size:12px;color:var(--color-text-dim,#94a3b8);margin-top:4px">Secundárias: '+((kw.secundarias||[]).join(', ')||'-')+'</div><div style="font-size:11.5px;color:var(--color-text-muted);margin-top:4px">'+(kw.onde_usar?'Usar em: '+kw.onde_usar+'. ':'')+(kw.motivo||'')+'</div></div>'+
-                  '<div style="font-size:12px;font-weight:800;text-transform:uppercase;color:var(--color-text-muted);margin:8px 0">⚡ Prioridades</div>'+((v.top_fixes||[]).map(function(f){return '<div style="font-size:13px;padding:5px 0">→ '+f+'</div>'}).join('')||'')+
-                  '<div style="font-size:12px;font-weight:800;text-transform:uppercase;color:var(--color-text-muted);margin:12px 0 6px">🔎 SEO</div>'+crit(v.seo&&v.seo.criterios)+
-                  '<div style="font-size:12px;font-weight:800;text-transform:uppercase;color:var(--color-text-muted);margin:12px 0 6px">🤖 GEO</div>'+crit(v.geo&&v.geo.criterios)+
-                  '<div style="font-size:12px;font-weight:800;text-transform:uppercase;color:var(--color-text-muted);margin:12px 0 6px">🔗 Link juice</div>'+((v.link_juice||[]).map(function(l){return '<div style="font-size:13px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06)">🔗 <a href="'+l.url+'" target="_blank" rel="noopener" style="color:#60a5fa">'+(l.anchor||l.url)+'</a><div style="font-size:11.5px;color:var(--color-text-muted)">'+(l.motivo||'')+'</div></div>'}).join('')||'<div style="font-size:12px;color:var(--color-text-muted)">sem sugestões internas relevantes</div>')+
-                  (v.cta?'<div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.3);border-radius:10px;padding:12px;margin-top:14px"><div style="font-size:11px;text-transform:uppercase;color:var(--color-text-muted)">📣 CTA</div><div style="font-weight:700;color:#6ee7b7">"'+(v.cta.texto||'')+'"</div><div style="font-size:11.5px;color:var(--color-text-muted);margin-top:4px">Posição: '+(v.cta.posicao||'-')+' · '+(v.cta.motivo||'')+'</div></div>':'');
-                
-                $('srv-results').innerHTML=html; $('srv-results').style.display='block';
-                st.textContent='✓ '+d.candidatos_considerados+' artigos considerados'; 
-                st.style.color='var(--color-text-muted)';
-                if (d.warning) {
-                  st.textContent += ' · ⚠️ ' + d.warning;
-                  st.style.color = 'var(--gold, #f59e0b)';
-                }
-                
-                // Populate improved article
-                if (v.artigo_melhorado) {
-                  $('srv-texto-otimizado').value = v.artigo_melhorado;
-                  $('srv-artigo-melhorado').style.display = 'block';
-                }
-                
-                // Hide duplicate bottom score row
-                var scoreRow = $('srv-score-row'); if(scoreRow) scoreRow.style.display='none';
-                
-                // Update detail score and fields below
-                var sb=$('seo-score'); if(sb) {
-                  sb.textContent=Math.round(v.nota_geral||0)+'/100';
-                  sb.className = 'score-badge ' + (v.nota_geral >= 85 ? 'high' : (v.nota_geral >= 60 ? 'mid' : 'low'));
-                }
-                
-                // Update right column score box from SEO review
-                const scoreVal = Math.round(v.nota_geral || 0);
-                const checklistHtml = `
-                  SEO Score: ${Math.round((v.seo && v.seo.score) || 0)}% ✓<br>
-                  GEO Score: ${Math.round((v.geo && v.geo.score) || 0)}% ✓<br>
-                  LOB: ${v.lob || 'Cross'} ✓
-                `;
-                $('v1-score-checklist').innerHTML = checklistHtml;
-
-                const statusEl = $('v1-score-status');
-                if (scoreVal >= 90) {
-                  statusEl.textContent = 'Forte';
-                  statusEl.style.color = 'var(--teal, #10b981)';
-                } else if (scoreVal >= 75) {
-                  statusEl.textContent = 'Bom';
-                  statusEl.style.color = 'var(--blue, #3b82f6)';
-                } else {
-                  statusEl.textContent = 'Regular';
-                  statusEl.style.color = 'var(--gold, #f59e0b)';
-                }
-
-                const radialColor = scoreVal >= 90 ? 'var(--teal, #10b981)' : (scoreVal >= 75 ? 'var(--blue, #3b82f6)' : 'var(--gold, #f59e0b)');
-                $('v1-score-radial').style.background = `conic-gradient(${radialColor} 0% ${scoreVal}%, rgba(255,255,255,0.08) ${scoreVal}% 100%)`;
-                $('v1-score-num').textContent = scoreVal;
-
-                const espScore = Math.round(((v.seo && v.seo.score) || 0) / 10);
-                const tomScore = Math.round((v.nota_geral || 0) / 10);
-                const ganScore = Math.round(((v.geo && v.geo.score) || 0) / 10);
-
-                $('v1-val-especificidade').textContent = `${espScore}/10`;
-                $('v1-bar-especificidade').style.width = `${espScore * 10}%`;
-
-                $('v1-val-tom').textContent = `${tomScore}/10`;
-                $('v1-bar-tom').style.width = `${tomScore * 10}%`;
-
-                $('v1-val-gancho').textContent = `${ganScore}/10`;
-                $('v1-bar-gancho').style.width = `${ganScore * 10}%`;
-
-                $('v1-case-title').textContent = (v.keyword && v.keyword.principal) ? `Keyword: ${v.keyword.principal}` : 'N/A';
-                $('v1-case-proof').textContent = `LOB: ${v.lob || 'Cross'}`;
-                
-                $('score-box').style.display = 'block';
-                
-                $('seo-title').textContent = v.metaTitle || '-';
-                $('seo-desc').textContent = v.metaDescription || '-';
-                $('seo-slug').textContent = v.slug || '-';
-                $('seo-keywords').textContent = kw.principal ? [kw.principal].concat(kw.secundarias || []).join(', ') : '-';
-                
-                let faqHtml = '';
-                if (Array.isArray(v.faq)) {
-                  v.faq.forEach(item => {
-                    faqHtml += `
-                      <div class="review-item">
-                        <span class="q">Q: ${item.q}</span>
-                        <span class="a">A: ${item.a}</span>
-                      </div>
-                    `;
-                  });
-                }
-                $('geo-faq-list').innerHTML = faqHtml || '<div style="font-size:12px;color:var(--color-text-muted)">Nenhuma FAQ estruturada recomendada.</div>';
-
-                // Play chime & set happy Rax pose
-                playChime();
-                if (window.setRaxState) {
-                  setRaxState('entregue', 'Revisão concluída com sucesso! 🎉 Veja as análises e o artigo corrigido.');
-                }
-              }catch(e){ 
-                st.textContent='Erro: '+e.message; st.style.color='#fca5a5';
-                if (window.setRaxState) {
-                  setRaxState('ocioso', 'Ocorreu um erro ao revisar o artigo. Tente novamente.');
-                }
-              }
-              finally{ 
-                clearInterval(phraseInterval);
-                $('srv-loading').style.display='none';
-                go.disabled=false; 
-              }
-            });
-          })();
-          </script>
-          
-          <div id="srv-score-row" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
-            <span style="font-weight:600;font-size:14px">Pontuação Geral de Qualidade:</span>
-            <span class="score-badge" id="seo-score">0</span>
-          </div>
-
-          <div class="review-section">
-            <h3>Metas SEO Tradicional</h3>
-            <div class="review-list">
-              <div class="review-item"><span class="q">Meta Title:</span><span class="a" id="seo-title">-</span></div>
-              <div class="review-item"><span class="q">Meta Description:</span><span class="a" id="seo-desc">-</span></div>
-              <div class="review-item"><span class="q">URL Slug:</span><span class="a" id="seo-slug" style="font-family:monospace">-</span></div>
-              <div class="review-item"><span class="q">Palavras-chave:</span><span class="a" id="seo-keywords">-</span></div>
-            </div>
-          </div>
-
-          <div class="review-section">
-            <h3>GEO / AIO / LLMO (Busca por IA)</h3>
-            <p style="font-size:12px;color:var(--color-text-muted);margin-bottom:12px">Perguntas estruturadas e respostas diretas otimizadas para citação em grandes modelos de linguagem:</p>
-            <div class="review-list" id="geo-faq-list"></div>
-          </div>
-
-          <div class="review-section" id="section-alertas" style="display:none">
-            <h3 style="border-left-color:var(--red,#ef4444);color:var(--red,#ef4444)">Alertas de Revisão</h3>
-            <div class="review-list" id="seo-alertas-list" style="color:var(--red,#fca5a5);font-size:12.5px"></div>
-          </div>
-        </div>
-
-        <!-- Pane 6: Fontes RAG -->
-        <div class="tab-pane" id="pane-fontes">
-          <p style="font-size:13px;color:var(--color-text-muted);margin-bottom:14px">O Rax utilizou os seguintes trechos reais de artigos do blog para guiar a escrita:</p>
-          <div id="sources-list" style="display:flex;flex-direction:column;gap:10px"></div>
-        </div>
-
-        <!-- Save Button Bar -->
-        <div class="save-bar">
-          <div class="save-msg" id="save-result" style="display:none">✅ Salvo com sucesso!</div>
-          <button class="btn-save" id="btn-save-pipeline">Salvar no Pipeline Editorial</button>
-        </div>
-        <!-- Handoff Card -->
-        <div class="handoff-card" id="handoff-card" style="display:none; margin-top: 16px; padding: 14px; background: rgba(205, 21, 67, 0.08); border: 1px solid rgba(205, 21, 67, 0.2); border-radius: 8px; align-items: center; justify-content: space-between; gap: 12px;">
-          <div style="display:flex; align-items:center; gap:10px;">
-            <span style="font-size:24px;">🦝</span>
+        <!-- Result state (Generated brief tabs preview) -->
+        <div class="output-container" id="state-result" style="display: none; margin-bottom: 24px;">
+          <div class="output-header">
             <div>
-              <strong style="display:block; font-size:13.5px; color:#fff;">Slides prontos para o Carrossel Studio!</strong>
-              <span style="font-size:12px; color:var(--color-text-muted);">Que tal criar a arte visual do post agora com o Rax?</span>
+              <h2 id="out-title">Pauta Redigida</h2>
+              <div style="font-size: 11px; color: var(--color-text-muted); margin-top: 4px;" id="out-motor">Motor: local</div>
+            </div>
+            <span class="badge-tag" id="out-badge">🤖 Gerado</span>
+          </div>
+
+          <!-- Navigation Tabs -->
+          <nav class="tabs-nav" id="tabs-navigation">
+            <button class="tab-btn active" data-target="pane-artigo" id="btn-tab-artigo">✍️ Artigo</button>
+            <button class="tab-btn" data-target="pane-post" id="btn-tab-post">🔗 LinkedIn Post</button>
+            <button class="tab-btn" data-target="pane-carousel" id="btn-tab-carousel">Carousel</button>
+            <button class="tab-btn" data-target="pane-fontes">📚 Fontes RAG</button>
+          </nav>
+
+          <!-- Pane 2: Artigo -->
+          <div class="tab-pane active" id="pane-artigo">
+            <div class="article-preview" id="artigo-container">
+              <h1 id="art-title">Título do Artigo</h1>
+              <div class="intro" id="art-intro">Introdução...</div>
+              <div id="art-sections"></div>
+              <div class="conclusion" id="art-conclusion">Conclusão...</div>
             </div>
           </div>
-          <a href="/inbound/carousel?source=raccoon" target="_blank" class="btn-save" style="background:var(--red,#cd1543); border-color:var(--red,#cd1543); text-decoration:none; display:inline-flex; align-items:center; gap:6px;">Criar Arte Visual →</a>
+
+          <!-- Pane 3: LinkedIn Post -->
+          <div class="tab-pane" id="pane-post">
+            <div class="linkedin-copy-box">
+              <div class="post-hdr">
+                <div class="avatar">🦝</div>
+                <div>
+                  <h4>Rax Writer</h4>
+                  <span style="font-size:11px;opacity:0.7">Redator da EPI-USE Brasil</span>
+                </div>
+              </div>
+              <p class="body-text" id="post-body-text"></p>
+              <div class="tag-pills" id="post-tags"></div>
+            </div>
+            <div class="meta-grid">
+              <div class="meta-card"><div class="lbl">Gancho Headline</div><div class="val" id="post-headline">-</div></div>
+              <div class="meta-card"><div class="lbl">Hero Number</div><div class="val" id="post-heronumber">-</div></div>
+            </div>
+          </div>
+
+          <!-- Pane 4: Carousel -->
+          <div class="tab-pane" id="pane-carousel">
+            <div class="carousel-wrapper">
+              <div class="slide-card" style="border-left: 4px solid var(--red,#cd1543);">
+                <div class="s-idx">SLIDE 1 (CAPA)</div>
+                <div class="lbl" id="car-eyebrow" style="font-size:10px;text-transform:uppercase;color:var(--color-text-muted)">CAPA</div>
+                <h4 id="car-headline">Título da Capa</h4>
+                <p id="car-sub">Subtítulo da Capa</p>
+              </div>
+              
+              <div id="car-slides-list" style="display:flex;flex-direction:column;gap:12px"></div>
+
+              <div class="slide-card" style="border-left: 4px solid var(--teal,#10b981);">
+                <div class="s-idx">SLIDE FINAL (CTA)</div>
+                <h4 id="car-cta-head">Ação final</h4>
+                <p id="car-cta-sub">Convite</p>
+                <div class="source" id="car-cta-url">URL</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pane 6: Fontes RAG -->
+          <div class="tab-pane" id="pane-fontes">
+            <p style="font-size:13px;color:var(--color-text-muted);margin-bottom:14px">O Rax utilizou os seguintes trechos reais de artigos do blog para guiar a escrita:</p>
+            <div id="sources-list" style="display:flex;flex-direction:column;gap:10px"></div>
+          </div>
+
+          <!-- Save Button Bar -->
+          <div class="save-bar">
+            <div class="save-msg" id="save-result" style="display:none"></div>
+            <button class="btn-save" id="btn-save-pipeline">Salvar no Pipeline Editorial</button>
+          </div>
+          <!-- Handoff Card -->
+          <div class="handoff-card" id="handoff-card" style="display:none; margin-top: 16px; padding: 14px; background: rgba(205, 21, 67, 0.08); border: 1px solid rgba(205, 21, 67, 0.2); border-radius: 8px; align-items: center; justify-content: space-between; gap: 12px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span style="font-size:24px;">🦝</span>
+              <div>
+                <strong style="display:block; font-size:13.5px; color:#fff;">Slides prontos para o Carrossel Studio!</strong>
+                <span style="font-size:12px; color:var(--color-text-muted);">Que tal criar a arte visual do post agora com o Rax?</span>
+              </div>
+            </div>
+            <a href="/inbound/carousel?source=raccoon" target="_blank" class="btn-save" style="background:var(--red,#cd1543); border-color:var(--red,#cd1543); text-decoration:none; display:inline-flex; align-items:center; gap:6px;">Criar Arte Visual →</a>
+          </div>
         </div>
       </div>
+
+      <!-- PANE 2: AI WRITER VIEW (Content Editor/Revisor - Print 1) -->
+      <div id="view-writer-pane" style="display: none;">
+        <div class="form-panel" style="margin-bottom: 24px;">
+          <h2 style="font-family: var(--font-display); font-size: 18px; font-weight: 700; color: #fff; margin: 0 0 16px 0;">Optimize Your Content</h2>
+          <div class="form-group">
+            <textarea id="srv-texto" class="form-control" placeholder="Cole ou digite seu artigo aqui (mín. 200 caracteres)..." style="min-height: 220px; font-size: 13.5px; line-height: 1.6; background: rgba(0, 0, 0, 0.25); border: 1px solid var(--card-border-glass); border-radius: 8px; color: #fff; padding: 12px;"></textarea>
+          </div>
+          <div style="margin-top: 12px; display: flex; gap: 12px;">
+            <button type="button" class="btn-rax" id="srv-go" style="flex: 1; height: 44px; margin: 0;">
+              <span>Generate AI Suggestions</span>
+            </button>
+            <button type="button" id="btn-improve-ai" class="btn-rax" style="flex: 1; height: 44px; margin: 0; background: transparent; border: 1px solid var(--red,#cd1543); color: var(--red,#cd1543); box-shadow: none;">
+              <span>Improve with AI</span>
+            </button>
+          </div>
+          <span id="srv-status" style="font-size: 12px; color: var(--text-muted); display: block; margin-top: 10px;"></span>
+          
+          <!-- LOB & Title Optionals -->
+          <div style="display: flex; gap: 8px; margin-top: 12px;">
+            <input id="srv-titulo" placeholder="Título do Artigo (opcional)" class="form-control" style="flex: 1; font-size: 12px; height: 36px;">
+            <input id="srv-lob" placeholder="LOB / Área (opcional)" class="form-control" style="flex: 1; font-size: 12px; height: 36px;">
+          </div>
+        </div>
+
+        <!-- Wait/Loading Design -->
+        <div id="srv-loading" style="display:none; flex-direction:column; align-items:center; justify-content:center; padding:30px 20px; gap:16px; background:rgba(37,99,235,0.04); border:1px dashed rgba(37,99,235,0.25); border-radius:12px; margin-bottom:24px; backdrop-filter:blur(8px); animation:fadeIn 0.3s ease-out">
+          <div style="position:relative; width:60px; height:60px; display:flex; align-items:center; justify-content:center">
+            <div style="position:absolute; width:100%; height:100%; border:3px solid rgba(37,99,235,0.1); border-top-color:var(--blue,#2563eb); border-radius:50%; animation:spin 1s linear infinite"></div>
+            <span style="font-size:24px; animation:pulse 1.2s ease-in-out infinite">🦝</span>
+          </div>
+          <div style="display:flex; flex-direction:column; align-items:center; gap:4px">
+            <div style="font-size:13px; font-weight:600; color:#fff; font-family:'Poppins',sans-serif" id="srv-loading-msg">Iniciando análise de SEO/GEO...</div>
+            <div style="font-size:11px; color:var(--color-text-muted)" id="srv-loading-sub">Rax está lendo o artigo e mapeando entidades semânticas</div>
+          </div>
+          <div class="loader-bar" style="width:100%; max-width:200px; height:4px; background:rgba(255,255,255,0.05); border-radius:2px; overflow:hidden; position:relative">
+            <div style="position:absolute; left:0; top:0; height:100%; width:40%; background:var(--blue,#2563eb); border-radius:2px; animation:loading-anim 1.5s infinite ease-in-out"></div>
+          </div>
+        </div>
+
+        <!-- Key Suggestions Panel -->
+        <div class="form-panel" style="margin-bottom: 24px;" id="panel-key-suggestions">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h3 style="font-family: var(--font-display); font-size: 14px; font-weight: 700; color: #fff; margin: 0;">Key Suggestions</h3>
+            <span style="font-size: 12px; color: var(--text-muted); cursor: pointer;">▲</span>
+          </div>
+          <div id="suggestions-list-container" style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="font-size: 13px; color: var(--text-muted); padding: 8px; border: 1px dashed var(--card-border-glass); border-radius: 8px; text-align: center;">
+              Nenhuma sugestão disponível. Cole o artigo e clique em "Generate AI Suggestions" para analisar!
+            </div>
+          </div>
+        </div>
+
+        <!-- Pane: Improved Article Output (Always inside AI Writer view) -->
+        <div id="srv-artigo-melhorado" style="display:none; margin-bottom:24px;" class="form-panel">
+          <h3 style="font-family: var(--font-display); font-size: 14px; font-weight: 700; color: #fff; margin: 0 0 10px 0; border-left: 3px solid var(--teal,#10b981); padding-left: 8px;">✨ Artigo Otimizado & Corrigido pela IA</h3>
+          <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
+            Esta versão foi reescrita aplicando a palavra-chave foco, otimizando headings para busca por voz/LLM e inserindo links internos de forma contextualizada.
+          </p>
+          <div style="position:relative; margin-bottom: 14px;">
+            <textarea id="srv-texto-otimizado" readonly style="width:100%;min-height:220px;background:var(--input-bg);border:1px solid rgba(16,185,129,.3);border-radius:10px;color:#fff;padding:12px;font-family:inherit;font-size:13.5px;line-height:1.6;resize:vertical"></textarea>
+          </div>
+          <div style="display:flex; gap:10px;">
+            <button id="srv-btn-copiar" class="btn-save" style="flex:1; height: 38px; margin: 0;">Copiar HTML (WorkControl)</button>
+            <button id="srv-btn-copiar-limpo" class="btn-save" style="flex:1; height: 38px; margin: 0;">Copiar Texto Limpo</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANE 3: CONTENT STRATEGY VIEW -->
+      <div id="view-strategy-pane" style="display: none;">
+        <div class="form-panel" style="margin-bottom: 24px;">
+          <h2 style="font-family: var(--font-display); font-size: 18px; font-weight: 700; color: #fff; margin: 0 0 16px 0;">Content Strategy</h2>
+          <div id="pane-estrategia-content">
+            <div class="meta-grid">
+              <div class="meta-card"><div class="lbl">Persona-Alvo</div><div class="val" id="strat-persona">-</div></div>
+              <div class="meta-card"><div class="lbl">Linha de Negócio (LOB)</div><div class="val" id="strat-lob">-</div></div>
+              <div class="meta-card"><div class="lbl">Categoria</div><div class="val" id="strat-cat">-</div></div>
+            </div>
+            <div class="meta-card" style="margin-bottom:12px">
+              <div class="lbl">Dor Atacada</div>
+              <div class="val" id="strat-dor" style="font-weight:normal;font-size:13.5px;line-height:1.5;margin-top:6px">-</div>
+            </div>
+            <div class="meta-card">
+              <div class="lbl">Ângulo do Conteúdo</div>
+              <div class="val" id="strat-angulo" style="font-weight:normal;font-size:13.5px;line-height:1.5;margin-top:6px">-</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANE 4: ANALYTICS VIEW (SEO/GEO Detailed Report) -->
+      <div id="view-analytics-pane" style="display: none;">
+        <div class="form-panel" style="margin-bottom: 24px;">
+          <h2 style="font-family: var(--font-display); font-size: 18px; font-weight: 700; color: #fff; margin: 0 0 16px 0;">Detailed Analytics (SEO/GEO)</h2>
+          <div id="srv-results" style="display:none; margin-top:0;"></div>
+          <div id="analytics-placeholder" style="font-size: 13px; color: var(--text-muted); padding: 20px; border: 1px dashed var(--card-border-glass); border-radius: 8px; text-align: center;">
+            Nenhuma métrica detalhada disponível. Cole o artigo na view "AI Writer" e clique em "Generate AI Suggestions" para analisar!
+          </div>
+        </div>
+      </div>
+
     </div>
 
-    <!-- Right Column: Editorial Score -->
+    <!-- COLUMN 3: RIGHT SIDEBAR (Editorial Score, Breakdown, Summary) -->
     <div class="score-col" id="score-box" style="width: 290px; min-width: 290px;">
-      <div class="score-panel" style="padding: 20px;">
-        <div style="font-family:'Poppins',sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--color-text-muted,var(--muted,#869ec3));margin-bottom:14px;font-weight:600;">Score editorial</div>
+      
+      <!-- Editorial Score Card -->
+      <div class="score-panel" style="padding: 20px; background: var(--card-bg-glass); border: 1px solid var(--card-border-glass); border-radius: 16px;">
+        <div style="font-family:var(--font-display);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:14px;font-weight:700;">Editorial Score</div>
         
-        <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">
-          <div style="position:relative;width:78px;height:78px;border-radius:50%;background:conic-gradient(rgba(255,255,255,0.08) 0% 100%)" id="v1-score-radial">
-            <div style="position:absolute;inset:9px;border-radius:50%;background:rgba(10, 21, 37, 0.45);display:flex;align-items:center;justify-content:center">
-              <span style="font-family:'Poppins',sans-serif;font-size:24px;font-weight:700;color:var(--color-text-muted,var(--muted,#869ec3))" id="v1-score-num">-</span>
+        <div style="display:flex;align-items:center;gap:14px;">
+          <!-- Conic circular dial with glow -->
+          <div style="position:relative;width:78px;height:78px;border-radius:50%;background:conic-gradient(rgba(255,255,255,0.08) 0% 100%); transition: background 0.3s; box-shadow: 0 0 12px rgba(255,255,255,0.03);" id="v1-score-radial">
+            <div style="position:absolute;inset:8px;border-radius:50%;background:#121622;display:flex;flex-direction:column;align-items:center;justify-content:center">
+              <span style="font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--text-muted)" id="v1-score-num">-</span>
             </div>
           </div>
           <div>
-            <div style="font-size:14px;font-weight:600;color:var(--color-text-muted,var(--muted,#869ec3))" id="v1-score-status">Pendente</div>
-            <div style="font-family:monospace;font-size:10.5px;color:var(--color-text-muted,var(--muted,#869ec3));line-height:1.5;margin-top:3px;white-space:nowrap" id="v1-score-checklist">
+            <div style="font-size:15px;font-weight:700;color:var(--text-muted)" id="v1-score-status">Pendente</div>
+            <div style="font-family:monospace;font-size:10.5px;color:var(--text-muted);line-height:1.4;margin-top:3px;white-space:nowrap" id="v1-score-checklist">
               Aguardando análise...
             </div>
           </div>
         </div>
 
-        <div style="font-family:'Poppins',sans-serif;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-text-muted,var(--muted,#869ec3));margin-bottom:10px;font-weight:600;">Sinais</div>
+        <!-- Segmented horizontal bar style from mockup -->
+        <div id="score-segmented-meter" style="display: flex; gap: 3px; height: 8px; margin-top: 16px; margin-bottom: 18px; width: 100%;">
+          <div class="meter-segment" style="flex: 1; height: 100%; border-radius: 1px; background: rgba(255,255,255,0.08); transition: background 0.2s;"></div>
+          <div class="meter-segment" style="flex: 1; height: 100%; border-radius: 1px; background: rgba(255,255,255,0.08); transition: background 0.2s;"></div>
+          <div class="meter-segment" style="flex: 1; height: 100%; border-radius: 1px; background: rgba(255,255,255,0.08); transition: background 0.2s;"></div>
+          <div class="meter-segment" style="flex: 1; height: 100%; border-radius: 1px; background: rgba(255,255,255,0.08); transition: background 0.2s;"></div>
+          <div class="meter-segment" style="flex: 1; height: 100%; border-radius: 1px; background: rgba(255,255,255,0.08); transition: background 0.2s;"></div>
+          <div class="meter-segment" style="flex: 1; height: 100%; border-radius: 1px; background: rgba(255,255,255,0.08); transition: background 0.2s;"></div>
+          <div class="meter-segment" style="flex: 1; height: 100%; border-radius: 1px; background: rgba(255,255,255,0.08); transition: background 0.2s;"></div>
+          <div class="meter-segment" style="flex: 1; height: 100%; border-radius: 1px; background: rgba(255,255,255,0.08); transition: background 0.2s;"></div>
+          <div class="meter-segment" style="flex: 1; height: 100%; border-radius: 1px; background: rgba(255,255,255,0.08); transition: background 0.2s;"></div>
+          <div class="meter-segment" style="flex: 1; height: 100%; border-radius: 1px; background: rgba(255,255,255,0.08); transition: background 0.2s;"></div>
+          <div class="meter-segment" style="flex: 1; height: 100%; border-radius: 1px; background: rgba(255,255,255,0.08); transition: background 0.2s;"></div>
+          <div class="meter-segment" style="flex: 1; height: 100%; border-radius: 1px; background: rgba(255,255,255,0.08); transition: background 0.2s;"></div>
+          <div class="meter-segment" style="flex: 1; height: 100%; border-radius: 1px; background: rgba(255,255,255,0.08); transition: background 0.2s;"></div>
+          <div class="meter-segment" style="flex: 1; height: 100%; border-radius: 1px; background: rgba(255,255,255,0.08); transition: background 0.2s;"></div>
+          <div class="meter-segment" style="flex: 1; height: 100%; border-radius: 1px; background: rgba(255,255,255,0.08); transition: background 0.2s;"></div>
+          <div class="meter-segment" style="flex: 1; height: 100%; border-radius: 1px; background: rgba(255,255,255,0.08); transition: background 0.2s;"></div>
+          <div class="meter-segment" style="flex: 1; height: 100%; border-radius: 1px; background: rgba(255,255,255,0.08); transition: background 0.2s;"></div>
+          <div class="meter-segment" style="flex: 1; height: 100%; border-radius: 1px; background: rgba(255,255,255,0.08); transition: background 0.2s;"></div>
+          <div class="meter-segment" style="flex: 1; height: 100%; border-radius: 1px; background: rgba(255,255,255,0.08); transition: background 0.2s;"></div>
+          <div class="meter-segment" style="flex: 1; height: 100%; border-radius: 1px; background: rgba(255,255,255,0.08); transition: background 0.2s;"></div>
+        </div>
+
+        <div style="font-family:var(--font-display);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;font-weight:700;">Sinais</div>
         <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
+          <!-- Progress bar 1: Specificity (Red/Rose) -->
           <div>
             <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
-              <span style="color:var(--color-text-muted,var(--muted,#869ec3))">Especificidade</span>
+              <span style="color:var(--text-muted)">Specificity</span>
               <span style="font-family:monospace;color:#fff;font-weight:600" id="v1-val-especificidade">-/10</span>
             </div>
             <div style="height:6px;border-radius:4px;background:rgba(255,255,255,0.08)">
-              <div id="v1-bar-especificidade" style="height:100%;width:0%;border-radius:4px;background:var(--teal,#10b981);transition:width 0.5s ease;"></div>
+              <div id="v1-bar-especificidade" style="height:100%;width:0%;border-radius:4px;background:linear-gradient(90deg, #ff3b5f, var(--red, #cd1543));transition:width 0.5s ease;"></div>
             </div>
           </div>
           
+          <!-- Progress bar 2: Tone Consistency (Coral) -->
           <div>
             <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
-              <span style="color:var(--color-text-muted,var(--muted,#869ec3))">Tom (sóbrio)</span>
+              <span style="color:var(--text-muted)">Tone Consistency</span>
               <span style="font-family:monospace;color:#fff;font-weight:600" id="v1-val-tom">-/10</span>
             </div>
             <div style="height:6px;border-radius:4px;background:rgba(255,255,255,0.08)">
-              <div id="v1-bar-tom" style="height:100%;width:0%;border-radius:4px;background:var(--blue,#3b82f6);transition:width 0.5s ease;"></div>
+              <div id="v1-bar-tom" style="height:100%;width:0%;border-radius:4px;background:linear-gradient(90deg, #ff8c3b, #ff5e3b);transition:width 0.5s ease;"></div>
             </div>
           </div>
           
+          <!-- Progress bar 3: Hook Engagement (Orange/Teal) -->
           <div>
             <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
-              <span style="color:var(--color-text-muted,var(--muted,#869ec3))">Gancho/clareza</span>
+              <span style="color:var(--text-muted)">Hook Engagement</span>
               <span style="font-family:monospace;color:#fff;font-weight:600" id="v1-val-gancho">-/10</span>
             </div>
             <div style="height:6px;border-radius:4px;background:rgba(255,255,255,0.08)">
-              <div id="v1-bar-gancho" style="height:100%;width:0%;border-radius:4px;background:var(--gold,#f59e0b);transition:width 0.5s ease;"></div>
+              <div id="v1-bar-gancho" style="height:100%;width:0%;border-radius:4px;background:linear-gradient(90deg, #3b82f6, #3bd9ff);transition:width 0.5s ease;"></div>
+            </div>
+          </div>
+
+          <!-- Progress bar 4: Readability (Green) -->
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
+              <span style="color:var(--text-muted)">Readability</span>
+              <span style="font-family:monospace;color:#fff;font-weight:600" id="v1-val-readability">-/10</span>
+            </div>
+            <div style="height:6px;border-radius:4px;background:rgba(255,255,255,0.08)">
+              <div id="v1-bar-readability" style="height:100%;width:0%;border-radius:4px;background:linear-gradient(90deg, #10b981, #10e793);transition:width 0.5s ease;"></div>
             </div>
           </div>
         </div>
 
         <div style="border-top:1px solid rgba(255,255,255,0.08);margin-top:16px;padding-top:14px">
-          <div style="font-family:'Poppins',sans-serif;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-text-muted,var(--muted,#869ec3));margin-bottom:8px;font-weight:600;">Caso citado</div>
-          <div style="font-size:12px;color:#fff;font-weight:600" id="v1-case-title">-</div>
-          <div style="font-family:monospace;font-size:10.5px;color:var(--color-text-muted,var(--muted,#869ec3));margin-top:2px" id="v1-case-proof">-</div>
+          <div style="font-family:var(--font-display);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;font-weight:700;">Caso citado</div>
+          <div style="font-size:12.5px;color:#fff;font-weight:600" id="v1-case-title">-</div>
+          <div style="font-family:monospace;font-size:10.5px;color:var(--text-muted);margin-top:2px" id="v1-case-proof">-</div>
         </div>
       </div>
+
+      <!-- Content Breakdown Card -->
+      <div class="score-panel" style="padding: 20px; background: var(--card-bg-glass); border: 1px solid var(--card-border-glass); border-radius: 16px;">
+        <div style="font-family:var(--font-display);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:14px;font-weight:700;">Content Breakdown</div>
+        
+        <div style="display: flex; gap: 12px; width: 100%;">
+          <div style="flex: 1; padding: 12px; background: rgba(0,0,0,0.15); border-radius: 10px; border: 1px solid var(--card-border-glass); text-align: center;">
+            <div style="font-size: 24px; font-weight: 700; color: #fff; font-family: var(--font-display);" id="breakdown-word-count">0</div>
+            <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-top: 4px;">Words</div>
+          </div>
+          <div style="flex: 1; padding: 12px; background: rgba(0,0,0,0.15); border-radius: 10px; border: 1px solid var(--card-border-glass); text-align: center;">
+            <div style="font-size: 24px; font-weight: 700; color: #fff; font-family: var(--font-display);" id="breakdown-sentence-count">0</div>
+            <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-top: 4px;">Sentences</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Recommendations Summary Card -->
+      <div class="score-panel" style="padding: 20px; background: var(--card-bg-glass); border: 1px solid var(--card-border-glass); border-radius: 16px;" id="recommendations-summary-box">
+        <div style="font-family:var(--font-display);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:12px;font-weight:700;">Recomendações Rax</div>
+        <div id="quick-recommendations-list" style="font-size: 12px; color: var(--text-muted); line-height: 1.4; display: flex; flex-direction: column; gap: 6px;">
+          Nenhum artigo analisado ainda.
+        </div>
+      </div>
+
     </div>
   </div>
 </main>
