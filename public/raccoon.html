@@ -5,18 +5,126 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>🦝 Raccoon Studio · EPI-USE Office</title>
 <link rel="stylesheet" href="/design-tokens.css">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&family=Fira+Code:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Open+Sans:wght@400;500;600;700&family=Fira+Code:wght@500;600&display=swap" rel="stylesheet">
 <script type="module" src="/office-nav.js"></script>
 <script type="module" src="/office-footer.js"></script>
 <style>
   /* Visibilidade do layout v1 */
   .v1-only { display: block !important; }
 
+  /* ==========================================
+     THEME VARIABLES (Raccoon Redesign)
+     ========================================== */
+  :root {
+    --font-display: 'Poppins', sans-serif;
+    --font-body: 'Open Sans', sans-serif;
+  }
+
+  /* Default / Dark Theme Variables */
+  :root, [data-theme="dark"], [data-theme="atlas-dark"], [data-theme="aurora"] {
+    --card-bg-glass: rgba(10, 21, 37, 0.45);
+    --card-border-glass: rgba(255, 255, 255, 0.08);
+    --card-shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.35);
+    --card-top-glow: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+    
+    --card-bg-hover: rgba(10, 21, 37, 0.6);
+    --card-border-hover: rgba(37, 99, 235, 0.3);
+    --card-shadow-hover: 0 16px 40px rgba(0, 0, 0, 0.45), 0 0 15px rgba(37, 99, 235, 0.15);
+    
+    --input-bg: rgba(0, 0, 0, 0.25);
+    --input-border: rgba(255, 255, 255, 0.1);
+    --input-text: #ffffff;
+    --input-focus-bg: rgba(0, 0, 0, 0.35);
+    --input-focus-border: var(--color-primary-bright, #0070bf);
+    --input-focus-shadow: 0 0 12px rgba(37, 99, 235, 0.3);
+
+    --rax-bubble-bg: rgba(20, 37, 71, 0.9);
+    --rax-bubble-border: rgba(134, 158, 195, 0.18);
+    --rax-bubble-text: #ffffff;
+    
+    --pill-bg: rgba(0, 0, 0, 0.2);
+    --pill-border: rgba(255, 255, 255, 0.08);
+    --pill-text: var(--color-text-muted, #869ec3);
+    --pill-bg-hover: rgba(255, 255, 255, 0.06);
+    --pill-border-hover: rgba(255, 255, 255, 0.2);
+    --pill-text-hover: #ffffff;
+    --pill-bg-active: rgba(205, 21, 67, 0.15);
+    --pill-border-active: var(--color-primary-red, #cd1543);
+    --pill-text-active: #ffffff;
+    --pill-shadow-active: 0 0 12px rgba(205, 21, 67, 0.3);
+    
+    --text-highlight: #ffffff;
+    --text-muted: var(--color-text-muted, #869ec3);
+    --text-dim: var(--color-text-dim, #cbd5e1);
+    --hero-title-color: #ffffff;
+    
+    --tab-btn-bg: rgba(255, 255, 255, 0.02);
+    --tab-btn-border: rgba(255, 255, 255, 0.05);
+    --tab-btn-bg-hover: rgba(255, 255, 255, 0.06);
+    --tab-btn-border-hover: rgba(255, 255, 255, 0.1);
+    --tab-btn-bg-active: rgba(205, 21, 67, 0.08);
+    --tab-btn-border-active: rgba(205, 21, 67, 0.3);
+    --tab-btn-text-active: #ffffff;
+    
+    --empty-icon-opacity: 0.5;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+  }
+
+  /* Light Theme Variables */
+  [data-theme="light"] {
+    --card-bg-glass: rgba(255, 255, 255, 0.7);
+    --card-border-glass: rgba(0, 24, 68, 0.08);
+    --card-shadow-glass: 0 8px 32px 0 rgba(0, 24, 68, 0.05);
+    --card-top-glow: linear-gradient(90deg, transparent, rgba(0, 75, 141, 0.1), transparent);
+    
+    --card-bg-hover: rgba(255, 255, 255, 0.85);
+    --card-border-hover: rgba(37, 99, 235, 0.25);
+    --card-shadow-hover: 0 16px 40px rgba(0, 24, 68, 0.08), 0 0 15px rgba(37, 99, 235, 0.1);
+    
+    --input-bg: rgba(255, 255, 255, 0.95);
+    --input-border: rgba(0, 24, 68, 0.12);
+    --input-text: #1f2933;
+    --input-focus-bg: #ffffff;
+    --input-focus-border: var(--color-primary-400, #0070bf);
+    --input-focus-shadow: 0 0 12px rgba(0, 112, 191, 0.15);
+
+    --rax-bubble-bg: rgba(255, 255, 255, 0.95);
+    --rax-bubble-border: rgba(0, 24, 68, 0.1);
+    --rax-bubble-text: #1f2933;
+    
+    --pill-bg: rgba(255, 255, 255, 0.8);
+    --pill-border: rgba(0, 24, 68, 0.1);
+    --pill-text: #424242;
+    --pill-bg-hover: rgba(255, 255, 255, 1);
+    --pill-border-hover: rgba(0, 75, 141, 0.2);
+    --pill-text-hover: #1f2933;
+    --pill-bg-active: rgba(205, 21, 67, 0.08);
+    --pill-border-active: var(--color-primary-red, #cd1543);
+    --pill-text-active: #cd1543;
+    --pill-shadow-active: 0 0 12px rgba(205, 21, 67, 0.1);
+    
+    --text-highlight: #001844;
+    --text-muted: #797979;
+    --text-dim: #424242;
+    --hero-title-color: #001844;
+    
+    --tab-btn-bg: rgba(255, 255, 255, 0.5);
+    --tab-btn-border: rgba(0, 24, 68, 0.08);
+    --tab-btn-bg-hover: rgba(255, 255, 255, 0.85);
+    --tab-btn-border-hover: rgba(0, 24, 68, 0.12);
+    --tab-btn-bg-active: rgba(255, 255, 255, 0.95);
+    --tab-btn-border-active: rgba(205, 21, 67, 0.2);
+    --tab-btn-text-active: #cd1543;
+    
+    --empty-icon-opacity: 0.7;
+    --shadow-color: rgba(0, 24, 68, 0.08);
+  }
+
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     background: var(--color-bg, #060e1a);
     color: var(--color-text, var(--text,#e2e8f0));
-    font-family: 'Source Sans 3', 'Poppins', sans-serif;
+    font-family: var(--font-body);
     min-height: 100vh;
     padding-bottom: 80px;
     -webkit-font-smoothing: antialiased;
@@ -839,11 +947,11 @@
   }
 
   .rax-box, .form-panel, .right-col, .review-section, .article-preview, .linkedin-copy-box, .slide-card, .meta-card, .score-panel {
-    background: rgba(10, 21, 37, 0.45) !important;
+    background: var(--card-bg-glass) !important;
     backdrop-filter: blur(16px) saturate(180%) !important;
     -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.35) !important;
+    border: 1px solid var(--card-border-glass) !important;
+    box-shadow: var(--card-shadow-glass) !important;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
     position: relative;
     overflow: hidden;
@@ -853,28 +961,34 @@
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0; height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,.15), transparent);
+    background: var(--card-top-glow);
     pointer-events: none;
   }
   
   .rax-box:hover, .form-panel:hover, .right-col:hover, .review-section:hover, .score-panel:hover {
-    border-color: rgba(37, 99, 235, 0.3) !important;
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45), 0 0 15px rgba(37, 99, 235, 0.15) !important;
+    border-color: var(--card-border-hover) !important;
+    box-shadow: var(--card-shadow-hover) !important;
   }
 
   .form-control, #srv-texto, #srv-titulo, #srv-lob, #srv-texto-otimizado {
-    background: rgba(0, 0, 0, 0.25) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    background: var(--input-bg) !important;
+    border: 1px solid var(--input-border) !important;
     border-radius: 10px !important;
-    color: #fff !important;
+    color: var(--input-text) !important;
+    font-family: var(--font-body) !important;
     transition: all 0.25s ease !important;
   }
 
   .form-control:focus, #srv-texto:focus, #srv-titulo:focus, #srv-lob:focus {
     outline: none !important;
-    border-color: var(--blue,#2563eb) !important;
-    background: rgba(0, 0, 0, 0.35) !important;
-    box-shadow: 0 0 12px rgba(37, 99, 235, 0.3) !important;
+    border-color: var(--input-focus-border) !important;
+    background: var(--input-focus-bg) !important;
+    box-shadow: var(--input-focus-shadow) !important;
+  }
+  
+  .form-control::placeholder, #srv-texto::placeholder, #srv-titulo::placeholder, #srv-lob::placeholder {
+    color: var(--text-muted) !important;
+    opacity: 0.6;
   }
 
   /* Main Button rax style overrides */
@@ -883,7 +997,7 @@
     border: 1px solid rgba(255, 255, 255, 0.15) !important;
     border-radius: 10px !important;
     color: #fff !important;
-    font-family: 'Poppins', sans-serif;
+    font-family: var(--font-display);
     font-size: 15px;
     font-weight: 700;
     padding: 14px !important;
@@ -908,36 +1022,36 @@
 
   /* Persona pills overrides */
   .pill {
-    background: rgba(0, 0, 0, 0.2) !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    background: var(--pill-bg) !important;
+    border: 1px solid var(--pill-border) !important;
     border-radius: 99px !important;
     padding: 8px 16px !important;
     font-size: 12px;
     font-weight: 600;
-    color: var(--color-text-muted, var(--muted,#869ec3));
+    color: var(--pill-text) !important;
     cursor: pointer;
     transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
     user-select: none;
   }
   .pill:hover {
-    background: rgba(255, 255, 255, 0.06) !important;
-    border-color: rgba(255, 255, 255, 0.2) !important;
-    color: #fff;
+    background: var(--pill-bg-hover) !important;
+    border-color: var(--pill-border-hover) !important;
+    color: var(--pill-text-hover) !important;
   }
   .pill.active {
-    background: rgba(205, 21, 67, 0.15) !important;
-    border-color: var(--red,#cd1543) !important;
-    color: #fff !important;
-    box-shadow: 0 0 12px rgba(205, 21, 67, 0.3), inset 0 1px 0 rgba(255,255,255,0.15) !important;
+    background: var(--pill-bg-active) !important;
+    border-color: var(--pill-border-active) !important;
+    color: var(--pill-text-active) !important;
+    box-shadow: var(--pill-shadow-active) !important;
   }
 
   /* Glass Tabs overrides */
   .tab-btn {
-    background: rgba(255, 255, 255, 0.02) !important;
-    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    background: var(--tab-btn-bg) !important;
+    border: 1px solid var(--tab-btn-border) !important;
     border-bottom: none !important;
-    color: var(--color-text-muted, var(--muted,#869ec3)) !important;
-    font-family: 'Poppins', sans-serif;
+    color: var(--text-muted) !important;
+    font-family: var(--font-display);
     font-size: 12.5px !important;
     font-weight: 600;
     padding: 10px 18px !important;
@@ -947,16 +1061,61 @@
     transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
   }
   .tab-btn:hover {
-    color: #fff !important;
-    background: rgba(255,255,255,0.06) !important;
-    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: var(--text-highlight) !important;
+    background: var(--tab-btn-bg-hover) !important;
+    border-color: var(--tab-btn-border-hover) !important;
   }
   .tab-btn.active {
-    color: #fff !important;
-    background: rgba(205, 21, 67, 0.08) !important;
-    border-color: rgba(205, 21, 67, 0.3) !important;
+    color: var(--tab-btn-text-active) !important;
+    background: var(--tab-btn-bg-active) !important;
+    border-color: var(--tab-btn-border-active) !important;
     border-bottom: 2px solid var(--red,#cd1543) !important;
     box-shadow: 0 -4px 12px rgba(205, 21, 67, 0.1) !important;
+  }
+
+  /* Theme-aware Speech bubble overrides */
+  .speech-bubble {
+    background: var(--rax-bubble-bg) !important;
+    border: 1px solid var(--rax-bubble-border) !important;
+    color: var(--rax-bubble-text) !important;
+    box-shadow: 0 4px 12px var(--shadow-color) !important;
+  }
+  .speech-bubble::after {
+    border-color: var(--rax-bubble-bg) transparent transparent !important;
+  }
+
+  /* Universal typography and colors overrides for theme coherence */
+  h1, h2, h3, h4, h5, h6, .hero-text h1, .output-header h2, .article-preview h1, .article-preview h2, .linkedin-copy-box h4, .slide-card h4 {
+    font-family: var(--font-display) !important;
+    color: var(--text-highlight) !important;
+  }
+  
+  body, p, span, label, .form-group label, .checkbox-label, .empty-state p, .article-preview p, .linkedin-copy-box p.body-text, .slide-card p {
+    font-family: var(--font-body) !important;
+  }
+
+  .hero-text p, .empty-state p, .form-group label, .checkbox-label, .meta-card .lbl, #v1-score-status, #v1-score-checklist, #v1-case-proof, .tag-pills {
+    color: var(--text-muted) !important;
+  }
+  
+  .article-preview p, .linkedin-copy-box p.body-text, .slide-card p, .article-preview .intro {
+    color: var(--text-dim) !important;
+  }
+
+  .meta-card .val, #v1-score-num, #v1-val-especificidade, #v1-val-tom, #v1-val-gancho, #v1-case-title, #srv-loading-msg, .slide-card strong, .output-container strong {
+    color: var(--text-highlight) !important;
+  }
+
+  .btn-save, #srv-btn-copiar, #srv-btn-copiar-limpo {
+    background: var(--pill-bg) !important;
+    border: 1px solid var(--pill-border) !important;
+    color: var(--pill-text) !important;
+    font-family: var(--font-body) !important;
+  }
+  .btn-save:hover, #srv-btn-copiar:hover, #srv-btn-copiar-limpo:hover {
+    background: var(--pill-bg-hover) !important;
+    border-color: var(--pill-border-hover) !important;
+    color: var(--pill-text-hover) !important;
   }
 
   /* Custom Loading animations */
