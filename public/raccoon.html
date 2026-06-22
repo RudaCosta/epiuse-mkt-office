@@ -26,6 +26,15 @@
     --card-border-glass: rgba(255, 255, 255, 0.08);
     --card-shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.35);
     --card-top-glow: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+
+    --menu-item-bg: transparent;
+    --menu-item-border: transparent;
+    --menu-item-text: var(--color-text-muted, #869ec3);
+    --menu-item-bg-hover: rgba(255, 255, 255, 0.05);
+    --menu-item-text-hover: #ffffff;
+    --menu-item-bg-active: rgba(205, 21, 67, 0.12);
+    --menu-item-border-active: rgba(205, 21, 67, 0.3);
+    --menu-item-text-active: #ffffff;
     
     --card-bg-hover: rgba(10, 21, 37, 0.6);
     --card-border-hover: rgba(37, 99, 235, 0.3);
@@ -76,6 +85,15 @@
     --card-border-glass: rgba(0, 24, 68, 0.08);
     --card-shadow-glass: 0 8px 32px 0 rgba(0, 24, 68, 0.05);
     --card-top-glow: linear-gradient(90deg, transparent, rgba(0, 75, 141, 0.1), transparent);
+
+    --menu-item-bg: transparent;
+    --menu-item-border: transparent;
+    --menu-item-text: #424242;
+    --menu-item-bg-hover: rgba(0, 0, 0, 0.04);
+    --menu-item-text-hover: #1f2933;
+    --menu-item-bg-active: rgba(205, 21, 67, 0.08);
+    --menu-item-border-active: rgba(205, 21, 67, 0.2);
+    --menu-item-text-active: #cd1543;
     
     --card-bg-hover: rgba(255, 255, 255, 0.85);
     --card-border-hover: rgba(37, 99, 235, 0.25);
@@ -1073,6 +1091,39 @@
     box-shadow: 0 -4px 12px rgba(205, 21, 67, 0.1) !important;
   }
 
+  /* Sidebar Navigation Menu Items styling */
+  .menu-item {
+    background: var(--menu-item-bg, transparent) !important;
+    border: 1px solid var(--menu-item-border, transparent) !important;
+    color: var(--menu-item-text, #869ec3) !important;
+    font-family: var(--font-display), sans-serif;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    padding: 12px 16px !important;
+    text-align: left !important;
+    border-radius: 8px !important;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s ease-in-out !important;
+    width: 100%;
+  }
+  .menu-item .icon {
+    font-size: 16px;
+  }
+  .menu-item:hover {
+    background: var(--menu-item-bg-hover, rgba(255, 255, 255, 0.05)) !important;
+    color: var(--menu-item-text-hover, #ffffff) !important;
+    transform: translateX(4px);
+  }
+  .menu-item.active {
+    background: var(--menu-item-bg-active, rgba(205, 21, 67, 0.12)) !important;
+    border-color: var(--menu-item-border-active, rgba(205, 21, 67, 0.3)) !important;
+    color: var(--menu-item-text-active, #ffffff) !important;
+    box-shadow: 0 4px 12px rgba(205, 21, 67, 0.1) !important;
+  }
+
   /* Theme-aware Speech bubble overrides */
   .speech-bubble {
     background: var(--rax-bubble-bg) !important;
@@ -1928,6 +1979,76 @@
     }
   }
 
+  // Handle Left Sidebar Menu selection (swapping panes)
+  const menuItems = document.querySelectorAll('.sidebar-menu .menu-item');
+  menuItems.forEach(item => {
+    item.addEventListener('click', () => {
+      menuItems.forEach(mi => mi.classList.remove('active'));
+      item.classList.add('active');
+      
+      const viewId = item.dataset.view; // e.g. 'view-dashboard', 'view-writer', 'view-strategy', 'view-analytics'
+      
+      // Hide all swappable panes
+      const panes = ['view-dashboard-pane', 'view-writer-pane', 'view-strategy-pane', 'view-analytics-pane'];
+      panes.forEach(paneId => {
+        const el = $(paneId);
+        if (el) el.style.display = 'none';
+      });
+      
+      // Show selected pane
+      const targetPane = $(viewId + '-pane');
+      if (targetPane) targetPane.style.display = 'block';
+      
+      // Show/Hide sidebar filter panels
+      const filtersDashboard = $('sidebar-filters-dashboard');
+      const filtersWriter = $('sidebar-filters-writer');
+      
+      if (filtersDashboard) filtersDashboard.style.display = (viewId === 'view-dashboard') ? 'block' : 'none';
+      if (filtersWriter) filtersWriter.style.display = (viewId === 'view-writer') ? 'block' : 'none';
+    });
+  });
+
+  // Shortcut to switch to AI Writer view
+  const btnRevisarExistente = $('btn-revisar-existente');
+  if (btnRevisarExistente) {
+    btnRevisarExistente.addEventListener('click', () => {
+      const writerMenuBtn = document.querySelector('.sidebar-menu .menu-item[data-view="view-writer"]');
+      if (writerMenuBtn) {
+        writerMenuBtn.click();
+        const srvTexto = $('srv-texto');
+        if (srvTexto) {
+          setTimeout(() => srvTexto.focus(), 150);
+        }
+      }
+    });
+  }
+
+  // Text statistics helper (word/sentence count)
+  function updateTextStats(text) {
+    const cleanText = text.replace(/<[^>]*>/g, ' ').trim();
+    const words = cleanText ? cleanText.split(/\s+/).length : 0;
+    const sentences = cleanText ? cleanText.split(/[.!?]+/).filter(s => s.trim().length > 0).length : 0;
+    
+    const wordCountEl = $('breakdown-word-count');
+    const sentenceCountEl = $('breakdown-sentence-count');
+    
+    if (wordCountEl) wordCountEl.textContent = words;
+    if (sentenceCountEl) sentenceCountEl.textContent = sentences;
+  }
+
+  // Segmented Editorial Score meter helper
+  function updateSegmentedMeter(score) {
+    const segments = document.querySelectorAll('#score-segmented-meter .meter-segment');
+    const activeCount = Math.round((score / 100) * segments.length);
+    segments.forEach((seg, idx) => {
+      if (idx < activeCount) {
+        seg.style.background = score >= 90 ? '#10b981' : (score >= 75 ? '#3b82f6' : '#f59e0b');
+      } else {
+        seg.style.background = 'rgba(255, 255, 255, 0.08)';
+      }
+    });
+  }
+
   // Handle Tabs selection
   const tabButtons = document.querySelectorAll('#tabs-navigation .tab-btn');
   tabButtons.forEach(btn => {
@@ -2420,6 +2541,32 @@
     $('v1-case-title').textContent = caseTitle;
     $('v1-case-proof').textContent = caseProof;
     
+    // Readability
+    const readScore = data.revisao && data.revisao.qualidade && typeof data.revisao.qualidade.score === 'number' ? Math.round(data.revisao.qualidade.score / 10) : 8;
+    const readElVal = $('v1-val-readability');
+    const readElBar = $('v1-bar-readability');
+    if (readElVal) readElVal.textContent = `${readScore}/10`;
+    if (readElBar) readElBar.style.width = `${readScore * 10}%`;
+
+    // Segmented meter
+    updateSegmentedMeter(scoreVal);
+
+    // Text stats breakdown
+    const fullText = (data.article ? (data.article.title + ' ' + data.article.intro + ' ' + (data.article.sections || []).map(s => s.body).join(' ') + ' ' + data.article.conclusion) : '') + 
+                     (data.post ? ' ' + data.post.linkedinCopy : '');
+    updateTextStats(fullText);
+
+    // Recommendations list
+    const recsList = $('quick-recommendations-list');
+    if (recsList) {
+      const alerts = data.revisao && data.revisao.qualidade && data.revisao.qualidade.alertas ? data.revisao.qualidade.alertas : [];
+      if (alerts.length > 0) {
+        recsList.innerHTML = alerts.map(a => `<div>⚠️ ${a}</div>`).join('');
+      } else {
+        recsList.innerHTML = '<div>✅ Artigo atende aos critérios editoriais da EPI-USE.</div>';
+      }
+    }
+    
     $('score-box').style.display = 'block';
     
     // 1. Strategy
@@ -2644,6 +2791,319 @@
       saveBtn.textContent = 'Salvar no Pipeline Editorial';
     }
   });
+
+  // AI Revisor (SEO/GEO) Flow Event Handler
+  const srvGoBtn = $('srv-go');
+  const btnImproveAi = $('btn-improve-ai');
+  
+  const handleSeoReview = async () => {
+    const rawText = ($('srv-texto').value || '').trim();
+    const statusText = $('srv-status');
+    
+    if (rawText.length < 200) {
+      if (statusText) {
+        statusText.textContent = 'Cole pelo menos 200 caracteres.';
+        statusText.style.color = '#ef4444';
+      } else {
+        alert('Cole pelo menos 200 caracteres.');
+      }
+      return;
+    }
+    
+    if (srvGoBtn) srvGoBtn.disabled = true;
+    if (btnImproveAi) btnImproveAi.disabled = true;
+    if (statusText) {
+      statusText.textContent = 'Analisando com IA...';
+      statusText.style.color = 'var(--text-muted)';
+    }
+    
+    // Show glassmorphic loading screen in AI Writer
+    const srvLoading = $('srv-loading');
+    if (srvLoading) srvLoading.style.display = 'flex';
+    
+    const srvArtigo = $('srv-artigo-melhorado');
+    if (srvArtigo) srvArtigo.style.display = 'none';
+    
+    // Reset Score box to calculating state
+    $('v1-score-radial').style.background = 'conic-gradient(rgba(255,255,255,0.08) 0% 100%)';
+    $('v1-score-num').textContent = '-';
+    $('v1-score-status').textContent = 'Calculando...';
+    $('v1-score-status').style.color = 'var(--color-text-muted,var(--muted,#869ec3))';
+    $('v1-score-checklist').innerHTML = 'Analisando conteúdo...';
+    
+    $('v1-val-especificidade').textContent = '-/10';
+    $('v1-bar-especificidade').style.width = '0%';
+    $('v1-val-tom').textContent = '-/10';
+    $('v1-bar-tom').style.width = '0%';
+    $('v1-val-gancho').textContent = '-/10';
+    $('v1-bar-gancho').style.width = '0%';
+    
+    $('v1-case-title').textContent = '-';
+    $('v1-case-proof').textContent = '-';
+    
+    setRaxState('revisando', 'Analisando legibilidade e estrutura... 🔍');
+    
+    try {
+      const res = await fetch('/api/seo-review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          texto: rawText,
+          titulo: ($('srv-titulo').value || '').trim(),
+          lob: ($('srv-lob').value || '').trim()
+        })
+      });
+      
+      const d = await res.json();
+      if (!d.success) throw new Error(d.error || 'Falha ao analisar artigo.');
+      
+      const v = d.review;
+      
+      // Store in window for SQLite save
+      window.lastRaccoonSource = 'review';
+      window.activeReviewData = v;
+      window.activeReviewMeta = {
+        titulo: ($('srv-titulo').value || '').trim(),
+        lob: ($('srv-lob').value || '').trim()
+      };
+      
+      // Update mascot and play chime
+      setRaxState('entregue', 'Revisão concluída com sucesso! Veja as métricas detalhadas. 🦝🎉');
+      playChime();
+      
+      // Render results details for the review flow
+      const scoreVal = Math.round(v.nota_geral || 0);
+      
+      // Render radial score
+      const statusEl = $('v1-score-status');
+      if (scoreVal >= 90) {
+        statusEl.textContent = 'Forte';
+        statusEl.style.color = 'var(--teal, #10b981)';
+      } else if (scoreVal >= 75) {
+        statusEl.textContent = 'Bom';
+        statusEl.style.color = 'var(--blue, #3b82f6)';
+      } else {
+        statusEl.textContent = 'Regular';
+        statusEl.style.color = 'var(--gold, #f59e0b)';
+      }
+      
+      const radialColor = scoreVal >= 90 ? 'var(--teal, #10b981)' : (scoreVal >= 75 ? 'var(--blue, #3b82f6)' : 'var(--gold, #f59e0b)');
+      $('v1-score-radial').style.background = `conic-gradient(${radialColor} 0% ${scoreVal}%, rgba(255,255,255,0.08) ${scoreVal}% 100%)`;
+      $('v1-score-num').textContent = scoreVal;
+      
+      // Checklist items
+      let hasNumber = /\d+/.test(rawText);
+      let hasPersona = false;
+      const kw = v.keyword || {};
+      const pLower = (window.activeReviewMeta.lob || '').toLowerCase();
+      if (pLower && (pLower.includes('cfo') || pLower.includes('chro') || pLower.includes('cio'))) {
+        hasPersona = true;
+      }
+      
+      let checklistHtml = '';
+      checklistHtml += `Lead com número ${hasNumber ? '✓' : '✗'}<br>`;
+      checklistHtml += `Persona explícita ${hasPersona ? '✓' : '✗'}<br>`;
+      checklistHtml += `1 gancho, 0 clichê ✓`;
+      $('v1-score-checklist').innerHTML = checklistHtml;
+      
+      // Render specific scores
+      const espScore = Math.min(10, Math.floor(scoreVal / 10));
+      const tomScore = Math.min(10, Math.max(6, Math.floor((scoreVal - 5) / 10) + (hasPersona ? 1 : 0)));
+      const ganScore = Math.min(10, Math.max(5, Math.floor(scoreVal / 10) - (hasNumber ? 0 : 1)));
+      const readScore = v.seo && typeof v.seo.score === 'number' ? Math.round(v.seo.score / 10) : 8;
+      
+      $('v1-val-especificidade').textContent = `${espScore}/10`;
+      $('v1-bar-especificidade').style.width = `${espScore * 10}%`;
+      
+      $('v1-val-tom').textContent = `${tomScore}/10`;
+      $('v1-bar-tom').style.width = `${tomScore * 10}%`;
+      
+      $('v1-val-gancho').textContent = `${ganScore}/10`;
+      $('v1-bar-gancho').style.width = `${ganScore * 10}%`;
+      
+      const readElVal = $('v1-val-readability');
+      const readElBar = $('v1-bar-readability');
+      if (readElVal) readElVal.textContent = `${readScore}/10`;
+      if (readElBar) readElBar.style.width = `${readScore * 10}%`;
+      
+      // Cited case
+      let caseTitle = '';
+      let caseProof = '';
+      const activePersona = (window.activeReviewMeta.lob || 'cfo').toLowerCase();
+      if (activePersona.includes('chro') || activePersona.includes('hcm')) {
+        caseTitle = 'BRF · SuccessFactors';
+        caseProof = 'prova: headcount unificado em 1 truth';
+      } else if (activePersona.includes('cio') || activePersona.includes('btp')) {
+        caseTitle = 'iFood · governança de BTP';
+        caseProof = 'prova: trilha de auditoria e segurança';
+      } else {
+        caseTitle = 'TEVA · migração S/4HANA';
+        caseProof = 'prova: -40% no fechamento fiscal';
+      }
+      $('v1-case-title').textContent = caseTitle;
+      $('v1-case-proof').textContent = caseProof;
+      
+      // Update text statistics
+      updateTextStats(rawText);
+      updateSegmentedMeter(scoreVal);
+      
+      // Update recommendations list
+      const recsList = $('quick-recommendations-list');
+      if (recsList) {
+        const alerts = v.qualidade.alertas || [];
+        if (alerts.length > 0) {
+          recsList.innerHTML = alerts.map(a => `<div>⚠️ ${a}</div>`).join('');
+        } else {
+          recsList.innerHTML = '<div>✅ Artigo atende aos critérios editoriais da EPI-USE.</div>';
+        }
+      }
+      
+      // Populate AI Writer optimized article card
+      if (v.artigo_melhorado) {
+        const textOtimizado = $('srv-texto-otimizado');
+        if (textOtimizado) textOtimizado.value = v.artigo_melhorado;
+        if (srvArtigo) srvArtigo.style.display = 'block';
+      }
+      
+      // Populate Analytics Detailed SEO / GEO report
+      const srvRes = $('srv-results');
+      if (srvRes) {
+        const crit = function(arr) {
+          return (arr || []).map(function(c) {
+            const cScore = c.nota != null ? c.nota : 0;
+            const cColor = cScore >= 7.5 ? '#10b981' : (cScore >= 5 ? '#f59e0b' : '#ef4444');
+            return `<div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06)">
+              <b style="flex:0 0 42px;font-family:monospace;color:${cColor}">${cScore}/10</b>
+              <div>
+                <b style="font-size:12.5px">${c.nome || ''}</b>
+                <div style="font-size:11.5px;color:var(--text-muted)">${c.obs || ''}</div>
+              </div>
+            </div>`;
+          }).join('');
+        };
+        
+        let html = '<div style="display:flex;gap:10px;margin-bottom:14px">';
+        const cGeral = scoreVal;
+        const cSeo = v.seo && typeof v.seo.score === 'number' ? Math.round(v.seo.score) : 0;
+        const cGeo = v.geo && typeof v.geo.score === 'number' ? Math.round(v.geo.score) : 0;
+        
+        const colG = cGeral >= 90 ? '#10b981' : (cGeral >= 75 ? '#3b82f6' : '#f59e0b');
+        const colS = cSeo >= 90 ? '#10b981' : (cSeo >= 75 ? '#3b82f6' : '#f59e0b');
+        const colGe = cGeo >= 90 ? '#10b981' : (cGeo >= 75 ? '#3b82f6' : '#f59e0b');
+        
+        html += `<div style="flex:1;text-align:center;background:rgba(255,255,255,.03);border-radius:10px;padding:10px"><div style="font-size:10px;color:var(--text-muted);text-transform:uppercase">Geral</div><div style="font-size:30px;font-weight:900;color:${colG}">${cGeral}</div></div>`;
+        html += `<div style="flex:1;text-align:center;background:rgba(255,255,255,.03);border-radius:10px;padding:10px"><div style="font-size:10px;color:var(--text-muted);text-transform:uppercase">SEO</div><div style="font-size:30px;font-weight:900;color:${colS}">${cSeo}</div></div>`;
+        html += `<div style="flex:1;text-align:center;background:rgba(255,255,255,.03);border-radius:10px;padding:10px"><div style="font-size:10px;color:var(--text-muted);text-transform:uppercase">GEO</div><div style="font-size:30px;font-weight:900;color:${colGe}">${cGeo}</div></div>`;
+        html += '</div>';
+        
+        html += `<div style="font-size:13px;color:var(--text-dim);margin-bottom:12px">${v.resumo || ''}</div>`;
+        
+        html += `<div style="background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.3);border-radius:10px;padding:12px;margin-bottom:14px">
+          <div style="font-size:11px;text-transform:uppercase;color:var(--text-muted)">🎯 Melhor keyword</div>
+          <div style="font-size:16px;font-weight:800;color:#60a5fa">${kw.principal || '-'}</div>
+          <div style="font-size:12px;color:var(--text-dim);margin-top:4px">Secundárias: ${(kw.secundarias || []).join(', ') || '-'}</div>
+          <div style="font-size:11.5px;color:var(--text-muted);margin-top:4px">${kw.onde_usar ? 'Usar em: ' + kw.onde_usar + '. ' : ''}${kw.motivo || ''}</div>
+        </div>`;
+        
+        html += '<div style="font-size:12px;font-weight:800;text-transform:uppercase;color:var(--text-muted);margin:8px 0">⚡ Prioridades</div>';
+        html += (v.top_fixes || []).map(f => `<div style="font-size:13px;padding:5px 0">→ ${f}</div>`).join('') || '';
+        
+        html += '<div style="font-size:12px;font-weight:800;text-transform:uppercase;color:var(--text-muted);margin:12px 0 6px">🔎 SEO</div>' + crit(v.seo && v.seo.criterios);
+        html += '<div style="font-size:12px;font-weight:800;text-transform:uppercase;color:var(--text-muted);margin:12px 0 6px">🤖 GEO</div>' + crit(v.geo && v.geo.criterios);
+        
+        html += '<div style="font-size:12px;font-weight:800;text-transform:uppercase;color:var(--text-muted);margin:12px 0 6px">🔗 Link juice</div>';
+        html += (v.link_juice || []).map(l => `<div style="font-size:13px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06)">🔗 <a href="${l.url}" target="_blank" rel="noopener" style="color:#60a5fa">${l.anchor || l.url}</a><div style="font-size:11.5px;color:var(--text-muted)">${l.motivo || ''}</div></div>`).join('') || '<div style="font-size:12px;color:var(--text-muted)">sem sugestões internas relevantes</div>';
+        
+        if (v.cta) {
+          html += `<div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.3);border-radius:10px;padding:12px;margin-top:14px">
+            <div style="font-size:11px;text-transform:uppercase;color:var(--text-muted)">📣 CTA</div>
+            <div style="font-weight:700;color:#6ee7b7">"${v.cta.texto || ''}"</div>
+            <div style="font-size:11.5px;color:var(--text-muted);margin-top:4px">Posição: ${v.cta.posicao || '-'} · ${v.cta.motivo || ''}</div>
+          </div>`;
+        }
+        
+        srvRes.innerHTML = html;
+        srvRes.style.display = 'block';
+      }
+      
+      const placeholder = $('analytics-placeholder');
+      if (placeholder) placeholder.style.display = 'none';
+      
+      // Auto-switch view to Analytics detailed report pane!
+      const analyticsMenuBtn = document.querySelector('.sidebar-menu .menu-item[data-view="view-analytics"]');
+      if (analyticsMenuBtn) {
+        analyticsMenuBtn.click();
+      }
+      
+      if (statusText) {
+        statusText.textContent = `✓ Análise de SEO/GEO realizada com sucesso!`;
+        statusText.style.color = '#10b981';
+      }
+    } catch (err) {
+      console.error(err);
+      if (statusText) {
+        statusText.textContent = 'Erro: ' + err.message;
+        statusText.style.color = '#ef4444';
+      } else {
+        alert('Erro ao rodar revisão de SEO: ' + err.message);
+      }
+    } finally {
+      if (srvLoading) srvLoading.style.display = 'none';
+      if (srvGoBtn) srvGoBtn.disabled = false;
+      if (btnImproveAi) btnImproveAi.disabled = false;
+    }
+  };
+  
+  if (srvGoBtn) srvGoBtn.addEventListener('click', handleSeoReview);
+  if (btnImproveAi) btnImproveAi.addEventListener('click', handleSeoReview);
+
+  // Helper to strip HTML tags for clean copy
+  function stripHtml(html) {
+    var tmp = document.createElement("DIV");
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || "";
+  }
+
+  // Copy HTML button click handler
+  const srvBtnCopiar = $('srv-btn-copiar');
+  if (srvBtnCopiar) {
+    srvBtnCopiar.addEventListener('click', () => {
+      const txtArea = $('srv-texto-otimizado');
+      if (txtArea && txtArea.value) {
+        navigator.clipboard.writeText(txtArea.value).then(() => {
+          srvBtnCopiar.textContent = 'HTML Copiado! ✓';
+          srvBtnCopiar.style.borderColor = '#10b981';
+          srvBtnCopiar.style.color = '#10b981';
+          setTimeout(() => {
+            srvBtnCopiar.textContent = 'Copiar HTML (WorkControl)';
+            srvBtnCopiar.style.borderColor = '';
+            srvBtnCopiar.style.color = '';
+          }, 2500);
+        }).catch(err => console.error('Failed to copy HTML: ', err));
+      }
+    });
+  }
+
+  // Copy Clean Text button click handler
+  const srvBtnCopiarLimpo = $('srv-btn-copiar-limpo');
+  if (srvBtnCopiarLimpo) {
+    srvBtnCopiarLimpo.addEventListener('click', () => {
+      const txtArea = $('srv-texto-otimizado');
+      if (txtArea && txtArea.value) {
+        const clean = stripHtml(txtArea.value);
+        navigator.clipboard.writeText(clean).then(() => {
+          srvBtnCopiarLimpo.textContent = 'Texto Limpo Copiado! ✓';
+          srvBtnCopiarLimpo.style.borderColor = '#10b981';
+          srvBtnCopiarLimpo.style.color = '#10b981';
+          setTimeout(() => {
+            srvBtnCopiarLimpo.textContent = 'Copiar Texto Limpo';
+            srvBtnCopiarLimpo.style.borderColor = '';
+            srvBtnCopiarLimpo.style.color = '';
+          }, 2500);
+        }).catch(err => console.error('Failed to copy clean text: ', err));
+      }
+    });
+  }
 
   // Init global source tracker
   window.lastRaccoonSource = 'generate';
