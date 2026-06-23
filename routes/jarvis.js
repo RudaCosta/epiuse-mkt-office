@@ -175,6 +175,24 @@ router.get('/api/jarvis/playbook', (req, res) => {
   });
 });
 
+// ── API: ping — testa conectividade do Railway com o backend de IA ───────────
+// Útil p/ diagnosticar se o Quick Tunnel ainda está ativo.
+router.get('/api/jarvis/ping', async (req, res) => {
+  const base = { model: AI_MODEL, formato: AI_FORMAT, baseUrl: ODY_BASE || null };
+  if (!aiReady()) return res.json({ ...base, ok: false, message: 'Backend não configurado (sem URL/chave).' });
+  if (AI_FORMAT === 'openai') {
+    try {
+      const testUrl = (ODY_BASE || '').replace(/\/+$/, '');
+      const resp = await fetch(testUrl, { signal: AbortSignal.timeout(6000) });
+      const txt = await resp.text().catch(() => '');
+      return res.json({ ...base, ok: resp.ok || txt.length > 0, message: txt.slice(0, 80) || `HTTP ${resp.status}` });
+    } catch (e) {
+      return res.json({ ...base, ok: false, message: e.message });
+    }
+  }
+  return res.json({ ...base, ok: true, message: 'Anthropic client configurado.' });
+});
+
 // ── API: coach ao vivo ────────────────────────────────────────────────────────
 // Recebe contexto da call + transcrição recente + última fala do prospect.
 // Devolve JSON com próxima pergunta, talk track, contorno de objeção, sinais e temperatura.
