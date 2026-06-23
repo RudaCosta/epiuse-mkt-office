@@ -1,5 +1,30 @@
 # CHANGELOG — Módulo 11 (JARVIS)
 
+## v0.6.0 — 2026-06-23 · Humanizer + cérebro real (estratégia FY27 · cases · conteúdos · web)
+Motivo: as recomendações estavam genéricas (paráfrase da fala, tom robótico, sem cases/conteúdos reais).
+O Rudá entregou as fontes: a skill **`blader/humanizer`** (guia "Signs of AI writing" da Wikipedia) e a
+**planilha de estratégia FY27** (ICP, Personas, Indústrias, Diferenciação Competitiva, Jornadas, Cases reais).
+
+**Adicionado (aditivo — `routes/jarvis.js`, `playbook.json`, `public/jarvis.html`):**
+- **Humanização inline da `talk_track`** no `buildSystemPrompt()`: regras adaptadas do humanizer pra fala em
+  PT-BR (contrações, frases curtas/variadas; proíbe travessão, vocabulário-robô, "Entendo que X é um
+  desafio...", regra de três, clichê motivacional; prefere PERGUNTAR). 2 exemplos ❌→✅. Zero latência extra.
+- **Cérebro FY27** no `playbook.json` (v0.3.0): seções novas `icp_por_lob`, `personas_detalhe`,
+  `diferenciacao_competitiva` (uso INTERNO — nunca nomear concorrente na fala), `jornadas`, `cases_reais`
+  (COMIGO, Cidade Matarazzo, FQM, Scala, Raízen, Klabin — anonimizar salvo aprovação). `buildSystemPrompt(ctx)`
+  injeta só a fatia relevante por LOB/persona/indústria (token enxuto via `selectFY27`).
+- **Cases & conteúdos REAIS** (RAG-lite cloud-ready): helper `retrieveArtigos()` sobre
+  `public/api/artigos.json` (filtro LOB→linha_de_negócio + keyword). `coach`/`brief` devolvem
+  `conteudos_sugeridos:[{titulo,url,porque}]` — **saneados** contra a lista real (anti-alucinação de URL).
+  UI: card `📎 Conteúdos pra enviar` com links clicáveis.
+- **Pesquisa web de produto** `POST /api/jarvis/pesquisar` (OpenRouter, reusa `OPENROUTER_API_KEY`; modelo
+  `:online` via `JARVIS_WEB_MODEL`, default `perplexity/sonar`; foco sap.com/servicenow.com). Só no pré-call
+  (botão `🔬 Pesquisar produto`). Etiqueta `🌐 Pesquisa web — verificar`. 503 claro sem a key.
+- UI header → v0.6.
+
+**Fora de escopo (vira build futuro):** NotebookLM roda só no Claude **local** do Rudá (browser-automation,
+não é API de servidor). Enriquecimento de corpus por NotebookLM será **exportado e commitado** depois.
+
 ## v0.5.0 — 2026-06-23 · Backend hospedado (Groq) + diagnóstico de conectividade
 Motivo: o backend local (Ollama no PC + Quick Tunnel Cloudflare) era frágil por design — exigia o PC
 ligado, o `cloudflared` aberto numa tela, e o URL do túnel **expirava** a cada reinício (causa raiz do

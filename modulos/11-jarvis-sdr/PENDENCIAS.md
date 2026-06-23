@@ -9,6 +9,12 @@
   diarização automática ainda.
 - **Sem persistência.** A sessão de call não é salva (sem histórico, sem log no CRM).
 
+## 🟡 NotebookLM — enriquecimento de corpus (build, não runtime)
+- O `notebooklm-skill` roda só no Claude **local** do Rudá (browser-automation + login Google). **Não é
+  API de servidor** — o JARVIS-cloud não chama NotebookLM em runtime. Caminho: Rudá roda o skill local pra
+  extrair conhecimento EPI-USE/SAP e **commita** o resultado como corpus (ex: `kb-produtos.json`) que o
+  JARVIS lê. Enquanto isso, conhecimento de produto vem da estratégia FY27 (`playbook.json`) + pesquisa web.
+
 ## 🟢 Backlog (não-bloqueado)
 - **Pré-call enrich automático** via Apollo/Zoho: puxar cargo, empresa, setor e deals abertos do prospect
   pra pré-preencher o contexto. (MCPs `Apollo_io` / `Zoho_CRM` já disponíveis no Office.)
@@ -19,6 +25,10 @@
 - **Modo treino:** rodar contra cenários simulados pra onboarding de SDR novo.
 
 ## ⚙️ Operacional
-- Requer `ANTHROPIC_API_KEY` no `.env` off-repo. Sem ela, `/api/jarvis/coach` e `/brief` retornam 503 claro.
+- **Backend de IA (coach/brief):** Groq hospedado via `JARVIS_LLM_FORMAT=openai` + `JARVIS_LLM_BASE_URL`
+  + `JARVIS_LLM_MODEL` + `JARVIS_LLM_API_KEY` (ou Anthropic/`ANTHROPIC_API_KEY` no modo padrão). Sem backend,
+  `/api/jarvis/coach` e `/brief` retornam 503 claro. Diagnóstico: `GET /api/jarvis/ping`.
+- **Pesquisa web (`/api/jarvis/pesquisar`):** requer `OPENROUTER_API_KEY` (já existe no Office); modelo
+  override por `JARVIS_WEB_MODEL` (default `perplexity/sonar`). Sem a key → 503 claro.
 - Funciona melhor no **Chrome** (Web Speech API). Firefox/Safari → usar fallback manual.
-- **Deploy Railway:** só sob ordem explícita do Rudá (Regra 3). v0.1 ficou em branch + PR draft.
+- **Deploy Railway:** só sob ordem explícita do Rudá (Regra 3).
