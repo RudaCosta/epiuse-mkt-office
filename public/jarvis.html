@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🤖 JARVIS · Copiloto SDR — EPI-USE Office</title>
+<link rel="stylesheet" href="/design-tokens.css">
+<script type="module" src="/office-nav.js"></script>
+<script type="module" src="/office-footer.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* ── Paleta local mapeada nos design-tokens EPI-USE (Regra 8 — sem hex de marca solto) ── */
+  :root{
+    --j-bg:        var(--color-neutral-dark-bg-2, #050d18);
+    --j-bg2:       var(--color-neutral-dark-bg, #0a1525);
+    --j-surface:   var(--color-neutral-dark-surface, #0f1e35);
+    --j-surface2:  var(--color-neutral-dark-surface-2, #142547);
+    --j-border:    var(--color-neutral-dark-border, rgba(134,158,195,.18));
+    --j-text:      var(--color-neutral-dark-text, #e6ebf2);
+    --j-dim:       var(--color-neutral-dark-text-dim, #c0ccd9);
+    --j-muted:     var(--color-neutral-dark-text-muted, #869ec3);
+    --j-blue:      var(--color-secondary-blue-light, #869ec3);
+    --j-cyan:      var(--color-erp-blue-mid, #0066B2);
+    --j-glow:      var(--color-stratview-blue-light, #7CC4DE);
+    --j-navy:      var(--color-primary-navy, #001844);
+    --j-red:       var(--color-primary-red, #cd1543);
+    --j-purple:    var(--color-service-now-purple, #6a1b9a);
+    --j-gold:      var(--color-warning-300, #fcd34d);
+    --j-green:     var(--color-success-300, #6ee7b7);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:
+      radial-gradient(900px 500px at 80% -10%, rgba(124,196,222,.10), transparent 60%),
+      radial-gradient(700px 500px at 0% 110%, rgba(106,27,154,.10), transparent 55%),
+      linear-gradient(180deg,var(--j-bg) 0%,var(--j-bg2) 100%);
+    color:var(--j-text); font-family:'Inter',sans-serif; min-height:100vh; padding-bottom:64px;
+  }
+  .wrap{max-width:1340px;margin:0 auto;padding:22px}
+  .mono{font-family:'JetBrains Mono',monospace}
+
+  /* ── Header ── */
+  .head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:6px}
+  .orb{width:46px;height:46px;border-radius:50%;
+    background:radial-gradient(circle at 50% 40%,var(--j-glow),var(--j-cyan) 55%,var(--j-navy));
+    box-shadow:0 0 24px rgba(124,196,222,.55),inset 0 0 14px rgba(255,255,255,.25);animation:pulse 3s ease-in-out infinite}
+  @keyframes pulse{0%,100%{box-shadow:0 0 18px rgba(124,196,222,.45),inset 0 0 14px rgba(255,255,255,.2)}50%{box-shadow:0 0 30px rgba(124,196,222,.75),inset 0 0 16px rgba(255,255,255,.35)}}
+  h1{font-size:24px;letter-spacing:.02em}
+  h1 .v{font-size:11px;color:var(--j-muted);font-weight:500;letter-spacing:.18em}
+  .sub{color:var(--j-muted);font-size:13px;margin:2px 0 14px}
+
+  .ai-banner{display:flex;gap:10px;align-items:center;background:linear-gradient(135deg,rgba(167,139,250,.12),rgba(124,196,222,.06));
+    border:1px solid rgba(167,139,250,.28);border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:var(--j-dim)}
+
+  /* ── Setup bar ── */
+  .setup{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;background:var(--j-surface);
+    border:1px solid var(--j-border);border-radius:14px;padding:14px;margin-bottom:16px}
+  .fld{display:flex;flex-direction:column;gap:5px}
+  .fld label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--j-muted)}
+  .fld input,.fld select{background:var(--j-bg2);border:1px solid var(--j-border);color:var(--j-text);
+    border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;outline:none}
+  .fld input:focus,.fld select:focus{border-color:var(--j-glow);box-shadow:0 0 0 2px rgba(124,196,222,.15)}
+  .setup-actions{display:flex;align-items:flex-end;gap:8px}
+
+  .btn{border:1px solid var(--j-border);background:var(--j-surface2);color:var(--j-text);border-radius:9px;
+    padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer;transition:.15s;font-family:inherit;white-space:nowrap}
+  .btn:hover{border-color:var(--j-glow);box-shadow:0 0 14px rgba(124,196,222,.25)}
+  .btn.primary{background:linear-gradient(135deg,var(--j-cyan),var(--j-navy));border-color:transparent}
+  .btn.rec{background:linear-gradient(135deg,var(--j-red),#7a0c25);border-color:transparent}
+  .btn.ghost{background:transparent}
+
+  /* ── Grid principal ── */
+  .grid{display:grid;grid-template-columns:1.15fr .85fr;gap:16px}
+  @media(max-width:920px){.grid{grid-template-columns:1fr}}
+  .panel{background:var(--j-surface);border:1px solid var(--j-border);border-radius:16px;padding:16px;position:relative;overflow:hidden}
+  .panel::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent 0,transparent 3px,rgba(124,196,222,.015) 3px,rgba(124,196,222,.015) 4px);pointer-events:none}
+  .panel > *{position:relative}
+  .panel h2{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--j-muted);margin-bottom:12px;display:flex;align-items:center;gap:8px;justify-content:space-between}
+
+  /* ── Transcrição ── */
+  .mic-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+  .wave{flex:1;min-width:140px;height:42px;background:var(--j-bg2);border:1px solid var(--j-border);border-radius:9px}
+  .speaker-seg{display:flex;border:1px solid var(--j-border);border-radius:9px;overflow:hidden}
+  .speaker-seg button{background:transparent;border:0;color:var(--j-muted);padding:7px 11px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:600}
+  .speaker-seg button.on{background:var(--j-surface2);color:var(--j-glow)}
+  .transcript{height:330px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding-right:6px}
+  .utt{padding:9px 11px;border-radius:9px;font-size:13.5px;line-height:1.45;max-width:92%}
+  .utt.sdr{background:rgba(124,196,222,.08);border:1px solid rgba(124,196,222,.18);align-self:flex-end}
+  .utt.prospect{background:rgba(167,139,250,.10);border:1px solid rgba(167,139,250,.22);align-self:flex-start}
+  .utt .who{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--j-muted);display:block;margin-bottom:2px}
+  .interim{color:var(--j-muted);font-style:italic}
+  .manual{display:flex;gap:8px;margin-top:12px}
+  .manual input{flex:1;background:var(--j-bg2);border:1px solid var(--j-border);color:var(--j-text);border-radius:9px;padding:9px 11px;font-size:13px;outline:none;font-family:inherit}
+  .empty-note{color:var(--j-muted);font-size:12.5px;text-align:center;margin-top:90px;line-height:1.6}
+
+  /* ── HUD gauges ── */
+  .hud{display:flex;gap:12px;margin-bottom:14px}
+  .gauge{flex:1;background:var(--j-bg2);border:1px solid var(--j-border);border-radius:12px;padding:10px;text-align:center}
+  .gauge .ring{position:relative;width:84px;height:84px;margin:0 auto 4px}
+  .gauge svg{transform:rotate(-90deg)}
+  .gauge .gval{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700;font-family:'JetBrains Mono',monospace}
+  .gauge .glbl{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--j-muted)}
+
+  /* ── Coach cards ── */
+  .coach-cards{display:flex;flex-direction:column;gap:10px}
+  .cc{background:var(--j-bg2);border:1px solid var(--j-border);border-radius:11px;padding:11px 12px;border-left:3px solid var(--j-glow)}
+  .cc.q{border-left-color:var(--j-glow)}
+  .cc.talk{border-left-color:var(--j-cyan)}
+  .cc.obj{border-left-color:var(--j-red)}
+  .cc.next{border-left-color:var(--j-green)}
+  .cc .cct{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--j-muted);margin-bottom:4px;display:flex;align-items:center;gap:6px}
+  .cc .ccb{font-size:13.5px;line-height:1.5;color:var(--j-text)}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+  .chip{font-size:11px;background:rgba(124,196,222,.1);border:1px solid rgba(124,196,222,.2);border-radius:20px;padding:3px 9px;color:var(--j-dim)}
+  .coach-idle{color:var(--j-muted);font-size:13px;text-align:center;padding:30px 10px;line-height:1.6}
+  .thinking{font-size:11px;color:var(--j-glow)}
+  .dotpulse::after{content:'';animation:dots 1.2s steps(4,end) infinite}
+  @keyframes dots{0%{content:''}25%{content:'.'}50%{content:'..'}75%{content:'...'}}
+
+  .footnote{font-size:11px;color:var(--j-muted);margin-top:14px;line-height:1.6;background:rgba(15,30,53,.4);border-radius:10px;padding:12px}
+  .footnote code{background:rgba(124,196,222,.08);padding:1px 5px;border-radius:3px;color:var(--j-glow)}
+  ::-webkit-scrollbar{width:8px}::-webkit-scrollbar-thumb{background:rgba(134,158,195,.2);border-radius:8px}
+</style>
+</head>
+<body data-route="jarvis">
+<office-nav></office-nav>
+
+<div class="wrap">
+  <div class="head">
+    <div class="orb"></div>
+    <div>
+      <h1>JARVIS <span class="v">· COPILOTO SDR/BDR &nbsp;v0.1</span></h1>
+    </div>
+  </div>
+  <p class="sub">Biz Dev · prospecção B2B SAP & ServiceNow — escuta a conversa e recomenda suas falas em tempo real.</p>
+
+  <div class="ai-banner">
+    <span style="font-size:16px">🤖</span>
+    <span><strong>Sugestões geradas por IA — use seu julgamento.</strong> Base de conhecimento REAL EPI-USE (LOBs, personas, gatilhos 2026, objeções). A IA orienta, quem fecha é você.</span>
+  </div>
+
+  <!-- SETUP DA CALL -->
+  <div class="setup">
+    <div class="fld"><label>Prospect</label><input id="f-prospect" placeholder="Nome do contato"></div>
+    <div class="fld"><label>Empresa</label><input id="f-empresa" placeholder="Empresa"></div>
+    <div class="fld"><label>Indústria</label><select id="f-industria"></select></div>
+    <div class="fld"><label>LOB foco</label><select id="f-lob"></select></div>
+    <div class="fld"><label>Persona / cargo</label><select id="f-persona"></select></div>
+    <div class="fld"><label>Estágio</label>
+      <select id="f-estagio">
+        <option>Cold call</option><option>Discovery</option><option>Demo</option><option>Negociação</option><option>Follow-up</option>
+      </select>
+    </div>
+    <div class="setup-actions"><button class="btn ghost" id="btn-brief">🧭 Pré-call brief</button></div>
+  </div>
+
+  <div class="grid">
+    <!-- ESQUERDA: ESCUTA -->
+    <div class="panel">
+      <h2>🎧 Escuta ao vivo <span class="mono" id="lang-tag" style="font-size:10px;color:var(--j-muted)">pt-BR</span></h2>
+      <div class="mic-row">
+        <button class="btn rec" id="btn-mic">🎙️ Ativar mic</button>
+        <canvas class="wave" id="wave" width="600" height="42"></canvas>
+        <div class="speaker-seg" title="A quem o mic atribui a fala captada">
+          <button data-sp="prospect" class="on">👤 Prospect</button>
+          <button data-sp="sdr">🧑‍💼 Eu (SDR)</button>
+        </div>
+      </div>
+      <div class="transcript" id="transcript">
+        <div class="empty-note">Ative o microfone ou digite abaixo o que o prospect disse.<br>O JARVIS começa a sugerir assim que a conversa fluir.</div>
+      </div>
+      <div class="manual">
+        <input id="manual-in" placeholder='Digitar fala (ex: "achei caro")… Enter pra enviar'>
+        <button class="btn" id="btn-manual">Enviar</button>
+      </div>
+      <div class="footnote">
+        ⚠️ <strong>Como a escuta funciona:</strong> o <code>Web Speech API</code> capta o <strong>microfone local</strong> (sua voz / viva-voz na sala). Em call <em>remota</em>, use o campo manual pras falas do prospect, ou coloque a reunião em viva-voz. Funciona melhor no <strong>Chrome</strong>.
+      </div>
+    </div>
+
+    <!-- DIREITA: JARVIS COACH -->
+    <div class="panel">
+      <h2>🧠 JARVIS recomenda <span class="thinking dotpulse" id="thinking" style="display:none">pensando</span></h2>
+
+      <div class="hud">
+        <div class="gauge">
+          <div class="ring">
+            <svg width="84" height="84"><circle cx="42" cy="42" r="36" stroke="rgba(134,158,195,.15)" stroke-width="7" fill="none"/>
+              <circle id="g-temp-arc" cx="42" cy="42" r="36" stroke="var(--j-glow)" stroke-width="7" fill="none" stroke-linecap="round" stroke-dasharray="226" stroke-dashoffset="226"/></svg>
+            <div class="gval" id="g-temp">—</div>
+          </div>
+          <div class="glbl">Temperatura 🤖</div>
+        </div>
+        <div class="gauge">
+          <div class="ring">
+            <svg width="84" height="84"><circle cx="42" cy="42" r="36" stroke="rgba(134,158,195,.15)" stroke-width="7" fill="none"/>
+              <circle id="g-talk-arc" cx="42" cy="42" r="36" stroke="var(--j-cyan)" stroke-width="7" fill="none" stroke-linecap="round" stroke-dasharray="226" stroke-dashoffset="226"/></svg>
+            <div class="gval" id="g-talk">—</div>
+          </div>
+          <div class="glbl">Você fala %</div>
+        </div>
+        <div class="gauge">
+          <div class="ring">
+            <svg width="84" height="84"><circle cx="42" cy="42" r="36" stroke="rgba(134,158,195,.15)" stroke-width="7" fill="none"/>
+              <circle id="g-q-arc" cx="42" cy="42" r="36" stroke="var(--j-green)" stroke-width="7" fill="none" stroke-linecap="round" stroke-dasharray="226" stroke-dashoffset="226"/></svg>
+            <div class="gval" id="g-q">0</div>
+          </div>
+          <div class="glbl">Perguntas</div>
+        </div>
+      </div>
+
+      <div class="coach-cards" id="coach">
+        <div class="coach-idle">🛰️ Aguardando a conversa…<br>Preencha o contexto e ative a escuta. As recomendações aparecem aqui.</div>
+      </div>
+      <button class="btn primary" id="btn-ask" style="width:100%;margin-top:12px">⚡ Pedir sugestão agora</button>
+    </div>
+  </div>
+</div>
+
+<office-footer></office-footer>
+
+<script>
+// ── Estado ─────────────────────────────────────────────────────────────────
+const ST = { transcript: [], micSpeaker: 'prospect', recog: null, micOn: false,
+             audioCtx: null, analyser: null, rafWave: null, coachTimer: null, asking: false };
+const TAU = 2 * Math.PI * 36; // circunferência do anel (r=36) ≈ 226
+
+const $ = id => document.getElementById(id);
+const ctx = () => ({
+  prospect: $('f-prospect').value.trim(), empresa: $('f-empresa').value.trim(),
+  industria: $('f-industria').value, lob: $('f-lob').value,
+  persona: $('f-persona').value, estagio: $('f-estagio').value
+});
+
+// ── Popular dropdowns com a base REAL ───────────────────────────────────────
+async function loadPlaybook(){
+  const fallback = {
+    industrias:['Agro & Alimentício','Indústria & Manufatura','Química & Farma','Energia & Utilities','Bancos & Financeiro','Seguros','Saúde (Hospitais)','Serviços & Tecnologia','Automotivo','Telecom & Mídia','Educação'],
+    lobs:['SAP SuccessFactors (HCM)','SAP S/4HANA (ERP)','SAP BTP (Tech)','SAP Signavio / BTM','ServiceNow','WorkForce Software (WFS)','Qualtrics','Valcann (Cloud)','iLAB (QA)','PRISM (Labs)','AMS / Evolução'],
+    personas:['CFO','CHRO_COO','CIO','CEO','CTO_Arquiteto']
+  };
+  let d = fallback;
+  try { const r = await fetch('/api/jarvis/playbook'); if(r.ok){ const j = await r.json(); d = { industrias: j.industrias?.length?j.industrias:fallback.industrias, lobs: j.lobs?.length?j.lobs:fallback.lobs, personas: j.personas?.length?j.personas:fallback.personas }; } } catch(e){}
+  const fill = (el,arr,placeholder)=>{ el.innerHTML = `<option value="">${placeholder}</option>` + arr.map(x=>`<option>${x}</option>`).join(''); };
+  fill($('f-industria'), d.industrias, '— indústria —');
+  fill($('f-lob'), d.lobs, '— LOB —');
+  fill($('f-persona'), d.personas, '— persona —');
+}
+
+// ── Transcrição ─────────────────────────────────────────────────────────────
+function renderTranscript(interim){
+  const el = $('transcript');
+  if (!ST.transcript.length && !interim){ return; }
+  el.innerHTML = ST.transcript.map(u =>
+    `<div class="utt ${u.speaker}"><span class="who">${u.speaker==='prospect'?'👤 Prospect':'🧑‍💼 Você'}</span>${escapeHtml(u.text)}</div>`
+  ).join('') + (interim ? `<div class="utt ${ST.micSpeaker} interim"><span class="who">ouvindo…</span>${escapeHtml(interim)}</div>` : '');
+  el.scrollTop = el.scrollHeight;
+}
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function addUtterance(speaker, text){
+  text = (text||'').trim(); if(!text) return;
+  ST.transcript.push({ speaker, text, t: Date.now() });
+  renderTranscript();
+  updateGauges();
+  if (speaker === 'prospect') scheduleCoach(text); // reage à fala do prospect
+}
+
+// ── Gauges (REAIS — derivados da sessão) ────────────────────────────────────
+function setArc(id, pct){ const c=$(id); if(c) c.style.strokeDashoffset = TAU * (1 - Math.max(0,Math.min(100,pct))/100); }
+function updateGauges(){
+  const words = sp => ST.transcript.filter(u=>u.speaker===sp).reduce((a,u)=>a+u.text.split(/\s+/).filter(Boolean).length,0);
+  const wSdr = words('sdr'), wPro = words('prospect'), tot = wSdr+wPro;
+  const talkPct = tot ? Math.round(wSdr/tot*100) : 0;
+  const qCount = ST.transcript.filter(u=>u.speaker==='sdr').reduce((a,u)=>a+(u.text.match(/\?/g)||[]).length,0);
+  $('g-talk').textContent = tot? talkPct+'%' : '—'; setArc('g-talk-arc', talkPct);
+  $('g-q').textContent = qCount; setArc('g-q-arc', Math.min(100, qCount*12));
+}
+function setTemp(v){
+  if (v==null || isNaN(v)){ $('g-temp').textContent='—'; setArc('g-temp-arc',0); return; }
+  v = Math.max(0,Math.min(100,Math.round(v)));
+  $('g-temp').textContent = v;
+  const arc=$('g-temp-arc'); setArc('g-temp-arc', v);
+  arc.style.stroke = v>=66? 'var(--j-green)' : v>=33? 'var(--j-gold)' : 'var(--j-red)';
+}
+
+// ── Coach (chama a IA) ──────────────────────────────────────────────────────
+function scheduleCoach(lastUtterance){
+  clearTimeout(ST.coachTimer);
+  ST.coachTimer = setTimeout(()=>requestCoach(lastUtterance), 1100); // debounce
+}
+async function requestCoach(lastUtterance){
+  if (ST.asking) return; ST.asking = true; $('thinking').style.display='inline';
+  try{
+    const r = await fetch('/api/jarvis/coach',{method:'POST',headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ context: ctx(), transcript: ST.transcript.slice(-12), lastUtterance: lastUtterance||'' })});
+    const d = await r.json();
+    if(!r.ok || d.success===false){ renderCoachError(d.error||('HTTP '+r.status)); return; }
+    renderCoach(d);
+  }catch(e){ renderCoachError(e.message); }
+  finally{ ST.asking=false; $('thinking').style.display='none'; }
+}
+function card(cls,icon,title,body){ return body ? `<div class="cc ${cls}"><div class="cct">${icon} ${title}</div><div class="ccb">${escapeHtml(body)}</div></div>` : ''; }
+function renderCoach(d){
+  const sinais = Array.isArray(d.sinais)? d.sinais.filter(Boolean):[];
+  let html = '';
+  html += card('q','❓','Próxima pergunta', d.proxima_pergunta);
+  html += card('talk','💬','Fala sugerida', d.talk_track);
+  if (d.objecao) html += card('obj','🛡️','Contorno de objeção', d.objecao);
+  html += card('next','✅','Próximo passo', d.proximo_passo);
+  if (d.lob_sugerida) html += `<div class="cc"><div class="cct">🎯 LOB aderente</div><div class="ccb">${escapeHtml(d.lob_sugerida)}</div></div>`;
+  if (sinais.length) html += `<div class="cc"><div class="cct">📡 Sinais</div><div class="chips">${sinais.map(s=>`<span class="chip">${escapeHtml(s)}</span>`).join('')}</div></div>`;
+  $('coach').innerHTML = html || `<div class="coach-idle">Sem sugestão clara ainda — continue a conversa.</div>`;
+  setTemp(d.temperatura);
+}
+function renderCoachError(msg){
+  $('coach').innerHTML = `<div class="cc obj"><div class="cct">⚠️ Sem IA agora</div><div class="ccb">${escapeHtml(msg)}</div></div>`;
+}
+
+// ── Pré-call brief ──────────────────────────────────────────────────────────
+async function preCallBrief(){
+  $('coach').innerHTML = `<div class="coach-idle">🧭 Montando pré-call brief…</div>`;
+  try{
+    const r = await fetch('/api/jarvis/brief',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({context:ctx()})});
+    const d = await r.json();
+    if(!r.ok||d.success===false){ renderCoachError(d.error||('HTTP '+r.status)); return; }
+    let html = card('talk','🚀','Abertura', d.abertura);
+    if (d.gatilho_2026) html += card('obj','⏰','Gatilho 2026', d.gatilho_2026);
+    if (Array.isArray(d.dores_provaveis)&&d.dores_provaveis.length) html += `<div class="cc q"><div class="cct">🔎 Dores prováveis</div><div class="chips">${d.dores_provaveis.map(x=>`<span class="chip">${escapeHtml(x)}</span>`).join('')}</div></div>`;
+    if (Array.isArray(d.perguntas_chave)&&d.perguntas_chave.length) html += `<div class="cc"><div class="cct">❓ Perguntas-chave</div><div class="ccb">${d.perguntas_chave.map(q=>'• '+escapeHtml(q)).join('<br>')}</div></div>`;
+    if (d.prova_social) html += card('next','🏅','Prova social', d.prova_social);
+    $('coach').innerHTML = html;
+  }catch(e){ renderCoachError(e.message); }
+}
+
+// ── Web Speech API ──────────────────────────────────────────────────────────
+function initMic(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){ $('btn-mic').textContent='🚫 Sem suporte (use Chrome)'; $('btn-mic').disabled=true; return; }
+  const rec = new SR(); rec.lang='pt-BR'; rec.continuous=true; rec.interimResults=true;
+  rec.onresult = ev=>{
+    let interim='';
+    for(let i=ev.resultIndex;i<ev.results.length;i++){
+      const res=ev.results[i];
+      if(res.isFinal) addUtterance(ST.micSpeaker, res[0].transcript);
+      else interim += res[0].transcript;
+    }
+    if(interim) renderTranscript(interim);
+  };
+  rec.onend = ()=>{ if(ST.micOn){ try{rec.start();}catch(e){} } };
+  rec.onerror = e=>{ if(e.error==='not-allowed'){ stopMic(); renderCoachError('Permissão de microfone negada.'); } };
+  ST.recog = rec;
+}
+async function startMic(){
+  if(!ST.recog) return;
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+    ST.audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    const src = ST.audioCtx.createMediaStreamSource(stream);
+    ST.analyser = ST.audioCtx.createAnalyser(); ST.analyser.fftSize=256; src.connect(ST.analyser);
+    drawWave();
+    ST.recog.start(); ST.micOn=true;
+    $('btn-mic').textContent='⏸️ Pausar mic'; $('btn-mic').classList.remove('rec');
+  }catch(e){ renderCoachError('Não consegui acessar o microfone: '+e.message); }
+}
+function stopMic(){
+  ST.micOn=false; try{ST.recog && ST.recog.stop();}catch(e){}
+  cancelAnimationFrame(ST.rafWave); try{ST.audioCtx && ST.audioCtx.close();}catch(e){} ST.audioCtx=null;
+  idleWave(); $('btn-mic').textContent='🎙️ Ativar mic'; $('btn-mic').classList.add('rec');
+}
+function drawWave(){
+  const cv=$('wave'), c=cv.getContext('2d'), buf=new Uint8Array(ST.analyser.frequencyBinCount);
+  const loop=()=>{ ST.rafWave=requestAnimationFrame(loop); ST.analyser.getByteTimeDomainData(buf);
+    c.clearRect(0,0,cv.width,cv.height); c.lineWidth=2; c.strokeStyle='#7CC4DE'; c.beginPath();
+    const slice=cv.width/buf.length; let x=0;
+    for(let i=0;i<buf.length;i++){ const y=(buf[i]/128)*(cv.height/2); i?c.lineTo(x,y):c.moveTo(x,y); x+=slice; }
+    c.stroke(); };
+  loop();
+}
+function idleWave(){ const cv=$('wave'),c=cv.getContext('2d'); c.clearRect(0,0,cv.width,cv.height);
+  c.strokeStyle='rgba(134,158,195,.35)'; c.lineWidth=2; c.beginPath(); c.moveTo(0,cv.height/2); c.lineTo(cv.width,cv.height/2); c.stroke(); }
+
+// ── Eventos ─────────────────────────────────────────────────────────────────
+$('btn-mic').addEventListener('click', ()=> ST.micOn? stopMic() : startMic());
+$('btn-manual').addEventListener('click', sendManual);
+$('manual-in').addEventListener('keydown', e=>{ if(e.key==='Enter') sendManual(); });
+function sendManual(){ const v=$('manual-in').value; if(!v.trim())return; addUtterance(ST.micSpeaker, v); $('manual-in').value=''; }
+document.querySelectorAll('.speaker-seg button').forEach(b=> b.addEventListener('click', ()=>{
+  document.querySelectorAll('.speaker-seg button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); ST.micSpeaker=b.dataset.sp;
+}));
+$('btn-ask').addEventListener('click', ()=>{ const last=[...ST.transcript].reverse().find(u=>u.speaker==='prospect'); requestCoach(last?last.text:''); });
+$('btn-brief').addEventListener('click', preCallBrief);
+
+// ── Init ────────────────────────────────────────────────────────────────────
+loadPlaybook(); initMic(); idleWave();
+</script>
+</body>
+</html>

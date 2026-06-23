@@ -4623,11 +4623,13 @@ const sapRouter = require('./routes/sap');
 const authRouter = require('./routes/auth');
 const casesRouter = require('./routes/cases');
 const inboundRouter = require('./routes/inbound');
+const jarvisRouter = require('./routes/jarvis'); // Módulo 11 — JARVIS (copiloto SDR/BDR)
 
 app.use('/', sapRouter);
 app.use('/', authRouter);
 app.use('/', casesRouter);
 app.use('/', inboundRouter);
+app.use('/', jarvisRouter);
 
 app.listen(PORT, () => {
   console.log(`\n🎙️  EPI-USE Voices — Profile Optimizer`);

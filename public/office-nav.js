@@ -157,6 +157,10 @@ const OFFICE_NAV_OVERFLOW = [
   { label: '🤖 Agentes & Contexto',      href: '/agentes' },
   { label: '⚡ Central (pendências+prazos)', href: '/war-room' },
 
+  { section: '📞 Biz Dev' },
+  { label: '🤖 JARVIS — Copiloto SDR',   href: '/jarvis' },
+  { label: '📞 Pipeline (Apollo/Zoho)',  href: '/pipeline' },
+
   { section: '📊 Reports & Análises' },
   { label: '🔗 LinkedIn Intelligence',   href: '/linkedin' },
   { label: '📊 Visão Executiva (CMO)',   href: '/executivo' },
