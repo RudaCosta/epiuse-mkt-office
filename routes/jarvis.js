@@ -60,6 +60,12 @@ function openaiChatUrl(base) {
   return /\/v1$/.test(b) ? `${b}/chat/completions` : `${b}/v1/chat/completions`;
 }
 
+// Monta a URL de listagem de modelos (health-check padrão OpenAI-compat: Groq, OpenRouter, Ollama).
+function openaiModelsUrl(base) {
+  const b = (base || '').replace(/\/+$/, '');
+  return /\/v1$/.test(b) ? `${b}/models` : `${b}/v1/models`;
+}
+
 // Chamada unificada ao LLM — devolve só o TEXTO da resposta.
 // Ramo 'openai' usa fetch (Ollama/LM Studio/odysseus); padrão usa o SDK Anthropic (inalterado).
 async function callLLM({ system, user, maxTokens }) {
@@ -173,6 +179,29 @@ router.get('/api/jarvis/playbook', (req, res) => {
     industrias: (PLAYBOOK.matriz_industria || []).map(i => i.industria),
     gatilhos: PLAYBOOK.gatilhos_urgencia_2026 || []
   });
+});
+
+// ── API: ping — testa conectividade do Railway com o backend de IA ───────────
+// Útil p/ diagnosticar se o Quick Tunnel ainda está ativo.
+router.get('/api/jarvis/ping', async (req, res) => {
+  const base = { model: AI_MODEL, formato: AI_FORMAT, baseUrl: ODY_BASE || null };
+  if (!aiReady()) return res.json({ ...base, ok: false, message: 'Backend não configurado (sem URL/chave).' });
+  if (AI_FORMAT === 'openai') {
+    try {
+      // health-check padrão OpenAI-compat: GET /v1/models com a chave (Groq, OpenRouter, Ollama).
+      const resp = await fetch(openaiModelsUrl(ODY_BASE), {
+        headers: ODY_KEY ? { Authorization: `Bearer ${ODY_KEY}` } : {},
+        signal: AbortSignal.timeout(6000)
+      });
+      if (resp.ok) return res.json({ ...base, ok: true, message: `provedor respondeu OK (HTTP ${resp.status})` });
+      const txt = await resp.text().catch(() => '');
+      const dica = resp.status === 401 ? ' (chave inválida? verifique JARVIS_LLM_API_KEY)' : '';
+      return res.json({ ...base, ok: false, message: `HTTP ${resp.status}${dica} ${txt.slice(0, 80)}`.trim() });
+    } catch (e) {
+      return res.json({ ...base, ok: false, message: e.message });
+    }
+  }
+  return res.json({ ...base, ok: true, message: 'Anthropic client configurado.' });
 });
 
 // ── API: coach ao vivo ────────────────────────────────────────────────────────

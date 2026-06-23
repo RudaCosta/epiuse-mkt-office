@@ -129,7 +129,7 @@
   <div class="head">
     <div class="orb"></div>
     <div>
-      <h1>JARVIS <span class="v">· COPILOTO SDR/BDR &nbsp;v0.1</span></h1>
+      <h1>JARVIS <span class="v">· COPILOTO SDR/BDR &nbsp;v0.5</span></h1>
     </div>
   </div>
   <p class="sub">Biz Dev · prospecção B2B SAP & ServiceNow — escuta a conversa e recomenda suas falas em tempo real.</p>
@@ -180,7 +180,7 @@
 
     <!-- DIREITA: JARVIS COACH -->
     <div class="panel">
-      <h2>🧠 JARVIS recomenda <span class="thinking dotpulse" id="thinking" style="display:none">pensando</span></h2>
+      <h2>🧠 JARVIS recomenda <span style="display:flex;gap:8px;align-items:center"><span class="thinking dotpulse" id="thinking" style="display:none">pensando</span><span id="ia-status" style="font-size:10px;letter-spacing:.05em;color:var(--j-muted)">⏳ verificando…</span></span></h2>
 
       <div class="hud">
         <div class="gauge">
@@ -314,7 +314,36 @@ function renderCoach(d){
   setTemp(d.temperatura);
 }
 function renderCoachError(msg){
-  $('coach').innerHTML = `<div class="cc obj"><div class="cct">⚠️ Sem IA agora</div><div class="ccb">${escapeHtml(msg)}</div></div>`;
+  const isFetchFailed = /fetch failed|failed to fetch|network ?error/i.test(String(msg||''));
+  const hint = isFetchFailed
+    ? `<br><small style="opacity:.7;font-size:11px;line-height:1.5;display:block;margin-top:6px">🔌 Tunnel expirou? Verifique:<br>1. <code>cloudflared</code> ainda rodando no PC?<br>2. URL do túnel mudou? (Quick Tunnels são efêmeros — reiniciar gera URL novo)<br>3. Atualize <code>JARVIS_LLM_BASE_URL</code> no Railway com o novo URL.</small>`
+    : '';
+  $('coach').innerHTML = `<div class="cc obj"><div class="cct">⚠️ Sem IA agora</div><div class="ccb">${escapeHtml(String(msg||''))}${hint}</div></div>`;
+}
+
+// ── Ping IA (status badge no boot) ─────────────────────────────────────────
+async function pingIA() {
+  const el = $('ia-status');
+  if (!el) return;
+  try {
+    const r = await fetch('/api/jarvis/ping');
+    const d = await r.json();
+    if (d.ok) {
+      el.textContent = '🟢 IA online';
+      el.style.color = 'var(--j-green)';
+    } else {
+      el.textContent = '🔴 Offline';
+      el.style.color = 'var(--j-red)';
+      const isNet = /fetch failed|failed to fetch|network/i.test(d.message || '');
+      const msg = isNet
+        ? `fetch failed — ${d.message}`
+        : (d.message || 'Backend indisponível');
+      renderCoachError(msg);
+    }
+  } catch(e) {
+    if (el) { el.textContent = '🔴 Sem resposta'; el.style.color = 'var(--j-red)'; }
+    renderCoachError('fetch failed — ' + e.message);
+  }
 }
 
 // ── Pré-call brief ──────────────────────────────────────────────────────────
@@ -393,7 +422,7 @@ $('btn-ask').addEventListener('click', ()=>{ const last=[...ST.transcript].rever
 $('btn-brief').addEventListener('click', preCallBrief);
 
 // ── Init ────────────────────────────────────────────────────────────────────
-loadPlaybook(); initMic(); idleWave();
+loadPlaybook(); initMic(); idleWave(); pingIA();
 </script>
 </body>
 </html>
