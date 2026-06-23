@@ -1,5 +1,21 @@
 # CHANGELOG — Módulo 11 (JARVIS)
 
+## v0.2.0 — 2026-06-23 · Backend de IA via odysseus (Anthropic-compat)
+Motivo: a API direta da Anthropic ficou **sem créditos** (`credit balance is too low`). Trocamos o backend
+de IA do JARVIS para o **odysseus** (gateway Anthropic-compatible, `/v1/messages`, com URL pública).
+
+**Adicionado (só em `routes/jarvis.js` — adaptador configurável, sem mexer no app existente):**
+- Client de IA configurável por **env var off-repo**: `JARVIS_LLM_BASE_URL` · `JARVIS_LLM_API_KEY` ·
+  `JARVIS_LLM_MODEL` (aliases `ODYSSEUS_*`). Reusa a classe Anthropic via `client.constructor`, só trocando
+  `baseURL` + `apiKey` — zero require novo, zero mudança no `server-context.js`.
+- Fallback: se as vars do odysseus não existirem, usa o client Anthropic padrão (`ANTHROPIC_API_KEY`).
+- `coach` e `brief` agora chamam `aiClient.messages.create({ model: AI_MODEL, … })`.
+- Guard `aiReady()` (odysseus OU chave Anthropic) com mensagem 503 clara.
+- `GET /api/jarvis/playbook` agora expõe `backend` (`odysseus`/`anthropic`), `modelo` e `ia_pronta`.
+
+**⚠️ Pós-deploy (humano, no Railway):** setar `JARVIS_LLM_BASE_URL` (+ `JARVIS_LLM_API_KEY` e, se preciso,
+`JARVIS_LLM_MODEL`) nas env vars. Sem isso, prod continua tentando a Anthropic sem crédito.
+
 ## v0.1.0 — 2026-06-23 · Fundação (GUI + voz + IA)
 Sessão 5. Primeira fatia vertical do copiloto SDR/BDR, **só adicionando código** (regra de ouro do Rudá).
 
