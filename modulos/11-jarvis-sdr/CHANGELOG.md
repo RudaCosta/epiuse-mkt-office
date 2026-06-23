@@ -1,5 +1,25 @@
 # CHANGELOG — Módulo 11 (JARVIS)
 
+## v0.5.0 — 2026-06-23 · Backend hospedado (Groq) + diagnóstico de conectividade
+Motivo: o backend local (Ollama no PC + Quick Tunnel Cloudflare) era frágil por design — exigia o PC
+ligado, o `cloudflared` aberto numa tela, e o URL do túnel **expirava** a cada reinício (causa raiz do
+"fetch failed"). Decisão do Rudá: migrar pra **inferência hospedada** pra funcionar 24/7, pra qualquer
+SDR, de qualquer lugar, sem manter nada aberto. Provedor escolhido: **Groq** (grátis, baixa latência,
+OpenAI-compatível — encaixa no adaptador `JARVIS_LLM_FORMAT=openai` sem mudar a lógica do app).
+
+**Adicionado (só em `routes/jarvis.js` + `public/jarvis.html` — aditivo):**
+- `GET /api/jarvis/ping` — health-check de conectividade do servidor com o backend de IA. No modo `openai`
+  bate em `/v1/models` **com a chave** (padrão Groq/OpenRouter/Ollama) e devolve `{ok, message, baseUrl,
+  modelo}`. Diferencia 401 (chave inválida) de erro de rede. (v0.4 introduziu o ping testando a raiz; v0.5
+  corrigiu pro endpoint `/models` autenticado, que é o health-check certo pra provedor hospedado.)
+- `openaiModelsUrl()` — monta a URL de listagem de modelos tolerando base com/sem `/v1`.
+- UI: badge 🟢/🔴 no cabeçalho "JARVIS recomenda" (ping no boot via `pingIA()`); `renderCoachError`
+  detecta "fetch failed/Failed to fetch/NetworkError" e mostra dica de diagnóstico.
+
+**⚠️ Pós-deploy (humano, no Railway):** criar conta grátis em `console.groq.com` → gerar API key →
+setar: `JARVIS_LLM_FORMAT=openai` · `JARVIS_LLM_BASE_URL=https://api.groq.com/openai/v1` ·
+`JARVIS_LLM_MODEL=llama-3.3-70b-versatile` · `JARVIS_LLM_API_KEY=gsk_...`. Sem PC, sem túnel.
+
 ## v0.3.0 — 2026-06-23 · Suporte a backend OpenAI-compat (odysseus local / Ollama / LM Studio)
 Motivo: descobrimos que o **odysseus** (repo `pewdiepie-archdaemon/odysseus`) é um **workspace de IA
 self-hosted** que roda **modelos locais** (Ollama na `:11434`, LM Studio na `:1234` — formato OpenAI
