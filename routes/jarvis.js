@@ -34,20 +34,73 @@ try {
 const ODY_BASE = (process.env.JARVIS_LLM_BASE_URL || process.env.ODYSSEUS_BASE_URL || '').trim();
 const ODY_KEY  = (process.env.JARVIS_LLM_API_KEY  || process.env.ODYSSEUS_API_KEY  || '').trim();
 const AI_MODEL = (process.env.JARVIS_LLM_MODEL     || 'claude-haiku-4-5').trim();
+// Formato da API do backend de IA:
+//   'anthropic' (padrão) → /v1/messages (API Anthropic ou gateway Anthropic-compat)
+//   'openai'             → /v1/chat/completions (Ollama, LM Studio, odysseus local etc.)
+const AI_FORMAT = (process.env.JARVIS_LLM_FORMAT || 'anthropic').trim().toLowerCase();
 let aiClient = client;          // default: client Anthropic compartilhado
 let usingOdysseus = false;
-if (ODY_BASE) {
+if (ODY_BASE && AI_FORMAT !== 'openai') {
+  // gateway Anthropic-compat: reusa a MESMA classe Anthropic, só trocando baseURL + key
   try {
     aiClient = new client.constructor({ baseURL: ODY_BASE.replace(/\/+$/, ''), apiKey: ODY_KEY || 'odysseus' });
     usingOdysseus = true;
-    console.log('[jarvis] backend de IA: odysseus @', ODY_BASE, '· modelo', AI_MODEL);
+    console.log('[jarvis] backend de IA: odysseus(anthropic) @', ODY_BASE, '· modelo', AI_MODEL);
   } catch (e) {
     console.warn('[jarvis] falha ao iniciar odysseus, usando Anthropic padrão:', e.message);
   }
 }
-// Pronto se odysseus configurado OU há chave Anthropic.
-function aiReady() { return usingOdysseus || !!process.env.ANTHROPIC_API_KEY; }
-const AI_OFFLINE_MSG = 'Backend de IA indisponível: configure odysseus (JARVIS_LLM_BASE_URL) ou ANTHROPIC_API_KEY no ambiente.';
+if (AI_FORMAT === 'openai') {
+  console.log('[jarvis] backend de IA: OpenAI-compat @', ODY_BASE || '(JARVIS_LLM_BASE_URL vazio!)', '· modelo', AI_MODEL);
+}
+
+// Monta a URL de chat-completions tolerando base com ou sem /v1 no final.
+function openaiChatUrl(base) {
+  const b = (base || '').replace(/\/+$/, '');
+  return /\/v1$/.test(b) ? `${b}/chat/completions` : `${b}/v1/chat/completions`;
+}
+
+// Chamada unificada ao LLM — devolve só o TEXTO da resposta.
+// Ramo 'openai' usa fetch (Ollama/LM Studio/odysseus); padrão usa o SDK Anthropic (inalterado).
+async function callLLM({ system, user, maxTokens }) {
+  if (AI_FORMAT === 'openai') {
+    const resp = await fetch(openaiChatUrl(ODY_BASE), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(ODY_KEY ? { Authorization: `Bearer ${ODY_KEY}` } : {})
+      },
+      body: JSON.stringify({
+        model: AI_MODEL,
+        max_tokens: maxTokens,
+        messages: [
+          { role: 'system', content: system },
+          { role: 'user', content: user }
+        ]
+      })
+    });
+    if (!resp.ok) {
+      const t = await resp.text().catch(() => '');
+      throw new Error(`LLM ${resp.status}: ${t.slice(0, 200)}`);
+    }
+    const data = await resp.json();
+    return data?.choices?.[0]?.message?.content || '';
+  }
+  const completion = await aiClient.messages.create({
+    model: AI_MODEL,
+    max_tokens: maxTokens,
+    system,
+    messages: [{ role: 'user', content: user }]
+  });
+  return completion.content?.[0]?.text || '';
+}
+
+// Pronto se: openai com base setada · odysseus(anthropic) configurado · ou há chave Anthropic.
+function aiReady() {
+  if (AI_FORMAT === 'openai') return !!ODY_BASE;
+  return usingOdysseus || !!process.env.ANTHROPIC_API_KEY;
+}
+const AI_OFFLINE_MSG = 'Backend de IA indisponível: configure o backend de IA (JARVIS_LLM_BASE_URL [+ JARVIS_LLM_FORMAT=openai p/ Ollama/LM Studio]) ou ANTHROPIC_API_KEY no ambiente.';
 
 // ── RATE LIMIT (anti-abuso da API do Claude) ──────────────────────────────────
 const jarvisLimiter = rateLimit({
@@ -111,7 +164,8 @@ router.get('/jarvis', requireAuth, (req, res) => {
 router.get('/api/jarvis/playbook', (req, res) => {
   res.json({
     versao: PLAYBOOK?._meta?.versao || null,
-    backend: usingOdysseus ? 'odysseus' : 'anthropic',
+    backend: AI_FORMAT === 'openai' ? 'openai-compat' : (usingOdysseus ? 'odysseus' : 'anthropic'),
+    formato: AI_FORMAT,
     modelo: AI_MODEL,
     ia_pronta: aiReady(),
     lobs: (PLAYBOOK.lobs || []).map(l => l.nome),
@@ -167,14 +221,7 @@ router.post('/api/jarvis/coach', jarvisLimiter, async (req, res) => {
       `}`
     ].filter(Boolean).join('\n');
 
-    const completion = await aiClient.messages.create({
-      model: AI_MODEL,
-      max_tokens: 700,
-      system: buildSystemPrompt(),
-      messages: [{ role: 'user', content: userPrompt }]
-    });
-
-    const raw = completion.content?.[0]?.text || '';
+    const raw = await callLLM({ system: buildSystemPrompt(), user: userPrompt, maxTokens: 700 });
     const parsed = safeParseJson(raw);
     if (!parsed) {
       return res.json({ success: true, gerado_por_ia: true, fallback: true, talk_track: raw.slice(0, 400), proxima_pergunta: '', objecao: '', sinais: [], temperatura: null, proximo_passo: '' });
@@ -208,13 +255,8 @@ router.post('/api/jarvis/brief', jarvisLimiter, async (req, res) => {
       `}`
     ].join('\n');
 
-    const completion = await aiClient.messages.create({
-      model: AI_MODEL,
-      max_tokens: 800,
-      system: buildSystemPrompt(),
-      messages: [{ role: 'user', content: userPrompt }]
-    });
-    const parsed = safeParseJson(completion.content?.[0]?.text || '');
+    const raw = await callLLM({ system: buildSystemPrompt(), user: userPrompt, maxTokens: 800 });
+    const parsed = safeParseJson(raw);
     if (!parsed) return res.status(502).json({ success: false, error: 'Resposta da IA não pôde ser interpretada.' });
     res.json({ success: true, gerado_por_ia: true, ...parsed });
   } catch (e) {

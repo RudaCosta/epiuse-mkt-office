@@ -1,5 +1,25 @@
 # CHANGELOG — Módulo 11 (JARVIS)
 
+## v0.3.0 — 2026-06-23 · Suporte a backend OpenAI-compat (odysseus local / Ollama / LM Studio)
+Motivo: descobrimos que o **odysseus** (repo `pewdiepie-archdaemon/odysseus`) é um **workspace de IA
+self-hosted** que roda **modelos locais** (Ollama na `:11434`, LM Studio na `:1234` — formato OpenAI
+`/v1/chat/completions`), não um gateway Anthropic. Subir ele no Railway não é viável (sem GPU). Decisão do
+Rudá: manter o odysseus **no PC** e expor via **túnel**, com o JARVIS apontando pra ele.
+
+**Adicionado (só em `routes/jarvis.js` — adaptador, sem mexer no app existente):**
+- Nova env var `JARVIS_LLM_FORMAT` = `anthropic` (padrão) | `openai`. Em `openai`, o JARVIS fala
+  `/v1/chat/completions` (Ollama/LM Studio/odysseus) via `fetch`, em vez do SDK Anthropic.
+- Helper unificado `callLLM({system,user,maxTokens})` — ramo `openai` (fetch) e ramo `anthropic`
+  (SDK, **inalterado**). `coach` e `brief` passam por ele.
+- `openaiChatUrl()` tolera base com ou sem `/v1` no fim.
+- `aiReady()` reconhece o modo `openai` (pronto quando `JARVIS_LLM_BASE_URL` está setado; key opcional).
+- `GET /api/jarvis/playbook` agora também expõe `formato` (`anthropic`/`openai`) e `backend`
+  (`openai-compat` quando aplicável).
+
+**⚠️ Pós-deploy (humano):** subir túnel pro Ollama/odysseus local + setar no Railway:
+`JARVIS_LLM_FORMAT=openai` · `JARVIS_LLM_BASE_URL=<url-do-túnel>` · `JARVIS_LLM_MODEL=<modelo do Ollama>`
+(`JARVIS_LLM_API_KEY` só se o backend exigir). Limitação: só funciona com o PC + Ollama + túnel ligados.
+
 ## v0.2.0 — 2026-06-23 · Backend de IA via odysseus (Anthropic-compat)
 Motivo: a API direta da Anthropic ficou **sem créditos** (`credit balance is too low`). Trocamos o backend
 de IA do JARVIS para o **odysseus** (gateway Anthropic-compatible, `/v1/messages`, com URL pública).
