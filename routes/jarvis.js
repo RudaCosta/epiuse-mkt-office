@@ -26,6 +26,29 @@ try {
   console.warn('[jarvis] playbook não carregado:', e.message);
 }
 
+// ── BACKEND DE IA: odysseus (Anthropic-compat) | Anthropic padrão ─────────────
+// odysseus expõe /v1/messages (Anthropic-compatible), então reusamos a MESMA classe
+// Anthropic do client compartilhado — só trocando baseURL + key (via env off-repo).
+// Se as vars do odysseus não existirem, cai no client padrão (ANTHROPIC_API_KEY).
+// Config (Railway + .env local): JARVIS_LLM_BASE_URL · JARVIS_LLM_API_KEY · JARVIS_LLM_MODEL.
+const ODY_BASE = (process.env.JARVIS_LLM_BASE_URL || process.env.ODYSSEUS_BASE_URL || '').trim();
+const ODY_KEY  = (process.env.JARVIS_LLM_API_KEY  || process.env.ODYSSEUS_API_KEY  || '').trim();
+const AI_MODEL = (process.env.JARVIS_LLM_MODEL     || 'claude-haiku-4-5').trim();
+let aiClient = client;          // default: client Anthropic compartilhado
+let usingOdysseus = false;
+if (ODY_BASE) {
+  try {
+    aiClient = new client.constructor({ baseURL: ODY_BASE.replace(/\/+$/, ''), apiKey: ODY_KEY || 'odysseus' });
+    usingOdysseus = true;
+    console.log('[jarvis] backend de IA: odysseus @', ODY_BASE, '· modelo', AI_MODEL);
+  } catch (e) {
+    console.warn('[jarvis] falha ao iniciar odysseus, usando Anthropic padrão:', e.message);
+  }
+}
+// Pronto se odysseus configurado OU há chave Anthropic.
+function aiReady() { return usingOdysseus || !!process.env.ANTHROPIC_API_KEY; }
+const AI_OFFLINE_MSG = 'Backend de IA indisponível: configure odysseus (JARVIS_LLM_BASE_URL) ou ANTHROPIC_API_KEY no ambiente.';
+
 // ── RATE LIMIT (anti-abuso da API do Claude) ──────────────────────────────────
 const jarvisLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
@@ -88,6 +111,9 @@ router.get('/jarvis', requireAuth, (req, res) => {
 router.get('/api/jarvis/playbook', (req, res) => {
   res.json({
     versao: PLAYBOOK?._meta?.versao || null,
+    backend: usingOdysseus ? 'odysseus' : 'anthropic',
+    modelo: AI_MODEL,
+    ia_pronta: aiReady(),
     lobs: (PLAYBOOK.lobs || []).map(l => l.nome),
     personas: Object.keys(PLAYBOOK.pitches_por_persona || {}),
     industrias: (PLAYBOOK.matriz_industria || []).map(i => i.industria),
@@ -99,8 +125,8 @@ router.get('/api/jarvis/playbook', (req, res) => {
 // Recebe contexto da call + transcrição recente + última fala do prospect.
 // Devolve JSON com próxima pergunta, talk track, contorno de objeção, sinais e temperatura.
 router.post('/api/jarvis/coach', jarvisLimiter, async (req, res) => {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return res.status(503).json({ success: false, error: 'ANTHROPIC_API_KEY ausente neste ambiente. Rode o Office na máquina com a chave (.env off-repo).' });
+  if (!aiReady()) {
+    return res.status(503).json({ success: false, error: AI_OFFLINE_MSG });
   }
   try {
     const { context = {}, transcript = [], lastUtterance = '' } = req.body || {};
@@ -141,8 +167,8 @@ router.post('/api/jarvis/coach', jarvisLimiter, async (req, res) => {
       `}`
     ].filter(Boolean).join('\n');
 
-    const completion = await client.messages.create({
-      model: 'claude-haiku-4-5',
+    const completion = await aiClient.messages.create({
+      model: AI_MODEL,
       max_tokens: 700,
       system: buildSystemPrompt(),
       messages: [{ role: 'user', content: userPrompt }]
@@ -163,8 +189,8 @@ router.post('/api/jarvis/coach', jarvisLimiter, async (req, res) => {
 // ── API: pré-call brief ───────────────────────────────────────────────────────
 // Gera um ângulo de abertura por persona/LOB/indústria antes da call começar.
 router.post('/api/jarvis/brief', jarvisLimiter, async (req, res) => {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return res.status(503).json({ success: false, error: 'ANTHROPIC_API_KEY ausente neste ambiente.' });
+  if (!aiReady()) {
+    return res.status(503).json({ success: false, error: AI_OFFLINE_MSG });
   }
   try {
     const { context = {} } = req.body || {};
@@ -182,8 +208,8 @@ router.post('/api/jarvis/brief', jarvisLimiter, async (req, res) => {
       `}`
     ].join('\n');
 
-    const completion = await client.messages.create({
-      model: 'claude-haiku-4-5',
+    const completion = await aiClient.messages.create({
+      model: AI_MODEL,
       max_tokens: 800,
       system: buildSystemPrompt(),
       messages: [{ role: 'user', content: userPrompt }]
