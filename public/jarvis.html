@@ -41,9 +41,10 @@
 
   /* ── Header ── */
   .head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:6px}
-  .orb{width:46px;height:46px;border-radius:50%;
+  .orb{position:relative;flex:none;width:46px;height:46px;border-radius:50%;
     background:radial-gradient(circle at 50% 40%,var(--j-glow),var(--j-cyan) 55%,var(--j-navy));
     box-shadow:0 0 24px rgba(124,196,222,.55),inset 0 0 14px rgba(255,255,255,.25);animation:pulse 3s ease-in-out infinite}
+  .orb img{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;display:block}
   @keyframes pulse{0%,100%{box-shadow:0 0 18px rgba(124,196,222,.45),inset 0 0 14px rgba(255,255,255,.2)}50%{box-shadow:0 0 30px rgba(124,196,222,.75),inset 0 0 16px rgba(255,255,255,.35)}}
   h1{font-size:24px;letter-spacing:.02em}
   h1 .v{font-size:11px;color:var(--j-muted);font-weight:500;letter-spacing:.18em}
@@ -127,9 +128,9 @@
 
 <div class="wrap">
   <div class="head">
-    <div class="orb"></div>
+    <div class="orb" title="JARVIS — mega brain 🧠"><img src="/img/jarvis/logo-megamind-v1.svg" alt="JARVIS — mega brain"></div>
     <div>
-      <h1>JARVIS <span class="v">· COPILOTO SDR/BDR &nbsp;v0.6</span></h1>
+      <h1>JARVIS <span class="v">· COPILOTO SDR/BDR &nbsp;v0.7</span></h1>
     </div>
   </div>
   <p class="sub">Biz Dev · prospecção B2B SAP & ServiceNow — escuta a conversa e recomenda suas falas em tempo real.</p>

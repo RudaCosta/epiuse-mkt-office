@@ -1,5 +1,17 @@
 # CHANGELOG — Módulo 11 (JARVIS)
 
+## v0.7.0 — 2026-06-24 · Logo Megamind ("mega brain") no header
+Motivo: o Rudá pediu o logo do JARVIS como meme do **Megamind** ("mega brain") no lugar da bolinha (orb)
+pulsante do cabeçalho. Decisão (24/jun): **V1** (Megamind preenche o orb) + **SVG autoral** (caricatura
+estilizada, não a arte oficial DreamWorks — uso interno/meme, baixo risco de IP).
+
+**Adicionado (aditivo — `public/jarvis.html`, `public/img/jarvis/`):**
+- Asset `public/img/jarvis/logo-megamind-v1.svg`: badge SVG self-contained (cabeça azul, olhos verdes, gola
+  preta) preenchendo o disco redondo, com halo próprio.
+- `.orb` agora hospeda o `<img>` do logo (`.orb img` absolute, 100%, redondo). **Glow + `@keyframes pulse`
+  preservados** — o gradiente original vira **fallback** se o SVG não carregar.
+- UI header → v0.7. (V2 "sobreposto" foi descartado na decisão; preview mantido em `logo-megamind-v2.svg`.)
+
 ## v0.6.0 — 2026-06-23 · Humanizer + cérebro real (estratégia FY27 · cases · conteúdos · web)
 Motivo: as recomendações estavam genéricas (paráfrase da fala, tom robótico, sem cases/conteúdos reais).
 O Rudá entregou as fontes: a skill **`blader/humanizer`** (guia "Signs of AI writing" da Wikipedia) e a
