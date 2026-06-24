@@ -1,0 +1,23 @@
+{
+  "_meta": {
+    "versao": "0.1.0",
+    "atualizado_em": "2026-06-24",
+    "estado": "⏳ aguarda ingestão",
+    "descricao": "Battle cards de USO INTERNO (coaching do SDR). Injetado no system prompt como contexto interno — ajuda o JARVIS a posicionar a EPI-USE sem entregar o jogo.",
+    "regra_concorrentes": "A fala que o SDR diz em voz alta (talk_track) NUNCA cita concorrente nominalmente. Battle card é munição de bastidor: usa o argumento, não o nome.",
+    "regra_dados": "REAL DATA ONLY (Regra 7) — NUNCA inventar vantagem, número ou comparação. Só material aprovado.",
+    "como_alimentar": "Rudá entrega o arquivo → Claude estrutura cada card no schema abaixo → commit. O array começa vazio de propósito.",
+    "schema_item": {
+      "id": "slug-unico",
+      "tema": "ex: 'folha no braço' | 'ECC fim de vida' | 'TCO de migração'",
+      "lob": "LOB EPI-USE relacionado",
+      "cenario": "quando esse card é útil (o que o cliente disse/sinalizou)",
+      "nossa_vantagem": "vantagem real EPI-USE (sem nomear concorrente)",
+      "argumento_venda": ["argumento 1 que o SDR usa", "argumento 2"],
+      "sinais_de_alerta": ["o que indica que estamos perdendo / red flag"],
+      "objecoes_relacionadas": ["objeção típica neste tema"],
+      "uso": "interno — não nomear concorrente na fala"
+    }
+  },
+  "battle_cards": []
+}

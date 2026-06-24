@@ -1,0 +1,23 @@
+{
+  "_meta": {
+    "versao": "0.1.0",
+    "atualizado_em": "2026-06-24",
+    "estado": "⏳ aguarda ingestão",
+    "descricao": "Conhecimento de produtos SAP/ServiceNow para o JARVIS aprender a explicar a solução em linguagem de negócio. Injetado no system prompt (fatiado por LOB).",
+    "regra": "REAL DATA ONLY (Regra 7) — NUNCA inventar. Preencher só a partir de material oficial (decks, sites sap.com/servicenow.com, battle cards, one-pagers).",
+    "como_alimentar": "Rudá entrega o arquivo (xlsx/pdf/pptx/docx) → Claude estrutura cada produto no schema abaixo → commit. O array começa vazio de propósito.",
+    "schema_item": {
+      "id": "slug-unico",
+      "nome": "Nome comercial do produto",
+      "categoria": "ex: ERP | HCM | Process Intelligence | ITSM",
+      "lob": "LOB EPI-USE (S/4HANA | SuccessFactors | ServiceNow | Process Excellence | WorkForce Software (WFS) | Qualtrics)",
+      "o_que_e": "1-2 frases em linguagem de negócio (não técnica)",
+      "dores_que_resolve": ["dor de negócio 1", "dor 2"],
+      "diferenciais": ["diferencial 1"],
+      "quando_usar": "em que cenário/persona faz mais sentido",
+      "perguntas_qualificacao": ["pergunta de descoberta 1"],
+      "fontes": [{ "titulo": "página/doc", "url": "https://..." }]
+    }
+  },
+  "produtos": []
+}

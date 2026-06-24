@@ -6,22 +6,29 @@
 > **recomenda falas** (próxima pergunta, talk track, contorno de objeção, próximo passo).
 
 ## Status
-🟢 **v0.1 — fundação (GUI + voz + IA)** · Sessão 5 (23/jun/2026). Fatia vertical funcional.
+🟢 **v0.8 — cérebro vivo + diarização heurística + loop de conteúdo** (24/jun/2026). Aprende com as calls.
 
 ## Como funciona
-1. **Escuta** — `Web Speech API` (pt-BR, Chrome) capta o microfone local + **fallback manual** (digitar/colar
-   a fala do prospect). A transcrição alimenta o coach.
-2. **Pensa** — `POST /api/jarvis/coach` envia contexto da call + transcrição recente ao **Claude (Haiku 4.5,
-   baixa latência)** com a persona sênior + a base de conhecimento real injetada no system prompt.
-3. **Recomenda** — cards de sugestão (próxima pergunta, fala, objeção, próximo passo, sinais, LOB) +
-   gauges HUD (temperatura 🤖, % de fala do SDR, nº de perguntas) calculados **da própria sessão**.
+1. **Escuta** — `Web Speech API` (pt-BR, Chrome) capta o microfone local. **Diarização heurística** separa as
+   falas em **Voz 1 / Voz 2** por pausa (sem clicar a cada turno); o SDR marca **1×** quem é SDR/Cliente.
+2. **Pensa** — `POST /api/jarvis/coach` envia contexto + transcrição ao **Claude (Haiku 4.5)** com persona
+   sênior + base real + **memória viva** (dores já ouvidas em campo) injetadas no system prompt.
+3. **Recomenda** — cards (próxima pergunta, fala humanizada, objeção, próximo passo, sinais, LOB, conteúdos
+   reais) + gauges (temperatura 🤖, % de fala, perguntas) derivados da sessão.
+4. **Aprende** — "🏁 Encerrar & salvar" grava a call e **extrai dores/objeções/gatilhos reais**
+   (`POST /api/jarvis/encerrar` → `jarvis_aprendizados`). A memória cresce e volta pro coach.
+5. **Guia conteúdo** — "📊 Dores de campo" (`GET /api/jarvis/dores-de-campo`) agrega por LOB → pauta os
+   próximos conteúdos (loop campo→conteúdo). O sub-agente `jarvis-sdr` destila isso offline.
 
 ## Arquivos-chave
 | Arquivo | Papel |
 |---|---|
 | `public/jarvis.html` | GUI HUD single-file (vanilla, design-tokens EPI-USE). Rota `/jarvis`. |
-| `routes/jarvis.js` | Router modular: página + `POST /api/jarvis/coach` + `POST /api/jarvis/brief` + `GET /api/jarvis/playbook`. |
-| `modulos/11-jarvis-sdr/playbook.json` | **Base de conhecimento REAL** (LOBs, personas, pitches, gatilhos 2026, matriz indústria×dor, BANT/MEDDIC/SPIN, objeções). Injetada no system prompt. |
+| `routes/jarvis.js` | Router modular: página + `coach` + `brief` + `pesquisar` + **`encerrar`** + **`dores-de-campo`** + `playbook` + `ping`. Cria as tabelas de memória no boot. |
+| `playbook.json` | **Base de conhecimento REAL** (LOBs, personas, pitches, gatilhos 2026, matriz, FY27, BANT/MEDDIC/SPIN, objeções). Injetada no system prompt. |
+| `kb-produtos-sap.json` · `kb-battle-cards.json` | KB curada (produtos SAP + battle cards). **`⏳ aguarda ingestão`** — Regra 7. Injetada fatiada por LOB. |
+| SQLite `jarvis_calls` + `jarvis_aprendizados` | **Memória viva** (volume `/data` no Railway). Calls salvas + dores aprendidas. |
+| `.claude/agents/jarvis-sdr.md` · `vault/agentes/jarvis.md` | Sub-agente destilador (offline) + perfil Obsidian. |
 
 ## Edições aditivas no app (regra de ouro da sessão: SÓ ADICIONAR)
 - `server.js` (bloco de routers ~4622): `require('./routes/jarvis')` + `app.use('/', jarvisRouter)`.
@@ -38,5 +45,6 @@ Office no ar (`http://localhost:3000`) → abrir **`/jarvis` no Chrome** → per
 ou digitar a fala do prospect → ver transcrição e recomendações. Precisa de `ANTHROPIC_API_KEY` no `.env`
 off-repo (a IA retorna 503 claro se faltar).
 
-## Não-objetivos (v0.1)
-Sem enrich Apollo/Zoho do prospect, sem gravação de áudio, sem "deep mode" Sonnet, sem log no CRM — ver `PENDENCIAS.md`.
+## Não-objetivos (v0.8)
+STT pago com diarização acústica real + captura de áudio da aba (fase futura), RAG semântico (embeddings) na
+nuvem, enrich Apollo/Zoho do prospect, "deep mode" Sonnet, log no CRM — ver `PENDENCIAS.md`.

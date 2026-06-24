@@ -1,5 +1,35 @@
 # CHANGELOG — Módulo 11 (JARVIS)
 
+## v0.8.0 — 2026-06-24 · Cérebro vivo + diarização heurística + loop de conteúdo
+Motivo: o Rudá quer que o JARVIS **aprenda** — absorver clientes/SDR/produtos SAP/battle cards, entender a
+dor e como abordar; ser **vivo** como o RAG; e **guiar os próximos conteúdos**. E parar de clicar
+"Prospect/SDR" a cada turno — auto-rotular **Voz 1 / Voz 2** e marcar quem é quem 1×.
+Decisões (24/jun): diarização **heurística no navegador** (interino) · **MVP vivo** (persistência + KB +
+loop, sem embeddings) · documentar no Obsidian + criar **sub-agente destilador** `jarvis-sdr`.
+
+**Adicionado (aditivo — `routes/jarvis.js`, `public/jarvis.html`, KB, docs):**
+- **Memória viva (SQLite, cloud-ready):** tabelas `jarvis_calls` + `jarvis_aprendizados` criadas no boot do
+  router (volume `/data` no Railway). As dores/objeções/gatilhos ouvidos voltam pro system prompt
+  ("=== MEMÓRIA VIVA — DORES JÁ OUVIDAS EM CAMPO ===" via `recallDores()`) — o JARVIS antecipa a dor.
+- **Pós-call:** `POST /api/jarvis/encerrar` salva a call e **extrai (IA) aprendizados REAIS** (dor/objeção/
+  gatilho/pergunta vencedora/sinal) por LOB·indústria·persona. Botão "🏁 Encerrar & salvar".
+- **Loop campo→conteúdo:** `GET /api/jarvis/dores-de-campo` agrega o que os SDRs ouviram, por LOB → insumo
+  pra pautar conteúdo. Botão "📊 Dores de campo".
+- **KB curada:** `kb-produtos-sap.json` + `kb-battle-cards.json` (schema documentado, **`⏳ aguarda ingestão`** —
+  Regra 7, nada inventado). Injetada no prompt fatiada por LOB (`selectKb()`). Battle card = uso INTERNO,
+  nunca nomeia concorrente na fala. `GET /api/jarvis/playbook` agora reporta o estado da KB.
+- **Diarização heurística:** Voz 1 / Voz 2 separadas por **pausa** (`inferVoz`, gap 1,6s), sem clicar a cada
+  turno. Mapeamento de papel **1×** (Voz 1/2 = SDR/Cliente, exclusivo). Override manual "↔️ trocar voz".
+  Gauges (% fala, perguntas) e disparo do coach passam a usar o **papel derivado**. Etiqueta honesta de que
+  é heurística (não diarização acústica). UI header → v0.8.
+
+**Org / docs:** perfil `vault/agentes/jarvis.md` (o que é, como se porta, como aprende) + linha no
+`vault/agentes/_index.md`; **sub-agente** `.claude/agents/jarvis-sdr.md` (destilador offline, área Pipeline).
+
+**Fora de escopo (fase futura):** STT pago com diarização acústica real (Deepgram/AssemblyAI) + captura de
+áudio da aba; RAG semântico (embeddings) na nuvem unificando playbook+cases+artigos+aprendizados; enrich
+Apollo/Zoho do prospect.
+
 ## v0.7.0 — 2026-06-24 · Logo Megamind ("mega brain") no header
 Motivo: o Rudá pediu o logo do JARVIS como meme do **Megamind** ("mega brain") no lugar da bolinha (orb)
 pulsante do cabeçalho. Decisão (24/jun): **V1** (Megamind preenche o orb) + **SVG autoral** (caricatura
