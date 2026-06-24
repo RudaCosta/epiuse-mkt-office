@@ -40,6 +40,22 @@
 - Gauges/KPIs → **derivados da sessão ao vivo** (nunca inventados).
 - KB → **dado real** EPI-USE (fonte: `vault/00-contexto/empresa.md` + `modulos/08-inbound-offline/lob-positioning.md`).
 
+## Como alimentar a KB (produtos SAP / battle cards)
+Fluxo (Regra 5 + Regra 7): o Rudá entrega o arquivo (xlsx/pdf/pptx/docx) → o Claude **lê e normaliza** num
+JSON no schema da KB → o script valida, mescla por `id` e grava:
+
+```bash
+# 1) Claude gera kb_input.json a partir do material real
+# 2) valida sem gravar:
+node scripts/sync/jarvis_kb_ingest.js produtos     kb_input.json --dry-run
+node scripts/sync/jarvis_kb_ingest.js battle-cards kb_input.json --dry-run
+# 3) grava (merge por id; --replace troca a lista inteira):
+node scripts/sync/jarvis_kb_ingest.js produtos     kb_input.json
+```
+Itens sem campos obrigatórios (`produtos`: id·nome·lob·o_que_e · `battle-cards`: id·tema·nossa_vantagem) são
+**rejeitados** (nada de placeholder vazio). `fonte` é auto-preenchida com o nome do arquivo. O JARVIS pega no
+próximo boot. Deploy só sob `"sobe"` (Regra 3).
+
 ## Como rodar / verificar
 Office no ar (`http://localhost:3000`) → abrir **`/jarvis` no Chrome** → permitir microfone → falar pt-BR
 ou digitar a fala do prospect → ver transcrição e recomendações. Precisa de `ANTHROPIC_API_KEY` no `.env`
