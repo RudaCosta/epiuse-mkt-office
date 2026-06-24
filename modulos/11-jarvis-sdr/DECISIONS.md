@@ -38,3 +38,27 @@ IA (etiquetada 🤖). Nenhum número fictício.
 ## D7 — Base de conhecimento em JSON versionado (não hardcoded no prompt)
 **Decisão:** `playbook.json` separado, carregado 1x no boot e injetado no system prompt.
 **Por quê:** dado real rastreável e fácil de atualizar sem mexer no código; fontes declaradas em `_meta`.
+
+## D8 — Memória viva em SQLite (não embeddings) — v0.8
+**Decisão:** persistir calls + aprendizados em tabelas SQLite (`jarvis_calls`, `jarvis_aprendizados`) e fazer
+o "retrieval" da memória por **LOB/keyword** (não vetorial). As dores ouvidas voltam pro system prompt.
+**Por quê:** decisão do Rudá foi **MVP vivo sem embeddings** — cloud-ready (volume `/data` no Railway já
+provado, P0/D1), zero custo/dependência nova, e o `better-sqlite3` é síncrono (consulta no coach sem
+latência sensível). RAG semântico (embeddings) fica pra fase futura; o RAG vetorial de verdade segue offline
+na GPU do Rudá (`modulos/08-inbound-offline`). **Regra 7:** aprendizados só de calls REAIS (fonte='call').
+
+## D9 — Diarização heurística no navegador (não STT pago) — v0.8
+**Decisão:** auto-rotular **Voz 1/Voz 2** por **pausa** entre falas (gap 1,6s) no Web Speech API, com
+mapeamento de papel **1×** e override manual. **Não** integrar STT pago com diarização acústica agora.
+**Por quê:** decisão do Rudá foi o caminho **interino, grátis e imediato**. O Web Speech API não separa vozes
+acusticamente — então isso é **explicitamente etiquetado como heurística** (Regra 7: não vender como
+diarização real). Resolve a dor principal (parar de clicar a cada turno). STT real (Deepgram/AssemblyAI) +
+captura de áudio da aba fica como decisão/fase futura quando o Rudá aprovar a chave + custo.
+
+## D10 — JARVIS = app em runtime + sub-agente destilador (duas faces) — v0.8
+**Decisão:** manter o **app ao vivo** como módulo (não sub-agente) e criar um **sub-agente** `jarvis-sdr`
+(área Pipeline) que **destila as calls offline** em conhecimento curado e pautas.
+**Por quê:** runtime de call exige baixa latência e roda 24/7 na nuvem (não cabe no fluxo de sub-agentes
+Claude Code). Mas a inteligência que **aprende** (estruturar KB, consolidar dores, pautar conteúdo) é
+trabalho offline/lote — encaixa como sub-agente, dono do contexto de pipeline. As duas faces se conectam
+pela memória viva (SQLite). Documentado em `vault/agentes/jarvis.md`.

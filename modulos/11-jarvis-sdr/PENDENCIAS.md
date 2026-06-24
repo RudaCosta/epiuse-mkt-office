@@ -1,13 +1,22 @@
 # PENDÊNCIAS — Módulo 11 (JARVIS)
 
-## 🟡 Limitações conhecidas (v0.1)
+## ✅ Resolvido na v0.8 (24/jun)
+- **Atribuição de quem fala.** ~~Manual "Prospect/SDR" a cada turno.~~ Agora **diarização heurística**
+  (Voz 1/Voz 2 por pausa) + mapeamento de papel 1× + override "↔️ trocar voz". Ver limitação abaixo.
+- **Sem persistência.** ~~A call não era salva.~~ Agora `jarvis_calls` + `jarvis_aprendizados` (SQLite,
+  volume `/data`). Pós-call extrai dores reais; "Dores de campo" agrega por LOB pra pautar conteúdo.
+
+## 🟡 Limitações conhecidas (v0.8)
+- **Diarização é heurística, não acústica.** Separa por **pausa** (gap 1,6s) no `Web Speech API` — não
+  distingue vozes de verdade. Voz 1/Voz 2 podem sair trocadas (corrigir com "↔️ trocar voz"). Etiqueta
+  honesta na UI. → Evolução: **STT pago com diarização real** (Deepgram/AssemblyAI) — decisão/custo do Rudá.
 - **Captura de áudio do prospect em call remota.** O `Web Speech API` capta só o microfone local. Em
-  reunião remota (Teams/Meet/Zoom), as falas do prospect entram pelo **fallback manual** ou viva-voz.
-  → Evolução: captura de áudio do sistema (loopback / `getDisplayMedia` com áudio de aba) ou integração
-  com bot de reunião.
-- **Atribuição de quem fala.** No mic, o operador escolhe manualmente "Prospect/SDR" (segmento). Sem
-  diarização automática ainda.
-- **Sem persistência.** A sessão de call não é salva (sem histórico, sem log no CRM).
+  reunião remota (Teams/Meet/Zoom), as falas do prospect entram por viva-voz ou digitando. → Evolução:
+  captura de áudio da aba (`getDisplayMedia` com áudio) ou bot de reunião — anda junto com o STT pago.
+- **KB de produto/battle cards vazia.** `kb-produtos-sap.json` + `kb-battle-cards.json` estão
+  `⏳ aguarda ingestão` — o Rudá entrega o material (xlsx/pdf/pptx) e o `jarvis-sdr` estrutura (Regra 7).
+- **Memória sem RAG semântico.** Recall por LOB/keyword (sem embeddings). RAG vetorial na nuvem = fase futura.
+- **Sem log no CRM.** A call fica no SQLite do Office; integração Zoho/CRM segue backlog.
 
 ## 🟡 NotebookLM — enriquecimento de corpus (build, não runtime)
 - O `notebooklm-skill` roda só no Claude **local** do Rudá (browser-automation + login Google). **Não é

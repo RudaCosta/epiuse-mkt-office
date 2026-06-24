@@ -36,6 +36,15 @@
 | 🔍 [[revisor-qa]] | QA Editor + Revisor | `/revisar` | [revisor-qa.md](./revisor-qa.md) |
 
 
+## 🤖 Copiloto SDR (JARVIS) — área Pipeline
+
+| Item | O que é | Definição |
+|---|---|---|
+| 🤖 [[jarvis]] | **App em runtime** — copiloto SDR ao vivo (NÃO é sub-agente). Tela `/jarvis` + `routes/jarvis.js`. | [jarvis.md](./jarvis.md) |
+| 🧠 jarvis-sdr | **Sub-agente destilador** — processa as calls salvas em aprendizados curados (offline). Ligado à Pipeline (Marlison). | `.claude/agents/jarvis-sdr.md` |
+
+> O app ao vivo e o destilador se conectam pela **memória viva** (SQLite `jarvis_calls` + `jarvis_aprendizados`), que também **pauta os próximos conteúdos** (loop campo→conteúdo).
+
 ## Comandos do escritório
 
 | Comando | Quem age | O que faz |

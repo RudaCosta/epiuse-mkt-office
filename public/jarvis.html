@@ -81,13 +81,23 @@
   /* ── Transcrição ── */
   .mic-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
   .wave{flex:1;min-width:140px;height:42px;background:var(--j-bg2);border:1px solid var(--j-border);border-radius:9px}
-  .speaker-seg{display:flex;border:1px solid var(--j-border);border-radius:9px;overflow:hidden}
-  .speaker-seg button{background:transparent;border:0;color:var(--j-muted);padding:7px 11px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:600}
-  .speaker-seg button.on{background:var(--j-surface2);color:var(--j-glow)}
+  .diar{display:flex;align-items:center;gap:6px}
+  .diar-badge{font-size:11px;font-weight:600;color:var(--j-glow);background:var(--j-surface2);border:1px solid var(--j-border);border-radius:9px;padding:7px 10px;white-space:nowrap}
+  #btn-flip{padding:7px 10px;font-size:11px}
+  /* mapeamento de voz->papel (1x, sem clicar a cada turno) */
+  .rolemap{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--j-bg2);border:1px solid var(--j-border);border-radius:10px;padding:8px 10px;margin-bottom:12px}
+  .rolemap .rm-lbl{font-size:10px;color:var(--j-muted);text-transform:uppercase;letter-spacing:.1em;font-weight:600}
+  .rm-seg{display:flex;align-items:center;gap:4px;border:1px solid var(--j-border);border-radius:9px;padding:3px 4px}
+  .rm-seg>span{font-size:11px;color:var(--j-muted);padding:0 6px;font-weight:600}
+  .rm-seg button{background:transparent;border:0;color:var(--j-muted);padding:5px 9px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:600;border-radius:7px}
+  .rm-seg button.on{background:var(--j-surface2);color:var(--j-glow)}
+  .rm-hint{font-size:10.5px;color:var(--j-muted)}
   .transcript{height:330px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding-right:6px}
   .utt{padding:9px 11px;border-radius:9px;font-size:13.5px;line-height:1.45;max-width:92%}
   .utt.sdr{background:rgba(124,196,222,.08);border:1px solid rgba(124,196,222,.18);align-self:flex-end}
   .utt.prospect{background:rgba(167,139,250,.10);border:1px solid rgba(167,139,250,.22);align-self:flex-start}
+  .utt.voz1{background:rgba(167,139,250,.10);border:1px solid rgba(167,139,250,.22);align-self:flex-start}
+  .utt.voz2{background:rgba(124,196,222,.08);border:1px solid rgba(124,196,222,.18);align-self:flex-end}
   .utt .who{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--j-muted);display:block;margin-bottom:2px}
   .interim{color:var(--j-muted);font-style:italic}
   .manual{display:flex;gap:8px;margin-top:12px}
@@ -130,7 +140,7 @@
   <div class="head">
     <div class="orb" title="JARVIS — mega brain 🧠"><img src="/img/jarvis/logo-megamind-v1.svg" alt="JARVIS — mega brain"></div>
     <div>
-      <h1>JARVIS <span class="v">· COPILOTO SDR/BDR &nbsp;v0.7</span></h1>
+      <h1>JARVIS <span class="v">· COPILOTO SDR/BDR &nbsp;v0.8</span></h1>
     </div>
   </div>
   <p class="sub">Biz Dev · prospecção B2B SAP & ServiceNow — escuta a conversa e recomenda suas falas em tempo real.</p>
@@ -162,20 +172,30 @@
       <div class="mic-row">
         <button class="btn rec" id="btn-mic">🎙️ Ativar mic</button>
         <canvas class="wave" id="wave" width="600" height="42"></canvas>
-        <div class="speaker-seg" title="A quem o mic atribui a fala captada">
-          <button data-sp="prospect" class="on">👤 Prospect</button>
-          <button data-sp="sdr">🧑‍💼 Eu (SDR)</button>
+        <div class="diar" title="Diarização automática (heurística): separa as falas por pausa. Se errar a voz, clique em trocar.">
+          <span class="diar-badge" id="diar-badge">🔀 Auto · Voz 1</span>
+          <button class="btn ghost" id="btn-flip" title="Corrigir: jogar a próxima fala pra outra voz">↔️ trocar voz</button>
         </div>
       </div>
+      <div class="rolemap" id="rolemap">
+        <span class="rm-lbl">Quem é cada voz?</span>
+        <div class="rm-seg" data-voz="voz1"><span>Voz 1</span><button data-role="sdr">🧑‍💼 SDR</button><button data-role="prospect">👤 Cliente</button></div>
+        <div class="rm-seg" data-voz="voz2"><span>Voz 2</span><button data-role="sdr">🧑‍💼 SDR</button><button data-role="prospect">👤 Cliente</button></div>
+        <span class="rm-hint" id="rm-hint">marque 1x — só pra calcular % de fala e disparar o coach</span>
+      </div>
       <div class="transcript" id="transcript">
-        <div class="empty-note">Ative o microfone ou digite abaixo o que o prospect disse.<br>O JARVIS começa a sugerir assim que a conversa fluir.</div>
+        <div class="empty-note">Ative o microfone ou digite abaixo o que foi dito.<br>O JARVIS separa as vozes sozinho (Voz 1 / Voz 2) — marque uma vez quem é quem.</div>
       </div>
       <div class="manual">
-        <input id="manual-in" placeholder='Digitar fala (ex: "achei caro")… Enter pra enviar'>
+        <input id="manual-in" placeholder='Digitar fala (vai pra voz ativa)… Enter pra enviar'>
         <button class="btn" id="btn-manual">Enviar</button>
       </div>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn" id="btn-dores" title="Dores reais já ouvidas em campo, por LOB — insumo pra pautar conteúdo">📊 Dores de campo</button>
+        <button class="btn primary" id="btn-encerrar" title="Salvar a call e extrair os aprendizados (memória viva)">🏁 Encerrar & salvar</button>
+      </div>
       <div class="footnote">
-        ⚠️ <strong>Como a escuta funciona:</strong> o <code>Web Speech API</code> capta o <strong>microfone local</strong> (sua voz / viva-voz na sala). Em call <em>remota</em>, use o campo manual pras falas do prospect, ou coloque a reunião em viva-voz. Funciona melhor no <strong>Chrome</strong>.
+        🔀 <strong>Separação automática de vozes (heurística):</strong> o <code>Web Speech API</code> capta o <strong>microfone local</strong> e o JARVIS quebra as falas por pausa em <strong>Voz 1 / Voz 2</strong>. Não é diarização acústica de verdade — <strong>se a voz sair trocada, use “↔️ trocar voz”</strong>. Marque 1× quem é SDR/Cliente. Em call remota, ponha em viva-voz ou digite as falas do cliente. Melhor no <strong>Chrome</strong>.
       </div>
     </div>
 
@@ -222,7 +242,9 @@
 
 <script>
 // ── Estado ─────────────────────────────────────────────────────────────────
-const ST = { transcript: [], micSpeaker: 'prospect', recog: null, micOn: false,
+const ST = { transcript: [], activeVoz: 'voz1', lastUtt: 0, gapMs: 1600,
+             roleMap: { voz1: null, voz2: null }, startedAt: 0,
+             recog: null, micOn: false,
              audioCtx: null, analyser: null, rafWave: null, coachTimer: null, asking: false };
 const TAU = 2 * Math.PI * 36; // circunferência do anel (r=36) ≈ 226
 
@@ -248,32 +270,60 @@ async function loadPlaybook(){
   fill($('f-persona'), d.personas, '— persona —');
 }
 
+// ── Vozes + papéis (diarização heurística) ───────────────────────────────────
+const VOZ_LABEL = { voz1: 'Voz 1', voz2: 'Voz 2' };
+function roleOf(voz){ return ST.roleMap[voz] || null; }   // 'sdr' | 'prospect' | null
+function whoLabel(voz){
+  const r = roleOf(voz);
+  if (r === 'sdr') return '🧑‍💼 Você (SDR)';
+  if (r === 'prospect') return '👤 Cliente';
+  return '🔀 ' + VOZ_LABEL[voz];
+}
+function cssClassFor(voz){ const r = roleOf(voz); return r === 'sdr' ? 'sdr' : r === 'prospect' ? 'prospect' : voz; }
+function rolesReady(){ return !!(ST.roleMap.voz1 && ST.roleMap.voz2); }
+function updateDiarBadge(){ const b = $('diar-badge'); if (b) b.textContent = '🔀 Auto · ' + VOZ_LABEL[ST.activeVoz]; }
+
 // ── Transcrição ─────────────────────────────────────────────────────────────
 function renderTranscript(interim){
   const el = $('transcript');
   if (!ST.transcript.length && !interim){ return; }
   el.innerHTML = ST.transcript.map(u =>
-    `<div class="utt ${u.speaker}"><span class="who">${u.speaker==='prospect'?'👤 Prospect':'🧑‍💼 Você'}</span>${escapeHtml(u.text)}</div>`
-  ).join('') + (interim ? `<div class="utt ${ST.micSpeaker} interim"><span class="who">ouvindo…</span>${escapeHtml(interim)}</div>` : '');
+    `<div class="utt ${cssClassFor(u.voz)}"><span class="who">${whoLabel(u.voz)}</span>${escapeHtml(u.text)}</div>`
+  ).join('') + (interim ? `<div class="utt ${cssClassFor(ST.activeVoz)} interim"><span class="who">ouvindo… (${VOZ_LABEL[ST.activeVoz]})</span>${escapeHtml(interim)}</div>` : '');
   el.scrollTop = el.scrollHeight;
 }
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-function addUtterance(speaker, text){
+// Heurística: se houve pausa > gapMs desde a última fala finalizada, assume troca de voz.
+function inferVoz(){
+  const now = Date.now();
+  if (ST.lastUtt && (now - ST.lastUtt) > ST.gapMs) {
+    ST.activeVoz = ST.activeVoz === 'voz1' ? 'voz2' : 'voz1';
+  }
+  ST.lastUtt = now;
+  return ST.activeVoz;
+}
+function addUtterance(text, forcedVoz){
   text = (text||'').trim(); if(!text) return;
-  ST.transcript.push({ speaker, text, t: Date.now() });
+  const voz = forcedVoz || inferVoz();
+  ST.activeVoz = voz;
+  ST.transcript.push({ voz, text, t: Date.now() });
+  updateDiarBadge();
   renderTranscript();
   updateGauges();
-  if (speaker === 'prospect') scheduleCoach(text); // reage à fala do prospect
+  // dispara coach quando a fala é do CLIENTE (precisa dos papéis mapeados)
+  if (rolesReady() && roleOf(voz) === 'prospect') scheduleCoach(text);
 }
 
 // ── Gauges (REAIS — derivados da sessão) ────────────────────────────────────
 function setArc(id, pct){ const c=$(id); if(c) c.style.strokeDashoffset = TAU * (1 - Math.max(0,Math.min(100,pct))/100); }
 function updateGauges(){
-  const words = sp => ST.transcript.filter(u=>u.speaker===sp).reduce((a,u)=>a+u.text.split(/\s+/).filter(Boolean).length,0);
+  // precisa dos papéis mapeados pra saber quem é SDR vs cliente
+  if (!rolesReady()){ $('g-talk').textContent='—'; setArc('g-talk-arc',0); $('g-q').textContent='—'; setArc('g-q-arc',0); return; }
+  const words = role => ST.transcript.filter(u=>roleOf(u.voz)===role).reduce((a,u)=>a+u.text.split(/\s+/).filter(Boolean).length,0);
   const wSdr = words('sdr'), wPro = words('prospect'), tot = wSdr+wPro;
   const talkPct = tot ? Math.round(wSdr/tot*100) : 0;
-  const qCount = ST.transcript.filter(u=>u.speaker==='sdr').reduce((a,u)=>a+(u.text.match(/\?/g)||[]).length,0);
+  const qCount = ST.transcript.filter(u=>roleOf(u.voz)==='sdr').reduce((a,u)=>a+(u.text.match(/\?/g)||[]).length,0);
   $('g-talk').textContent = tot? talkPct+'%' : '—'; setArc('g-talk-arc', talkPct);
   $('g-q').textContent = qCount; setArc('g-q-arc', Math.min(100, qCount*12));
 }
@@ -293,8 +343,10 @@ function scheduleCoach(lastUtterance){
 async function requestCoach(lastUtterance){
   if (ST.asking) return; ST.asking = true; $('thinking').style.display='inline';
   try{
+    // mapeia voz -> papel antes de mandar (backend espera speaker 'prospect'/'sdr')
+    const payloadTranscript = ST.transcript.slice(-12).map(u => ({ speaker: roleOf(u.voz) || 'prospect', text: u.text, t: u.t }));
     const r = await fetch('/api/jarvis/coach',{method:'POST',headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ context: ctx(), transcript: ST.transcript.slice(-12), lastUtterance: lastUtterance||'' })});
+      body: JSON.stringify({ context: ctx(), transcript: payloadTranscript, lastUtterance: lastUtterance||'' })});
     const d = await r.json();
     if(!r.ok || d.success===false){ renderCoachError(d.error||('HTTP '+r.status)); return; }
     renderCoach(d);
@@ -389,6 +441,49 @@ async function pesquisarProduto(){
   }catch(e){ renderCoachError(e.message); }
 }
 
+// ── Encerrar & salvar a call (memória viva) ──────────────────────────────────
+async function encerrarCall(){
+  if(!ST.transcript.length){ renderCoachError('Sem transcrição pra salvar ainda.'); return; }
+  const dur = ST.startedAt ? Math.round((Date.now()-ST.startedAt)/1000) : null;
+  const tempTxt = $('g-temp').textContent;
+  const temperatura = /^\d+$/.test(tempTxt) ? parseInt(tempTxt,10) : null;
+  const payload = {
+    context: ctx(),
+    transcript: ST.transcript.map(u=>({ voz:u.voz, role: roleOf(u.voz)||null, text:u.text, t:u.t })),
+    roleMap: ST.roleMap, temperatura, duracao_seg: dur
+  };
+  $('coach').innerHTML = `<div class="coach-idle">🧠 Salvando a call e extraindo aprendizados…</div>`;
+  try{
+    const r=await fetch('/api/jarvis/encerrar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const d=await r.json();
+    if(!r.ok||d.success===false){ renderCoachError(d.error||('HTTP '+r.status)); return; }
+    let html = `<div class="ai-banner" style="margin:0 0 10px">🧠 <strong>Call salva (#${d.call_id}).</strong> ${escapeHtml(d.etiqueta||'')}</div>`;
+    if(d.resumo) html += card('next','📝','Resumo da call', d.resumo);
+    const blocos=[['dor','🔎 Dores'],['objecao','🛡️ Objeções'],['gatilho','⏰ Gatilhos'],['pergunta_vencedora','❓ Perguntas que abriram'],['sinal','📡 Sinais']];
+    for(const [k,t] of blocos){ const arr=(d.aprendizados&&d.aprendizados[k])||[]; if(arr.length) html += `<div class="cc"><div class="cct">${t}</div><div class="chips">${arr.map(x=>`<span class="chip">${escapeHtml(x)}</span>`).join('')}</div></div>`; }
+    if(!d.total_aprendizados) html += `<div class="cc"><div class="ccb">Nenhum aprendizado extraído (call curta ou IA off). A call foi salva mesmo assim.</div></div>`;
+    $('coach').innerHTML = html;
+  }catch(e){ renderCoachError(e.message); }
+}
+
+// ── Dores de campo (loop pra pautar conteúdo) ────────────────────────────────
+async function mostrarDores(){
+  $('coach').innerHTML = `<div class="coach-idle">📊 Buscando dores ouvidas em campo…</div>`;
+  try{
+    const q = ctx().lob ? ('?lob='+encodeURIComponent(ctx().lob)) : '';
+    const r=await fetch('/api/jarvis/dores-de-campo'+q);
+    const d=await r.json();
+    if(!r.ok||d.success===false){ renderCoachError(d.error||('HTTP '+r.status)); return; }
+    let html = `<div class="ai-banner" style="margin:0 0 10px">🧠 <strong>${d.total_aprendizados} aprendizados</strong> de ${d.total_calls} calls.${d.filtro_lob?(' LOB: '+escapeHtml(d.filtro_lob)+'.'):''} Use pra pautar conteúdo.</div>`;
+    if(!d.dores || !d.dores.length){
+      html += `<div class="cc"><div class="ccb">Ainda sem dores registradas${d.filtro_lob?' pra esse LOB':''}. Encerre algumas calls pra alimentar a memória.</div></div>`;
+    } else {
+      html += `<div class="cc q"><div class="cct">🔥 Dores mais ouvidas</div><div class="ccb">${d.dores.slice(0,15).map(x=>`<div style="margin:5px 0;line-height:1.4"><span class="chip" style="margin-right:6px">${x.freq}×</span>${escapeHtml(x.texto)} <span style="color:var(--j-muted);font-size:11px">· ${escapeHtml(x.tipo)}${x.lob?(' · '+escapeHtml(x.lob)):''}</span></div>`).join('')}</div></div>`;
+    }
+    $('coach').innerHTML = html;
+  }catch(e){ renderCoachError(e.message); }
+}
+
 // ── Web Speech API ──────────────────────────────────────────────────────────
 function initMic(){
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -398,7 +493,7 @@ function initMic(){
     let interim='';
     for(let i=ev.resultIndex;i<ev.results.length;i++){
       const res=ev.results[i];
-      if(res.isFinal) addUtterance(ST.micSpeaker, res[0].transcript);
+      if(res.isFinal) addUtterance(res[0].transcript);
       else interim += res[0].transcript;
     }
     if(interim) renderTranscript(interim);
@@ -415,7 +510,7 @@ async function startMic(){
     const src = ST.audioCtx.createMediaStreamSource(stream);
     ST.analyser = ST.audioCtx.createAnalyser(); ST.analyser.fftSize=256; src.connect(ST.analyser);
     drawWave();
-    ST.recog.start(); ST.micOn=true;
+    ST.recog.start(); ST.micOn=true; if(!ST.startedAt) ST.startedAt=Date.now();
     $('btn-mic').textContent='⏸️ Pausar mic'; $('btn-mic').classList.remove('rec');
   }catch(e){ renderCoachError('Não consegui acessar o microfone: '+e.message); }
 }
@@ -440,17 +535,36 @@ function idleWave(){ const cv=$('wave'),c=cv.getContext('2d'); c.clearRect(0,0,c
 $('btn-mic').addEventListener('click', ()=> ST.micOn? stopMic() : startMic());
 $('btn-manual').addEventListener('click', sendManual);
 $('manual-in').addEventListener('keydown', e=>{ if(e.key==='Enter') sendManual(); });
-function sendManual(){ const v=$('manual-in').value; if(!v.trim())return; addUtterance(ST.micSpeaker, v); $('manual-in').value=''; }
-document.querySelectorAll('.speaker-seg button').forEach(b=> b.addEventListener('click', ()=>{
-  document.querySelectorAll('.speaker-seg button').forEach(x=>x.classList.remove('on'));
-  b.classList.add('on'); ST.micSpeaker=b.dataset.sp;
-}));
-$('btn-ask').addEventListener('click', ()=>{ const last=[...ST.transcript].reverse().find(u=>u.speaker==='prospect'); requestCoach(last?last.text:''); });
+function sendManual(){ const v=$('manual-in').value; if(!v.trim())return; addUtterance(v); $('manual-in').value=''; }
+
+// diarização: trocar a voz ativa manualmente (correção da heurística)
+$('btn-flip').addEventListener('click', ()=>{ ST.activeVoz = ST.activeVoz==='voz1'?'voz2':'voz1'; updateDiarBadge(); });
+
+// role-map: marcar quem é cada voz (1x). Exclusivo — setar uma voz completa a outra.
+function setRole(voz, role){
+  ST.roleMap[voz] = role;
+  const other = voz==='voz1' ? 'voz2' : 'voz1';
+  ST.roleMap[other] = role==='sdr' ? 'prospect' : 'sdr';
+  renderRoleMap(); renderTranscript(); updateGauges();
+}
+function renderRoleMap(){
+  document.querySelectorAll('.rm-seg').forEach(seg=>{
+    const voz = seg.dataset.voz;
+    seg.querySelectorAll('button').forEach(btn=> btn.classList.toggle('on', ST.roleMap[voz]===btn.dataset.role));
+  });
+  const hint = $('rm-hint');
+  if (hint) hint.textContent = rolesReady() ? '✓ vozes marcadas — coach e % de fala ativos' : 'marque 1x — só pra calcular % de fala e disparar o coach';
+}
+document.querySelectorAll('.rm-seg button').forEach(btn=> btn.addEventListener('click', ()=> setRole(btn.closest('.rm-seg').dataset.voz, btn.dataset.role)));
+
+$('btn-encerrar').addEventListener('click', encerrarCall);
+$('btn-dores').addEventListener('click', mostrarDores);
+$('btn-ask').addEventListener('click', ()=>{ const last=[...ST.transcript].reverse().find(u=>roleOf(u.voz)==='prospect') || [...ST.transcript].reverse()[0]; requestCoach(last?last.text:''); });
 $('btn-brief').addEventListener('click', preCallBrief);
 $('btn-pesquisar').addEventListener('click', pesquisarProduto);
 
 // ── Init ────────────────────────────────────────────────────────────────────
-loadPlaybook(); initMic(); idleWave(); pingIA();
+loadPlaybook(); initMic(); idleWave(); pingIA(); renderRoleMap(); updateDiarBadge();
 </script>
 </body>
 </html>

@@ -9,13 +9,15 @@ const router = express.Router();
 const path = require('path');
 const fs = require('fs');
 const {
+  db,
   requireAuth,
   client,
   rateLimit
 } = require('../server-context');
 
 const JARVIS_HTML = path.join(__dirname, '../public/jarvis.html');
-const PLAYBOOK_PATH = path.join(__dirname, '../modulos/11-jarvis-sdr/playbook.json');
+const MOD_DIR = path.join(__dirname, '../modulos/11-jarvis-sdr');
+const PLAYBOOK_PATH = path.join(MOD_DIR, 'playbook.json');
 
 // ── BASE DE CONHECIMENTO (carregada 1x no boot) ───────────────────────────────
 let PLAYBOOK = {};
@@ -24,6 +26,50 @@ try {
   console.log('[jarvis] playbook carregado:', PLAYBOOK?._meta?.versao || '?');
 } catch (e) {
   console.warn('[jarvis] playbook não carregado:', e.message);
+}
+
+// ── KB CURADA (battle cards + produtos SAP) — arquivos versionados, Regra 7 ────
+// Alimentados por material REAL (Rudá entrega arquivo → Claude estrutura → commit).
+// Começam vazios com etiqueta "aguarda ingestão"; injeta no prompt só quando houver dado.
+function loadKb(file, fallback) {
+  try { return JSON.parse(fs.readFileSync(path.join(MOD_DIR, file), 'utf8')); }
+  catch (e) { console.warn(`[jarvis] ${file} não carregado:`, e.message); return fallback; }
+}
+let KB_PRODUTOS = loadKb('kb-produtos-sap.json', { produtos: [] });
+let KB_BATTLE   = loadKb('kb-battle-cards.json', { battle_cards: [] });
+console.log('[jarvis] KB:', (KB_PRODUTOS.produtos || []).length, 'produtos ·',
+            (KB_BATTLE.battle_cards || []).length, 'battle cards');
+
+// ── MEMÓRIA VIVA (persistência SQLite — calls + dores aprendidas) ─────────────
+// Aditivo: cria as tabelas no boot do router. Cloud-ready (volume /data no Railway).
+try {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS jarvis_calls (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      prospect TEXT, empresa TEXT, industria TEXT, lob TEXT, persona TEXT, estagio TEXT,
+      transcript_json TEXT,
+      role_map_json TEXT,
+      temperatura INTEGER,
+      resumo TEXT,
+      duracao_seg INTEGER,
+      criado_em TEXT DEFAULT (datetime('now')),
+      criado_por TEXT
+    );
+    CREATE TABLE IF NOT EXISTS jarvis_aprendizados (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      call_id INTEGER,
+      tipo TEXT,                 -- dor | objecao | gatilho | pergunta_vencedora | sinal
+      texto TEXT,
+      lob TEXT, industria TEXT, persona TEXT,
+      fonte TEXT DEFAULT 'call', -- call (real) | manual
+      criado_em TEXT DEFAULT (datetime('now'))
+    );
+    CREATE INDEX IF NOT EXISTS idx_jap_lob  ON jarvis_aprendizados(lob);
+    CREATE INDEX IF NOT EXISTS idx_jap_tipo ON jarvis_aprendizados(tipo);
+  `);
+  console.log('[jarvis] memória viva pronta (jarvis_calls + jarvis_aprendizados)');
+} catch (e) {
+  console.warn('[jarvis] falha ao preparar memória viva:', e.message);
 }
 
 // ── BACKEND DE IA: odysseus (Anthropic-compat) | Anthropic padrão ─────────────
@@ -155,6 +201,33 @@ function selectFY27(ctx = {}) {
   return out;
 }
 
+// Seleciona a fatia da KB curada (produtos SAP + battle cards) relevante ao LOB da call.
+function selectKb(ctx = {}) {
+  const lobKey = normalizeLobKey(ctx.lob);
+  const out = {};
+  const prods = (KB_PRODUTOS.produtos || []).filter(p => !lobKey || normalizeLobKey(p.lob) === lobKey);
+  if (prods.length) out.produtos_sap = prods.slice(0, 6);
+  const bcs = (KB_BATTLE.battle_cards || []).filter(b => !lobKey || normalizeLobKey(b.lob) === lobKey);
+  if (bcs.length) out.battle_cards = bcs.slice(0, 6);
+  return out;
+}
+
+// MEMÓRIA VIVA: recupera as dores/objeções/gatilhos REAIS já ouvidos em campo (calls salvas),
+// priorizando o LOB da call. Alimenta o JARVIS com o que os SDRs realmente escutaram.
+function recallDores(ctx = {}, k = 8) {
+  try {
+    const lobKey = normalizeLobKey(ctx.lob);
+    const sql = `SELECT texto, tipo, COUNT(*) AS freq
+                 FROM jarvis_aprendizados
+                 WHERE tipo IN ('dor','objecao','gatilho') ${lobKey ? 'AND lob = ?' : ''}
+                 GROUP BY lower(texto)
+                 ORDER BY freq DESC, MAX(criado_em) DESC
+                 LIMIT ?`;
+    const stmt = db.prepare(sql);
+    return lobKey ? stmt.all(lobKey, k) : stmt.all(k);
+  } catch (e) { return []; }
+}
+
 // ── SYSTEM PROMPT (persona sênior + playbook real + estratégia FY27 + humanização) ──
 function buildSystemPrompt(ctx = {}) {
   const p = PLAYBOOK || {};
@@ -181,6 +254,14 @@ function buildSystemPrompt(ctx = {}) {
   ];
   if (Object.keys(fy27).length) {
     linhas.push(``, `=== CONTEXTO ESPECÍFICO DESTA CALL (estratégia FY27 — ancore as sugestões NISTO) ===`, JSON.stringify(fy27, null, 0));
+  }
+  const kb = selectKb(ctx);
+  if (Object.keys(kb).length) {
+    linhas.push(``, `=== CONHECIMENTO DE PRODUTO + BATTLE CARDS (uso INTERNO de coaching — battle card NUNCA nomeia concorrente na fala) ===`, JSON.stringify(kb, null, 0));
+  }
+  const dores = recallDores(ctx, 8);
+  if (dores.length) {
+    linhas.push(``, `=== MEMÓRIA VIVA — DORES JÁ OUVIDAS EM CAMPO (de calls reais; use pra ANTECIPAR a dor, não pra afirmar) ===`, JSON.stringify(dores.map(d => ({ dor: d.texto, tipo: d.tipo, vezes: d.freq })), null, 0));
   }
   linhas.push(
     ``,
@@ -274,7 +355,13 @@ router.get('/api/jarvis/playbook', (req, res) => {
     lobs: (PLAYBOOK.lobs || []).map(l => l.nome),
     personas: Object.keys(PLAYBOOK.pitches_por_persona || {}),
     industrias: (PLAYBOOK.matriz_industria || []).map(i => i.industria),
-    gatilhos: PLAYBOOK.gatilhos_urgencia_2026 || []
+    gatilhos: PLAYBOOK.gatilhos_urgencia_2026 || [],
+    kb: {
+      produtos_sap: (KB_PRODUTOS.produtos || []).length,
+      battle_cards: (KB_BATTLE.battle_cards || []).length,
+      estado_produtos: KB_PRODUTOS?._meta?.estado || null,
+      estado_battle: KB_BATTLE?._meta?.estado || null
+    }
   });
 });
 
@@ -470,6 +557,147 @@ router.post('/api/jarvis/pesquisar', jarvisLimiter, async (req, res) => {
     res.json({ success: true, gerado_por_ia: true, etiqueta: '🌐 Pesquisa web — verificar', ...parsed });
   } catch (e) {
     console.error('[jarvis/pesquisar] erro:', e.message);
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+// ── API: encerrar & salvar a call (memória viva) ──────────────────────────────
+// Salva a call no SQLite e EXTRAI (via IA) as dores/objeções/gatilhos reais ouvidos,
+// gravando em jarvis_aprendizados. É assim que o JARVIS "aprende a dor" entre calls.
+router.post('/api/jarvis/encerrar', requireAuth, jarvisLimiter, async (req, res) => {
+  try {
+    const { context = {}, transcript = [], roleMap = {}, temperatura = null, duracao_seg = null } = req.body || {};
+    const turns = Array.isArray(transcript) ? transcript : [];
+    if (!turns.length) {
+      return res.status(400).json({ success: false, error: 'Sem transcrição para salvar.' });
+    }
+    const lobKey = normalizeLobKey(context.lob) || (context.lob || null);
+
+    // 1) salva a call
+    const callRow = db.prepare(`INSERT INTO jarvis_calls
+      (prospect, empresa, industria, lob, persona, estagio, transcript_json, role_map_json, temperatura, duracao_seg, criado_por)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?)`).run(
+      context.prospect || null, context.empresa || null, context.industria || null,
+      lobKey, context.persona || null, context.estagio || null,
+      JSON.stringify(turns), JSON.stringify(roleMap || {}),
+      (temperatura != null && !isNaN(temperatura)) ? Math.round(temperatura) : null,
+      (duracao_seg != null && !isNaN(duracao_seg)) ? Math.round(duracao_seg) : null,
+      (req.session && req.session.user && (req.session.user.name || req.session.user.email)) || 'sdr'
+    );
+    const callId = callRow.lastInsertRowid;
+
+    // 2) extrai aprendizados REAIS (só o que o PROSPECT/cliente disse) — se a IA estiver pronta
+    let resumo = null, aprendizados = { dor: [], objecao: [], gatilho: [], pergunta_vencedora: [], sinal: [] };
+    if (aiReady()) {
+      const fala = turns.map(t => {
+        const who = (t.speaker === 'prospect' || t.role === 'prospect') ? 'CLIENTE'
+                  : (t.speaker === 'sdr' || t.role === 'sdr') ? 'SDR' : (t.voz || 'VOZ');
+        return `${who}: ${t.text}`;
+      }).join('\n').slice(0, 8000);
+      const ext = [
+        `Você é um analista de pré-vendas. Abaixo está a transcrição de uma call de prospecção B2B (SAP/ServiceNow).`,
+        `Extraia SOMENTE o que apareceu DE FATO na conversa (não invente). Foque no que o CLIENTE disse.`,
+        ``,
+        `CONTEXTO: empresa=${context.empresa || '—'} · indústria=${context.industria || '—'} · LOB=${context.lob || '—'} · persona=${context.persona || '—'}`,
+        ``,
+        `TRANSCRIÇÃO:`,
+        fala,
+        ``,
+        `Responda APENAS com JSON válido:`,
+        `{`,
+        `  "resumo": "2-3 frases do que rolou e onde parou",`,
+        `  "dores": ["dor de negócio concreta dita pelo cliente", "..."],`,
+        `  "objecoes": ["objeção levantada pelo cliente", "..."],`,
+        `  "gatilhos": ["gatilho de urgência/contexto real (ex: prazo, projeto, mudança regulatória)", "..."],`,
+        `  "perguntas_vencedoras": ["pergunta do SDR que abriu a conversa (se houve)", "..."],`,
+        `  "sinais": ["sinal de compra ou de risco observado", "..."]`,
+        `}`,
+        `Listas vazias se não houver. Sem texto fora do JSON.`
+      ].join('\n');
+      try {
+        const raw = await callLLM({ system: 'Extrator factual de calls de venda. Responde só JSON. PT-BR.', user: ext, maxTokens: 700 });
+        const parsed = safeParseJson(raw);
+        if (parsed) {
+          resumo = parsed.resumo || null;
+          const mapTipo = { dores: 'dor', objecoes: 'objecao', gatilhos: 'gatilho', perguntas_vencedoras: 'pergunta_vencedora', sinais: 'sinal' };
+          const ins = db.prepare(`INSERT INTO jarvis_aprendizados (call_id, tipo, texto, lob, industria, persona, fonte)
+                                  VALUES (?,?,?,?,?,?, 'call')`);
+          const tx = db.transaction(() => {
+            for (const [campo, tipo] of Object.entries(mapTipo)) {
+              const arr = Array.isArray(parsed[campo]) ? parsed[campo] : [];
+              for (const txt of arr) {
+                const clean = String(txt || '').trim();
+                if (!clean) continue;
+                ins.run(callId, tipo, clean.slice(0, 400), lobKey, context.industria || null, context.persona || null);
+                if (aprendizados[tipo]) aprendizados[tipo].push(clean);
+              }
+            }
+          });
+          tx();
+          if (resumo) db.prepare('UPDATE jarvis_calls SET resumo = ? WHERE id = ?').run(resumo, callId);
+        }
+      } catch (e) {
+        console.warn('[jarvis/encerrar] extração falhou (call salva mesmo assim):', e.message);
+      }
+    }
+
+    const totalApr = Object.values(aprendizados).reduce((a, x) => a + x.length, 0);
+    res.json({
+      success: true,
+      call_id: callId,
+      resumo,
+      aprendizados,
+      total_aprendizados: totalApr,
+      ia_disponivel: aiReady(),
+      etiqueta: '🧠 Aprendizados extraídos da call real (revise antes de usar como verdade absoluta)'
+    });
+  } catch (e) {
+    console.error('[jarvis/encerrar] erro:', e.message);
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+// ── API: dores de campo (loop p/ guiar conteúdo) ──────────────────────────────
+// Agrega o que os SDRs ouviram em campo, por LOB, pra pautar os próximos conteúdos.
+router.get('/api/jarvis/dores-de-campo', requireAuth, (req, res) => {
+  try {
+    const lobKey = normalizeLobKey(req.query.lob);
+    const limit = Math.min(parseInt(req.query.limit, 10) || 40, 200);
+    const tipoFiltro = req.query.tipo ? String(req.query.tipo) : null;
+
+    const where = ['1=1'];
+    const params = [];
+    if (lobKey) { where.push('lob = ?'); params.push(lobKey); }
+    if (tipoFiltro) { where.push('tipo = ?'); params.push(tipoFiltro); }
+
+    const dores = db.prepare(
+      `SELECT texto, tipo, lob, industria, persona, COUNT(*) AS freq, MAX(criado_em) AS ultima
+       FROM jarvis_aprendizados
+       WHERE ${where.join(' AND ')}
+       GROUP BY lower(texto)
+       ORDER BY freq DESC, ultima DESC
+       LIMIT ?`
+    ).all(...params, limit);
+
+    const porLob = db.prepare(
+      `SELECT COALESCE(lob,'(sem LOB)') AS lob, tipo, COUNT(*) AS total
+       FROM jarvis_aprendizados GROUP BY lob, tipo ORDER BY total DESC`
+    ).all();
+
+    const totalCalls = db.prepare('SELECT COUNT(*) AS n FROM jarvis_calls').get().n;
+    const totalApr = db.prepare('SELECT COUNT(*) AS n FROM jarvis_aprendizados').get().n;
+
+    res.json({
+      success: true,
+      etiqueta: '🧠 Dores reais ouvidas em campo (calls do JARVIS) — insumo pra pautar conteúdo',
+      total_calls: totalCalls,
+      total_aprendizados: totalApr,
+      filtro_lob: lobKey || null,
+      dores,
+      por_lob: porLob
+    });
+  } catch (e) {
+    console.error('[jarvis/dores-de-campo] erro:', e.message);
     res.status(500).json({ success: false, error: e.message });
   }
 });
