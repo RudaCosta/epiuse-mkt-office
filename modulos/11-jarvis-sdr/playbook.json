@@ -1,12 +1,13 @@
 {
   "_meta": {
     "modulo": "11-jarvis-sdr",
-    "versao": "0.1.0",
+    "versao": "0.3.0",
     "descricao": "Base de conhecimento REAL do JARVIS — copiloto SDR/BDR/LDR sênior para prospecção B2B SAP/ServiceNow da EPI-USE Brasil. Injetada no system prompt do Claude.",
     "fontes_reais": [
       "vault/00-contexto/empresa.md",
       "modulos/08-inbound-offline/lob-positioning.md",
-      "vault/00-contexto/branding.md (regras inegociáveis)"
+      "vault/00-contexto/branding.md (regras inegociáveis)",
+      "Estratégia Marketing EPI-USE Brasil FY27.xlsx (ICP, Personas, Indústrias, Diferenciação Competitiva, Jornadas, Cases — fornecida pelo Rudá em 23/jun/2026)"
     ],
     "atualizado_em": "2026-06-23",
     "regra7": "Todo conteúdo aqui é dado REAL EPI-USE ou framework de mercado consolidado (BANT/MEDDIC/SPIN). As SUGESTÕES geradas em runtime pela IA são etiquetadas 🤖 e exigem julgamento humano (Regra 6)."
@@ -79,6 +80,145 @@
     { "industria": "Telecom & Mídia", "dores": "Rotatividade comercial, força distribuída (lojas/campo), compliance (comissões), transformação digital, CX", "lobs": ["SuccessFactors", "ServiceNow", "Qualtrics", "WFS"], "mensagem": "NPS acima da média = 2x mais retenção; Qualtrics + ServiceNow fecha a conta", "persona": ["CMO", "CHRO", "CIO", "COO"] },
     { "industria": "Educação", "dores": "Gestão de professores (carga/substituição/banco de horas), payroll complexo, recrutar professor especializado, experiência do aluno", "lobs": ["SuccessFactors", "WFS", "Qualtrics", "S/4HANA"], "mensagem": "IES gasta até 40% do orçamento com RH; automatizar payroll/jornada libera p/ o core", "persona": ["CFO", "CHRO", "COO"] }
   ],
+
+  "icp_por_lob": {
+    "_fonte": "Estratégia Marketing EPI-USE Brasil FY27.xlsx — abas ICP",
+    "S/4HANA": {
+      "colaboradores": "A partir de 300 (Mid Market); sem limite para Enterprise",
+      "receita_anual": "Mid Market R$ 150M–1B · Enterprise acima de R$ 1B",
+      "geografia": "Brasil Sul/Sudeste/Centro-Oeste (foco); LATAM para carve-outs globais",
+      "decisores": ["CEO", "CFO", "CIO", "Gerente de TI", "Diretor de Operações"],
+      "budget": "Projetos a partir de R$ 800K (Mid) · acima de R$ 3M (Enterprise)",
+      "gatilhos_compra": ["ECC 6.0 fora de suporte SAP (deadline 2027/2030)", "Reforma Tributária (IVA Dual, CBS/IBS)", "M&A, carve-in ou carve-out", "Expansão internacional", "Substituição de ERP legado"],
+      "caracteristicas": "Tem SAP ECC ou ERP legado, em transformação digital, alta complexidade fiscal BR (NF-e, eSocial, SPED), precisa integrar Finance/Supply/Manufacturing",
+      "diferenciais_epiuse": "Rising Star S/4HANA ISG Lens 2024 e 2026 (BR), AWS Premier Tier Services Partner, expertise RISE Move-to-Cloud E2E + Reforma Tributária"
+    },
+    "SuccessFactors": {
+      "colaboradores": "A partir de 500",
+      "receita_anual": "A partir de R$ 300M",
+      "geografia": "Brasil Sul/Sudeste/Centro-Oeste",
+      "decisores": ["CHRO", "CIO", "Gerente de RH", "Gerente de TI"],
+      "budget": "Até 0,5% do faturamento anual",
+      "gatilhos_compra": ["Transformação digital de RH", "Pressão por gestão de talentos", "Mão de obra qualificada a reter", "Amadurecer processos de RH"],
+      "caracteristicas": "Já tem maturidade tecnológica, quer colocar o RH no board (estratégico)",
+      "diferenciais_epiuse": "Leader ISG Lens 2024 (BR), maior equipe AMS HCM LATAM, 1ª impl. ECP no Brasil, 640+ certificações SFSF"
+    },
+    "Process Excellence": {
+      "colaboradores": "A partir de 500",
+      "receita_anual": "A partir de R$ 300M",
+      "decisores": ["COO", "CIO", "Gerente de Processos", "Diretor de Transformação Digital", "CFO"],
+      "budget": "A partir de R$ 300K por projeto + licenças Signavio/LeanIX",
+      "gatilhos_compra": ["Migração S/4HANA (Process Mining acelera o as-is)", "Pressão por eficiência/redução de custo", "Compliance de processos", "M&A: padronização pós-fusão"],
+      "caracteristicas": "Processos descentralizados sem governança, mapeamento em planilha, migrando ou planejando S/4HANA",
+      "diferenciais_epiuse": "Único SAP Signavio Certified no Brasil, metodologia Descobrir→Coletar→Monitorar→Melhorar, integração Process Excellence + S/4HANA + BTP"
+    },
+    "ServiceNow": {
+      "colaboradores": "A partir de 1.000",
+      "receita_anual": "A partir de R$ 500M",
+      "geografia": "Todas as regiões; foco SP/RJ/MG/RS/GO",
+      "decisores": ["CIO", "CISO", "CTO", "Gerente de TI", "Gerente de Service Desk", "COO", "CHRO (HRSD)"],
+      "budget": "A partir de R$ 500K por projeto · AMS a partir de R$ 50K/mês",
+      "gatilhos_compra": ["ITSM desatualizado ou sem SLA", "Crescimento gerando caos operacional", "Necessidade de automação de processos", "Compliance e segurança (SecOps)", "Jornada digital do colaborador (HRSD)"],
+      "caracteristicas": "Operação de TI complexa (ITSM/ITOM), processos manuais entre áreas, pode ter parceiro atual insatisfatório",
+      "diferenciais_epiuse": "ServiceNow Specialist Partner (Consulting & Implementation), ISG Lens Provider 2022–2026, LOB dedicado, integração SAP + ServiceNow"
+    },
+    "WorkForce Software (WFS)": {
+      "colaboradores": "A partir de 1.500",
+      "industrias_alvo": ["Manufatura", "Serviços", "Saúde", "Varejo", "Educação", "Financeiro", "Setor Público", "Energia & Utilities"],
+      "personas": ["RH", "TI", "Operações", "Finanças"],
+      "diferenciais_epiuse": "Parceiro WFS desde 2013, Partner Excellence Award 2023 e 2024, integração nativa EC/ECP, legislação trabalhista BR 100% + eSocial"
+    }
+  },
+
+  "personas_detalhe": {
+    "_fonte": "Estratégia Marketing EPI-USE Brasil FY27.xlsx — aba Personas",
+    "_uso": "Calibrar linguagem, tempo de venda e gatilho por cargo na fala do SDR.",
+    "CIO": {
+      "linguagem_chave": "Inovação, transformação digital, cloud, governança de dados, Clean Core, ROI, escalabilidade",
+      "o_que_buscam": "Referências de empresas do mesmo porte/segmento, redução de custo e tempo, soluções cloud, analytics",
+      "maior_medo": "Legado travando inovação; decidir sem governança de dados confiável",
+      "papel_decisao": "Decisor técnico / forte influenciador",
+      "tempo_de_venda": "Valoriza profundidade técnica e chancela de pares; leitura rápida e estratégica",
+      "gatilho_2026": "Clean Core para upgrades baratos; governança para IA confiável"
+    },
+    "CFO": {
+      "linguagem_chave": "ROI, TCO, payback, compliance, EBITDA, CAPEX/OPEX, risco fiscal",
+      "o_que_buscam": "Demonstração clara de ROI e ganhos do negócio; parceiro, não só fornecedor",
+      "maior_medo": "Multa fiscal, M&A travado, problema de auditoria",
+      "papel_decisao": "Decisor final / veto-player do budget",
+      "tempo_de_venda": "15–30 min, focado e direto — hero number primeiro",
+      "gatilho_2026": "Reforma Tributária (CBS/IBS) e fim do suporte ECC"
+    },
+    "CHRO": {
+      "linguagem_chave": "Employee experience, retenção, turnover, gente, RH estratégico no board",
+      "o_que_buscam": "Reduzir passivo trabalhista, reter talento, tornar o RH estratégico",
+      "maior_medo": "Folha com erro/passivo, perder talento, RH visto como operacional",
+      "papel_decisao": "Decisor de HCM/SuccessFactors",
+      "tempo_de_venda": "Gente primeiro, sistema depois; casos concretos de experiência",
+      "gatilho_2026": "War for talent e experiência do colaborador"
+    },
+    "Gerente de TI": {
+      "linguagem_chave": "Estabilidade, integração, suporte, SLA, governança",
+      "o_que_buscam": "Estabilidade operacional e bom suporte (AMS), integração sem dor",
+      "papel_decisao": "Responsável técnico / influenciador (consultado)",
+      "tempo_de_venda": "Pragmático, quer saber 'como funciona na prática'"
+    }
+  },
+
+  "diferenciacao_competitiva": {
+    "_fonte": "Estratégia Marketing EPI-USE Brasil FY27.xlsx — aba Diferenciação Competitiva",
+    "_uso_interno": "CONTEXTO INTERNO do SDR. NUNCA nomear concorrente na fala ao prospect — usar o argumento sem citar nomes. Os campos 'sinal_de_alerta' ajudam a perceber quando há concorrente na jogada.",
+    "SuccessFactors": [
+      { "nossa_vantagem": "Único Leader brasileiro em SFSF no ISG 2024; maior equipe AMS HCM LATAM; 1ª impl. ECP no Brasil; 640+ certificações", "argumento_sem_nomear": "Com a gente o sênior que assina é o mesmo que executa — sem te passar pra um time júnior depois da venda.", "sinal_de_alerta": "Prospect cita uma big4/global (tamanho/marca) ou um player local de preço baixo" }
+    ],
+    "S/4HANA": [
+      { "nossa_vantagem": "Rising Star ISG 2024; AWS Premier (cloud E2E); expertise Reforma Tributária; grupo Valcann pra infra", "argumento_sem_nomear": "Tem gente excelente em strategy e gente excelente em volume. A gente é excelente em execução hands-on de S/4 com Reforma Tributária e cloud ponta a ponta num fornecedor só.", "sinal_de_alerta": "Prospect cita consultoria de grande porte/volume ou player de preço" }
+    ],
+    "ServiceNow": [
+      { "nossa_vantagem": "ServiceNow Specialist Partner, ISG Lens, casos de maior porte (ITSM+HRSD+SecOps integrados)", "argumento_sem_nomear": "Pra implementação pequena, vários parceiros servem. Pra escala enterprise com ITSM + HRSD + SecOps integrados ao seu SAP, é outro jogo.", "sinal_de_alerta": "Prospect cita parceiro local pequeno/preço agressivo" }
+    ],
+    "Process Excellence": [
+      { "nossa_vantagem": "SAP Signavio nativo ao ecossistema SAP, integração S/4HANA, custo total menor", "argumento_sem_nomear": "Process Mining isolado é uma coisa. Signavio integrado ao seu S/4 e à execução é outra — você mapeia e já aciona a mudança no mesmo ecossistema.", "sinal_de_alerta": "Prospect cita ferramenta de process mining isolada (best-in-class)" }
+    ],
+    "WorkForce Software (WFS)": [
+      { "nossa_vantagem": "Integração nativa EC/ECP, legislação trabalhista 100%, parceiro global desde 2013", "argumento_sem_nomear": "Ponto e escala muita gente entrega. Gestão de jornada completa, integrada nativamente ao seu SuccessFactors e 100% na legislação BR, é o diferencial.", "sinal_de_alerta": "Prospect cita player nacional de ponto/escala" }
+    ],
+    "Qualtrics": [
+      { "nossa_vantagem": "Integração SAP SFSF, IA (XM2), EX + CX no mesmo contrato", "argumento_sem_nomear": "Ferramenta de pesquisa é só o começo. Experience management com IA, integrado ao seu SuccessFactors, fecha o ciclo de ouvir e agir.", "sinal_de_alerta": "Prospect cita ferramenta simples de survey/feedback" }
+    ]
+  },
+
+  "jornadas": {
+    "_fonte": "Estratégia Marketing EPI-USE Brasil FY27.xlsx — abas Jornada",
+    "S/4HANA": {
+      "personas": ["CFO", "CIO", "COO"],
+      "estagios": {
+        "descoberta": { "comportamento": "Recebe alerta do deadline ECC 2027 ou sente pressão da Reforma Tributária; não sabe se é obrigado a migrar", "gatilhos": ["Comunicado SAP do ECC 6.0 EoL", "Auditoria aponta risco fiscal", "Reforma Tributária no board"], "objecoes": ["Precisamos mesmo migrar agora?", "Qual o custo estimado?"], "cta": ["Verificar situação ECC 6.0", "Baixar Guia Executivo Reforma Tributária"] },
+        "consideracao": { "comportamento": "Entende que a migração é inevitável; avalia Greenfield vs Brownfield e RISE", "objecoes": ["Greenfield ou Brownfield — qual o risco?", "RISE compensa financeiramente?", "Como esse parceiro se compara?"], "cta": ["Calcular TCO da migração", "Solicitar Assessment"] },
+        "decisao": { "comportamento": "CFO decide budget, CIO valida técnico, CEO aprova no board", "cta": ["Proposta + Assessment detalhado"], "prova_social": ["ISG Rising Star S/4HANA", "AWS Premier", "Case COMIGO (go live no prazo + Reforma Trib.)"] }
+      }
+    },
+    "ServiceNow": {
+      "personas": ["CIO", "CISO", "COO", "CHRO"],
+      "estagios": {
+        "descoberta": { "comportamento": "Sofre com service desk ineficiente, SLA estourado ou processos manuais; ainda não associa a uma plataforma", "gatilhos": ["SLA de TI descumprido", "Crescimento torna processo manual insustentável", "Auditoria de segurança aponta vulnerabilidade", "CHRO quer digitalizar jornada do colaborador (HRSD)"], "objecoes": ["ServiceNow não é caro demais?", "Parceiro local consegue suportar?"], "cta": ["Calcular custo do service desk atual", "Demo de 15 min"] },
+        "consideracao": { "comportamento": "Identifica ServiceNow como líder; avalia módulos e parceiro", "objecoes": ["Vale a pena trocar o ITSM atual?", "EPI-USE tem expertise suficiente?"], "cta": ["Demo personalizada", "Falar com especialista certificado"] },
+        "decisao": { "comportamento": "CIO responsável técnico, CFO/COO aprovam orçamento, CISO aprova segurança", "prova_social": ["ISG Lens Provider", "ServiceNow Specialist Partner", "Case FQM (ITSM)"] }
+      }
+    }
+  },
+
+  "cases_reais": {
+    "_uso": "INTERNO — anonimizar na fala salvo aprovação (ex.: 'um grande grupo do agronegócio', 'um data center global'). Regra: nunca citar cliente nominalmente sem aprovação.",
+    "lista": [
+      { "cliente": "COMIGO", "lob": "S/4HANA", "resultado": "Go Live S/4HANA no prazo + adequação à Reforma Tributária (abr/2026)", "anonimo": "um grande grupo do agronegócio" },
+      { "cliente": "Cidade Matarazzo", "lob": "S/4HANA", "resultado": "RISE with SAP (move-to-cloud)", "anonimo": "um empreendimento de grande porte" },
+      { "cliente": "FQM", "lob": "ServiceNow", "resultado": "Implementação ServiceNow ITSM", "anonimo": "uma operação enterprise de mineração/recursos" },
+      { "cliente": "Scala Data Centers", "lob": "ServiceNow", "resultado": "ServiceNow", "anonimo": "um data center de grande porte" },
+      { "cliente": "Raízen", "lob": "ServiceNow", "resultado": "ServiceNow", "anonimo": "uma grande empresa de energia" },
+      { "cliente": "Klabin", "lob": "ServiceNow", "resultado": "ServiceNow", "anonimo": "uma indústria líder de papel e celulose" }
+    ]
+  },
 
   "frameworks": {
     "BANT": {

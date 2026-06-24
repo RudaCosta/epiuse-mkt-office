@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <radialGradient id="halo" cx="50%" cy="42%" r="60%">
+      <stop offset="0%" stop-color="#7CC4DE" stop-opacity="0.55"/>
+      <stop offset="55%" stop-color="#0066B2" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#001844" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="disc" cx="50%" cy="38%" r="70%">
+      <stop offset="0%" stop-color="#0f2747"/>
+      <stop offset="100%" stop-color="#050d18"/>
+    </radialGradient>
+    <linearGradient id="skin" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#cfe6fb"/>
+      <stop offset="48%" stop-color="#93bce6"/>
+      <stop offset="100%" stop-color="#5f8dc4"/>
+    </linearGradient>
+    <linearGradient id="collar" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3a4a63"/>
+      <stop offset="100%" stop-color="#10151f"/>
+    </linearGradient>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="1.1"/>
+    </filter>
+  </defs>
+
+  <!-- halo / glow -->
+  <circle cx="60" cy="58" r="58" fill="url(#halo)"/>
+  <!-- disco escuro do badge -->
+  <circle cx="60" cy="58" r="46" fill="url(#disc)" stroke="#7CC4DE" stroke-opacity="0.5" stroke-width="1.5"/>
+
+  <!-- clip pra manter o Megamind dentro do disco -->
+  <clipPath id="cap"><circle cx="60" cy="58" r="45"/></clipPath>
+  <g clip-path="url(#cap)">
+    <!-- gola preta alta (atrás) -->
+    <path d="M30 104 L40 70 L52 92 L60 84 L68 92 L80 70 L90 104 Z" fill="url(#collar)"/>
+    <path d="M34 104 L41 78 L50 96 Z" fill="#0b0f17"/>
+    <path d="M86 104 L79 78 L70 96 Z" fill="#0b0f17"/>
+    <!-- pescoço -->
+    <rect x="53" y="78" width="14" height="16" rx="5" fill="#6f9bcf"/>
+    <!-- CABEÇÃO careca azul -->
+    <ellipse cx="60" cy="46" rx="33" ry="37" fill="url(#skin)"/>
+    <!-- sombra lateral -->
+    <ellipse cx="72" cy="48" rx="20" ry="30" fill="#3f6ba0" opacity="0.18"/>
+    <!-- brilho do topo -->
+    <ellipse cx="52" cy="26" rx="13" ry="8" fill="#ffffff" opacity="0.35" filter="url(#soft)"/>
+
+    <!-- sobrancelhas (esperto/sarcástico) -->
+    <path d="M40 50 L54 46" stroke="#10151f" stroke-width="3" stroke-linecap="round"/>
+    <path d="M80 50 L66 46" stroke="#10151f" stroke-width="3" stroke-linecap="round"/>
+    <!-- olhos grandes verdes -->
+    <ellipse cx="49" cy="58" rx="9" ry="11" fill="#eaf3ff"/>
+    <ellipse cx="71" cy="58" rx="9" ry="11" fill="#eaf3ff"/>
+    <circle cx="50" cy="59" r="6.2" fill="#5bbf73"/>
+    <circle cx="70" cy="59" r="6.2" fill="#5bbf73"/>
+    <circle cx="51" cy="60" r="3" fill="#10240f"/>
+    <circle cx="69" cy="60" r="3" fill="#10240f"/>
+    <circle cx="52.5" cy="57.5" r="1.2" fill="#ffffff"/>
+    <circle cx="70.5" cy="57.5" r="1.2" fill="#ffffff"/>
+    <!-- nariz + sorriso de canto -->
+    <path d="M59 64 q2 3 3 5" stroke="#3f6ba0" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+    <path d="M52 72 q9 6 17 -1" stroke="#1b2740" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  </g>
+</svg>

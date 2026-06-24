@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <radialGradient id="halo2" cx="50%" cy="42%" r="60%">
+      <stop offset="0%" stop-color="#7CC4DE" stop-opacity="0.55"/>
+      <stop offset="55%" stop-color="#0066B2" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#001844" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="ball" cx="42%" cy="34%" r="75%">
+      <stop offset="0%" stop-color="#9fdcef"/>
+      <stop offset="45%" stop-color="#2f8fc4"/>
+      <stop offset="100%" stop-color="#001844"/>
+    </radialGradient>
+    <linearGradient id="skin2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#cfe6fb"/>
+      <stop offset="50%" stop-color="#93bce6"/>
+      <stop offset="100%" stop-color="#5f8dc4"/>
+    </linearGradient>
+    <linearGradient id="collar2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3a4a63"/>
+      <stop offset="100%" stop-color="#10151f"/>
+    </linearGradient>
+    <filter id="soft2" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="1"/>
+    </filter>
+  </defs>
+
+  <!-- halo -->
+  <circle cx="58" cy="64" r="56" fill="url(#halo2)"/>
+  <!-- ORB original (bola azul com gradiente + brilho) preservado -->
+  <circle cx="58" cy="64" r="40" fill="url(#ball)"/>
+  <ellipse cx="46" cy="48" rx="14" ry="9" fill="#ffffff" opacity="0.45" filter="url(#soft2)"/>
+  <circle cx="58" cy="64" r="40" fill="none" stroke="#7CC4DE" stroke-opacity="0.45" stroke-width="1.4"/>
+
+  <!-- Megamind PEQUENO sobreposto, transbordando a borda superior-direita -->
+  <g transform="translate(74 16) scale(0.62)">
+    <!-- gola -->
+    <path d="M8 78 L18 52 L28 68 L34 60 L40 68 L50 52 L60 78 Z" fill="url(#collar2)"/>
+    <!-- pescoço -->
+    <rect x="27" y="58" width="12" height="14" rx="4" fill="#6f9bcf"/>
+    <!-- cabeção -->
+    <ellipse cx="33" cy="34" rx="27" ry="30" fill="url(#skin2)" stroke="#0b1422" stroke-width="2"/>
+    <ellipse cx="42" cy="36" rx="15" ry="22" fill="#3f6ba0" opacity="0.18"/>
+    <ellipse cx="26" cy="18" rx="9" ry="6" fill="#ffffff" opacity="0.35" filter="url(#soft2)"/>
+    <!-- sobrancelhas -->
+    <path d="M17 38 L28 35" stroke="#10151f" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M49 38 L38 35" stroke="#10151f" stroke-width="2.4" stroke-linecap="round"/>
+    <!-- olhos verdes -->
+    <ellipse cx="24" cy="44" rx="7" ry="9" fill="#eaf3ff"/>
+    <ellipse cx="42" cy="44" rx="7" ry="9" fill="#eaf3ff"/>
+    <circle cx="25" cy="45" r="4.8" fill="#5bbf73"/>
+    <circle cx="41" cy="45" r="4.8" fill="#5bbf73"/>
+    <circle cx="26" cy="46" r="2.3" fill="#10240f"/>
+    <circle cx="40" cy="46" r="2.3" fill="#10240f"/>
+    <!-- sorriso de canto -->
+    <path d="M26 55 q7 5 14 -1" stroke="#1b2740" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  </g>
+</svg>

@@ -41,9 +41,10 @@
 
   /* ── Header ── */
   .head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:6px}
-  .orb{width:46px;height:46px;border-radius:50%;
+  .orb{position:relative;flex:none;width:46px;height:46px;border-radius:50%;
     background:radial-gradient(circle at 50% 40%,var(--j-glow),var(--j-cyan) 55%,var(--j-navy));
     box-shadow:0 0 24px rgba(124,196,222,.55),inset 0 0 14px rgba(255,255,255,.25);animation:pulse 3s ease-in-out infinite}
+  .orb img{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;display:block}
   @keyframes pulse{0%,100%{box-shadow:0 0 18px rgba(124,196,222,.45),inset 0 0 14px rgba(255,255,255,.2)}50%{box-shadow:0 0 30px rgba(124,196,222,.75),inset 0 0 16px rgba(255,255,255,.35)}}
   h1{font-size:24px;letter-spacing:.02em}
   h1 .v{font-size:11px;color:var(--j-muted);font-weight:500;letter-spacing:.18em}
@@ -127,9 +128,9 @@
 
 <div class="wrap">
   <div class="head">
-    <div class="orb"></div>
+    <div class="orb" title="JARVIS — mega brain 🧠"><img src="/img/jarvis/logo-megamind-v1.svg" alt="JARVIS — mega brain"></div>
     <div>
-      <h1>JARVIS <span class="v">· COPILOTO SDR/BDR &nbsp;v0.5</span></h1>
+      <h1>JARVIS <span class="v">· COPILOTO SDR/BDR &nbsp;v0.7</span></h1>
     </div>
   </div>
   <p class="sub">Biz Dev · prospecção B2B SAP & ServiceNow — escuta a conversa e recomenda suas falas em tempo real.</p>
@@ -151,7 +152,7 @@
         <option>Cold call</option><option>Discovery</option><option>Demo</option><option>Negociação</option><option>Follow-up</option>
       </select>
     </div>
-    <div class="setup-actions"><button class="btn ghost" id="btn-brief">🧭 Pré-call brief</button></div>
+    <div class="setup-actions"><button class="btn ghost" id="btn-brief">🧭 Pré-call brief</button><button class="btn ghost" id="btn-pesquisar" title="Pesquisar produto/tema técnico na web (sap.com)">🔬 Pesquisar produto</button></div>
   </div>
 
   <div class="grid">
@@ -301,6 +302,12 @@ async function requestCoach(lastUtterance){
   finally{ ST.asking=false; $('thinking').style.display='none'; }
 }
 function card(cls,icon,title,body){ return body ? `<div class="cc ${cls}"><div class="cct">${icon} ${title}</div><div class="ccb">${escapeHtml(body)}</div></div>` : ''; }
+// Card de conteúdos REAIS (links clicáveis do catálogo EPI-USE) — Regra 7
+function contentCard(items){
+  if(!Array.isArray(items)||!items.length) return '';
+  const links = items.map(c=>`<div style="margin:6px 0;line-height:1.4"><a href="${escapeHtml(c.url||'#')}" target="_blank" rel="noopener" style="color:var(--j-glow);text-decoration:none;font-weight:600">↗ ${escapeHtml(c.titulo||c.url||'')}</a>${c.porque?`<div style="font-size:11.5px;color:var(--j-muted);margin-top:1px">${escapeHtml(c.porque)}</div>`:''}</div>`).join('');
+  return `<div class="cc"><div class="cct">📎 Conteúdos pra enviar (reais)</div><div class="ccb">${links}</div></div>`;
+}
 function renderCoach(d){
   const sinais = Array.isArray(d.sinais)? d.sinais.filter(Boolean):[];
   let html = '';
@@ -310,6 +317,7 @@ function renderCoach(d){
   html += card('next','✅','Próximo passo', d.proximo_passo);
   if (d.lob_sugerida) html += `<div class="cc"><div class="cct">🎯 LOB aderente</div><div class="ccb">${escapeHtml(d.lob_sugerida)}</div></div>`;
   if (sinais.length) html += `<div class="cc"><div class="cct">📡 Sinais</div><div class="chips">${sinais.map(s=>`<span class="chip">${escapeHtml(s)}</span>`).join('')}</div></div>`;
+  html += contentCard(d.conteudos_sugeridos);
   $('coach').innerHTML = html || `<div class="coach-idle">Sem sugestão clara ainda — continue a conversa.</div>`;
   setTemp(d.temperatura);
 }
@@ -358,6 +366,25 @@ async function preCallBrief(){
     if (Array.isArray(d.dores_provaveis)&&d.dores_provaveis.length) html += `<div class="cc q"><div class="cct">🔎 Dores prováveis</div><div class="chips">${d.dores_provaveis.map(x=>`<span class="chip">${escapeHtml(x)}</span>`).join('')}</div></div>`;
     if (Array.isArray(d.perguntas_chave)&&d.perguntas_chave.length) html += `<div class="cc"><div class="cct">❓ Perguntas-chave</div><div class="ccb">${d.perguntas_chave.map(q=>'• '+escapeHtml(q)).join('<br>')}</div></div>`;
     if (d.prova_social) html += card('next','🏅','Prova social', d.prova_social);
+    html += contentCard(d.conteudos_sugeridos);
+    $('coach').innerHTML = html;
+  }catch(e){ renderCoachError(e.message); }
+}
+
+// ── Pesquisa de produto na web (OpenRouter :online · pré-call) ──────────────
+async function pesquisarProduto(){
+  const produto = prompt('🔬 Pesquisar produto/tema técnico (SAP, ServiceNow...). Ex: "SAP DRC Reforma Tributária" ou "ServiceNow HRSD"');
+  if(!produto || !produto.trim()) return;
+  $('coach').innerHTML = `<div class="coach-idle">🌐 Pesquisando na web (sap.com / fontes oficiais)…</div>`;
+  try{
+    const r = await fetch('/api/jarvis/pesquisar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({produto:produto.trim(), lob:ctx().lob})});
+    const d = await r.json();
+    if(!r.ok||d.success===false){ renderCoachError(d.error||('HTTP '+r.status)); return; }
+    let html = `<div class="ai-banner" style="margin:0 0 10px">🌐 <strong>Pesquisa web — verificar.</strong> Conteúdo técnico de fontes externas.</div>`;
+    const resumo = Array.isArray(d.resumo)? d.resumo : (d.resumo? [d.resumo]: []);
+    if (resumo.length) html += `<div class="cc q"><div class="cct">🔬 Resumo técnico — ${escapeHtml(produto)}</div><div class="ccb">${resumo.map(b=>'• '+escapeHtml(b)).join('<br>')}</div></div>`;
+    if (d.como_explicar) html += card('talk','💬','Como explicar ao prospect', d.como_explicar);
+    if (Array.isArray(d.fontes)&&d.fontes.length) html += contentCard(d.fontes.map(f=>({titulo:f.titulo,url:f.url})));
     $('coach').innerHTML = html;
   }catch(e){ renderCoachError(e.message); }
 }
@@ -420,6 +447,7 @@ document.querySelectorAll('.speaker-seg button').forEach(b=> b.addEventListener(
 }));
 $('btn-ask').addEventListener('click', ()=>{ const last=[...ST.transcript].reverse().find(u=>u.speaker==='prospect'); requestCoach(last?last.text:''); });
 $('btn-brief').addEventListener('click', preCallBrief);
+$('btn-pesquisar').addEventListener('click', pesquisarProduto);
 
 // ── Init ────────────────────────────────────────────────────────────────────
 loadPlaybook(); initMic(); idleWave(); pingIA();
