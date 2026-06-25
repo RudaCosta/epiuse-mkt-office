@@ -1,5 +1,24 @@
 # CHANGELOG — Módulo 11 (JARVIS)
 
+## v0.9.0 — 2026-06-25 · UI clean + auto-detect de contexto + auto-save
+Motivo: o Rudá pediu pra deixar **clean** — sem preencher dropdown na mão e sem botão de salvar. O JARVIS
+é que tem que **identificar cargo/LOB/indústria/estágio da conversa**, e a memória viva tem que salvar sozinha.
+Decisões (25/jun): **auto-save em background** (mantém o cérebro vivo, sem botão) + **auto-detect** do contexto
+(remove os 4 dropdowns, mantém só Prospect/Empresa).
+
+**Alterado (`public/jarvis.html`, `routes/jarvis.js`):**
+- **Setup bar enxuta:** removidos os dropdowns Indústria · LOB · Persona · Estágio. Sobra **Prospect + Empresa**
+  + uma área "🤖 JARVIS detecta da conversa" que mostra LOB/persona/indústria/estágio como **chips** ao vivo.
+- **Auto-detect:** o `coach` agora devolve `lob_detectada` · `persona_detectada` · `industria_detectada` ·
+  `estagio_detectado`; o front captura (`captureDetected`) e realimenta o contexto das próximas chamadas
+  (FY27/KB/memória passam a ser fatiados pelo que foi detectado). `ctx()` lê Prospect/Empresa dos inputs e o
+  resto de `ST.detected`.
+- **Auto-save (sem botão):** removido "🏁 Encerrar & salvar". A call salva sozinha **ao pausar o mic**
+  (`autoSaveCall`) + rede de segurança no `pagehide` (`sendBeacon`). Status discreto "💾 call salva · N
+  aprendizados". `POST /api/jarvis/encerrar` virou **upsert** (aceita `call_id` → UPDATE + re-extrai os
+  aprendizados; sem `call_id` → INSERT), então auto-saves repetidos não duplicam a call.
+- UI header → v0.9.
+
 ## v0.8.0 — 2026-06-24 · Cérebro vivo + diarização heurística + loop de conteúdo
 Motivo: o Rudá quer que o JARVIS **aprenda** — absorver clientes/SDR/produtos SAP/battle cards, entender a
 dor e como abordar; ser **vivo** como o RAG; e **guiar os próximos conteúdos**. E parar de clicar

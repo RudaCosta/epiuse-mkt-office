@@ -438,6 +438,10 @@ router.post('/api/jarvis/coach', jarvisLimiter, async (req, res) => {
       `  "objecao": "se houve objeção, o contorno em 1-2 frases; senão string vazia",`,
       `  "sinais": ["sinal de compra ou risco observado", "..."],`,
       `  "lob_sugerida": "LOB EPI-USE mais aderente ao que foi dito",`,
+      `  "lob_detectada": "LOB EPI-USE que o cliente está falando agora (taxonomia real) — '' se não der pra inferir",`,
+      `  "persona_detectada": "cargo/persona do prospect inferido da conversa (ex: CFO, CIO, CHRO, Gerente de TI) — '' se não der",`,
+      `  "industria_detectada": "indústria/setor do cliente inferido da conversa — '' se não der",`,
+      `  "estagio_detectado": "Cold call | Discovery | Demo | Negociação | Follow-up — '' se não der",`,
       `  "conteudos_sugeridos": [{"titulo": "título exato da lista", "url": "url exata da lista", "porque": "por que enviar agora"}],`,
       `  "temperatura": 0-100 (quão quente está a oportunidade, inteiro),`,
       `  "proximo_passo": "o próximo passo concreto a propor (com ideia de prazo)"`,
@@ -566,25 +570,39 @@ router.post('/api/jarvis/pesquisar', jarvisLimiter, async (req, res) => {
 // gravando em jarvis_aprendizados. É assim que o JARVIS "aprende a dor" entre calls.
 router.post('/api/jarvis/encerrar', requireAuth, jarvisLimiter, async (req, res) => {
   try {
-    const { context = {}, transcript = [], roleMap = {}, temperatura = null, duracao_seg = null } = req.body || {};
+    const { context = {}, transcript = [], roleMap = {}, temperatura = null, duracao_seg = null, call_id = null } = req.body || {};
     const turns = Array.isArray(transcript) ? transcript : [];
     if (!turns.length) {
       return res.status(400).json({ success: false, error: 'Sem transcrição para salvar.' });
     }
     const lobKey = normalizeLobKey(context.lob) || (context.lob || null);
+    const temp = (temperatura != null && !isNaN(temperatura)) ? Math.round(temperatura) : null;
+    const dur  = (duracao_seg != null && !isNaN(duracao_seg)) ? Math.round(duracao_seg) : null;
+    const quem = (req.session && req.session.user && (req.session.user.name || req.session.user.email)) || 'sdr';
 
-    // 1) salva a call
-    const callRow = db.prepare(`INSERT INTO jarvis_calls
-      (prospect, empresa, industria, lob, persona, estagio, transcript_json, role_map_json, temperatura, duracao_seg, criado_por)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?)`).run(
-      context.prospect || null, context.empresa || null, context.industria || null,
-      lobKey, context.persona || null, context.estagio || null,
-      JSON.stringify(turns), JSON.stringify(roleMap || {}),
-      (temperatura != null && !isNaN(temperatura)) ? Math.round(temperatura) : null,
-      (duracao_seg != null && !isNaN(duracao_seg)) ? Math.round(duracao_seg) : null,
-      (req.session && req.session.user && (req.session.user.name || req.session.user.email)) || 'sdr'
-    );
-    const callId = callRow.lastInsertRowid;
+    // 1) salva (auto-save em background): UPDATE se já há call_id desta sessão, senão INSERT
+    //    (evita duplicar a call a cada auto-save; re-extrai os aprendizados do zero no update)
+    let callId = null;
+    const existing = call_id ? db.prepare('SELECT id FROM jarvis_calls WHERE id = ?').get(call_id) : null;
+    if (existing) {
+      db.prepare(`UPDATE jarvis_calls SET prospect=?, empresa=?, industria=?, lob=?, persona=?, estagio=?,
+                    transcript_json=?, role_map_json=?, temperatura=?, duracao_seg=? WHERE id=?`).run(
+        context.prospect || null, context.empresa || null, context.industria || null,
+        lobKey, context.persona || null, context.estagio || null,
+        JSON.stringify(turns), JSON.stringify(roleMap || {}), temp, dur, existing.id
+      );
+      callId = existing.id;
+      db.prepare('DELETE FROM jarvis_aprendizados WHERE call_id = ?').run(callId);
+    } else {
+      const callRow = db.prepare(`INSERT INTO jarvis_calls
+        (prospect, empresa, industria, lob, persona, estagio, transcript_json, role_map_json, temperatura, duracao_seg, criado_por)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?)`).run(
+        context.prospect || null, context.empresa || null, context.industria || null,
+        lobKey, context.persona || null, context.estagio || null,
+        JSON.stringify(turns), JSON.stringify(roleMap || {}), temp, dur, quem
+      );
+      callId = callRow.lastInsertRowid;
+    }
 
     // 2) extrai aprendizados REAIS (só o que o PROSPECT/cliente disse) — se a IA estiver pronta
     let resumo = null, aprendizados = { dor: [], objecao: [], gatilho: [], pergunta_vencedora: [], sinal: [] };

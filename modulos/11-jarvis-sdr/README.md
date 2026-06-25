@@ -6,18 +6,22 @@
 > **recomenda falas** (próxima pergunta, talk track, contorno de objeção, próximo passo).
 
 ## Status
-🟢 **v0.8 — cérebro vivo + diarização heurística + loop de conteúdo** (24/jun/2026). Aprende com as calls.
+🟢 **v0.9 — UI clean (auto-detect de contexto + auto-save)** sobre o cérebro vivo da v0.8 (25/jun/2026).
 
 ## Como funciona
 1. **Escuta** — `Web Speech API` (pt-BR, Chrome) capta o microfone local. **Diarização heurística** separa as
    falas em **Voz 1 / Voz 2** por pausa (sem clicar a cada turno); o SDR marca **1×** quem é SDR/Cliente.
 2. **Pensa** — `POST /api/jarvis/coach` envia contexto + transcrição ao **Claude (Haiku 4.5)** com persona
    sênior + base real + **memória viva** (dores já ouvidas em campo) injetadas no system prompt.
-3. **Recomenda** — cards (próxima pergunta, fala humanizada, objeção, próximo passo, sinais, LOB, conteúdos
-   reais) + gauges (temperatura 🤖, % de fala, perguntas) derivados da sessão.
-4. **Aprende** — "🏁 Encerrar & salvar" grava a call e **extrai dores/objeções/gatilhos reais**
-   (`POST /api/jarvis/encerrar` → `jarvis_aprendizados`). A memória cresce e volta pro coach.
-5. **Guia conteúdo** — "📊 Dores de campo" (`GET /api/jarvis/dores-de-campo`) agrega por LOB → pauta os
+3. **Detecta o contexto** — em vez de dropdown manual, o coach **infere LOB/persona/indústria/estágio da
+   conversa** e mostra como chips. Só Prospect/Empresa ficam como input. O detectado realimenta as próximas
+   chamadas (FY27/KB/memória fatiados pelo que foi detectado).
+4. **Recomenda** — cards (próxima pergunta, fala humanizada, objeção, próximo passo, sinais, conteúdos reais)
+   + gauges (temperatura 🤖, % de fala, perguntas) derivados da sessão.
+5. **Aprende (auto-save, sem botão)** — ao **pausar o mic** (e no `pagehide`), a call salva sozinha e a IA
+   **extrai dores/objeções/gatilhos reais** (`POST /api/jarvis/encerrar`, upsert por `call_id` →
+   `jarvis_aprendizados`). A memória cresce e volta pro coach.
+6. **Guia conteúdo** — "📊 Dores de campo" (`GET /api/jarvis/dores-de-campo`) agrega por LOB → pauta os
    próximos conteúdos (loop campo→conteúdo). O sub-agente `jarvis-sdr` destila isso offline.
 
 ## Arquivos-chave

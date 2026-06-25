@@ -62,6 +62,11 @@
     border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;outline:none}
   .fld input:focus,.fld select:focus{border-color:var(--j-glow);box-shadow:0 0 0 2px rgba(124,196,222,.15)}
   .setup-actions{display:flex;align-items:flex-end;gap:8px}
+  /* contexto detectado pela IA (substitui os dropdowns manuais) */
+  .detected-fld{grid-column:span 2;min-width:240px}
+  .detected{display:flex;flex-wrap:wrap;gap:5px;align-items:center;min-height:34px;padding:4px 0}
+  .dchip{font-size:11px;font-weight:600;background:rgba(124,196,222,.12);border:1px solid rgba(124,196,222,.25);color:var(--j-glow);border-radius:20px;padding:4px 10px;white-space:nowrap}
+  .dchip.muted{background:transparent;border-color:var(--j-border);color:var(--j-muted);font-weight:500}
 
   .btn{border:1px solid var(--j-border);background:var(--j-surface2);color:var(--j-text);border-radius:9px;
     padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer;transition:.15s;font-family:inherit;white-space:nowrap}
@@ -140,7 +145,7 @@
   <div class="head">
     <div class="orb" title="JARVIS — mega brain 🧠"><img src="/img/jarvis/logo-megamind-v1.svg" alt="JARVIS — mega brain"></div>
     <div>
-      <h1>JARVIS <span class="v">· COPILOTO SDR/BDR &nbsp;v0.8</span></h1>
+      <h1>JARVIS <span class="v">· COPILOTO SDR/BDR &nbsp;v0.9</span></h1>
     </div>
   </div>
   <p class="sub">Biz Dev · prospecção B2B SAP & ServiceNow — escuta a conversa e recomenda suas falas em tempo real.</p>
@@ -154,13 +159,8 @@
   <div class="setup">
     <div class="fld"><label>Prospect</label><input id="f-prospect" placeholder="Nome do contato"></div>
     <div class="fld"><label>Empresa</label><input id="f-empresa" placeholder="Empresa"></div>
-    <div class="fld"><label>Indústria</label><select id="f-industria"></select></div>
-    <div class="fld"><label>LOB foco</label><select id="f-lob"></select></div>
-    <div class="fld"><label>Persona / cargo</label><select id="f-persona"></select></div>
-    <div class="fld"><label>Estágio</label>
-      <select id="f-estagio">
-        <option>Cold call</option><option>Discovery</option><option>Demo</option><option>Negociação</option><option>Follow-up</option>
-      </select>
+    <div class="fld detected-fld"><label>🤖 JARVIS detecta da conversa</label>
+      <div class="detected" id="detected-ctx"><span class="dchip muted">aguardando a conversa…</span></div>
     </div>
     <div class="setup-actions"><button class="btn ghost" id="btn-brief">🧭 Pré-call brief</button><button class="btn ghost" id="btn-pesquisar" title="Pesquisar produto/tema técnico na web (sap.com)">🔬 Pesquisar produto</button></div>
   </div>
@@ -190,9 +190,9 @@
         <input id="manual-in" placeholder='Digitar fala (vai pra voz ativa)… Enter pra enviar'>
         <button class="btn" id="btn-manual">Enviar</button>
       </div>
-      <div style="display:flex;gap:8px;margin-top:10px">
+      <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
         <button class="btn" id="btn-dores" title="Dores reais já ouvidas em campo, por LOB — insumo pra pautar conteúdo">📊 Dores de campo</button>
-        <button class="btn primary" id="btn-encerrar" title="Salvar a call e extrair os aprendizados (memória viva)">🏁 Encerrar & salvar</button>
+        <span id="save-status" style="font-size:11px;color:var(--j-muted)">💾 salva sozinho ao pausar o mic</span>
       </div>
       <div class="footnote">
         🔀 <strong>Separação automática de vozes (heurística):</strong> o <code>Web Speech API</code> capta o <strong>microfone local</strong> e o JARVIS quebra as falas por pausa em <strong>Voz 1 / Voz 2</strong>. Não é diarização acústica de verdade — <strong>se a voz sair trocada, use “↔️ trocar voz”</strong>. Marque 1× quem é SDR/Cliente. Em call remota, ponha em viva-voz ou digite as falas do cliente. Melhor no <strong>Chrome</strong>.
@@ -244,30 +244,39 @@
 // ── Estado ─────────────────────────────────────────────────────────────────
 const ST = { transcript: [], activeVoz: 'voz1', lastUtt: 0, gapMs: 1600,
              roleMap: { voz1: null, voz2: null }, startedAt: 0,
+             detected: { lob: '', persona: '', industria: '', estagio: '' },
+             callId: null, lastSavedLen: 0,
              recog: null, micOn: false,
              audioCtx: null, analyser: null, rafWave: null, coachTimer: null, asking: false };
 const TAU = 2 * Math.PI * 36; // circunferência do anel (r=36) ≈ 226
 
 const $ = id => document.getElementById(id);
+// Prospect/Empresa vêm dos inputs; LOB/persona/indústria/estágio são DETECTADOS pela IA.
 const ctx = () => ({
   prospect: $('f-prospect').value.trim(), empresa: $('f-empresa').value.trim(),
-  industria: $('f-industria').value, lob: $('f-lob').value,
-  persona: $('f-persona').value, estagio: $('f-estagio').value
+  industria: ST.detected.industria || '', lob: ST.detected.lob || '',
+  persona: ST.detected.persona || '', estagio: ST.detected.estagio || ''
 });
 
-// ── Popular dropdowns com a base REAL ───────────────────────────────────────
-async function loadPlaybook(){
-  const fallback = {
-    industrias:['Agro & Alimentício','Indústria & Manufatura','Química & Farma','Energia & Utilities','Bancos & Financeiro','Seguros','Saúde (Hospitais)','Serviços & Tecnologia','Automotivo','Telecom & Mídia','Educação'],
-    lobs:['SAP SuccessFactors (HCM)','SAP S/4HANA (ERP)','SAP BTP (Tech)','SAP Signavio / BTM','ServiceNow','WorkForce Software (WFS)','Qualtrics','Valcann (Cloud)','iLAB (QA)','PRISM (Labs)','AMS / Evolução'],
-    personas:['CFO','CHRO_COO','CIO','CEO','CTO_Arquiteto']
-  };
-  let d = fallback;
-  try { const r = await fetch('/api/jarvis/playbook'); if(r.ok){ const j = await r.json(); d = { industrias: j.industrias?.length?j.industrias:fallback.industrias, lobs: j.lobs?.length?j.lobs:fallback.lobs, personas: j.personas?.length?j.personas:fallback.personas }; } } catch(e){}
-  const fill = (el,arr,placeholder)=>{ el.innerHTML = `<option value="">${placeholder}</option>` + arr.map(x=>`<option>${x}</option>`).join(''); };
-  fill($('f-industria'), d.industrias, '— indústria —');
-  fill($('f-lob'), d.lobs, '— LOB —');
-  fill($('f-persona'), d.personas, '— persona —');
+// ── Contexto detectado pela IA (chips) ──────────────────────────────────────
+function renderDetected(){
+  const el = $('detected-ctx'); if(!el) return;
+  const d = ST.detected;
+  const chips = [];
+  if (d.lob)       chips.push(`<span class="dchip">🎯 ${escapeHtml(d.lob)}</span>`);
+  if (d.persona)   chips.push(`<span class="dchip">🧑 ${escapeHtml(d.persona)}</span>`);
+  if (d.industria) chips.push(`<span class="dchip">🏭 ${escapeHtml(d.industria)}</span>`);
+  if (d.estagio)   chips.push(`<span class="dchip">📍 ${escapeHtml(d.estagio)}</span>`);
+  el.innerHTML = chips.length ? chips.join('') : `<span class="dchip muted">aguardando a conversa…</span>`;
+}
+function captureDetected(d){
+  const map = { lob: d.lob_detectada || d.lob_sugerida, persona: d.persona_detectada, industria: d.industria_detectada, estagio: d.estagio_detectado };
+  let changed = false;
+  for (const k of ['lob','persona','industria','estagio']){
+    const v = (map[k] || '').trim();
+    if (v && v !== ST.detected[k]){ ST.detected[k] = v; changed = true; }
+  }
+  if (changed) renderDetected();
 }
 
 // ── Vozes + papéis (diarização heurística) ───────────────────────────────────
@@ -361,13 +370,13 @@ function contentCard(items){
   return `<div class="cc"><div class="cct">📎 Conteúdos pra enviar (reais)</div><div class="ccb">${links}</div></div>`;
 }
 function renderCoach(d){
+  captureDetected(d); // auto-detecta LOB/persona/indústria/estágio da conversa → chips
   const sinais = Array.isArray(d.sinais)? d.sinais.filter(Boolean):[];
   let html = '';
   html += card('q','❓','Próxima pergunta', d.proxima_pergunta);
   html += card('talk','💬','Fala sugerida', d.talk_track);
   if (d.objecao) html += card('obj','🛡️','Contorno de objeção', d.objecao);
   html += card('next','✅','Próximo passo', d.proximo_passo);
-  if (d.lob_sugerida) html += `<div class="cc"><div class="cct">🎯 LOB aderente</div><div class="ccb">${escapeHtml(d.lob_sugerida)}</div></div>`;
   if (sinais.length) html += `<div class="cc"><div class="cct">📡 Sinais</div><div class="chips">${sinais.map(s=>`<span class="chip">${escapeHtml(s)}</span>`).join('')}</div></div>`;
   html += contentCard(d.conteudos_sugeridos);
   $('coach').innerHTML = html || `<div class="coach-idle">Sem sugestão clara ainda — continue a conversa.</div>`;
@@ -441,30 +450,40 @@ async function pesquisarProduto(){
   }catch(e){ renderCoachError(e.message); }
 }
 
-// ── Encerrar & salvar a call (memória viva) ──────────────────────────────────
-async function encerrarCall(){
-  if(!ST.transcript.length){ renderCoachError('Sem transcrição pra salvar ainda.'); return; }
+// ── Auto-save da call em background (memória viva — sem botão) ────────────────
+function setSaveStatus(t){ const el=$('save-status'); if(el) el.textContent=t; }
+function buildCallPayload(){
   const dur = ST.startedAt ? Math.round((Date.now()-ST.startedAt)/1000) : null;
   const tempTxt = $('g-temp').textContent;
   const temperatura = /^\d+$/.test(tempTxt) ? parseInt(tempTxt,10) : null;
-  const payload = {
+  return {
+    call_id: ST.callId,
     context: ctx(),
     transcript: ST.transcript.map(u=>({ voz:u.voz, role: roleOf(u.voz)||null, text:u.text, t:u.t })),
     roleMap: ST.roleMap, temperatura, duracao_seg: dur
   };
-  $('coach').innerHTML = `<div class="coach-idle">🧠 Salvando a call e extraindo aprendizados…</div>`;
-  try{
-    const r=await fetch('/api/jarvis/encerrar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-    const d=await r.json();
-    if(!r.ok||d.success===false){ renderCoachError(d.error||('HTTP '+r.status)); return; }
-    let html = `<div class="ai-banner" style="margin:0 0 10px">🧠 <strong>Call salva (#${d.call_id}).</strong> ${escapeHtml(d.etiqueta||'')}</div>`;
-    if(d.resumo) html += card('next','📝','Resumo da call', d.resumo);
-    const blocos=[['dor','🔎 Dores'],['objecao','🛡️ Objeções'],['gatilho','⏰ Gatilhos'],['pergunta_vencedora','❓ Perguntas que abriram'],['sinal','📡 Sinais']];
-    for(const [k,t] of blocos){ const arr=(d.aprendizados&&d.aprendizados[k])||[]; if(arr.length) html += `<div class="cc"><div class="cct">${t}</div><div class="chips">${arr.map(x=>`<span class="chip">${escapeHtml(x)}</span>`).join('')}</div></div>`; }
-    if(!d.total_aprendizados) html += `<div class="cc"><div class="ccb">Nenhum aprendizado extraído (call curta ou IA off). A call foi salva mesmo assim.</div></div>`;
-    $('coach').innerHTML = html;
-  }catch(e){ renderCoachError(e.message); }
 }
+async function autoSaveCall(opts={}){
+  if(!ST.transcript.length) return;
+  if(ST.transcript.length <= ST.lastSavedLen && !opts.force) return; // nada novo desde o último save
+  setSaveStatus('💾 salvando…');
+  try{
+    const r=await fetch('/api/jarvis/encerrar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(buildCallPayload())});
+    const d=await r.json();
+    if(r.ok && d.success!==false){
+      ST.callId = d.call_id || ST.callId;
+      ST.lastSavedLen = ST.transcript.length;
+      const n = d.total_aprendizados||0;
+      setSaveStatus(`💾 call salva${n?` · ${n} aprendizados`:''}`);
+    } else { setSaveStatus('⚠️ não consegui salvar'); }
+  }catch(e){ setSaveStatus('⚠️ não consegui salvar'); }
+}
+// rede de segurança: salva ao sair da página (sendBeacon não segura o unload)
+function beaconSave(){
+  if(!ST.transcript.length || ST.transcript.length <= ST.lastSavedLen) return;
+  try{ navigator.sendBeacon('/api/jarvis/encerrar', new Blob([JSON.stringify(buildCallPayload())], {type:'application/json'})); }catch(e){}
+}
+window.addEventListener('pagehide', beaconSave);
 
 // ── Dores de campo (loop pra pautar conteúdo) ────────────────────────────────
 async function mostrarDores(){
@@ -518,6 +537,7 @@ function stopMic(){
   ST.micOn=false; try{ST.recog && ST.recog.stop();}catch(e){}
   cancelAnimationFrame(ST.rafWave); try{ST.audioCtx && ST.audioCtx.close();}catch(e){} ST.audioCtx=null;
   idleWave(); $('btn-mic').textContent='🎙️ Ativar mic'; $('btn-mic').classList.add('rec');
+  autoSaveCall(); // pausar o mic = salva a call + extrai aprendizados (memória viva), em background
 }
 function drawWave(){
   const cv=$('wave'), c=cv.getContext('2d'), buf=new Uint8Array(ST.analyser.frequencyBinCount);
@@ -557,14 +577,13 @@ function renderRoleMap(){
 }
 document.querySelectorAll('.rm-seg button').forEach(btn=> btn.addEventListener('click', ()=> setRole(btn.closest('.rm-seg').dataset.voz, btn.dataset.role)));
 
-$('btn-encerrar').addEventListener('click', encerrarCall);
 $('btn-dores').addEventListener('click', mostrarDores);
 $('btn-ask').addEventListener('click', ()=>{ const last=[...ST.transcript].reverse().find(u=>roleOf(u.voz)==='prospect') || [...ST.transcript].reverse()[0]; requestCoach(last?last.text:''); });
 $('btn-brief').addEventListener('click', preCallBrief);
 $('btn-pesquisar').addEventListener('click', pesquisarProduto);
 
 // ── Init ────────────────────────────────────────────────────────────────────
-loadPlaybook(); initMic(); idleWave(); pingIA(); renderRoleMap(); updateDiarBadge();
+initMic(); idleWave(); pingIA(); renderRoleMap(); updateDiarBadge(); renderDetected();
 </script>
 </body>
 </html>
