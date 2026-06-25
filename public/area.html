@@ -247,120 +247,43 @@
   }
 
   /* Visual pipeline funnel */
-  .visual-funnel {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  /* FUNIL DE CONVERSÃO — design de funil de verdade (trapézios afunilando) */
+  .funnel {
+    display: flex; flex-direction: column; align-items: center; gap: 7px;
     background: rgba(15, 30, 53, 0.45) !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    border-radius: 16px;
-    padding: 24px;
-    margin-bottom: 28px;
-    flex-wrap: wrap;
-    gap: 16px;
+    border-radius: 16px; padding: 24px 22px; margin-bottom: 28px;
     backdrop-filter: blur(16px) saturate(120%);
     -webkit-backdrop-filter: blur(16px) saturate(120%);
     box-shadow: 0 10px 32px 0 rgba(0,0,0,0.3);
   }
-  :root[data-theme="light"] .visual-funnel,
-  :root[data-theme="elephant"] .visual-funnel {
+  :root[data-theme="light"] .funnel,
+  :root[data-theme="elephant"] .funnel {
     background: rgba(255, 255, 255, 0.65) !important;
     border: 1px solid rgba(15, 23, 42, 0.08) !important;
     box-shadow: 0 10px 32px 0 rgba(15, 23, 42, 0.05) !important;
   }
-  @media (max-width: 900px) {
-    .visual-funnel {
-      flex-direction: column;
-      align-items: stretch;
-    }
+  .funnel-seg {
+    position: relative; min-height: 60px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--cor, #f87171);
+    background-image: linear-gradient(135deg, rgba(255,255,255,0.18), rgba(0,0,0,0.30));
+    color: #fff;
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.25));
+    transition: transform 0.2s ease, filter 0.2s ease;
   }
-  .funnel-step {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    position: relative;
-    padding: 16px 14px;
-    background: rgba(12, 22, 38, 0.5) !important;
-    border: 1px solid rgba(255, 255, 255, 0.05) !important;
-    border-left: 4px solid var(--cor, #3b82f6) !important;
-    border-radius: 12px;
-    min-width: 150px;
-    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s ease, box-shadow 0.25s ease;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  .funnel-seg:hover { transform: translateY(-1px) scale(1.012); filter: drop-shadow(0 6px 14px rgba(0,0,0,0.3)) brightness(1.08); }
+  .funnel-seg-in { text-align: center; padding: 8px 26px; max-width: 100%; }
+  .funnel-seg-name {
+    display: block; font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.06em; opacity: 0.92;
   }
-  .funnel-step:hover {
-    transform: translateY(-3px);
-    border-color: rgba(255, 255, 255, 0.1) !important;
-    border-left-width: 6px !important;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.3), 0 0 10px rgba(96, 165, 250, 0.1);
+  .funnel-seg-val {
+    display: block; font-family: 'JetBrains Mono', monospace; font-size: 22px;
+    font-weight: 800; line-height: 1.1; margin-top: 2px;
   }
-  :root[data-theme="light"] .funnel-step,
-  :root[data-theme="elephant"] .funnel-step {
-    background: rgba(255, 255, 255, 0.8) !important;
-    border: 1px solid rgba(15, 23, 42, 0.08) !important;
-    border-left: 4px solid var(--cor, #3b82f6) !important;
-  }
-  .funnel-step-name {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: var(--home-text-muted, #869ec3);
-    margin-bottom: 8px;
-    letter-spacing: 0.06em;
-  }
-  .funnel-step-val {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 24px;
-    font-weight: 800;
-    color: var(--cor, #60a5fa);
-  }
-  .funnel-step-meta {
-    font-size: 11px;
-    color: var(--home-text-muted, #869ec3);
-    margin-top: 4px;
-  }
-  .funnel-step-bar-wrap {
-    height: 4px;
-    background: rgba(255, 255, 255, 0.04);
-    border-radius: 99px;
-    width: 100%;
-    margin-top: 8px;
-    overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.02);
-  }
-  .funnel-step-bar {
-    height: 100%;
-    border-radius: 99px;
-    transition: width 0.4s ease;
-  }
-  .funnel-step-conv {
-    font-size: 10px;
-    font-weight: 800;
-    color: var(--color-success-400, #10b981);
-    background: rgba(16, 185, 129, 0.08) !important;
-    padding: 3px 8px;
-    border-radius: 99px;
-    border: 1px solid rgba(16, 185, 129, 0.25) !important;
-    margin-top: 10px;
-    letter-spacing: 0.02em;
-  }
-  .funnel-arrow {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    color: var(--home-text-muted, #869ec3);
-    user-select: none;
-    text-shadow: 0 0 8px rgba(255, 255, 255, 0.1);
-  }
-  @media (max-width: 900px) {
-    .funnel-arrow {
-      transform: rotate(90deg);
-      margin: 4px 0;
-    }
-  }
+  .funnel-seg-val small { font-size: 12px; font-weight: 600; opacity: 0.82; }
+  .funnel-conv { font-size: 10px; font-weight: 800; letter-spacing: 0.02em; color: var(--teal, #6ee7b7); }
 
   /* Glassmorphism overrides for standard components */
   .card, .proj, .tool-card {
@@ -475,51 +398,33 @@ function renderMetasDashboard(funil, cor){
 }
 
 function renderVisualFunnel(funil, cor) {
-  var stepsHtml = [];
-  for (var i = 0; i < funil.length; i++) {
+  var n = funil.length;
+  if (!n) return '';
+  // largura por POSIÇÃO (funil clássico): 100% no topo, afunilando até ~46% na base
+  function widthAt(i){ return n > 1 ? (100 - i * (54/(n-1))) : 100; }
+  var rows = [];
+  for (var i = 0; i < n; i++) {
     var s = funil[i];
-    var val = s.valor;
-    var meta = s.meta;
+    var val = s.valor, meta = s.meta;
     var valTxt = val != null ? fmt(val) : '—';
-    var metaTxt = meta ? 'Meta: ' + fmt(meta) : 'Sem meta';
-    var convBadge = '';
-    if (i > 0) {
-      var prev = funil[i-1];
-      if (prev.valor && val) {
-        if (i === 3) {
-          var rate = ((val / prev.valor) * 100).toFixed(2);
-          convBadge = '<div class="funnel-step-conv" title="Taxa de Agendamento: Reuniões / E-mails">🎯 ' + rate + '% conv.</div>';
-        }
-        else if (i === 5) {
-          var winRate = ((val / (prev.valor + val)) * 100).toFixed(1);
-          convBadge = '<div class="funnel-step-conv" title="Win Rate: Ganhos / (Ativos + Ganhos)">🏆 ' + winRate + '% win</div>';
-        }
-      }
+    var topW = widthAt(i), botW = widthAt(i < n-1 ? i+1 : i);
+    // insets do trapézio pra base bater na largura do próximo segmento (lados inclinados = funil)
+    var inset = topW > 0 ? Math.max(0, (topW - botW) / topW * 50) : 0;
+    if (i === n-1) inset = Math.min(inset, 6);
+    var clip = 'polygon(0 0, 100% 0, ' + (100-inset).toFixed(1) + '% 100%, ' + inset.toFixed(1) + '% 100%)';
+    // taxa de conversão vs etapa anterior (quando ambos têm valor)
+    if (i > 0 && funil[i-1].valor && val) {
+      var ratio = val / funil[i-1].valor;
+      rows.push('<div class="funnel-conv">▼ ' + (ratio*100).toFixed(ratio < 0.1 ? 1 : 0) + '% conv.</div>');
     }
-    
-    // Mini progress bar calculation
-    var pct = (val != null && meta) ? Math.round(100 * val / meta) : null;
-    var barHtml = '';
-    if (pct != null) {
-      var barCor = (pct >= 100) ? '#10b981' : (pct >= 75) ? '#10b981' : (pct >= 50) ? '#f59e0b' : '#ef4444';
-      barHtml = '<div class="funnel-step-bar-wrap">'
-        + '<div class="funnel-step-bar" style="width:' + Math.min(100, pct) + '%;background:' + barCor + '"></div>'
-        + '</div>';
-    }
-    
-    var stepHtml = '<div class="funnel-step" style="--cor:' + cor + '">'
-      + '<div class="funnel-step-name">' + esc(s.estagio) + '</div>'
-      + '<div class="funnel-step-val">' + valTxt + '</div>'
-      + '<div class="funnel-step-meta">' + metaTxt + '</div>'
-      + barHtml
-      + convBadge
-      + '</div>';
-    stepsHtml.push(stepHtml);
-    if (i < funil.length - 1) {
-      stepsHtml.push('<div class="funnel-arrow">➔</div>');
-    }
+    rows.push('<div class="funnel-seg" style="width:' + topW.toFixed(1) + '%;-webkit-clip-path:' + clip + ';clip-path:' + clip + ';--cor:' + cor + '">'
+      + '<div class="funnel-seg-in">'
+        + '<span class="funnel-seg-name">' + esc(s.estagio) + '</span>'
+        + '<span class="funnel-seg-val">' + valTxt + (meta ? '<small> / ' + fmt(meta) + '</small>' : '') + '</span>'
+      + '</div>'
+      + '</div>');
   }
-  return '<div class="visual-funnel">' + stepsHtml.join('') + '</div>';
+  return '<div class="funnel">' + rows.join('') + '</div>';
 }
 
 function renderSpark(pts, cor){
