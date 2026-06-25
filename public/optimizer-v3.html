@@ -199,7 +199,7 @@ $('go').addEventListener('click',async()=>{
   fd.append('linkedin_url',$('url').value.trim());
   sel.forEach(f=>fd.append('screenshots',f));
   try{
-    const r=await fetch('/api/optimizer-v3/analisar',{method:'POST',body:fd});
+    const r=await fetch('/api/voices/optimizer-v3/analisar',{method:'POST',body:fd});
     const d=await r.json();
     $('loading').style.display='none';
     if(!d.success)throw new Error(d.error||'Erro desconhecido');

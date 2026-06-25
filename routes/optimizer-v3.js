@@ -17,7 +17,7 @@ const upload = multer({
   limits: { fileSize: 8 * 1024 * 1024, files: 5 }
 });
 
-const MODEL_VISION = process.env.GROQ_MODEL_VISION || 'llama-3.2-90b-vision-preview';
+const MODEL_VISION = process.env.GROQ_MODEL_VISION || 'meta-llama/llama-4-scout-17b-16e-instruct';
 const MODEL_TEXT = process.env.GROQ_MODEL_TEXT || 'llama-3.3-70b-versatile';
 
 const LINKEDIN_21_SKILLS = `
@@ -152,11 +152,14 @@ function parseJSON(text) {
   return JSON.parse(match[0]);
 }
 
-router.get('/optimizer-v3', (req, res) => {
+// canonical: /voices/optimizer-v3 (sub-pagina do Voices)
+router.get('/voices/optimizer-v3', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/optimizer-v3.html'));
 });
+// backward-compat: redirect top-level pra canonical
+router.get('/optimizer-v3', (req, res) => res.redirect(301, '/voices/optimizer-v3'));
 
-router.get('/api/optimizer-v3/health', (req, res) => {
+router.get('/api/voices/optimizer-v3/health', (req, res) => {
   res.json({
     ok: true,
     service: 'profile-optimizer-v3',
@@ -164,8 +167,10 @@ router.get('/api/optimizer-v3/health', (req, res) => {
     groq_key_set: !!process.env.GROQ_API_KEY
   });
 });
+// backward-compat health
+router.get('/api/optimizer-v3/health', (req, res) => res.redirect(301, '/api/voices/optimizer-v3/health'));
 
-router.post('/api/optimizer-v3/analisar', upload.array('screenshots', 5), async (req, res) => {
+router.post('/api/voices/optimizer-v3/analisar', upload.array('screenshots', 5), async (req, res) => {
   const files = req.files || [];
   try {
     const { linkedin_url } = req.body;
