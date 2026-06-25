@@ -223,9 +223,9 @@ textarea:focus,select:focus,input:focus{outline:2px solid rgba(96,165,250,.5);ou
 
   <!-- SSI TRACKING -->
   <div class="card">
-    <div class="card-h"><span class="ico">📈</span> SSI Tracking <span class="badge">acompanhar evolução</span></div>
-    <div class="card-sub">Sobe print do Social Selling Index (<a href="https://linkedin.com/sales/ssi" target="_blank" style="color:var(--primary-light)">linkedin.com/sales/ssi</a>). IA lê o número e salva no histórico do Voice.</div>
-    <div id="ssi-need-voice" style="font-size:12px;color:var(--yellow);margin-bottom:10px;display:none">⚠️ Selecione um Voice cadastrado acima pra salvar o SSI no histórico.</div>
+    <div class="card-h"><span class="ico">📈</span> SSI Tracking <span class="badge">opcional · entra no kit</span></div>
+    <div class="card-sub">Sobe print do Social Selling Index (<a href="https://linkedin.com/sales/ssi" target="_blank" style="color:var(--primary-light)">linkedin.com/sales/ssi</a>). Se subir aqui <b>antes de gerar o kit</b>, o SSI vai junto no relatório final + salva no histórico. Ou usa o botão abaixo pra extrair sozinho (só tracking).</div>
+    <div id="ssi-need-voice" style="font-size:12px;color:var(--yellow);margin-bottom:10px;display:none">⚠️ Sem Voice selecionado: SSI ainda é extraído e mostrado, mas não vai pro histórico.</div>
     <div class="upload" id="ssi-up">
       <input type="file" id="ssi-file" accept="image/jpeg,image/png,image/webp">
       <div style="font-size:22px">📊</div>
@@ -394,6 +394,8 @@ $('go').onclick=async()=>{
   if(mode==='screenshots') sel.screenshots.forEach(f=>fd.append('screenshots',f));
   else if(mode==='transcricao') fd.append('transcricao',$('transcricao').value.trim());
   else { sel.ambos.forEach(f=>fd.append('screenshots',f)); fd.append('transcricao',$('transcricao2').value.trim()); }
+  // SSI screenshot — se user subiu print SSI, vai junto pra entrar no kit final
+  if(ssiFile) fd.append('ssi_screenshot',ssiFile);
 
   document.querySelectorAll('.card').forEach(c=>c.style.display='none');
   $('loading').style.display='block';
@@ -485,7 +487,7 @@ $('ssi-go').onclick=async()=>{
   fd.append('screenshot',ssiFile);
   if(activeVoice) fd.append('voice_slug',activeVoice);
   try{
-    const r=await fetch('/api/voices/optimizer-v3/ssi',{method:'POST',body:fd});
+    const r=await fetch('/api/voices/optimizer-v3/ssi-extract',{method:'POST',body:fd});
     const d=await r.json();
     if(!d.success) throw new Error(d.error||'Erro SSI');
     renderSsi(d);
@@ -555,6 +557,36 @@ function renderKit(d){
       </div>`).join('')}
     </div>
   </div>
+  ${d.ssi_data && !d.ssi_data._erro ? `
+  <div class="card">
+    <div class="card-h"><span class="ico">📈</span> SSI (Skill #21) — extraído do print ${d.ssi_data.saved?`<span class="badge" style="margin-left:auto;background:rgba(16,185,129,.18);color:#6ee7b7">salvo · ${esc(d.ssi_data.voice_name||'')}</span>`:'<span class="badge" style="margin-left:auto;background:rgba(245,158,11,.18);color:#fbbf24">só leitura (Voice não cadastrado)</span>'}</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:10px">${esc(d.ssi_data.etiqueta||'')}</div>
+    <div class="ssi-row">
+      <div class="ssi-num">${esc(d.ssi_data.ssi_total)}</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:700;color:#fff">SSI Total · ${esc(d.ssi_data.data||'')}</div>
+        <div style="font-size:11px;color:var(--muted)">Confiança extração: ${esc(d.ssi_data.confianca||'media')} · Meta EPI-USE Voices: <b>70+</b></div>
+        ${d.ssi_data.delta!==null && d.ssi_data.delta!==undefined?`<div style="margin-top:6px"><span class="ssi-delta ${d.ssi_data.delta>=0?'up':'down'}">${d.ssi_data.delta>=0?'▲':'▼'} ${Math.abs(d.ssi_data.delta)}</span> <span style="font-size:11px;color:var(--muted)">vs medição anterior</span></div>`:''}
+      </div>
+    </div>
+    ${d.ssi_data.componentes?`<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:12px">
+      <div class="box"><div style="font-size:10px;color:var(--muted);text-transform:uppercase">Marca</div><div style="font-size:18px;font-weight:800;color:#fff">${esc(d.ssi_data.componentes.marca??'-')}<span style="font-size:11px;color:var(--muted)">/25</span></div></div>
+      <div class="box"><div style="font-size:10px;color:var(--muted);text-transform:uppercase">Pessoas</div><div style="font-size:18px;font-weight:800;color:#fff">${esc(d.ssi_data.componentes.pessoas??'-')}<span style="font-size:11px;color:var(--muted)">/25</span></div></div>
+      <div class="box"><div style="font-size:10px;color:var(--muted);text-transform:uppercase">Insights</div><div style="font-size:18px;font-weight:800;color:#fff">${esc(d.ssi_data.componentes.insights??'-')}<span style="font-size:11px;color:var(--muted)">/25</span></div></div>
+      <div class="box"><div style="font-size:10px;color:var(--muted);text-transform:uppercase">Relação</div><div style="font-size:18px;font-weight:800;color:#fff">${esc(d.ssi_data.componentes.relacao??'-')}<span style="font-size:11px;color:var(--muted)">/25</span></div></div>
+    </div>`:''}
+    ${d.ssi_data.historico && d.ssi_data.historico.length>1?`<div class="ssi-history">
+      <div style="font-size:11px;color:var(--muted);margin-top:10px;text-transform:uppercase;letter-spacing:.5px">Histórico (últimas ${Math.min(d.ssi_data.historico.length,10)})</div>
+      <table><tr><th>Data</th><th>SSI</th><th>Marca</th><th>Pessoas</th><th>Insights</th><th>Relação</th></tr>
+      ${d.ssi_data.historico.slice(-10).reverse().map(h=>`<tr><td>${esc(h.data)}</td><td><b>${esc(h.ssi_total)}</b></td><td>${esc(h.marca??'-')}</td><td>${esc(h.pessoas??'-')}</td><td>${esc(h.insights??'-')}</td><td>${esc(h.relacao??'-')}</td></tr>`).join('')}
+      </table>
+    </div>`:''}
+  </div>`:(d.ssi_data && d.ssi_data._erro?`
+  <div class="card" style="border-left:3px solid var(--yellow)">
+    <div class="card-h"><span class="ico">⚠️</span> SSI — print não lido</div>
+    <div style="font-size:13px;color:var(--text)">${esc(d.ssi_data._erro)}</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:4px">Tenta de novo com print mais nítido (zoom no número grande do SSI), ou usa a seção SSI separada acima.</div>
+  </div>`:'')}
   <div class="card">
     <div class="card-h"><span class="ico">✏️</span> Headline sugerida <span style="margin-left:auto;font-size:11px;color:${(k.headline_sugerida||'').length>220?'var(--red)':'var(--muted)'}">${(k.headline_sugerida||'').length}/220</span></div>
     <div class="box" id="ht">${esc(k.headline_sugerida||'')}</div>

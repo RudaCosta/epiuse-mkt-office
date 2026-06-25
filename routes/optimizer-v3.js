@@ -15,8 +15,13 @@ const multer = (() => {
 
 const upload = multer({
   dest: 'uploads/',
-  limits: { fileSize: 8 * 1024 * 1024, files: 5 }
+  limits: { fileSize: 8 * 1024 * 1024, files: 6 }
 });
+
+const uploadAnalisar = upload.fields([
+  { name: 'screenshots', maxCount: 5 },
+  { name: 'ssi_screenshot', maxCount: 1 }
+]);
 
 const MODEL_VISION = process.env.GROQ_MODEL_VISION || 'meta-llama/llama-4-scout-17b-16e-instruct';
 const MODEL_TEXT = process.env.GROQ_MODEL_TEXT || 'llama-3.3-70b-versatile';
@@ -178,6 +183,61 @@ function parseJSON(text) {
   return JSON.parse(match[0]);
 }
 
+// Extrai SSI de UM arquivo (path + mimetype). Retorna { ssi, comp, today, confianca } ou lanca.
+async function extractSsiFromFile(filePath, mimetype) {
+  const b64 = fs.readFileSync(filePath).toString('base64');
+  const content = [
+    { type: 'image_url', image_url: { url: `data:${mimetype};base64,${b64}` } },
+    { type: 'text', text: buildPromptSsi() }
+  ];
+  const raw = await callGroq({
+    messages: [{ role: 'user', content }],
+    model: MODEL_VISION,
+    maxTokens: 800,
+    temperature: 0.1
+  });
+  const parsed = parseJSON(raw);
+  if (parsed.erro) throw new Error('Print SSI ilegivel: ' + parsed.erro);
+  const ssi = parseInt(parsed.ssi_total, 10);
+  if (isNaN(ssi) || ssi < 0 || ssi > 100) throw new Error('SSI invalido (esperado 0-100): ' + parsed.ssi_total);
+  return {
+    ssi,
+    comp: parsed.componentes || {},
+    today: parsed.data_print || new Date().toISOString().slice(0, 10),
+    confianca: parsed.confianca || 'media'
+  };
+}
+
+// Grava entry SSI no voices.json (se voiceSlug bater). Retorna { saved, historico, delta, voiceName }.
+function saveSsiEntry(voiceSlug, ssi, comp, today, confianca) {
+  const result = { saved: false, historico: [], delta: null, voiceName: null };
+  if (!voiceSlug || !fs.existsSync(VOICES_JSON)) return result;
+  try {
+    const data = JSON.parse(fs.readFileSync(VOICES_JSON, 'utf8'));
+    const v = (data.voices || []).find(x => x.id === voiceSlug || x.slug === voiceSlug);
+    if (!v) return result;
+    v.ssi_historico = v.ssi_historico || [];
+    const prev = v.ssi_historico[v.ssi_historico.length - 1];
+    if (prev && prev.ssi != null) result.delta = ssi - prev.ssi;
+    const entry = {
+      data: today, ssi,
+      marca: comp.marca ?? null, pessoas: comp.pessoas ?? null,
+      insights: comp.insights ?? null, relacao: comp.relacao ?? null,
+      nota: 'extraido via Profile Optimizer v3 (Groq Vision)',
+      confianca
+    };
+    v.ssi_historico.push(entry);
+    if (v.ssi_baseline == null) v.ssi_baseline = ssi;
+    v.ssi_atual = ssi;
+    v.proxima_medicao_ssi = new Date(Date.now() + 7 * 864e5).toISOString().slice(0, 10);
+    fs.writeFileSync(VOICES_JSON, JSON.stringify(data, null, 2), 'utf8');
+    result.saved = true;
+    result.historico = v.ssi_historico;
+    result.voiceName = v.nome || voiceSlug;
+  } catch (e) { console.warn('[opt-v3] saveSsiEntry falhou:', e.message); }
+  return result;
+}
+
 // ── PAGES ─────────────────────────────────────────────────────────────────────
 router.get('/voices/optimizer-v3', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/optimizer-v3.html'));
@@ -196,35 +256,48 @@ router.get('/api/voices/optimizer-v3/health', (req, res) => {
 router.get('/api/optimizer-v3/health', (req, res) => res.redirect(301, '/api/voices/optimizer-v3/health'));
 
 // ── ANALISAR ──────────────────────────────────────────────────────────────────
-router.post('/api/voices/optimizer-v3/analisar', upload.array('screenshots', 5), async (req, res) => {
-  const files = req.files || [];
+router.post('/api/voices/optimizer-v3/analisar', uploadAnalisar, async (req, res) => {
+  const filesMap = req.files || {};
+  const screenshots = filesMap.screenshots || [];
+  const ssiFile = (filesMap.ssi_screenshot || [])[0] || null;
+  const cleanup = () => {
+    screenshots.forEach(f => { try { fs.unlinkSync(f.path); } catch (_) {} });
+    if (ssiFile) { try { fs.unlinkSync(ssiFile.path); } catch (_) {} }
+  };
   try {
     const { linkedin_url, transcricao, voice_slug } = req.body;
     if (!linkedin_url) return res.status(400).json({ success: false, error: 'URL obrigatoria.' });
-    if (!files.length && !(transcricao && transcricao.trim().length >= 100)) {
+    if (!screenshots.length && !(transcricao && transcricao.trim().length >= 100)) {
       return res.status(400).json({ success: false, error: 'Envie screenshots OU transcricao (>=100 chars).' });
     }
     if (!process.env.GROQ_API_KEY) return res.status(500).json({ success: false, error: 'GROQ_API_KEY ausente.' });
 
-    const hasImages = files.length > 0;
+    const hasImages = screenshots.length > 0;
     const content = [];
     if (hasImages) {
-      for (const f of files) {
+      for (const f of screenshots) {
         const b64 = fs.readFileSync(f.path).toString('base64');
         content.push({ type: 'image_url', image_url: { url: `data:${f.mimetype};base64,${b64}` } });
       }
     }
     content.push({ type: 'text', text: buildPromptRedator(linkedin_url, transcricao) });
 
-    // Sem imagens: usa modelo de texto. Com imagens: vision.
     const redatorModel = hasImages ? MODEL_VISION : MODEL_TEXT;
-    console.log(`[opt-v3] Etapa 1: redator (${redatorModel}) imgs=${files.length} trans=${(transcricao||'').length}`);
-    const redatorRaw = await callGroq({
+    console.log(`[opt-v3] Etapa 1: redator (${redatorModel}) imgs=${screenshots.length} trans=${(transcricao||'').length} ssi=${ssiFile?'sim':'nao'}`);
+
+    // Roda redator + (se houver SSI) extracao em paralelo
+    const redatorPromise = callGroq({
       messages: [{ role: 'user', content }],
       model: redatorModel,
       maxTokens: 6000,
       temperature: 0.5
     });
+    const ssiPromise = ssiFile
+      ? extractSsiFromFile(ssiFile.path, ssiFile.mimetype).catch(e => ({ _erro: e.message }))
+      : Promise.resolve(null);
+
+    const [redatorRaw, ssiRes] = await Promise.all([redatorPromise, ssiPromise]);
+
     let kit;
     try { kit = parseJSON(redatorRaw); }
     catch (e) {
@@ -232,7 +305,37 @@ router.post('/api/voices/optimizer-v3/analisar', upload.array('screenshots', 5),
       throw new Error(`Redator JSON invalido: ${e.message}`);
     }
 
-    files.forEach(f => { try { fs.unlinkSync(f.path); } catch (_) {} });
+    // Monta ssi_data se houver
+    let ssi_data = null;
+    if (ssiRes && !ssiRes._erro) {
+      const slug = String(voice_slug || '').replace(/[^a-z0-9-]/g, '').slice(0, 60);
+      const saved = saveSsiEntry(slug, ssiRes.ssi, ssiRes.comp, ssiRes.today, ssiRes.confianca);
+      ssi_data = {
+        ssi_total: ssiRes.ssi,
+        componentes: ssiRes.comp,
+        data: ssiRes.today,
+        confianca: ssiRes.confianca,
+        delta: saved.delta,
+        saved: saved.saved,
+        voice_slug: slug || null,
+        voice_name: saved.voiceName,
+        historico: saved.historico.map(h => ({ data: h.data, ssi_total: h.ssi, marca: h.marca, pessoas: h.pessoas, insights: h.insights, relacao: h.relacao })),
+        etiqueta: '🤖 Extraido por IA (Groq Vision) — confirmar numero'
+      };
+      // Injeta SSI no kit pra rotina avaliacao Skill 21 ja saber baseline
+      if (kit && Array.isArray(kit.diagnostico_21_skills)) {
+        const skill21 = kit.diagnostico_21_skills.find(s => s.skill_num === 21);
+        if (skill21) {
+          skill21.ssi_baseline = ssiRes.ssi;
+          skill21.ssi_componentes = ssiRes.comp;
+          skill21.observacao = `SSI atual ${ssiRes.ssi}/100 (marca ${ssiRes.comp.marca}, pessoas ${ssiRes.comp.pessoas}, insights ${ssiRes.comp.insights}, relacao ${ssiRes.comp.relacao}). ${skill21.observacao || ''}`.trim();
+        }
+      }
+    } else if (ssiRes && ssiRes._erro) {
+      ssi_data = { _erro: ssiRes._erro };
+    }
+
+    cleanup();
 
     let revisao = null;
     try {
@@ -251,94 +354,52 @@ router.post('/api/voices/optimizer-v3/analisar', upload.array('screenshots', 5),
 
     res.json({
       success: true,
-      versao: '3.1.0',
+      versao: '3.2.0',
       motor: `Groq · ${redatorModel} -> ${MODEL_TEXT}`,
       etiqueta: '🤖 Gerado por IA (Groq) — REVISAR com a Duda antes de publicar',
-      kit, revisao,
-      input_usado: { screenshots: files.length, transcricao_chars: (transcricao||'').length, voice_slug: voice_slug || null }
+      kit, revisao, ssi_data,
+      input_usado: {
+        screenshots: screenshots.length,
+        transcricao_chars: (transcricao||'').length,
+        ssi_screenshot: !!ssiFile,
+        voice_slug: voice_slug || null
+      }
     });
   } catch (error) {
-    files.forEach(f => { try { fs.unlinkSync(f.path); } catch (_) {} });
+    cleanup();
     console.error('[opt-v3] erro:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
 
-// ── SSI EXTRACT ───────────────────────────────────────────────────────────────
-router.post('/api/voices/optimizer-v3/ssi', upload.single('screenshot'), async (req, res) => {
+// ── SSI EXTRACT STANDALONE ────────────────────────────────────────────────────
+// Path /ssi-extract (NAO /ssi) pra evitar colisao com server.js:3052
+// app.post('/api/voices/:slug/ssi', requireEditorToken) que capturava slug=optimizer-v3
+router.post('/api/voices/optimizer-v3/ssi-extract', upload.single('screenshot'), async (req, res) => {
   const f = req.file;
   try {
     if (!f) return res.status(400).json({ success: false, error: 'screenshot obrigatorio.' });
     if (!process.env.GROQ_API_KEY) return res.status(500).json({ success: false, error: 'GROQ_API_KEY ausente.' });
 
     const voiceSlug = String(req.body?.voice_slug || '').replace(/[^a-z0-9-]/g, '').slice(0, 60);
+    console.log('[opt-v3] SSI vision extract standalone slug=' + (voiceSlug||'(none)'));
 
-    const b64 = fs.readFileSync(f.path).toString('base64');
-    const content = [
-      { type: 'image_url', image_url: { url: `data:${f.mimetype};base64,${b64}` } },
-      { type: 'text', text: buildPromptSsi() }
-    ];
-    console.log('[opt-v3] SSI vision extract');
-    const raw = await callGroq({
-      messages: [{ role: 'user', content }],
-      model: MODEL_VISION,
-      maxTokens: 800,
-      temperature: 0.1
-    });
-
+    const { ssi, comp, today, confianca } = await extractSsiFromFile(f.path, f.mimetype);
     try { fs.unlinkSync(f.path); } catch (_) {}
 
-    let parsed;
-    try { parsed = parseJSON(raw); } catch (e) { throw new Error(`SSI JSON invalido: ${e.message}`); }
-    if (parsed.erro) return res.status(422).json({ success: false, error: 'Nao foi possivel ler o print: ' + parsed.erro });
-    const ssi = parseInt(parsed.ssi_total, 10);
-    if (isNaN(ssi) || ssi < 0 || ssi > 100) return res.status(422).json({ success: false, error: 'SSI extraido invalido (esperado 0-100), recebeu: ' + parsed.ssi_total });
-
-    const today = parsed.data_print || new Date().toISOString().slice(0, 10);
-    const comp = parsed.componentes || {};
-    const entry = {
-      data: today,
-      ssi,
-      marca: comp.marca ?? null,
-      pessoas: comp.pessoas ?? null,
-      insights: comp.insights ?? null,
-      relacao: comp.relacao ?? null,
-      nota: 'extraido via Profile Optimizer v3 (Groq Vision)',
-      confianca: parsed.confianca || 'media'
-    };
-
-    let saved = false, historico = [], delta = null, voiceName = null;
-    if (voiceSlug && fs.existsSync(VOICES_JSON)) {
-      try {
-        const data = JSON.parse(fs.readFileSync(VOICES_JSON, 'utf8'));
-        const v = (data.voices || []).find(x => x.id === voiceSlug || x.slug === voiceSlug);
-        if (v) {
-          v.ssi_historico = v.ssi_historico || [];
-          // delta vs ultima medicao
-          const prev = v.ssi_historico[v.ssi_historico.length - 1];
-          if (prev && prev.ssi != null) delta = ssi - prev.ssi;
-          v.ssi_historico.push(entry);
-          if (v.ssi_baseline == null) v.ssi_baseline = ssi;
-          v.ssi_atual = ssi;
-          v.proxima_medicao_ssi = new Date(Date.now() + 7 * 864e5).toISOString().slice(0, 10);
-          fs.writeFileSync(VOICES_JSON, JSON.stringify(data, null, 2), 'utf8');
-          saved = true;
-          historico = v.ssi_historico;
-          voiceName = v.nome || voiceSlug;
-        }
-      } catch (e) { console.warn('[opt-v3] SSI save falhou:', e.message); }
-    }
+    const saved = saveSsiEntry(voiceSlug, ssi, comp, today, confianca);
 
     res.json({
       success: true,
       ssi_total: ssi,
       componentes: comp,
       data: today,
-      delta,
-      saved,
+      confianca,
+      delta: saved.delta,
+      saved: saved.saved,
       voice_slug: voiceSlug || null,
-      voice_name: voiceName,
-      historico: historico.map(h => ({ data: h.data, ssi_total: h.ssi, marca: h.marca, pessoas: h.pessoas, insights: h.insights, relacao: h.relacao })),
+      voice_name: saved.voiceName,
+      historico: saved.historico.map(h => ({ data: h.data, ssi_total: h.ssi, marca: h.marca, pessoas: h.pessoas, insights: h.insights, relacao: h.relacao })),
       etiqueta: '🤖 Extraido por IA (Groq Vision) — confirmar numero'
     });
   } catch (error) {
