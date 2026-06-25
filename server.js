@@ -923,22 +923,48 @@ app.get('/agentes', (req, res) => res.sendFile(AGENTES_PATH));
 app.get('/agentes/:slug', (req, res) => res.sendFile(AGENTE_PATH));
 app.get('/war-room', (req, res) => res.sendFile(path.join(__dirname, 'public/war-room.html')));
 
+function getWorkspaceDir(slug) {
+  const possiblePaths = [
+    path.join(__dirname, 'vault/workspaces', slug),
+    path.join(__dirname, 'vault/workspaces/01-orquestrador', slug),
+    path.join(__dirname, 'vault/workspaces/02-areas', slug),
+    path.join(__dirname, 'vault/workspaces/03-executores', slug),
+    path.join(__dirname, 'vault/workspaces/04-pipeline-conteudo', slug)
+  ];
+  for (const p of possiblePaths) {
+    if (fs.existsSync(p) && fs.statSync(p).isDirectory()) {
+      return p;
+    }
+  }
+  return path.join(__dirname, 'vault/workspaces', slug);
+}
+
 // API: resumo de contadores de TODOS os workspaces (pra /agentes mostrar inbox count)
 app.get('/api/agentes/_counters', (req, res) => {
   try {
     const wsRoot = path.join(__dirname, 'vault/workspaces');
     if (!fs.existsSync(wsRoot)) return res.json({});
     const out = {};
-    fs.readdirSync(wsRoot).forEach(slug => {
-      const dir = path.join(wsRoot, slug);
-      if (!fs.statSync(dir).isDirectory()) return;
-      const count = (sub) => {
-        const d = path.join(dir, sub);
-        if (!fs.existsSync(d)) return 0;
-        return fs.readdirSync(d).filter(f => !f.startsWith('.') && !f.startsWith('_') && f.endsWith('.md')).length;
-      };
-      out[slug] = { inbox: count('inbox'), outbox: count('outbox') };
-    });
+    const scanDir = (dir) => {
+      fs.readdirSync(dir).forEach(name => {
+        const fullPath = path.join(dir, name);
+        if (!fs.statSync(fullPath).isDirectory()) return;
+        const hasInbox = fs.existsSync(path.join(fullPath, 'inbox'));
+        const hasOutbox = fs.existsSync(path.join(fullPath, 'outbox'));
+        if (hasInbox || hasOutbox) {
+          const count = (sub) => {
+            const d = path.join(fullPath, sub);
+            if (!fs.existsSync(d)) return 0;
+            return fs.readdirSync(d).filter(f => !f.startsWith('.') && !f.startsWith('_') && f.endsWith('.md')).length;
+          };
+          out[name] = { inbox: count('inbox'), outbox: count('outbox') };
+        } else {
+          // Entra recursivamente nos grupos (01-orquestrador, etc.)
+          scanDir(fullPath);
+        }
+      });
+    };
+    scanDir(wsRoot);
     res.json(out);
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -951,7 +977,8 @@ app.post('/api/agentes/:slug/inbox', express.json(), (req, res) => {
     const slug = String(req.params.slug || '').replace(/[^a-z0-9-]/gi,'').toLowerCase();
     const { titulo, pedido, autor } = req.body || {};
     if (!titulo || !pedido) return res.status(400).json({ error: 'titulo e pedido sao obrigatorios' });
-    const inboxDir = path.join(__dirname, 'vault/workspaces', slug, 'inbox');
+    const wsDir = getWorkspaceDir(slug);
+    const inboxDir = path.join(wsDir, 'inbox');
     if (!fs.existsSync(inboxDir)) return res.status(404).json({ error: 'agente nao tem workspace' });
     const now = new Date();
     const stamp = now.toISOString().slice(0,10);
@@ -972,7 +999,7 @@ app.post('/api/agentes/:slug/inbox', express.json(), (req, res) => {
 app.get('/api/agentes/:slug/workspace', (req, res) => {
   try {
     const slug = String(req.params.slug || '').replace(/[^a-z0-9-]/gi,'').toLowerCase();
-    const wsDir = path.join(__dirname, 'vault/workspaces', slug);
+    const wsDir = getWorkspaceDir(slug);
     const out = { slug, inbox: [], outbox: [], vt: null, entregas: [] };
     if (!fs.existsSync(wsDir)) return res.status(404).json({ error: 'workspace nao encontrado', slug });
     const listDir = (sub) => {
@@ -1021,7 +1048,7 @@ app.get('/api/agentes/:slug/workspace', (req, res) => {
 const AREAS_DUDA = ['area-brand', 'criativos', 'landing-pages', 'pipe-capa', 'pipe-carrossel'];
 
 function _listInboxOutbox(slug) {
-  const dir = path.join(__dirname, 'vault/workspaces', slug);
+  const dir = getWorkspaceDir(slug);
   const out = { inbox: [], outbox: [] };
   ['inbox','outbox'].forEach(sub => {
     const subDir = path.join(dir, sub);
@@ -4624,12 +4651,14 @@ const authRouter = require('./routes/auth');
 const casesRouter = require('./routes/cases');
 const inboundRouter = require('./routes/inbound');
 const jarvisRouter = require('./routes/jarvis'); // Módulo 11 — JARVIS (copiloto SDR/BDR)
+const optimizerV3Router = require('./routes/optimizer-v3'); // Módulo 12 — Profile Optimizer v3 (Groq Vision + 21 LinkedIn skills)
 
 app.use('/', sapRouter);
 app.use('/', authRouter);
 app.use('/', casesRouter);
 app.use('/', inboundRouter);
 app.use('/', jarvisRouter);
+app.use('/', optimizerV3Router);
 
 app.listen(PORT, () => {
   console.log(`\n🎙️  EPI-USE Voices — Profile Optimizer`);
