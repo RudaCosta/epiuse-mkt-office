@@ -7,184 +7,464 @@
 <link rel="stylesheet" href="/design-tokens.css">
 <script type="module" src="/office-nav.js"></script>
 <script type="module" src="/office-footer.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   *,*::before,*::after { box-sizing:border-box; margin:0; padding:0 }
-  body { background: linear-gradient(180deg, var(--color-bg-2) 0%, var(--color-bg) 100%); color: var(--color-text); font-family:'Inter',sans-serif; min-height:100vh; padding-bottom:60px }
-  .container { max-width: 1320px; margin: 0 auto; padding: var(--space-xl); }
   
+  body {
+    background: radial-gradient(circle at top right, rgba(0,24,68,0.2) 0%, rgba(10,21,37,1) 100%), var(--color-bg, #0a1525);
+    color: var(--color-text, #e2e8f0);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    padding-bottom: 80px;
+    -webkit-font-smoothing: antialiased;
+  }
+  
+  .container {
+    max-width: 1360px;
+    margin: 0 auto;
+    padding: var(--space-xl) var(--space-lg);
+  }
+  
+  /* Header Section */
   .header-area {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: var(--space-md);
+    align-items: flex-end;
+    margin-bottom: var(--space-xl);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding-bottom: var(--space-lg);
     flex-wrap: wrap;
     gap: var(--space-md);
   }
   
-  h1 { font-size: 28px; font-weight: 800; }
-  .sub { color: var(--color-text-muted); font-size: 13px; margin-top: 4px; }
-
-  /* Transparência Rule 7 banner */
-  .transparency {
-    background: rgba(251,191,36,.06); border: 1px solid rgba(251,191,36,.2);
-    border-radius: var(--rounded-md); padding: var(--space-md) var(--space-lg); margin-bottom: var(--space-xl);
-    font-size: 11.5px; color: var(--color-warning-300); line-height: 1.5;
+  h1 {
+    font-family: 'Maven Pro', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #fff 0%, var(--color-info-200, #93c5fd) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .sub {
+    color: var(--color-text-muted, #869ec3);
+    font-size: 13px;
+    margin-top: 6px;
+    font-family: 'JetBrains Mono', monospace;
   }
 
-  /* Stats strip */
-  .stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--space-md); margin-bottom: var(--space-xl); }
-  @media (max-width: 900px) { .stats { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 500px) { .stats { grid-template-columns: 1fr; } }
+  /* Notice Banner */
+  .transparency {
+    background: linear-gradient(90deg, rgba(251,191,36,0.06) 0%, rgba(251,191,36,0.02) 100%);
+    border: 1px solid rgba(251,191,36,0.18);
+    border-radius: var(--rounded-md, 8px);
+    padding: var(--space-md) var(--space-lg);
+    margin-bottom: var(--space-xl);
+    font-size: 12px;
+    color: var(--color-warning-300, #fbbf24);
+    line-height: 1.6;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .transparency-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  /* Bento Grid Stats Card */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: var(--space-md);
+    margin-bottom: var(--space-xl);
+  }
+  @media (max-width: 1000px) { .stats { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 700px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 480px) { .stats { grid-template-columns: 1fr; } }
   
   .stat {
-    background: rgba(15,30,53,.3); border: 1px solid var(--color-border); border-radius: var(--rounded-md); padding: var(--space-md);
-    text-align: center; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-    transition: transform 0.2s ease, border-color 0.2s ease;
+    background: rgba(15, 30, 53, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: var(--rounded-xl, 12px);
+    padding: var(--space-lg);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   }
-  .stat:hover { transform: translateY(-2px); border-color: rgba(96,165,250,0.3); }
-  .stat-n { font-size: 26px; font-weight: 800; color: var(--color-info-500); font-family:'JetBrains Mono',monospace; }
-  .stat-l { font-size: 10px; color: var(--color-text-muted); letter-spacing: .08em; text-transform: uppercase; margin-top: 4px; }
-  .stat.real .stat-n { color: var(--color-success-500); }
-  .stat.manual .stat-n { color: var(--color-warning-500); }
-  .stat.pending .stat-n { color: var(--color-accent-orange-500); }
-  .stat.aguarda .stat-n { color: var(--color-accent-purple-500); }
+  .stat::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--stat-glow, var(--color-info-500));
+    opacity: 0.6;
+  }
+  .stat:hover {
+    transform: translateY(-3px);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25), 0 0 10px var(--stat-glow-alpha, rgba(96,165,250,0.1));
+  }
+  .stat-n {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--color-text, #fff);
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1.1;
+  }
+  .stat-l {
+    font-size: 9.5px;
+    color: var(--color-text-muted, #869ec3);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    margin-top: 8px;
+    font-weight: 700;
+  }
+  
+  /* Specific Stats Coloring */
+  .stat.total { --stat-glow: var(--color-info-400, #60a5fa); --stat-glow-alpha: rgba(96,165,250,0.15); }
+  .stat.real { --stat-glow: var(--color-success-500, #10b981); --stat-glow-alpha: rgba(16,185,129,0.15); }
+  .stat.manual { --stat-glow: var(--color-warning-500, #fbbf24); --stat-glow-alpha: rgba(251,191,36,0.15); }
+  .stat.pending { --stat-glow: var(--color-accent-orange-500, #f97316); --stat-glow-alpha: rgba(249,115,22,0.15); }
+  .stat.aguarda { --stat-glow: var(--color-accent-purple-500, #a855f7); --stat-glow-alpha: rgba(167,139,250,0.15); }
+  
+  .stat.real .stat-n { color: var(--color-success-400, #34d399); }
+  .stat.manual .stat-n { color: var(--color-warning-400, #fcd34d); }
+  .stat.pending .stat-n { color: var(--color-accent-orange-400, #fb923c); }
+  .stat.aguarda .stat-n { color: var(--color-accent-purple-400, #c084fc); }
 
-  /* Filter bar */
+  /* Filters Row */
   .filter-bar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 16px;
+    gap: var(--space-md);
     margin-bottom: var(--space-xl);
     flex-wrap: wrap;
   }
+  
+  /* Glass Pill Tabs */
   .tabs-container {
     display: flex;
-    gap: 4px;
-    background: rgba(15,30,53,.3);
-    border: 1px solid var(--color-border);
-    padding: 4px;
-    border-radius: var(--rounded-md);
+    gap: var(--space-xs, 4px);
+    background: rgba(15, 30, 53, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 5px;
+    border-radius: var(--rounded-lg, 12px);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     flex-wrap: wrap;
   }
+  
   .tab-btn {
     background: transparent;
     border: none;
     padding: 8px 16px;
-    border-radius: 6px;
-    color: var(--color-text-muted);
-    font-size: 12px;
+    border-radius: 8px;
+    color: var(--color-text-muted, #869ec3);
+    font-size: 11px;
     font-weight: 700;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     text-transform: uppercase;
-    letter-spacing: .02em;
+    letter-spacing: .06em;
   }
   .tab-btn:hover {
-    color: var(--color-text);
-    background: rgba(255,255,255,0.05);
+    color: var(--color-text, #fff);
+    background: rgba(255, 255, 255, 0.04);
   }
   .tab-btn.active {
     color: #fff;
-    background: var(--color-info-500);
-    box-shadow: 0 0 10px rgba(96,165,250,0.3);
+    background: var(--tab-bg, var(--color-info-500));
+    box-shadow: 0 4px 12px var(--tab-shadow, rgba(59, 130, 246, 0.25));
   }
   
+  /* Filter specific colors */
+  .tab-btn[data-owner="Marlison Estrela"].active { --tab-bg: var(--color-accent-red-500, #ef4444); --tab-shadow: rgba(239, 68, 68, 0.25); }
+  .tab-btn[data-owner="Bruna Yamagami"].active { --tab-bg: var(--color-info-500, #3b82f6); --tab-shadow: rgba(59, 130, 246, 0.25); }
+  .tab-btn[data-owner="Isabela de Oliveira"].active { --tab-bg: var(--color-warning-500, #eab308); --tab-shadow: rgba(234, 179, 8, 0.25); }
+  .tab-btn[data-owner="Designer Pleno/Sênior"].active { --tab-bg: var(--color-accent-purple-500, #a855f7); --tab-shadow: rgba(168, 85, 247, 0.25); }
+
+  /* Premium Search Bar */
   .search-container {
     display: flex;
     align-items: center;
-    background: rgba(15,30,53,.3);
-    border: 1px solid var(--color-border);
-    border-radius: var(--rounded-md);
-    padding: 6px 14px;
+    background: rgba(15, 30, 53, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: var(--rounded-lg, 12px);
+    padding: 8px 16px;
     width: 320px;
-    transition: border-color 0.2s ease;
+    transition: all 0.25s ease;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
   }
   .search-container:focus-within {
     border-color: var(--color-info-500);
+    box-shadow: 0 0 12px rgba(59, 130, 246, 0.15);
+    width: 350px;
   }
   .search-container svg {
-    fill: var(--color-text-muted);
-    width: 14px;
-    height: 14px;
+    fill: var(--color-text-muted, #869ec3);
+    width: 16px;
+    height: 16px;
+    transition: fill 0.2s ease;
+  }
+  .search-container:focus-within svg {
+    fill: var(--color-info-400);
   }
   .search-container input {
     background: transparent;
     border: none;
-    color: var(--color-text);
+    color: var(--color-text, #fff);
     font-size: 13px;
     outline: none;
     width: 100%;
-    margin-left: 8px;
+    margin-left: 10px;
   }
   .search-container input::placeholder {
-    color: var(--color-text-muted);
+    color: var(--color-text-muted, #869ec3);
+  }
+  @media (max-width: 768px) {
+    .search-container { width: 100%; }
+    .search-container:focus-within { width: 100%; }
   }
 
-  /* Áreas */
+  /* Areas Section Cards */
   .area-card {
-    background: rgba(15,30,53,.3); border: 1px solid var(--color-border);
-    border-radius: var(--rounded-xl); padding: var(--space-lg); margin-bottom: var(--space-lg);
-    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    background: rgba(15, 30, 53, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: var(--rounded-2xl, 16px);
+    padding: var(--space-xl);
+    margin-bottom: var(--space-xl);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
   }
+  
   .area-hdr {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: var(--space-md); padding-bottom: var(--space-sm); border-bottom: 1px solid var(--color-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-xl);
+    padding-bottom: var(--space-md);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   }
-  .area-nome { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-  .area-resumo { font-size: 12px; color: var(--color-text-muted); font-family:'JetBrains Mono',monospace; }
+  
+  .area-nome {
+    font-family: 'Maven Pro', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #fff;
+  }
+  
+  .area-resumo {
+    font-size: 11px;
+    color: var(--color-text-muted, #869ec3);
+    font-family: 'JetBrains Mono', monospace;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 4px 10px;
+    border-radius: 99px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
 
-  /* Meta card */
-  .meta-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 12px; }
+  /* Meta Cards Grid */
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(410px, 1fr));
+    gap: var(--space-md);
+  }
   @media (max-width: 600px) { .meta-grid { grid-template-columns: 1fr; } }
   
+  /* Meta Card Item */
   .meta {
-    background: rgba(10,21,37,.45); border-radius: 8px; padding: 14px;
-    border-left: 4px solid var(--border-color, #475569);
-    transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+    background: rgba(12, 22, 38, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: var(--rounded-xl, 12px);
+    padding: var(--space-lg);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 0.25s ease,
+                box-shadow 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 160px;
   }
+  
+  /* Accent left line using owner color variables */
+  .meta::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--theme-border, #475569);
+    transition: width 0.2s ease;
+  }
+  
   .meta:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0,0,0,.3), 0 0 8px var(--hover-glow, rgba(255,255,255,0.05));
-    border-left-color: var(--hover-color, #fff);
+    transform: translateY(-2.5px);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3), 0 0 12px var(--theme-glow, rgba(255, 255, 255, 0.03));
   }
-  .meta-top { display:flex; justify-content:space-between; align-items: flex-start; margin-bottom: 8px; gap: 8px; }
-  .meta-label { font-size: 13px; font-weight: 600; flex:1; line-height: 1.4; }
-  .meta-detalhe { font-size: 10px; color: var(--color-text-muted); font-style: italic; margin-top: 4px; }
-  .meta-valor { font-family:'JetBrains Mono',monospace; font-size: 11px; color: var(--color-info-400); font-weight:700; white-space:nowrap; }
+  .meta:hover::before {
+    width: 6px;
+  }
+  
+  .meta-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-md);
+    margin-bottom: var(--space-md);
+  }
+  
+  .meta-label {
+    font-size: 13.5px;
+    font-weight: 600;
+    line-height: 1.5;
+    color: rgba(255,255,255,0.95);
+    flex: 1;
+  }
+  
+  .meta-detalhe {
+    font-size: 10px;
+    color: var(--color-text-muted, #869ec3);
+    font-style: italic;
+    margin-top: 6px;
+    line-height: 1.4;
+  }
+  
+  .meta-valor-container {
+    text-align: right;
+    flex-shrink: 0;
+  }
+  
+  .meta-valor {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--theme-hover, var(--color-info-400));
+    font-weight: 700;
+    white-space: nowrap;
+    background: rgba(255, 255, 255, 0.02);
+    padding: 3px 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+  }
+  
+  .meta-status-pill {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 99px;
+    margin-top: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
 
-  /* Progress bar */
-  .pbar-wrap { height: 6px; background: rgba(96,165,250,.10); border-radius: 3px; overflow: hidden; margin-top: 8px; }
-  .pbar { height: 100%; background: linear-gradient(90deg, var(--color-success-500), var(--color-info-500)); transition: width .4s; }
-  .pbar.warn { background: linear-gradient(90deg, var(--color-warning-500), var(--color-accent-orange-500)); }
-  .pbar.danger { background: linear-gradient(90deg, var(--color-danger-500), var(--color-accent-orange-500)); }
+  /* Progress Section */
+  .pbar-container {
+    margin: var(--space-sm) 0;
+  }
+  
+  .pbar-wrap {
+    height: 6px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 99px;
+    overflow: hidden;
+    margin-bottom: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.02);
+  }
+  
+  .pbar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-success-400, #34d399), var(--theme-hover, #60a5fa));
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 99px;
+  }
+  .pbar.warn {
+    background: linear-gradient(90deg, var(--color-warning-400, #fcd34d), var(--color-accent-orange-400, #fb923c));
+  }
+  .pbar.danger {
+    background: linear-gradient(90deg, var(--color-danger-400, #f87171), var(--color-accent-orange-500, #f97316));
+  }
 
   .meta-bottom {
-    display:flex; justify-content:space-between; align-items:center; margin-top: 8px;
-    font-size: 11px; font-family:'JetBrains Mono',monospace;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
   }
-  .meta-real { color: var(--color-text); }
-  .meta-real strong { color: var(--color-success-400); }
-  .meta-pct { color: var(--color-info-400); font-weight: 700; }
-  .meta-pct.warn { color: var(--color-warning-400); }
-  .meta-pct.danger { color: var(--color-danger-400); }
   
-  .fonte-row { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+  .meta-real {
+    color: var(--color-text-dim, #c0ccd9);
+  }
+  .meta-real strong {
+    color: var(--color-success-400, #34d399);
+    font-weight: 700;
+  }
+  
+  .meta-pct {
+    color: var(--theme-hover, var(--color-info-400));
+    font-weight: 700;
+  }
+  .meta-pct.warn { color: var(--color-warning-400, #fcd34d); }
+  .meta-pct.danger { color: var(--color-danger-400, #f87171); }
+  
+  /* Footer Details row */
+  .fonte-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: var(--space-md);
+    padding-top: var(--space-sm);
+    border-top: 1px solid rgba(255, 255, 255, 0.03);
+  }
+  
   .owner-badge {
-    font-size: 9px; font-family:'JetBrains Mono',monospace; color: var(--color-text-muted);
-    background: rgba(255,255,255,0.04); padding: 2px 6px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.06);
+    font-size: 9px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--theme-border-alpha, rgba(255,255,255,0.06));
+    color: var(--theme-hover, var(--color-text-muted));
+    background: var(--theme-bg-alpha, rgba(255,255,255,0.02));
+    letter-spacing: 0.02em;
   }
   
   .fonte-badge {
-    display: inline-block; padding: 2px 6px; border-radius: 3px;
-    font-size: 9px; font-family:'JetBrains Mono',monospace; letter-spacing: .04em;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 9px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: .02em;
+    font-weight: 700;
+    border: 1px solid transparent;
   }
-  .fonte-badge.real    { background: rgba(16,185,129,.12); color: var(--color-success-300); }
-  .fonte-badge.manual  { background: rgba(251,191,36,.10); color: var(--color-warning-300); }
-  .fonte-badge.parcial { background: rgba(245,158,11,.12); color: var(--color-warning-400); }
-  .fonte-badge.pending { background: rgba(249,115,22,.10); color: var(--color-accent-orange-300); }
-  .fonte-badge.aguarda { background: rgba(167,139,250,.12); color: var(--color-accent-purple-300); }
+  .fonte-badge.real    { background: rgba(16,185,129,.06); color: var(--color-success-400, #34d399); border-color: rgba(16,185,129,0.15); }
+  .fonte-badge.manual  { background: rgba(251,191,36,.05); color: var(--color-warning-400, #fcd34d); border-color: rgba(251,191,36,0.12); }
+  .fonte-badge.parcial { background: rgba(245,158,11,.06); color: var(--color-warning-500, #fbbf24); border-color: rgba(245,158,11,0.15); }
+  .fonte-badge.pending { background: rgba(249,115,22,.05); color: var(--color-accent-orange-400, #fb923c); border-color: rgba(249,115,22,0.12); }
+  .fonte-badge.aguarda { background: rgba(167,139,250,.06); color: var(--color-accent-purple-400, #c084fc); border-color: rgba(167,139,250,0.15); }
 </style>
 </head>
 <body data-route="metas">
@@ -199,7 +479,10 @@
   </div>
 
   <div class="transparency">
-    ⚠️ <b>Transparência de dados (Regra 7):</b> cada meta mostra a fonte do "realizado" (🟢 real / 🟡 manual / 🟠 pending / 🟣 aguarda integração). Quando aparecer "—" no realizado é porque a integração ainda não está pronta. Mapa completo em <code>vault/00-contexto/mapa-fontes-dados.md</code>.
+    <span class="transparency-icon">⚠️</span>
+    <div>
+      <b>Transparência de dados (Regra 7):</b> cada meta mostra a fonte do "realizado" (🟢 real / 🟡 manual / 🟠 pending / 🟣 aguarda integração). Quando aparecer "—" no realizado é porque a integração ainda não está pronta. Mapa completo em <code>vault/00-contexto/mapa-fontes-dados.md</code>.
+    </div>
   </div>
 
   <!-- Stats por status -->
@@ -236,31 +519,41 @@ let searchQuery = '';
 
 const OWNER_THEME = {
   'Marlison Estrela': {
-    border: 'var(--color-accent-red-500, #ef4444)',
-    hover: 'var(--color-accent-red-400, #f87171)',
-    glow: 'rgba(239, 68, 68, 0.15)'
+    border: '#cd1543',
+    hover: '#ef4444',
+    glow: 'rgba(239, 68, 68, 0.15)',
+    borderAlpha: 'rgba(239, 68, 68, 0.25)',
+    bgAlpha: 'rgba(239, 68, 68, 0.08)'
   },
   'Bruna Yamagami': {
-    border: 'var(--color-info-500, #3b82f6)',
-    hover: 'var(--color-info-400, #60a5fa)',
-    glow: 'rgba(59, 130, 246, 0.15)'
+    border: '#004b8d',
+    hover: '#60a5fa',
+    glow: 'rgba(59, 130, 246, 0.15)',
+    borderAlpha: 'rgba(59, 130, 246, 0.25)',
+    bgAlpha: 'rgba(59, 130, 246, 0.08)'
   },
   'Isabela de Oliveira': {
-    border: 'var(--color-warning-500, #eab308)',
-    hover: 'var(--color-warning-400, #facc15)',
-    glow: 'rgba(234, 179, 8, 0.15)'
+    border: '#eab308',
+    hover: '#fbbf24',
+    glow: 'rgba(234, 179, 8, 0.15)',
+    borderAlpha: 'rgba(234, 179, 8, 0.25)',
+    bgAlpha: 'rgba(234, 179, 8, 0.08)'
   },
   'Designer Pleno/Sênior': {
-    border: 'var(--color-accent-purple-500, #a855f7)',
-    hover: 'var(--color-accent-purple-400, #c084fc)',
-    glow: 'rgba(168, 85, 247, 0.15)'
+    border: '#a855f7',
+    hover: '#c084fc',
+    glow: 'rgba(168, 85, 247, 0.15)',
+    borderAlpha: 'rgba(168, 85, 247, 0.25)',
+    bgAlpha: 'rgba(168, 85, 247, 0.08)'
   }
 };
 
 const DEFAULT_THEME = {
   border: '#475569',
-  hover: '#64748b',
-  glow: 'rgba(255, 255, 255, 0.05)'
+  hover: '#869ec3',
+  glow: 'rgba(255, 255, 255, 0.05)',
+  borderAlpha: 'rgba(255,255,255,0.06)',
+  bgAlpha: 'rgba(255,255,255,0.02)'
 };
 
 function fmt(n) { if (n == null) return '—'; if (n >= 1000) return n.toLocaleString('pt-BR'); return String(n); }
@@ -275,7 +568,7 @@ async function carregar() {
   // Renderiza os cards de sumário
   const s = d.por_status_fonte;
   document.getElementById('stats').innerHTML = `
-    <div class="stat"><div class="stat-n">${d.total_metas}</div><div class="stat-l">Metas Totais</div></div>
+    <div class="stat total"><div class="stat-n">${d.total_metas}</div><div class="stat-l">Metas Totais</div></div>
     <div class="stat real"><div class="stat-n">${s.real||0}</div><div class="stat-l">🟢 Real (vivo)</div></div>
     <div class="stat manual"><div class="stat-n">${s.manual||0}</div><div class="stat-l">🟡 Manual</div></div>
     <div class="stat pending"><div class="stat-n">${(s.pending||0)+(s.parcial||0)}</div><div class="stat-l">🟠 Pending/Parcial</div></div>
@@ -345,7 +638,20 @@ function renderMetas() {
 
 function renderMeta(m) {
   const theme = OWNER_THEME[m.responsavel] || DEFAULT_THEME;
-  const inlineStyles = `--border-color:${theme.border}; --hover-color:${theme.hover}; --hover-glow:${theme.glow};`;
+  const inlineStyles = `--theme-border:${theme.border}; --theme-hover:${theme.hover}; --theme-glow:${theme.glow}; --theme-border-alpha:${theme.borderAlpha}; --theme-bg-alpha:${theme.bgAlpha};`;
+  
+  // Status Pill Styling
+  const statusLower = (m.status || '').toLowerCase();
+  let statusStyle = '';
+  if (statusLower.includes('concl')) {
+    statusStyle = 'background: rgba(16,185,129,0.1); color: var(--color-success-400, #34d399); border: 1px solid rgba(16,185,129,0.2)';
+  } else if (statusLower.includes('andamento') || statusLower.includes('alinhado')) {
+    statusStyle = 'background: rgba(59,130,246,0.1); color: var(--theme-hover, #60a5fa); border: 1px solid rgba(59,130,246,0.2)';
+  } else if (statusLower.includes('risco') || statusLower.includes('atras')) {
+    statusStyle = 'background: rgba(239,68,68,0.1); color: var(--color-danger-400, #f87171); border: 1px solid rgba(239,68,68,0.2)';
+  } else {
+    statusStyle = 'background: rgba(255,255,255,0.04); color: var(--color-text-muted); border: 1px solid rgba(255,255,255,0.06)';
+  }
   
   // === Marlison — KPI de atividade (meta diária + mensal) ===
   if (m.periodo === 'diário') {
@@ -364,23 +670,33 @@ function renderMeta(m) {
             <div class="meta-label">${m.label}</div>
             ${m.kpis ? `<div class="meta-detalhe">${m.kpis}</div>` : ''}
           </div>
-          <div class="meta-valor" style="white-space:nowrap">${fmt(m.valor)} <span style="font-size:11px;color:var(--color-text-muted)">${m.unidade}/dia</span></div>
+          <div class="meta-valor-container">
+            <span class="meta-valor">${fmt(m.valor)} ${m.unidade}/dia</span>
+            <div><span class="meta-status-pill" style="${statusStyle}">${m.status}</span></div>
+          </div>
         </div>
-        ${pct != null ? `
-          <div class="pbar-wrap"><div class="pbar ${pbarCls}" style="width:${Math.min(100,pct)}%"></div></div>
-          <div class="meta-bottom">
-            <div class="meta-real">Realizado: <strong>${fmt(m.realizado)} / dia</strong></div>
-            <div class="meta-pct ${pctCls}">${pct}%</div>
-          </div>
-        ` : `
-          <div class="meta-bottom">
-            <div class="meta-real">Meta mensal (22d úteis): <strong>${fmt(m.valor * 22)} ${m.unidade}</strong></div>
-            <div></div>
-          </div>
-        `}
+        
+        <div class="pbar-container">
+          ${pct != null ? `
+            <div class="pbar-wrap"><div class="pbar ${pbarCls}" style="width:${Math.min(100,pct)}%"></div></div>
+            <div class="meta-bottom">
+              <div class="meta-real">Realizado: <strong>${fmt(m.realizado)} / dia</strong></div>
+              <div class="meta-pct ${pctCls}">${pct}%</div>
+            </div>
+          ` : `
+            <div class="pbar-wrap"><div class="pbar" style="width:0%"></div></div>
+            <div class="meta-bottom">
+              <div class="meta-real">Meta mensal (22d úteis): <strong>${fmt(m.valor * 22)} ${m.unidade}</strong></div>
+              <div><span style="color:#64748b; font-size:10px;">—</span></div>
+            </div>
+          `}
+        </div>
+        
         <div class="fonte-row">
           <span class="owner-badge">${m.responsavel}</span>
-          <span class="fonte-badge ${m.status_fonte}" title="${m.realizado_fonte || m.fonte || ''}">${m.status_fonte==='real'?'🟢':'🟡'} ${m.fonte}</span>
+          <span class="fonte-badge ${m.status_fonte}" title="${m.realizado_fonte || m.fonte || ''}">
+            ${m.status_fonte==='real'?'🟢':'🟡'} ${m.fonte}
+          </span>
         </div>
       </div>`;
   }
@@ -388,31 +704,40 @@ function renderMeta(m) {
   // === Bruna / Designer / Isabela — meta de projeto SMART (status + prazo + % concluído) ===
   if (m.periodo === 'projeto') {
     const st = (m.status||'').toLowerCase();
-    let bar = 'danger', dot = '#94a3b8';
-    if (st.includes('conclu')) { bar = ''; dot = '#22c55e'; }
-    else if (st.includes('andamento')) { bar = 'warn'; dot = '#3b82f6'; }
-    else if (st.includes('risco') || st.includes('atras')) { bar = 'danger'; dot = '#ef4444'; }
+    let bar = 'danger';
+    if (st.includes('conclu')) bar = '';
+    else if (st.includes('andamento') || st.includes('alinhado')) bar = 'warn';
+    else if (st.includes('risco') || st.includes('atras')) bar = 'danger';
+    
     const pc = m.valor || 0;
     const prazo = m.prazo ? new Date(m.prazo + 'T00:00:00').toLocaleDateString('pt-BR') : '—';
-    const idTxt = m.submeta ? `<span style="opacity:.55">${m.id}</span> ` : `<strong>${m.id}</strong> `;
+    const idTxt = m.submeta ? `<span style="opacity:.45">${m.id}</span> ` : `<strong>${m.id}</strong> `;
+    
     return `
-      <div class="meta ${m.status_fonte}" style="${inlineStyles} ${m.submeta ? 'margin-left:14px;border-left-width:2px;' : ''}">
+      <div class="meta ${m.status_fonte}" style="${inlineStyles} ${m.submeta ? 'margin-left:16px; border-left-width:2px;' : ''}">
         <div class="meta-top">
           <div>
             <div class="meta-label">${idTxt}${m.label}</div>
             ${m.kpis ? `<div class="meta-detalhe">${m.kpis}</div>` : ''}
           </div>
-          <div class="meta-valor" style="white-space:nowrap;font-size:13px"><span style="color:${dot}">●</span> ${m.status}</div>
+          <div class="meta-valor-container">
+            <span class="meta-status-pill" style="${statusStyle}">${m.status}</span>
+          </div>
         </div>
-        <div class="pbar-wrap"><div class="pbar ${bar}" style="width:${Math.min(100,pc)}%"></div></div>
-        <div class="meta-bottom">
-          <div class="meta-real">Prazo: <strong>${prazo}</strong>${m.horizonte ? ` · ${m.horizonte}` : ''}</div>
-          <div class="meta-pct">${pc}%</div>
+        
+        <div class="pbar-container">
+          <div class="pbar-wrap"><div class="pbar ${bar}" style="width:${Math.min(100,pc)}%"></div></div>
+          <div class="meta-bottom">
+            <div class="meta-real">Prazo: <strong>${prazo}</strong>${m.horizonte ? ` · ${m.horizonte}` : ''}</div>
+            <div class="meta-pct">${pc}%</div>
+          </div>
         </div>
-        ${m.obs ? `<div class="meta-detalhe" style="margin-top:6px;opacity:.85;line-height:1.45;">📝 ${m.obs}</div>` : ''}
-        <div class="fonte-row" style="margin-top:10px;">
+        
+        ${m.obs ? `<div class="meta-detalhe" style="margin: 8px 0; padding: 6px 10px; background: rgba(255,255,255,0.01); border-radius: 6px; border-left: 2px solid rgba(255,255,255,0.1); line-height: 1.45;">📝 ${m.obs}</div>` : ''}
+        
+        <div class="fonte-row">
           <span class="owner-badge">${m.responsavel}</span>
-          <span class="fonte-badge manual" title="${m.fonte || ''}">🟡 manual</span>
+          <span class="fonte-badge manual" title="${m.fonte || ''}">🟡 ${m.fonte || 'manual'}</span>
         </div>
       </div>`;
   }
@@ -439,23 +764,33 @@ function renderMeta(m) {
           <div class="meta-label">${m.label}</div>
           ${m.detalhe || m.kpis ? `<div class="meta-detalhe">${m.detalhe || m.kpis}</div>` : ''}
         </div>
-        <div class="meta-valor">${valorTxt} ${m.unidade}${periodoTxt}</div>
+        <div class="meta-valor-container">
+          <span class="meta-valor">${valorTxt} ${m.unidade}${periodoTxt}</span>
+          <div><span class="meta-status-pill" style="${statusStyle}">${m.status}</span></div>
+        </div>
       </div>
-      ${pct != null ? `
-        <div class="pbar-wrap"><div class="pbar ${pbarCls}" style="width:${Math.min(100,pct)}%"></div></div>
-        <div class="meta-bottom">
-          <div class="meta-real">Realizado: <strong>${fmt(m.realizado)} ${m.unidade}</strong></div>
-          <div class="meta-pct ${pctCls}">${pct}%</div>
-        </div>
-      ` : `
-        <div class="meta-bottom">
-          <div class="meta-real">Realizado: <span style="color:#64748b">— pendente</span></div>
-          <div></div>
-        </div>
-      `}
+      
+      <div class="pbar-container">
+        ${pct != null ? `
+          <div class="pbar-wrap"><div class="pbar ${pbarCls}" style="width:${Math.min(100,pct)}%"></div></div>
+          <div class="meta-bottom">
+            <div class="meta-real">Realizado: <strong>${fmt(m.realizado)} ${m.unidade}</strong></div>
+            <div class="meta-pct ${pctCls}">${pct}%</div>
+          </div>
+        ` : `
+          <div class="pbar-wrap"><div class="pbar" style="width:0%"></div></div>
+          <div class="meta-bottom">
+            <div class="meta-real">Realizado: <span style="color:#64748b">— pendente</span></div>
+            <div><span style="color:#64748b; font-size:10px;">—</span></div>
+          </div>
+        `}
+      </div>
+      
       <div class="fonte-row">
         <span class="owner-badge">${m.responsavel}</span>
-        <span class="fonte-badge ${m.status_fonte}" title="${m.realizado_fonte || m.fonte || ''}">${m.status_fonte==='real'?'🟢':'🟡'} ${m.fonte}</span>
+        <span class="fonte-badge ${m.status_fonte}" title="${m.realizado_fonte || m.fonte || ''}">
+          ${m.status_fonte==='real'?'🟢':'🟡'} ${m.fonte}
+        </span>
       </div>
     </div>
   `;
