@@ -585,8 +585,11 @@ function renderFerramentas(tools, cor){
   var corBg = hexToRgba(cor, .08);
   var corBd = hexToRgba(cor, .28);
   return '<div class="tools-grid">' + tools.map(function(t){
+    var ico = t.img
+      ? '<img src="'+esc(t.img)+'" alt="" style="width:36px;height:36px;object-fit:contain;display:block;border-radius:8px">'
+      : (t.icon||'🔗');
     return '<a class="tool-card" href="'+esc(t.href)+'" style="--cor:'+cor+';--cor-bg:'+corBg+';--cor-border:'+corBd+'">'
-      + '<div class="ti">'+(t.icon||'🔗')+'</div>'
+      + '<div class="ti">'+ico+'</div>'
       + '<div style="flex:1">'
         + '<div class="tt">'+esc(t.label)+'</div>'
         + (t.desc ? '<div class="td">'+esc(t.desc)+'</div>' : '')
