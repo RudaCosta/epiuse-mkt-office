@@ -251,22 +251,22 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: rgba(10, 21, 37, 0.45);
-    border: 1px solid var(--home-border, rgba(134,158,195,.12));
+    background: rgba(15, 30, 53, 0.45) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
     border-radius: 16px;
     padding: 24px;
-    margin-bottom: 24px;
+    margin-bottom: 28px;
     flex-wrap: wrap;
     gap: 16px;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    box-shadow: 0 8px 32px 0 rgba(0,0,0,0.25);
+    backdrop-filter: blur(16px) saturate(120%);
+    -webkit-backdrop-filter: blur(16px) saturate(120%);
+    box-shadow: 0 10px 32px 0 rgba(0,0,0,0.3);
   }
   :root[data-theme="light"] .visual-funnel,
   :root[data-theme="elephant"] .visual-funnel {
     background: rgba(255, 255, 255, 0.65) !important;
     border: 1px solid rgba(15, 23, 42, 0.08) !important;
-    box-shadow: 0 8px 32px 0 rgba(15, 23, 42, 0.05) !important;
+    box-shadow: 0 10px 32px 0 rgba(15, 23, 42, 0.05) !important;
   }
   @media (max-width: 900px) {
     .visual-funnel {
@@ -281,29 +281,34 @@
     align-items: center;
     text-align: center;
     position: relative;
-    padding: 14px;
-    background: rgba(255,255,255,0.02);
-    border: 1px solid rgba(255,255,255,0.05);
+    padding: 16px 14px;
+    background: rgba(12, 22, 38, 0.5) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-left: 4px solid var(--cor, #3b82f6) !important;
     border-radius: 12px;
-    min-width: 140px;
-    transition: transform 0.25s, border-color 0.25s;
+    min-width: 150px;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   }
   .funnel-step:hover {
-    transform: translateY(-2px);
-    border-color: var(--cor, #3b82f6);
+    transform: translateY(-3px);
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    border-left-width: 6px !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3), 0 0 10px rgba(96, 165, 250, 0.1);
   }
   :root[data-theme="light"] .funnel-step,
   :root[data-theme="elephant"] .funnel-step {
-    background: rgba(15, 23, 42, 0.02) !important;
-    border: 1px solid rgba(15, 23, 42, 0.06) !important;
+    background: rgba(255, 255, 255, 0.8) !important;
+    border: 1px solid rgba(15, 23, 42, 0.08) !important;
+    border-left: 4px solid var(--cor, #3b82f6) !important;
   }
   .funnel-step-name {
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 700;
     text-transform: uppercase;
     color: var(--home-text-muted, #869ec3);
     margin-bottom: 8px;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.06em;
   }
   .funnel-step-val {
     font-family: 'JetBrains Mono', monospace;
@@ -316,14 +321,28 @@
     color: var(--home-text-muted, #869ec3);
     margin-top: 4px;
   }
+  .funnel-step-bar-wrap {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 99px;
+    width: 100%;
+    margin-top: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.02);
+  }
+  .funnel-step-bar {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.4s ease;
+  }
   .funnel-step-conv {
     font-size: 10px;
     font-weight: 800;
     color: var(--color-success-400, #10b981);
-    background: rgba(16,185,129,0.1);
-    padding: 2px 8px;
+    background: rgba(16, 185, 129, 0.08) !important;
+    padding: 3px 8px;
     border-radius: 99px;
-    border: 1px solid rgba(16,185,129,0.25);
+    border: 1px solid rgba(16, 185, 129, 0.25) !important;
     margin-top: 10px;
     letter-spacing: 0.02em;
   }
@@ -334,12 +353,72 @@
     font-size: 20px;
     color: var(--home-text-muted, #869ec3);
     user-select: none;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.1);
   }
   @media (max-width: 900px) {
     .funnel-arrow {
       transform: rotate(90deg);
       margin: 4px 0;
     }
+  }
+
+  /* Glassmorphism overrides for standard components */
+  .card, .proj, .tool-card {
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+  }
+  .card {
+    background: rgba(15, 30, 53, 0.45) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    border-radius: 12px;
+    padding: 16px 18px;
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  }
+  .card:hover {
+    transform: translateY(-2.5px);
+    border-color: var(--cor, rgba(96,165,250,0.3)) !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25), 0 0 10px var(--cor, rgba(96,165,250,0.15));
+  }
+  :root[data-theme="light"] .card,
+  :root[data-theme="elephant"] .card {
+    background: rgba(255, 255, 255, 0.65) !important;
+    border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  }
+  
+  .proj {
+    background: rgba(15, 30, 53, 0.3) !important;
+    border: 1px solid rgba(255, 255, 255, 0.04) !important;
+    border-radius: 10px;
+    padding: 10px 14px;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+  .proj:hover {
+    transform: translateX(4px);
+    border-color: var(--cor, rgba(96,165,250,0.2)) !important;
+  }
+  :root[data-theme="light"] .proj,
+  :root[data-theme="elephant"] .proj {
+    background: rgba(255, 255, 255, 0.65) !important;
+    border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  }
+
+  .tool-card {
+    background: rgba(15, 30, 53, 0.45) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-radius: 14px;
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  }
+  .tool-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--cor, #60a5fa) !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25), 0 0 12px var(--cor, rgba(96,165,250,0.15));
+  }
+  :root[data-theme="light"] .tool-card,
+  :root[data-theme="elephant"] .tool-card {
+    background: rgba(255, 255, 255, 0.65) !important;
+    border: 1px solid rgba(15, 23, 42, 0.08) !important;
   }
 </style>
 </head>
@@ -417,10 +496,22 @@ function renderVisualFunnel(funil, cor) {
         }
       }
     }
+    
+    // Mini progress bar calculation
+    var pct = (val != null && meta) ? Math.round(100 * val / meta) : null;
+    var barHtml = '';
+    if (pct != null) {
+      var barCor = (pct >= 100) ? '#10b981' : (pct >= 75) ? '#10b981' : (pct >= 50) ? '#f59e0b' : '#ef4444';
+      barHtml = '<div class="funnel-step-bar-wrap">'
+        + '<div class="funnel-step-bar" style="width:' + Math.min(100, pct) + '%;background:' + barCor + '"></div>'
+        + '</div>';
+    }
+    
     var stepHtml = '<div class="funnel-step" style="--cor:' + cor + '">'
       + '<div class="funnel-step-name">' + esc(s.estagio) + '</div>'
       + '<div class="funnel-step-val">' + valTxt + '</div>'
       + '<div class="funnel-step-meta">' + metaTxt + '</div>'
+      + barHtml
       + convBadge
       + '</div>';
     stepsHtml.push(stepHtml);
