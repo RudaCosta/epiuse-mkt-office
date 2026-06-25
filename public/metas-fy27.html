@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎯 Metas FY27 · EPI-USE Brasil Marketing</title>
+<link rel="stylesheet" href="/design-tokens.css">
+<script type="module" src="/office-nav.js"></script>
+<script type="module" src="/office-footer.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after { box-sizing:border-box; margin:0; padding:0 }
+  body { background: linear-gradient(180deg, var(--color-bg-2) 0%, var(--color-bg) 100%); color: var(--color-text); font-family:'Inter',sans-serif; min-height:100vh; padding-bottom:60px }
+  .container { max-width: 1320px; margin: 0 auto; padding: var(--space-xl); }
+  
+  .header-area {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--space-md);
+    flex-wrap: wrap;
+    gap: var(--space-md);
+  }
+  
+  h1 { font-size: 28px; font-weight: 800; }
+  .sub { color: var(--color-text-muted); font-size: 13px; margin-top: 4px; }
+
+  /* Transparência Rule 7 banner */
+  .transparency {
+    background: rgba(251,191,36,.06); border: 1px solid rgba(251,191,36,.2);
+    border-radius: var(--rounded-md); padding: var(--space-md) var(--space-lg); margin-bottom: var(--space-xl);
+    font-size: 11.5px; color: var(--color-warning-300); line-height: 1.5;
+  }
+
+  /* Stats strip */
+  .stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--space-md); margin-bottom: var(--space-xl); }
+  @media (max-width: 900px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 500px) { .stats { grid-template-columns: 1fr; } }
+  
+  .stat {
+    background: rgba(15,30,53,.3); border: 1px solid var(--color-border); border-radius: var(--rounded-md); padding: var(--space-md);
+    text-align: center; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+  .stat:hover { transform: translateY(-2px); border-color: rgba(96,165,250,0.3); }
+  .stat-n { font-size: 26px; font-weight: 800; color: var(--color-info-500); font-family:'JetBrains Mono',monospace; }
+  .stat-l { font-size: 10px; color: var(--color-text-muted); letter-spacing: .08em; text-transform: uppercase; margin-top: 4px; }
+  .stat.real .stat-n { color: var(--color-success-500); }
+  .stat.manual .stat-n { color: var(--color-warning-500); }
+  .stat.pending .stat-n { color: var(--color-accent-orange-500); }
+  .stat.aguarda .stat-n { color: var(--color-accent-purple-500); }
+
+  /* Filter bar */
+  .filter-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: var(--space-xl);
+    flex-wrap: wrap;
+  }
+  .tabs-container {
+    display: flex;
+    gap: 4px;
+    background: rgba(15,30,53,.3);
+    border: 1px solid var(--color-border);
+    padding: 4px;
+    border-radius: var(--rounded-md);
+    flex-wrap: wrap;
+  }
+  .tab-btn {
+    background: transparent;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    color: var(--color-text-muted);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: .02em;
+  }
+  .tab-btn:hover {
+    color: var(--color-text);
+    background: rgba(255,255,255,0.05);
+  }
+  .tab-btn.active {
+    color: #fff;
+    background: var(--color-info-500);
+    box-shadow: 0 0 10px rgba(96,165,250,0.3);
+  }
+  
+  .search-container {
+    display: flex;
+    align-items: center;
+    background: rgba(15,30,53,.3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--rounded-md);
+    padding: 6px 14px;
+    width: 320px;
+    transition: border-color 0.2s ease;
+  }
+  .search-container:focus-within {
+    border-color: var(--color-info-500);
+  }
+  .search-container svg {
+    fill: var(--color-text-muted);
+    width: 14px;
+    height: 14px;
+  }
+  .search-container input {
+    background: transparent;
+    border: none;
+    color: var(--color-text);
+    font-size: 13px;
+    outline: none;
+    width: 100%;
+    margin-left: 8px;
+  }
+  .search-container input::placeholder {
+    color: var(--color-text-muted);
+  }
+
+  /* Áreas */
+  .area-card {
+    background: rgba(15,30,53,.3); border: 1px solid var(--color-border);
+    border-radius: var(--rounded-xl); padding: var(--space-lg); margin-bottom: var(--space-lg);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  }
+  .area-hdr {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: var(--space-md); padding-bottom: var(--space-sm); border-bottom: 1px solid var(--color-border);
+  }
+  .area-nome { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .area-resumo { font-size: 12px; color: var(--color-text-muted); font-family:'JetBrains Mono',monospace; }
+
+  /* Meta card */
+  .meta-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 12px; }
+  @media (max-width: 600px) { .meta-grid { grid-template-columns: 1fr; } }
+  
+  .meta {
+    background: rgba(10,21,37,.45); border-radius: 8px; padding: 14px;
+    border-left: 4px solid var(--border-color, #475569);
+    transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+  }
+  .meta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,.3), 0 0 8px var(--hover-glow, rgba(255,255,255,0.05));
+    border-left-color: var(--hover-color, #fff);
+  }
+  .meta-top { display:flex; justify-content:space-between; align-items: flex-start; margin-bottom: 8px; gap: 8px; }
+  .meta-label { font-size: 13px; font-weight: 600; flex:1; line-height: 1.4; }
+  .meta-detalhe { font-size: 10px; color: var(--color-text-muted); font-style: italic; margin-top: 4px; }
+  .meta-valor { font-family:'JetBrains Mono',monospace; font-size: 11px; color: var(--color-info-400); font-weight:700; white-space:nowrap; }
+
+  /* Progress bar */
+  .pbar-wrap { height: 6px; background: rgba(96,165,250,.10); border-radius: 3px; overflow: hidden; margin-top: 8px; }
+  .pbar { height: 100%; background: linear-gradient(90deg, var(--color-success-500), var(--color-info-500)); transition: width .4s; }
+  .pbar.warn { background: linear-gradient(90deg, var(--color-warning-500), var(--color-accent-orange-500)); }
+  .pbar.danger { background: linear-gradient(90deg, var(--color-danger-500), var(--color-accent-orange-500)); }
+
+  .meta-bottom {
+    display:flex; justify-content:space-between; align-items:center; margin-top: 8px;
+    font-size: 11px; font-family:'JetBrains Mono',monospace;
+  }
+  .meta-real { color: var(--color-text); }
+  .meta-real strong { color: var(--color-success-400); }
+  .meta-pct { color: var(--color-info-400); font-weight: 700; }
+  .meta-pct.warn { color: var(--color-warning-400); }
+  .meta-pct.danger { color: var(--color-danger-400); }
+  
+  .fonte-row { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+  .owner-badge {
+    font-size: 9px; font-family:'JetBrains Mono',monospace; color: var(--color-text-muted);
+    background: rgba(255,255,255,0.04); padding: 2px 6px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.06);
+  }
+  
+  .fonte-badge {
+    display: inline-block; padding: 2px 6px; border-radius: 3px;
+    font-size: 9px; font-family:'JetBrains Mono',monospace; letter-spacing: .04em;
+  }
+  .fonte-badge.real    { background: rgba(16,185,129,.12); color: var(--color-success-300); }
+  .fonte-badge.manual  { background: rgba(251,191,36,.10); color: var(--color-warning-300); }
+  .fonte-badge.parcial { background: rgba(245,158,11,.12); color: var(--color-warning-400); }
+  .fonte-badge.pending { background: rgba(249,115,22,.10); color: var(--color-accent-orange-300); }
+  .fonte-badge.aguarda { background: rgba(167,139,250,.12); color: var(--color-accent-purple-300); }
+</style>
+</head>
+<body data-route="metas">
+<office-nav></office-nav>
+
+<div class="container">
+  <div class="header-area">
+    <div>
+      <h1>🎯 Metas EPI-USE FY27 · Marketing</h1>
+      <p class="sub" id="sub">Carregando metas oficiais...</p>
+    </div>
+  </div>
+
+  <div class="transparency">
+    ⚠️ <b>Transparência de dados (Regra 7):</b> cada meta mostra a fonte do "realizado" (🟢 real / 🟡 manual / 🟠 pending / 🟣 aguarda integração). Quando aparecer "—" no realizado é porque a integração ainda não está pronta. Mapa completo em <code>vault/00-contexto/mapa-fontes-dados.md</code>.
+  </div>
+
+  <!-- Stats por status -->
+  <div class="stats" id="stats"></div>
+
+  <!-- Filter & Search Bar -->
+  <div class="filter-bar">
+    <div class="tabs-container" id="filter-responsavel">
+      <button class="tab-btn active" data-owner="todos">Geral (Todos)</button>
+      <button class="tab-btn" data-owner="Marlison Estrela">Marlison (SDR)</button>
+      <button class="tab-btn" data-owner="Bruna Yamagami">Bruna (CRM/Data)</button>
+      <button class="tab-btn" data-owner="Isabela de Oliveira">Isabela (Eventos)</button>
+      <button class="tab-btn" data-owner="Designer Pleno/Sênior">Designer</button>
+    </div>
+    
+    <div class="search-container">
+      <svg viewBox="0 0 24 24">
+        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+      </svg>
+      <input type="text" id="search-input" placeholder="Pesquisar meta...">
+    </div>
+  </div>
+
+  <!-- Áreas + metas -->
+  <div id="areas"></div>
+</div>
+
+<office-footer></office-footer>
+
+<script>
+let allMetas = [];
+let currentOwner = 'todos';
+let searchQuery = '';
+
+const OWNER_THEME = {
+  'Marlison Estrela': {
+    border: 'var(--color-accent-red-500, #ef4444)',
+    hover: 'var(--color-accent-red-400, #f87171)',
+    glow: 'rgba(239, 68, 68, 0.15)'
+  },
+  'Bruna Yamagami': {
+    border: 'var(--color-info-500, #3b82f6)',
+    hover: 'var(--color-info-400, #60a5fa)',
+    glow: 'rgba(59, 130, 246, 0.15)'
+  },
+  'Isabela de Oliveira': {
+    border: 'var(--color-warning-500, #eab308)',
+    hover: 'var(--color-warning-400, #facc15)',
+    glow: 'rgba(234, 179, 8, 0.15)'
+  },
+  'Designer Pleno/Sênior': {
+    border: 'var(--color-accent-purple-500, #a855f7)',
+    hover: 'var(--color-accent-purple-400, #c084fc)',
+    glow: 'rgba(168, 85, 247, 0.15)'
+  }
+};
+
+const DEFAULT_THEME = {
+  border: '#475569',
+  hover: '#64748b',
+  glow: 'rgba(255, 255, 255, 0.05)'
+};
+
+function fmt(n) { if (n == null) return '—'; if (n >= 1000) return n.toLocaleString('pt-BR'); return String(n); }
+
+async function carregar() {
+  const r = await fetch('/api/metas/fy27');
+  const d = await r.json();
+  if (!d.success) { document.getElementById('areas').innerHTML = `<div style="color:#ef4444;padding:20px">Falha: ${d.error}</div>`; return; }
+
+  allMetas = d.metas || [];
+  
+  // Renderiza os cards de sumário
+  const s = d.por_status_fonte;
+  document.getElementById('stats').innerHTML = `
+    <div class="stat"><div class="stat-n">${d.total_metas}</div><div class="stat-l">Metas Totais</div></div>
+    <div class="stat real"><div class="stat-n">${s.real||0}</div><div class="stat-l">🟢 Real (vivo)</div></div>
+    <div class="stat manual"><div class="stat-n">${s.manual||0}</div><div class="stat-l">🟡 Manual</div></div>
+    <div class="stat pending"><div class="stat-n">${(s.pending||0)+(s.parcial||0)}</div><div class="stat-l">🟠 Pending/Parcial</div></div>
+    <div class="stat aguarda"><div class="stat-n">${s.aguarda_integracao||0}</div><div class="stat-l">🟣 Aguarda Integração</div></div>
+  `;
+  
+  document.getElementById('sub').textContent =
+    `${d.total_metas} metas oficiais · período ${d.periodo_fiscal} · ${Object.entries(d.por_status_fonte).map(([k,v]) => `${v} ${k}`).join(' · ')}`;
+
+  renderMetas();
+}
+
+function renderMetas() {
+  const filtered = allMetas.filter(m => {
+    const matchOwner = currentOwner === 'todos' || m.responsavel === currentOwner;
+    const labelMatch = (m.label || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
+                       (m.secao || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+                       (m.responsavel || '').toLowerCase().includes(searchQuery.toLowerCase());
+    return matchOwner && labelMatch;
+  });
+
+  const porArea = {};
+  filtered.forEach(m => { (porArea[m.area] = porArea[m.area] || []).push(m); });
+  
+  const ORDEM_AREAS = [
+    'SDR · Prospecção (Marlison)', 
+    'Data Intelligence & CRM (Bruna)', 
+    'Eventos & Field Marketing (Isabela)',
+    'Envelopamento Visual (Designer)'
+  ];
+  
+  const ICONES = {
+    'SDR · Prospecção (Marlison)': '📞',
+    'Data Intelligence & CRM (Bruna)': '📊',
+    'Eventos & Field Marketing (Isabela)': '🎤',
+    'Envelopamento Visual (Designer)': '🎨'
+  };
+
+  const ordem = [...new Set([...ORDEM_AREAS, ...Object.keys(porArea)])].filter(a => porArea[a]);
+
+  if (!ordem.length) {
+    document.getElementById('areas').innerHTML = `<div style="text-align:center;padding:40px;color:var(--color-text-muted)">Nenhuma meta encontrada para os filtros atuais.</div>`;
+    return;
+  }
+
+  const html = ordem.map(a => {
+    const metas = porArea[a];
+    const concl = metas.filter(m => /conclu/i.test(m.status||'')).length;
+    const resumo = metas.some(m => m.periodo === 'projeto')
+      ? `${metas.length} metas · ${concl} concluída(s)`
+      : `${metas.length} frentes`;
+    return `
+      <div class="area-card">
+        <div class="area-hdr">
+          <div class="area-nome">${ICONES[a]||'•'} ${a}</div>
+          <div class="area-resumo">${resumo}</div>
+        </div>
+        <div class="meta-grid">
+          ${metas.map(m => renderMeta(m)).join('')}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('areas').innerHTML = html;
+}
+
+function renderMeta(m) {
+  const theme = OWNER_THEME[m.responsavel] || DEFAULT_THEME;
+  const inlineStyles = `--border-color:${theme.border}; --hover-color:${theme.hover}; --hover-glow:${theme.glow};`;
+  
+  // === Marlison — KPI de atividade (meta diária + mensal) ===
+  if (m.periodo === 'diário') {
+    const pct = m.progresso_pct;
+    let pbarCls = '', pctCls = '';
+    if (pct != null) {
+      if (pct >= 80) { pbarCls = ''; pctCls = ''; }
+      else if (pct >= 40) { pbarCls = 'warn'; pctCls = 'warn'; }
+      else { pbarCls = 'danger'; pctCls = 'danger'; }
+    }
+    
+    return `
+      <div class="meta ${m.status_fonte}" style="${inlineStyles}">
+        <div class="meta-top">
+          <div>
+            <div class="meta-label">${m.label}</div>
+            ${m.kpis ? `<div class="meta-detalhe">${m.kpis}</div>` : ''}
+          </div>
+          <div class="meta-valor" style="white-space:nowrap">${fmt(m.valor)} <span style="font-size:11px;color:var(--color-text-muted)">${m.unidade}/dia</span></div>
+        </div>
+        ${pct != null ? `
+          <div class="pbar-wrap"><div class="pbar ${pbarCls}" style="width:${Math.min(100,pct)}%"></div></div>
+          <div class="meta-bottom">
+            <div class="meta-real">Realizado: <strong>${fmt(m.realizado)} / dia</strong></div>
+            <div class="meta-pct ${pctCls}">${pct}%</div>
+          </div>
+        ` : `
+          <div class="meta-bottom">
+            <div class="meta-real">Meta mensal (22d úteis): <strong>${fmt(m.valor * 22)} ${m.unidade}</strong></div>
+            <div></div>
+          </div>
+        `}
+        <div class="fonte-row">
+          <span class="owner-badge">${m.responsavel}</span>
+          <span class="fonte-badge ${m.status_fonte}" title="${m.realizado_fonte || m.fonte || ''}">${m.status_fonte==='real'?'🟢':'🟡'} ${m.fonte}</span>
+        </div>
+      </div>`;
+  }
+  
+  // === Bruna / Designer / Isabela — meta de projeto SMART (status + prazo + % concluído) ===
+  if (m.periodo === 'projeto') {
+    const st = (m.status||'').toLowerCase();
+    let bar = 'danger', dot = '#94a3b8';
+    if (st.includes('conclu')) { bar = ''; dot = '#22c55e'; }
+    else if (st.includes('andamento')) { bar = 'warn'; dot = '#3b82f6'; }
+    else if (st.includes('risco') || st.includes('atras')) { bar = 'danger'; dot = '#ef4444'; }
+    const pc = m.valor || 0;
+    const prazo = m.prazo ? new Date(m.prazo + 'T00:00:00').toLocaleDateString('pt-BR') : '—';
+    const idTxt = m.submeta ? `<span style="opacity:.55">${m.id}</span> ` : `<strong>${m.id}</strong> `;
+    return `
+      <div class="meta ${m.status_fonte}" style="${inlineStyles} ${m.submeta ? 'margin-left:14px;border-left-width:2px;' : ''}">
+        <div class="meta-top">
+          <div>
+            <div class="meta-label">${idTxt}${m.label}</div>
+            ${m.kpis ? `<div class="meta-detalhe">${m.kpis}</div>` : ''}
+          </div>
+          <div class="meta-valor" style="white-space:nowrap;font-size:13px"><span style="color:${dot}">●</span> ${m.status}</div>
+        </div>
+        <div class="pbar-wrap"><div class="pbar ${bar}" style="width:${Math.min(100,pc)}%"></div></div>
+        <div class="meta-bottom">
+          <div class="meta-real">Prazo: <strong>${prazo}</strong>${m.horizonte ? ` · ${m.horizonte}` : ''}</div>
+          <div class="meta-pct">${pc}%</div>
+        </div>
+        ${m.obs ? `<div class="meta-detalhe" style="margin-top:6px;opacity:.85;line-height:1.45;">📝 ${m.obs}</div>` : ''}
+        <div class="fonte-row" style="margin-top:10px;">
+          <span class="owner-badge">${m.responsavel}</span>
+          <span class="fonte-badge manual" title="${m.fonte || ''}">🟡 manual</span>
+        </div>
+      </div>`;
+  }
+  
+  // === fallback (schema antigo area-KPI) ===
+  const pct = m.progresso_pct;
+  let pbarCls = '', pctCls = '';
+  if (pct != null) {
+    if (pct >= 80) { pbarCls = ''; pctCls = ''; }
+    else if (pct >= 40) { pbarCls = 'warn'; pctCls = 'warn'; }
+    else { pbarCls = 'danger'; pctCls = 'danger'; }
+  }
+  const valorTxt = m.unidade === '%' ? `${m.valor}%` :
+                   m.valor >= 1000 ? `${(m.valor/1000)}k` :
+                   String(m.valor);
+  const periodoTxt = m.periodo === 'mensal' ? `/mês` :
+                     m.periodo === 'anual' ? '/ano' :
+                     '';
+
+  return `
+    <div class="meta ${m.status_fonte}" style="${inlineStyles}">
+      <div class="meta-top">
+        <div>
+          <div class="meta-label">${m.label}</div>
+          ${m.detalhe || m.kpis ? `<div class="meta-detalhe">${m.detalhe || m.kpis}</div>` : ''}
+        </div>
+        <div class="meta-valor">${valorTxt} ${m.unidade}${periodoTxt}</div>
+      </div>
+      ${pct != null ? `
+        <div class="pbar-wrap"><div class="pbar ${pbarCls}" style="width:${Math.min(100,pct)}%"></div></div>
+        <div class="meta-bottom">
+          <div class="meta-real">Realizado: <strong>${fmt(m.realizado)} ${m.unidade}</strong></div>
+          <div class="meta-pct ${pctCls}">${pct}%</div>
+        </div>
+      ` : `
+        <div class="meta-bottom">
+          <div class="meta-real">Realizado: <span style="color:#64748b">— pendente</span></div>
+          <div></div>
+        </div>
+      `}
+      <div class="fonte-row">
+        <span class="owner-badge">${m.responsavel}</span>
+        <span class="fonte-badge ${m.status_fonte}" title="${m.realizado_fonte || m.fonte || ''}">${m.status_fonte==='real'?'🟢':'🟡'} ${m.fonte}</span>
+      </div>
+    </div>
+  `;
+}
+
+// Configura eventos de filtro
+document.getElementById('filter-responsavel').addEventListener('click', (e) => {
+  const btn = e.target.closest('.tab-btn');
+  if (!btn) return;
+  
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  
+  currentOwner = btn.dataset.owner;
+  renderMetas();
+});
+
+document.getElementById('search-input').addEventListener('input', (e) => {
+  searchQuery = e.target.value;
+  renderMetas();
+});
+
+carregar();
+</script>
+</body>
+</html>

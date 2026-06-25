@@ -231,44 +231,50 @@
       "live": "pipeline",
       "funil": [
         {
-          "estagio": "Contatos",
+          "estagio": "Contatos na base",
           "valor": 39166,
           "fonte": "apollo",
           "meta": 50000
         },
         {
-          "estagio": "Sequências",
-          "valor": 15,
+          "estagio": "Sequências ativas",
+          "valor": 1,
           "fonte": "apollo",
           "meta": 25
         },
         {
-          "estagio": "Reuniões",
-          "valor": null,
-          "meta": 40,
-          "obs": "precisa CRM"
+          "estagio": "E-mails enviados",
+          "valor": 1,
+          "fonte": "apollo-outreach",
+          "meta": 660
         },
         {
-          "estagio": "Oportunidades",
+          "estagio": "Reuniões realizadas",
+          "valor": null,
+          "meta": 12,
+          "obs": "Reuniões realizadas (30d)"
+        },
+        {
+          "estagio": "Oportunidades ativas",
           "valor": null,
           "meta": 20,
-          "obs": "precisa CRM"
+          "obs": "Deals em aberto no CRM"
         },
         {
           "estagio": "Vendas origem MKT",
           "valor": null,
           "meta": 6,
-          "obs": "precisa CRM"
+          "obs": "Deals ganhos no CRM"
         }
       ],
       "kpis": [
         {
-          "label": "Contatos na base",
+          "label": "Contatos na base (Apollo)",
           "valor": 39166,
           "fonte": "real"
         },
         {
-          "label": "Empresas",
+          "label": "Empresas mapeadas",
           "valor": 14027,
           "fonte": "real"
         },
