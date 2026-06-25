@@ -1,389 +1,644 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
+<!doctype html>
+<html lang="pt-BR" data-theme="dark">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Profile Optimizer v3 — EPI-USE Voices</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🪪 Profile Optimizer v3 · EPI-USE Voices</title>
+<link rel="stylesheet" href="/design-tokens.css">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --primary:#001844;--accent:#cd1543;--blue-light:#869ec3;--grey:#cfd1d3;
-  --success:#059669;--warning:#D97706;--danger:#DC2626;
-  --bg:#F0F4F8;--surface:#FFFFFF;--border:#e2e8f0;
-  --text:#1e293b;--text-muted:#64748b;
-  --radius:12px;--shadow:0 1px 3px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.06);
+:root {
+  --bg:var(--bg,#0a1525); --card:var(--surface,#0f1e35); --text:var(--text,#e6ebf2); --muted:var(--muted,#869ec3);
+  --border:rgba(134,158,195,.22); --primary:var(--blue,#2563eb); --primary-light:var(--blue,#60a5fa);
+  --navy:var(--surface,#001844); --red:var(--red,#cd1543); --green:var(--teal,#10b981); --yellow:var(--gold,#fcd34d);
 }
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
-.header{background:var(--primary);color:#fff;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
-.h-logo{font-size:20px;font-weight:800;letter-spacing:-.3px}
-.h-logo span{color:var(--blue-light)}
-.h-sub{font-size:12px;color:var(--blue-light);font-weight:400}
-.v-badge{background:var(--accent);color:#fff;font-size:10px;font-weight:700;letter-spacing:.5px;padding:3px 9px;border-radius:999px;text-transform:uppercase}
-.container{max-width:920px;margin:0 auto;padding:28px 18px 80px}
-.card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;margin-bottom:18px}
-.card-title{font-size:14px;font-weight:700;color:var(--primary);margin-bottom:14px;display:flex;align-items:center;gap:8px;text-transform:uppercase;letter-spacing:.5px}
-.step-num{width:24px;height:24px;background:var(--accent);color:#fff;border-radius:50%;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
-label{display:block;font-size:13px;font-weight:500;color:var(--text-muted);margin-bottom:6px}
-input[type="url"]{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:14px;background:#f8fafc;outline:none;transition:border-color .2s}
-input[type="url"]:focus{border-color:var(--primary);background:#fff;box-shadow:0 0 0 3px rgba(0,24,68,.08)}
-.hint{font-size:12px;color:var(--text-muted);margin-top:5px}
-.upload{border:2px dashed var(--border);border-radius:10px;padding:28px 18px;text-align:center;cursor:pointer;transition:all .2s;position:relative}
-.upload:hover,.upload.drag{border-color:var(--primary);background:#eff6ff}
-.upload input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.previews{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
-.pv{position:relative;width:80px;height:80px;border-radius:8px;overflow:hidden;border:2px solid var(--border)}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'Open Sans',-apple-system,system-ui,sans-serif;font-size:14px;line-height:1.6}
+.wrap{max-width:1100px;margin:0 auto;padding:24px 18px 80px}
+h1{font-size:26px;margin:6px 0 4px;color:#fff;font-weight:800;letter-spacing:-.02em}
+.sub{font-size:13px;color:var(--muted);margin-bottom:24px}
+.badge{display:inline-block;font-size:10px;background:rgba(16,185,129,.18);color:var(--teal,#6ee7b7);padding:3px 10px;border-radius:99px;font-weight:700;letter-spacing:.04em;margin-left:8px}
+.badge.v3{background:rgba(96,165,250,.22);color:#bcd8ff}
+
+.hero{background:linear-gradient(135deg,rgba(0,75,141,.08),rgba(205,21,67,.06));border:1px solid rgba(96,165,250,.25);border-radius:14px;padding:22px 24px;margin-bottom:22px}
+.hero h2{margin:0 0 14px;font-size:16px;color:#fff;font-weight:700}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.step{background:rgba(0,0,0,.18);border:1px solid var(--border);border-radius:10px;padding:14px}
+.step-n{display:inline-block;width:24px;height:24px;line-height:24px;text-align:center;background:var(--navy);color:#fff;border-radius:50%;font-weight:800;font-size:12px;margin-bottom:8px;font-family:'JetBrains Mono',monospace}
+.step-t{font-weight:700;font-size:13px;margin-bottom:4px}
+.step-d{font-size:11.5px;color:var(--muted);line-height:1.45}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:14px}
+.card-h{font-size:14px;font-weight:700;color:#fff;margin:0 0 12px;display:flex;align-items:center;gap:8px}
+.card-h .ico{font-size:18px}
+.card-sub{font-size:12px;color:var(--muted);margin:0 0 12px;line-height:1.55}
+
+label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em}
+textarea,select,input[type=text],input[type=url]{width:100%;padding:12px 14px;background:rgba(0,0,0,.22);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;line-height:1.55}
+textarea{resize:vertical;min-height:200px;font-family:'JetBrains Mono','Consolas',monospace;font-size:12px}
+textarea:focus,select:focus,input:focus{outline:2px solid rgba(96,165,250,.5);outline-offset:1px}
+.char-counter{font-size:10px;color:var(--muted);margin-top:4px;text-align:right}
+.char-counter.ok{color:var(--teal,#6ee7b7)}
+.hint{font-size:11px;color:var(--muted);margin-top:6px}
+
+.btn{font-family:inherit;cursor:pointer;border:none;padding:11px 18px;border-radius:8px;font-weight:700;font-size:13px;transition:opacity .15s,transform .1s;display:inline-flex;align-items:center;gap:8px}
+.btn:hover{opacity:.9}.btn:active{transform:translateY(1px)}.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-primary{background:linear-gradient(135deg,var(--navy),var(--primary));color:#fff}
+.btn-secondary{background:rgba(96,165,250,.12);color:var(--primary-light);border:1px solid rgba(96,165,250,.3)}
+.btn-success{background:linear-gradient(135deg,var(--green),#059669);color:#fff}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}
+
+.voices-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.voice-chip{background:rgba(0,0,0,.2);border:1px solid var(--border);border-radius:99px;padding:6px 12px;font-size:12px;cursor:pointer;color:var(--text);transition:all .15s}
+.voice-chip:hover{border-color:var(--primary-light);background:rgba(96,165,250,.12)}
+.voice-chip.active{background:rgba(96,165,250,.2);border-color:var(--primary-light);color:#fff}
+
+.upload{border:1.5px dashed var(--border);border-radius:10px;padding:18px;text-align:center;cursor:pointer;transition:all .2s;position:relative}
+.upload:hover,.upload.drag{border-color:var(--primary-light);background:rgba(96,165,250,.06)}
+.upload input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.previews{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.pv{position:relative;width:70px;height:70px;border-radius:6px;overflow:hidden;border:1px solid var(--border)}
 .pv img{width:100%;height:100%;object-fit:cover}
-.pv button{position:absolute;top:2px;right:2px;width:20px;height:20px;background:rgba(220,38,38,.85);color:#fff;border:0;border-radius:50%;font-size:11px;cursor:pointer;font-weight:700}
-.btn{display:inline-flex;align-items:center;gap:8px;background:var(--primary);color:#fff;border:0;border-radius:9px;padding:13px 28px;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;width:100%;justify-content:center;margin-top:6px;transition:all .2s}
-.btn:hover:not(:disabled){background:#0a2960;box-shadow:0 4px 20px rgba(0,24,68,.35);transform:translateY(-1px)}
-.btn:disabled{opacity:.5;cursor:not-allowed}
-.btn.copy{background:#f1f5f9;border:1px solid var(--border);color:var(--text);padding:6px 12px;font-size:12px;width:auto;margin-top:0}
-.btn.copy.ok{background:#d1fae5;border-color:var(--success);color:var(--success)}
-#loading{display:none;text-align:center;padding:40px 20px;background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:18px}
-.spin{width:44px;height:44px;border:4px solid #e2e8f0;border-top-color:var(--primary);border-radius:50%;animation:s .8s linear infinite;margin:0 auto 16px}
-@keyframes s{to{transform:rotate(360deg)}}
-.ltxt{font-size:15px;color:var(--text-muted);font-weight:500}
-.lsub{font-size:13px;color:#94a3b8;margin-top:6px}
+.pv button{position:absolute;top:2px;right:2px;width:18px;height:18px;background:rgba(220,38,38,.85);color:#fff;border:0;border-radius:50%;font-size:10px;cursor:pointer;font-weight:700}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:12px 22px;border-radius:8px;font-weight:700;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.3);display:none;z-index:300}
+.toast.show{display:block;animation:slideUp .25s ease-out}
+@keyframes slideUp{from{opacity:0;transform:translate(-50%,12px)}to{opacity:1;transform:translate(-50%,0)}}
+.err{background:rgba(205,21,67,.15);border:1px solid rgba(205,21,67,.4);color:#ffb3c2;padding:10px 14px;border-radius:8px;font-size:12px;margin-top:10px;display:none}
+
+#loading{display:none;padding:32px 28px;background:linear-gradient(135deg,var(--card),rgba(0,75,141,.18));border:1px solid var(--border);border-radius:14px;margin-bottom:14px;position:relative;overflow:hidden}
+#loading::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 30%,rgba(96,165,250,.08),transparent 60%);pointer-events:none;animation:pulse 4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.6}50%{opacity:1}}
+.load-grid{display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:center;position:relative}
+.load-mascot{font-size:60px;line-height:1;animation:bounce 1.4s ease-in-out infinite;text-align:center;min-width:80px}
+.load-mascot .sub{font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace;letter-spacing:.1em;margin-top:6px;text-transform:uppercase;display:block}
+@keyframes bounce{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-8px) rotate(2deg)}}
+.load-info{flex:1}
+.load-title{font-size:15px;font-weight:800;color:#fff;margin-bottom:4px}
+.load-msg{font-size:12px;color:var(--primary-light);min-height:18px;font-family:'JetBrains Mono',monospace;transition:opacity .3s}
+.load-pipeline{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);position:relative}
+.stage{padding:10px 12px;border-radius:8px;background:rgba(0,0,0,.22);border:1px solid var(--border);text-align:center;transition:all .3s}
+.stage.active{background:rgba(96,165,250,.15);border-color:var(--primary-light);box-shadow:0 0 0 1px rgba(96,165,250,.3),0 4px 16px rgba(96,165,250,.18)}
+.stage.done{background:rgba(16,185,129,.12);border-color:var(--green)}
+.stage-ico{font-size:20px;margin-bottom:4px}
+.stage-name{font-size:11px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.04em}
+.stage-model{font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:2px}
+.stage-prog{height:3px;background:rgba(0,0,0,.3);border-radius:99px;margin-top:8px;overflow:hidden}
+.stage-prog::after{content:'';display:block;height:100%;background:linear-gradient(90deg,var(--primary-light),var(--green));border-radius:99px;width:0;transition:width .4s}
+.stage.active .stage-prog::after{animation:fill 12s ease-out forwards}
+.stage.done .stage-prog::after{width:100%!important;animation:none}
+@keyframes fill{0%{width:0}30%{width:30%}65%{width:65%}90%{width:88%}100%{width:95%}}
+.arrow{font-size:16px;color:var(--muted);animation:slide 1s ease-in-out infinite}
+@keyframes slide{0%,100%{transform:translateX(0);opacity:.5}50%{transform:translateX(4px);opacity:1}}
+.elapsed{position:absolute;top:14px;right:14px;font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;background:rgba(0,0,0,.3);padding:3px 8px;border-radius:99px}
+
 #result{display:none}
-.r-head{background:linear-gradient(135deg,var(--primary),#0a2960);color:#fff;border-radius:var(--radius);padding:24px;margin-bottom:18px}
-.r-name{font-size:22px;font-weight:700;margin-bottom:4px}
-.r-role{font-size:13px;color:var(--blue-light);margin-bottom:18px}
-.r-acts{display:flex;gap:10px;flex-wrap:wrap}
-.r-acts button{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:9px 18px;font-family:inherit;font-size:13px;font-weight:500;cursor:pointer}
-.etiq{background:#fef3c7;color:var(--warning);padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;margin-bottom:16px;display:inline-block}
-.skills21{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
-.skill{padding:12px;border-radius:8px;border-left:4px solid var(--grey);background:#fafbfc}
-.skill.ok{border-left-color:var(--success);background:#f0fdf4}
-.skill.alerta{border-left-color:var(--warning);background:#fffbeb}
-.skill.critico{border-left-color:var(--danger);background:#fef2f2}
-.skill-h{display:flex;align-items:center;gap:8px;margin-bottom:4px}
-.skill-num{font-size:11px;font-weight:800;color:var(--text-muted);background:#fff;border:1px solid var(--border);padding:2px 6px;border-radius:4px}
-.skill-name{font-size:13px;font-weight:600;color:var(--primary);flex:1}
-.skill-st{font-size:10px;font-weight:700;text-transform:uppercase;padding:2px 6px;border-radius:4px;color:#fff}
-.skill-st.ok{background:var(--success)}
-.skill-st.alerta{background:var(--warning)}
-.skill-st.critico{background:var(--danger)}
-.skill-obs{font-size:12px;color:var(--text-muted);margin-bottom:6px}
-.skill-act{font-size:12px;color:var(--text);font-weight:500}
-.s-title{font-size:13px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
-.s-ic{width:26px;height:26px;border-radius:6px;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:13px}
-.hbox{background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:10px;padding:16px}
-.htxt{font-size:15px;font-weight:600;color:var(--primary);line-height:1.5;margin-bottom:10px}
-.hfoot{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
-.chcount{font-size:12px;color:var(--text-muted)}
-.chcount.over{color:var(--danger);font-weight:600}
-.sbox{background:#fffbeb;border:1.5px dashed var(--warning);border-radius:10px;padding:18px}
-.stxt{font-size:14px;line-height:1.75;color:var(--text);white-space:pre-wrap;margin-bottom:12px}
-.stxt .ph{background:#fef3c7;color:var(--warning);border-radius:3px;padding:1px 4px;font-weight:600}
-.cards3{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
-.subc{padding:14px;border-radius:8px;background:#fff;border:1px solid var(--border)}
-.subc h4{font-size:13px;font-weight:700;color:var(--primary);margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px}
-.chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{padding:4px 10px;border-radius:999px;font-size:12px;font-weight:500;background:#f1f5f9;color:var(--text-muted)}
-.chip.add{background:#d1fae5;color:#065f46}
-.chip.rm{background:#fee2e2;color:#991b1b;text-decoration:line-through}
-.checklist{list-style:none}
-.cli{display:flex;align-items:flex-start;gap:10px;padding:12px 0;border-bottom:1px solid #f1f5f9;cursor:pointer}
-.cli:last-child{border-bottom:0}
-.cli.done{opacity:.5}
-.cli.done .ctxt{text-decoration:line-through}
-.cbox{width:20px;height:20px;border:2px solid var(--border);border-radius:5px;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff}
-.cli.done .cbox{background:var(--success);border-color:var(--success)}
-.cc{flex:1}
-.ch{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px}
-.ctxt{font-size:14px;font-weight:500}
-.pri{font-size:10px;font-weight:700;text-transform:uppercase;padding:2px 7px;border-radius:999px;letter-spacing:.3px}
-.pri.urgente{background:#fee2e2;color:var(--danger)}
-.pri.normal{background:#dbeafe;color:#1d4ed8}
-.pri.bonus{background:#d1fae5;color:#065f46}
-.skref{font-size:10px;color:var(--text-muted);background:#f1f5f9;padding:1px 5px;border-radius:3px}
-.cpasso{font-size:12px;color:var(--text-muted);padding:6px 10px;background:#f8fafc;border-radius:6px;border-left:3px solid var(--border);margin-top:6px}
-.rev{padding:14px;border-radius:8px;background:#f8fafc;border:1px solid var(--border)}
-.rev.aprov{border-color:var(--success);background:#f0fdf4}
-.rev.reprov{border-color:var(--warning);background:#fffbeb}
-.rev-h{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.rev-st{padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700;text-transform:uppercase;color:#fff}
-.rev-st.aprov{background:var(--success)}
-.rev-st.reprov{background:var(--warning)}
-.rev-score{font-size:13px;font-weight:600;color:var(--text-muted);margin-left:auto}
-.rev-issue{padding:8px;background:#fff;border-radius:6px;margin-top:6px;font-size:12px;border-left:3px solid var(--warning)}
-.err{background:#fee2e2;border:1px solid #fca5a5;border-radius:10px;padding:14px 18px;color:var(--danger);font-size:14px;display:none;margin-top:12px}
-@media print{.header,#form,#loading,.r-acts{display:none!important}#result{display:block!important}.card{box-shadow:none;border:1px solid #e2e8f0}body{background:#fff}}
-@media (max-width:600px){.container{padding:18px 12px 60px}.card{padding:18px}}
+.r-head{background:linear-gradient(135deg,var(--navy),#0a2960);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:14px}
+.r-name{font-size:20px;font-weight:800;color:#fff;margin-bottom:4px}
+.r-role{font-size:13px;color:var(--muted);margin-bottom:14px}
+.etiq{background:rgba(252,211,77,.15);color:var(--yellow);padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;display:inline-block;margin-bottom:12px}
+.skills21{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px}
+.skill{padding:10px 12px;border-radius:7px;border-left:3px solid var(--border);background:rgba(0,0,0,.18)}
+.skill.ok{border-left-color:var(--green)}
+.skill.alerta{border-left-color:var(--yellow)}
+.skill.critico{border-left-color:var(--red)}
+.skill-h{display:flex;align-items:center;gap:6px;margin-bottom:3px}
+.skill-num{font-size:10px;font-weight:800;color:var(--muted);background:rgba(0,0,0,.3);padding:1px 5px;border-radius:3px;font-family:'JetBrains Mono',monospace}
+.skill-name{font-size:12px;font-weight:700;color:#fff;flex:1}
+.skill-st{font-size:9px;font-weight:800;text-transform:uppercase;padding:1px 5px;border-radius:3px;color:#fff}
+.skill-st.ok{background:var(--green)}
+.skill-st.alerta{background:var(--yellow);color:#222}
+.skill-st.critico{background:var(--red)}
+.skill-obs{font-size:11px;color:var(--muted);margin-bottom:4px}
+.skill-act{font-size:11px;color:var(--text);font-weight:500}
+.box{background:rgba(0,0,0,.18);border:1px solid var(--border);border-radius:8px;padding:14px;margin-top:8px}
+.box .ph{background:rgba(252,211,77,.2);color:var(--yellow);padding:1px 4px;border-radius:3px;font-weight:600}
+.copy-btn{background:rgba(96,165,250,.12);color:var(--primary-light);border:1px solid rgba(96,165,250,.3);padding:5px 10px;border-radius:5px;font-size:11px;cursor:pointer;font-weight:600;font-family:inherit}
+.copy-btn.ok{background:rgba(16,185,129,.18);color:#6ee7b7;border-color:rgba(16,185,129,.4)}
+
+.ssi-row{display:flex;align-items:center;gap:12px;margin-top:10px}
+.ssi-num{font-size:40px;font-weight:900;color:var(--primary-light);font-family:'JetBrains Mono',monospace;line-height:1}
+.ssi-delta{font-size:12px;font-weight:700;padding:3px 8px;border-radius:5px}
+.ssi-delta.up{background:rgba(16,185,129,.2);color:#6ee7b7}
+.ssi-delta.down{background:rgba(205,21,67,.2);color:#ff8da3}
+.ssi-history{margin-top:12px;font-size:12px;color:var(--muted)}
+.ssi-history table{width:100%;border-collapse:collapse;margin-top:6px}
+.ssi-history th,.ssi-history td{padding:6px 10px;text-align:left;border-bottom:1px solid var(--border)}
+.ssi-history th{font-size:10px;text-transform:uppercase;color:var(--muted);font-weight:700}
+.ssi-history td{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text)}
+
+.mode-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:14px}
+.mode-tab{padding:10px 18px;background:transparent;border:none;color:var(--muted);font-weight:700;font-size:12px;cursor:pointer;border-bottom:2px solid transparent;font-family:inherit;text-transform:uppercase;letter-spacing:.04em}
+.mode-tab.active{color:#fff;border-bottom-color:var(--primary-light)}
+.mode-content{display:none}
+.mode-content.active{display:block}
 </style>
 </head>
-<body>
-<header class="header">
-  <div>
-    <div class="h-logo">EPI-USE <span>Voices</span> <span class="v-badge">v3 Online</span></div>
-    <div class="h-sub">Profile Optimizer · 21 LinkedIn Skills · IA Groq (free)</div>
-  </div>
-  <div style="font-size:11px;color:var(--blue-light);background:rgba(255,255,255,.08);padding:5px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.12)">🐘 ERP.ngo · 1% Africa</div>
-</header>
+<body data-route="voices">
+<office-nav></office-nav>
 
-<div class="container">
-  <div id="form">
-    <div class="card">
-      <div class="card-title"><div class="step-num">1</div> URL do perfil LinkedIn</div>
-      <label>Cole o endereco completo</label>
-      <input type="url" id="url" placeholder="https://linkedin.com/in/seu-usuario" autocomplete="off">
-      <div class="hint">Ex: linkedin.com/in/carlosfurigo</div>
+<div class="wrap">
+  <h1>🪪 Profile Optimizer <span class="badge v3">v3 · 21 skills · Groq Vision free</span></h1>
+  <div class="sub">Analisa perfil LinkedIn cobrindo <b>21 LinkedIn Skills</b>. Aceita screenshots do perfil <b>e/ou</b> transcrição de reunião com o Voice. Pipeline: <b>Redator (Llama 4 Scout Vision)</b> → <b>Revisor (Llama 3.3 70B)</b>. Output: kit + revisão + score.</div>
+
+  <div class="hero">
+    <h2>🎯 Como funciona</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-n">1</div>
+        <div class="step-t">Pick o Voice (opcional)</div>
+        <div class="step-d">Pré-popula nome/cargo se cadastrado. Senão, IA detecta do perfil.</div>
+      </div>
+      <div class="step">
+        <div class="step-n">2</div>
+        <div class="step-t">Manda input</div>
+        <div class="step-d">Screenshots do perfil OU transcrição da reunião OU ambos. Quanto mais sinal, melhor.</div>
+      </div>
+      <div class="step">
+        <div class="step-n">3</div>
+        <div class="step-t">Recebe kit + SSI tracking</div>
+        <div class="step-d">21 skills diagnosticadas, headline, sobre, featured, checklist. Sobe print do SSI pra acompanhar evolução.</div>
+      </div>
     </div>
-    <div class="card">
-      <div class="card-title"><div class="step-num">2</div> Screenshots do perfil</div>
-      <label>1 a 5 imagens (Foto + Sobre + Experience + Skills + Featured)</label>
+  </div>
+
+  <!-- VOICE PICKER -->
+  <div class="card">
+    <div class="card-h"><span class="ico">⭐</span> Voice (opcional)</div>
+    <div class="voices-row" id="vchips">
+      <div class="voice-chip active" data-slug=""><span class="ico">📄</span> Voice novo / não cadastrado</div>
+    </div>
+  </div>
+
+  <!-- KIT INPUT -->
+  <div class="card">
+    <div class="card-h"><span class="ico">📥</span> Input pra gerar o kit</div>
+    <div class="card-sub">URL + (screenshots ou transcrição ou ambos).</div>
+
+    <label>URL do LinkedIn</label>
+    <input type="url" id="url" placeholder="https://linkedin.com/in/usuario" autocomplete="off">
+
+    <div class="mode-tabs" style="margin-top:18px">
+      <button class="mode-tab active" data-mode="screenshots">📸 Screenshots</button>
+      <button class="mode-tab" data-mode="transcricao">🎤 Transcrição</button>
+      <button class="mode-tab" data-mode="ambos">🔀 Ambos</button>
+    </div>
+
+    <div class="mode-content active" id="mode-screenshots">
+      <label>Screenshots do perfil (1-5)</label>
       <div class="upload" id="up">
         <input type="file" id="files" accept="image/jpeg,image/png,image/webp" multiple>
-        <span style="font-size:32px;display:block;margin-bottom:8px">📸</span>
-        <span style="font-size:14px;font-weight:500">Arraste ou clique pra selecionar</span>
-        <span style="font-size:12px;color:var(--text-muted);display:block;margin-top:4px">JPG/PNG/WebP · max 8MB cada</span>
+        <div style="font-size:24px">📸</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:6px">Foto · Sobre · Experience · Skills · Featured</div>
       </div>
       <div class="previews" id="pvs"></div>
-      <div class="err" id="err"></div>
     </div>
-    <button class="btn" id="go" disabled>Analisar com IA →</button>
+
+    <div class="mode-content" id="mode-transcricao">
+      <label>Transcrição da reunião com o Voice</label>
+      <textarea id="transcricao" placeholder="[Rudá] E aí, conta um pouco sobre você...
+[Voice] Cara, eu tô na EPI-USE Brasil desde 2018, sou Delivery Strategic Account, foco em SAP HCM e SuccessFactors. Tenho 2 filhos pequenos, corro maratonas.
+[Rudá] Algum resultado recente?
+[Voice] Liderei migração SuccessFactors em 280 lojas em 14 meses, com 99,8% uptime no go-live.
+..."></textarea>
+      <div class="char-counter" id="trans-counter">0 caracteres · cola algo (recomendado 500+)</div>
+    </div>
+
+    <div class="mode-content" id="mode-ambos">
+      <label>Screenshots + Transcrição (melhor qualidade)</label>
+      <div class="upload" id="up2">
+        <input type="file" id="files2" accept="image/jpeg,image/png,image/webp" multiple>
+        <div style="font-size:20px">📸</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">Screenshots</div>
+      </div>
+      <div class="previews" id="pvs2" style="margin-bottom:14px"></div>
+      <label>Transcrição</label>
+      <textarea id="transcricao2" placeholder="cola transcrição aqui..."></textarea>
+    </div>
+
+    <div class="err" id="err"></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="go" disabled>🚀 Gerar Kit v3 (21 skills)</button>
+      <span class="hint" id="go-hint"></span>
+    </div>
+  </div>
+
+  <!-- SSI TRACKING -->
+  <div class="card">
+    <div class="card-h"><span class="ico">📈</span> SSI Tracking <span class="badge">acompanhar evolução</span></div>
+    <div class="card-sub">Sobe print do Social Selling Index (<a href="https://linkedin.com/sales/ssi" target="_blank" style="color:var(--primary-light)">linkedin.com/sales/ssi</a>). IA lê o número e salva no histórico do Voice.</div>
+    <div id="ssi-need-voice" style="font-size:12px;color:var(--yellow);margin-bottom:10px;display:none">⚠️ Selecione um Voice cadastrado acima pra salvar o SSI no histórico.</div>
+    <div class="upload" id="ssi-up">
+      <input type="file" id="ssi-file" accept="image/jpeg,image/png,image/webp">
+      <div style="font-size:22px">📊</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">Print do SSI (1 imagem)</div>
+    </div>
+    <div class="previews" id="ssi-pv"></div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" id="ssi-go" disabled>🔍 Extrair SSI do print</button>
+    </div>
+    <div id="ssi-result" style="margin-top:14px;display:none"></div>
   </div>
 
   <div id="loading">
-    <div class="spin"></div>
-    <div class="ltxt">Analisando 21 skills com IA Groq...</div>
-    <div class="lsub">Etapa 1: Redator vision (Llama 3.2 90B) · Etapa 2: Revisor (Llama 3.3 70B). ~20s ☕</div>
+    <span class="elapsed" id="load-elapsed">00:00</span>
+    <div class="load-grid">
+      <div class="load-mascot">
+        🪪
+        <span class="sub">Profile Optimizer</span>
+      </div>
+      <div class="load-info">
+        <div class="load-title">Processando perfil com IA Groq</div>
+        <div class="load-msg" id="load-msg">› Inicializando pipeline...</div>
+      </div>
+    </div>
+    <div class="load-pipeline">
+      <div class="stage active" id="stage-1">
+        <div class="stage-ico">📸</div>
+        <div class="stage-name">Redator</div>
+        <div class="stage-model">llama-4-scout vision</div>
+        <div class="stage-prog"></div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="stage" id="stage-2">
+        <div class="stage-ico">✅</div>
+        <div class="stage-name">Revisor</div>
+        <div class="stage-model">llama-3.3-70b texto</div>
+        <div class="stage-prog"></div>
+      </div>
+    </div>
   </div>
 
   <div id="result"></div>
 </div>
 
+<div class="toast" id="toast"></div>
+
+<script src="/office-nav.js"></script>
 <script>
-const sel=[];const $=id=>document.getElementById(id);
-const upd=()=>$('go').disabled=!($('url').value.trim().length>5&&sel.length>0);
-$('url').addEventListener('input',upd);
-const up=$('up'),fi=$('files');
-up.addEventListener('dragover',e=>{e.preventDefault();up.classList.add('drag')});
-up.addEventListener('dragleave',()=>up.classList.remove('drag'));
-up.addEventListener('drop',e=>{e.preventDefault();up.classList.remove('drag');add(Array.from(e.dataTransfer.files))});
-fi.addEventListener('change',()=>{add(Array.from(fi.files));fi.value=''});
-function add(files){
+const $=id=>document.getElementById(id);
+const sel={screenshots:[],ambos:[]};
+let mode='screenshots',ssiFile=null,voices=[],activeVoice='';
+
+// ── Voices fetch ─────────────────────────────────────────────────────────────
+fetch('/api/voices').then(r=>r.ok?r.json():{voices:[]}).then(d=>{
+  voices=d.voices||[];
+  const row=$('vchips');
+  for(const v of voices){
+    const c=document.createElement('div');
+    c.className='voice-chip';
+    c.dataset.slug=v.id||v.slug;
+    c.innerHTML=`<span class="ico">⭐</span> ${esc(v.nome||v.id)}`;
+    row.appendChild(c);
+  }
+  row.addEventListener('click',e=>{
+    const chip=e.target.closest('.voice-chip');if(!chip)return;
+    row.querySelectorAll('.voice-chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+    activeVoice=chip.dataset.slug;
+    if(activeVoice){
+      const v=voices.find(x=>(x.id||x.slug)===activeVoice);
+      if(v?.url_linkedin) $('url').value=v.url_linkedin;
+      else if(v?.linkedin_url) $('url').value=v.linkedin_url;
+    }
+    $('ssi-need-voice').style.display=activeVoice?'none':'block';
+    upd();
+  });
+  $('ssi-need-voice').style.display='block';
+}).catch(()=>{});
+
+// ── Mode tabs ────────────────────────────────────────────────────────────────
+document.querySelectorAll('.mode-tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.mode-tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.mode-content').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  mode=t.dataset.mode;
+  $('mode-'+mode).classList.add('active');
+  upd();
+});
+
+// ── Upload (kit) ─────────────────────────────────────────────────────────────
+function setupUpload(upEl,fileEl,arr,pvId){
+  upEl.addEventListener('dragover',e=>{e.preventDefault();upEl.classList.add('drag')});
+  upEl.addEventListener('dragleave',()=>upEl.classList.remove('drag'));
+  upEl.addEventListener('drop',e=>{e.preventDefault();upEl.classList.remove('drag');addF(Array.from(e.dataTransfer.files),arr,pvId)});
+  fileEl.addEventListener('change',()=>{addF(Array.from(fileEl.files),arr,pvId);fileEl.value=''});
+}
+function addF(files,arr,pvId){
   showErr('');
   for(const f of files){
-    if(sel.length>=5){showErr('Max 5 imagens.');break}
-    if(!['image/jpeg','image/png','image/webp'].includes(f.type)){showErr('Formato invalido: '+f.name);continue}
+    if(arr.length>=5){showErr('Max 5 imagens.');break}
+    if(!['image/jpeg','image/png','image/webp'].includes(f.type)){showErr('Formato inválido: '+f.name);continue}
     if(f.size>8*1024*1024){showErr(f.name+' >8MB');continue}
-    sel.push(f);
+    arr.push(f);
   }
-  renderPv();upd();
+  renderPv(arr,pvId);upd();
 }
-function renderPv(){
-  $('pvs').innerHTML='';
-  sel.forEach((f,i)=>{
+function renderPv(arr,pvId){
+  const el=$(pvId);el.innerHTML='';
+  arr.forEach((f,i)=>{
     const r=new FileReader();
     r.onload=e=>{
       const d=document.createElement('div');d.className='pv';
       d.innerHTML='<img src="'+e.target.result+'"><button data-i="'+i+'">✕</button>';
-      $('pvs').appendChild(d);
+      d.querySelector('button').onclick=()=>{arr.splice(i,1);renderPv(arr,pvId);upd()};
+      el.appendChild(d);
     };r.readAsDataURL(f);
   });
 }
-$('pvs').addEventListener('click',e=>{
-  const b=e.target.closest('button');if(!b)return;
-  sel.splice(parseInt(b.dataset.i),1);renderPv();upd();
-});
-function showErr(m){const e=$('err');e.textContent=m;e.style.display=m?'block':'none'}
+setupUpload($('up'),$('files'),sel.screenshots,'pvs');
+setupUpload($('up2'),$('files2'),sel.ambos,'pvs2');
 
-$('go').addEventListener('click',async()=>{
+// ── SSI Upload ───────────────────────────────────────────────────────────────
+$('ssi-up').addEventListener('dragover',e=>{e.preventDefault();$('ssi-up').classList.add('drag')});
+$('ssi-up').addEventListener('dragleave',()=>$('ssi-up').classList.remove('drag'));
+$('ssi-up').addEventListener('drop',e=>{e.preventDefault();$('ssi-up').classList.remove('drag');setSsi(e.dataTransfer.files[0])});
+$('ssi-file').addEventListener('change',()=>{setSsi($('ssi-file').files[0]);$('ssi-file').value=''});
+function setSsi(f){
+  if(!f)return;
+  if(!['image/jpeg','image/png','image/webp'].includes(f.type)){toast('Formato inválido',true);return}
+  if(f.size>8*1024*1024){toast('>8MB',true);return}
+  ssiFile=f;
+  const r=new FileReader();r.onload=e=>{
+    $('ssi-pv').innerHTML='<div class="pv"><img src="'+e.target.result+'"><button onclick="ssiFile=null;document.getElementById(\'ssi-pv\').innerHTML=\'\';document.getElementById(\'ssi-go\').disabled=true">✕</button></div>';
+  };r.readAsDataURL(f);
+  $('ssi-go').disabled=false;
+}
+
+// ── Transcrição counter ──────────────────────────────────────────────────────
+function updCounter(){
+  const t=mode==='transcricao'?$('transcricao').value:(mode==='ambos'?$('transcricao2').value:'');
+  const n=t.length;
+  $('trans-counter').textContent=n+' caracteres · '+(n>=500?'✓ bom':'cola algo (recomendado 500+)');
+  $('trans-counter').className='char-counter '+(n>=500?'ok':'');
+}
+$('transcricao').addEventListener('input',()=>{updCounter();upd()});
+$('transcricao2').addEventListener('input',()=>{updCounter();upd()});
+
+// ── Validation ───────────────────────────────────────────────────────────────
+$('url').addEventListener('input',upd);
+function upd(){
+  const url=$('url').value.trim().length>5;
+  let inputOk=false;
+  if(mode==='screenshots') inputOk=sel.screenshots.length>0;
+  else if(mode==='transcricao') inputOk=$('transcricao').value.trim().length>=100;
+  else inputOk=sel.ambos.length>0 || $('transcricao2').value.trim().length>=100;
+  $('go').disabled=!(url&&inputOk);
+  $('go-hint').textContent=url?(inputOk?'':'precisa screenshots ou transcrição'):'cola URL primeiro';
+}
+
+// ── Submit kit ───────────────────────────────────────────────────────────────
+$('go').onclick=async()=>{
   showErr('');
-  $('form').style.display='none';$('loading').style.display='block';
-  $('result').style.display='none';$('result').innerHTML='';
   const fd=new FormData();
   fd.append('linkedin_url',$('url').value.trim());
-  sel.forEach(f=>fd.append('screenshots',f));
+  if(activeVoice) fd.append('voice_slug',activeVoice);
+  if(mode==='screenshots') sel.screenshots.forEach(f=>fd.append('screenshots',f));
+  else if(mode==='transcricao') fd.append('transcricao',$('transcricao').value.trim());
+  else { sel.ambos.forEach(f=>fd.append('screenshots',f)); fd.append('transcricao',$('transcricao2').value.trim()); }
+
+  document.querySelectorAll('.card').forEach(c=>c.style.display='none');
+  $('loading').style.display='block';
+  $('result').style.display='none';$('result').innerHTML='';
+  const stopLoad=startLoadingAnim(mode);
+
   try{
     const r=await fetch('/api/voices/optimizer-v3/analisar',{method:'POST',body:fd});
     const d=await r.json();
+    stopLoad();
     $('loading').style.display='none';
-    if(!d.success)throw new Error(d.error||'Erro desconhecido');
-    render(d);
+    if(!d.success) throw new Error(d.error||'Erro');
+    renderKit(d);
     $('result').style.display='block';
     $('result').scrollIntoView({behavior:'smooth'});
   }catch(e){
+    stopLoad();
     $('loading').style.display='none';
-    $('form').style.display='block';
+    document.querySelectorAll('.card').forEach(c=>c.style.display='');
     showErr('Erro: '+e.message);
   }
-});
+};
 
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+// ── Loading animation (mascote + mensagens rotativas + timer + estagios) ─────
+function startLoadingAnim(currentMode){
+  const msgsRedator=currentMode==='transcricao'?[
+    '› Lendo transcrição da reunião...',
+    '› Capturando tom de voz do Voice...',
+    '› Identificando resultados quantitativos...',
+    '› Mapeando lado humano (família · paixões)...',
+    '› Cruzando com 21 LinkedIn Skills...',
+    '› Redigindo headline (max 220 chars)...',
+    '› Escrevendo Sobre em 1ª pessoa PT-BR...',
+    '› Sugerindo Featured + Newsletter...'
+  ]:[
+    '› Analisando screenshots do perfil...',
+    '› Extraindo foto · headline · sobre...',
+    '› Lendo Experience + Skills + Certs...',
+    '› Cruzando com 21 LinkedIn Skills...',
+    '› Identificando gaps críticos...',
+    '› Redigindo headline otimizada...',
+    '› Escrevendo Sobre em 1ª pessoa PT-BR...',
+    '› Briefing do cover image 1584×396...'
+  ];
+  const msgsRevisor=[
+    '› Validando headline ≤ 220 chars...',
+    '› Checando menção a EPI-USE Voices + ERP.ngo...',
+    '› Verificando placeholders [preencher:]...',
+    '› Conferindo cobertura das 21 skills...',
+    '› Calculando score de qualidade...',
+    '› Auditando cliente/concorrente nominal...'
+  ];
+  const t0=Date.now();
+  let i=0,inRevisor=false;
+  const m=$('load-msg'),s1=$('stage-1'),s2=$('stage-2'),el=$('load-elapsed');
+  m.textContent=msgsRedator[0];
+  // Timer
+  const timer=setInterval(()=>{
+    const s=Math.floor((Date.now()-t0)/1000);
+    el.textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+    // Após ~12s presume passou pra revisor
+    if(!inRevisor && s>=12){
+      inRevisor=true;
+      s1.classList.remove('active');s1.classList.add('done');
+      s2.classList.add('active');
+      i=0;
+    }
+  },1000);
+  // Mensagens rotativas
+  const msg=setInterval(()=>{
+    const arr=inRevisor?msgsRevisor:msgsRedator;
+    i=(i+1)%arr.length;
+    m.style.opacity='0';
+    setTimeout(()=>{m.textContent=arr[i];m.style.opacity='1'},150);
+  },2200);
+  return ()=>{
+    clearInterval(timer);clearInterval(msg);
+    s1.classList.remove('active');s1.classList.add('done');
+    s2.classList.remove('active');s2.classList.add('done');
+  };
+}
+
+// ── Submit SSI ───────────────────────────────────────────────────────────────
+$('ssi-go').onclick=async()=>{
+  if(!ssiFile){toast('Sem print',true);return}
+  $('ssi-go').disabled=true;
+  $('ssi-go').textContent='🧠 Lendo print...';
+  const fd=new FormData();
+  fd.append('screenshot',ssiFile);
+  if(activeVoice) fd.append('voice_slug',activeVoice);
+  try{
+    const r=await fetch('/api/voices/optimizer-v3/ssi',{method:'POST',body:fd});
+    const d=await r.json();
+    if(!d.success) throw new Error(d.error||'Erro SSI');
+    renderSsi(d);
+    toast('SSI '+d.ssi_total+' '+(d.saved?'salvo no histórico':'extraído (Voice não cadastrado)'));
+  }catch(e){
+    toast('Erro: '+e.message,true);
+  }
+  $('ssi-go').disabled=false;
+  $('ssi-go').textContent='🔍 Extrair SSI do print';
+};
+
+function renderSsi(d){
+  const r=$('ssi-result');r.style.display='block';
+  let html=`<div class="box">
+    <div style="display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap">
+      <div class="ssi-num">${d.ssi_total}</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:700;color:#fff">SSI Total · ${esc(d.data||new Date().toISOString().slice(0,10))}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">${esc(d.etiqueta||'🤖 Extraído por IA — confirmar')}</div>
+        ${d.componentes?`<div style="font-size:11px;color:var(--muted);margin-top:6px;font-family:JetBrains Mono,monospace">
+          marca:${d.componentes.marca||'?'} · pessoas:${d.componentes.pessoas||'?'} · insights:${d.componentes.insights||'?'} · relacao:${d.componentes.relacao||'?'}</div>`:''}
+        ${d.delta!==undefined&&d.delta!==null?`<div class="ssi-row"><span class="ssi-delta ${d.delta>=0?'up':'down'}">${d.delta>=0?'▲':'▼'} ${Math.abs(d.delta)}</span><span style="font-size:11px;color:var(--muted)">vs medição anterior</span></div>`:''}
+      </div>
+    </div>
+    ${d.historico&&d.historico.length?`<div class="ssi-history">
+      <table><tr><th>Data</th><th>SSI</th><th>Marca</th><th>Pessoas</th><th>Insights</th><th>Relação</th></tr>
+      ${d.historico.slice(-10).reverse().map(h=>`<tr><td>${esc(h.data)}</td><td><b>${esc(h.ssi_total)}</b></td><td>${esc(h.marca||'-')}</td><td>${esc(h.pessoas||'-')}</td><td>${esc(h.insights||'-')}</td><td>${esc(h.relacao||'-')}</td></tr>`).join('')}
+      </table></div>`:''}
+  </div>`;
+  r.innerHTML=html;
+}
+
+// ── Kit render ───────────────────────────────────────────────────────────────
+function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 function fmtSobre(t){if(!t)return'';return esc(t).replace(/\[preencher:[^\]]*\]/gi,m=>'<span class="ph">'+m+'</span>')}
 
-function render(d){
+function renderKit(d){
   const k=d.kit,rev=d.revisao;
   const skills=k.diagnostico_21_skills||[];
   $('result').innerHTML=`
   <div class="r-head">
-    <div class="r-name">${esc(k.nome)}</div>
-    <div class="r-role">${esc(k.cargo_atual)} · ${esc(k.empresa_atual)}</div>
-    <div class="r-acts">
-      <button onclick="window.print()">🖨️ Imprimir / PDF</button>
-      <button onclick="location.reload()">↩ Nova analise</button>
+    <div class="r-name">${esc(k.nome||'(sem nome)')}</div>
+    <div class="r-role">${esc(k.cargo_atual||'')} · ${esc(k.empresa_atual||'')}</div>
+    <div class="etiq">${esc(d.etiqueta)}</div>
+    <div class="btn-row" style="margin-top:0">
+      <button class="btn btn-secondary" onclick="window.print()">🖨️ Imprimir/PDF</button>
+      <button class="btn btn-secondary" onclick="location.reload()">↩ Nova análise</button>
     </div>
   </div>
-  <div class="etiq">${esc(d.etiqueta)}</div>
   ${rev?`
   <div class="card">
-    <div class="s-title"><div class="s-ic">✅</div> Revisao automatica</div>
-    <div class="rev ${rev.aprovado===true?'aprov':(rev.aprovado===false?'reprov':'')}">
-      <div class="rev-h">
-        <span class="rev-st ${rev.aprovado===true?'aprov':'reprov'}">${rev.aprovado===true?'Aprovado':(rev.aprovado===false?'Ajustes':'Sem revisao')}</span>
-        ${rev.score_qualidade!==undefined?`<span class="rev-score">Score: ${rev.score_qualidade}/100</span>`:''}
-      </div>
-      <div style="font-size:13px;color:var(--text)">${esc(rev.comentario_geral||'')}</div>
-      ${(rev.issues||[]).map(i=>`<div class="rev-issue"><strong>${esc(i.campo)} [${esc(i.severidade)}]:</strong> ${esc(i.problema)}<br><em>→ ${esc(i.sugestao)}</em></div>`).join('')}
-    </div>
+    <div class="card-h"><span class="ico">✅</span> Revisão automática ${rev.score_qualidade!==undefined?'<span class="badge" style="margin-left:auto">Score '+esc(rev.score_qualidade)+'/100</span>':''}</div>
+    <div style="font-size:13px;color:var(--text);margin-bottom:8px">${esc(rev.comentario_geral||'')}</div>
+    ${(rev.issues||[]).map(i=>`<div class="box" style="margin-top:6px;border-left:3px solid var(--yellow)"><b>${esc(i.campo)} [${esc(i.severidade)}]:</b> ${esc(i.problema)}<br><i style="color:var(--muted)">→ ${esc(i.sugestao)}</i></div>`).join('')}
   </div>`:''}
   <div class="card">
-    <div class="s-title"><div class="s-ic">🎯</div> Diagnostico — 21 LinkedIn Skills</div>
+    <div class="card-h"><span class="ico">🎯</span> Diagnóstico — 21 LinkedIn Skills</div>
     <div class="skills21">
-      ${skills.map(s=>`
-        <div class="skill ${esc(s.status)}">
-          <div class="skill-h">
-            <span class="skill-num">${esc(s.skill_num)}</span>
-            <span class="skill-name">${esc(s.skill_nome)}</span>
-            <span class="skill-st ${esc(s.status)}">${esc(s.status)}</span>
-          </div>
-          <div class="skill-obs">${esc(s.observacao)}</div>
-          <div class="skill-act"><strong>→</strong> ${esc(s.acao)}</div>
-        </div>`).join('')}
+      ${skills.map(s=>`<div class="skill ${esc(s.status)}">
+        <div class="skill-h">
+          <span class="skill-num">#${esc(s.skill_num)}</span>
+          <span class="skill-name">${esc(s.skill_nome)}</span>
+          <span class="skill-st ${esc(s.status)}">${esc(s.status)}</span>
+        </div>
+        <div class="skill-obs">${esc(s.observacao)}</div>
+        <div class="skill-act">→ ${esc(s.acao)}</div>
+      </div>`).join('')}
     </div>
   </div>
   <div class="card">
-    <div class="s-title"><div class="s-ic">✏️</div> Headline sugerida</div>
-    <div class="hbox">
-      <div class="htxt" id="ht">${esc(k.headline_sugerida)}</div>
-      <div class="hfoot">
-        <span class="chcount ${(k.headline_sugerida||'').length>220?'over':''}">${(k.headline_sugerida||'').length}/220 chars</span>
-        <button class="btn copy" onclick="cp('ht',this)">📋 Copiar</button>
-      </div>
-    </div>
+    <div class="card-h"><span class="ico">✏️</span> Headline sugerida <span style="margin-left:auto;font-size:11px;color:${(k.headline_sugerida||'').length>220?'var(--red)':'var(--muted)'}">${(k.headline_sugerida||'').length}/220</span></div>
+    <div class="box" id="ht">${esc(k.headline_sugerida||'')}</div>
+    <div class="btn-row"><button class="copy-btn" onclick="cp('ht',this)">📋 Copiar</button></div>
   </div>
   <div class="card">
-    <div class="s-title"><div class="s-ic">🔗</div> URL personalizada</div>
-    <div class="hbox" style="display:flex;align-items:center;gap:12px">
-      <span style="font-size:13px;color:var(--text-muted)">linkedin.com/in/</span>
-      <span style="font-size:14px;font-weight:600;color:var(--primary);flex:1" id="ut">${esc(k.url_sugerida)}</span>
-      <button class="btn copy" onclick="cpTxt('linkedin.com/in/${esc(k.url_sugerida)}',this)">📋</button>
-    </div>
+    <div class="card-h"><span class="ico">🔗</span> URL custom</div>
+    <div class="box">linkedin.com/in/<b id="ut">${esc(k.url_sugerida||'')}</b></div>
+    <div class="btn-row"><button class="copy-btn" onclick="cpTxt('linkedin.com/in/'+document.getElementById('ut').textContent,this)">📋 Copiar</button></div>
   </div>
   <div class="card">
-    <div class="s-title"><div class="s-ic">📝</div> Seccao Sobre — Pronto pra colar</div>
-    <div class="sbox">
-      <div style="font-size:12px;color:var(--warning);margin-bottom:8px">⚠️ Campos destacados precisam ser preenchidos</div>
-      <div class="stxt">${fmtSobre(k.sobre_texto)}</div>
-      <button class="btn copy" onclick="cp('sraw',this)">📋 Copiar texto completo</button>
-      <div id="sraw" style="display:none">${esc(k.sobre_texto)}</div>
+    <div class="card-h"><span class="ico">📝</span> Seção Sobre — pronto pra colar</div>
+    <div class="box" style="white-space:pre-wrap;line-height:1.7">${fmtSobre(k.sobre_texto||'')}</div>
+    <div class="btn-row">
+      <button class="copy-btn" onclick="cp('sraw',this)">📋 Copiar texto</button>
+      <span style="font-size:11px;color:var(--yellow)">⚠️ Trocar [preencher:] por dados reais</span>
     </div>
+    <div id="sraw" style="display:none">${esc(k.sobre_texto||'')}</div>
   </div>
+  ${k.cover_image_brief?`
   <div class="card">
-    <div class="s-title"><div class="s-ic">🖼️</div> Cover Image (banner 1584×396) — Briefing</div>
-    <div class="hbox"><div style="font-size:14px;line-height:1.7">${esc(k.cover_image_brief)}</div></div>
-  </div>
+    <div class="card-h"><span class="ico">🖼️</span> Cover Image (1584×396) — briefing</div>
+    <div class="box">${esc(k.cover_image_brief)}</div>
+  </div>`:''}
   ${k.featured_sugestoes?.length?`
   <div class="card">
-    <div class="s-title"><div class="s-ic">⭐</div> Featured section</div>
-    <div class="cards3">
-      ${k.featured_sugestoes.map(f=>`
-        <div class="subc">
-          <h4>${esc(f.tipo)}</h4>
-          <div style="font-size:14px;font-weight:600;color:var(--primary);margin-bottom:6px">${esc(f.titulo)}</div>
-          <div style="font-size:12px;color:var(--text-muted)">${esc(f.descricao_breve)}</div>
-        </div>`).join('')}
-    </div>
+    <div class="card-h"><span class="ico">⭐</span> Featured Section</div>
+    ${k.featured_sugestoes.map(f=>`<div class="box" style="margin-top:6px"><b style="color:#fff">${esc(f.tipo)}:</b> ${esc(f.titulo)}<br><span style="font-size:11px;color:var(--muted)">${esc(f.descricao_breve)}</span></div>`).join('')}
   </div>`:''}
   ${k.experiencias_otimizadas?.length?`
   <div class="card">
-    <div class="s-title"><div class="s-ic">💼</div> Experiences otimizadas</div>
-    ${k.experiencias_otimizadas.map(e=>`
-      <div class="subc" style="margin-bottom:10px">
-        <h4>${esc(e.cargo)} · ${esc(e.empresa)}</h4>
-        <ul style="margin-left:16px;font-size:13px;color:var(--text)">
-          ${(e.bullets_quantificados||[]).map(b=>`<li style="margin:4px 0">${esc(b)}</li>`).join('')}
-        </ul>
-      </div>`).join('')}
+    <div class="card-h"><span class="ico">💼</span> Experiences otimizadas</div>
+    ${k.experiencias_otimizadas.map(e=>`<div class="box" style="margin-top:6px"><b style="color:#fff">${esc(e.cargo)}</b> · ${esc(e.empresa)}<ul style="margin:6px 0 0 20px;font-size:12px">${(e.bullets_quantificados||[]).map(b=>`<li>${esc(b)}</li>`).join('')}</ul></div>`).join('')}
   </div>`:''}
   <div class="card">
-    <div class="s-title"><div class="s-ic">🏆</div> Skills (endorsement)</div>
-    <div class="cards3">
-      <div class="subc"><h4 style="color:var(--success)">Top 3</h4><div class="chips">${(k.skills_top3||[]).map(s=>`<span class="chip add">${esc(s)}</span>`).join('')}</div></div>
-      <div class="subc"><h4 style="color:var(--success)">+ Adicionar</h4><div class="chips">${(k.skills_adicionar||[]).map(s=>`<span class="chip add">${esc(s)}</span>`).join('')}</div></div>
-      <div class="subc"><h4 style="color:var(--danger)">− Remover</h4><div class="chips">${(k.skills_remover||[]).map(s=>`<span class="chip rm">${esc(s)}</span>`).join('')}</div></div>
+    <div class="card-h"><span class="ico">🏆</span> Skills (endorsement)</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px">
+      <div class="box"><b style="color:var(--green)">Top 3</b><br>${(k.skills_top3||[]).map(s=>`<span style="display:inline-block;background:rgba(16,185,129,.18);color:#6ee7b7;padding:2px 8px;border-radius:99px;font-size:11px;margin:2px">${esc(s)}</span>`).join('')}</div>
+      <div class="box"><b style="color:var(--green)">+ Adicionar</b><br>${(k.skills_adicionar||[]).map(s=>`<span style="display:inline-block;background:rgba(16,185,129,.12);color:#6ee7b7;padding:2px 8px;border-radius:99px;font-size:11px;margin:2px">${esc(s)}</span>`).join('')}</div>
+      <div class="box"><b style="color:var(--red)">− Remover</b><br>${(k.skills_remover||[]).map(s=>`<span style="display:inline-block;background:rgba(205,21,67,.15);color:#ff8da3;padding:2px 8px;border-radius:99px;font-size:11px;margin:2px;text-decoration:line-through">${esc(s)}</span>`).join('')}</div>
     </div>
   </div>
   ${k.recommendations_estrategia?`
   <div class="card">
-    <div class="s-title"><div class="s-ic">🤝</div> Recommendations</div>
-    <div class="cards3">
-      <div class="subc"><h4>Pedir de:</h4><div class="chips">${(k.recommendations_estrategia.pedir_de||[]).map(p=>`<span class="chip">${esc(p)}</span>`).join('')}</div></div>
-      <div class="subc"><h4>Oferecer para:</h4><div class="chips">${(k.recommendations_estrategia.oferecer_para||[]).map(p=>`<span class="chip">${esc(p)}</span>`).join('')}</div></div>
+    <div class="card-h"><span class="ico">🤝</span> Recommendations</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="box"><b>Pedir de:</b> ${(k.recommendations_estrategia.pedir_de||[]).map(p=>esc(p)).join(', ')}</div>
+      <div class="box"><b>Oferecer para:</b> ${(k.recommendations_estrategia.oferecer_para||[]).map(p=>esc(p)).join(', ')}</div>
     </div>
-    <div class="sbox" style="margin-top:12px;background:#f8fafc;border-style:solid;border-color:var(--border)">
-      <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px">Template de pedido:</div>
-      <div class="stxt" id="recmsg">${esc(k.recommendations_estrategia.template_pedido_recommendation||'')}</div>
-      <button class="btn copy" onclick="cp('recmsg',this)">📋 Copiar template</button>
-    </div>
+    ${k.recommendations_estrategia.template_pedido_recommendation?`<div class="box" style="margin-top:8px;white-space:pre-wrap" id="recmsg">${esc(k.recommendations_estrategia.template_pedido_recommendation)}</div>
+    <div class="btn-row"><button class="copy-btn" onclick="cp('recmsg',this)">📋 Copiar template</button></div>`:''}
   </div>`:''}
   ${k.creator_mode?`
   <div class="card">
-    <div class="s-title"><div class="s-ic">🎙️</div> Creator Mode</div>
-    <div class="hbox">
-      <div style="font-size:14px;margin-bottom:8px">${esc(k.creator_mode.justificativa)}</div>
-      <div class="chips">${(k.creator_mode.hashtags_pilar||[]).map(h=>`<span class="chip add">${esc(h)}</span>`).join('')}</div>
-    </div>
+    <div class="card-h"><span class="ico">🎙️</span> Creator Mode</div>
+    <div class="box">${esc(k.creator_mode.justificativa||'')}<br><div style="margin-top:6px">${(k.creator_mode.hashtags_pilar||[]).map(h=>`<span style="display:inline-block;background:rgba(96,165,250,.15);color:#bcd8ff;padding:2px 8px;border-radius:99px;font-size:11px;margin:2px">${esc(h)}</span>`).join('')}</div></div>
   </div>`:''}
   ${k.newsletter?`
   <div class="card">
-    <div class="s-title"><div class="s-ic">📰</div> Newsletter LinkedIn</div>
-    <div class="hbox">
-      <div style="font-size:14px"><strong>Tema:</strong> ${esc(k.newsletter.tema)}</div>
-      <div style="font-size:14px;margin-top:4px"><strong>Cadencia:</strong> ${esc(k.newsletter.cadencia)}</div>
-      <div style="font-size:14px;margin-top:4px"><strong>Edicao 1:</strong> ${esc(k.newsletter.edicao_1_titulo)}</div>
-    </div>
+    <div class="card-h"><span class="ico">📰</span> Newsletter LinkedIn</div>
+    <div class="box"><b>Tema:</b> ${esc(k.newsletter.tema||'')}<br><b>Cadência:</b> ${esc(k.newsletter.cadencia||'')}<br><b>Edição 1:</b> ${esc(k.newsletter.edicao_1_titulo||'')}</div>
   </div>`:''}
   <div class="card">
-    <div class="s-title"><div class="s-ic">✅</div> Checklist priorizado</div>
-    <ul class="checklist">
-      ${(k.checklist_priorizado||[]).map((c,i)=>`
-        <li class="cli" onclick="this.classList.toggle('done');this.querySelector('.cbox').textContent=this.classList.contains('done')?'✓':''">
-          <div class="cbox"></div>
-          <div class="cc">
-            <div class="ch">
-              <span class="ctxt">${esc(c.item)}</span>
-              <span class="pri ${esc(c.prioridade)}">${esc(c.prioridade)}</span>
-              ${c.skill_num_referencia?`<span class="skref">Skill #${esc(c.skill_num_referencia)}</span>`:''}
-            </div>
-            ${c.passo?`<div class="cpasso">Como: ${esc(c.passo)}</div>`:''}
-          </div>
-        </li>`).join('')}
-    </ul>
+    <div class="card-h"><span class="ico">✅</span> Checklist priorizado</div>
+    ${(k.checklist_priorizado||[]).map((c,i)=>`<div class="box" style="margin-top:6px;display:flex;gap:10px;align-items:flex-start;cursor:pointer" onclick="this.style.opacity=this.style.opacity==='0.5'?'1':'0.5'">
+      <span style="background:${c.prioridade==='urgente'?'var(--red)':(c.prioridade==='normal'?'var(--primary)':'var(--green)')};color:#fff;font-size:9px;font-weight:800;text-transform:uppercase;padding:2px 6px;border-radius:3px">${esc(c.prioridade)}</span>
+      <div style="flex:1"><b>${esc(c.item)}</b>${c.skill_num_referencia?` <span style="font-size:10px;color:var(--muted)">#${esc(c.skill_num_referencia)}</span>`:''}${c.passo?`<br><span style="font-size:11px;color:var(--muted)">→ ${esc(c.passo)}</span>`:''}</div>
+    </div>`).join('')}
   </div>
   ${k.proximos_passos_30dias?.length?`
   <div class="card">
-    <div class="s-title"><div class="s-ic">🚀</div> Proximos 30 dias</div>
-    <ol style="list-style:decimal;margin-left:20px">
-      ${k.proximos_passos_30dias.map(p=>`<li style="padding:6px 0;font-size:14px">${esc(p)}</li>`).join('')}
-    </ol>
+    <div class="card-h"><span class="ico">🚀</span> Próximos 30 dias</div>
+    <ol style="margin:0;padding-left:20px">${k.proximos_passos_30dias.map(p=>`<li style="margin:6px 0">${esc(p)}</li>`).join('')}</ol>
   </div>`:''}
-  <div style="text-align:center;padding:16px 0;color:var(--text-muted);font-size:11px">
+  <div style="text-align:center;padding:14px;color:var(--muted);font-size:11px">
     Kit gerado por Profile Optimizer ${esc(d.versao)} · ${esc(d.motor)}
   </div>`;
 }
 
-function cp(id,btn){const el=document.getElementById(id);if(!el)return;cpTxt(el.innerText||el.textContent,btn)}
-function cpTxt(t,btn){
-  navigator.clipboard.writeText(t).then(()=>{
-    const o=btn.innerHTML;btn.innerHTML='✓ Copiado';btn.classList.add('ok');
-    setTimeout(()=>{btn.innerHTML=o;btn.classList.remove('ok')},2000);
-  }).catch(()=>alert('Nao foi possivel copiar.'));
-}
+// ── Utils ────────────────────────────────────────────────────────────────────
+function cp(id,btn){const el=$(id);if(!el)return;cpTxt(el.innerText||el.textContent,btn)}
+function cpTxt(t,btn){navigator.clipboard.writeText(t).then(()=>{const o=btn.innerHTML;btn.innerHTML='✓ Copiado';btn.classList.add('ok');setTimeout(()=>{btn.innerHTML=o;btn.classList.remove('ok')},1800)}).catch(()=>toast('Falhou copiar',true))}
+function showErr(m){$('err').textContent=m;$('err').style.display=m?'block':'none'}
+function toast(m,err){const t=$('toast');t.textContent=m;t.style.background=err?'var(--red)':'var(--green)';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
 </script>
 </body>
 </html>

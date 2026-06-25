@@ -1,6 +1,7 @@
 // routes/optimizer-v3.js
-// Profile Optimizer v3 — Groq Vision (free) + 21 LinkedIn Skills
-// Pipeline: REDATOR (vision) -> REVISOR (texto), mecanica raccoon
+// Profile Optimizer v3 — Groq Vision + 21 LinkedIn Skills
+// Pipeline: REDATOR (vision/texto) -> REVISOR (texto), mecanica raccoon
+// + SSI extraction from screenshot + write to voices.json history
 const express = require('express');
 const router = express.Router();
 const path = require('path');
@@ -19,6 +20,7 @@ const upload = multer({
 
 const MODEL_VISION = process.env.GROQ_MODEL_VISION || 'meta-llama/llama-4-scout-17b-16e-instruct';
 const MODEL_TEXT = process.env.GROQ_MODEL_TEXT || 'llama-3.3-70b-versatile';
+const VOICES_JSON = path.join(__dirname, '../public/api/voices.json');
 
 const LINKEDIN_21_SKILLS = `
 21 LINKEDIN OPTIMIZATION SKILLS (cobrir TODAS no diagnostico + plano):
@@ -55,15 +57,16 @@ PRESENCA ATIVA
 REGRAS EPI-USE (NAO NEGOCIAVEL): PT-BR · Mencionar EPI-USE Voices + ERP.ngo em Sobre · Tom tecnico + humano · Mobile-first · Hook forte (sem "Hoje quero falar...") · Numero real ou [preencher: X] · Sem cliente nominal sem aprovacao Duda · Sem concorrente nominal.
 `;
 
-function buildPromptRedator(url) {
+function buildPromptRedator(url, transcricao) {
   return `Voce e o Profile Optimizer v3 do programa EPI-USE Voices (programa de influencia executiva da EPI-USE Brasil — maior consultoria SAP HCM/Payroll do Brasil, grupo groupelephant.com, 3.700+ pessoas em 40 paises, SAP Gold Partner).
 
-MISSAO: analisar perfil LinkedIn (URL + screenshots) e gerar Kit v3 cobrindo TODAS as 21 skills.
+MISSAO: gerar Kit v3 cobrindo TODAS as 21 skills, baseado nas imagens do perfil${transcricao ? ' E na transcricao da entrevista com o Voice abaixo' : ''}.
 
 ${LINKEDIN_21_SKILLS}
 
 URL: ${url}
-[Analise as imagens em anexo]
+${transcricao ? `\n--- TRANSCRICAO DA ENTREVISTA (use pra capturar tom de voz, lado humano, resultados quantitativos):\n${transcricao.slice(0, 12000)}\n---\n` : ''}
+[Analise as imagens em anexo (se houver)]
 
 SAIDA OBRIGATORIA — JSON puro:
 {
@@ -106,9 +109,9 @@ VALIDAR:
 1. Headline <= 220 chars?
 2. Sobre menciona EPI-USE Voices E ERP.ngo?
 3. Sobre em 1a pessoa PT-BR?
-4. Placeholder [preencher: ...] onde falta numero (nao inventou)?
+4. Placeholder [preencher: ...] onde falta numero?
 5. Diagnostico cobre TODAS as 21 skills?
-6. Checklist prioriza urgentes corretamente (foto/headline/sobre antes de Newsletter)?
+6. Checklist prioriza urgentes corretamente?
 7. Tom tecnico + humano?
 8. Cita cliente nominalmente? (PROIBIDO)
 9. Compara nominalmente com concorrente? (PROIBIDO)
@@ -120,6 +123,29 @@ SAIDA — JSON puro:
   "score_qualidade": 0-100,
   "comentario_geral": "string"
 }`;
+}
+
+function buildPromptSsi() {
+  return `Voce e leitor de Social Selling Index do LinkedIn. A imagem em anexo e um print da pagina https://linkedin.com/sales/ssi.
+
+EXTRAIR (numeros visiveis na imagem):
+- ssi_total: 0-100 (numero grande de destaque)
+- componentes (cada 0-25):
+  - marca: "Estabelecer sua marca profissional"
+  - pessoas: "Encontrar as pessoas certas"
+  - insights: "Interagir com insights"
+  - relacao: "Construir relacionamentos"
+- data: data da medicao se visivel no print (formato YYYY-MM-DD); se nao visivel, retornar null
+
+SAIDA — JSON puro:
+{
+  "ssi_total": 0-100,
+  "componentes": { "marca": 0-25, "pessoas": 0-25, "insights": 0-25, "relacao": 0-25 },
+  "data_print": "YYYY-MM-DD" ou null,
+  "confianca": "alta|media|baixa"
+}
+
+Se nao conseguir ler o print, retorne { "ssi_total": null, "erro": "descricao do problema" }.`;
 }
 
 async function callGroq({ messages, model, maxTokens = 4000, temperature = 0.6 }) {
@@ -152,11 +178,10 @@ function parseJSON(text) {
   return JSON.parse(match[0]);
 }
 
-// canonical: /voices/optimizer-v3 (sub-pagina do Voices)
+// ── PAGES ─────────────────────────────────────────────────────────────────────
 router.get('/voices/optimizer-v3', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/optimizer-v3.html'));
 });
-// backward-compat: redirect top-level pra canonical
 router.get('/optimizer-v3', (req, res) => res.redirect(301, '/voices/optimizer-v3'));
 
 router.get('/api/voices/optimizer-v3/health', (req, res) => {
@@ -164,31 +189,39 @@ router.get('/api/voices/optimizer-v3/health', (req, res) => {
     ok: true,
     service: 'profile-optimizer-v3',
     motor: `Groq · ${MODEL_VISION} / ${MODEL_TEXT}`,
-    groq_key_set: !!process.env.GROQ_API_KEY
+    groq_key_set: !!process.env.GROQ_API_KEY,
+    voices_json_ok: fs.existsSync(VOICES_JSON)
   });
 });
-// backward-compat health
 router.get('/api/optimizer-v3/health', (req, res) => res.redirect(301, '/api/voices/optimizer-v3/health'));
 
+// ── ANALISAR ──────────────────────────────────────────────────────────────────
 router.post('/api/voices/optimizer-v3/analisar', upload.array('screenshots', 5), async (req, res) => {
   const files = req.files || [];
   try {
-    const { linkedin_url } = req.body;
+    const { linkedin_url, transcricao, voice_slug } = req.body;
     if (!linkedin_url) return res.status(400).json({ success: false, error: 'URL obrigatoria.' });
-    if (!files.length) return res.status(400).json({ success: false, error: 'Envie ao menos 1 screenshot.' });
-    if (!process.env.GROQ_API_KEY) return res.status(500).json({ success: false, error: 'GROQ_API_KEY ausente no Railway.' });
-
-    const content = [];
-    for (const f of files) {
-      const b64 = fs.readFileSync(f.path).toString('base64');
-      content.push({ type: 'image_url', image_url: { url: `data:${f.mimetype};base64,${b64}` } });
+    if (!files.length && !(transcricao && transcricao.trim().length >= 100)) {
+      return res.status(400).json({ success: false, error: 'Envie screenshots OU transcricao (>=100 chars).' });
     }
-    content.push({ type: 'text', text: buildPromptRedator(linkedin_url) });
+    if (!process.env.GROQ_API_KEY) return res.status(500).json({ success: false, error: 'GROQ_API_KEY ausente.' });
 
-    console.log('[opt-v3] Etapa 1: redator vision');
+    const hasImages = files.length > 0;
+    const content = [];
+    if (hasImages) {
+      for (const f of files) {
+        const b64 = fs.readFileSync(f.path).toString('base64');
+        content.push({ type: 'image_url', image_url: { url: `data:${f.mimetype};base64,${b64}` } });
+      }
+    }
+    content.push({ type: 'text', text: buildPromptRedator(linkedin_url, transcricao) });
+
+    // Sem imagens: usa modelo de texto. Com imagens: vision.
+    const redatorModel = hasImages ? MODEL_VISION : MODEL_TEXT;
+    console.log(`[opt-v3] Etapa 1: redator (${redatorModel}) imgs=${files.length} trans=${(transcricao||'').length}`);
     const redatorRaw = await callGroq({
       messages: [{ role: 'user', content }],
-      model: MODEL_VISION,
+      model: redatorModel,
       maxTokens: 6000,
       temperature: 0.5
     });
@@ -212,20 +245,105 @@ router.post('/api/voices/optimizer-v3/analisar', upload.array('screenshots', 5),
       });
       revisao = parseJSON(revisorRaw);
     } catch (e) {
-      console.warn('[opt-v3] revisor falhou (nao-bloqueante):', e.message);
+      console.warn('[opt-v3] revisor falhou:', e.message);
       revisao = { aprovado: null, issues: [], comentario_geral: `Revisor offline: ${e.message}` };
     }
 
     res.json({
       success: true,
-      versao: '3.0.0',
-      motor: `Groq · ${MODEL_VISION} -> ${MODEL_TEXT}`,
-      etiqueta: '🤖 Gerado por IA (Groq Llama-Vision) — REVISAR com a Duda antes de publicar',
-      kit, revisao
+      versao: '3.1.0',
+      motor: `Groq · ${redatorModel} -> ${MODEL_TEXT}`,
+      etiqueta: '🤖 Gerado por IA (Groq) — REVISAR com a Duda antes de publicar',
+      kit, revisao,
+      input_usado: { screenshots: files.length, transcricao_chars: (transcricao||'').length, voice_slug: voice_slug || null }
     });
   } catch (error) {
     files.forEach(f => { try { fs.unlinkSync(f.path); } catch (_) {} });
     console.error('[opt-v3] erro:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ── SSI EXTRACT ───────────────────────────────────────────────────────────────
+router.post('/api/voices/optimizer-v3/ssi', upload.single('screenshot'), async (req, res) => {
+  const f = req.file;
+  try {
+    if (!f) return res.status(400).json({ success: false, error: 'screenshot obrigatorio.' });
+    if (!process.env.GROQ_API_KEY) return res.status(500).json({ success: false, error: 'GROQ_API_KEY ausente.' });
+
+    const voiceSlug = String(req.body?.voice_slug || '').replace(/[^a-z0-9-]/g, '').slice(0, 60);
+
+    const b64 = fs.readFileSync(f.path).toString('base64');
+    const content = [
+      { type: 'image_url', image_url: { url: `data:${f.mimetype};base64,${b64}` } },
+      { type: 'text', text: buildPromptSsi() }
+    ];
+    console.log('[opt-v3] SSI vision extract');
+    const raw = await callGroq({
+      messages: [{ role: 'user', content }],
+      model: MODEL_VISION,
+      maxTokens: 800,
+      temperature: 0.1
+    });
+
+    try { fs.unlinkSync(f.path); } catch (_) {}
+
+    let parsed;
+    try { parsed = parseJSON(raw); } catch (e) { throw new Error(`SSI JSON invalido: ${e.message}`); }
+    if (parsed.erro) return res.status(422).json({ success: false, error: 'Nao foi possivel ler o print: ' + parsed.erro });
+    const ssi = parseInt(parsed.ssi_total, 10);
+    if (isNaN(ssi) || ssi < 0 || ssi > 100) return res.status(422).json({ success: false, error: 'SSI extraido invalido (esperado 0-100), recebeu: ' + parsed.ssi_total });
+
+    const today = parsed.data_print || new Date().toISOString().slice(0, 10);
+    const comp = parsed.componentes || {};
+    const entry = {
+      data: today,
+      ssi,
+      marca: comp.marca ?? null,
+      pessoas: comp.pessoas ?? null,
+      insights: comp.insights ?? null,
+      relacao: comp.relacao ?? null,
+      nota: 'extraido via Profile Optimizer v3 (Groq Vision)',
+      confianca: parsed.confianca || 'media'
+    };
+
+    let saved = false, historico = [], delta = null, voiceName = null;
+    if (voiceSlug && fs.existsSync(VOICES_JSON)) {
+      try {
+        const data = JSON.parse(fs.readFileSync(VOICES_JSON, 'utf8'));
+        const v = (data.voices || []).find(x => x.id === voiceSlug || x.slug === voiceSlug);
+        if (v) {
+          v.ssi_historico = v.ssi_historico || [];
+          // delta vs ultima medicao
+          const prev = v.ssi_historico[v.ssi_historico.length - 1];
+          if (prev && prev.ssi != null) delta = ssi - prev.ssi;
+          v.ssi_historico.push(entry);
+          if (v.ssi_baseline == null) v.ssi_baseline = ssi;
+          v.ssi_atual = ssi;
+          v.proxima_medicao_ssi = new Date(Date.now() + 7 * 864e5).toISOString().slice(0, 10);
+          fs.writeFileSync(VOICES_JSON, JSON.stringify(data, null, 2), 'utf8');
+          saved = true;
+          historico = v.ssi_historico;
+          voiceName = v.nome || voiceSlug;
+        }
+      } catch (e) { console.warn('[opt-v3] SSI save falhou:', e.message); }
+    }
+
+    res.json({
+      success: true,
+      ssi_total: ssi,
+      componentes: comp,
+      data: today,
+      delta,
+      saved,
+      voice_slug: voiceSlug || null,
+      voice_name: voiceName,
+      historico: historico.map(h => ({ data: h.data, ssi_total: h.ssi, marca: h.marca, pessoas: h.pessoas, insights: h.insights, relacao: h.relacao })),
+      etiqueta: '🤖 Extraido por IA (Groq Vision) — confirmar numero'
+    });
+  } catch (error) {
+    try { if (f) fs.unlinkSync(f.path); } catch (_) {}
+    console.error('[opt-v3] SSI erro:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
