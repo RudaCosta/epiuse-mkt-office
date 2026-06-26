@@ -450,9 +450,19 @@ app.get('/api/areas.json', (req, res) => {
     try { const r = db.prepare('SELECT COUNT(*) AS n FROM zoho_deals').get(); if (r && r.n > 0) zohoOpps = r.n; } catch (_) {}
     try { const r = db.prepare('SELECT COUNT(*) AS n FROM cs_clientes').get(); if (r && r.n > 0) casesCount = r.n; } catch (_) {}
     let activeOpps = null;
-    try { const r = db.prepare("SELECT COUNT(*) AS n FROM zoho_deals WHERE stage IN ('Probable (50): Med Prob - Opportunity Response', 'Prospect: No Proposal yet', 'ROM: Without Prob - Ballpark Estimation', 'Upside (25): Low Prob - Qualified Opportunity')").get(); if (r && r.n >= 0) activeOpps = r.n; } catch (_) {}
+    try {
+      const r = db.prepare("SELECT COUNT(*) AS n FROM zoho_deals WHERE stage NOT LIKE '%ganha%' AND stage NOT LIKE '%won%' AND stage NOT LIKE '%perde%' AND stage != 'Perdido' AND stage NOT LIKE '%cancel%'").get();
+      if (r && r.n >= 0) activeOpps = r.n;
+    } catch (_) {}
     let wonDeals = null;
-    try { const r = db.prepare("SELECT COUNT(*) AS n FROM zoho_deals WHERE stage = 'Fechado Ganhamos'").get(); if (r && r.n >= 0) wonDeals = r.n; } catch (_) {}
+    try {
+      const now = new Date();
+      const y = now.getUTCFullYear();
+      const m = now.getUTCMonth();
+      const fyStart = (m >= 2) ? `${y}-03-01` : `${y-1}-03-01`;
+      const r = db.prepare("SELECT COUNT(*) AS n FROM zoho_deals WHERE (stage LIKE '%ganha%' OR stage LIKE '%won%') AND data_fechamento >= ?").get(fyStart);
+      if (r && r.n >= 0) wonDeals = r.n;
+    } catch (_) {}
     let n = 0;
     const apply = (item) => {
       if (!item || item.valor == null) return; // mantem pendente (regra 7)
@@ -1281,15 +1291,35 @@ app.get('/api/zoho/pipeline', (req, res) => {
     const y   = now.getUTCFullYear();
     const m   = now.getUTCMonth(); // 0-based
 
-    // período helpers
+    // período helpers (calendário fiscal EPI-USE: Março a Fevereiro)
     const iso = (d) => d.toISOString().slice(0,10);
     const thisMthStart  = iso(new Date(Date.UTC(y, m, 1)));
     const lastMthStart  = iso(new Date(Date.UTC(y, m-1, 1)));
     const lastMthEnd    = iso(new Date(Date.UTC(y, m, 0)));
-    const qStart = iso(new Date(Date.UTC(y, Math.floor(m/3)*3 - 3, 1)));
-    const qEnd   = iso(new Date(Date.UTC(y, Math.floor(m/3)*3, 0)));
-    const fyStart = iso(new Date(Date.UTC(y-1, 0, 1))); // último FY = ano ant completo
-    const fyEnd   = iso(new Date(Date.UTC(y-1, 11, 31)));
+    
+    // Cálculo do trimestre anterior (Fiscal Quarters: Q1=Mar-Mai, Q2=Jun-Ago, Q3=Set-Nov, Q4=Dez-Fev)
+    var qStart, qEnd;
+    if (m === 0 || m === 1) { // Jan, Feb (Q4)
+      qStart = iso(new Date(Date.UTC(y - 1, 8, 1))); // Q3: Set 1
+      qEnd = iso(new Date(Date.UTC(y - 1, 11, 0))); // Q3: Nov 30
+    } else if (m >= 2 && m <= 4) { // Mar, Apr, May (Q1)
+      qStart = iso(new Date(Date.UTC(y - 1, 11, 1))); // Q4: Dez 1
+      qEnd = iso(new Date(Date.UTC(y, 2, 0))); // Q4: Fev 28/29
+    } else if (m >= 5 && m <= 7) { // Jun, Jul, Aug (Q2)
+      qStart = iso(new Date(Date.UTC(y, 2, 1))); // Q1: Mar 1
+      qEnd = iso(new Date(Date.UTC(y, 5, 0))); // Q1: Mai 31
+    } else if (m >= 8 && m <= 10) { // Sep, Oct, Nov (Q3)
+      qStart = iso(new Date(Date.UTC(y, 5, 1))); // Q2: Jun 1
+      qEnd = iso(new Date(Date.UTC(y, 8, 0))); // Q2: Ago 31
+    } else if (m === 11) { // Dec (Q4)
+      qStart = iso(new Date(Date.UTC(y, 8, 1))); // Q3: Set 1
+      qEnd = iso(new Date(Date.UTC(y, 11, 0))); // Q3: Nov 30
+    }
+
+    const currentFyStartYear = (m >= 2) ? y : y - 1;
+    const prevFyStartYear = currentFyStartYear - 1;
+    const fyStart = iso(new Date(Date.UTC(prevFyStartYear, 2, 1))); // Março 1 do ano fiscal anterior
+    const fyEnd   = iso(new Date(Date.UTC(currentFyStartYear, 2, 0))); // Último dia de Fevereiro do ano fiscal anterior
     const since24 = iso(new Date(Date.UTC(y, m-24, 1)));
 
     const sumQ = (from, to) =>
@@ -2816,6 +2846,36 @@ app.get(['/api/metas/fy26', '/api/metas/fy27'], (req, res) => {
       else if (lbl.includes('e-mails personalizados / dia') && emDia != null) {
         realizado = emDia; realizado_fonte = 'Apollo (outbound emails / 22)';
       }
+      else if (lbl.includes('pipeline gerado / trimestre') || lbl.includes('pipeline gerado/trimestre')) {
+        try {
+          const now = new Date();
+          const y = now.getUTCFullYear();
+          const m = now.getUTCMonth();
+          
+          // Cálculo do início do trimestre fiscal atual (Q1=Mar, Q2=Jun, Q3=Set, Q4=Dez)
+          var qStartMonth;
+          var qStartYear = y;
+          if (m === 0 || m === 1) { // Jan, Fev (Q4)
+            qStartMonth = 11; // Dezembro
+            qStartYear = y - 1;
+          } else if (m >= 2 && m <= 4) { // Mar, Abr, Mai (Q1)
+            qStartMonth = 2; // Março
+          } else if (m >= 5 && m <= 7) { // Jun, Jul, Ago (Q2)
+            qStartMonth = 5; // Junho
+          } else if (m >= 8 && m <= 10) { // Set, Out, Nov (Q3)
+            qStartMonth = 8; // Setembro
+          } else if (m === 11) { // Dez (Q4)
+            qStartMonth = 11; // Dezembro
+          }
+          
+          const qStart = new Date(Date.UTC(qStartYear, qStartMonth, 1)).toISOString().slice(0, 10);
+          const r = db.prepare("SELECT SUM(valor) as total FROM zoho_deals WHERE opportunity_source = 'SDR' AND data_criacao >= ?").get(qStart);
+          realizado = r?.total || 0;
+          realizado_fonte = `Zoho CRM SQLite (SDR no quarter fiscal desde ${qStart})`;
+        } catch (e) {
+          console.warn('[metas/fy26] zoho q pipeline fail:', e.message);
+        }
+      }
       else if (lbl.includes('contas perfiladas no apollo / semana') && tc != null) {
         realizado = Math.round(tc / 4.3 * 10) / 10; realizado_fonte = 'Apollo (contas tocadas / 4.3)';
       }
@@ -2902,10 +2962,19 @@ app.get(['/api/metas/fy26', '/api/metas/fy27'], (req, res) => {
 // Sync diário headless = TODO (precisa Apollo REST API Key + cron). Hoje: snapshot manual real.
 app.get('/api/pipeline', (req, res) => {
   const snap = _readJSON(path.join(__dirname, 'public/api/pipeline-snapshot.json'), null);
-  if (!snap) {
-    return res.json({ success: true, fonte: 'sem snapshot ainda', contatos_total: null, sequencias_total: null, ultima_sync: null });
+  
+  let pipeline_zoho_sdr = 0;
+  try {
+    const r = db.prepare("SELECT SUM(valor) as total FROM zoho_deals WHERE opportunity_source = 'SDR'").get();
+    pipeline_zoho_sdr = r?.total || 0;
+  } catch (e) {
+    console.warn('[api/pipeline] erro ao somar pipeline zoho sdr:', e.message);
   }
-  res.json({ success: true, ...snap });
+
+  if (!snap) {
+    return res.json({ success: true, fonte: 'sem snapshot ainda', contatos_total: null, sequencias_total: null, ultima_sync: null, pipeline_zoho_sdr });
+  }
+  res.json({ success: true, ...snap, pipeline_zoho_sdr });
 });
 
 // ── UTM REDIRECT: /v/:slug ────────────────────────────────────────────────────

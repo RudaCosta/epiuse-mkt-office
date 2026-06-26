@@ -55,7 +55,7 @@
 1. **🔴 SSO Microsoft (B1)** — Azure: adicionar Redirect URIs + admin consent + setar env vars Railway (passos humanos Rudá)
 2. **S17 GA4** — `ga4_fetch.js` pronto; falta Rudá entregar Service Account JSON + Property ID
 3. **S18 Apollo cron** — Tarefa Windows diária 6h para Apollo
-4. **S19 Zoho CRM** — pipeline R$ (deals Opportunity Source=SDR)
+4. **S19 Zoho CRM** — ✅ pipeline R$ (deals Opportunity Source=SDR)
 5. Onboarding de 3 novas Voices (prioridade: Signavio, Analytics, Indústria)
 6. Validação visual Voice Index em prod (Anderson Costa, ~5min)
 

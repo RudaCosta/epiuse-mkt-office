@@ -38,7 +38,7 @@
 |---|---|---|
 | **S17** | **GA4 + relatório real** — `ga4_fetch.js` + bloco `site` no /relatorio | 🔵 em construção (código pronto; falta Service Account do Rudá) |
 | S18 | Apollo cron automático (Tarefa Windows diária 6h) | ⏳ |
-| S19 | Zoho CRM (pipeline R$ — deals Opportunity Source=SDR) | ⏳ |
+| S19 | Zoho CRM (pipeline R$ — deals Opportunity Source=SDR) | ✅ |
 | S20 | Events Cockpit (deadlines + checklist + alertas, sem API) | ⏳ |
 | S21 | Voices performance (form rápido + rollup por voicer + cases→pauta) | ⏳ |
 | S22 | Search Console / SEO (reusa Service Account do S17) | ⏳ |

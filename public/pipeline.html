@@ -98,7 +98,7 @@
     <div class="funnel-step"><span class="lbl">📨 Sequências cadastradas</span><span class="num" id="f-seq">—</span></div>
     <div class="funnel-step"><span class="lbl">▶️ Sequências ativas</span><span class="num" id="f-seqativas">—</span></div>
     <div class="funnel-step"><span class="lbl">💳 Créditos Apollo restantes</span><span class="num" id="f-creditos">—</span></div>
-    <div class="funnel-step"><span class="lbl">💰 Pipeline R$</span><span class="num" style="font-size:12px;color:var(--color-text-muted,#8aa)">⏳ precisa CRM</span></div>
+    <div class="funnel-step"><span class="lbl">💰 Pipeline R$</span><span class="num" id="f-pipeline">—</span></div>
   </div>
 
   <div class="sync-info" id="sync-info">
@@ -128,6 +128,7 @@ async function carregar() {
     set('f-seq', fmt(d.sequencias_total));
     set('f-seqativas', fmt(d.sequencias_ativas));
     set('f-creditos', fmt(d.creditos_restantes));
+    set('f-pipeline', brl(d.pipeline_zoho_sdr));
     const st = document.getElementById('apollo-sync'); if (st) st.textContent = d.ultima_sync ? ('Última sync: ' + d.ultima_sync) : '';
     const sm = document.getElementById('sync-meta'); if (sm) sm.textContent = 'Fonte: ' + (d.fonte || 'Apollo') + ' · última sync: ' + (d.ultima_sync || '—');
   } catch (e) {}

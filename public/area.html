@@ -246,44 +246,133 @@
     background: rgba(37, 99, 235, 0.05) !important;
   }
 
-  /* Visual pipeline funnel */
-  /* FUNIL DE CONVERSÃO — design de funil de verdade (trapézios afunilando) */
-  .funnel {
-    display: flex; flex-direction: column; align-items: center; gap: 7px;
-    background: rgba(15, 30, 53, 0.45) !important;
+  /* Visual pipeline funnel (Option C - Origami Zigzag Ribbon) */
+  .funnel-container-layout {
+    display: flex; gap: 28px; width: 100%; margin-bottom: 28px;
+    background: rgba(10, 21, 37, 0.45) !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    border-radius: 16px; padding: 24px 22px; margin-bottom: 28px;
-    backdrop-filter: blur(16px) saturate(120%);
-    -webkit-backdrop-filter: blur(16px) saturate(120%);
-    box-shadow: 0 10px 32px 0 rgba(0,0,0,0.3);
+    border-radius: 20px; padding: 28px;
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
   }
-  :root[data-theme="light"] .funnel,
-  :root[data-theme="elephant"] .funnel {
+  :root[data-theme="light"] .funnel-container-layout {
+    background: rgba(255, 255, 255, 0.7) !important;
+    border-color: rgba(15, 23, 42, 0.08) !important;
+    box-shadow: 0 12px 40px rgba(15, 23, 42, 0.04) !important;
+  }
+  .funnel-cards-col {
+    flex: 1.1; display: flex; flex-direction: column; gap: 20px;
+  }
+  .funnel-geom-col {
+    flex: 0.9; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    position: relative;
+  }
+  
+  /* Item do Card da Esquerda */
+  .funnel-card-item {
+    background: rgba(15, 30, 53, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-left: 4px solid var(--cor, #60a5fa);
+    border-radius: 12px; padding: 12px 16px;
+    transition: transform 0.25s ease, background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    height: 80px; display: flex; flex-direction: column; justify-content: space-between;
+    box-sizing: border-box;
+  }
+  :root[data-theme="light"] .funnel-card-item {
     background: rgba(255, 255, 255, 0.65) !important;
-    border: 1px solid rgba(15, 23, 42, 0.08) !important;
-    box-shadow: 0 10px 32px 0 rgba(15, 23, 42, 0.05) !important;
+    border-color: rgba(15, 23, 42, 0.08) !important;
   }
-  .funnel-seg {
-    position: relative; min-height: 60px;
-    display: flex; align-items: center; justify-content: center;
-    background: var(--cor, #f87171);
-    background-image: linear-gradient(135deg, rgba(255,255,255,0.18), rgba(0,0,0,0.30));
-    color: #fff;
-    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.25));
-    transition: transform 0.2s ease, filter 0.2s ease;
+  .funnel-card-item:hover, .funnel-card-item.hovered {
+    background: rgba(var(--cor-rgb), 0.08);
+    transform: translateX(4px);
+    border-color: rgba(var(--cor-rgb), 0.35);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.25), 0 0 12px rgba(var(--cor-rgb), 0.2);
   }
-  .funnel-seg:hover { transform: translateY(-1px) scale(1.012); filter: drop-shadow(0 6px 14px rgba(0,0,0,0.3)) brightness(1.08); }
-  .funnel-seg-in { text-align: center; padding: 8px 26px; max-width: 100%; }
-  .funnel-seg-name {
-    display: block; font-size: 10.5px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.06em; opacity: 0.92;
+  .funnel-card-header {
+    font-family: 'Poppins', 'Open Sans', sans-serif;
+    font-size: 10.5px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--cor, #60a5fa);
   }
-  .funnel-seg-val {
-    display: block; font-family: 'JetBrains Mono', monospace; font-size: 22px;
-    font-weight: 800; line-height: 1.1; margin-top: 2px;
+  .funnel-card-body {
+    font-size: 11px; color: var(--color-text-dim,#a3b3c9);
+    overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical;
+    margin: 1px 0;
   }
-  .funnel-seg-val small { font-size: 12px; font-weight: 600; opacity: 0.82; }
-  .funnel-conv { font-size: 10px; font-weight: 800; letter-spacing: 0.02em; color: var(--teal, #6ee7b7); }
+  :root[data-theme="light"] .funnel-card-body {
+    color: #4b5563;
+  }
+  .funnel-card-footer {
+    display: flex; justify-content: space-between; align-items: center; font-size: 10.5px;
+  }
+  .funnel-card-stat {
+    font-family: 'JetBrains Mono', monospace; color: var(--color-text-muted, #869ec3);
+  }
+  .funnel-card-stat b {
+    color: #fff; font-size: 12.5px;
+  }
+  :root[data-theme="light"] .funnel-card-stat b {
+    color: var(--color-primary-navy, #001844);
+  }
+  .funnel-card-pct {
+    font-size: 9.5px; font-weight: 700; color: #34d399;
+    background: rgba(16, 185, 129, 0.08); border-radius: 4px; padding: 1px 6px;
+    border: 1px solid rgba(16, 185, 129, 0.15);
+  }
+  :root[data-theme="light"] .funnel-card-pct {
+    color: #059669; background: rgba(5, 150, 105, 0.06); border-color: rgba(5, 150, 105, 0.12);
+  }
+
+  /* SVG Ribbon styles */
+  .funnel-svg {
+    width: 100%;
+    overflow: visible;
+  }
+  .funnel-slab-path {
+    transition: filter 0.25s ease, stroke-width 0.25s ease, stroke 0.25s ease, fill-opacity 0.25s ease;
+    cursor: pointer;
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));
+  }
+  .funnel-slab-path:hover, .funnel-slab-path.hovered {
+    filter: drop-shadow(0 0 10px var(--cor)) brightness(1.2);
+    stroke: #ffffff;
+    stroke-width: 1.5px;
+  }
+  .funnel-fold-path {
+    transition: filter 0.25s ease, opacity 0.25s ease;
+    filter: drop-shadow(0 2px 5px rgba(0,0,0,0.4));
+  }
+  .funnel-slab-text {
+    pointer-events: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 800;
+    fill: #ffffff;
+    text-anchor: middle;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    user-select: none;
+  }
+  .funnel-badge-rect {
+    fill: #0f1e35;
+    stroke: rgba(16, 185, 129, 0.3);
+    stroke-width: 1;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));
+  }
+  :root[data-theme="light"] .funnel-badge-rect {
+    fill: #ffffff;
+    stroke: rgba(5, 150, 105, 0.25);
+  }
+  .funnel-badge-text {
+    font-family: 'Poppins', system-ui, sans-serif;
+    font-size: 9.5px;
+    font-weight: 800;
+    fill: #34d399;
+    text-anchor: middle;
+    user-select: none;
+  }
+  :root[data-theme="light"] .funnel-badge-text {
+    fill: #059669;
+  }
 
   /* Glassmorphism overrides for standard components */
   .card, .proj, .tool-card {
@@ -400,31 +489,257 @@ function renderMetasDashboard(funil, cor){
 function renderVisualFunnel(funil, cor) {
   var n = funil.length;
   if (!n) return '';
-  // largura por POSIÇÃO (funil clássico): 100% no topo, afunilando até ~46% na base
-  function widthAt(i){ return n > 1 ? (100 - i * (54/(n-1))) : 100; }
-  var rows = [];
+  
+  function hexToRgb(hex) {
+    var c = hex.replace('#', '');
+    if (c.length === 3) c = c[0]+c[0]+c[1]+c[1]+c[2]+c[2];
+    var r = parseInt(c.substring(0, 2), 16);
+    var g = parseInt(c.substring(2, 4), 16);
+    var b = parseInt(c.substring(4, 6), 16);
+    return r + ',' + g + ',' + b;
+  }
+  
+  function interpolateColor(color1, color2, factor) {
+    if (arguments.length < 3) factor = 0.5;
+    var c1 = color1.replace('#', '');
+    var c2 = color2.replace('#', '');
+    if (c1.length === 3) c1 = c1[0]+c1[0]+c1[1]+c1[1]+c1[2]+c1[2];
+    if (c2.length === 3) c2 = c2[0]+c2[0]+c2[1]+c2[1]+c2[2]+c2[2];
+    
+    var r1 = parseInt(c1.substring(0, 2), 16);
+    var g1 = parseInt(c1.substring(2, 4), 16);
+    var b1 = parseInt(c1.substring(4, 6), 16);
+    
+    var r2 = parseInt(c2.substring(0, 2), 16);
+    var g2 = parseInt(c2.substring(2, 4), 16);
+    var b2 = parseInt(c2.substring(4, 6), 16);
+    
+    var r = Math.round(r1 + factor * (r2 - r1));
+    var g = Math.round(g1 + factor * (g2 - g1));
+    var b = Math.round(b1 + factor * (b2 - b1));
+    
+    var rHex = r.toString(16).padStart(2, '0');
+    var gHex = g.toString(16).padStart(2, '0');
+    var bHex = b.toString(16).padStart(2, '0');
+    
+    return '#' + rHex + gHex + bHex;
+  }
+  
+  function darkenColor(hex, percent) {
+    var c = hex.replace('#', '');
+    if (c.length === 3) c = c[0]+c[0]+c[1]+c[1]+c[2]+c[2];
+    var r = parseInt(c.substring(0, 2), 16);
+    var g = parseInt(c.substring(2, 4), 16);
+    var b = parseInt(c.substring(4, 6), 16);
+    
+    r = Math.max(0, Math.round(r * (1 - percent)));
+    g = Math.max(0, Math.round(g * (1 - percent)));
+    b = Math.max(0, Math.round(b * (1 - percent)));
+    
+    var rHex = r.toString(16).padStart(2, '0');
+    var gHex = g.toString(16).padStart(2, '0');
+    var bHex = b.toString(16).padStart(2, '0');
+    
+    return '#' + rHex + gHex + bHex;
+  }
+  
+  var rgb = hexToRgb(cor);
+  var cardsHtml = [];
+  
+  var startColor = '#1e40af'; // Navy Blue / Corporate Blue-800
+  var wStep = (360 - 120) / n;
+  
+  var defsHtml = [];
+  var shapesHtml = [];
+  
+  // 1. Build cards and compute SVG geometry
   for (var i = 0; i < n; i++) {
     var s = funil[i];
     var val = s.valor, meta = s.meta;
     var valTxt = val != null ? fmt(val) : '—';
-    var topW = widthAt(i), botW = widthAt(i < n-1 ? i+1 : i);
-    // insets do trapézio pra base bater na largura do próximo segmento (lados inclinados = funil)
-    var inset = topW > 0 ? Math.max(0, (topW - botW) / topW * 50) : 0;
-    if (i === n-1) inset = Math.min(inset, 6);
-    var clip = 'polygon(0 0, 100% 0, ' + (100-inset).toFixed(1) + '% 100%, ' + inset.toFixed(1) + '% 100%)';
-    // taxa de conversão vs etapa anterior (quando ambos têm valor)
+    var metaTxt = meta ? ' / ' + fmt(meta) : '';
+    
+    var pct = null;
+    if (val != null && meta) pct = Math.round(100 * val / meta);
+    var statusText = '';
+    if (pct != null) {
+      statusText = pct >= 100 ? '✅ Atingido' : '📈 ' + pct + '%';
+    }
+    
+    var obsTxt = s.obs || '';
+    if (!obsTxt) {
+      if (s.estagio.toLowerCase().includes('sequên')) obsTxt = 'Sequências de email outbound ativas para prospecção.';
+      else if (s.estagio.toLowerCase().includes('e-mail')) obsTxt = 'Total de emails disparados nas cadências do Apollo.';
+      else if (s.estagio.toLowerCase().includes('reuni')) obsTxt = 'Reuniões qualificadas agendadas e realizadas pelo SDR.';
+      else if (s.estagio.toLowerCase().includes('oportu')) obsTxt = 'Deals ativas no Zoho CRM originadas por SDR.';
+      else if (s.estagio.toLowerCase().includes('venda')) obsTxt = 'Vendas fechadas (ganhas) com origem no SDR.';
+      else obsTxt = 'Acompanhamento de conversão e metas desta etapa.';
+    }
+    
+    // Esquerda: Card
+    cardsHtml.push(
+      '<div class="funnel-card-item" data-index="' + i + '" style="--cor:' + cor + '; --cor-rgb:' + rgb + '">'
+      + '  <div class="funnel-card-header">' + esc(s.estagio) + '</div>'
+      + '  <div class="funnel-card-body" title="' + esc(obsTxt) + '">' + esc(obsTxt) + '</div>'
+      + '  <div class="funnel-card-footer">'
+      + '    <span class="funnel-card-stat"><b>' + valTxt + '</b>' + metaTxt + '</span>'
+      + (statusText ? '    <span class="funnel-card-pct">' + statusText + '</span>' : '')
+      + '  </div>'
+      + '</div>'
+    );
+    
+    // Direita: SVG geometry coordinates
+    var yTop = i * 100;
+    var yBot = i * 100 + 80;
+    var wTop = 360 - i * wStep;
+    var wBot = 360 - (i + 1) * wStep;
+    
+    var xTl = 200 - wTop / 2;
+    var xTr = 200 + wTop / 2;
+    var xBl = 200 - wBot / 2;
+    var xBr = 200 + wBot / 2;
+    
+    // Color calculations
+    var slabColorStart = interpolateColor(startColor, cor, i / n);
+    var slabColorEnd = interpolateColor(startColor, cor, (i + 1) / n);
+    
+    // 1a. Define gradient for Slab
+    defsHtml.push(
+      '<linearGradient id="slab-grad-' + i + '" x1="0%" y1="0%" x2="100%" y2="100%">'
+      + '  <stop offset="0%" stop-color="' + slabColorStart + '" />'
+      + '  <stop offset="100%" stop-color="' + slabColorEnd + '" />'
+      + '</linearGradient>'
+    );
+    
+    // 1b. If there is a fold to next stage, compute its points and gradient
+    if (i < n - 1) {
+      var yMid = i * 100 + 90;
+      var yFoldBot = (i + 1) * 100;
+      var transitionColor = slabColorEnd;
+      
+      // Define fold gradient
+      var foldGradId = 'fold-grad-' + i;
+      var stopColorStart = '';
+      var stopColorEnd = '';
+      
+      if (i % 2 === 0) {
+        // Right-side fold (even index)
+        var xEdge = xBr;
+        var xOuter = xEdge + 20;
+        var xInner = xEdge - 15;
+        var xInnerSlabTop = xEdge - 30;
+        var xInnerSlabBot = xEdge - 30;
+        
+        var foldPoints = xEdge + ',' + yBot + ' ' 
+                         + xOuter + ',' + yMid + ' ' 
+                         + xEdge + ',' + yFoldBot + ' ' 
+                         + xInnerSlabBot + ',' + yFoldBot + ' ' 
+                         + xInner + ',' + yMid + ' ' 
+                         + xInnerSlabTop + ',' + yBot;
+        
+        stopColorStart = darkenColor(transitionColor, 0.60);
+        stopColorEnd = transitionColor;
+        
+        defsHtml.push(
+          '<linearGradient id="' + foldGradId + '" x1="0%" y1="0%" x2="100%" y2="0%">'
+          + '  <stop offset="0%" stop-color="' + stopColorStart + '" />'
+          + '  <stop offset="100%" stop-color="' + stopColorEnd + '" />'
+          + '</linearGradient>'
+        );
+        
+        shapesHtml.push(
+          '<polygon class="funnel-fold-path" points="' + foldPoints + '" fill="url(#' + foldGradId + ')" />'
+        );
+      } else {
+        // Left-side fold (odd index)
+        var xEdge = xBl;
+        var xOuter = xEdge - 20;
+        var xInner = xEdge + 15;
+        var xInnerSlabTop = xEdge + 30;
+        var xInnerSlabBot = xEdge + 30;
+        
+        var foldPoints = xEdge + ',' + yBot + ' ' 
+                         + xOuter + ',' + yMid + ' ' 
+                         + xEdge + ',' + yFoldBot + ' ' 
+                         + xInnerSlabBot + ',' + yFoldBot + ' ' 
+                         + xInner + ',' + yMid + ' ' 
+                         + xInnerSlabTop + ',' + yBot;
+        
+        stopColorStart = transitionColor;
+        stopColorEnd = darkenColor(transitionColor, 0.60);
+        
+        defsHtml.push(
+          '<linearGradient id="' + foldGradId + '" x1="0%" y1="0%" x2="100%" y2="0%">'
+          + '  <stop offset="0%" stop-color="' + stopColorStart + '" />'
+          + '  <stop offset="100%" stop-color="' + stopColorEnd + '" />'
+          + '</linearGradient>'
+        );
+        
+        shapesHtml.push(
+          '<polygon class="funnel-fold-path" points="' + foldPoints + '" fill="url(#' + foldGradId + ')" />'
+        );
+      }
+    }
+  }
+  
+  // 2. Render front slabs (on top of folds) and texts
+  var slabsHtml = [];
+  var badgesHtml = [];
+  for (var i = 0; i < n; i++) {
+    var s = funil[i];
+    var val = s.valor;
+    var valTxt = val != null ? fmt(val) : '—';
+    
+    var yTop = i * 100;
+    var yBot = i * 100 + 80;
+    var wTop = 360 - i * wStep;
+    var wBot = 360 - (i + 1) * wStep;
+    
+    var xTl = 200 - wTop / 2;
+    var xTr = 200 + wTop / 2;
+    var xBl = 200 - wBot / 2;
+    var xBr = 200 + wBot / 2;
+    
+    var slabPoints = xTl + ',' + yTop + ' ' + xTr + ',' + yTop + ' ' + xBr + ',' + yBot + ' ' + xBl + ',' + yBot;
+    
+    slabsHtml.push(
+      '<polygon class="funnel-slab-path" data-index="' + i + '" points="' + slabPoints + '" fill="url(#slab-grad-' + i + ')" style="--cor:' + cor + '" />'
+      + '<text class="funnel-slab-text" x="200" y="' + (yTop + 48) + '">' + valTxt + '</text>'
+    );
+    
+    // Add conversion rate badge in the middle gap
     if (i > 0 && funil[i-1].valor && val) {
       var ratio = val / funil[i-1].valor;
-      rows.push('<div class="funnel-conv">▼ ' + (ratio*100).toFixed(ratio < 0.1 ? 1 : 0) + '% conv.</div>');
+      var ratioPct = (ratio * 100).toFixed(ratio < 0.1 ? 1 : 0);
+      var yMid = (i - 1) * 100 + 90;
+      
+      badgesHtml.push(
+        '<g class="funnel-badge-group">'
+        + '  <rect class="funnel-badge-rect" x="160" y="' + (yMid - 10) + '" width="80" height="20" rx="10" ry="10" />'
+        + '  <text class="funnel-badge-text" x="200" y="' + (yMid + 4) + '">▼ ' + ratioPct + '% conv.</text>'
+        + '</g>'
+      );
     }
-    rows.push('<div class="funnel-seg" style="width:' + topW.toFixed(1) + '%;-webkit-clip-path:' + clip + ';clip-path:' + clip + ';--cor:' + cor + '">'
-      + '<div class="funnel-seg-in">'
-        + '<span class="funnel-seg-name">' + esc(s.estagio) + '</span>'
-        + '<span class="funnel-seg-val">' + valTxt + (meta ? '<small> / ' + fmt(meta) + '</small>' : '') + '</span>'
-      + '</div>'
-      + '</div>');
   }
-  return '<div class="funnel">' + rows.join('') + '</div>';
+  
+  // Render SVG code
+  var svgHeight = 100 * n - 20;
+  var svgHtml = 
+    '<svg class="funnel-svg" viewBox="0 0 400 ' + svgHeight + '" style="height:' + svgHeight + 'px;">'
+    + '  <defs>'
+    + defsHtml.join('')
+    + '  </defs>'
+    + '  <g class="funnel-ribbon-group">'
+    + shapesHtml.join('') // Folds in back
+    + slabsHtml.join('')  // Slabs in front
+    + badgesHtml.join('') // Badges floating on top
+    + '  </g>'
+    + '</svg>';
+    
+  return '<div class="funnel-container-layout">'
+    + '  <div class="funnel-cards-col">' + cardsHtml.join('') + '</div>'
+    + '  <div class="funnel-geom-col">' + svgHtml + '</div>'
+    + '</div>';
 }
 
 function renderSpark(pts, cor){
@@ -691,6 +1006,34 @@ async function init(){
     + '</div>'
     + '<div class="sec-t">🤝 Atividade do agente · <code style="font-size:11px;color:#93c5fd;background:rgba(96,165,250,.1);padding:2px 8px;border-radius:5px">'+agSlug+'</code></div><div id="ag-activity"><p class="pend">Carregando…</p></div>'
     + '<div class="sec-t">🚀 Workflows · disparar no Cowork</div><div id="wf-list"><p class="pend">Carregando…</p></div>';
+
+  // Wire up hover sync between cards and SVG slabs
+  if (a.id === 'pipeline') {
+    document.querySelectorAll('.funnel-card-item').forEach(function(card) {
+      card.addEventListener('mouseenter', function() {
+        var idx = this.getAttribute('data-index');
+        var slab = document.querySelector('.funnel-slab-path[data-index="' + idx + '"]');
+        if (slab) slab.classList.add('hovered');
+      });
+      card.addEventListener('mouseleave', function() {
+        var idx = this.getAttribute('data-index');
+        var slab = document.querySelector('.funnel-slab-path[data-index="' + idx + '"]');
+        if (slab) slab.classList.remove('hovered');
+      });
+    });
+    document.querySelectorAll('.funnel-slab-path').forEach(function(slab) {
+      slab.addEventListener('mouseenter', function() {
+        var idx = this.getAttribute('data-index');
+        var card = document.querySelector('.funnel-card-item[data-index="' + idx + '"]');
+        if (card) card.classList.add('hovered');
+      });
+      slab.addEventListener('mouseleave', function() {
+        var idx = this.getAttribute('data-index');
+        var card = document.querySelector('.funnel-card-item[data-index="' + idx + '"]');
+        if (card) card.classList.remove('hovered');
+      });
+    });
+  }
 
   // carrega async
   renderAtividadeAgente(agSlug).then(function(html){ document.getElementById('ag-activity').innerHTML = html; });
