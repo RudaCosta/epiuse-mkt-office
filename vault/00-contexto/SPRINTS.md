@@ -49,7 +49,19 @@
 - Smoke test 10 rotas restantes · remover botão Sync RD · Shadow DOM nav/footer
 - Cron diário Cases OneDrive → Railway
 
+### S21 · Competitor Move Tracker
+- Dashboard de monitoramento de competidores (vibe intel-report, dark mode)
+- Barra de alertas no topo "This Week's 3 Biggest Moves"
+- Grid responsiva de 2 colunas com cards colapsáveis e bolinha de atividade (R/A/G)
+- Indicadores: último blog post, atividade LinkedIn 7d, vagas postadas 14d (🚨), sinais de expansão, e insight de 1 linha "O que isso significa para mim" gerado via LLM (askClaude) usando o contexto de `empresa.md`.
+
+### S24 · SEO Pulse Dashboard
+- Backend: rotina diária conectada ao GSC (Search Analytics API) e GA4, calculando cliques, impressões, CTR e posição média (28d vs 28d anteriores) + sessões por canal e conversões por landing page.
+- IA: prompt `askClaude` gerando insight acionável "What to do next" baseado nas variações detectadas.
+- Frontend: painel `/seo-pulse` responsivo em dark mode seguindo tokens, com Chart.js para o donut de tráfego, Movers & Shakers para páginas com variação $\ge 3$ posições nos últimos 7 dias.
+
 ---
+
 
 ## 📚 Fontes da verdade (ler nesta ordem)
 1. `CLAUDE.md` (raiz) — regras de ouro + identidade

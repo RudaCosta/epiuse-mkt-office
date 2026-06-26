@@ -42,6 +42,8 @@
 | S20 | Events Cockpit (deadlines + checklist + alertas, sem API) | ⏳ |
 | S21 | Voices performance (form rápido + rollup por voicer + cases→pauta) | ⏳ |
 | S22 | Search Console / SEO (reusa Service Account do S17) | ⏳ |
+| S23 | Competitor Move Tracker (weekly intel report, LinkedIn, blogs, hiring signals, askClaude insights) | ⏳ |
+| S24 | SEO Pulse (snapshot diário GSC/GA4 + 4 KPIs + Movers & Shakers + Chart.js Donut + askClaude "What to do next" insight) | ⏳ |
 
 ### 🔑 Verdade dura LinkedIn (sem ilusão)
 - Seguidores da **página** = já temos (manter xls Sergio).
