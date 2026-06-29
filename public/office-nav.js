@@ -218,13 +218,15 @@ class OfficeNav extends HTMLElement {
   async loadSSO() {
     try {
       const d = await fetch('/api/auth/status').then(r => r.json());
+      this._ssoEnabled = !!(d && d.enabled);
+      this._authed = !!(d && d.authenticated);
       if (d && d.authenticated && d.user) {
         this._sso = { name: d.user.name || '', email: d.user.email || d.user.preferred_username || '' };
         this._role = d.role || d.user.role || null;
         try { if (this._sso.name) localStorage.setItem('office.user', this._sso.name); } catch {}
-        this.render();
-        this.hookEvents();
       }
+      // Re-renderiza quando o SSO está ligado: mostra "Entrar" (deslogado) ou nome real (logado).
+      if (this._ssoEnabled) { this.render(); this.hookEvents(); }
     } catch {}
   }
 
@@ -502,6 +504,24 @@ class OfficeNav extends HTMLElement {
           font-size: 10px;
           margin-left: 4px;
         }
+        .login-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 12px;
+          font-weight: 700;
+          color: #ffffff;
+          text-decoration: none;
+          background: linear-gradient(180deg, rgba(37,99,235,0.95) 0%, rgba(37,99,235,0.8) 100%);
+          border: 1px solid rgba(96,165,250,0.85);
+          padding: 6px 14px;
+          border-radius: 8px;
+          white-space: nowrap;
+          box-shadow: 0 0 0 1px rgba(96,165,250,0.35), 0 2px 10px rgba(37,99,235,0.4);
+          transition: filter .15s, transform .05s;
+        }
+        .login-btn:hover { filter: brightness(1.1); }
+        .login-btn:active { transform: translateY(1px); }
         .user-chip {
           font-size: 12px;
           font-weight: 600;
@@ -825,6 +845,8 @@ class OfficeNav extends HTMLElement {
           .tabs { display: none; }
           .hamburger { display: inline-block; }
           .user-chip .user-name { display: none; }
+          .login-btn .login-label { display: none; }
+          .login-btn { padding: 6px 10px; }
           .ctrl-btn .kbd { display: none; }
           .bell-panel, .user-menu { width: 92vw; right: -8px; }
         }
@@ -879,6 +901,9 @@ class OfficeNav extends HTMLElement {
               <button class="td-item ${theme === 'liquid-glass' ? 'active' : ''}" data-theme-val="liquid-glass" type="button"><span class="ic">💧</span> Liquid Glass</button>
             </div>
           </div>
+          ${(this._ssoEnabled && !this._authed)
+            ? `<a class="login-btn" href="/auth/login?returnTo=${encodeURIComponent(location.pathname + location.search)}" title="Entrar com a conta Microsoft EPI-USE">🔐 <span class="login-label">Entrar</span></a>`
+            : ''}
           <div class="user-wrap">
             <button class="user-chip" id="user-btn" type="button">👤 <span class="user-name">${user}</span></button>
             <div class="user-menu" id="user-menu" role="menu">
