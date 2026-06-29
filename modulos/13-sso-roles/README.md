@@ -35,7 +35,26 @@
 - `public/admin-usuarios.html` — tela de gestão de usuários/roles.
 - `public/js/home.js` · `public/api/personas.json` · `public/office-nav.js` (link admin só pro head).
 
+## Seed do time (server.js)
+Semeado no boot via `INSERT OR IGNORE` (idempotente — não sobrescreve ajustes do admin). Emails inferidos do padrão `nome.sobrenome@epiuse.com.br`:
+
+| email | role |
+|---|---|
+| ruda.costa@epiuse.com.br | head |
+| bruna.yamagami@epiuse.com.br | intelligence |
+| guilherme.marques@epiuse.com.br | growth |
+| isabela.carvalho@epiuse.com.br | field |
+| marlison.estrela@epiuse.com.br | pipeline |
+| eduarda.hirose@epiuse.com.br | brand |
+
+**Fora da seed (cadastrar no `/admin/usuarios`):** Roberto (sobrenome desconhecido → `country-manager`), Lisiane de Assis (parceira externa, talvez sem email @epiuse → `conteudo`), **Alexandre Ormigo** (papel desconhecido).
+
+> Se algum email inferido estiver errado, a pessoa só cai em `hub` até o Rudá corrigir no admin — nada trava.
+
+## Login visível
+O botão **🔐 Entrar** aparece em destaque na barra do nav (`office-nav.js`) quando `/api/auth/status` retorna `enabled:true` e a pessoa não está logada. Quando o SSO está desligado (`enabled:false`, sem `AZURE_*`), nada muda — comportamento "Visitante", sem botão (evita um login que daria 503).
+
 ## Pendências humanas (Rudá / IT)
 - Configurar redirect URIs + `Grant admin consent` no Azure (App registration) — ver `vault/00-contexto/pendencias.md` B1.
-- Setar `AZURE_*`, `SESSION_SECRET`, `SSO_ALLOWED_DOMAINS`, `SSO_ENFORCE=true` nas env vars do Railway.
-- Cadastrar emails reais do time + **email/role do Alexandre Ormigo** via `/admin/usuarios` (no código só o Rudá é seedado).
+- Setar `AZURE_*`, `SESSION_SECRET`, `SSO_ALLOWED_DOMAINS`, `SSO_ENFORCE=true` nas env vars do Railway. **Sem isso o login fica escondido em prod (por design).**
+- Confirmar/cadastrar emails reais + **Alexandre Ormigo** via `/admin/usuarios`.

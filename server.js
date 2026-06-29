@@ -254,11 +254,21 @@ db.exec(`
   );
   CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
 `);
-// Seed do unico email confirmado (Ruda = head). Os demais o proprio Ruda
-// cadastra via /admin/usuarios quando os emails reais forem conhecidos.
+// Seed do time. Padrao de email inferido do confirmado (ruda.costa@epiuse.com.br):
+// nome.sobrenome@epiuse.com.br. INSERT OR IGNORE = idempotente e NAO sobrescreve
+// ajustes feitos no /admin/usuarios. Roberto (sobrenome desconhecido), Lisiane
+// (parceira externa) e Alexandre Ormigo (papel desconhecido) ficam pro admin UI.
 try {
-  db.prepare(`INSERT OR IGNORE INTO users (email, name, role) VALUES (?, ?, ?)`)
-    .run('ruda.costa@epiuse.com.br', 'Rudá Costa', 'head');
+  const _seedUsers = [
+    ['ruda.costa@epiuse.com.br',        'Rudá Costa',         'head'],
+    ['bruna.yamagami@epiuse.com.br',    'Bruna Yamagami',     'intelligence'],
+    ['guilherme.marques@epiuse.com.br', 'Guilherme Marques',  'growth'],
+    ['isabela.carvalho@epiuse.com.br',  'Isabela Carvalho',   'field'],
+    ['marlison.estrela@epiuse.com.br',  'Marlison Estrela',   'pipeline'],
+    ['eduarda.hirose@epiuse.com.br',    'Eduarda Hirose',     'brand'],
+  ];
+  const _seedStmt = db.prepare(`INSERT OR IGNORE INTO users (email, name, role) VALUES (?, ?, ?)`);
+  for (const [_em, _nm, _rl] of _seedUsers) _seedStmt.run(_em, _nm, _rl);
 } catch (e) { console.warn('[users] seed falhou:', e.message); }
 
 // app_blobs: KV de blobs JSON persistidos no volume (sobrevive a deploy).

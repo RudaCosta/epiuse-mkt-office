@@ -1,5 +1,5 @@
 {
-  "current": "0.57.0",
+  "current": "0.57.1",
   "atualizado_em": "29/jun/2026",
   "next": [
     {
@@ -54,9 +54,23 @@
   ],
   "releases": [
     {
-      "version": "0.57.0",
+      "version": "0.57.1",
       "date": "29/jun/2026",
       "status": "current",
+      "path": null,
+      "title": "🔐 Botão de login visível + seed do time (roles)",
+      "summary": "Botão \"Entrar com Microsoft\" agora aparece em destaque na barra do nav quando o SSO está ligado e a pessoa não logou (antes só dentro do menu do usuário). Seed inicial do time na tabela users (Rudá head + 5 donas de área).",
+      "highlights": [
+        "Botão 🔐 Entrar proeminente no nav (some no mobile vira só o cadeado)",
+        "Só aparece quando /api/auth/status enabled=true e não autenticado",
+        "Seed: bruna(intelligence), gui(growth), isabela(field), marlison(pipeline), duda(brand)",
+        "Roberto/Lisiane/Alexandre ficam pro /admin/usuarios (dados pendentes)"
+      ]
+    },
+    {
+      "version": "0.57.0",
+      "date": "29/jun/2026",
+      "status": "past",
       "path": null,
       "title": "🔐 SSO + Roles por Perfil + Marketing Hub central",
       "summary": "Login Microsoft com visão por perfil (role). Time/núcleo cai na visão própria; quem não é do núcleo cai no Marketing Hub como tela central. Tabela users/roles no SQLite + tela admin /admin/usuarios. Enforcement de login nas páginas (APIs seguem com guard próprio por token).",
