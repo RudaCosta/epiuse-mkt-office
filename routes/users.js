@@ -1,0 +1,143 @@
+// ════════════════════════════════════════════════════════════════════════════
+// routes/users.js — Users & Roles (SSO Microsoft)
+// Fonte de verdade do perfil/role de cada pessoa. Resolve role -> persona +
+// landing, faz upsert no login (auth.js) e expõe CRUD admin em /api/admin/users.
+// ════════════════════════════════════════════════════════════════════════════
+const express = require('express');
+const router = express.Router();
+const path = require('path');
+const { db, requireEditorToken } = require('../server-context');
+
+// role -> { persona (home), landing }. persona casa com os ids de personas.json.
+// Quem não está cadastrado entra como 'hub' e cai no Marketing Hub central.
+const ROLE_CONFIG = {
+  'head':            { persona: 'ruda',      landing: '/',     admin: true },
+  'intelligence':    { persona: 'bruna',     landing: '/' },
+  'growth':          { persona: 'gui',       landing: '/' },
+  'field':           { persona: 'isabela',   landing: '/' },
+  'pipeline':        { persona: 'marlison',  landing: '/' },
+  'brand':           { persona: 'duda',      landing: '/' },
+  'conteudo':        { persona: 'conteudo',  landing: '/' },
+  'country-manager': { persona: 'roberto',   landing: '/' },
+  'hub':             { persona: 'visitante', landing: '/hub' },
+};
+const ROLES = Object.keys(ROLE_CONFIG);
+const DEFAULT_ROLE = 'hub';
+
+function resolveRoleConfig(role) {
+  return ROLE_CONFIG[role] || ROLE_CONFIG[DEFAULT_ROLE];
+}
+
+function getUserByEmail(email) {
+  if (!email) return null;
+  try {
+    return db.prepare('SELECT * FROM users WHERE email = ?').get(String(email).toLowerCase());
+  } catch (e) { console.warn('[users] getUserByEmail:', e.message); return null; }
+}
+
+// Cria (role 'hub') se novo; atualiza nome/oid se já existe. Não rebaixa role.
+function upsertUser({ email, name, oid }) {
+  if (!email) return null;
+  const em = String(email).toLowerCase();
+  try {
+    const existing = getUserByEmail(em);
+    if (existing) {
+      db.prepare(`UPDATE users SET name = COALESCE(NULLIF(?,''), name),
+                  azure_oid = COALESCE(NULLIF(?,''), azure_oid),
+                  updated_at = datetime('now') WHERE email = ?`)
+        .run(name || '', oid || '', em);
+    } else {
+      db.prepare(`INSERT INTO users (email, name, azure_oid, role) VALUES (?, ?, ?, ?)`)
+        .run(em, name || '', oid || '', DEFAULT_ROLE);
+    }
+    return getUserByEmail(em);
+  } catch (e) { console.warn('[users] upsertUser:', e.message); return null; }
+}
+
+// Resolve {role, persona, landing, admin} de um registro de usuário.
+function profileFor(user) {
+  const role = (user && user.active !== 0 && user.role) || DEFAULT_ROLE;
+  const cfg = resolveRoleConfig(role);
+  const persona = (user && user.persona) || cfg.persona;
+  return { role, persona, landing: cfg.landing, admin: !!cfg.admin };
+}
+
+// Middleware: exige que a sessão tenha um dos roles informados.
+function requireRole(...roles) {
+  return (req, res, next) => {
+    const role = req.session && req.session.user && req.session.user.role;
+    if (role && roles.includes(role)) return next();
+    if (req.path.startsWith('/api/')) return res.status(403).json({ error: 'forbidden', need: roles });
+    return res.status(403).send('Acesso restrito.');
+  };
+}
+
+// Admin guard: passa se for 'head' na sessão OU se trouxer editor token válido.
+function requireAdmin(req, res, next) {
+  const role = req.session && req.session.user && req.session.user.role;
+  if (role === 'head') return next();
+  return requireEditorToken(req, res, next);
+}
+
+// ── Página admin ──────────────────────────────────────────────────────────────
+router.get('/admin/usuarios', requireAdmin, (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/admin-usuarios.html'));
+});
+
+// ── API CRUD ────────────────────────────────────────────────────────────────
+router.get('/api/admin/users', requireAdmin, (req, res) => {
+  try {
+    const rows = db.prepare('SELECT * FROM users ORDER BY role, email').all();
+    res.json({ roles: ROLES, role_config: ROLE_CONFIG, users: rows });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Cria ou atualiza (upsert) um usuário pelo email.
+router.post('/api/admin/users', requireAdmin, express.json(), (req, res) => {
+  try {
+    const b = req.body || {};
+    const email = String(b.email || '').trim().toLowerCase();
+    if (!email || !email.includes('@')) return res.status(400).json({ error: 'email_invalido' });
+    const role = ROLES.includes(b.role) ? b.role : DEFAULT_ROLE;
+    const name = (b.name || '').trim();
+    const persona = (b.persona || '').trim();
+    const active = b.active === false || b.active === 0 ? 0 : 1;
+    const exists = getUserByEmail(email);
+    if (exists) {
+      db.prepare(`UPDATE users SET name=?, role=?, persona=?, active=?, updated_at=datetime('now') WHERE email=?`)
+        .run(name || exists.name, role, persona, active, email);
+    } else {
+      db.prepare(`INSERT INTO users (email, name, role, persona, active) VALUES (?,?,?,?,?)`)
+        .run(email, name, role, persona, active);
+    }
+    res.json({ success: true, user: getUserByEmail(email) });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Atualiza campos de um usuário existente.
+router.put('/api/admin/users/:email', requireAdmin, express.json(), (req, res) => {
+  try {
+    const email = String(req.params.email || '').trim().toLowerCase();
+    const u = getUserByEmail(email);
+    if (!u) return res.status(404).json({ error: 'nao_encontrado' });
+    const b = req.body || {};
+    const role = ROLES.includes(b.role) ? b.role : u.role;
+    const name = b.name !== undefined ? String(b.name).trim() : u.name;
+    const persona = b.persona !== undefined ? String(b.persona).trim() : u.persona;
+    const active = b.active !== undefined ? (b.active ? 1 : 0) : u.active;
+    db.prepare(`UPDATE users SET name=?, role=?, persona=?, active=?, updated_at=datetime('now') WHERE email=?`)
+      .run(name, role, persona, active, email);
+    res.json({ success: true, user: getUserByEmail(email) });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+module.exports = router;
+// helpers reusados por routes/auth.js e server.js
+module.exports.ROLE_CONFIG = ROLE_CONFIG;
+module.exports.ROLES = ROLES;
+module.exports.resolveRoleConfig = resolveRoleConfig;
+module.exports.getUserByEmail = getUserByEmail;
+module.exports.upsertUser = upsertUser;
+module.exports.profileFor = profileFor;
+module.exports.requireRole = requireRole;
+module.exports.requireAdmin = requireAdmin;

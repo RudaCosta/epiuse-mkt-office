@@ -237,6 +237,30 @@ for (const _col of ['carrossel_json', 'capa_url']) {
   try { db.exec(`ALTER TABLE content_pipeline ADD COLUMN ${_col} TEXT DEFAULT ''`); } catch (_e) { /* ja existe */ }
 }
 
+// ── USERS & ROLES (SSO Microsoft) ─────────────────────────────────────────────
+// Fonte de verdade do perfil/role de cada pessoa que loga via SSO.
+// role -> persona (home) + landing. Quem nao esta cadastrado entra como 'hub'
+// (cai no Marketing Hub central). Gerenciavel via /admin/usuarios.
+db.exec(`
+  CREATE TABLE IF NOT EXISTS users (
+    email      TEXT PRIMARY KEY,
+    name       TEXT DEFAULT '',
+    azure_oid  TEXT DEFAULT '',
+    role       TEXT DEFAULT 'hub',   -- head|intelligence|growth|field|pipeline|brand|conteudo|country-manager|hub
+    persona    TEXT DEFAULT '',      -- override opcional; se vazio resolve do role
+    active     INTEGER DEFAULT 1,
+    created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
+`);
+// Seed do unico email confirmado (Ruda = head). Os demais o proprio Ruda
+// cadastra via /admin/usuarios quando os emails reais forem conhecidos.
+try {
+  db.prepare(`INSERT OR IGNORE INTO users (email, name, role) VALUES (?, ?, ?)`)
+    .run('ruda.costa@epiuse.com.br', 'Rudá Costa', 'head');
+} catch (e) { console.warn('[users] seed falhou:', e.message); }
+
 // app_blobs: KV de blobs JSON persistidos no volume (sobrevive a deploy).
 // Usado pelo events.json editado ao vivo (POST /api/events.json) p/ o prod
 // refletir sem precisar de novo deploy. (Opcao B)
@@ -522,6 +546,25 @@ if (SSO_ENABLED) {
 } else {
   console.log('[sso] Microsoft SSO inativo (faltam credenciais ou modulo)');
 }
+
+// ── ENFORCEMENT GLOBAL (SSO_ENFORCE) ──────────────────────────────────────────
+// Exige login nas PÁGINAS (navegação humana) quando SSO_ENFORCE=true E o SSO
+// estiver configurado (env AZURE_*). requireAuth (server-context) já é seguro:
+// sem as credenciais ele deixa passar — então em prod o acesso só tranca depois
+// das env vars entrarem no Railway (migração segura). Assets estáticos já foram
+// servidos por express.static acima e não chegam aqui.
+//
+// Escopo: só páginas. As rotas /api/* NÃO passam por aqui — cada uma tem seu
+// próprio guard (requireAuth em cases/inbound, requireEditorToken nos syncs,
+// requireAdmin no admin). Isso preserva os fluxos server-to-server por
+// X-Editor-Token (ex: resync-railway-all) mesmo com enforcement ligado.
+// Allowlist abaixo evita loop no fluxo de login.
+const ENFORCE_PUBLIC = ['/auth/login', '/auth/callback', '/auth/logout', '/auth/rd-callback'];
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api/')) return next();
+  if (ENFORCE_PUBLIC.includes(req.path)) return next();
+  return requireAuth(req, res, next);
+});
 
 // ── RATE LIMITERS ─────────────────────────────────────────────────────────────
 // Optimizer é caro (Claude Vision tokens): 10 análises por hora por IP
@@ -1966,7 +2009,13 @@ app.get('/api/alerts', (req, res) => {
 // Agora qualquer edição em public/ aparece imediatamente nos 2 ambientes.)
 const OFFICE_HTML    = path.join(__dirname, 'public/office.html');
 const HOME_HTML      = path.join(__dirname, 'public/home.html');
-app.get('/',          (req, res) => res.sendFile(HOME_HTML));
+const HUB_HTML       = path.join(__dirname, 'public/hub.html');
+// Marketing Hub é a tela central de quem não é do núcleo (role 'hub').
+app.get('/', (req, res) => {
+  const u = req.session && req.session.user;
+  if (u && u.role === 'hub') return res.redirect('/hub');
+  res.sendFile(HOME_HTML);
+});
 app.get('/game',      (req, res) => res.sendFile(OFFICE_HTML));
 app.get('/memes',     (req, res) => res.sendFile(path.join(__dirname, 'public/memes.html')));
 app.get('/cockpit',   (req, res) => res.redirect(301, '/'));
@@ -2019,7 +2068,8 @@ function items_collect(arr, titulo, descricao, secao) {
 // Aposentados (v0.34.0): dashboard e hub foram substituídos pela home (/).
 // Redirect 301 pra não quebrar links antigos nem o returnTo do SSO.
 app.get('/dashboard', (req, res) => res.redirect(301, '/'));
-app.get('/hub',       (req, res) => res.redirect(301, '/'));
+// Marketing Hub — portal central pra quem não é do núcleo de marketing.
+app.get('/hub',       (req, res) => res.sendFile(HUB_HTML));
 // v0.5.0 — Novas rotas (Onda 2-6)
 app.get('/relatorio', (req, res) => res.sendFile(path.join(__dirname, 'public/relatorio.html')));
 app.get('/artigos',   (req, res) => res.sendFile(path.join(__dirname, 'public/artigos.html')));
@@ -4748,6 +4798,7 @@ const casesRouter = require('./routes/cases');
 const inboundRouter = require('./routes/inbound');
 const jarvisRouter = require('./routes/jarvis'); // Módulo 11 — JARVIS (copiloto SDR/BDR)
 const optimizerV3Router = require('./routes/optimizer-v3'); // Módulo 12 — Profile Optimizer v3 (Groq Vision + 21 LinkedIn skills)
+const usersRouter = require('./routes/users'); // Módulo 13 — Users & Roles (SSO + admin)
 
 app.use('/', sapRouter);
 app.use('/', authRouter);
@@ -4755,6 +4806,7 @@ app.use('/', casesRouter);
 app.use('/', inboundRouter);
 app.use('/', jarvisRouter);
 app.use('/', optimizerV3Router);
+app.use('/', usersRouter);
 
 app.listen(PORT, () => {
   console.log(`\n🎙️  EPI-USE Voices — Profile Optimizer`);

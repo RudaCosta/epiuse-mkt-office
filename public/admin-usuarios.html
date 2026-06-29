@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Usuários & Perfis · EPI-USE Office</title>
+<link rel="stylesheet" href="/design-tokens.css">
+<script src="/office-nav.js" defer></script>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{background:#060e1a;color:#e2e8f0;font-family:'Poppins',system-ui,sans-serif;font-size:14px;line-height:1.5;min-height:100vh}
+  .wrap{max-width:1080px;margin:0 auto;padding:28px 18px 80px}
+  h1{font-size:22px;font-weight:700;margin-bottom:4px}
+  .sub{color:#94a3b8;font-size:13px;margin-bottom:24px}
+  .panel{background:rgba(13,30,54,.6);border:1px solid rgba(37,99,235,.2);border-radius:12px;padding:18px;margin-bottom:20px}
+  .panel h2{font-size:14px;font-weight:600;margin-bottom:12px;color:#cbd5e1}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.06)}
+  th{color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+  tr:hover td{background:rgba(255,255,255,.02)}
+  .role-chip{display:inline-block;font-size:11px;font-weight:600;padding:2px 9px;border-radius:10px;background:rgba(96,165,250,.14);color:#93c5fd;border:1px solid rgba(96,165,250,.3)}
+  .role-chip.hub{background:rgba(148,163,184,.12);color:#cbd5e1;border-color:rgba(148,163,184,.3)}
+  .role-chip.head{background:rgba(205,21,67,.14);color:#fda4af;border-color:rgba(205,21,67,.35)}
+  .inactive{opacity:.45}
+  .btn{background:rgba(37,99,235,.18);border:1px solid rgba(96,165,250,.5);color:#dbeafe;font-size:12px;padding:6px 12px;border-radius:7px;cursor:pointer;font-family:inherit;font-weight:600}
+  .btn:hover{background:rgba(37,99,235,.3)}
+  .btn.ghost{background:transparent;border-color:rgba(148,163,184,.3);color:#94a3b8}
+  .grid-form{display:grid;grid-template-columns:1.6fr 1.3fr 1.2fr auto auto;gap:10px;align-items:end}
+  label{display:block;font-size:11px;color:#94a3b8;margin-bottom:4px;font-weight:600}
+  input,select{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.25);color:#e2e8f0;padding:8px 10px;border-radius:7px;font-family:inherit;font-size:13px}
+  input:focus,select:focus{outline:none;border-color:#60a5fa}
+  .msg{font-size:12px;margin-top:10px;min-height:16px}
+  .msg.ok{color:#34d399}.msg.err{color:#f87171}
+  .hint{font-size:12px;color:#64748b;margin-top:10px}
+  .hint code{background:rgba(255,255,255,.06);padding:1px 5px;border-radius:4px}
+  @media(max-width:720px){.grid-form{grid-template-columns:1fr}}
+</style>
+</head>
+<body data-route="admin-usuarios">
+<office-nav></office-nav>
+<div class="wrap">
+  <h1>👥 Usuários &amp; Perfis</h1>
+  <div class="sub">Quem loga via SSO Microsoft e qual visão (role) cada pessoa recebe. Quem não está aqui entra como <b>hub</b> e cai no Marketing Hub.</div>
+
+  <div class="panel">
+    <h2>➕ Adicionar / atualizar pessoa</h2>
+    <div class="grid-form">
+      <div><label>E-mail (@epiuse)</label><input id="f-email" type="email" placeholder="nome.sobrenome@epiuse.com.br"></div>
+      <div><label>Nome</label><input id="f-name" type="text" placeholder="Nome completo"></div>
+      <div><label>Role / Perfil</label><select id="f-role"></select></div>
+      <div><label>Ativo</label><select id="f-active"><option value="1">Sim</option><option value="0">Não</option></select></div>
+      <div><button class="btn" id="f-save">Salvar</button></div>
+    </div>
+    <div class="msg" id="form-msg"></div>
+  </div>
+
+  <div class="panel">
+    <h2>📋 Cadastrados</h2>
+    <table>
+      <thead><tr><th>E-mail</th><th>Nome</th><th>Role</th><th>Persona</th><th>Ativo</th><th></th></tr></thead>
+      <tbody id="rows"><tr><td colspan="6" style="color:#64748b">Carregando…</td></tr></tbody>
+    </table>
+    <div class="hint" id="hint"></div>
+  </div>
+</div>
+
+<script>
+// Token de editor (fallback quando não há sessão 'head' — ex: teste local sem SSO).
+// Passar via ?token=... uma vez; fica salvo em localStorage.
+(function(){
+  var u = new URL(location.href);
+  var t = u.searchParams.get('token');
+  if (t) { try { localStorage.setItem('office.editorToken', t); } catch(e){} }
+})();
+function authHeaders(extra){
+  var h = Object.assign({}, extra || {});
+  try { var t = localStorage.getItem('office.editorToken'); if (t) h['X-Editor-Token'] = t; } catch(e){}
+  return h;
+}
+var ROLE_CONFIG = {};
+function chip(role){
+  var cls = role === 'head' ? 'head' : (role === 'hub' ? 'hub' : '');
+  return '<span class="role-chip '+cls+'">'+role+'</span>';
+}
+async function load(){
+  try {
+    var r = await fetch('/api/admin/users', { headers: authHeaders() });
+    if (r.status === 403 || r.status === 401) {
+      document.getElementById('rows').innerHTML = '<tr><td colspan="6" style="color:#f87171">Sem permissão. Logue como Rudá (head) ou adicione <code>?token=SEU_EDITOR_TOKEN</code> na URL.</td></tr>';
+      return;
+    }
+    var d = await r.json();
+    ROLE_CONFIG = d.role_config || {};
+    // popula select de roles
+    var sel = document.getElementById('f-role');
+    sel.innerHTML = (d.roles || []).map(function(role){
+      var p = (ROLE_CONFIG[role] && ROLE_CONFIG[role].persona) || '';
+      return '<option value="'+role+'">'+role+(p?' → '+p:'')+'</option>';
+    }).join('');
+    renderRows(d.users || []);
+    document.getElementById('hint').innerHTML = 'Roles disponíveis: ' + (d.roles||[]).map(function(x){return '<code>'+x+'</code>';}).join(' ');
+  } catch(e){
+    document.getElementById('rows').innerHTML = '<tr><td colspan="6" style="color:#f87171">Erro: '+e.message+'</td></tr>';
+  }
+}
+function renderRows(users){
+  var tb = document.getElementById('rows');
+  if (!users.length){ tb.innerHTML = '<tr><td colspan="6" style="color:#64748b">Ninguém cadastrado ainda.</td></tr>'; return; }
+  tb.innerHTML = users.map(function(u){
+    var persona = u.persona || ((ROLE_CONFIG[u.role]||{}).persona) || '—';
+    return '<tr class="'+(u.active?'':'inactive')+'">'+
+      '<td>'+u.email+'</td>'+
+      '<td>'+(u.name||'—')+'</td>'+
+      '<td>'+chip(u.role)+'</td>'+
+      '<td>'+persona+'</td>'+
+      '<td>'+(u.active?'✅':'⏸️')+'</td>'+
+      '<td><button class="btn ghost" data-email="'+u.email+'" data-name="'+(u.name||'')+'" data-role="'+u.role+'" data-active="'+u.active+'">Editar</button></td>'+
+    '</tr>';
+  }).join('');
+  tb.querySelectorAll('button[data-email]').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.getElementById('f-email').value = b.dataset.email;
+      document.getElementById('f-name').value = b.dataset.name;
+      document.getElementById('f-role').value = b.dataset.role;
+      document.getElementById('f-active').value = b.dataset.active;
+      window.scrollTo({top:0,behavior:'smooth'});
+    });
+  });
+}
+document.getElementById('f-save').addEventListener('click', async function(){
+  var msg = document.getElementById('form-msg');
+  var body = {
+    email: document.getElementById('f-email').value.trim(),
+    name: document.getElementById('f-name').value.trim(),
+    role: document.getElementById('f-role').value,
+    active: document.getElementById('f-active').value === '1'
+  };
+  if (!body.email || body.email.indexOf('@') < 0){ msg.className='msg err'; msg.textContent='E-mail inválido.'; return; }
+  try {
+    var r = await fetch('/api/admin/users', { method:'POST', headers: authHeaders({'Content-Type':'application/json'}), body: JSON.stringify(body) });
+    var d = await r.json();
+    if (d.success){ msg.className='msg ok'; msg.textContent='Salvo: '+d.user.email+' → '+d.user.role; load(); }
+    else { msg.className='msg err'; msg.textContent='Erro: '+(d.error||'desconhecido'); }
+  } catch(e){ msg.className='msg err'; msg.textContent='Erro: '+e.message; }
+});
+load();
+</script>
+</body>
+</html>

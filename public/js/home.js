@@ -630,7 +630,7 @@
   // ── INIT ────────────────────────────────────────────────────────
   // ── HOME POR ROLE (S38 v0.36.0) ─────────────────────────────────
   // personas.json define ordem/visibilidade das seções + KPIs do "Meu foco".
-  // Persona vem de: localStorage override > SSO email > visitante.
+  // Persona vem de: localStorage override > role/persona do SSO (DB) > mapa email (fallback) > visitante.
   let PERSONAS = null;
 
   async function getPersonaId() {
@@ -638,6 +638,9 @@
     if (manual && PERSONAS?.personas?.[manual]) return manual;
     try {
       const st = await fetch('/api/auth/status').then(r => r.json());
+      // Fonte de verdade: persona resolvida do role no DB (routes/users.js).
+      if (st?.persona && PERSONAS?.personas?.[st.persona]) return st.persona;
+      // Fallback legado: mapa estático email -> persona em personas.json.
       const email = st?.user?.email?.toLowerCase();
       if (email && PERSONAS?.emails?.[email]) return PERSONAS.emails[email];
     } catch (e) {}
