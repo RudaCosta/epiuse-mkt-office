@@ -6,8 +6,14 @@
 
 ## 🔴 BLOQUEADO POR TERCEIROS — Rudá precisa acompanhar
 
-### B1. SSO Microsoft — ✅ CÓDIGO PRONTO (31/mai) · faltam passos humanos no Azure
+### B1. SSO Microsoft — ✅ CÓDIGO PRONTO (31/mai) + ROLES POR PERFIL & MARKETING HUB (29/jun) · faltam passos humanos no Azure
 
+- **🆕 29/jun — Roles por perfil + Marketing Hub central (Módulo 13):** implementado + verificado local.
+  - Tabela `users` no SQLite (role → persona + landing) + tela admin `/admin/usuarios` (Rudá gerencia quem é o quê). Seed só do Rudá (`head`).
+  - Login resolve role/persona e grava na sessão; `/api/auth/status` expõe `role` + `persona`; home personaliza pela persona do DB.
+  - **Marketing Hub** portado pra `/hub` (do portal estático v0.4.6, gate de senha removido → SSO). Quem é role `hub` (não-núcleo) cai nele como tela central; navegação livre.
+  - `SSO_ENFORCE=true` agora exige login nas páginas (APIs com guard próprio seguem por token). **Seguro:** só morde quando `AZURE_*` estiverem setadas — em prod fica aberto até isso.
+  - **🙋 Falta humano:** cadastrar emails reais do time + **email/role do Alexandre Ormigo** em `/admin/usuarios`. Doc: `modulos/13-sso-roles/`.
 - **Status:** as 3 credenciais chegaram (31/mai) e o SSO foi **implementado + verificado server-side** (Opção A) + **deployado em prod no v0.8.0**. Em prod está `enabled:false` (correto — faltam as env vars no Railway). Local: `enabled:true`. Falta só configurar o app no portal Azure + setar env vars no Railway + testar login real.
 - **Implementado (local, commit `9f3a2c1`, ainda não em prod):**
   - `@azure/msal-node` ConfidentialClient + `express-session` (store SQLite off-repo)

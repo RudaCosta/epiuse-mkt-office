@@ -1,6 +1,6 @@
 {
-  "current": "0.56.4",
-  "atualizado_em": "22/jun/2026",
+  "current": "0.57.0",
+  "atualizado_em": "29/jun/2026",
   "next": [
     {
       "version": "0.53.0",
@@ -54,9 +54,24 @@
   ],
   "releases": [
     {
+      "version": "0.57.0",
+      "date": "29/jun/2026",
+      "status": "current",
+      "path": null,
+      "title": "🔐 SSO + Roles por Perfil + Marketing Hub central",
+      "summary": "Login Microsoft com visão por perfil (role). Time/núcleo cai na visão própria; quem não é do núcleo cai no Marketing Hub como tela central. Tabela users/roles no SQLite + tela admin /admin/usuarios. Enforcement de login nas páginas (APIs seguem com guard próprio por token).",
+      "highlights": [
+        "Tabela users (role -> persona + landing) + seed do Rudá (head)",
+        "Marketing Hub portado pra /hub (gate de senha 1337 trocado por SSO)",
+        "/admin/usuarios — Rudá gerencia quem é o que (CRUD, sem delete: flag active)",
+        "/api/auth/status expõe role + persona; home personaliza pela persona do DB",
+        "SSO_ENFORCE=true exige login nas páginas — seguro: só morde com AZURE_* setadas"
+      ]
+    },
+    {
       "version": "0.56.4",
       "date": "22/jun/2026",
-      "status": "current",
+      "status": "past",
       "path": null,
       "title": "🦝 Rax Animado e Persistente durante Processamento",
       "summary": "Implementação do contêiner de visualização comum para o mascote Raccoon (Rax), garantindo que ele permaneça ativo, visível e animando em suas respectivas poses (vasculhando, escrevendo, revisando) abaixo do formulário de entrada durante todas as chamadas de API, com a barra de progresso exibida diretamente abaixo dele.",

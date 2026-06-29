@@ -11,11 +11,14 @@ const {
   IS_LOCAL_DEV,
   PORT
 } = require('../server-context');
+const { upsertUser, profileFor } = require('./users');
 
 // API status do SSO
 router.get('/api/auth/status', (req, res) => {
   const u = req.session && req.session.user;
-  res.json({ 
+  res.json({
+    role: u ? (u.role || 'hub') : null,
+    persona: u ? (u.persona || null) : null,
     enabled: SSO_ENABLED, 
     enforce: process.env.SSO_ENFORCE === 'true', 
     authenticated: !!u, 
@@ -57,14 +60,25 @@ router.get('/auth/callback', async (req, res) => {
     if (SSO_DOMAINS.length && !SSO_DOMAINS.includes(domain)) {
       return req.session.destroy(() => res.status(403).send('Acesso restrito a EPI-USE. O domínio "' + domain + '" não está autorizado.'));
     }
+    const name = acc.name || claims.name || email;
+    const oid = acc.homeAccountId || claims.oid || null;
+    // upsert no DB de users + resolve role/persona/landing
+    const dbUser = upsertUser({ email, name, oid });
+    const prof = profileFor(dbUser);
     req.session.user = {
       email,
-      name: acc.name || claims.name || email,
+      name,
       given: claims.given_name || '',
-      oid: acc.homeAccountId || claims.oid || null,
+      oid,
+      role: prof.role,
+      persona: prof.persona,
+      admin: prof.admin,
       loginAt: new Date().toISOString()
     };
-    const back = req.session.returnTo || '/';
+    // Marketing Hub é a tela central de quem não é do núcleo (role 'hub').
+    // Se o usuário não pediu uma rota específica, manda pro landing do role.
+    const explicit = req.session.returnTo && req.session.returnTo !== '/';
+    const back = explicit ? req.session.returnTo : prof.landing;
     delete req.session.returnTo;
     res.redirect(back);
   } catch(e){ 

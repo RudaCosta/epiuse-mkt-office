@@ -220,6 +220,7 @@ class OfficeNav extends HTMLElement {
       const d = await fetch('/api/auth/status').then(r => r.json());
       if (d && d.authenticated && d.user) {
         this._sso = { name: d.user.name || '', email: d.user.email || d.user.preferred_username || '' };
+        this._role = d.role || d.user.role || null;
         try { if (this._sso.name) localStorage.setItem('office.user', this._sso.name); } catch {}
         this.render();
         this.hookEvents();
@@ -335,6 +336,14 @@ class OfficeNav extends HTMLElement {
         </div>
       `).join('');
     };
+
+    // Admin de usuários/perfis — só aparece pro 'head' (Rudá) logado via SSO.
+    if (this._role === 'head') {
+      const grp = col1Items.find(g => g.section === '🤖 Escritório Virtual');
+      if (grp && !grp.links.some(l => l.href === '/admin/usuarios')) {
+        grp.links.push({ label: '👥 Usuários & Perfis', href: '/admin/usuarios' });
+      }
+    }
 
     const col1Html = renderColumn(col1Items);
     const col2Html = renderColumn(col2Items);
