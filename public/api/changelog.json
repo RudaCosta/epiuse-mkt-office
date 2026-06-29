@@ -1,5 +1,5 @@
 {
-  "current": "0.57.1",
+  "current": "0.57.4",
   "atualizado_em": "29/jun/2026",
   "next": [
     {
@@ -54,9 +54,26 @@
   ],
   "releases": [
     {
-      "version": "0.57.1",
+      "version": "0.57.4",
       "date": "29/jun/2026",
       "status": "current",
+      "path": null,
+      "title": "✍️ Stratview Generator + RD Station token fix",
+      "summary": "Gerador de artigos executivos Oracle HCM · OCI · AI integrado ao Office. Usa Gemini 2.5 Flash com Google Search grounding para ideias, geração B2B, refinamento por persona (CIO/CHRO), capa canvas branded, TTS e publicação WordPress. Aparece nas ferramentas de Brand (Duda) e entregas de Intelligence (Bruna). Também inclui correção do token RD Station (prioridade arquivo > env var).",
+      "highlights": [
+        "Nova rota GET /generator-stratview + 7 endpoints /api/artigos/*",
+        "Geração de ideias com Google Search grounding (Gemini 2.5 Flash)",
+        "Refinamento por persona CIO (OCI/infra) e CHRO (HCM/employee experience)",
+        "Capa branded canvas (navy gradient + rede) sem texto — WP sobrepõe título",
+        "TTS PCM16→WAV + histórico SQLite (stratview_articles)",
+        "Card na área Brand (Ferramentas) + entrega na área Intelligence",
+        "Fix RD Station: token do arquivo tem prioridade sobre variável de ambiente"
+      ]
+    },
+    {
+      "version": "0.57.1",
+      "date": "29/jun/2026",
+      "status": "past",
       "path": null,
       "title": "🔐 Botão de login visível + seed do time (roles)",
       "summary": "Botão \"Entrar com Microsoft\" agora aparece em destaque na barra do nav quando o SSO está ligado e a pessoa não logou (antes só dentro do menu do usuário). Seed inicial do time na tabela users (Rudá head + 5 donas de área).",

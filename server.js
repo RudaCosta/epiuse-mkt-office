@@ -309,6 +309,31 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_ideias_status ON ideias_mkt(status);
 `);
 
+// ── STRATVIEW ARTICLES HISTORY ────────────────────────────────────────────────
+db.exec(`
+  CREATE TABLE IF NOT EXISTS stratview_articles (
+    id           TEXT PRIMARY KEY,
+    title        TEXT NOT NULL,
+    description  TEXT DEFAULT '',
+    keywords     TEXT DEFAULT '[]',
+    content      TEXT DEFAULT '',
+    persona      TEXT DEFAULT 'Geral',
+    status       TEXT DEFAULT 'gerado',
+    generated_at TEXT DEFAULT (datetime('now')),
+    published_at TEXT
+  );
+`);
+
+// ── BRINDES (table only — routes and helpers are defined after app is created) ─
+db.exec(`
+  CREATE TABLE IF NOT EXISTS brindes_requests (
+    id         TEXT PRIMARY KEY,
+    data       TEXT NOT NULL,
+    created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now'))
+  );
+`);
+
 // Migração clientes_sap_4me: PK antiga era projeto_id (não-único → colapsava 705→500
 // pacotes). Agora pkg_id (id-pacote). Dado é espelho re-sincronizável → drop+recreate.
 (function migrateSap4me() {
@@ -602,6 +627,297 @@ const inboundGenLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { success: false, error: 'Limite de 20 gerações/hora atingido. Aguarde 1h.' }
+});
+
+// ── BRINDES — helpers e rotas ─────────────────────────────────────────────────
+function buildBrindesEmailHTML(rec) {
+  const safe = s => String(s||'—').replace(/[<>&"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+  const row = (label, val) => val ? `<tr><td style="padding:5px 0;color:#64748b;width:160px;font-size:13px;vertical-align:top">${label}</td><td style="padding:5px 0;font-size:13px"><b>${safe(val)}</b></td></tr>` : '';
+  const tierColor = rec.tier === 'Diamond' ? '#7c3aed' : rec.tier === 'Premium' ? '#2563eb' : '#059669';
+  return `<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;background:#f4f6f9;margin:0;padding:24px">
+  <table cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e2e8f0">
+    <tr><td style="background:linear-gradient(135deg,#001844,#003080);padding:28px 24px;color:#fff">
+      <div style="font-size:11px;opacity:.7;text-transform:uppercase;letter-spacing:.15em;margin-bottom:8px">EPI-USE · Gestão de Brindes</div>
+      <div style="font-size:22px;font-weight:700">🎁 Nova Solicitação: #${safe(rec.id)}</div>
+      <div style="margin-top:10px">
+        <span style="background:${tierColor};color:#fff;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:700">${safe(rec.tier)}</span>
+        ${rec.isUrgent ? '<span style="background:#dc2626;color:#fff;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:700;margin-left:6px">⚡ URGENTE</span>' : ''}
+      </div>
+    </td></tr>
+    <tr><td style="padding:24px">
+      <div style="font-size:11px;color:#94a3b8;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px;font-weight:700">Solicitante</div>
+      <table cellpadding="0" cellspacing="0" style="width:100%">
+        ${row('Nome', rec.nome)}${row('E-mail', rec.email)}${row('Setor', rec.setor)}${row('Gestor(a)', rec.gestorResponsavel)}
+      </table>
+      <div style="border-top:1px solid #e2e8f0;margin:18px 0"></div>
+      <div style="font-size:11px;color:#94a3b8;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px;font-weight:700">Pedido</div>
+      <table cellpadding="0" cellspacing="0" style="width:100%">
+        ${row('Cliente', rec.nomeCliente)}${row('Projeto', rec.codigoProjeto)}
+        ${row('Ocasião', rec.ocasiao + (rec.detalheOcasiao ? ' — ' + rec.detalheOcasiao : ''))}
+        ${row('Data evento', rec.dataEvento)}${row('Local entrega', rec.localEntrega)}
+        ${row('Quantidade', rec.qtd)}${row('Perfil público', rec.perfil)}
+        ${row('Relacionamento', rec.relacionamento)}${row('Verba', rec.verba)}
+        ${row('Restrições', (rec.restricoes||[]).join(', '))}
+      </table>
+      <div style="margin-top:18px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px">
+        <div style="font-size:11px;color:#94a3b8;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;font-weight:700">Sugestão IA</div>
+        <div style="font-size:14px;font-weight:600;color:#1e293b">${safe(rec.tier)} — ${safe(rec.itensSugeridos)}</div>
+      </div>
+    </td></tr>
+    <tr><td style="padding:14px 24px 22px;border-top:1px solid #e2e8f0;font-size:11px;color:#94a3b8">
+      Recebido em ${safe(rec.date)} · Protocolo #${safe(rec.id)} · <a href="http://localhost:3000/brindes" style="color:#001844">Ver no Office</a>
+    </td></tr>
+  </table></body></html>`;
+}
+
+async function sendBrindesEmail(rec) {
+  if (!resend) { console.log('[BRINDES-EMAIL-SKIPPED] sem RESEND_API_KEY'); return; }
+  try {
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: process.env.BRINDES_NOTIFY_EMAIL || 'marketing@epiuse.com.br',
+      subject: `🎁 Brindes #${rec.id} — ${rec.nomeCliente} · ${rec.tier}${rec.isUrgent ? ' ⚡ URGENTE' : ''}`,
+      html: buildBrindesEmailHTML(rec),
+      reply_to: rec.email
+    });
+    console.log(`[BRINDES-EMAIL-SENT] #${rec.id}`);
+  } catch (e) { console.error(`[BRINDES-EMAIL-FAIL] ${e.message}`); }
+}
+
+app.get('/brindes', (req, res) => res.sendFile(path.join(__dirname, 'public/brindes.html')));
+
+app.post('/api/brindes', (req, res) => {
+  try {
+    const rec = req.body;
+    if (!rec || !rec.id || !rec.nome || !rec.email) return res.status(400).json({ error: 'campos obrigatorios ausentes' });
+    db.prepare('INSERT OR REPLACE INTO brindes_requests (id, data, created_at) VALUES (?, ?, datetime("now"))').run(rec.id, JSON.stringify(rec));
+    sendBrindesEmail(rec);
+    res.json({ ok: true, id: rec.id });
+  } catch (e) { console.error('[BRINDES-POST]', e); res.status(500).json({ error: e.message }); }
+});
+
+app.get('/api/brindes', (req, res) => {
+  const auth = (req.headers.authorization || '');
+  if (!auth.includes('MKt123') && req.query.token !== 'MKt123') return res.status(401).json({ error: 'nao autorizado' });
+  try {
+    const rows = db.prepare('SELECT data FROM brindes_requests ORDER BY created_at DESC').all();
+    res.json(rows.map(r => { try { return JSON.parse(r.data); } catch { return null; } }).filter(Boolean));
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.patch('/api/brindes/:id', (req, res) => {
+  const auth = (req.headers.authorization || '');
+  if (!auth.includes('MKt123') && req.query.token !== 'MKt123') return res.status(401).json({ error: 'nao autorizado' });
+  try {
+    const row = db.prepare('SELECT data FROM brindes_requests WHERE id = ?').get(req.params.id);
+    if (!row) return res.status(404).json({ error: 'nao encontrado' });
+    const updated = { ...JSON.parse(row.data), ...req.body };
+    db.prepare('UPDATE brindes_requests SET data = ?, updated_at = datetime("now") WHERE id = ?').run(JSON.stringify(updated), req.params.id);
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── ARTIGOS GENERATOR — proxy Gemini API (chave nunca exposta no front) ───────
+app.get('/generator-stratview', (req, res) => res.sendFile(path.join(__dirname, 'public/artigos-generator.html')));
+
+async function geminiPost(model, body) {
+  const key = process.env.GEMINI_API_KEY;
+  if (!key) throw new Error('GEMINI_API_KEY não configurada. Adicione ao .env local.');
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
+  const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  if (!r.ok) { const err = await r.text(); throw new Error(`Gemini ${r.status}: ${err.slice(0, 300)}`); }
+  return r.json();
+}
+
+async function imagenPredict(model, body) {
+  const key = process.env.GEMINI_API_KEY;
+  if (!key) throw new Error('GEMINI_API_KEY não configurada.');
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:predict?key=${key}`;
+  const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  if (!r.ok) { const err = await r.text(); throw new Error(`Imagen ${r.status}: ${err.slice(0, 300)}`); }
+  return r.json();
+}
+
+app.post('/api/artigos/ideias', async (req, res) => {
+  try {
+    const prompt = `Você é o Diretor de Marketing de Conteúdo da Stratview (uma consultoria boutique líder em Oracle Cloud no Brasil, especializada em HCM, Inteligência Artificial e OCI).
+A Stratview se diferencia por seu modelo "Client Side Services (CSS)".
+
+Gere 4 ideias de artigos para o blog corporativo focados na "Tríade de Valor" da Stratview.
+
+DIRETRIZ ANTI-REPETIÇÃO: Seja extremamente criativo e diversificado! Não crie temas repetitivos. Traga ângulos diferentes: técnico, cultura, finanças/riscos.
+
+Distribuição obrigatória:
+- 1 artigo focado em Infraestrutura em Nuvem (OCI), Migração, Segurança ou Alta Disponibilidade técnica
+- 1 artigo focado em HCM e Inteligência Artificial (Agentic Apps)
+- 1 artigo sobre o serviço "Client Side Services (CSS)"
+- 1 artigo sobre Sinergia de C-Levels (CHRO e CIO) proporcionada pela tecnologia
+
+OBRIGATÓRIO: Use a ferramenta de busca do Google para cruzar com Google Trends sobre tendências reais e atuais do mercado.
+
+Retorne APENAS JSON válido neste formato:
+{"ideas":[{"id":"string_unica","title":"título","description":"resumo 1-2 frases","keywords":["5","palavras","chave","seo","aqui"],"score":9.5,"volume":"Alto","competition":"Média","trendsInfo":"insight trends max 20 palavras","imagePrompt":"prompt em inglês sem texto"}]}`;
+
+    // google_search é incompatível com responseMimeType:json — deixar a IA retornar JSON como texto
+    const result = await geminiPost('gemini-2.5-flash', {
+      contents: [{ parts: [{ text: prompt }] }],
+      tools: [{ google_search: {} }]
+    });
+    const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!text) throw new Error('Sem resposta da IA');
+    const clean = text.replace(/^```(?:json)?\n?|\n?```$/gm,'').trim();
+    const jsonMatch = clean.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('JSON não encontrado na resposta');
+    res.json(JSON.parse(jsonMatch[0]));
+  } catch (e) { console.error('[ARTIGOS-IDEIAS]', e.message); res.status(500).json({ error: e.message }); }
+});
+
+app.post('/api/artigos/gerar', async (req, res) => {
+  try {
+    const { idea } = req.body;
+    if (!idea || !idea.title) return res.status(400).json({ error: 'idea.title obrigatório' });
+
+    const systemPrompt = `Você é um Consultor Estratégico Sênior da Stratview focado na tríade: Oracle HCM, IA (Agentic Apps) e OCI.
+Defenda metodologias ágeis e parceiras (Client Side Services - CSS).`;
+
+    const userPrompt = `Escreva um artigo premium (~900 palavras) para o blog sobre: "${idea.title}".
+
+DIRETRIZ DE QUALIDADE E ESTILO (ANTI-REPETIÇÃO):
+- Seja criativo, dinâmico e agradável de ler. Pareça um ser humano experiente.
+- NÃO seja repetitivo. Evite usar os mesmos jargões em todos os parágrafos.
+- Traga exemplos práticos, analogias de mercado e varie o vocabulário.
+
+DIRETRIZES SEO/GEO (Google AI Optimization):
+1. Perspectiva Exclusiva: experiência em primeira mão. Fuja do senso comum. Traga a visão especialista da Stratview.
+2. HTML Semântico Claro: use <h1>, <h2> e <h3> claramente hierarquizados.
+3. Pessoas em 1º Lugar: escreva para líderes reais (C-Level). Fluência e utilidade.
+
+ESTRUTURA HTML OBRIGATÓRIA:
+1. Bloco de meta tags:
+<div class="seo-meta"><p><strong>Slug:</strong> [slug-url]</p><p><strong>Meta:</strong> [max 160 chars]</p><p><strong>Alt text:</strong> [descrição imagem]</p></div>
+
+2. Título em <h1>, introdução em <p class="lead">.
+3. Destaques em <blockquote>.
+4. FAQ ao final com EXATAMENTE 3 perguntas:
+<details class="faq-item"><summary>[PERGUNTA]</summary><div class="faq-answer">[RESPOSTA COM EXPERTISE]</div></details>
+
+Retorne APENAS HTML puro. Sem \`\`\`html.`;
+
+    const result = await geminiPost('gemini-2.5-flash', {
+      contents: [{ parts: [{ text: userPrompt }] }],
+      systemInstruction: { parts: [{ text: systemPrompt }] }
+    });
+    let html = result.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!html) throw new Error('A IA não retornou conteúdo.');
+    html = html.replace(/^```(?:html)?\n?|\n?```$/g,'').trim();
+    res.json({ html });
+  } catch (e) { console.error('[ARTIGOS-GERAR]', e.message); res.status(500).json({ error: e.message }); }
+});
+
+app.post('/api/artigos/imagem', async (req, res) => {
+  try {
+    const { prompt } = req.body;
+    if (!prompt) return res.status(400).json({ error: 'prompt obrigatório' });
+
+    const enhancedPrompt = `${prompt}
+
+STRICT REQUIREMENTS — follow exactly:
+- Setting: modern corporate office, data center, or enterprise technology environment ONLY
+- Style: photorealistic, professional business photography, high quality, 16:9 landscape
+- Color: predominantly blue, white, grey tones — corporate palette
+- NO nature, NO forests, NO mountains, NO trees, NO landscapes, NO outdoor scenes
+- NO text, NO logos, NO watermarks
+- YES: servers, screens, dashboards, executives, conference rooms, technology hardware`;
+
+    const imageModels = ['gemini-2.5-flash-image', 'gemini-3.1-flash-image', 'gemini-3-pro-image'];
+    for (const model of imageModels) {
+      try {
+        const result = await geminiPost(model, {
+          contents: [{ parts: [{ text: enhancedPrompt }] }],
+          generationConfig: { responseModalities: ['IMAGE', 'TEXT'] }
+        });
+        const base64 = result.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+        if (base64) return res.json({ base64, model });
+      } catch (e) { console.warn(`[ARTIGOS-IMAGEM] ${model} falhou:`, e.message.slice(0,80)); }
+    }
+
+    // Fallback: Imagen 4.0 via predict
+    try {
+      const result = await imagenPredict('imagen-4.0-fast-generate-001', { instances: [{ prompt }], parameters: { sampleCount: 1 } });
+      if (result.predictions?.[0]?.bytesBase64Encoded)
+        return res.json({ base64: result.predictions[0].bytesBase64Encoded, model: 'imagen-4.0-fast' });
+    } catch (e) { console.warn('[ARTIGOS-IMAGEM] Imagen falhou:', e.message.slice(0,80)); }
+
+    throw new Error('Todos os modelos de imagem indisponíveis');
+  } catch (e) { console.error('[ARTIGOS-IMAGEM]', e.message); res.status(500).json({ error: e.message }); }
+});
+
+app.post('/api/artigos/tts', async (req, res) => {
+  try {
+    const { text } = req.body;
+    if (!text) return res.status(400).json({ error: 'text obrigatório' });
+    const result = await geminiPost('gemini-2.5-flash-preview-tts', {
+      contents: [{ parts: [{ text }] }],
+      generationConfig: { responseModalities: ['AUDIO'], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Fenrir' } } } }
+    });
+    const audioBase64 = result.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+    if (!audioBase64) throw new Error('Áudio não retornado');
+    res.json({ audioBase64, sampleRate: 24000 });
+  } catch (e) { console.error('[ARTIGOS-TTS]', e.message); res.status(500).json({ error: e.message }); }
+});
+
+// POST /api/artigos/historico — salva artigo gerado
+app.post('/api/artigos/historico', (req, res) => {
+  try {
+    const { id, title, description, keywords, content, persona } = req.body;
+    if (!id || !title) return res.status(400).json({ error: 'id e title obrigatórios' });
+    db.prepare(`INSERT OR REPLACE INTO stratview_articles (id, title, description, keywords, content, persona, status, generated_at)
+      VALUES (?, ?, ?, ?, ?, ?, 'gerado', datetime('now'))`)
+      .run(id, title, description || '', JSON.stringify(keywords || []), content || '', persona || 'Geral');
+    res.json({ ok: true });
+  } catch (e) { console.error('[ARTIGOS-HIST-POST]', e.message); res.status(500).json({ error: e.message }); }
+});
+
+// PATCH /api/artigos/historico/:id — marca como publicado
+app.patch('/api/artigos/historico/:id', (req, res) => {
+  try {
+    const result = db.prepare(`UPDATE stratview_articles SET status = 'publicado', published_at = datetime('now') WHERE id = ?`)
+      .run(req.params.id);
+    if (result.changes === 0) return res.status(404).json({ error: 'não encontrado' });
+    res.json({ ok: true });
+  } catch (e) { console.error('[ARTIGOS-HIST-PATCH]', e.message); res.status(500).json({ error: e.message }); }
+});
+
+// GET /api/artigos/historico — lista histórico (últimos 50)
+app.get('/api/artigos/historico', (req, res) => {
+  try {
+    const rows = db.prepare(`SELECT id, title, description, keywords, content, persona, status, generated_at, published_at
+      FROM stratview_articles ORDER BY generated_at DESC LIMIT 50`).all();
+    res.json(rows.map(r => ({ ...r, keywords: JSON.parse(r.keywords || '[]') })));
+  } catch (e) { console.error('[ARTIGOS-HIST-GET]', e.message); res.status(500).json({ error: e.message }); }
+});
+
+app.post('/api/artigos/refinar', async (req, res) => {
+  try {
+    const { content, persona } = req.body;
+    if (!content || !persona) return res.status(400).json({ error: 'content e persona obrigatórios' });
+    const ctx = persona === 'CIO'
+      ? 'Foque agressivamente em infraestrutura (OCI), segurança, mitigação de riscos técnicos, latência, e transição de Opex vs Capex.'
+      : 'Foque agressivamente na jornada do colaborador, modernização do RH com HCM Redwood, retenção de talentos e eliminação de burocracia com IA.';
+    const prompt = `Reescreva o artigo para a perspectiva de um ${persona}.
+${ctx}
+
+QUALIDADE: Não seja repetitivo. Exemplos concretos SAP Brasil. Tom de consultor experiente.
+ESTRUTURA: Mantenha div.seo-meta, h1, h2, h3, blockquote e obrigatoriamente o FAQ com <details class="faq-item"> e <summary> no final.
+
+Artigo original:
+${content}`;
+    const result = await geminiPost('gemini-2.5-flash', { contents: [{ parts: [{ text: prompt }] }] });
+    let html = result.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!html) throw new Error('Sem resposta');
+    html = html.replace(/^```(?:html)?\n?|\n?```$/g,'').trim();
+    res.json({ html });
+  } catch (e) { console.error('[ARTIGOS-REFINAR]', e.message); res.status(500).json({ error: e.message }); }
 });
 
 // ── ROTAS DO OFFICE ENGINE ────────────────────────────────────────────────────

@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stratview Generator · Artigos Executivos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --sky: #0ea5e9; --sky-dark: #0284c7; --sky-light: #e0f2fe; --sky-50: #f0f9ff;
+      --slate-50: #f8fafc; --slate-100: #f1f5f9; --slate-200: #e2e8f0;
+      --slate-400: #94a3b8; --slate-500: #64748b; --slate-600: #475569;
+      --slate-700: #334155; --slate-800: #1e293b; --slate-900: #0f172a;
+      --green: #059669; --green-light: #d1fae5; --green-dark: #065f46;
+      --amber: #d97706; --amber-light: #fef3c7;
+      --red: #dc2626; --red-light: #fee2e2;
+      --white: #ffffff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--slate-50); color: var(--slate-900); min-height: 100vh; }
+    a { color: inherit; text-decoration: none; }
+
+    /* ── HEADER ── */
+    .header { background: linear-gradient(135deg, #0c1445 0%, #1a237e 50%, #0c1445 100%); padding: 28px 32px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .header-brand { display: flex; align-items: center; gap: 16px; }
+    .header-icon { background: rgba(14,165,233,0.15); border: 1px solid rgba(14,165,233,0.3); border-radius: 16px; padding: 12px; display: flex; }
+    .header-icon svg { width: 32px; height: 32px; color: #38bdf8; }
+    .header-title { font-size: 28px; font-weight: 900; color: #fff; letter-spacing: -0.5px; }
+    .header-sub { font-size: 13px; color: rgba(255,255,255,0.6); margin-top: 2px; }
+    .btn-settings { display: flex; align-items: center; gap: 8px; padding: 10px 18px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; color: rgba(255,255,255,0.85); font-size: 13px; font-weight: 600; cursor: pointer; transition: all .2s; }
+    .btn-settings:hover { background: rgba(255,255,255,0.18); }
+    .btn-settings svg { width: 16px; height: 16px; }
+
+    /* ── MAIN CONTAINER ── */
+    .container { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+
+    /* ── WP SETTINGS PANEL ── */
+    .wp-panel { background: var(--white); border: 2px solid var(--sky-light); border-radius: 20px; padding: 24px; margin-bottom: 32px; }
+    .wp-panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .wp-panel-title { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .wp-panel-title svg { width: 18px; height: 18px; color: var(--sky-dark); }
+    .btn-close-panel { background: none; border: none; color: var(--slate-400); cursor: pointer; padding: 4px; border-radius: 8px; display: flex; }
+    .btn-close-panel:hover { color: var(--slate-700); background: var(--slate-100); }
+    .btn-close-panel svg { width: 20px; height: 20px; }
+    .wp-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .wp-fields input { width: 100%; padding: 10px 14px; border: 1px solid var(--slate-200); border-radius: 10px; font-size: 14px; outline: none; font-family: 'Inter', sans-serif; transition: border-color .2s; }
+    .wp-fields input:focus { border-color: var(--sky); box-shadow: 0 0 0 3px rgba(14,165,233,0.1); }
+    .wp-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding-top: 16px; border-top: 1px solid var(--slate-100); }
+    .wp-keep { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--slate-700); cursor: pointer; }
+    .wp-keep input { width: 16px; height: 16px; accent-color: var(--sky-dark); cursor: pointer; }
+    .wp-test-msg { font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+    .wp-test-msg svg { width: 15px; height: 15px; }
+    .wp-test-msg.ok { color: var(--green); }
+    .wp-test-msg.fail { color: var(--red); }
+    .btn-wp-test { display: flex; align-items: center; gap: 8px; padding: 9px 18px; background: var(--sky-50); color: var(--sky-dark); border: 1px solid var(--sky-light); border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .2s; }
+    .btn-wp-test:hover { background: var(--sky-light); }
+    .btn-wp-test svg { width: 15px; height: 15px; }
+    .hidden { display: none !important; }
+
+    /* ── GENERATE IDEAS BUTTON ── */
+    .generate-wrap { display: flex; justify-content: center; margin-bottom: 40px; }
+    .btn-generate { display: flex; align-items: center; gap: 12px; padding: 18px 40px; background: linear-gradient(135deg, #0c1445, #1a237e); color: #fff; border: none; border-radius: 16px; font-size: 18px; font-weight: 800; cursor: pointer; transition: all .25s; box-shadow: 0 8px 32px rgba(12,20,69,0.25); letter-spacing: -0.3px; }
+    .btn-generate:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(12,20,69,0.35); }
+    .btn-generate:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .btn-generate svg { width: 22px; height: 22px; }
+    .spin { animation: spin .8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── ERROR ALERT ── */
+    .alert { display: flex; align-items: center; gap: 12px; padding: 16px 20px; border-radius: 14px; margin-bottom: 28px; font-size: 14px; font-weight: 500; max-width: 700px; margin-left: auto; margin-right: auto; }
+    .alert.amber { background: var(--amber-light); color: #92400e; border: 1px solid #fcd34d; }
+    .alert.red { background: var(--red-light); color: #991b1b; border: 1px solid #fca5a5; }
+    .alert svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+    /* ── IDEAS GRID ── */
+    .ideas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
+    .idea-card { background: var(--white); border: 1px solid var(--slate-200); border-radius: 20px; padding: 24px; display: flex; flex-direction: column; box-shadow: 0 1px 4px rgba(0,0,0,0.05); transition: box-shadow .2s, transform .2s; }
+    .idea-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.1); transform: translateY(-2px); }
+    .idea-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+    .idea-title { font-size: 17px; font-weight: 800; color: var(--slate-800); line-height: 1.35; }
+    .idea-score { background: #ecfdf5; color: #065f46; font-size: 13px; font-weight: 800; padding: 6px 12px; border-radius: 10px; border: 1px solid #a7f3d0; white-space: nowrap; flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.07); }
+    .idea-desc { font-size: 14px; color: var(--slate-600); line-height: 1.6; margin-bottom: 20px; flex-grow: 1; }
+    .idea-stats { background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: 14px; padding: 16px; margin-bottom: 20px; }
+    .stat-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; margin-bottom: 10px; }
+    .stat-row:last-child { margin-bottom: 0; }
+    .stat-label { color: var(--slate-500); display: flex; align-items: center; gap: 6px; }
+    .stat-label svg { width: 16px; height: 16px; }
+    .stat-value { font-weight: 800; color: var(--slate-700); background: var(--white); padding: 3px 10px; border-radius: 7px; border: 1px solid var(--slate-100); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+    .trends-box { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 10px; padding: 10px 12px; margin-top: 12px; }
+    .trends-label { font-size: 10px; color: #075985; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; display: block; margin-bottom: 4px; }
+    .trends-text { font-size: 12px; color: #0369a1; line-height: 1.5; display: flex; align-items: flex-start; gap: 6px; }
+    .trends-text svg { width: 13px; height: 13px; flex-shrink: 0; margin-top: 2px; }
+    .btn-gerar { width: 100%; padding: 13px; background: var(--slate-800); color: #fff; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background .2s; }
+    .btn-gerar:hover:not(:disabled) { background: var(--slate-900); }
+    .btn-gerar:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-gerar svg { width: 18px; height: 18px; }
+
+    /* ── ARTICLE MODAL ── */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.65); backdrop-filter: blur(4px); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 16px; }
+    .modal { background: var(--white); width: 100%; max-width: 960px; max-height: 92vh; border-radius: 28px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 32px 80px rgba(0,0,0,0.3); position: relative; }
+    .modal-header { padding: 20px 28px; border-bottom: 1px solid var(--slate-100); background: var(--slate-50); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+    .modal-header-info h2 { font-size: 18px; font-weight: 800; color: var(--slate-800); display: flex; align-items: center; gap: 10px; }
+    .persona-badge { background: #e0f2fe; color: #0369a1; font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 700; }
+    .modal-header-sub { font-size: 11px; color: var(--sky); text-transform: uppercase; letter-spacing: .12em; font-weight: 700; margin-top: 3px; }
+    .btn-modal-close { padding: 8px; background: none; border: none; color: var(--slate-400); cursor: pointer; border-radius: 10px; display: flex; transition: all .2s; }
+    .btn-modal-close:hover { background: var(--slate-200); color: var(--slate-700); }
+    .btn-modal-close svg { width: 22px; height: 22px; }
+
+    /* ── MODAL TOOLBAR ── */
+    .modal-toolbar { padding: 12px 28px; border-bottom: 1px solid var(--slate-100); background: var(--white); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; flex-shrink: 0; }
+    .btn-tts { display: flex; align-items: center; gap: 8px; padding: 9px 18px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all .2s; border: 1px solid var(--slate-200); background: var(--white); color: var(--slate-700); box-shadow: 0 1px 3px rgba(0,0,0,0.07); }
+    .btn-tts:hover:not(:disabled) { background: var(--slate-50); }
+    .btn-tts.playing { background: #e0f2fe; color: #075985; border-color: #bae6fd; }
+    .btn-tts:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-tts svg { width: 15px; height: 15px; }
+    .persona-switcher { display: flex; background: var(--slate-100); padding: 4px; border-radius: 12px; gap: 2px; }
+    .btn-persona { padding: 7px 16px; border-radius: 9px; font-size: 13px; font-weight: 700; cursor: pointer; border: none; background: none; color: var(--slate-500); display: flex; align-items: center; gap: 6px; transition: all .2s; }
+    .btn-persona.active { background: var(--white); color: var(--slate-800); box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+    .btn-persona:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-persona svg { width: 13px; height: 13px; }
+
+    /* ── MODAL BODY ── */
+    .modal-body { flex: 1; overflow-y: auto; padding: 40px 48px; }
+    @media (max-width: 640px) { .modal-body { padding: 24px 20px; } }
+
+    /* ── COVER IMAGE ── */
+    .cover-wrap { width: 100%; height: 320px; border-radius: 20px; overflow: hidden; background: var(--slate-100); margin-bottom: 40px; position: relative; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+    .cover-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform .7s ease; }
+    .cover-wrap img:hover { transform: scale(1.03); }
+    .cover-placeholder { display: flex; flex-direction: column; align-items: center; color: var(--slate-300); }
+    .cover-placeholder svg { width: 64px; height: 64px; opacity: 0.3; margin-bottom: 8px; }
+    .cover-placeholder span { font-size: 11px; text-transform: uppercase; letter-spacing: .12em; font-weight: 600; }
+    .cover-loading { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--slate-400); gap: 12px; }
+    .cover-loading svg { width: 32px; height: 32px; color: var(--sky); }
+    .cover-loading span { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; }
+    .cover-error { position: absolute; bottom: 12px; background: rgba(255,251,235,0.95); color: #92400e; font-size: 11px; padding: 6px 14px; border-radius: 8px; border: 1px solid #fcd34d; display: flex; align-items: center; gap: 6px; backdrop-filter: blur(4px); }
+    .cover-error svg { width: 14px; height: 14px; }
+
+    /* ── ARTICLE CONTENT STYLES ── */
+    .article-content .seo-meta { background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: 12px; padding: 14px 18px; margin-bottom: 32px; font-size: 12px; color: var(--slate-500); line-height: 1.8; }
+    .article-content .seo-meta strong { color: var(--slate-700); }
+    .article-content h1 { font-size: 2.25rem; font-weight: 900; color: var(--slate-900); line-height: 1.2; margin-bottom: 24px; letter-spacing: -0.5px; }
+    .article-content h2 { font-size: 1.5rem; font-weight: 800; color: var(--slate-800); margin-top: 48px; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--slate-100); letter-spacing: -0.3px; }
+    .article-content h3 { font-size: 1.2rem; font-weight: 700; color: var(--slate-800); margin-top: 32px; margin-bottom: 14px; }
+    .article-content p { color: var(--slate-600); line-height: 1.8; margin-bottom: 18px; font-size: 16px; }
+    .article-content p.lead { font-size: 1.15rem; color: var(--slate-500); line-height: 1.7; margin-bottom: 32px; }
+    .article-content blockquote { border-left: 4px solid var(--sky); background: var(--sky-50); padding: 20px 28px; border-radius: 0 16px 16px 0; margin: 32px 0; color: #075985; font-weight: 500; font-style: normal; line-height: 1.7; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
+    .article-content ul, .article-content ol { color: var(--slate-600); line-height: 1.8; padding-left: 24px; margin-bottom: 18px; }
+    .article-content li { margin-bottom: 6px; }
+    .article-content a { color: var(--sky-dark); font-weight: 600; }
+    .article-content strong { color: var(--slate-800); }
+    .article-content h2:first-of-type, .article-content h2:last-of-type { /* FAQ heading */ }
+
+    /* ── FAQ STYLES — funciona com ou sem class="faq-item" ── */
+    .article-content details,
+    .article-content .faq-item { background: var(--white) !important; border: 1px solid var(--slate-200) !important; border-radius: 12px !important; margin-bottom: 12px !important; box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important; overflow: hidden !important; cursor: pointer !important; width: 100% !important; box-sizing: border-box !important; }
+    .article-content details summary,
+    .article-content .faq-item summary { padding: 18px 20px !important; font-weight: 700 !important; color: var(--slate-800) !important; cursor: pointer !important; display: flex !important; justify-content: space-between !important; align-items: center !important; list-style: none !important; font-size: 15px !important; outline: none !important; }
+    .article-content details summary::-webkit-details-marker,
+    .article-content .faq-item summary::-webkit-details-marker { display: none !important; }
+    .article-content details summary::after,
+    .article-content .faq-item summary::after { content: '▼' !important; color: var(--sky) !important; font-size: 12px !important; flex-shrink: 0 !important; margin-left: 16px !important; transition: transform .2s !important; }
+    .article-content details[open] summary::after,
+    .article-content .faq-item[open] summary::after { transform: rotate(180deg) !important; }
+    .article-content details > div,
+    .article-content .faq-answer { padding: 16px 20px 18px !important; color: var(--slate-600) !important; line-height: 1.7 !important; font-size: 14px !important; border-top: 1px solid var(--slate-100) !important; font-weight: normal !important; }
+
+    /* ── REFINEMENT OVERLAY ── */
+    .refine-overlay { position: absolute; inset: 0; background: rgba(255,255,255,0.85); backdrop-filter: blur(4px); z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; border-radius: 28px; }
+    .refine-overlay svg { width: 48px; height: 48px; color: var(--sky); }
+    .refine-overlay h3 { font-size: 20px; font-weight: 800; color: var(--slate-800); }
+    .refine-overlay p { color: var(--slate-500); font-size: 14px; }
+
+    /* ── MODAL FOOTER ── */
+    .modal-footer { padding: 20px 28px; border-top: 1px solid var(--slate-100); background: var(--slate-50); display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; flex-shrink: 0; }
+    .keywords-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+    .kw-badge { font-size: 10px; background: var(--white); border: 1px solid var(--slate-200); padding: 4px 10px; border-radius: 6px; color: var(--slate-600); font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+    .footer-actions { display: flex; gap: 10px; }
+    .btn-copy { display: flex; align-items: center; gap: 8px; padding: 11px 22px; background: var(--white); border: 1px solid var(--slate-200); color: var(--slate-600); border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all .2s; box-shadow: 0 1px 3px rgba(0,0,0,0.07); }
+    .btn-copy:hover { background: var(--slate-50); }
+    .btn-copy svg { width: 16px; height: 16px; }
+    .btn-publish { display: flex; align-items: center; gap: 8px; padding: 11px 22px; background: linear-gradient(135deg, #0c1445, #1a237e); color: #fff; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all .2s; box-shadow: 0 4px 14px rgba(12,20,69,0.25); }
+    .btn-publish:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(12,20,69,0.35); }
+    .btn-publish.success { background: linear-gradient(135deg, #059669, #065f46); }
+    .btn-publish:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+    .btn-publish svg { width: 16px; height: 16px; }
+    .publish-error { font-size: 12px; color: var(--red); margin-top: 4px; width: 100%; text-align: right; }
+
+    /* ── ARTICLE GENERATION OVERLAY ── */
+    .gen-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.9); backdrop-filter: blur(8px); z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
+    .gen-spinner { position: relative; width: 80px; height: 80px; }
+    .gen-spinner-ring { width: 80px; height: 80px; border: 4px solid #e0f2fe; border-top-color: #0c1445; border-radius: 50%; animation: spin .9s linear infinite; }
+    .gen-spinner-icon { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+    .gen-spinner-icon svg { width: 28px; height: 28px; color: #0c1445; }
+    .gen-overlay h2 { font-size: 24px; font-weight: 900; color: var(--slate-800); }
+    .gen-overlay p { font-size: 14px; color: var(--slate-500); max-width: 360px; text-align: center; }
+
+    /* ── EMPTY STATE ── */
+    .ideas-grid .empty-state { grid-column: 1 / -1; }
+    .empty-state { text-align: center; padding: 60px 24px; color: var(--slate-400); width: 100%; }
+    .empty-state svg { width: 64px; height: 64px; opacity: 0.3; margin: 0 auto 16px; display: block; }
+    .empty-state p { font-size: 15px; font-weight: 500; }
+
+    /* ── HISTORY PANEL ── */
+    .history-section { margin-top: 56px; }
+    .history-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .history-title { font-size: 18px; font-weight: 800; color: var(--slate-800); display: flex; align-items: center; gap: 10px; }
+    .history-title svg { width: 20px; height: 20px; color: var(--sky-dark); }
+    .history-count { font-size: 12px; background: var(--sky-light); color: var(--sky-dark); padding: 3px 10px; border-radius: 20px; font-weight: 700; }
+    .history-empty { text-align: center; padding: 32px; color: var(--slate-400); font-size: 14px; background: var(--white); border-radius: 16px; border: 1px dashed var(--slate-200); }
+    .history-list { display: flex; flex-direction: column; gap: 10px; }
+    .history-item { background: var(--white); border: 1px solid var(--slate-200); border-radius: 14px; padding: 16px 20px; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; transition: box-shadow .15s, border-color .15s; cursor: pointer; }
+    .history-item:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.1); border-color: var(--sky); }
+    .history-item-info { flex: 1; min-width: 0; }
+    .history-item-title { font-size: 14px; font-weight: 700; color: var(--slate-800); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
+    .history-item-meta { font-size: 12px; color: var(--slate-400); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .history-item-meta svg { width: 12px; height: 12px; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .tag-gerado { background: #eff6ff; color: #1d4ed8; }
+    .tag-publicado { background: var(--green-light); color: var(--green-dark); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      .header { padding: 20px 16px; }
+      .header-title { font-size: 22px; }
+      .container { padding: 20px 16px; }
+      .modal-toolbar { padding: 12px 16px; }
+      .modal-footer { padding: 16px; }
+      .footer-actions { width: 100%; }
+      .btn-copy, .btn-publish { flex: 1; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-brand">
+    <div class="header-icon">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
+    </div>
+    <div>
+      <div class="header-title">Stratview Generator</div>
+      <div class="header-sub">Artigos para C-Level · Oracle HCM · OCI · Agentic AI</div>
+    </div>
+  </div>
+  <button class="btn-settings" onclick="toggleWpPanel()">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3" stroke-width="2"/></svg>
+    Configurações WP
+  </button>
+</header>
+
+<div class="container">
+
+  <!-- WP SETTINGS PANEL -->
+  <div class="wp-panel hidden" id="wp-panel">
+    <div class="wp-panel-header">
+      <div class="wp-panel-title">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"/></svg>
+        Integração WordPress
+      </div>
+      <button class="btn-close-panel" onclick="toggleWpPanel()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="wp-fields">
+      <input type="text" id="wp-url" placeholder="URL do Site (ex: https://www.stratview.com.br)" />
+      <input type="text" id="wp-user" placeholder="Usuário WordPress" />
+      <input type="password" id="wp-pass" placeholder="Senha de Aplicativo" />
+    </div>
+    <div class="wp-footer">
+      <label class="wp-keep">
+        <input type="checkbox" id="wp-keep" checked />
+        Manter conectado (salva credenciais)
+      </label>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span class="wp-test-msg hidden" id="wp-test-msg"></span>
+        <button class="btn-wp-test" onclick="testWpConnection()" id="btn-wp-test">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064"/></svg>
+          Testar Conexão
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GENERATE BUTTON -->
+  <div class="generate-wrap">
+    <button class="btn-generate" id="btn-generate" onclick="generateIdeas()">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      <span id="btn-generate-label">Gerar Ideias com Google Trends</span>
+    </button>
+  </div>
+
+  <!-- ERROR ALERT -->
+  <div class="alert amber hidden" id="alert-box">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+    <span id="alert-msg"></span>
+  </div>
+
+  <!-- IDEAS GRID -->
+  <div class="ideas-grid" id="ideas-grid">
+    <div class="empty-state" id="empty-state">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+      <p>Clique em "Gerar Ideias" para começar</p>
+    </div>
+  </div>
+
+  <!-- HISTORY SECTION -->
+  <div class="history-section" id="history-section">
+    <div class="history-header">
+      <div class="history-title">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Histórico de Geração
+        <span class="history-count" id="history-count">0</span>
+      </div>
+    </div>
+    <div id="history-list" class="history-list">
+      <div class="history-empty">Nenhum artigo gerado ainda nesta sessão.</div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<!-- ARTICLE GENERATION OVERLAY -->
+<div class="gen-overlay hidden" id="gen-overlay">
+  <div class="gen-spinner">
+    <div class="gen-spinner-ring"></div>
+    <div class="gen-spinner-icon">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
+    </div>
+  </div>
+  <h2>Orquestrando Conteúdo Executivo</h2>
+  <p>Aplicando expertise em OCI, Agentic Apps e Client Side Services…</p>
+</div>
+
+<!-- ARTICLE MODAL -->
+<div class="modal-overlay hidden" id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal" id="modal">
+
+    <!-- Refinement overlay -->
+    <div class="refine-overlay hidden" id="refine-overlay">
+      <svg class="spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+      <h3>Refinando Persona…</h3>
+      <p id="refine-persona-label">Ajustando conteúdo</p>
+    </div>
+
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <div class="modal-header-info">
+        <h2>Preview Consultivo <span class="persona-badge hidden" id="persona-badge"></span></h2>
+        <div class="modal-header-sub">Stratview Consulting · Confidencial</div>
+      </div>
+      <button class="btn-modal-close" onclick="closeModal()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <!-- Modal Toolbar -->
+    <div class="modal-toolbar">
+      <button class="btn-tts" id="btn-tts" onclick="toggleTTS()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" id="tts-play-icon"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" id="tts-stop-icon" class="hidden"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/></svg>
+        <svg class="spin hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" id="tts-loading-icon"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:15px;height:15px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+        <span id="tts-label">Ouvir Resumo Executivo</span>
+      </button>
+
+      <div class="persona-switcher">
+        <button class="btn-persona" id="btn-cio" onclick="refinePersona('CIO')">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/></svg>
+          Foco CIO
+        </button>
+        <button class="btn-persona" id="btn-chro" onclick="refinePersona('CHRO')">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          Foco CHRO
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal Body -->
+    <div class="modal-body">
+      <!-- Cover image -->
+      <div class="cover-wrap" id="cover-wrap">
+        <div class="cover-loading hidden" id="cover-loading">
+          <svg class="spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          <span>Sintetizando capa…</span>
+        </div>
+        <div class="cover-placeholder" id="cover-placeholder">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          <span>Ativo Visual Stratview</span>
+        </div>
+        <img id="cover-img" class="hidden" src="" alt="Capa Stratview" />
+        <div class="cover-error hidden" id="cover-error">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+          <span id="cover-error-msg"></span>
+        </div>
+      </div>
+
+      <!-- Article content -->
+      <div class="article-content" id="article-content"></div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="modal-footer">
+      <div class="keywords-wrap" id="keywords-wrap"></div>
+      <div>
+        <div class="footer-actions">
+          <button class="btn-copy" onclick="copyHTML()" id="btn-copy">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            <span id="copy-label">Copiar HTML</span>
+          </button>
+          <button class="btn-publish" onclick="publishToWordPress()" id="btn-publish">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" id="publish-icon"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"/></svg>
+            <span id="publish-label">Publicar no Blog</span>
+          </button>
+        </div>
+        <div class="publish-error hidden" id="publish-error"></div>
+      </div>
+    </div>
+  </div><!-- /modal -->
+</div><!-- /modal-overlay -->
+
+<script>
+// ── STATE ────────────────────────────────────────────────────────────────────
+const state = {
+  ideas: [],
+  generatingIdeas: false,
+  article: null,
+  generatingArticle: false,
+  generatingImage: false,
+  image: null,
+  ttsLoading: false,
+  audio: null,
+  playing: false,
+  refining: false,
+  persona: 'Geral',
+  wpConfig: { url: '', username: '', appPassword: '' },
+  keepConnected: true,
+  publishing: false,
+  publishSuccess: false,
+  publishError: null,
+};
+
+// ── FALLBACK IDEAS (quando API falha) ─────────────────────────────────────────
+const FALLBACK_IDEAS = [
+  {
+    id: "hcm_ai_agents", title: "Agentic Apps no Oracle HCM: Deixando a Rotina no Passado",
+    description: "Como a integração nativa de Agentes de IA da Oracle no HCM está eliminando tarefas administrativas do RH.",
+    keywords: ["Oracle HCM Cloud","Agentic Applications","IA no RH","Automação de RH","Stratview Brasil"],
+    score: 9.6, volume: "Explosivo", competition: "Média",
+    trendsInfo: "Pesquisas por IA no RH cresceram após o Oracle CloudWorld.",
+    imagePrompt: "A high-end futuristic corporate office showing a seamless interaction between a human HR executive and an advanced AI holographic interface, photorealistic, 8k, no text."
+  },
+  {
+    id: "css_vs_traditional", title: "Client Side Services (CSS): O Antídoto contra Implantações Engessadas",
+    description: "Por que o modelo tradicional de implantação falha na era da IA, e como o modelo CSS da Stratview reduz riscos.",
+    keywords: ["Client Side Services","Implementação Oracle","Stratview CSS","Mitigação de Riscos IT","Consultoria Ágil"],
+    score: 8.9, volume: "Alto", competition: "Baixa (Conceito Exclusivo)",
+    trendsInfo: "Alta demanda C-Level por redução de Opex e previsibilidade em projetos complexos.",
+    imagePrompt: "Two professionals working harmoniously on a transparent glowing digital blueprint of an enterprise architecture, bright modern workspace, photorealistic, no text."
+  },
+  {
+    id: "oci_migration", title: "Migração para OCI: Mais que Infraestrutura, uma Virada Estratégica",
+    description: "Como empresas brasileiras estão reduzindo custos e ganhando resiliência ao migrar cargas críticas para a Oracle Cloud Infrastructure.",
+    keywords: ["Oracle Cloud Infrastructure","OCI migration","cloud Brasil","TCO Oracle","Stratview OCI"],
+    score: 9.1, volume: "Alto", competition: "Média",
+    trendsInfo: "Demanda por OCI no Brasil cresceu após parcerias Oracle com data centers locais.",
+    imagePrompt: "A sleek modern data center with glowing blue server racks transitioning to cloud icons, corporate professional photography, 8k, no text."
+  },
+  {
+    id: "chro_cio_synergy", title: "CHRO e CIO na Mesma Mesa: A Aliança que Transforma Empresas",
+    description: "Quando RH e TI convergem em torno do Oracle HCM e OCI, surgem resultados que nenhuma das áreas conseguiria sozinha.",
+    keywords: ["CHRO e CIO sinergia","Oracle HCM OCI","gestão estratégica","liderança digital","Stratview C-Level"],
+    score: 8.7, volume: "Médio", competition: "Baixa",
+    trendsInfo: "Pesquisas por 'digital HR strategy' cresceram com a popularização de CHROai.",
+    imagePrompt: "Two executive leaders, a CHRO and CIO, shaking hands in front of a glowing enterprise software dashboard, modern boardroom, photorealistic, no text."
+  }
+];
+
+// ── HELPERS ──────────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+
+async function apiFetch(endpoint, body) {
+  const r = await fetch(endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  const data = await r.json();
+  if (!r.ok) throw new Error(data.error || `Erro ${r.status}`);
+  return data;
+}
+
+function pcmBase64ToWavUrl(base64, sampleRate = 24000) {
+  const bin = atob(base64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  const buf = bytes.buffer;
+  const wav = new ArrayBuffer(44 + buf.byteLength);
+  const view = new DataView(wav);
+  const ws = (v, o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+  ws(view, 0, 'RIFF'); view.setUint32(4, 36 + buf.byteLength, true); ws(view, 8, 'WAVE');
+  ws(view, 12, 'fmt '); view.setUint32(16, 16, true); view.setUint16(20, 1, true);
+  view.setUint16(22, 1, true); view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * 2, true); view.setUint16(32, 2, true);
+  view.setUint16(34, 16, true); ws(view, 36, 'data'); view.setUint32(40, buf.byteLength, true);
+  new Uint8Array(wav, 44).set(new Uint8Array(buf));
+  return URL.createObjectURL(new Blob([wav], { type: 'audio/wav' }));
+}
+
+// ── WP CONFIG ─────────────────────────────────────────────────────────────────
+function loadWpConfig() {
+  try {
+    const saved = localStorage.getItem('stratview_wp_config');
+    const keep = localStorage.getItem('stratview_wp_keep');
+    state.keepConnected = keep !== 'false';
+    $('wp-keep').checked = state.keepConnected;
+    if (state.keepConnected && saved) {
+      state.wpConfig = JSON.parse(saved);
+      $('wp-url').value = state.wpConfig.url || '';
+      $('wp-user').value = state.wpConfig.username || '';
+      $('wp-pass').value = state.wpConfig.appPassword || '';
+    }
+  } catch (e) {}
+}
+
+function saveWpConfig() {
+  state.wpConfig = {
+    url: $('wp-url').value.trim(),
+    username: $('wp-user').value.trim(),
+    appPassword: $('wp-pass').value.trim()
+  };
+  state.keepConnected = $('wp-keep').checked;
+  try {
+    localStorage.setItem('stratview_wp_keep', state.keepConnected ? 'true' : 'false');
+    if (state.keepConnected) localStorage.setItem('stratview_wp_config', JSON.stringify(state.wpConfig));
+    else localStorage.removeItem('stratview_wp_config');
+  } catch (e) {}
+}
+
+function toggleWpPanel() {
+  const panel = $('wp-panel');
+  panel.classList.toggle('hidden');
+  if (!panel.classList.contains('hidden')) loadWpConfig();
+}
+
+async function testWpConnection() {
+  saveWpConfig();
+  const btn = $('btn-wp-test');
+  const msg = $('wp-test-msg');
+  if (!state.wpConfig.username || !state.wpConfig.appPassword || !state.wpConfig.url) {
+    msg.textContent = 'Preencha todos os campos.';
+    msg.className = 'wp-test-msg fail';
+    msg.classList.remove('hidden');
+    return;
+  }
+  btn.disabled = true;
+  btn.querySelector('span') && (btn.querySelector('span').textContent = 'Testando…');
+  try {
+    const auth = btoa(`${state.wpConfig.username}:${state.wpConfig.appPassword}`);
+    const r = await fetch(`${state.wpConfig.url}/wp-json/wp/v2/users/me`, { headers: { 'Authorization': `Basic ${auth}` } });
+    if (r.ok) {
+      const data = await r.json();
+      msg.innerHTML = `✓ Conectado como: ${data.name || data.slug}`;
+      msg.className = 'wp-test-msg ok';
+    } else throw new Error('Credenciais inválidas.');
+  } catch (e) {
+    msg.textContent = '✗ Falha. Verifique os dados.';
+    msg.className = 'wp-test-msg fail';
+  }
+  msg.classList.remove('hidden');
+  btn.disabled = false;
+}
+
+// ── GENERATE IDEAS ────────────────────────────────────────────────────────────
+async function generateIdeas() {
+  if (state.generatingIdeas) return;
+  state.generatingIdeas = true;
+  state.ideas = [];
+
+  const btn = $('btn-generate');
+  const label = $('btn-generate-label');
+  btn.disabled = true;
+  label.innerHTML = '<svg class="spin" style="width:20px;height:20px;display:inline;vertical-align:middle;margin-right:8px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Buscando tendências…';
+  $('alert-box').classList.add('hidden');
+  $('ideas-grid').innerHTML = '';
+
+  try {
+    const data = await apiFetch('/api/artigos/ideias', {});
+    state.ideas = data.ideas || [];
+    if (!state.ideas.length) throw new Error('Nenhuma ideia retornada.');
+  } catch (e) {
+    console.error('[IDEAS]', e.message);
+    $('alert-msg').textContent = 'Instabilidade temporária na API. Exibindo sugestões em cache.';
+    $('alert-box').classList.remove('hidden');
+    state.ideas = FALLBACK_IDEAS;
+  }
+
+  renderIdeas();
+  btn.disabled = false;
+  label.textContent = 'Gerar Novas Ideias';
+  state.generatingIdeas = false;
+}
+
+function renderIdeas() {
+  const grid = $('ideas-grid');
+  grid.innerHTML = '';
+  state.ideas.forEach(idea => {
+    const card = document.createElement('div');
+    card.className = 'idea-card';
+    card.innerHTML = `
+      <div class="idea-card-top">
+        <div class="idea-title">${esc(idea.title)}</div>
+        <div class="idea-score">Nota ${idea.score}/10</div>
+      </div>
+      <div class="idea-desc">${esc(idea.description)}</div>
+      <div class="idea-stats">
+        <div class="stat-row">
+          <span class="stat-label"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>Volumetria:</span>
+          <span class="stat-value">${esc(idea.volume)}</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Concorrência:</span>
+          <span class="stat-value">${esc(idea.competition)}</span>
+        </div>
+        <div class="trends-box">
+          <span class="trends-label">Cruzamento Google Trends</span>
+          <div class="trends-text">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            ${esc(idea.trendsInfo)}
+          </div>
+        </div>
+      </div>
+      <button class="btn-gerar" onclick="generateArticle(${state.ideas.indexOf(idea)})" id="btn-gerar-${idea.id}">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        Gerar Artigo Executivo
+      </button>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── GENERATE ARTICLE ──────────────────────────────────────────────────────────
+async function generateArticle(idx) {
+  const idea = state.ideas[idx];
+  if (!idea || state.generatingArticle) return;
+
+  state.generatingArticle = true;
+  state.article = null;
+  state.image = null;
+  state.persona = 'Geral';
+  state.playing = false;
+  if (state.audio) { state.audio.pause(); state.audio = null; }
+
+  $('gen-overlay').classList.remove('hidden');
+
+  try {
+    const data = await apiFetch('/api/artigos/gerar', { idea });
+    state.article = { ...idea, content: data.html };
+  } catch (e) {
+    alert('Erro ao gerar artigo: ' + e.message);
+    $('gen-overlay').classList.add('hidden');
+    state.generatingArticle = false;
+    return;
+  }
+
+  $('gen-overlay').classList.add('hidden');
+  state.generatingArticle = false;
+  openModal();
+  saveToHistory(state.article);
+
+  // Prompt de imagem contextual ao artigo (corporate tech, sem florestas)
+  const imgPrompt = `Professional corporate technology illustration for an article about "${idea.title}". `
+    + `Oracle Cloud enterprise software, modern data center, executive leadership, `
+    + `blue and white color scheme, photorealistic, high quality, no text, no nature.`;
+  generateImage(imgPrompt);
+}
+
+// ── GENERATE IMAGE ────────────────────────────────────────────────────────────
+async function generateImage(prompt) {
+  state.generatingImage = true;
+  $('cover-placeholder').classList.add('hidden');
+  $('cover-img').classList.add('hidden');
+  $('cover-loading').classList.remove('hidden');
+  $('cover-error').classList.add('hidden');
+
+  // Tenta API de geração (requer Google Cloud pago)
+  let usedGeneration = false;
+  try {
+    const data = await apiFetch('/api/artigos/imagem', { prompt });
+    if (data.base64) {
+      const img = $('cover-img');
+      img.src = `data:image/png;base64,${data.base64}`;
+      img.onload = () => {
+        $('cover-loading').classList.add('hidden');
+        img.classList.remove('hidden');
+      };
+      state.image = data.base64;
+      usedGeneration = true;
+    }
+  } catch (e) { /* fallback abaixo */ }
+
+  // Fallback: capa gerada localmente com Canvas (sem APIs externas)
+  if (!usedGeneration) {
+    const dataUrl = generateBrandedCover(state.article?.title || '', state.article?.keywords || []);
+    const img = $('cover-img');
+    img.src = dataUrl;
+    $('cover-loading').classList.add('hidden');
+    img.classList.remove('hidden');
+    state.image = dataUrl.split(',')[1]; // base64 para publicar no WP
+  }
+  state.generatingImage = false;
+}
+
+function generateBrandedCover(title, keywords) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 1200;
+  canvas.height = 400;
+  const ctx = canvas.getContext('2d');
+
+  // Fundo gradiente navy — varia levemente por artigo para diferenciar capas
+  const hue = (title.split('').reduce((a, c) => a + c.charCodeAt(0), 0) % 30);
+  const bg = ctx.createLinearGradient(0, 0, 1200, 400);
+  bg.addColorStop(0,   `hsl(${220 + hue}, 80%, 12%)`);
+  bg.addColorStop(0.5, `hsl(${230 + hue}, 75%, 18%)`);
+  bg.addColorStop(1,   `hsl(${220 + hue}, 80%, 12%)`);
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, 1200, 400);
+
+  // Grid tecnológico sutil
+  ctx.strokeStyle = 'rgba(14,165,233,0.07)';
+  ctx.lineWidth = 1;
+  for (let x = 0; x <= 1200; x += 80) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 400); ctx.stroke(); }
+  for (let y = 0; y <= 400; y += 80) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(1200, y); ctx.stroke(); }
+
+  // Círculos de luz (posições baseadas no título para variar por artigo)
+  const seed = title.length;
+  const drawGlow = (x, y, r, alpha) => {
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, `rgba(14,165,233,${alpha})`);
+    g.addColorStop(1, 'rgba(14,165,233,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+  };
+  drawGlow(1100, 50,  280, 0.15);
+  drawGlow(100,  380, 200, 0.10);
+  drawGlow(600 + (seed % 100), 200, 350, 0.05);
+
+  // Nós de rede (pontos conectados — visual tech/data)
+  const nodes = [
+    [950,80],[1050,140],[1100,220],[980,290],[1150,310],
+    [1080,60],[870,180],[1020,350]
+  ];
+  ctx.strokeStyle = 'rgba(14,165,233,0.25)';
+  ctx.lineWidth = 1;
+  nodes.forEach(([x1,y1], i) => {
+    nodes.slice(i+1).forEach(([x2,y2]) => {
+      const dist = Math.hypot(x2-x1, y2-y1);
+      if (dist < 200) { ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); }
+    });
+  });
+  nodes.forEach(([x,y]) => {
+    ctx.fillStyle = 'rgba(14,165,233,0.5)';
+    ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2); ctx.fill();
+  });
+
+  // Linha de acento vermelho sutil (identidade Stratview)
+  ctx.fillStyle = 'rgba(220,38,38,0.6)';
+  ctx.fillRect(0, 390, 1200, 4);
+
+  // Branding mínimo no canto inferior esquerdo (pequeno, discreto)
+  ctx.font = '600 11px Inter, Arial';
+  ctx.fillStyle = 'rgba(255,255,255,0.25)';
+  ctx.textAlign = 'left';
+  ctx.fillText('STRATVIEW CONSULTING', 24, 380);
+
+  return canvas.toDataURL('image/png');
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────────────
+function openModal() {
+  const art = state.article;
+  if (!art) return;
+
+  // Content
+  $('article-content').innerHTML = art.content;
+
+  // Keywords
+  $('keywords-wrap').innerHTML = (art.keywords || []).map(k => `<span class="kw-badge">${esc(k)}</span>`).join('');
+
+  // Persona badge
+  $('persona-badge').classList.add('hidden');
+  $('persona-badge').textContent = '';
+
+  // Persona buttons
+  $('btn-cio').classList.remove('active');
+  $('btn-chro').classList.remove('active');
+
+  // TTS
+  resetTTSUI();
+
+  // Publish
+  state.publishing = false;
+  state.publishSuccess = false;
+  state.publishError = null;
+  $('btn-publish').classList.remove('success');
+  $('btn-publish').disabled = false;
+  $('publish-label').textContent = 'Publicar no Blog';
+  $('publish-error').classList.add('hidden');
+
+  // Cover reset
+  $('cover-img').classList.add('hidden');
+  $('cover-img').src = '';
+  $('cover-error').classList.add('hidden');
+  $('cover-loading').classList.add('hidden');
+  $('cover-placeholder').classList.remove('hidden');
+
+  $('modal-overlay').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  $('modal-overlay').classList.add('hidden');
+  document.body.style.overflow = '';
+  if (state.audio) { state.audio.pause(); state.audio = null; state.playing = false; }
+}
+
+function handleOverlayClick(e) {
+  if (e.target === $('modal-overlay')) closeModal();
+}
+
+// ── TTS ───────────────────────────────────────────────────────────────────────
+function resetTTSUI() {
+  $('tts-play-icon').classList.remove('hidden');
+  $('tts-stop-icon').classList.add('hidden');
+  $('tts-loading-icon').classList.add('hidden');
+  $('tts-label').textContent = 'Ouvir Resumo Executivo';
+  $('btn-tts').classList.remove('playing');
+  $('btn-tts').disabled = false;
+}
+
+async function toggleTTS() {
+  if (state.ttsLoading) return;
+
+  if (state.audio) {
+    if (state.playing) {
+      state.audio.pause();
+      state.playing = false;
+      $('tts-play-icon').classList.remove('hidden');
+      $('tts-stop-icon').classList.add('hidden');
+      $('tts-label').textContent = 'Continuar Áudio';
+      $('btn-tts').classList.remove('playing');
+    } else {
+      state.audio.play();
+      state.playing = true;
+      $('tts-play-icon').classList.add('hidden');
+      $('tts-stop-icon').classList.remove('hidden');
+      $('tts-label').textContent = 'Parar Áudio';
+      $('btn-tts').classList.add('playing');
+    }
+    return;
+  }
+
+  state.ttsLoading = true;
+  $('btn-tts').disabled = true;
+  $('tts-play-icon').classList.add('hidden');
+  $('tts-loading-icon').classList.remove('hidden');
+  $('tts-label').textContent = 'Gerando áudio…';
+
+  const art = state.article;
+  const text = `Resumo executivo do artigo: ${art.title}. ${art.description} Abordagem focada em ${state.persona === 'Geral' ? 'estratégia C-Level' : state.persona}.`;
+
+  try {
+    const data = await apiFetch('/api/artigos/tts', { text });
+    const url = pcmBase64ToWavUrl(data.audioBase64, data.sampleRate || 24000);
+    const audio = new Audio(url);
+    audio.onended = () => {
+      state.playing = false;
+      $('tts-play-icon').classList.remove('hidden');
+      $('tts-stop-icon').classList.add('hidden');
+      $('tts-label').textContent = 'Ouvir Novamente';
+      $('btn-tts').classList.remove('playing');
+    };
+    state.audio = audio;
+    audio.play();
+    state.playing = true;
+    $('tts-loading-icon').classList.add('hidden');
+    $('tts-stop-icon').classList.remove('hidden');
+    $('tts-label').textContent = 'Parar Áudio';
+    $('btn-tts').classList.add('playing');
+  } catch (e) {
+    alert('Não foi possível gerar o áudio: ' + e.message);
+    resetTTSUI();
+  }
+  state.ttsLoading = false;
+  $('btn-tts').disabled = false;
+}
+
+// ── REFINE PERSONA ────────────────────────────────────────────────────────────
+async function refinePersona(persona) {
+  if (state.refining || !state.article) return;
+  state.refining = true;
+  state.persona = persona;
+
+  if (state.audio) { state.audio.pause(); state.audio = null; state.playing = false; }
+  resetTTSUI();
+
+  $('btn-cio').classList.toggle('active', persona === 'CIO');
+  $('btn-chro').classList.toggle('active', persona === 'CHRO');
+  $('btn-cio').disabled = true;
+  $('btn-chro').disabled = true;
+
+  $('refine-persona-label').textContent = `Ajustando conteúdo para a ótica do ${persona}`;
+  $('refine-overlay').classList.remove('hidden');
+
+  try {
+    const data = await apiFetch('/api/artigos/refinar', { content: state.article.content, persona });
+    state.article = { ...state.article, content: data.html };
+    $('article-content').innerHTML = data.html;
+
+    const badge = $('persona-badge');
+    badge.textContent = `Visão ${persona}`;
+    badge.classList.remove('hidden');
+  } catch (e) {
+    alert('Falha ao refinar: ' + e.message);
+    $('btn-cio').classList.remove('active');
+    $('btn-chro').classList.remove('active');
+    state.persona = 'Geral';
+    $('persona-badge').classList.add('hidden');
+  }
+
+  $('refine-overlay').classList.add('hidden');
+  $('btn-cio').disabled = false;
+  $('btn-chro').disabled = false;
+  state.refining = false;
+}
+
+// ── COPY HTML ─────────────────────────────────────────────────────────────────
+async function copyHTML() {
+  const content = $('article-content').innerHTML;
+  try {
+    const blob = new Blob([content], { type: 'text/html' });
+    await navigator.clipboard.write([new ClipboardItem({ 'text/html': blob })]);
+  } catch {
+    try { await navigator.clipboard.writeText(content); } catch { document.execCommand('copy'); }
+  }
+  $('copy-label').textContent = '✓ Copiado!';
+  setTimeout(() => { $('copy-label').textContent = 'Copiar HTML'; }, 2000);
+}
+
+// ── PUBLISH TO WORDPRESS ──────────────────────────────────────────────────────
+async function publishToWordPress() {
+  saveWpConfig();
+  if (!state.wpConfig.username || !state.wpConfig.appPassword) {
+    toggleWpPanel();
+    return;
+  }
+  if (state.publishing || state.publishSuccess) return;
+  state.publishing = true;
+
+  const btn = $('btn-publish');
+  btn.disabled = true;
+  $('publish-label').textContent = 'Publicando…';
+  $('publish-icon').innerHTML = '<path class="spin" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>';
+  $('publish-error').classList.add('hidden');
+
+  try {
+    const auth = btoa(`${state.wpConfig.username}:${state.wpConfig.appPassword}`);
+    const url = state.wpConfig.url.replace(/\/$/, '');
+    let featuredMediaId = null;
+
+    if (state.image) {
+      try {
+        const blob = await fetch(`data:image/png;base64,${state.image}`).then(r => r.blob());
+        const form = new FormData();
+        form.append('file', blob, `stratview-${state.article.id}.png`);
+        form.append('title', `Stratview · ${state.article.title}`);
+        const mr = await fetch(`${url}/wp-json/wp/v2/media`, { method: 'POST', headers: { 'Authorization': `Basic ${auth}` }, body: form });
+        if (mr.ok) featuredMediaId = (await mr.json()).id;
+      } catch {}
+    }
+
+    const postData = { title: state.article.title, content: state.article.content, status: 'draft', featured_media: featuredMediaId };
+    const pr = await fetch(`${url}/wp-json/wp/v2/posts`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Basic ${auth}` }, body: JSON.stringify(postData) });
+
+    if (pr.ok) {
+      state.publishSuccess = true;
+      btn.classList.add('success');
+      $('publish-icon').innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>';
+      $('publish-label').textContent = 'Rascunho Criado (WP)';
+      markPublished(state.article.id);
+    } else {
+      const err = await pr.json();
+      throw new Error(err.message || 'Falha ao publicar');
+    }
+  } catch (e) {
+    $('publish-error').textContent = e.message;
+    $('publish-error').classList.remove('hidden');
+    $('publish-label').textContent = 'Publicar no Blog';
+    $('publish-icon').innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064"/>';
+    btn.disabled = false;
+  }
+  state.publishing = false;
+}
+
+// ── HISTORY ───────────────────────────────────────────────────────────────────
+async function saveToHistory(article) {
+  try {
+    await fetch('/api/artigos/historico', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: article.id,
+        title: article.title,
+        description: article.description || '',
+        keywords: article.keywords || [],
+        content: article.content || '',
+        persona: state.persona || 'Geral'
+      })
+    });
+  } catch (e) { console.warn('[HIST] falha ao salvar:', e.message); }
+  await loadHistory();
+}
+
+async function markPublished(id) {
+  try {
+    await fetch(`/api/artigos/historico/${id}`, { method: 'PATCH' });
+  } catch (e) { console.warn('[HIST] falha ao marcar publicado:', e.message); }
+  await loadHistory();
+}
+
+async function loadHistory() {
+  try {
+    const r = await fetch('/api/artigos/historico');
+    if (!r.ok) return;
+    const items = await r.json();
+    renderHistory(items);
+  } catch (e) { console.warn('[HIST] falha ao carregar:', e.message); }
+}
+
+function renderHistory(items) {
+  const list = $('history-list');
+  const count = $('history-count');
+  count.textContent = items.length;
+
+  if (!items.length) {
+    list.innerHTML = '<div class="history-empty">Nenhum artigo gerado ainda.</div>';
+    return;
+  }
+
+  window._historyItems = items;
+
+  list.innerHTML = items.map((item, idx) => {
+    const date = item.generated_at ? new Date(item.generated_at + 'Z').toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—';
+    const pubDate = item.published_at ? new Date(item.published_at + 'Z').toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : null;
+    const isPublished = item.status === 'publicado';
+
+    return `<div class="history-item" onclick="openFromHistory(${idx})" title="Clique para rever o artigo">
+      <div class="history-item-info">
+        <div class="history-item-title">${esc(item.title)}</div>
+        <div class="history-item-meta">
+          <span class="tag ${isPublished ? 'tag-publicado' : 'tag-gerado'}">
+            ${isPublished
+              ? '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Publicado como rascunho'
+              : '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg> Artigo gerado'}
+          </span>
+          <span style="display:flex;align-items:center;gap:4px">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Gerado: ${date}
+          </span>
+          ${pubDate ? `<span style="display:flex;align-items:center;gap:4px;color:var(--green)">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945"/></svg>
+            Publicado: ${pubDate}
+          </span>` : ''}
+          ${item.persona && item.persona !== 'Geral' ? `<span style="color:var(--sky-dark);font-weight:600">Persona: ${esc(item.persona)}</span>` : ''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openFromHistory(idx) {
+  const item = window._historyItems?.[idx];
+  if (!item || !item.content) { alert('Conteúdo não disponível para este artigo.'); return; }
+  state.article = {
+    id: item.id,
+    title: item.title,
+    description: item.description || '',
+    keywords: item.keywords || [],
+    content: item.content,
+  };
+  state.persona = item.persona || 'Geral';
+  state.image = null;
+  state.playing = false;
+  if (state.audio) { state.audio.pause(); state.audio = null; }
+  openModal();
+  // Gera capa branded (fallback local — não refaz chamada de API)
+  const dataUrl = generateBrandedCover(item.title, item.keywords || []);
+  const img = $('cover-img');
+  img.src = dataUrl;
+  $('cover-loading').classList.add('hidden');
+  $('cover-placeholder').classList.add('hidden');
+  img.classList.remove('hidden');
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+loadWpConfig();
+loadHistory();
+
+['wp-url','wp-user','wp-pass','wp-keep'].forEach(id => {
+  const el = $(id);
+  if (el) el.addEventListener('change', saveWpConfig);
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && !$('modal-overlay').classList.contains('hidden')) closeModal();
+});
+</script>
+</body>
+</html>

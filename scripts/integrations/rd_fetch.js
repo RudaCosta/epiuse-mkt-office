@@ -7,9 +7,12 @@
 //   node scripts/integrations/rd_fetch.js fetch              # busca dados e atualiza snapshot
 //
 // Credenciais:
-//   RD_CLIENT_ID, RD_CLIENT_SECRET     -> do app criado em app.rdstation.com.br
-//   RD_REFRESH_TOKEN                   -> obtido apos autorizar (1x), eterno
-//   RD_REDIRECT_URI                    -> mesmo cadastrado no app
+//   RD_CLIENT_ID, RD_CLIENT_SECRET  -> do app criado em app.rdstation.com.br
+//   RD_REFRESH_TOKEN                -> semente inicial (Railway env var). ATENÇÃO: o RD Station
+//                                      rotaciona o refresh_token a cada uso — o token atualizado
+//                                      é salvo em DATA_DIR/rd-tokens.json e tem prioridade sobre
+//                                      a env var. Nunca sobrescrever a env var manualmente.
+//   RD_REDIRECT_URI                 -> mesmo cadastrado no app
 'use strict';
 
 const fs   = require('fs');
@@ -18,7 +21,16 @@ const os   = require('os');
 const https = require('https');
 
 const SNAPSHOT_PATH = path.join(__dirname, '..', '..', 'public', 'api', 'rd-snapshot.json');
-const TOKENS_PATH = path.join(__dirname, '..', '..', 'public', 'api', 'rd-tokens.json');
+
+// Tokens salvos no volume persistente (Railway: /data · local: localModules dir)
+// Nunca em public/api/ — essa pasta é apagada a cada deploy.
+const IS_LOCAL = !!process.env.LOCAL_MODULES_PATH;
+const DATA_DIR  = IS_LOCAL
+  ? (process.env.LOCAL_MODULES_PATH || '').replace(/[\\/]node_modules$/, '')
+  : (process.env.DATA_DIR || path.join(__dirname, '..', '..', 'data'));
+const TOKENS_PATH = path.join(DATA_DIR, 'rd-tokens.json');
+// Caminho legado (pre-fix) — lido como fallback na migração
+const TOKENS_PATH_LEGACY = path.join(__dirname, '..', '..', 'public', 'api', 'rd-tokens.json');
 
 // ── HTTP helper (sem dep externa) ────────────────────────────────────────────
 function httpRequest({ method, url, headers, body }) {
@@ -61,7 +73,10 @@ async function exchangeCodeForTokens(code) {
 }
 
 async function refreshAccessToken() {
-  const refresh_token = process.env.RD_REFRESH_TOKEN || readTokens().refresh_token;
+  const stored = readTokens();
+  // Arquivo tem prioridade: contém o refresh_token mais recente (rotacionado pelo RD).
+  // Env var é apenas a semente inicial — usada só se o arquivo ainda não existir.
+  const refresh_token = stored.refresh_token || process.env.RD_REFRESH_TOKEN;
   if (!refresh_token) throw new Error('RD_REFRESH_TOKEN nao definido. Rode: node rd_fetch.js exchange <code>');
   const r = await httpRequest({
     method: 'POST',
@@ -73,16 +88,28 @@ async function refreshAccessToken() {
       refresh_token,
     },
   });
-  // Salva refresh_token novo (RD pode rotacionar)
-  writeTokens({ refresh_token: r.refresh_token || refresh_token, access_token: r.access_token, expires_in: r.expires_in, atualizado_em: new Date().toISOString() });
+  // RD Station rotaciona o refresh_token a cada chamada — salvar SEMPRE o novo.
+  writeTokens({
+    refresh_token: r.refresh_token || refresh_token,
+    access_token: r.access_token,
+    expires_in: r.expires_in,
+    atualizado_em: new Date().toISOString(),
+  });
   return r.access_token;
 }
 
 function readTokens() {
-  try { return JSON.parse(fs.readFileSync(TOKENS_PATH, 'utf8')); } catch { return {}; }
+  // Tenta o caminho persistente primeiro; cai no legado (public/api/) se existir
+  for (const p of [TOKENS_PATH, TOKENS_PATH_LEGACY]) {
+    try {
+      const data = JSON.parse(fs.readFileSync(p, 'utf8'));
+      if (data.refresh_token) return data;
+    } catch {}
+  }
+  return {};
 }
 function writeTokens(t) {
-  fs.mkdirSync(path.dirname(TOKENS_PATH), { recursive: true });
+  fs.mkdirSync(DATA_DIR, { recursive: true });
   fs.writeFileSync(TOKENS_PATH, JSON.stringify(t, null, 2), 'utf8');
 }
 
