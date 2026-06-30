@@ -925,7 +925,7 @@ class OfficeNav extends HTMLElement {
               <button class="um-item" id="um-theme" type="button"><span class="ic">${themeIcon}</span>Tema: ${THEME_LABEL[theme]||'escuro'}</button>
               <a class="um-item" href="/changelog"><span class="ic">📜</span>Changelog</a>
               <a class="um-item" href="https://erp.ngo" target="_blank" rel="noopener"><span class="ic">🐘</span>ERP.ngo</a>
-              <button class="um-item" id="um-logout" type="button"><span class="ic">↪</span>Sair (limpa preferências)</button>
+              <button class="um-item" id="um-logout" type="button"><span class="ic">${this._authed ? '🚪' : '↪'}</span>${this._authed ? 'Sair' : 'Sair (limpa preferências)'}</button>
             </div>
           </div>
           <div class="overflow-wrap">
@@ -1042,6 +1042,9 @@ class OfficeNav extends HTMLElement {
     });
 
     $('um-logout')?.addEventListener('click', () => {
+      // Autenticado via SSO: logout de verdade (encerra a sessão → /login).
+      if (this._authed) { location.href = '/auth/logout'; return; }
+      // Anônimo (sem SSO): só limpa preferências locais.
       if (!confirm('Limpar preferências locais (nome, tema, drafts)?')) return;
       try {
         ['office.user', 'office.theme', 'inbound.brief.draft', 'inbound.calendar'].forEach(k => localStorage.removeItem(k));
@@ -1911,7 +1914,7 @@ const OfficeCommandPalette = (() => {
       if(s.authenticated && s.user){
         setName(sr, s.user.given || (s.user.name||'').split(' ')[0] || s.user.email);
         var rn = sr.getElementById('um-rename'); if(rn) rn.style.display='none'; // identidade real, sem renomear
-        addItem(menu, '🚪 Sair ('+s.user.email+')', '/auth/logout');
+        // Logout é o botão #um-logout (tratado na classe → /auth/logout). Sem item duplicado aqui.
       } else {
         setName(sr, 'Entrar');
         addItem(menu, '🔐 Entrar com Microsoft', '/auth/login?returnTo=' + encodeURIComponent(location.pathname + location.search));

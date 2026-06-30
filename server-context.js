@@ -117,7 +117,9 @@ if (SSO_ENABLED) {
 }
 
 function requireAuth(req, res, next) {
-  if (process.env.SSO_ENFORCE !== 'true' || !SSO_ENABLED) return next();
+  // Login-first por padrão quando o SSO está configurado (creds presentes).
+  // Escape explícito: SSO_ENFORCE=false. Sem SSO configurado, fica aberto.
+  if (!SSO_ENABLED || process.env.SSO_ENFORCE === 'false') return next();
   if (req.session && req.session.user) return next();
   if (req.path.startsWith('/api/')) return res.status(401).json({ error: 'auth_required' });
   // Manda pra tela de login branded (com portas Office/Game), não direto pro Microsoft.
