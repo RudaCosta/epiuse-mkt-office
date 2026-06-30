@@ -56,6 +56,9 @@ Semeado no boot via `INSERT OR IGNORE` (idempotente — não sobrescreve ajustes
 - **`/game-hub`** (`public/game-hub.html`) — game do **colaborador** (role `hub`): mesmo engine, mundo orientado ao Marketing Hub; estações = itens do hub (apresentação, template, eventos, cases, assinatura, Canva, logos, ERP.ngo). Sem NPCs/cartões do time.
 - Roteamento: `/game` redireciona role `hub` → `/game-hub`. A porta "Game" do `/login` cai em `/game` e o redirect resolve por role após o login.
 
+## Hard-lock do colaborador (role hub) — 30/jun
+Decisão atualizada do Rudá: o colaborador (role `hub`) **só acessa o Marketing Hub** (`/hub`) e o game do colaborador (`/game-hub`). Qualquer outra página → redirect `/hub` (middleware em `server.js`). Time de MKT, `head` e `country-manager`/`diretoria` **não** são afetados. O `office-nav` esconde tabs/overflow/sino pro colaborador (`data-hublock`). O onboarding (aba do `/hub`) segue acessível a todos.
+
 ## Login visível
 O botão **🔐 Entrar** aparece em destaque na barra do nav (`office-nav.js`) quando `/api/auth/status` retorna `enabled:true` e a pessoa não está logada. Quando o SSO está desligado (`enabled:false`, sem `AZURE_*`), nada muda — comportamento "Visitante", sem botão (evita um login que daria 503).
 

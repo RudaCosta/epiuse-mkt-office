@@ -226,6 +226,9 @@ class OfficeNav extends HTMLElement {
       if (d && d.authenticated && d.user) {
         this._sso = { name: d.user.name || '', email: d.user.email || d.user.preferred_username || '' };
         this._role = d.role || d.user.role || null;
+        // Colaborador (role 'hub') é travado no Marketing Hub: esconde a navegação
+        // do Office (tabs, overflow, sino) — ele não acessa o resto mesmo.
+        try { if (this._role === 'hub') this.setAttribute('data-hublock', '1'); else this.removeAttribute('data-hublock'); } catch {}
         try { if (this._sso.name) localStorage.setItem('office.user', this._sso.name); } catch {}
       }
       // Re-renderiza quando o SSO está ligado: mostra "Entrar" (deslogado) ou nome real (logado).
@@ -424,6 +427,11 @@ class OfficeNav extends HTMLElement {
           scrollbar-width: none;
         }
         .tabs::-webkit-scrollbar { display: none; }
+        /* Colaborador travado no Hub: sem tabs/overflow/sino/hamburguer */
+        :host([data-hublock]) .tabs,
+        :host([data-hublock]) .hamburger,
+        :host([data-hublock]) .overflow-wrap,
+        :host([data-hublock]) .bell-wrap { display: none !important; }
         .tab {
           display: inline-flex;
           align-items: center;
