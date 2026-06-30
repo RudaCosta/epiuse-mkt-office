@@ -1,5 +1,5 @@
 {
-  "current": "0.58.2",
+  "current": "0.58.3",
   "atualizado_em": "30/jun/2026",
   "next": [
     {
@@ -54,9 +54,22 @@
   ],
   "releases": [
     {
-      "version": "0.58.2",
+      "version": "0.58.3",
       "date": "30/jun/2026",
       "status": "current",
+      "path": null,
+      "title": "Hub: remove duplicados + agenda da fonte unica",
+      "summary": "Limpeza do Marketing Hub: removida a secao Brand Assets e o bloco hardcoded Campanhas Ativas. Agenda mostra so os Proximos eventos do /api/events.json (fonte unica). LinkedIn Optimizer pra cada usuario.",
+      "highlights": [
+        "hub.html: removida secao Brand Assets (dedup)",
+        "hub.html: removido Campanhas Ativas hardcoded; agenda = /api/events.json",
+        "LinkedIn Optimizer nas Pecas de Marketing"
+      ]
+    },
+    {
+      "version": "0.58.2",
+      "date": "30/jun/2026",
+      "status": "past",
       "path": null,
       "title": "Fix: botao Sair + tela inicial sempre login",
       "summary": "Logout encerra a sessao de verdade e volta pro /login. Um unico botao Sair no nav. Login obrigatorio por padrao quando o SSO esta configurado (tela inicial = /login ate autenticar; desagua por role).",
