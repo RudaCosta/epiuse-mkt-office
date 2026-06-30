@@ -604,6 +604,19 @@ app.use((req, res, next) => {
   return requireAuth(req, res, next);
 });
 
+// ── HARD-LOCK DO COLABORADOR (role 'hub') ─────────────────────────────────────
+// Quem não é do time de marketing nem country manager (role 'hub') só acessa o
+// Marketing Hub (+ o game do colaborador). Qualquer outra PÁGINA -> redirect /hub.
+// Time de MKT, head e country-manager/diretoria NÃO são afetados.
+// APIs (/api/*) e /auth/* passam (o /hub e /game-hub precisam de /api/auth/status).
+const HUB_LOCK_PAGES = new Set(['/hub', '/game-hub', '/login']);
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api/') || req.path.startsWith('/auth/')) return next();
+  const u = req.session && req.session.user;
+  if (u && u.role === 'hub' && !HUB_LOCK_PAGES.has(req.path)) return res.redirect('/hub');
+  next();
+});
+
 // ── RATE LIMITERS ─────────────────────────────────────────────────────────────
 // Optimizer é caro (Claude Vision tokens): 10 análises por hora por IP
 const optimizerLimiter = rateLimit({
