@@ -397,10 +397,10 @@ class OfficeNav extends HTMLElement {
           filter: brightness(1) saturate(1);
         }
         .logo:hover { background: var(--nav-hover-bg); }
-        /* Dark theme: logo branco · Light: cor original RGB */
-        :host-context([data-theme="dark"]) .logo img,
+        /* A barra do nav é sempre fundo escuro (--nav-bg navy) em TODOS os temas,
+           então o logo é sempre branco pra ficar legível. Se algum tema futuro
+           usar nav-bar clara, adicionar override :host-context([data-theme="X"]) .logo img{filter:none}. */
         .logo img { filter: brightness(0) invert(1); transition: filter .15s; }
-        :host-context([data-theme="light"]) .logo img { filter: none; }
         .ver-chip {
           font-family: 'JetBrains Mono', 'Courier New', monospace;
           font-size: 9px;
@@ -431,6 +431,9 @@ class OfficeNav extends HTMLElement {
         :host([data-hublock]) .hamburger,
         :host([data-hublock]) .overflow-wrap,
         :host([data-hublock]) .bell-wrap { display: none !important; }
+        /* Sem tabs, os controles colam no logo à esquerda — empurra pro lugar
+           natural do menu, à direita da tela. */
+        :host([data-hublock]) .controls { margin-left: auto; }
         .tab {
           display: inline-flex;
           align-items: center;
@@ -923,6 +926,7 @@ class OfficeNav extends HTMLElement {
               </div>
               ${this._sso && this._sso.name ? '' : '<button class="um-item" id="um-rename" type="button"><span class="ic">✏️</span>Trocar nome de exibição</button>'}
               <button class="um-item" id="um-theme" type="button"><span class="ic">${themeIcon}</span>Tema: ${THEME_LABEL[theme]||'escuro'}</button>
+              ${this._authed ? '<a class="um-item" href="/escolher-visao"><span class="ic">🔀</span>Trocar visualização</a>' : ''}
               <a class="um-item" href="/changelog"><span class="ic">📜</span>Changelog</a>
               <a class="um-item" href="https://erp.ngo" target="_blank" rel="noopener"><span class="ic">🐘</span>ERP.ngo</a>
               <button class="um-item" id="um-logout" type="button"><span class="ic">${this._authed ? '🚪' : '↪'}</span>${this._authed ? 'Sair' : 'Sair (limpa preferências)'}</button>

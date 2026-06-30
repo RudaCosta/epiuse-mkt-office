@@ -254,6 +254,9 @@ db.exec(`
   );
   CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
 `);
+// Visualização preferida (office|game) escolhida pós-login. Vazio = ainda não
+// escolheu → cai na tela /escolher-visao. Migração idempotente.
+try { db.exec(`ALTER TABLE users ADD COLUMN default_view TEXT DEFAULT ''`); } catch (_e) { /* ja existe */ }
 // Seed do time. Padrao de email inferido do confirmado (ruda.costa@epiuse.com.br):
 // nome.sobrenome@epiuse.com.br. INSERT OR IGNORE = idempotente e NAO sobrescreve
 // ajustes feitos no /admin/usuarios. Roberto (sobrenome desconhecido), Lisiane
@@ -612,7 +615,7 @@ app.use((req, res, next) => {
 // Páginas que o colaborador (role hub) PODE acessar: o hub, o game dele, e os
 // destinos do menu de acesso rápido do portal. O resto do Office segue bloqueado.
 const HUB_LOCK_PAGES = new Set([
-  '/hub', '/game-hub', '/login',
+  '/hub', '/game-hub', '/login', '/escolher-visao', '/brand',
   '/design', '/erp-impacto', '/seja-voice', '/artigos', '/optimizer'
 ]);
 app.use((req, res, next) => {
@@ -2436,6 +2439,10 @@ function items_collect(arr, titulo, descricao, secao) {
 app.get('/dashboard', (req, res) => res.redirect(301, '/'));
 // Marketing Hub — portal central pra quem não é do núcleo de marketing.
 app.get('/hub',       (req, res) => res.sendFile(HUB_HTML));
+// Brand Assets — página própria (paleta, tipografia, logos). Linkada por último no Hub.
+app.get('/brand',     (req, res) => res.sendFile(path.join(__dirname, 'public/brand.html')));
+// Escolher visualização (Office | Game) pós-login. Requer sessão (enforcement cuida disso).
+app.get('/escolher-visao', (req, res) => res.sendFile(path.join(__dirname, 'public/escolher-visao.html')));
 // v0.5.0 — Novas rotas (Onda 2-6)
 app.get('/relatorio', (req, res) => res.sendFile(path.join(__dirname, 'public/relatorio.html')));
 app.get('/artigos',   (req, res) => res.sendFile(path.join(__dirname, 'public/artigos.html')));

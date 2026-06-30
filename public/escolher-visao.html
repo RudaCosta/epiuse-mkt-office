@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Escolha sua visualização · EPI-USE Office</title>
+<link rel="stylesheet" href="/design-tokens.css">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{ --navy:#001844; --red:#cd1543; --blue:#869ec3; --ink:#e8f0ff; }
+  html,body{height:100%}
+  body{
+    font-family:'Maven Pro','Poppins',system-ui,sans-serif;color:var(--ink);
+    background:
+      radial-gradient(ellipse 90% 60% at 50% -10%, rgba(205,21,67,.18), transparent 60%),
+      linear-gradient(160deg, #001026 0%, #001844 55%, #001026 100%);
+    display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;
+  }
+  .wrap{width:100%;max-width:680px;text-align:center}
+  .logo{height:30px;margin-bottom:24px;filter:brightness(0) invert(1)}
+  h1{font-size:26px;font-weight:800;letter-spacing:-.3px;margin-bottom:8px}
+  .sub{font-size:14px;color:var(--blue);margin-bottom:34px;line-height:1.5}
+  .doors{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .door{
+    display:flex;flex-direction:column;align-items:center;gap:12px;
+    background:rgba(6,16,34,.72);border:1.5px solid rgba(134,158,195,.25);
+    border-radius:20px;padding:40px 24px;text-decoration:none;color:var(--ink);
+    cursor:pointer;transition:background .15s,border-color .15s,transform .08s,box-shadow .15s;
+    box-shadow:0 12px 36px rgba(0,0,0,.35);
+  }
+  .door:hover,.door:focus-visible{background:rgba(134,158,195,.12);border-color:var(--red);transform:translateY(-3px);box-shadow:0 20px 48px rgba(0,0,0,.5);outline:none}
+  .door .ic{font-size:48px;line-height:1}
+  .door .t{font-size:20px;font-weight:800}
+  .door .d{font-size:13px;color:var(--blue);line-height:1.45}
+  .door[aria-disabled="true"]{opacity:.55;pointer-events:none}
+  .foot{margin-top:30px;font-size:12px;color:rgba(134,158,195,.75);line-height:1.5}
+  .err{margin-top:18px;color:var(--red);font-size:13px;min-height:18px}
+  @media(max-width:520px){.doors{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <img class="logo" src="/assets/logos-epi-use/epi-use-logo-rgb.svg" alt="EPI-USE" onerror="this.style.display='none'">
+    <h1>Como você quer navegar?</h1>
+    <p class="sub">Escolha sua visualização preferida. Ela vira o seu padrão — você pode trocar a qualquer momento no menu <strong style="color:var(--ink)">👤 → 🔀 Trocar visualização</strong>.</p>
+
+    <div class="doors">
+      <a class="door" id="door-office" role="button" tabindex="0">
+        <span class="ic">🏢</span>
+        <span class="t">Office</span>
+        <span class="d">App completo de marketing — dashboards, portais e ferramentas.</span>
+      </a>
+      <a class="door" id="door-game" role="button" tabindex="0">
+        <span class="ic">🎮</span>
+        <span class="t">Game</span>
+        <span class="d">O escritório virtual em modo 2D — explore caminhando.</span>
+      </a>
+    </div>
+
+    <div class="err" id="err"></div>
+    <div class="foot">EPI-USE Brasil · GroupElephant</div>
+  </div>
+
+<script>
+  (function () {
+    var err = document.getElementById('err');
+    function choose(view, el) {
+      el.setAttribute('aria-disabled', 'true');
+      err.textContent = '';
+      fetch('/api/users/me/view', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ view: view })
+      }).then(function (r) {
+        if (r.status === 401) { location.href = '/login'; return null; }
+        return r.json();
+      }).then(function (d) {
+        if (!d) return;
+        if (d.success && d.redirect) { location.href = d.redirect; }
+        else { throw new Error(d.error || 'falha'); }
+      }).catch(function () {
+        el.removeAttribute('aria-disabled');
+        err.textContent = 'Não foi possível salvar agora. Tente de novo.';
+      });
+    }
+    function bind(id, view) {
+      var el = document.getElementById(id);
+      el.addEventListener('click', function (e) { e.preventDefault(); choose(view, el); });
+      el.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); choose(view, el); } });
+    }
+    bind('door-office', 'office');
+    bind('door-game', 'game');
+  })();
+</script>
+</body>
+</html>
