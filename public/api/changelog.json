@@ -1,5 +1,5 @@
 {
-  "current": "0.57.7",
+  "current": "0.57.8",
   "atualizado_em": "30/jun/2026",
   "next": [
     {
@@ -54,9 +54,21 @@
   ],
   "releases": [
     {
-      "version": "0.57.7",
+      "version": "0.57.8",
       "date": "30/jun/2026",
       "status": "current",
+      "path": null,
+      "title": "🐛 Fix: home nao quebra mais (renderTeam) + testes integrados",
+      "summary": "Corrigido TypeError em renderTeam (home.js) que disparava em toda carga da home (buscava #team-grid removido). Guarda de null adicionada. Bateria de testes integrados (rotas, APIs, carga 400 concorrentes) executada.",
+      "highlights": [
+        "home.js renderTeam: guarda de null",
+        "Carga: 400 requisicoes concorrentes = 400/400 OK, sub-segundo"
+      ]
+    },
+    {
+      "version": "0.57.7",
+      "date": "30/jun/2026",
+      "status": "past",
       "path": null,
       "title": "🏛️ Área da Diretoria (big bosses) — Roberto Medeiros + Alexandre Ormigo",
       "summary": "Nova area executiva /area/diretoria com os perfis dos 2 big bosses (Roberto Medeiros, Country Manager EPI-USE BR; Alexandre Ormigo, Country Manager Stratview/Group Elephant Oracle OCI&HCM) + KPIs executivos ao vivo (Zoho/SAP via /api/executivo) + atalhos. Roles country-manager e diretoria caem nessa area no login.",

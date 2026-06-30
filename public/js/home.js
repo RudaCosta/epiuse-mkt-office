@@ -588,6 +588,7 @@
   // ── TIME · 6 ÁREAS (responsáveis) ───────────────────────────────
   async function renderTeam() {
     const target = $('team-grid');
+    if (!target) return; // seção 'team' não existe mais na home (substituída por 'areas-grid')
     try {
       const r = await fetch('/api/team.json'); const team = await r.json();
       target.innerHTML = (team.areas || []).map(a => {
