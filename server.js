@@ -266,6 +266,9 @@ try {
     ['isabela.carvalho@epiuse.com.br',  'Isabela Carvalho',   'field'],
     ['marlison.estrela@epiuse.com.br',  'Marlison Estrela',   'pipeline'],
     ['eduarda.hirose@epiuse.com.br',    'Eduarda Hirose',     'brand'],
+    ['roberto.medeiros@epiuse.com.br',  'Roberto Medeiros',   'country-manager'],
+    // Alexandre Ormigo (Country Manager Stratview) entra via /admin/usuarios —
+    // dominio de email (Stratview/Group Elephant) ainda a confirmar; role 'diretoria'.
   ];
   const _seedStmt = db.prepare(`INSERT OR IGNORE INTO users (email, name, role) VALUES (?, ?, ?)`);
   for (const [_em, _nm, _rl] of _seedUsers) _seedStmt.run(_em, _nm, _rl);
@@ -1292,6 +1295,10 @@ app.get('/api/sprints', (req, res) => {
 // ── MODULOS POR AREA (v0.7.x — nav reorganizado por dona) ───────────────────
 // /area/<id> -> template unico area.html (le /api/areas.json por id)
 const AREA_PATH = path.join(__dirname, 'public/area.html');
+// Área da Diretoria (big bosses) — página dedicada, ANTES do /area/:id genérico.
+const DIRETORIA_HTML = path.join(__dirname, 'public/diretoria.html');
+app.get('/area/diretoria', (req, res) => res.sendFile(DIRETORIA_HTML));
+app.get('/diretoria',      (req, res) => res.redirect('/area/diretoria'));
 app.get('/area', (req, res) => res.sendFile(AREA_PATH));
 app.get('/area/:id', (req, res) => res.sendFile(AREA_PATH));
 

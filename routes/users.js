@@ -18,7 +18,8 @@ const ROLE_CONFIG = {
   'pipeline':        { persona: 'marlison',  landing: '/' },
   'brand':           { persona: 'duda',      landing: '/' },
   'conteudo':        { persona: 'conteudo',  landing: '/' },
-  'country-manager': { persona: 'roberto',   landing: '/' },
+  'country-manager': { persona: 'roberto',   landing: '/area/diretoria' }, // Roberto Medeiros (EPI-USE BR)
+  'diretoria':       { persona: 'roberto',   landing: '/area/diretoria' }, // Alexandre Ormigo (Stratview) + big bosses
   'hub':             { persona: 'visitante', landing: '/hub' },
 };
 const ROLES = Object.keys(ROLE_CONFIG);
