@@ -594,7 +594,7 @@ if (SSO_ENABLED) {
 // requireAdmin no admin). Isso preserva os fluxos server-to-server por
 // X-Editor-Token (ex: resync-railway-all) mesmo com enforcement ligado.
 // Allowlist abaixo evita loop no fluxo de login.
-const ENFORCE_PUBLIC = ['/auth/login', '/auth/callback', '/auth/logout', '/auth/rd-callback'];
+const ENFORCE_PUBLIC = ['/login', '/auth/login', '/auth/callback', '/auth/logout', '/auth/rd-callback'];
 app.use((req, res, next) => {
   if (req.path.startsWith('/api/')) return next();
   if (ENFORCE_PUBLIC.includes(req.path)) return next();
@@ -2336,6 +2336,13 @@ app.get('/api/alerts', (req, res) => {
 const OFFICE_HTML    = path.join(__dirname, 'public/office.html');
 const HOME_HTML      = path.join(__dirname, 'public/home.html');
 const HUB_HTML       = path.join(__dirname, 'public/hub.html');
+const LOGIN_HTML     = path.join(__dirname, 'public/login.html');
+// Tela de login branded (portas Office + Game). Se já logado, manda pra home.
+app.get('/login', (req, res) => {
+  const u = req.session && req.session.user;
+  if (u) return res.redirect(u.role === 'hub' ? '/hub' : '/');
+  res.sendFile(LOGIN_HTML);
+});
 // Marketing Hub é a tela central de quem não é do núcleo (role 'hub').
 app.get('/', (req, res) => {
   const u = req.session && req.session.user;

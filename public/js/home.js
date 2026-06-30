@@ -43,7 +43,8 @@
       }
     } catch {}
     // persona selecionada no "Ver como" tem prioridade sobre office.user
-    const pid = localStorage.getItem('office.persona');
+    const ov = (typeof readPersonaOverride === 'function') ? readPersonaOverride() : null;
+    const pid = ov && ov.persona;
     if (pid && PERSONAS?.personas?.[pid]?.nome) {
       return PERSONAS.personas[pid].nome.split(' ')[0];
     }
@@ -633,17 +634,48 @@
   // Persona vem de: localStorage override > role/persona do SSO (DB) > mapa email (fallback) > visitante.
   let PERSONAS = null;
 
+  // Override manual do "Ver como". Formato novo: JSON {persona, for:<email|null>}.
+  // Aceita formato legado (string crua) e migra na leitura.
+  function readPersonaOverride() {
+    let raw = null;
+    try { raw = localStorage.getItem('office.persona'); } catch { return null; }
+    if (!raw) return null;
+    if (raw[0] === '{') {
+      try { const o = JSON.parse(raw); return (o && o.persona) ? { persona: o.persona, for: o.for || null } : null; }
+      catch { return null; }
+    }
+    return { persona: raw, for: null }; // legado
+  }
+  function writePersonaOverride(persona, email) {
+    try { localStorage.setItem('office.persona', JSON.stringify({ persona, for: email || null })); } catch {}
+  }
+  function clearPersonaOverride() {
+    try { localStorage.removeItem('office.persona'); } catch {}
+  }
+
+  // Persona vem de: SSO (DB) quando autenticado > override manual ("Ver como") > visitante.
+  // Regra-chave: quando logado via SSO, a persona do login é AUTORITATIVA — um override
+  // antigo só é honrado se foi escolhido pela MESMA identidade logada (preview do próprio).
   async function getPersonaId() {
-    const manual = localStorage.getItem('office.persona');
-    if (manual && PERSONAS?.personas?.[manual]) return manual;
-    try {
-      const st = await fetch('/api/auth/status').then(r => r.json());
-      // Fonte de verdade: persona resolvida do role no DB (routes/users.js).
-      if (st?.persona && PERSONAS?.personas?.[st.persona]) return st.persona;
-      // Fallback legado: mapa estático email -> persona em personas.json.
-      const email = st?.user?.email?.toLowerCase();
-      if (email && PERSONAS?.emails?.[email]) return PERSONAS.emails[email];
-    } catch (e) {}
+    let st = null;
+    try { st = await fetch('/api/auth/status').then(r => r.json()); } catch {}
+    const ov = readPersonaOverride();
+    const ovValid = ov && PERSONAS?.personas?.[ov.persona];
+
+    if (st && st.authenticated) {
+      const email = (st.user && st.user.email || '').toLowerCase();
+      // Persona do SSO: do DB (st.persona) ou fallback mapa email -> persona.
+      let ssoPersona = (st.persona && PERSONAS?.personas?.[st.persona]) ? st.persona : null;
+      if (!ssoPersona && email && PERSONAS?.emails?.[email]) ssoPersona = PERSONAS.emails[email];
+      // Preview do próprio usuário (override marcado pra este email) tem prioridade.
+      if (ovValid && ov.for && ov.for === email) return ov.persona;
+      // Override stale (de outra identidade ou legado) não pode sequestrar o login: descarta.
+      if (ov && (!ov.for || ov.for !== email)) clearPersonaOverride();
+      return ssoPersona || 'visitante';
+    }
+
+    // Não autenticado: override manual segue valendo (exploração livre).
+    if (ovValid) return ov.persona;
     return 'visitante';
   }
 
@@ -815,12 +847,15 @@
       PERSONAS = await fetch('/api/personas.json').then(r => r.json());
       const pid = await getPersonaId();
       // Seletor "Ver como…"
+      // Email da identidade logada (pra amarrar o override "Ver como" a ela).
+      let currentEmail = null;
+      try { const st = await fetch('/api/auth/status').then(r => r.json()); currentEmail = (st && st.user && st.user.email || '').toLowerCase() || null; } catch {}
       const sel = $('persona-select');
       if (sel) {
         sel.innerHTML = Object.entries(PERSONAS.personas).map(([id, p]) =>
           `<option value="${id}" ${id===pid?'selected':''}>${p.icon} Ver como: ${p.nome}</option>`).join('');
         sel.addEventListener('change', () => {
-          localStorage.setItem('office.persona', sel.value);
+          writePersonaOverride(sel.value, currentEmail);
           applyPersona(sel.value);
           renderHero();
         });

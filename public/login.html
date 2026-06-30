@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Entrar · EPI-USE Office</title>
+<link rel="stylesheet" href="/design-tokens.css">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{ --navy:#001844; --red:#cd1543; --blue:#869ec3; --ink:#e8f0ff; }
+  html,body{height:100%}
+  body{
+    font-family:'Maven Pro','Poppins',system-ui,sans-serif;color:var(--ink);
+    background:
+      radial-gradient(ellipse 90% 60% at 50% -10%, rgba(205,21,67,.18), transparent 60%),
+      linear-gradient(160deg, #001026 0%, #001844 55%, #001026 100%);
+    display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;
+  }
+  .card{
+    width:100%;max-width:520px;background:rgba(6,16,34,.72);
+    border:1px solid rgba(134,158,195,.25);border-radius:20px;
+    padding:40px 34px;box-shadow:0 24px 60px rgba(0,0,0,.5);backdrop-filter:blur(10px);text-align:center;
+  }
+  .logo{height:30px;margin-bottom:22px;filter:brightness(0) invert(1)}
+  h1{font-size:24px;font-weight:800;letter-spacing:-.3px;margin-bottom:6px}
+  .sub{font-size:14px;color:var(--blue);margin-bottom:28px;line-height:1.5}
+  .sso-btn{
+    display:inline-flex;align-items:center;gap:10px;justify-content:center;width:100%;
+    background:#fff;color:#1b1b1b;border:none;border-radius:10px;padding:13px 18px;
+    font-size:15px;font-weight:700;cursor:pointer;text-decoration:none;font-family:inherit;
+    transition:filter .15s,transform .05s;margin-bottom:22px;
+  }
+  .sso-btn:hover{filter:brightness(.96)}
+  .sso-btn:active{transform:translateY(1px)}
+  .ms-logo{width:18px;height:18px;display:inline-block}
+  .divider{display:flex;align-items:center;gap:12px;color:var(--blue);font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin:8px 0 20px}
+  .divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(134,158,195,.25)}
+  .doors{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .door{
+    display:flex;flex-direction:column;align-items:center;gap:8px;
+    background:rgba(134,158,195,.08);border:1px solid rgba(134,158,195,.25);
+    border-radius:14px;padding:20px 14px;text-decoration:none;color:var(--ink);
+    cursor:pointer;transition:background .15s,border-color .15s,transform .08s;
+  }
+  .door:hover{background:rgba(134,158,195,.16);border-color:var(--red);transform:translateY(-2px)}
+  .door .ic{font-size:30px;line-height:1}
+  .door .t{font-size:15px;font-weight:700}
+  .door .d{font-size:11.5px;color:var(--blue);line-height:1.4}
+  .foot{margin-top:26px;font-size:11px;color:rgba(134,158,195,.7)}
+  .foot a{color:var(--blue)}
+  @media(max-width:460px){.doors{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+  <div class="card">
+    <img class="logo" src="/assets/logos-epi-use/epi-use-logo-rgb.svg" alt="EPI-USE" onerror="this.style.display='none'">
+    <h1>EPI-USE Office</h1>
+    <p class="sub" id="sub">Entre com sua conta Microsoft EPI-USE para continuar.</p>
+
+    <a class="sso-btn" id="sso-btn" href="/auth/login?returnTo=%2F">
+      <svg class="ms-logo" viewBox="0 0 23 23" aria-hidden="true"><rect width="10" height="10" x="1" y="1" fill="#f25022"/><rect width="10" height="10" x="12" y="1" fill="#7fba00"/><rect width="10" height="10" x="1" y="12" fill="#00a4ef"/><rect width="10" height="10" x="12" y="12" fill="#ffb900"/></svg>
+      Entrar com Microsoft
+    </a>
+
+    <div class="divider">Aonde você quer ir</div>
+
+    <div class="doors">
+      <a class="door" id="door-office">
+        <span class="ic">🏢</span>
+        <span class="t">Office</span>
+        <span class="d">App completo de marketing</span>
+      </a>
+      <a class="door" id="door-game">
+        <span class="ic">🎮</span>
+        <span class="t">Game</span>
+        <span class="d">O escritório em modo 2D</span>
+      </a>
+    </div>
+
+    <div class="foot">EPI-USE Brasil · acesso restrito ao time. <a href="https://erp.ngo" target="_blank" rel="noopener">ERP.ngo</a></div>
+  </div>
+
+<script>
+  // Monta os destinos conforme o estado do SSO:
+  // - autenticado: não deveria estar aqui -> manda pra home.
+  // - SSO ligado + deslogado: portas passam pelo login (/auth/login?returnTo=DEST).
+  // - SSO desligado: portas vão direto pro destino (sem login).
+  (function () {
+    var qs = new URLSearchParams(location.search);
+    var initialReturn = qs.get('returnTo') || '/';
+    var officeBtn = document.getElementById('door-office');
+    var gameBtn   = document.getElementById('door-game');
+    var ssoBtn    = document.getElementById('sso-btn');
+    var sub       = document.getElementById('sub');
+
+    function linkFor(dest, enabled) {
+      return enabled ? ('/auth/login?returnTo=' + encodeURIComponent(dest)) : dest;
+    }
+
+    fetch('/api/auth/status').then(function (r) { return r.json(); }).then(function (s) {
+      if (s && s.authenticated) { location.replace(initialReturn || '/'); return; }
+      var enabled = !!(s && s.enabled);
+      officeBtn.href = linkFor('/', enabled);
+      gameBtn.href   = linkFor('/game', enabled);
+      ssoBtn.href    = '/auth/login?returnTo=' + encodeURIComponent(initialReturn);
+      if (!enabled) {
+        // SSO ainda não configurado neste ambiente: esconde o botão Microsoft,
+        // as portas entram direto (sem login).
+        ssoBtn.style.display = 'none';
+        document.querySelector('.divider').textContent = 'Entrar';
+        sub.textContent = 'Escolha por onde entrar no EPI-USE Office.';
+      }
+    }).catch(function () {
+      officeBtn.href = '/'; gameBtn.href = '/game';
+      ssoBtn.href = '/auth/login?returnTo=' + encodeURIComponent(initialReturn);
+    });
+  })();
+</script>
+</body>
+</html>
