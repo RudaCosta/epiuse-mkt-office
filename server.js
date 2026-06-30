@@ -609,7 +609,12 @@ app.use((req, res, next) => {
 // Marketing Hub (+ o game do colaborador). Qualquer outra PÁGINA -> redirect /hub.
 // Time de MKT, head e country-manager/diretoria NÃO são afetados.
 // APIs (/api/*) e /auth/* passam (o /hub e /game-hub precisam de /api/auth/status).
-const HUB_LOCK_PAGES = new Set(['/hub', '/game-hub', '/login']);
+// Páginas que o colaborador (role hub) PODE acessar: o hub, o game dele, e os
+// destinos do menu de acesso rápido do portal. O resto do Office segue bloqueado.
+const HUB_LOCK_PAGES = new Set([
+  '/hub', '/game-hub', '/login',
+  '/design', '/erp-impacto', '/seja-voice', '/artigos', '/optimizer'
+]);
 app.use((req, res, next) => {
   if (req.path.startsWith('/api/') || req.path.startsWith('/auth/')) return next();
   const u = req.session && req.session.user;

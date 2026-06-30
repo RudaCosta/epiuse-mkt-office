@@ -655,28 +655,6 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 <!-- ═══════════════ PORTAL ═══════════════ -->
 <div id="portal" style="display:none">
 
-  <header class="p-header">
-    <div class="p-brand">
-      <div class="p-brand-dot"></div>
-      MKT Hub &middot; EPI-USE Brasil
-    </div>
-    <div class="p-right">
-      <span class="p-badge">Interno</span>
-      <button class="p-lock" onclick="location.href='/auth/logout'">🔒 Sair</button>
-    </div>
-  </header>
-
-  <div class="qa-bar">
-    <a class="qa-btn" href="https://epiusebr-my.sharepoint.com/:p:/g/personal/ti_brasil_epiuse_com_br/IQC0yvJ0gObYRoinmYgESBB4AYZxw9zjHJxtXdaFnVvAsas" target="_blank" rel="noopener">📊 Apresentação 2026</a>
-    <a class="qa-btn" href="https://epiusebr-my.sharepoint.com/:p:/g/personal/ti_brasil_epiuse_com_br/IQA-d3UyAl70S4ugL9a-YsPrAc31EfAtM__U8MvZVh0mB14" target="_blank" rel="noopener">📐 Template PPT</a>
-    <a class="qa-btn" href="https://epiusebr-my.sharepoint.com/:x:/g/personal/ti_brasil_epiuse_com_br/IQCVg4hDxMivTZf9vlCJ01IMARLI-0trNw2F0tAegJOd7O8" target="_blank" rel="noopener">📅 Eventos 2026</a>
-    <a class="qa-btn" href="https://epiusebr-my.sharepoint.com/:f:/g/personal/ti_brasil_epiuse_com_br/IgCLDt5NFsPbRJ5lWG8GTOYzARZJqnsci5k1Xuz07s0nS2M" target="_blank" rel="noopener">🏆 Cases</a>
-    <a class="qa-btn" href="https://epiusebr-my.sharepoint.com/:f:/g/personal/ti_brasil_epiuse_com_br/IgChoZgUr-3UTYwTtUQRaVZrAWgbG9jkpE2yghH1wYsteYA" target="_blank" rel="noopener">✉️ Assinatura</a>
-    <a class="qa-btn" href="https://www.canva.com/brand/kADdOtpMv9w" target="_blank" rel="noopener">🎨 Canva Kit</a>
-    <button class="qa-btn" onclick="openLogos()">📦 Logos &amp; Assets</button>
-    <a class="qa-btn" href="LINK_BRINDES" target="_blank" rel="noopener">🎁 Brindes</a>
-  </div>
-
   <div class="tab-bar">
     <button class="tab-pill active" id="t-hub" onclick="switchTab('hub',this)">📈 MKT Hub</button>
     <button class="tab-pill" id="t-onboarding" onclick="switchTab('onboarding',this)">🚀 Onboarding</button>
@@ -708,6 +686,104 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
           <div class="hub-cta" style="margin-top:28px">
             <a class="btn-primary" href="mailto:marketing@epiuse.com.br">📬 Solicitar apoio do MKT</a>
             <button class="btn-ghost" onclick="openLogos()">📦 Brand assets</button>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ░░░ ACESSO RÁPIDO (reformulação 0.58.0) ░░░ -->
+      <div class="section">
+        <div class="container">
+          <div class="section-eyebrow">⚡ Acesso rápido</div>
+          <div class="section-title">Ferramentas &amp; portais</div>
+          <div class="section-sub">Tudo que você mais usa, num clique.</div>
+          <div class="bento">
+            <a class="bento-card" href="/design" style="text-decoration:none;color:inherit;display:block">
+              <div class="bento-icon icon-purple">🎨</div>
+              <div class="card-title">Design System</div>
+              <div class="card-desc">Cores, tipografia, tokens e componentes oficiais.</div>
+            </a>
+            <a class="bento-card" href="/erp-impacto" style="text-decoration:none;color:inherit;display:block">
+              <div class="bento-icon icon-green">🐘</div>
+              <div class="card-title">ERP.ngo · Impacto</div>
+              <div class="card-desc">O impacto social do Group Elephant (1% da receita global).</div>
+            </a>
+            <a class="bento-card" href="/seja-voice" style="text-decoration:none;color:inherit;display:block">
+              <div class="bento-icon icon-teal">📣</div>
+              <div class="card-title">Seja um Voice</div>
+              <div class="card-desc">Programa de embaixadores da marca no LinkedIn.</div>
+            </a>
+            <a class="bento-card" href="/artigos" style="text-decoration:none;color:inherit;display:block">
+              <div class="bento-icon icon-blue">📚</div>
+              <div class="card-title">Artigos do Blog</div>
+              <div class="card-desc">Base de artigos e conteúdos publicados.</div>
+            </a>
+            <a class="bento-card" href="/game-hub" style="text-decoration:none;color:inherit;display:block">
+              <div class="bento-icon icon-orange">🎮</div>
+              <div class="card-title">Game do Office</div>
+              <div class="card-desc">Explore o escritório virtual em 2D.</div>
+            </a>
+            <a class="bento-card" href="/optimizer" style="text-decoration:none;color:inherit;display:block">
+              <div class="bento-icon icon-teal">🪪</div>
+              <div class="card-title">LinkedIn Optimizer</div>
+              <div class="card-desc">Otimize seu perfil do LinkedIn com IA.</div>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ░░░ TEMPLATES & MATERIAIS ░░░ -->
+      <div class="section-alt">
+        <div class="container">
+          <div class="section-eyebrow">📁 Templates &amp; materiais</div>
+          <div class="section-title">Peças de Marketing</div>
+          <div class="section-sub">Apresentações, marca e materiais prontos pra usar.</div>
+          <div class="bento">
+            <a class="bento-card" href="https://epiusebr-my.sharepoint.com/:p:/g/personal/ti_brasil_epiuse_com_br/IQC0yvJ0gObYRoinmYgESBB4AYZxw9zjHJxtXdaFnVvAsas" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;display:block">
+              <div class="bento-icon icon-teal">📊</div>
+              <div class="card-title">Apresentação 2026</div>
+              <div class="card-desc">PowerPoint · Modelo institucional padrão.</div>
+            </a>
+            <a class="bento-card" href="https://epiusebr-my.sharepoint.com/:p:/g/personal/ti_brasil_epiuse_com_br/IQA-d3UyAl70S4ugL9a-YsPrAc31EfAtM__U8MvZVh0mB14" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;display:block">
+              <div class="bento-icon icon-blue">📐</div>
+              <div class="card-title">Template PPT Geral</div>
+              <div class="card-desc">PowerPoint · Slides editáveis.</div>
+            </a>
+            <a class="bento-card" href="https://epiusebr-my.sharepoint.com/:f:/g/personal/ti_brasil_epiuse_com_br/IgChoZgUr-3UTYwTtUQRaVZrAWgbG9jkpE2yghH1wYsteYA" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;display:block">
+              <div class="bento-icon icon-purple">✉️</div>
+              <div class="card-title">Assinatura de E-mail</div>
+              <div class="card-desc">HTML · Padrão corporativo.</div>
+            </a>
+            <a class="bento-card" href="https://epiusebr-my.sharepoint.com/:f:/g/personal/ti_brasil_epiuse_com_br/IgCLDt5NFsPbRJ5lWG8GTOYzARZJqnsci5k1Xuz07s0nS2M" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;display:block">
+              <div class="bento-icon icon-orange">🏆</div>
+              <div class="card-title">Cases de Sucesso</div>
+              <div class="card-desc">SharePoint · Pasta de cases.</div>
+            </a>
+            <a class="bento-card" href="https://epiusebr-my.sharepoint.com/:x:/g/personal/ti_brasil_epiuse_com_br/IQCVg4hDxMivTZf9vlCJ01IMARLI-0trNw2F0tAegJOd7O8" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;display:block">
+              <div class="bento-icon icon-green">📅</div>
+              <div class="card-title">Calendário 2026</div>
+              <div class="card-desc">Excel · Eventos e campanhas.</div>
+            </a>
+            <a class="bento-card" href="https://epiusebr-my.sharepoint.com/:f:/g/personal/ti_brasil_epiuse_com_br/IgDKXsNVVTjQTZReMxDLpMiOAa-dRYiqoUxJ9ZaaKWpkdk0?e=EfeMed" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;display:block">
+              <div class="bento-icon icon-blue">🖥️</div>
+              <div class="card-title">Backgrounds Teams</div>
+              <div class="card-desc">SharePoint · Fundos para reuniões.</div>
+            </a>
+            <a class="bento-card" href="https://www.canva.com/brand/kADdOtpMv9w" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;display:block">
+              <div class="bento-icon icon-teal">🎨</div>
+              <div class="card-title">Canva Kit</div>
+              <div class="card-desc">Kit de marca no Canva.</div>
+            </a>
+            <a class="bento-card" href="javascript:void(0)" onclick="openLogos()" style="text-decoration:none;color:inherit;display:block;cursor:pointer">
+              <div class="bento-icon icon-purple">📦</div>
+              <div class="card-title">Logos &amp; Assets</div>
+              <div class="card-desc">Logos oficiais EPI-USE &amp; StratView (download).</div>
+            </a>
+            <a class="bento-card" href="LINK_BRINDES" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;display:block">
+              <div class="bento-icon icon-orange">🎁</div>
+              <div class="card-title">Brindes</div>
+              <div class="card-desc">Catálogo de brindes corporativos.</div>
+            </a>
           </div>
         </div>
       </div>
