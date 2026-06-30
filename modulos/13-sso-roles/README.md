@@ -51,6 +51,11 @@ Semeado no boot via `INSERT OR IGNORE` (idempotente — não sobrescreve ajustes
 
 > Se algum email inferido estiver errado, a pessoa só cai em `hub` até o Rudá corrigir no admin — nada trava.
 
+## Dois games (não misturar)
+- **`/game`** (`public/office.html`) — game do **time de marketing** (mundo com salas/mesas/NPCs do time). **Intacto.**
+- **`/game-hub`** (`public/game-hub.html`) — game do **colaborador** (role `hub`): mesmo engine, mundo orientado ao Marketing Hub; estações = itens do hub (apresentação, template, eventos, cases, assinatura, Canva, logos, ERP.ngo). Sem NPCs/cartões do time.
+- Roteamento: `/game` redireciona role `hub` → `/game-hub`. A porta "Game" do `/login` cai em `/game` e o redirect resolve por role após o login.
+
 ## Login visível
 O botão **🔐 Entrar** aparece em destaque na barra do nav (`office-nav.js`) quando `/api/auth/status` retorna `enabled:true` e a pessoa não está logada. Quando o SSO está desligado (`enabled:false`, sem `AZURE_*`), nada muda — comportamento "Visitante", sem botão (evita um login que daria 503).
 

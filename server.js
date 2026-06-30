@@ -2334,6 +2334,7 @@ app.get('/api/alerts', (req, res) => {
 // (Antes o local lia de G:/Meu Drive/.../dashboard-classic.html que ficou stale.
 // Agora qualquer edição em public/ aparece imediatamente nos 2 ambientes.)
 const OFFICE_HTML    = path.join(__dirname, 'public/office.html');
+const GAME_HUB_HTML  = path.join(__dirname, 'public/game-hub.html');
 const HOME_HTML      = path.join(__dirname, 'public/home.html');
 const HUB_HTML       = path.join(__dirname, 'public/hub.html');
 const LOGIN_HTML     = path.join(__dirname, 'public/login.html');
@@ -2349,7 +2350,14 @@ app.get('/', (req, res) => {
   if (u && u.role === 'hub') return res.redirect('/hub');
   res.sendFile(HOME_HTML);
 });
-app.get('/game',      (req, res) => res.sendFile(OFFICE_HTML));
+// /game = game do time de marketing. Colaborador (role 'hub') vai pro game do Hub.
+app.get('/game', (req, res) => {
+  const u = req.session && req.session.user;
+  if (u && u.role === 'hub') return res.redirect('/game-hub');
+  res.sendFile(OFFICE_HTML);
+});
+// /game-hub = versão do game pra colaboradores EPI-USE (itens do Marketing Hub).
+app.get('/game-hub', (req, res) => res.sendFile(GAME_HUB_HTML));
 app.get('/memes',     (req, res) => res.sendFile(path.join(__dirname, 'public/memes.html')));
 app.get('/cockpit',   (req, res) => res.redirect(301, '/'));
 
