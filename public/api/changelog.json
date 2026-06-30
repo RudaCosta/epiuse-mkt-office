@@ -1,5 +1,5 @@
 {
-  "current": "0.58.1",
+  "current": "0.58.2",
   "atualizado_em": "30/jun/2026",
   "next": [
     {
@@ -54,9 +54,22 @@
   ],
   "releases": [
     {
-      "version": "0.58.1",
+      "version": "0.58.2",
       "date": "30/jun/2026",
       "status": "current",
+      "path": null,
+      "title": "Fix: botao Sair + tela inicial sempre login",
+      "summary": "Logout encerra a sessao de verdade e volta pro /login. Um unico botao Sair no nav. Login obrigatorio por padrao quando o SSO esta configurado (tela inicial = /login ate autenticar; desagua por role).",
+      "highlights": [
+        "auth.js: /auth/logout destroi sessao + clearCookie + redirect /login",
+        "office-nav.js: um Sair que desloga (authed -> /auth/logout); removido duplicado",
+        "server-context.js: requireAuth enforca quando SSO_ENABLED (escape SSO_ENFORCE=false)"
+      ]
+    },
+    {
+      "version": "0.58.1",
+      "date": "30/jun/2026",
+      "status": "past",
       "path": null,
       "title": "Hub: copy do hero atualizada (portfolio EPI-USE/Stratview)",
       "summary": "Texto do hero do Marketing Hub atualizado: EPI-USE Brasil (SAP, ServiceNow, WorkForce Software e Qualtrics) e Stratview (Oracle HCM, OCI & AI). Pills simplificadas.",

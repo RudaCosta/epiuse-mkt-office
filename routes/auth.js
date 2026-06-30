@@ -87,15 +87,12 @@ router.get('/auth/callback', async (req, res) => {
   }
 });
 
-// Logout
+// Logout — encerra a sessão do app de forma confiável e volta pra tela de login.
+// (Mesma-domínio, não depende de post-logout URI registrada no Azure.) O
+// re-login usa prompt:'select_account', então trocar de conta funciona.
 router.get('/auth/logout', (req, res) => {
-  const base = IS_LOCAL_DEV ? ('http://localhost:' + PORT) : (process.env.APP_BASE_URL || 'https://epiuse-voices-optimizer.up.railway.app');
-  req.session.destroy(() => {
-    if (SSO_ENABLED) {
-      res.redirect('https://login.microsoftonline.com/' + process.env.AZURE_TENANT_ID +
-        '/oauth2/v2.0/logout?post_logout_redirect_uri=' + encodeURIComponent(base + '/'));
-    } else res.redirect('/');
-  });
+  const done = () => { try { res.clearCookie('eubr.sid'); } catch {} res.redirect('/login'); };
+  if (req.session) req.session.destroy(done); else done();
 });
 
 // RD Station OAuth2 callback
