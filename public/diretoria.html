@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🏛️ Diretoria · EPI-USE Office</title>
+<link rel="stylesheet" href="/design-tokens.css">
+<link rel="stylesheet" href="/css/polish-pro.css">
+<link rel="stylesheet" href="/css/consulting-dark.css">
+<link rel="stylesheet" href="/css/home.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+.wrap{max-width:1100px;margin:0 auto;padding:26px 18px 70px}
+.hero h1{font-size:26px;font-weight:700;color:var(--home-text,#e6ebf2);letter-spacing:-.015em}
+.hero .sub{font-size:12.5px;color:var(--home-text-muted,#869ec3);margin-top:4px}
+.sec-t{font-size:12px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--home-text-muted,#869ec3);margin:30px 0 12px;display:flex;align-items:center;gap:10px}
+.sec-t::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--home-border,rgba(134,158,195,.2)),transparent)}
+/* bosses */
+.bosses{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-top:18px}
+.boss{background:var(--home-surface,#0f1e35);border:1px solid var(--home-border,rgba(134,158,195,.18));border-top:3px solid var(--cor,#cd1543);border-radius:16px;padding:20px;box-shadow:var(--home-shadow,0 1rem 2rem -1rem #000)}
+.boss .top{display:flex;align-items:center;gap:14px}
+.boss .ava{width:54px;height:54px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--g0,#001844),var(--g1,#395170));flex-shrink:0;font-family:'JetBrains Mono',monospace}
+.boss .nm{font-size:17px;font-weight:800;color:var(--home-text,#e6ebf2)}
+.boss .cg{font-size:12.5px;color:var(--cor,#cd1543);font-weight:700;margin-top:2px}
+.boss .co{font-size:11.5px;color:var(--home-text-muted,#869ec3);margin-top:2px}
+.boss .foco{font-size:12.5px;color:var(--home-text,#cdd7e6);margin-top:14px;line-height:1.5}
+.boss .decide{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.boss .chip{font-size:10.5px;font-weight:700;background:rgba(134,158,195,.12);border:1px solid rgba(134,158,195,.22);color:var(--home-text-muted,#aab8cf);padding:3px 10px;border-radius:99px}
+/* kpis */
+.heads{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.head{background:var(--home-surface,#0f1e35);border:1px solid var(--home-border,rgba(134,158,195,.18));border-top:3px solid var(--cor,#cd1543);border-radius:14px;padding:18px 20px}
+.head .lbl{font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--home-text-muted,#869ec3)}
+.head .val{font-size:30px;font-weight:800;font-family:'JetBrains Mono','Fira Code',monospace;color:var(--home-text,#e6ebf2);margin:8px 0 2px;line-height:1}
+.head .delta{font-size:12px;font-weight:700;color:var(--teal,#34d399)}
+.head .delta.neutro{color:var(--home-text-muted,#869ec3)}
+.head .fonte{font-size:10px;color:var(--teal,#6ee7b7);margin-top:8px;opacity:.85}
+/* atalhos */
+.atalhos{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.atalho{display:flex;align-items:center;gap:12px;background:var(--home-surface,#0f1e35);border:1px solid var(--home-border,rgba(134,158,195,.18));border-radius:12px;padding:15px 16px;text-decoration:none;color:var(--home-text,#e6ebf2);transition:border-color .15s,transform .08s}
+.atalho:hover{border-color:var(--red,#cd1543);transform:translateY(-2px)}
+.atalho .ai{font-size:22px}
+.atalho .at{font-size:13.5px;font-weight:700}
+.atalho .ad{font-size:11px;color:var(--home-text-muted,#869ec3);margin-top:1px}
+.loading{text-align:center;padding:50px;color:var(--home-text-muted,#64748b)}
+</style>
+</head>
+<body class="home-root" data-route="diretoria">
+<office-nav></office-nav>
+<div class="wrap">
+  <div class="hero">
+    <h1>🏛️ Diretoria</h1>
+    <div class="sub">Os big bosses do Group Elephant no Brasil — visão executiva, dados ao vivo.</div>
+  </div>
+
+  <div class="sec-t">👔 Liderança executiva</div>
+  <div class="bosses">
+    <div class="boss" style="--cor:#cd1543;--g0:#001844;--g1:#cd1543">
+      <div class="top">
+        <div class="ava">RM</div>
+        <div>
+          <div class="nm">Roberto Medeiros</div>
+          <div class="cg">Country Manager · EPI-USE Brasil</div>
+          <div class="co">EPI-USE · groupelephant.com · SAP HCM/Payroll</div>
+        </div>
+      </div>
+      <div class="foco">Aprovação executiva do programa de marketing e da operação Brasil — orçamento, expansão e comunicação oficial.</div>
+      <div class="decide">
+        <span class="chip">💰 Orçamento</span><span class="chip">🚀 Expansão</span><span class="chip">📣 Comunicação oficial</span><span class="chip">✅ Aprovação de marca</span>
+      </div>
+    </div>
+    <div class="boss" style="--cor:#0066B2;--g0:#0a1e3a;--g1:#0066B2">
+      <div class="top">
+        <div class="ava">AO</div>
+        <div>
+          <div class="nm">Alexandre Ormigo</div>
+          <div class="cg">Country Manager · Stratview</div>
+          <div class="co">Stratview · Group Elephant · Oracle OCI &amp; HCM</div>
+        </div>
+      </div>
+      <div class="foco">Lidera a Stratview (Group Elephant) no Brasil — consultoria Oracle OCI &amp; HCM, braço Oracle do grupo ao lado do braço SAP da EPI-USE.</div>
+      <div class="decide">
+        <span class="chip">☁️ Oracle OCI</span><span class="chip">👥 Oracle HCM</span><span class="chip">🤝 Group Elephant</span><span class="chip">🚀 Stratview BR</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-t">📊 KPIs executivos · Marketing → Receita</div>
+  <div id="kpis"><div class="loading">Carregando dados ao vivo…</div></div>
+
+  <div class="sec-t">🔗 Atalhos da diretoria</div>
+  <div class="atalhos">
+    <a class="atalho" href="/executivo"><span class="ai">📈</span><span><span class="at">Visão Executiva (CMO)</span><span class="ad">Pipeline · receita · funil completo</span></span></a>
+    <a class="atalho" href="/relatorio"><span class="ai">📊</span><span><span class="at">Relatório Mensal</span><span class="ad">Report da diretoria (PPT + dashboard)</span></span></a>
+    <a class="atalho" href="/clientes-sap-4me"><span class="ai">🌐</span><span><span class="at">Clientes SAP 4 ME</span><span class="ad">Projetos globais do grupo</span></span></a>
+    <a class="atalho" href="/development-funds"><span class="ai">💶</span><span><span class="at">Development Funds (SAP)</span><span class="ad">Claims · metas EDF/DDF</span></span></a>
+    <a class="atalho" href="/metas-fy27"><span class="ai">🎯</span><span><span class="at">Metas FY27</span><span class="ad">Objetivos por área</span></span></a>
+    <a class="atalho" href="/hub"><span class="ai">🏢</span><span><span class="at">Marketing Hub</span><span class="ad">Materiais, marca e serviços</span></span></a>
+  </div>
+</div>
+<office-footer></office-footer>
+<script src="/i18n.js"></script>
+<script src="/office-nav.js"></script>
+<script src="/office-footer.js"></script>
+<script>
+const fmtR$ = v => 'R$ ' + (v >= 1e6 ? (v/1e6).toFixed(1).replace('.',',')+'M' : v >= 1e3 ? (v/1e3).toFixed(0)+'k' : Math.round(v||0));
+const fmtEUR = v => '€ ' + (v >= 1e3 ? (v/1e3).toFixed(1).replace('.',',')+'k' : Math.round(v||0));
+(async function(){
+  let ex = {};
+  try { ex = await fetch('/api/executivo').then(r=>r.json()); }
+  catch(e){ document.getElementById('kpis').innerHTML = '<div class="loading">Não foi possível carregar os KPIs agora.</div>'; return; }
+  const p = ex.pipeline||{}, r = ex.resultado||{}, df = ex.df||{};
+  const metaPct70 = df.meta_70pct_1jul ? Math.round(100*(df.aprovado_valido||0)/df.meta_70pct_1jul) : null;
+  document.getElementById('kpis').innerHTML = `
+  <div class="heads" data-no-translate>
+    <div class="head" style="--cor:#cd1543">
+      <div class="lbl">Pipeline gerado por Marketing</div>
+      <div class="val">${fmtR$(p.mkt_sourced_total||0)}</div>
+      <div class="delta">${p.mkt_sourced_pct!=null?p.mkt_sourced_pct+'% do pipeline total':''}</div>
+      <div class="fonte">🟢 Zoho CRM</div>
+    </div>
+    <div class="head" style="--cor:#10b981">
+      <div class="lbl">Receita ganha (closed-won)</div>
+      <div class="val">${fmtR$(r.ganho_valor||0)}</div>
+      <div class="delta">${r.ganho_deals||0} deals · win rate ${r.win_rate_pct!=null?r.win_rate_pct+'%':'—'}</div>
+      <div class="fonte">🟢 Zoho CRM</div>
+    </div>
+    <div class="head" style="--cor:#60a5fa">
+      <div class="lbl">Pipeline aberto</div>
+      <div class="val">${fmtR$(r.aberto_valor||0)}</div>
+      <div class="delta neutro">${r.aberto_deals||0} oportunidades ativas</div>
+      <div class="fonte">🟢 Zoho CRM</div>
+    </div>
+    <div class="head" style="--cor:#fbbf24">
+      <div class="lbl">Development Funds SAP</div>
+      <div class="val">${fmtEUR(df.aprovado_valido||0)}</div>
+      <div class="delta ${metaPct70>=100?'':'neutro'}">${metaPct70!=null?metaPct70+'% da meta 70% (1/jul)':'—'}</div>
+      <div class="fonte">🟢 SAP DF</div>
+    </div>
+  </div>
+  <div style="font-size:10.5px;color:var(--home-text-muted,#64748b);margin-top:10px">Dados ao vivo via <code>/api/executivo</code> (Zoho CRM + SAP DF). Visão completa em <a href="/executivo" style="color:var(--teal,#6ee7b7)">/executivo</a>.</div>`;
+})();
+</script>
+</body>
+</html>

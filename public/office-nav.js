@@ -163,6 +163,7 @@ const OFFICE_NAV_OVERFLOW = [
   { label: '📞 Pipeline (Apollo/Zoho)',  href: '/pipeline' },
 
   { section: '📊 Reports & Análises' },
+  { label: '🏛️ Diretoria (Big Bosses)',  href: '/area/diretoria' },
   { label: '🔗 LinkedIn Intelligence',   href: '/linkedin' },
   { label: '📊 Visão Executiva (CMO)',   href: '/executivo' },
   { label: '📈 Relatório Mensal',        href: '/relatorio' },
