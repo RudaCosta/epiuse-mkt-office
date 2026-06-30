@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>EPI-USE Office · O Escritório</title>
+<title>EPI-USE · Hub do Colaborador (Game)</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
 <script defer data-domain="epiuse-voices-optimizer.up.railway.app" src="https://plausible.io/js/script.js"></script>
 <style>
@@ -152,8 +152,8 @@ body { background: var(--teal,#7ec850); overflow: hidden; font-family: 'Inter', 
 <canvas id="mini" width="180" height="108"></canvas>
 
 <div id="hud">
-  <a class="hud-pill" id="hud-back" href="/home">← Home</a>
-  <div class="hud-pill" id="hud-zone">🏢 EPI-USE Office</div>
+  <a class="hud-pill" id="hud-back" href="/hub">← Hub</a>
+  <div class="hud-pill" id="hud-zone">🏢 EPI-USE · Hub do Colaborador</div>
   <a class="hud-pill" id="hud-hub" href="/hub" title="Marketing Hub — serviços, materiais e contatos">🏢 Hub</a>
   <div id="hud-spacer"></div>
   <div class="hud-pill" id="hud-hint">WASD / setas andam · clique move · <b>E</b> interage</div>
@@ -235,14 +235,14 @@ function wallV(r0, r1, c, doors) {
 
 // ── SALAS (retângulos em tiles) ────────────────────────────────────
 const ROOMS = {
-  optimizer: { c0:3,  r0:3,  c1:13, r1:10, rug:T.RUG_GREEN,  nome:'🪪 Profile Optimizer' },
-  hub:       { c0:15, r0:3,  c1:25, r1:10, rug:T.RUG_VIOLET, nome:'📺 Marketing Hub' },
-  inbound:   { c0:27, r0:3,  c1:37, r1:10, rug:T.RUG_SKY,    nome:'📡 Inbound HQ' },
-  roberto:   { c0:39, r0:3,  c1:56, r1:10, rug:T.RUG_NAVY,   nome:'🏛️ Sala do Roberto' },
-  voices:    { c0:3,  r0:12, c1:16, r1:22, rug:T.RUG_BLUE,   nome:'🎙️ Voices Studio' },
-  bullpen:   { c0:18, r0:12, c1:40, r1:22, rug:T.RUG_SAND,   nome:'💼 Time de Marketing' },
-  field:     { c0:42, r0:12, c1:56, r1:16, rug:T.RUG_AMBER,  nome:'📅 Field & Eventos' },
-  sap:       { c0:42, r0:18, c1:56, r1:22, rug:T.RUG_PURPLE, nome:'⚗️ SAP Lab' },
+  optimizer: { c0:3,  r0:3,  c1:13, r1:10, rug:T.RUG_GREEN,  nome:'📦 Marca & Assets' },
+  hub:       { c0:15, r0:3,  c1:25, r1:10, rug:T.RUG_VIOLET, nome:'🏢 Marketing Hub' },
+  inbound:   { c0:27, r0:3,  c1:37, r1:10, rug:T.RUG_SKY,    nome:'📐 Templates & Canva' },
+  roberto:   { c0:39, r0:3,  c1:56, r1:10, rug:T.RUG_NAVY,   nome:'🏆 Cases' },
+  voices:    { c0:3,  r0:12, c1:16, r1:22, rug:T.RUG_BLUE,   nome:'🎙️ Voices' },
+  bullpen:   { c0:18, r0:12, c1:40, r1:22, rug:T.RUG_SAND,   nome:'🤝 Espaço do Colaborador' },
+  field:     { c0:42, r0:12, c1:56, r1:16, rug:T.RUG_AMBER,  nome:'📅 Eventos' },
+  sap:       { c0:42, r0:18, c1:56, r1:22, rug:T.RUG_PURPLE, nome:'✉️ Assinatura' },
   coffee:    { c0:3,  r0:24, c1:15, r1:32, rug:T.RUG_WARM,   nome:'☕ Coffee Lounge' },
   lobby:     { c0:17, r0:24, c1:40, r1:32, rug:T.RUG_RED,    nome:'🛎️ Lobby' },
   garden:    { c0:42, r0:24, c1:56, r1:32, rug:T.GARDEN,     nome:'🐘 Jardim ERP.ngo' },
@@ -386,17 +386,11 @@ function palFor(seed, shirt) {
   return { hair: hairC, skin: SKINS[h % SKINS.length], shirt, pants: ['#334155','#1e3a5f','#44403c'][h % 3] };
 }
 
-// ── TIME (NPCs) — pessoas reais, sem status online fake ────────────
-const TEAM = [
-  { id:'duda',     px:21, py:14, room:'bullpen',  pal:{hair:'#5b3a1e',skin:'#f5cfa6',shirt:'#cd1543',pants:'#334155'} },
-  { id:'bruna',    px:27, py:14, room:'bullpen',  pal:{hair:'#0f172a',skin:'#e8b58a',shirt:'#2563eb',pants:'#1e3a5f'} },
-  { id:'gui',      px:33, py:14, room:'bullpen',  pal:{hair:'#27190e',skin:'#f5cfa6',shirt:'#10b981',pants:'#44403c'} },
-  { id:'isabela',  px:21, py:19, room:'bullpen',  pal:{hair:'#7c5a3a',skin:'#f5cfa6',shirt:'#f59e0b',pants:'#334155'} },
-  { id:'marlison', px:27, py:19, room:'bullpen',  pal:{hair:'#0f172a',skin:'#c98e62',shirt:'#0d9488',pants:'#1e3a5f'} },
-  { id:'roberto',  px:48, py:6,  room:'roberto',  pal:{hair:'#94a3b8',skin:'#f5cfa6',shirt:'#334155',pants:'#0f172a'} },
-  { id:'anderson', px:6,  py:15, room:'voices',   pal:{hair:'#27190e',skin:'#e8b58a',shirt:'#60a5fa',pants:'#334155'} },
-  { id:'carlos',   px:11, py:15, room:'voices',   pal:{hair:'#0f172a',skin:'#f5cfa6',shirt:'#60a5fa',pants:'#44403c'} },
-];
+// ── GAME DO COLABORADOR ──────────────────────────────────────────────
+// Variante do /game pra colaboradores EPI-USE (não-staff de marketing).
+// Sem NPCs do time (este mundo não é a mesa do time) — as estações
+// interativas são os ITENS DO MARKETING HUB (ver ZONES abaixo).
+const TEAM = [];
 
 let DESKS = {};   // /api/office-desks.json
 fetch('/api/office-desks.json').then(r => r.json()).then(d => { DESKS = d.mesas || {}; prerenderWorld(); }).catch(()=>{});
@@ -666,32 +660,37 @@ prerenderWorld();
 function personCard(id) {
   return { type:'person', id };
 }
+// ── ESTAÇÕES = ITENS DO MARKETING HUB ────────────────────────────────
+// URLs reais (mesmas do portal public/hub.html). Colaborador interage (E)
+// e abre o item: portal interno (iframe) ou material externo (SharePoint/Canva).
+const HUB_URLS = {
+  apresentacao: 'https://epiusebr-my.sharepoint.com/:p:/g/personal/ti_brasil_epiuse_com_br/IQC0yvJ0gObYRoinmYgESBB4AYZxw9zjHJxtXdaFnVvAsas',
+  template:     'https://epiusebr-my.sharepoint.com/:p:/g/personal/ti_brasil_epiuse_com_br/IQA-d3UyAl70S4ugL9a-YsPrAc31EfAtM__U8MvZVh0mB14',
+  eventos:      'https://epiusebr-my.sharepoint.com/:x:/g/personal/ti_brasil_epiuse_com_br/IQCVg4hDxMivTZf9vlCJ01IMARLI-0trNw2F0tAegJOd7O8',
+  cases:        'https://epiusebr-my.sharepoint.com/:f:/g/personal/ti_brasil_epiuse_com_br/IgCLDt5NFsPbRJ5lWG8GTOYzARZJqnsci5k1Xuz07s0nS2M',
+  assinatura:   'https://epiusebr-my.sharepoint.com/:f:/g/personal/ti_brasil_epiuse_com_br/IgChoZgUr-3UTYwTtUQRaVZrAWgbG9jkpE2yghH1wYsteYA',
+  canva:        'https://www.canva.com/brand/kADdOtpMv9w',
+};
+const ext = (url, title) => ({ type:'confirm-external', url, title, body:'Abrir em nova aba?\n\n'+url });
 const ZONES = [
-  { id:'optimizer', px:6*TS,    py:6.5*TS,  r:80,  name:'🪪 Profile Optimizer', tip:'Otimizar perfil LinkedIn com IA', action:{type:'iframe', url:'/optimizer'} },
-  { id:'hub',       px:20.3*TS, py:5*TS,    r:90,  name:'📺 Marketing Hub', tip:'Portal de onboarding EPI-USE', action:{type:'iframe', url:'/hub'} },
-  { id:'inbound',   px:32*TS,   py:5*TS,    r:90,  name:'📡 Inbound HQ', tip:'Hub · Brief→Post · Carrossel · Calendar', action:{type:'iframe', url:'/inbound'} },
-  { id:'roberto',   px:47.5*TS, py:6*TS,    r:96,  name:'📊 Visão Executiva (CMO)', tip:'KPIs executivos — pipeline MKT · receita · DF', action:{type:'iframe', url:'/executivo'} },
-  { id:'voice-anderson', px:5*TS,  py:14.5*TS, r:52, name:'Anderson Costa 🎙️', tip:'Voice — perfil e SSI', action:{type:'iframe', url:'/voices?v=anderson-costa'} },
-  { id:'voice-carlos',   px:10*TS, py:14.5*TS, r:52, name:'Carlos Furigo 🎙️', tip:'Voice — perfil e SSI', action:{type:'iframe', url:'/voices?v=carlos-furigo'} },
-  { id:'voice-vaga3',    px:5*TS,  py:20*TS,   r:52, name:'Vaga de Voice ③', tip:'Recrutar próximo Voice', action:{type:'iframe', url:'/seja-voice?utm_source=office&utm_medium=baia&utm_campaign=voices-mvp&utm_voice=vaga-03'} },
-  { id:'voice-vaga4',    px:10*TS, py:20*TS,   r:52, name:'Vaga de Voice ④', tip:'Recrutar próximo Voice', action:{type:'iframe', url:'/seja-voice?utm_source=office&utm_medium=baia&utm_campaign=voices-mvp&utm_voice=vaga-04'} },
-  { id:'field',     px:47.7*TS, py:13.5*TS, r:96,  name:'📅 Field & Eventos', tip:'Calendário de eventos + MDF', action:{type:'iframe', url:'/field-marketing'} },
-  { id:'sap',       px:47.5*TS, py:19.5*TS, r:96,  name:'⚗️ SAP Lab', tip:'Clientes SAP 4ME — 705 pacotes', action:{type:'iframe', url:'/clientes-sap-4me'} },
-  { id:'coffee',    px:5.5*TS,  py:25.5*TS, r:70,  name:'☕ Coffee Lounge', tip:'Lore do programa EPI-USE Voices', action:{type:'info',
-      title:'☕ Coffee Lounge', emoji:'☕', sub:'EPI-USE Voices · groupelephant.com',
-      body:`Bem-vindo ao escritório virtual do marketing EPI-USE Brasil!\n\nSomos a maior consultoria SAP HCM/Payroll do Brasil, parte do grupo groupelephant.com — 4.500+ profissionais, 40+ países, SAP Gold Partner.\n\nO programa EPI-USE Voices transforma colaboradores em referências no LinkedIn. E todos os Voices são embaixadores do ERP.ngo: 1% da receita global do grupo vai pra conservação de elefantes e combate à pobreza rural na África.\n\nPega um café e explora o escritório! ☕` } },
-  { id:'ideias',    px:23.2*TS, py:25.5*TS, r:90,  name:'💡 Mural de Ideias', tip:'Repositório de ideias do time', action:{type:'iframe', url:'/ideias'} },
-  { id:'recepcao',  px:27.5*TS, py:30*TS,   r:70,  name:'🛎️ Recepção', tip:'Como jogar', action:{type:'info',
-      title:'🛎️ Recepção EPI-USE Office', emoji:'🛎️', sub:'Guia rápido',
-      body:`🚶 Andar: WASD ou setas — ou clica/toca no chão que o avatar vai sozinho.\n\n⚡ Interagir: chega perto de qualquer mesa, TV ou quadro e aperta E (ou toca no botão E no celular).\n\n🗺️ Salas:\n• Norte — Optimizer, Marketing Hub, Inbound HQ e a Sala do Roberto (Visão Executiva)\n• Centro — Voices Studio e as mesas do time\n• Sul — Coffee Lounge, Mural de Ideias e o Jardim ERP.ngo 🐘\n\n💡 As mesas do time mostram itens personalizados de cada pessoa!` } },
-  { id:'elefante',  px:48.5*TS, py:28*TS,   r:80,  name:'🐘 ERP.ngo', tip:'1% da receita global → conservação', action:{type:'confirm-external', url:'https://erp.ngo',
+  { id:'hub',         px:20.3*TS, py:5*TS,    r:120, name:'🏢 Marketing Hub', tip:'Portal central — serviços, materiais e contatos', action:{type:'iframe', url:'/hub'} },
+  { id:'apresentacao',px:6*TS,    py:6.5*TS,  r:90,  name:'📊 Apresentação 2026', tip:'Deck institucional EPI-USE', action: ext(HUB_URLS.apresentacao, '📊 Apresentação 2026') },
+  { id:'logos',       px:11*TS,   py:8.5*TS,  r:60,  name:'📦 Logos & Assets', tip:'Logos oficiais EPI-USE', action:{type:'iframe', url:'/hub'} },
+  { id:'template',    px:32*TS,   py:5*TS,    r:90,  name:'📐 Template PPT', tip:'Modelo de apresentação', action: ext(HUB_URLS.template, '📐 Template PPT') },
+  { id:'canva',       px:29*TS,   py:7.5*TS,  r:60,  name:'🎨 Canva Kit', tip:'Kit de marca no Canva', action: ext(HUB_URLS.canva, '🎨 Canva Kit') },
+  { id:'cases',       px:47.5*TS, py:6*TS,    r:96,  name:'🏆 Cases', tip:'Cases de sucesso EPI-USE', action: ext(HUB_URLS.cases, '🏆 Cases') },
+  { id:'eventos',     px:47.7*TS, py:13.5*TS, r:96,  name:'📅 Eventos 2026', tip:'Calendário de eventos', action: ext(HUB_URLS.eventos, '📅 Eventos 2026') },
+  { id:'assinatura',  px:47*TS,   py:19.5*TS, r:96,  name:'✉️ Assinatura de e-mail', tip:'Modelos de assinatura', action: ext(HUB_URLS.assinatura, '✉️ Assinatura de e-mail') },
+  { id:'ideias',      px:23.2*TS, py:25.5*TS, r:90,  name:'💡 Mural de Ideias', tip:'Sugira ideias de marketing', action:{type:'iframe', url:'/ideias'} },
+  { id:'recepcao',    px:27.5*TS, py:30*TS,   r:80,  name:'🛎️ Recepção', tip:'Como usar', action:{type:'info',
+      title:'🏢 Hub do Colaborador EPI-USE', emoji:'🏢', sub:'EPI-USE · Marketing Hub',
+      body:`Este é o espaço do marketing pra todo o time EPI-USE!\n\n🚶 Andar: WASD/setas — ou clica/toca no chão.\n⚡ Interagir: chega perto de uma estação e aperta E (ou o botão E no celular).\n\nAqui você acha: a apresentação institucional, templates, calendário de eventos, cases, assinatura de e-mail, o kit de marca no Canva e os logos oficiais — tudo num lugar só. 🏢` } },
+  { id:'coffee',      px:5.5*TS,  py:25.5*TS, r:70,  name:'☕ Coffee Lounge', tip:'Sobre a EPI-USE', action:{type:'info',
+      title:'☕ Coffee Lounge', emoji:'☕', sub:'EPI-USE · groupelephant.com',
+      body:`A EPI-USE é a maior consultoria SAP HCM/Payroll do Brasil, parte do grupo groupelephant.com — 4.500+ profissionais, 40+ países, SAP Gold Partner.\n\nTodo o grupo é embaixador do ERP.ngo: 1% da receita global vai pra conservação de elefantes e combate à pobreza rural na África.\n\nPega um café e explora o Hub! ☕` } },
+  { id:'elefante',    px:48.5*TS, py:28*TS,   r:80,  name:'🐘 ERP.ngo', tip:'1% da receita global → conservação', action:{type:'confirm-external', url:'https://erp.ngo',
       title:'🐘 ERP.ngo', body:'O grupo groupelephant.com destina 1% da receita global pra conservação de elefantes e combate à pobreza rural na África.\n\nAbrir erp.ngo em nova aba?'} },
 ];
-// mesas do bullpen → cartão da pessoa
-const BULL_ZONES = [['duda',21,14.3],['bruna',27,14.3],['gui',33,14.3],['isabela',21,19.3],['marlison',27,19.3],['ruda',33,19.3]];
-for (const [id, c, r] of BULL_ZONES) {
-  ZONES.push({ id:'desk-'+id, px:c*TS, py:r*TS, r:46, name:'Mesa', tip:'Ver perfil', action:personCard(id), deskOwner:id });
-}
 
 // ── INPUT ──────────────────────────────────────────────────────────
 const keysHeld = {}; const keysJust = new Set();
