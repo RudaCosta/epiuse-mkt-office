@@ -154,6 +154,7 @@ body { background: var(--teal,#7ec850); overflow: hidden; font-family: 'Inter', 
 <div id="hud">
   <a class="hud-pill" id="hud-back" href="/home">← Home</a>
   <div class="hud-pill" id="hud-zone">🏢 EPI-USE Office</div>
+  <a class="hud-pill" id="hud-hub" href="/hub" title="Marketing Hub — serviços, materiais e contatos">🏢 Hub</a>
   <div id="hud-spacer"></div>
   <div class="hud-pill" id="hud-hint">WASD / setas andam · clique move · <b>E</b> interage</div>
   <div class="hud-pill" id="hud-user"><span class="dot"></span><span id="hud-name">—</span></div>
@@ -1098,6 +1099,21 @@ function spawn() {
 }
 document.getElementById('sg-go').addEventListener('click', spawn);
 nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') spawn(); });
+
+// Versão colaborador: quem é role 'hub' (não-staff de marketing) vê o game
+// orientado ao Marketing Hub — o "← Home" vira atalho pro Hub e o rótulo muda.
+(function () {
+  fetch('/api/auth/status').then(function (r) { return r.json(); }).then(function (s) {
+    if (s && s.authenticated && s.role === 'hub') {
+      var back = document.getElementById('hud-back');
+      if (back) { back.href = '/hub'; back.textContent = '← Hub'; }
+      var zone = document.getElementById('hud-zone');
+      if (zone) zone.textContent = '🏢 EPI-USE · Hub do Colaborador';
+      var hub = document.getElementById('hud-hub');
+      if (hub) hub.style.outline = '2px solid #cd1543';
+    }
+  }).catch(function () {});
+})();
 </script>
 </body>
 </html>

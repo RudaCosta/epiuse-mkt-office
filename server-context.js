@@ -120,7 +120,8 @@ function requireAuth(req, res, next) {
   if (process.env.SSO_ENFORCE !== 'true' || !SSO_ENABLED) return next();
   if (req.session && req.session.user) return next();
   if (req.path.startsWith('/api/')) return res.status(401).json({ error: 'auth_required' });
-  res.redirect('/auth/login?returnTo=' + encodeURIComponent(req.originalUrl));
+  // Manda pra tela de login branded (com portas Office/Game), não direto pro Microsoft.
+  res.redirect('/login?returnTo=' + encodeURIComponent(req.originalUrl));
 }
 
 module.exports = {

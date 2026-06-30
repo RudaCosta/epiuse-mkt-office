@@ -1,6 +1,6 @@
 {
-  "current": "0.57.4",
-  "atualizado_em": "29/jun/2026",
+  "current": "0.57.5",
+  "atualizado_em": "30/jun/2026",
   "next": [
     {
       "version": "0.53.0",
@@ -54,9 +54,23 @@
   ],
   "releases": [
     {
+      "version": "0.57.5",
+      "date": "30/jun/2026",
+      "status": "current",
+      "path": null,
+      "title": "🔑 Tela de login (Office/Game) + home segue o SSO + link do Hub",
+      "summary": "Home agora acompanha automaticamente o usuário logado via SSO (o \"Ver como\" virou preview, não sequestra mais a identidade). Tela de login branded com as portas Office e Game (deslogado cai nela). Link do Marketing Hub no nav e atalho do Hub dentro do Game (modo colaborador).",
+      "highlights": [
+        "home.js: persona do SSO é autoritativa; override \"Ver como\" amarrado ao email logado",
+        "/login: tela branded com Entrar Microsoft + portas Office/Game (enforce e logout vão pra ela)",
+        "Link 🏢 Marketing Hub no menu do nav",
+        "Game: pill 🏢 Hub + modo colaborador (role hub) com atalho pro Hub"
+      ]
+    },
+    {
       "version": "0.57.4",
       "date": "29/jun/2026",
-      "status": "current",
+      "status": "past",
       "path": null,
       "title": "✍️ Stratview Generator + RD Station token fix",
       "summary": "Gerador de artigos executivos Oracle HCM · OCI · AI integrado ao Office. Usa Gemini 2.5 Flash com Google Search grounding para ideias, geração B2B, refinamento por persona (CIO/CHRO), capa canvas branded, TTS e publicação WordPress. Aparece nas ferramentas de Brand (Duda) e entregas de Intelligence (Bruna). Também inclui correção do token RD Station (prioridade arquivo > env var).",

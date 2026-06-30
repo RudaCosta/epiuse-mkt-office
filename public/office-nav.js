@@ -153,6 +153,7 @@ const OFFICE_NAV_BREADCRUMBS = {
 // Cada item com `section` vira separador. Itens sem section são extras.
 const OFFICE_NAV_OVERFLOW = [
   { section: '🤖 Escritório Virtual' },
+  { label: '🏢 Marketing Hub (portal)',  href: '/hub' },
   { label: '💡 Mural de Ideias',         href: '/ideias' },
   { label: '🤖 Agentes & Contexto',      href: '/agentes' },
   { label: '⚡ Central (pendências+prazos)', href: '/war-room' },
