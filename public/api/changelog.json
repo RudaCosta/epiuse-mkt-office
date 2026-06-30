@@ -1,5 +1,5 @@
 {
-  "current": "0.57.9",
+  "current": "0.58.0",
   "atualizado_em": "30/jun/2026",
   "next": [
     {
@@ -54,9 +54,23 @@
   ],
   "releases": [
     {
-      "version": "0.57.9",
+      "version": "0.58.0",
       "date": "30/jun/2026",
       "status": "current",
+      "path": null,
+      "title": "Marketing Hub reformulado - portal de auto-servico",
+      "summary": "Hub vira portal de auto-servico pro colaborador: menu superior unico, secao Acesso Rapido (Design, ERP.ngo, Seja Voice, Artigos, Game, LinkedIn Optimizer) + Templates no topo. Hard-lock liberado pra esses destinos. Removido link da Diretoria do menu e botao Visao CMO V2.",
+      "highlights": [
+        "hub.html: menu unico + Acesso Rapido + Templates no topo",
+        "server.js: allowlist colaborador inclui /design,/erp-impacto,/seja-voice,/artigos,/optimizer",
+        "office-nav.js: removido link Diretoria",
+        "Removido cmo-v2.js de 5 paginas"
+      ]
+    },
+    {
+      "version": "0.57.9",
+      "date": "30/jun/2026",
+      "status": "past",
       "path": null,
       "title": "Colaborador (role hub) travado no Marketing Hub",
       "summary": "Hard-lock: role hub so acessa /hub e /game-hub; outras paginas redirecionam pro /hub. Time MKT, head e country-manager/diretoria nao afetados. Nav do Office some pro colaborador.",
