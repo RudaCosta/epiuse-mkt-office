@@ -11,7 +11,7 @@ const {
   IS_LOCAL_DEV,
   PORT
 } = require('../server-context');
-const { upsertUser, profileFor } = require('./users');
+const { upsertUser, profileFor, landingForView } = require('./users');
 
 // API status do SSO
 router.get('/api/auth/status', (req, res) => {
@@ -75,11 +75,18 @@ router.get('/auth/callback', async (req, res) => {
       admin: prof.admin,
       loginAt: new Date().toISOString()
     };
-    // Marketing Hub é a tela central de quem não é do núcleo (role 'hub').
-    // Se o usuário não pediu uma rota específica, manda pro landing do role.
-    const explicit = req.session.returnTo && req.session.returnTo !== '/';
-    const back = explicit ? req.session.returnTo : prof.landing;
+    // Roteamento pós-login:
+    //  1. returnTo explícito (usuário pediu uma rota específica) sempre vence.
+    //  2. Senão, se ainda não escolheu visualização (office|game) → tela /escolher-visao.
+    //  3. Senão, vai pro landing da visualização preferida (default_view).
+    const returnTo = req.session.returnTo;
+    const explicit = returnTo && returnTo !== '/';
     delete req.session.returnTo;
+    const wantedView = (dbUser && dbUser.default_view) || '';
+    let back;
+    if (explicit) back = returnTo;
+    else if (!wantedView) back = '/escolher-visao';
+    else back = landingForView(prof.role, wantedView);
     res.redirect(back);
   } catch(e){ 
     console.error('[sso] callback err', e); 

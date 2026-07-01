@@ -63,6 +63,36 @@ function profileFor(user) {
   return { role, persona, landing: cfg.landing, admin: !!cfg.admin };
 }
 
+// Landing de acordo com a visualização escolhida (office|game).
+//  - office: landing normal do role (head/áreas → '/', country/diretoria → /area/diretoria, hub → /hub)
+//  - game:   colaborador (hub) → /game-hub; demais (time mkt) → /game
+function landingForView(role, view) {
+  const cfg = resolveRoleConfig(role);
+  if (view === 'game') return role === 'hub' ? '/game-hub' : '/game';
+  return cfg.landing; // 'office' (default)
+}
+
+// Grava a visualização preferida (office|game) do usuário. Idempotente.
+function setUserView(email, view) {
+  if (!email) return null;
+  const v = view === 'game' ? 'game' : 'office';
+  try {
+    db.prepare(`UPDATE users SET default_view=?, updated_at=datetime('now') WHERE email=?`)
+      .run(v, String(email).toLowerCase());
+    return v;
+  } catch (e) { console.warn('[users] setUserView:', e.message); return null; }
+}
+
+// Usuário logado escolhe/troca a visualização. Grava o default e diz pra onde ir.
+router.post('/api/users/me/view', express.json(), (req, res) => {
+  const u = req.session && req.session.user;
+  if (!u || !u.email) return res.status(401).json({ error: 'auth_required' });
+  const view = (req.body && req.body.view) === 'game' ? 'game' : 'office';
+  const saved = setUserView(u.email, view);
+  if (!saved) return res.status(500).json({ error: 'save_failed' });
+  res.json({ success: true, view: saved, redirect: landingForView(u.role || 'hub', saved) });
+});
+
 // Middleware: exige que a sessão tenha um dos roles informados.
 function requireRole(...roles) {
   return (req, res, next) => {
@@ -140,5 +170,7 @@ module.exports.resolveRoleConfig = resolveRoleConfig;
 module.exports.getUserByEmail = getUserByEmail;
 module.exports.upsertUser = upsertUser;
 module.exports.profileFor = profileFor;
+module.exports.landingForView = landingForView;
+module.exports.setUserView = setUserView;
 module.exports.requireRole = requireRole;
 module.exports.requireAdmin = requireAdmin;

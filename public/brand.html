@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Brand Assets · EPI-USE Office</title>
+<link rel="stylesheet" href="/design-tokens.css">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0a1426; --surface:#0f1d36; --surface2:#14223f;
+    --text:#e8f0ff; --text2:#9fb2d4; --line:rgba(134,158,195,.18);
+    --accent:#cd1543; --teal:#00a99d;
+  }
+  body{font-family:'Maven Pro','Poppins',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.5}
+  .container{max-width:1080px;margin:0 auto;padding:0 24px}
+  .hero{padding:56px 24px 28px;background:linear-gradient(160deg,#001026,#001844)}
+  .hero .eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--text2);font-weight:700;margin-bottom:10px}
+  .hero h1{font-size:32px;font-weight:800;letter-spacing:-.4px;margin-bottom:8px}
+  .hero p{font-size:15px;color:var(--text2);max-width:620px}
+  .section{padding:36px 24px;border-top:1px solid var(--line)}
+  .section-divider{margin:8px 0 18px}
+  .section-divider h3{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--text2);font-weight:700}
+  .swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+  .swatch{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .swatch-box{height:72px}
+  .swatch-name{display:block;font-size:13px;font-weight:700;padding:10px 12px 2px}
+  .swatch-hex{display:block;font-size:12px;color:var(--text2);font-family:'JetBrains Mono',monospace;padding:0 12px 12px}
+  .typo-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+  .typo-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px}
+  .typo-meta{font-size:12px;color:var(--text2);margin-top:8px}
+  .btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+  .btn-primary,.btn-ghost{font-size:13px;padding:10px 16px;border-radius:9px;text-decoration:none;font-weight:700;cursor:pointer;border:1px solid transparent;font-family:inherit}
+  .btn-primary{background:var(--accent);color:#fff}
+  .btn-primary:hover{filter:brightness(1.08)}
+  .btn-ghost{background:transparent;color:var(--text);border-color:var(--line)}
+  .btn-ghost:hover{border-color:var(--accent)}
+  .rules-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:6px}
+  .rule-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px}
+  .rule-card h4{font-size:14px;margin-bottom:10px}
+  .rule-card ul{list-style:none;display:flex;flex-direction:column;gap:6px}
+  .rule-card li{font-size:13px;color:var(--text2);padding-left:16px;position:relative}
+  .rule-card li::before{content:'·';position:absolute;left:4px;color:var(--text2)}
+  .rule-card.dont{border-color:rgba(205,21,67,.3)}
+  .logos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px}
+  .logo-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center}
+  .logo-card img{max-width:100%;height:72px;object-fit:contain;background:#fff;border-radius:8px;padding:8px}
+  .logo-card .lbl{font-size:12px;font-weight:600}
+  .logo-card .dl{font-size:12px;color:var(--text2);text-decoration:none}
+  .logo-card .dl:hover{color:var(--accent)}
+</style>
+</head>
+<body data-route="brand">
+<office-nav></office-nav>
+
+<div class="hero">
+  <div class="container">
+    <div class="eyebrow">🎨 Identidade Visual</div>
+    <h1>Brand Assets</h1>
+    <p>Logos, cores e tipografia oficiais da marca. Templates e materiais editáveis ficam em <strong style="color:var(--text)">Peças de Marketing</strong>, no Hub.</p>
+  </div>
+</div>
+
+<div class="section">
+  <div class="container">
+    <div class="section-divider"><h3>Paleta de Cores</h3></div>
+    <div class="swatches">
+      <div class="swatch"><div class="swatch-box" style="background:#001844"></div><span class="swatch-name">Navy (Principal)</span><span class="swatch-hex">#001844</span></div>
+      <div class="swatch"><div class="swatch-box" style="background:#cd1543"></div><span class="swatch-name">Red</span><span class="swatch-hex">#cd1543</span></div>
+      <div class="swatch"><div class="swatch-box" style="background:#869ec3"></div><span class="swatch-name">Blue Light</span><span class="swatch-hex">#869ec3</span></div>
+      <div class="swatch"><div class="swatch-box" style="background:#cfd1d3"></div><span class="swatch-name">Grey</span><span class="swatch-hex">#cfd1d3</span></div>
+      <div class="swatch"><div class="swatch-box" style="background:#00a99d"></div><span class="swatch-name">Teal</span><span class="swatch-hex">#00a99d</span></div>
+      <div class="swatch"><div class="swatch-box" style="background:#e8f0fb;border-bottom:1px solid var(--line)"></div><span class="swatch-name">Azul Claro</span><span class="swatch-hex">#e8f0fb</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="container">
+    <div class="section-divider"><h3>Tipografia</h3></div>
+    <div class="typo-row">
+      <div class="typo-card"><div style="font-size:22px;font-weight:800;letter-spacing:-.3px">Heading Principal</div><div class="typo-meta">Maven Pro 800 (primary)</div></div>
+      <div class="typo-card"><div style="font-size:16px;font-weight:700">Subtítulo &amp; Destaque</div><div class="typo-meta">Maven Pro 700</div></div>
+      <div class="typo-card"><div style="font-size:14px;font-weight:400;color:var(--text2)">Corpo de texto para parágrafos e descrições de produtos e serviços.</div><div class="typo-meta">Avenir 400 (secondary) &middot; Off-line: Calibri</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="container">
+    <div class="section-divider"><h3>Logos</h3></div>
+    <div class="btns">
+      <a class="btn-ghost" href="https://www.canva.com/brand/kADdOtpMv9w" target="_blank" rel="noopener">🎨 Canva Brand Kit</a>
+      <a class="btn-ghost" href="https://epiusebr-my.sharepoint.com/:f:/g/personal/ti_brasil_epiuse_com_br/IgCVrVTPXrjdQ788I4NAlRx0AXBTy1GlgiZaxNbZLR8vV-U" target="_blank" rel="noopener">🖼️ Image Library</a>
+    </div>
+    <div class="logos-grid" id="logos-grid"></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="container">
+    <div class="section-divider"><h3>Uso do logo</h3></div>
+    <div class="rules-grid">
+      <div class="rule-card"><h4>✅ Uso correto</h4><ul><li>Use o logo original sem distorcer</li><li>Mantenha área de respiro</li><li>Versão branca em fundos escuros</li><li>Versão colorida em fundos claros</li></ul></div>
+      <div class="rule-card dont"><h4>❌ Proibido</h4><ul><li>Não altere as cores do logo</li><li>Não adicione sombras ou efeitos</li><li>Não estique ou comprima</li><li>Não use em fundos muito coloridos</li></ul></div>
+    </div>
+  </div>
+</div>
+
+<script src="/office-nav.js"></script>
+<script src="/js/logos-data.js"></script>
+<script>
+  (function(){
+    var LOGOS = window.LOGOS || [];
+    var g = document.getElementById('logos-grid');
+    if (!LOGOS.length) { g.innerHTML = '<div style="color:var(--text2);font-size:13px">Logos indisponíveis no momento.</div>'; return; }
+    LOGOS.forEach(function(l){
+      var c = document.createElement('div'); c.className='logo-card';
+      c.innerHTML = '<img src="'+l.src+'" alt="'+l.label+'" loading="lazy"><div class="lbl">'+l.label+'</div><a class="dl" href="'+l.src+'" download="'+l.file+'">↓ Baixar</a>';
+      g.appendChild(c);
+    });
+  })();
+</script>
+</body>
+</html>

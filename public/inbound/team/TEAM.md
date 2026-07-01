@@ -1,13 +1,13 @@
-# Time de Marketing — EPI-USE Brasil &amp; StratView
+# Time de Marketing — EPI-USE Brasil &amp; Stratview
 
 Reference card dos integrantes do time de Marketing.
 Use ao popular o módulo **Painel · Team**, o **War Room · Time** e qualquer fonte única de "Time" depois da consolidação proposta no UX-AUDIT.
 
 ---
 
-## Novos talentos (StratView — slide oficial)
+## Novos talentos (Stratview — slide oficial)
 
-Origem: deck institucional StratView (slide "Novos Talentos no Time").
+Origem: deck institucional Stratview (slide "Novos Talentos no Time").
 Imagem: `team/novos-talentos-stratview.png`
 
 | # | Nome | Área | Notas |
@@ -41,7 +41,7 @@ Vindo das telas do War Room / Painel da Duda atuais. Inclui pra ter o roster com
 
 1. **Isabela** — Carvalho (Field Marketing) vs de Oliveira (Eventos &amp; MDF). Field Marketing e Eventos podem ser a mesma função descrita de jeitos diferentes; ou são duas pessoas. Verificar.
 2. **Gui x Guilherme Marques** — "Gui · Growth &amp; IA" no War Room provavelmente é o Guilherme Marques (Growth Hacking). Nome curto vs completo.
-3. **Duda x Eduarda Hirose** — "Duda · Brand Experience" no War Room bate exato com "Eduarda Hirose · Brand Experience" do slide StratView. Confirmar se é a mesma pessoa (Duda = apelido de Eduarda).
+3. **Duda x Eduarda Hirose** — "Duda · Brand Experience" no War Room bate exato com "Eduarda Hirose · Brand Experience" do slide Stratview. Confirmar se é a mesma pessoa (Duda = apelido de Eduarda).
 
 ---
 

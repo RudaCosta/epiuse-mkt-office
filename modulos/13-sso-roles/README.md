@@ -57,7 +57,16 @@ Semeado no boot via `INSERT OR IGNORE` (idempotente — não sobrescreve ajustes
 - Roteamento: `/game` redireciona role `hub` → `/game-hub`. A porta "Game" do `/login` cai em `/game` e o redirect resolve por role após o login.
 
 ## Hard-lock do colaborador (role hub) — 30/jun
-Decisão atualizada do Rudá: o colaborador (role `hub`) **só acessa o Marketing Hub** (`/hub`) e o game do colaborador (`/game-hub`). Qualquer outra página → redirect `/hub` (middleware em `server.js`). Time de MKT, `head` e `country-manager`/`diretoria` **não** são afetados. O `office-nav` esconde tabs/overflow/sino pro colaborador (`data-hublock`). O onboarding (aba do `/hub`) segue acessível a todos.
+Decisão atualizada do Rudá: o colaborador (role `hub`) **só acessa o Marketing Hub** (`/hub`) e o game do colaborador (`/game-hub`). Qualquer outra página → redirect `/hub` (middleware em `server.js`). Time de MKT, `head` e `country-manager`/`diretoria` **não** são afetados. O `office-nav` esconde tabs/overflow/sino pro colaborador (`data-hublock`) e, sem as tabs, joga os controles (idiomas/tema/usuário) pra **direita** (`margin-left:auto`). O logo do nav é **sempre branco** (a barra é navy escuro em todos os temas).
+
+## Aba Onboarding — só time de MKT (0.59.0)
+A aba "🚀 Onboarding" do `/hub` só aparece pros roles do time de marketing (`head, intelligence, growth, field, pipeline, brand, conteudo`). Colaborador (`hub`) e `country-manager` não veem (script lê `/api/auth/status`).
+
+## Brand Assets — página própria `/brand` (0.59.0)
+Brand Assets saiu do `/hub` e virou `public/brand.html` (rota `/brand`, no `HUB_LOCK_PAGES`): paleta oficial (Navy/Red/Blue Light/Grey), tipografia (Maven Pro + Avenir) e logos. Linkada por **último** no Acesso Rápido do Hub. Os logos vivem em `public/js/logos-data.js` (fonte única, ~3.2MB base64) consumida por `/hub` e `/brand` — extração que reduziu `hub.html` de 3.3MB pra 75KB.
+
+## Escolher visualização pós-login (0.59.0)
+Coluna `default_view` (office|game) na tabela `users`. No 1º login (sem default e sem `returnTo` explícito), o callback manda pra `/escolher-visao` (`public/escolher-visao.html`): 2 cards Office/Game. A escolha grava via `POST /api/users/me/view` e vira o padrão (`landingForView(role, view)`). Logins seguintes vão direto pro landing preferido. Troca a qualquer momento pelo menu 👤 → "🔀 Trocar visualização".
 
 ## Login visível
 O botão **🔐 Entrar** aparece em destaque na barra do nav (`office-nav.js`) quando `/api/auth/status` retorna `enabled:true` e a pessoa não está logada. Quando o SSO está desligado (`enabled:false`, sem `AZURE_*`), nada muda — comportamento "Visitante", sem botão (evita um login que daria 503).
