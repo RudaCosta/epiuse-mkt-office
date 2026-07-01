@@ -5172,6 +5172,7 @@ const inboundRouter = require('./routes/inbound');
 const jarvisRouter = require('./routes/jarvis'); // Módulo 11 — JARVIS (copiloto SDR/BDR)
 const optimizerV3Router = require('./routes/optimizer-v3'); // Módulo 12 — Profile Optimizer v3 (Groq Vision + 21 LinkedIn skills)
 const usersRouter = require('./routes/users'); // Módulo 13 — Users & Roles (SSO + admin)
+const curvaAbcRouter = require('./routes/curva-abc'); // Módulo 14 — Curva ABC (classificação de contas Fit x Propensão)
 
 app.use('/', sapRouter);
 app.use('/', authRouter);
@@ -5180,6 +5181,7 @@ app.use('/', inboundRouter);
 app.use('/', jarvisRouter);
 app.use('/', optimizerV3Router);
 app.use('/', usersRouter);
+app.use('/', curvaAbcRouter);
 
 app.listen(PORT, () => {
   console.log(`\n🎙️  EPI-USE Voices — Profile Optimizer`);

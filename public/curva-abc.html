@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Curva ABC · EPI-USE Office</title>
+<script defer data-domain="epiuse-voices-optimizer.up.railway.app" src="https://plausible.io/js/script.js"></script>
+<link rel="stylesheet" href="/design-tokens.css">
+<script type="module" src="/office-nav.js"></script>
+<script type="module" src="/office-footer.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #060e1a;
+  --bg-2: #0c1729;
+  --surface: rgba(255,255,255,0.025);
+  --surface-2: rgba(255,255,255,0.05);
+  --border: rgba(255,255,255,0.08);
+  --border-light: rgba(255,255,255,0.05);
+  --text: var(--text,#e2e8f0);
+  --text-dim: var(--text-dim,#cbd5e1);
+  --text-muted: var(--muted,#94a3b8);
+  --primary: var(--red,#f87171);
+  --primary-light: var(--red,#fca5a5);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); font-family: 'Inter', sans-serif; color: var(--text); min-height: 100vh; }
+.wrap { max-width: 1400px; margin: 0 auto; padding: 28px 24px 80px; }
+
+.hdr { display: flex; justify-content: space-between; align-items: end; gap: 20px; flex-wrap: wrap; margin-bottom: 24px; }
+.hdr-l h1 { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 26px; color: var(--primary-light); letter-spacing: .04em; margin: 0 0 6px; }
+.hdr-l .sub { font-size: 12px; color: var(--text-muted); letter-spacing: .14em; text-transform: uppercase; }
+.hdr-r { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.btn { padding: 8px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); text-decoration: none; transition: all .15s; }
+.btn:hover { background: var(--surface); border-color: var(--primary-light); color: var(--primary-light); }
+.btn.primary { background: rgba(248,113,113,.20); border-color: rgba(248,113,113,.45); color: var(--red,#fca5a5); }
+.btn.primary:hover { background: rgba(248,113,113,.32); }
+
+.callout { background: linear-gradient(135deg, rgba(248,113,113,.08), rgba(96,165,250,.05)); border: 1px solid rgba(248,113,113,.25); border-radius: 12px; padding: 18px 20px; margin-bottom: 22px; font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+.callout b { color: var(--primary-light); }
+
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px; }
+.kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+.kpi-card .label { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 10px; letter-spacing: .12em; margin-bottom: 8px; color: var(--text-muted); }
+.kpi-card .value { font-size: 26px; font-weight: 700; line-height: 1; color: var(--text); }
+.kpi-card.a .label, .kpi-card.a .value { color: var(--red,#f87171); }
+.kpi-card.b .label, .kpi-card.b .value { color: var(--gold,#fbbf24); }
+.kpi-card.c .label, .kpi-card.c .value { color: var(--blue,#60a5fa); }
+
+/* Matriz 2D Fit x Propensão */
+.matriz-section { margin-bottom: 32px; }
+.matriz-title { font-size: 14px; color: var(--text-dim); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.matriz { display: grid; grid-template-columns: 60px repeat(3, 1fr); grid-template-rows: repeat(3, 90px) 30px; gap: 6px; }
+.matriz .axis-y { grid-row: span 1; display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; writing-mode: vertical-rl; }
+.matriz .cell { border-radius: 8px; padding: 10px; overflow-y: auto; border: 1px solid var(--border); background: var(--surface); }
+.matriz .cell.tier-a { background: rgba(248,113,113,.10); border-color: rgba(248,113,113,.35); }
+.matriz .cell.tier-b { background: rgba(251,191,36,.08); border-color: rgba(251,191,36,.30); }
+.matriz .cell.tier-c { background: rgba(96,165,250,.06); border-color: rgba(96,165,250,.22); }
+.matriz .cell-label { font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+.matriz .axis-x { grid-column: span 1; text-align: center; font-size: 10px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
+.conta-chip { display: inline-block; font-size: 10px; padding: 3px 7px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--border); margin: 2px; cursor: pointer; transition: all .12s; }
+.conta-chip:hover { border-color: var(--primary-light); color: var(--primary-light); }
+
+.filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; padding: 12px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; align-items: center; }
+.filter-pill { padding: 5px 11px; border-radius: 999px; font-size: 11px; font-weight: 600; border: 1px solid var(--border); color: var(--text-muted); background: transparent; cursor: pointer; transition: all .12s; }
+.filter-pill.active { background: rgba(248,113,113,.20); border-color: rgba(248,113,113,.50); color: var(--red,#fca5a5); }
+.filter-pill:hover { color: var(--text); }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 14px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px; transition: border-color .15s, transform .15s; }
+.card:hover { border-color: var(--primary-light); transform: translateY(-1px); }
+.card .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.card .name { font-size: 15px; font-weight: 700; color: var(--text); line-height: 1.3; }
+.card .vertical { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+.tier-pill { font-size: 12px; font-weight: 800; padding: 4px 11px; border-radius: 999px; white-space: nowrap; letter-spacing: .05em; font-family: 'JetBrains Mono', monospace; }
+.tier-pill.A { background: rgba(248,113,113,.18); color: var(--red,#f87171); }
+.tier-pill.B { background: rgba(251,191,36,.18); color: var(--gold,#fbbf24); }
+.tier-pill.C { background: rgba(96,165,250,.15); color: var(--blue,#60a5fa); }
+.scores-row { display: flex; gap: 14px; margin: 10px 0; font-size: 11px; }
+.score-bar-wrap { flex: 1; }
+.score-bar-label { display: flex; justify-content: space-between; color: var(--text-muted); margin-bottom: 3px; }
+.score-bar-bg { height: 5px; border-radius: 3px; background: var(--surface-2); overflow: hidden; }
+.score-bar-fill { height: 100%; border-radius: 3px; }
+.score-bar-fill.fit { background: var(--red,#f87171); }
+.score-bar-fill.prop { background: var(--blue,#60a5fa); }
+.sinais { font-size: 11px; color: var(--text-dim); margin-top: 8px; }
+.sinais .grupo-label { font-size: 9px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); margin: 8px 0 4px; }
+.sinais ul { list-style: none; padding: 0; }
+.sinais li { padding: 3px 0 3px 14px; position: relative; }
+.sinais li::before { content: '·'; position: absolute; left: 2px; color: var(--primary-light); }
+.override-box { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+.override-box .cur { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
+.override-box select, .override-box input, .override-box textarea { width: 100%; background: var(--surface-2); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 6px 8px; font-size: 12px; margin-bottom: 6px; font-family: 'Inter', sans-serif; }
+.override-box textarea { resize: vertical; min-height: 44px; }
+.override-box button { width: 100%; }
+.override-hist { font-size: 10px; color: var(--text-muted); margin-top: 6px; font-style: italic; }
+
+.empty { padding: 40px 20px; text-align: center; color: var(--text-muted); font-style: italic; grid-column: 1 / -1; }
+.section-sub { font-size: 14px; color: var(--text-dim); margin: 28px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+.section-sub .count { color: var(--text-muted); font-size: 12px; margin-left: auto; }
+</style>
+</head>
+<body data-route="curva-abc">
+<office-nav></office-nav>
+
+<div class="wrap" id="main">
+
+  <div class="hdr">
+    <div class="hdr-l">
+      <h1>📊 CURVA ABC · Development Sales / Pipeline</h1>
+      <div class="sub">Fit × Propensão · <span id="hdr-total">…</span> contas classificadas</div>
+    </div>
+    <div class="hdr-r">
+      <span class="sync-info" id="sync-info" style="font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono',monospace">— sem sync —</span>
+      <button class="btn primary" id="btn-sync">↻ Recalcular (Zoho + Cases + SAP 4ME)</button>
+    </div>
+  </div>
+
+  <div class="callout">
+    <b>Como funciona:</b> cada conta ganha um score de <b>Fit</b> (aderência ao ICP EPI-USE: vertical, case parecido, conta-irmã SAP) e um score de <b>Propensão</b> (deal aberto no Zoho, gatilho de urgência 2026, dor de campo real ouvida em call). O cruzamento dos dois define o tier — A (snipe 1:1), B (rally 1:few) ou C (volume). Todo sinal vem de dado real; onde falta dado, o campo fica em branco (nunca simulado — Regra 7). AE e SDR podem sobrescrever o tier com justificativa.
+  </div>
+
+  <div class="kpis" id="kpis">
+    <div class="kpi-card"><div class="label">TOTAL</div><div class="value" id="kpi-total">—</div></div>
+    <div class="kpi-card a"><div class="label">TIER A · SNIPE 1:1</div><div class="value" id="kpi-a">—</div></div>
+    <div class="kpi-card b"><div class="label">TIER B · RALLY 1:FEW</div><div class="value" id="kpi-b">—</div></div>
+    <div class="kpi-card c"><div class="label">TIER C · VOLUME</div><div class="value" id="kpi-c">—</div></div>
+  </div>
+
+  <div class="matriz-section">
+    <div class="matriz-title">🎯 Matriz Fit × Propensão</div>
+    <div class="matriz" id="matriz">
+      <!-- preenchido via JS -->
+    </div>
+  </div>
+
+  <div class="filters" id="filters">
+    <span style="font-size:11px;color:var(--text-muted);letter-spacing:.1em;text-transform:uppercase;margin-right:4px">Filtro</span>
+    <button class="filter-pill active" data-tier="">Todas</button>
+    <button class="filter-pill" data-tier="A">A</button>
+    <button class="filter-pill" data-tier="B">B</button>
+    <button class="filter-pill" data-tier="C">C</button>
+  </div>
+
+  <div class="section-sub"><span>📋 Contas</span><span class="count" id="lista-count"></span></div>
+  <div class="grid" id="grid">
+    <div class="empty">Carregando…</div>
+  </div>
+
+</div>
+
+<script>
+const API = {
+  contas: '/api/curva-abc/contas',
+  resumo: '/api/curva-abc/resumo',
+  sync: '/api/curva-abc/sync',
+  override: (id) => `/api/curva-abc/contas/${id}/override`
+};
+
+let STATE = { contas: [], filtroTier: '' };
+
+function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function nivelDe(score) { return score >= 3 ? 'alto' : score === 2 ? 'medio' : 'baixo'; }
+
+async function carregarResumo() {
+  const r = await fetch(API.resumo);
+  const d = await r.json();
+  document.getElementById('hdr-total').textContent = d.kpis.total;
+  document.getElementById('kpi-total').textContent = d.kpis.total;
+  document.getElementById('kpi-a').textContent = d.kpis.A;
+  document.getElementById('kpi-b').textContent = d.kpis.B;
+  document.getElementById('kpi-c').textContent = d.kpis.C;
+}
+
+async function carregarContas() {
+  const qs = STATE.filtroTier ? `?classificacao=${STATE.filtroTier}` : '';
+  const r = await fetch(API.contas + qs);
+  const d = await r.json();
+  STATE.contas = d.contas || [];
+  renderMatriz();
+  renderGrid();
+}
+
+function renderMatriz() {
+  const niveis = ['alto', 'medio', 'baixo'];
+  const contasPorCelula = {};
+  for (const c of STATE.contas) {
+    const fn = nivelDe(c.fit_score), pn = nivelDe(c.propensao_score);
+    const key = fn + '_' + pn;
+    (contasPorCelula[key] = contasPorCelula[key] || []).push(c);
+  }
+  const tierDaCelula = (fn, pn) => {
+    if (fn === 'alto' && pn === 'alto') return 'a';
+    if ((fn === 'alto' && pn === 'medio') || (fn === 'medio' && pn === 'alto')) return 'b';
+    return 'c';
+  };
+  let html = '';
+  for (const fn of niveis) {
+    html += `<div class="axis-y">Fit ${fn}</div>`;
+    for (const pn of niveis) {
+      const key = fn + '_' + pn;
+      const lista = contasPorCelula[key] || [];
+      const tier = tierDaCelula(fn, pn);
+      html += `<div class="cell tier-${tier}"><div class="cell-label">${lista.length} conta(s)</div>` +
+        lista.slice(0, 12).map(c => `<span class="conta-chip" title="${esc(c.nome_empresa)}">${esc(c.nome_empresa.slice(0, 18))}</span>`).join('') +
+        (lista.length > 12 ? `<span class="conta-chip">+${lista.length - 12}</span>` : '') +
+        `</div>`;
+    }
+  }
+  html += `<div></div>`;
+  for (const pn of niveis) html += `<div class="axis-x">Propensão ${pn}</div>`;
+  document.getElementById('matriz').innerHTML = html;
+}
+
+function renderGrid() {
+  const grid = document.getElementById('grid');
+  document.getElementById('lista-count').textContent = STATE.contas.length + ' conta(s)';
+  if (!STATE.contas.length) {
+    grid.innerHTML = '<div class="empty">Nenhuma conta classificada ainda. Clique em "Recalcular" pra rodar a primeira classificação com dado real (Zoho + Cases + SAP 4ME).</div>';
+    return;
+  }
+  grid.innerHTML = STATE.contas.map(c => {
+    const fitPct = Math.round((c.fit_score / (c.fit_max || 4)) * 100);
+    const propPct = Math.round((c.propensao_score / (c.propensao_max || 4)) * 100);
+    const overrideNote = c.override_por ? `<div class="override-hist">✏️ Ajustado manualmente por ${esc(c.override_por)}: "${esc(c.override_motivo)}"</div>` : '';
+    return `
+    <div class="card" data-conta="${esc(c.conta_id)}">
+      <div class="top">
+        <div>
+          <div class="name">${esc(c.nome_empresa)}</div>
+          <div class="vertical">${esc(c.vertical || 'vertical não identificada')} · fonte: ${esc(c.fonte || '—')}</div>
+        </div>
+        <span class="tier-pill ${esc(c.classificacao_final)}">${esc(c.classificacao_final)}</span>
+      </div>
+      <div class="scores-row">
+        <div class="score-bar-wrap">
+          <div class="score-bar-label"><span>Fit</span><span>${c.fit_score}/${c.fit_max}</span></div>
+          <div class="score-bar-bg"><div class="score-bar-fill fit" style="width:${fitPct}%"></div></div>
+        </div>
+        <div class="score-bar-wrap">
+          <div class="score-bar-label"><span>Propensão</span><span>${c.propensao_score}/${c.propensao_max}</span></div>
+          <div class="score-bar-bg"><div class="score-bar-fill prop" style="width:${propPct}%"></div></div>
+        </div>
+      </div>
+      <div class="sinais">
+        <div class="grupo-label">Por que Fit ${c.fit_score}</div>
+        <ul>${(c.fit_sinais || []).map(s => `<li>${esc(s.texto)}</li>`).join('') || '<li>⏳ sem sinal de fit identificado ainda</li>'}</ul>
+        <div class="grupo-label">Por que Propensão ${c.propensao_score}</div>
+        <ul>${(c.propensao_sinais || []).map(s => `<li>${esc(s.texto)}</li>`).join('') || '<li>⏳ sem sinal de propensão identificado ainda</li>'}</ul>
+      </div>
+      ${overrideNote}
+      <div class="override-box">
+        <div class="cur">Ajustar classificação final:</div>
+        <select class="ov-tier">
+          <option value="A" ${c.classificacao_final === 'A' ? 'selected' : ''}>A — snipe 1:1</option>
+          <option value="B" ${c.classificacao_final === 'B' ? 'selected' : ''}>B — rally 1:few</option>
+          <option value="C" ${c.classificacao_final === 'C' ? 'selected' : ''}>C — volume</option>
+        </select>
+        <input class="ov-user" type="text" placeholder="Seu nome (AE/SDR)">
+        <textarea class="ov-motivo" placeholder="Motivo do ajuste (obrigatório)"></textarea>
+        <button class="btn" data-action="override">Salvar ajuste</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  grid.querySelectorAll('[data-action="override"]').forEach(btn => {
+    btn.addEventListener('click', async (ev) => {
+      const card = ev.target.closest('.card');
+      const contaId = card.dataset.conta;
+      const tier = card.querySelector('.ov-tier').value;
+      const usuario = card.querySelector('.ov-user').value.trim();
+      const motivo = card.querySelector('.ov-motivo').value.trim();
+      if (!motivo) { alert('Motivo é obrigatório pro ajuste.'); return; }
+      btn.disabled = true; btn.textContent = 'Salvando…';
+      try {
+        const r = await fetch(API.override(contaId), {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ classificacao: tier, motivo, usuario })
+        });
+        const d = await r.json();
+        if (!d.success) throw new Error(d.error || 'falha ao salvar');
+        await carregarTudo();
+      } catch (e) {
+        alert('Erro: ' + e.message);
+        btn.disabled = false; btn.textContent = 'Salvar ajuste';
+      }
+    });
+  });
+}
+
+async function carregarTudo() {
+  await Promise.all([carregarResumo(), carregarContas()]);
+}
+
+document.getElementById('btn-sync').addEventListener('click', async (ev) => {
+  const btn = ev.target;
+  btn.disabled = true; btn.textContent = '↻ Recalculando…';
+  try {
+    const r = await fetch(API.sync, { method: 'POST' });
+    const d = await r.json();
+    document.getElementById('sync-info').textContent = d.success ? `✓ ${d.contas_processadas} conta(s) recalculada(s)` : 'erro no sync';
+    await carregarTudo();
+  } catch (e) {
+    document.getElementById('sync-info').textContent = 'erro: ' + e.message;
+  } finally {
+    btn.disabled = false; btn.textContent = '↻ Recalcular (Zoho + Cases + SAP 4ME)';
+  }
+});
+
+document.querySelectorAll('.filter-pill').forEach(p => {
+  p.addEventListener('click', () => {
+    document.querySelectorAll('.filter-pill').forEach(x => x.classList.remove('active'));
+    p.classList.add('active');
+    STATE.filtroTier = p.dataset.tier;
+    carregarContas();
+  });
+});
+
+carregarTudo();
+</script>
+</body>
+</html>
