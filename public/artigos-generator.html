@@ -6,6 +6,9 @@
   <title>Stratview Generator · Artigos Executivos</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/design-tokens.css">
+  <script type="module" src="/office-nav.js"></script>
+  <script type="module" src="/office-footer.js"></script>
   <style>
     :root {
       --sky: #0ea5e9; --sky-dark: #0284c7; --sky-light: #e0f2fe; --sky-50: #f0f9ff;
@@ -233,6 +236,7 @@
   </style>
 </head>
 <body>
+<office-nav></office-nav>
 
 <!-- HEADER -->
 <header class="header">
@@ -1121,5 +1125,6 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && !$('modal-overlay').classList.contains('hidden')) closeModal();
 });
 </script>
+<office-footer></office-footer>
 </body>
 </html>
