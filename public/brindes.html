@@ -43,6 +43,20 @@
     [data-theme="dark"] .bg-gray-100 { background-color: #061628 !important; }
     [data-theme="dark"] .bg-red-50 { background-color: rgba(120,0,0,0.2) !important; }
     [data-theme="dark"] .text-red-600 { color: #f87171 !important; }
+    /* Correções de contraste dark mode */
+    [data-theme="dark"] .text-primary { color: #4a9eff !important; }
+    [data-theme="dark"] .text-gray-900 { color: #e8f2ff !important; }
+    [data-theme="dark"] .text-gray-600 { color: #8ab0d0 !important; }
+    [data-theme="dark"] .text-diamond { color: #a78bfa !important; }
+    [data-theme="dark"] .checkbox-card div, [data-theme="dark"] .radio-card div { color: #c8d8ee !important; }
+    [data-theme="dark"] nav a, [data-theme="dark"] nav button { color: #e8f2ff !important; }
+    [data-theme="dark"] #nav-user-name { color: #e8f2ff !important; }
+    [data-theme="dark"] #toastTitle { color: #e8f2ff !important; }
+    [data-theme="dark"] #toastMessage { color: #8ab0d0 !important; }
+    [data-theme="dark"] table td { color: #c8d8ee !important; }
+    [data-theme="dark"] table th { color: #7a9cc0 !important; background-color: #061628 !important; }
+    [data-theme="dark"] .font-mono { color: #4a9eff !important; }
+    [data-theme="dark"] .text-gray-400.italic { color: #7a9cc0 !important; }
     </style>
 
     <script>
@@ -883,20 +897,24 @@
 
         // Prévia visual do brinde sugerido
         const tierMeta = {
-            'Essential': { color: '#059669', bg: '#ecfdf5', border: '#6ee7b7', label: 'Essential', desc: 'Kit de relacionamento corporativo' },
-            'Premium':   { color: '#2563eb', bg: '#eff6ff', border: '#93c5fd', label: 'Premium',   desc: 'Kit de alto impacto executivo' },
-            'Diamond':   { color: '#7c3aed', bg: '#f5f3ff', border: '#c4b5fd', label: 'Diamond',   desc: 'Kit estratégico de alto valor' },
+            'Essential': { color: '#059669', label: 'Essential', desc: 'Kit de relacionamento corporativo', img: '/img/kit-essencial.jpg' },
+            'Premium':   { color: '#2563eb', label: 'Premium',   desc: 'Kit de alto impacto executivo',   img: '/img/kit-premium.jpg' },
+            'Diamond':   { color: '#7c3aed', label: 'Diamond',   desc: 'Kit estratégico de alto valor',   img: '/img/kit-diamond-alcool.jpg' },
         };
+        // Diamond: se usuário marcou "Não consome Álcool" → versão sem álcool
+        if (decision.tier === 'Diamond' && (formData.restricoes || []).includes('SemAlcool')) {
+            tierMeta['Diamond'].img = '/img/kit-diamond.jpg';
+        }
         const tm = tierMeta[decision.tier] || tierMeta['Essential'];
         const prev = document.getElementById('brindePreview');
         const card = document.getElementById('brindePreviewCard');
-        card.style.cssText = `background:${tm.bg};border-color:${tm.border};padding:0;overflow:hidden`;
+        card.style.cssText = 'padding:0;overflow:hidden;border:none;background:transparent';
         card.innerHTML = `
-            <div style="position:relative">
-                <img src="/img/kit-epiuse.jpg" alt="Kit EPI-USE" style="width:100%;height:220px;object-fit:cover;display:block">
+            <div style="position:relative;border-radius:1rem;overflow:hidden;border:2px solid rgba(0,0,0,.08)">
+                <img src="${tm.img}" alt="Kit ${tm.label}" style="width:100%;height:240px;object-fit:cover;display:block">
                 <span style="position:absolute;top:12px;left:12px;background:${tm.color}" class="text-white text-xs font-black px-3 py-1.5 rounded-full uppercase tracking-wider shadow-lg">${tm.label}</span>
             </div>
-            <div class="p-5">
+            <div class="pt-4 pb-2">
                 <p class="text-xs text-gray-400 italic text-center mb-4">📸 foto ilustrativa — o marketing entrará em contato com você para definir o brinde. Fique atento ao seu email e Teams.</p>
                 <div class="bg-white rounded-xl p-4 border border-gray-100">
                     <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-2">Sugestão da IA para o seu pedido</p>

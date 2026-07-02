@@ -1218,6 +1218,15 @@ renderLogos();
     }
   } catch (_e) { /* sem status → mantém padrão (aba aparece); enforcement cuida do acesso */ }
 })();
+
+// Abre aba pela query string: /hub?tab=brindes
+(function() {
+  var p = new URLSearchParams(window.location.search).get('tab');
+  if (p) {
+    var btn = document.getElementById('t-' + p);
+    if (btn) { setTimeout(function() { switchTab(p, btn); }, 100); }
+  }
+})();
 </script>
 </body>
 </html>
