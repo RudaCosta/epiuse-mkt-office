@@ -615,14 +615,57 @@ app.use((req, res, next) => {
 // Páginas que o colaborador (role hub) PODE acessar: o hub, o game dele, e os
 // destinos do menu de acesso rápido do portal. O resto do Office segue bloqueado.
 const HUB_LOCK_PAGES = new Set([
-  '/hub', '/game-hub', '/login', '/escolher-visao', '/brand',
+  '/hub', '/game', '/game-hub', '/login', '/escolher-visao', '/brand',
   '/design', '/erp-impacto', '/seja-voice', '/artigos', '/optimizer'
 ]);
+// nota: '/game' passa pelo lock só pra rota fazer o redirect por role → /game-hub.
 app.use((req, res, next) => {
   if (req.path.startsWith('/api/') || req.path.startsWith('/auth/')) return next();
   const u = req.session && req.session.user;
   if (u && u.role === 'hub' && !HUB_LOCK_PAGES.has(req.path)) return res.redirect('/hub');
   next();
+});
+
+// ── PRESENÇA MULTIPLAYER DO GAME (v0.60.0) ────────────────────────────────────
+// Estado EFÊMERO em memória (nada no SQLite — presença zera a cada deploy, ok).
+// Clientes dos games (/game e /game-hub) POSTam posição a cada ~2s e recebem
+// os demais jogadores do mesmo mundo ativos nos últimos 8s.
+const _gamePresence = new Map(); // id -> {world,x,y,dir,moving,name,shirt,emote,emoteT,ts}
+const _PRESENCE_TTL = 8000, _PRESENCE_CAP = 600;
+app.post('/api/game/presence', express.json({ limit: '4kb' }), (req, res) => {
+  const b = req.body || {};
+  const sessEmail = req.session && req.session.user && req.session.user.email;
+  const anon = String(b.anonId || '').replace(/[^a-z0-9]/gi, '').slice(0, 24);
+  const id = sessEmail || (anon ? 'anon:' + anon : '');
+  if (!id) return res.status(400).json({ error: 'sem_id' });
+  const now = Date.now();
+  if (b.bye) { _gamePresence.delete(id); return res.status(204).end(); }
+  const world = b.world === 'hub' ? 'hub' : 'mkt';
+  const dir = ['up','down','left','right'].includes(b.dir) ? b.dir : 'down';
+  const shirt = /^#[0-9a-f]{6}$/i.test(String(b.shirt || '')) ? b.shirt : '#cd1543';
+  const emote = ['👋','❤️','😄','🎉'].includes(b.emote) ? b.emote : null;
+  if (!_gamePresence.has(id) && _gamePresence.size >= _PRESENCE_CAP) {
+    for (const [k, v] of _gamePresence) if (now - v.ts > _PRESENCE_TTL) _gamePresence.delete(k);
+  }
+  if (_gamePresence.has(id) || _gamePresence.size < _PRESENCE_CAP) {
+    _gamePresence.set(id, {
+      world, dir, shirt, emote,
+      x: Math.max(0, Math.min(1920, Math.round(+b.x || 0))),
+      y: Math.max(0, Math.min(1152, Math.round(+b.y || 0))),
+      moving: !!b.moving,
+      name: String(b.name || '').slice(0, 24),
+      emoteT: emote ? (Math.round(+b.emoteT) || now) : 0,
+      ts: now,
+    });
+  }
+  const others = [];
+  for (const [k, v] of _gamePresence) {
+    if (now - v.ts > _PRESENCE_TTL) { _gamePresence.delete(k); continue; }
+    if (k !== id && v.world === world) {
+      others.push({ id: k, x: v.x, y: v.y, dir: v.dir, moving: v.moving, name: v.name, shirt: v.shirt, emote: v.emote, emoteT: v.emoteT });
+    }
+  }
+  res.json({ others });
 });
 
 // ── RATE LIMITERS ─────────────────────────────────────────────────────────────
