@@ -658,6 +658,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   <div class="tab-bar">
     <button class="tab-pill active" id="t-hub" onclick="switchTab('hub',this)">📈 MKT Hub</button>
     <button class="tab-pill" id="t-onboarding" onclick="switchTab('onboarding',this)">🚀 Onboarding</button>
+    <button class="tab-pill" id="t-brindes" onclick="switchTab('brindes',this)">🎁 Solicitar Brindes</button>
   </div>
 
   <div class="tab-content">
@@ -780,7 +781,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
               <div class="card-title">Logos &amp; Assets</div>
               <div class="card-desc">Logos oficiais EPI-USE &amp; Stratview (download).</div>
             </a>
-            <a class="bento-card" href="LINK_BRINDES" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;display:block">
+            <a class="bento-card" href="/brindes" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;display:block">
               <div class="bento-icon icon-orange">🎁</div>
               <div class="card-title">Brindes</div>
               <div class="card-desc">Catálogo de brindes corporativos.</div>
@@ -1120,6 +1121,17 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
       </div>
 
     </div><!-- /pane-onboarding -->
+
+    <!-- ════════════════════════ BRINDES TAB ════════════════════════ -->
+    <div class="tab-pane" id="pane-brindes">
+      <iframe
+        id="brindes-iframe"
+        src="/brindes"
+        style="width:100%;height:calc(100vh - 96px);border:none;display:block;"
+        title="Solicitação de Brindes"
+      ></iframe>
+    </div><!-- /pane-brindes -->
+
   </div>
 </div><!-- /portal -->
 

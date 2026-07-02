@@ -1,5 +1,5 @@
 {
-  "current": "0.60.0",
+  "current": "0.70.0",
   "atualizado_em": "02/jul/2026",
   "next": [
     {
@@ -54,9 +54,23 @@
   ],
   "releases": [
     {
-      "version": "0.60.0",
+      "version": "0.70.0",
       "date": "02/jul/2026",
       "status": "current",
+      "path": null,
+      "title": "🎁 Brindes — formulário SSO + aba Solicitar Brindes no Hub",
+      "summary": "Formulário de brindes integrado ao Hub via iframe, com SSO automático (preenche nome/email da conta Office), painel admin visível só para o time MKT, e sincronização de tema (dark/atlas-dark → escuro; demais → light).",
+      "highlights": [
+        "brindes.html: SSO pré-preenche nome + e-mail corporativo sem tela de login",
+        "Admin panel visível apenas para roles não-hub (time de marketing)",
+        "Tema sincronizado com Office — dark e atlas-dark aplicam CSS escuro; outros ficam no Tailwind padrão",
+        "hub.html: aba Solicitar Brindes com iframe /brindes + fix link no bento card"
+      ]
+    },
+    {
+      "version": "0.60.0",
+      "date": "02/jul/2026",
+      "status": "past",
       "path": null,
       "title": "Game v2 'Fable Edition' — engine 3.0 nos dois games",
       "summary": "Segunda versao dos games /game (MKT) e /game-hub (colaborador): engine compartilhado (office-engine-v3.js), presenca multiplayer em tempo real, NPCs com rotina por horario e baloes de fala, iluminacao dia/noite pela hora real, dados reais nas estacoes (eventos, versao, datas especiais, aniversarios), spawn integrado ao SSO, emotes, quests de exploracao, sons procedurais e mundo vivo (particulas, TVs animadas, borboletas). Mundo do colaborador redesenhado como centro de visitantes com a mascote Ellie e estandes para /brand e /optimizer.",
@@ -68,7 +82,7 @@
         "iluminacao por hora real (manha/dia/tarde/noite com pocas de luz) — teste com ?hora=22",
         "spawn SSO-aware (Entrar como <nome>) + avatar por email + tom de pele/cabelo",
         "emotes 1-4 replicados via presence · quests Giro do Escritorio (11 salas) e Tour do Colaborador (7 estacoes)",
-        "game-hub: centro de visitantes com mascote Ellie 🐘, estandes, estacoes /brand e /optimizer",
+        "game-hub: centro de visitantes com mascote Ellie, estandes, estacoes /brand e /optimizer",
         "fix: /game com role hub agora redireciona pro /game-hub (antes caia no /hub)",
         "v1 arquivada em _versoes-office/v1-office-game.html e v1-game-hub.html"
       ]
@@ -76,7 +90,7 @@
     {
       "version": "0.59.1",
       "date": "02/jul/2026",
-      "status": "released",
+      "status": "past",
       "path": null,
       "title": "✍️ Stratview Generator — office-nav + footer integrados",
       "summary": "Adiciona o menu global do Office (office-nav) e rodapé (office-footer) à página do Stratview Generator, permitindo navegação entre áreas sem sair da ferramenta.",
