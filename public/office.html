@@ -13,7 +13,7 @@
 <canvas id="mini" width="180" height="108"></canvas>
 
 <div id="hud">
-  <a class="hud-pill" id="hud-back" href="/home">← Home</a>
+  <a class="hud-pill" id="hud-back" href="/">← Home</a>
   <div class="hud-pill" id="hud-zone">🏢 EPI-USE Office</div>
   <a class="hud-pill" id="hud-hub" href="/hub" title="Marketing Hub — serviços, materiais e contatos">🏢 Hub</a>
   <div class="hud-pill" id="hud-quest" title="Quest: Giro do Escritório">📋 0/11</div>
@@ -71,7 +71,7 @@ window.WORLD = {
     optimizer: { c0:3,  r0:3,  c1:13, r1:10, rug:RUG.GREEN,  nome:'🪪 Profile Optimizer' },
     hub:       { c0:15, r0:3,  c1:25, r1:10, rug:RUG.VIOLET, nome:'📺 Marketing Hub' },
     inbound:   { c0:27, r0:3,  c1:37, r1:10, rug:RUG.SKY,    nome:'📡 Inbound HQ' },
-    roberto:   { c0:39, r0:3,  c1:56, r1:10, rug:RUG.NAVY,   nome:'🏛️ Sala do Roberto' },
+    roberto:   { c0:39, r0:3,  c1:56, r1:10, rug:RUG.NAVY,   nome:'🏛️ Diretoria' },
     voices:    { c0:3,  r0:12, c1:16, r1:22, rug:RUG.BLUE,   nome:'🎙️ Voices Studio' },
     bullpen:   { c0:18, r0:12, c1:40, r1:22, rug:RUG.SAND,   nome:'💼 Time de Marketing' },
     field:     { c0:42, r0:12, c1:56, r1:16, rug:RUG.AMBER,  nome:'📅 Field & Eventos' },
@@ -93,9 +93,10 @@ window.WORLD = {
     P.pTV(g, 28.5*TS, 3.2*TS, 230, '#0ea5e9');
     P.pDesk(g, 29*TS, 7*TS); P.pChair(g, 29.6*TS, 8.2*TS);
     P.pDesk(g, 33*TS, 7*TS); P.pChair(g, 33.6*TS, 8.2*TS);
-    // Roberto
+    // Diretoria — Roberto (EPI-USE BR) + Alexandre Ormigo (Stratview)
     P.pDesk(g, 46*TS, 4.5*TS, 'roberto'); P.pChair(g, 46.7*TS, 3.4*TS);
-    P.pMeetTable(g, 41*TS, 6.5*TS, 4*TS, 2.5*TS);
+    P.pDesk(g, 42.5*TS, 4.5*TS, 'ormigo'); P.pChair(g, 43.2*TS, 3.4*TS);
+    P.pMeetTable(g, 41*TS, 7*TS, 4*TS, 2.2*TS);
     P.pBookshelf(g, 54.5*TS, 4*TS);
     P.pTV(g, 50*TS, 3.2*TS, 130, '#1e40af');
     // Voices Studio
@@ -124,23 +125,25 @@ window.WORLD = {
     P.pReception(g, 26*TS, 29.5*TS);
     P.pCork(g, 19*TS, 24.4*TS, 270);
     P.pSofa(g, 34*TS, 26*TS, 120);
-    // Garden ERP.ngo
-    P.pElephant(g, 47.5*TS, 26.5*TS);
-    P.pTree(g, 43*TS, 24.2*TS); P.pTree(g, 53*TS, 24.2*TS);
+    P.pStand(g, 36.5*TS, 29*TS, '📣', '#16a34a');           // Campanhas em jogo
+    // Garden ERP.ngo — elefante + trave da campanha Gol de Placa ⚽
+    P.pElephant(g, 45*TS, 26.5*TS);
+    P.pGoal(g, 50.5*TS, 25.5*TS);
+    P.pTree(g, 43*TS, 24.2*TS); P.pTree(g, 55*TS, 30*TS);
   },
 
   solids: [
     [5,5,2,2],[11.6,4,1,2],
     [17,7,3,1],[21.5,7,3,1],
     [29,7,2,1],[33,7,2,1],
-    [46,4.5,2,1],[41,6.5,4,3],[54.5,4,1,2],
+    [46,4.5,2,1],[42.5,4.5,2,1],[41,7,4,3],[54.5,4,1,2],
     [4,13,2,1],[9,13,2,1],[4,18.5,2,1],[9,18.5,2,1],
     [20,13.5,2,1],[26,13.5,2,1],[32,13.5,2,1],
     [20,18.5,2,1],[26,18.5,2,1],[32,18.5,2,1],
     [46,14.6,2,1],[45,20.4,2,1],[50,20.4,2,1],
     [4,25,5,1],[4,29.5,4,1],[9,29.5,4,1],[6.8,27.4,3,2],
-    [26,29.5,3,1],[34,26,4,1],
-    [47.5,26.5,2,2],[43,24.2,2,2],[53,24.2,2,2],
+    [26,29.5,3,1],[34,26,4,1],[36.5,29,2,2],
+    [45,26.5,2,2],[50.5,25.5,3,2],[43,24.2,2,2],[55,30,2,2],
   ],
 
   // camada viva: plantas com sway, TVs com dados reais, vapor, bolhas, borboletas, folhas
@@ -185,8 +188,13 @@ window.WORLD = {
       { id:'recepcao',  px:27.5*TS, py:30*TS,   r:70,  name:'🛎️ Recepção', tip:'Como jogar', action:{type:'info',
           title:'🛎️ Recepção EPI-USE Office', emoji:'🛎️', sub:'Guia rápido · v3 Fable Edition',
           body:'🚶 Andar: WASD ou setas — ou clica/toca no chão que o avatar vai sozinho.\n\n⚡ Interagir: chega perto de mesa, TV, quadro ou COLEGA e aperta E.\n\n😄 Emotes: teclas 1-4 (👋 ❤️ 😄 🎉) — quem estiver online vê!\n\n🔍 Zoom: teclas + e − (0 reseta) ou pinça no celular.\n\n📋 Quest: visita as 11 salas pra completar o Giro do Escritório.\n\n💡 O escritório segue o horário REAL: café de manhã, almoço ao meio-dia, e à noite… olha as luzes.' } },
-      { id:'elefante',  px:48.5*TS, py:28*TS,   r:80,  name:'🐘 ERP.ngo', tip:'1% da receita global → conservação', action:{type:'confirm-external', url:'https://erp.ngo', emoji:'🐘',
+      { id:'elefante',  px:46*TS, py:28*TS,   r:70,  name:'🐘 ERP.ngo', tip:'1% da receita global → conservação', action:{type:'confirm-external', url:'https://erp.ngo', emoji:'🐘',
           title:'🐘 ERP.ngo', sub:'groupelephant.com · beyond corporate purpose', body:'O grupo groupelephant.com destina 1% da receita global pra conservação de elefantes e combate à pobreza rural na África.\n\nAbrir erp.ngo em nova aba?'} },
+      { id:'campanhas', px:37.5*TS, py:29.8*TS, r:75, name:'📣 Campanhas em jogo', tip:'O que está rolando agora na EPI-USE', action:{type:'iframe', url:'/campanhas'} },
+      { id:'golplaca',  px:52*TS, py:27*TS,   r:85,  name:'⚽ GOL de Placa', tip:'Seu elogio faz a diferença!', action:{type:'confirm-external', coinsEvento:'golplaca', emoji:'⚽',
+          url:'https://t.rdsv2.net/ls/click?upn=u001.ulJvYqXscyHAyIBX6-2FX-2B5aSDduGX-2Bek-2Bpi0KPpbvKc7tv48xGGNItz0RhJAXcOl3YSRQgQX-2FeOecBvfuBJj0arKFeYcmWAwSHYM7RbXkEK9-2FuAmsytQY-2BoXGdx7Qp5NJjs8MP3no17JMRMw8Ui6sffua4o8riQVGU8VDechcWu1XWoAxpVVY7-2F-2B3ymiMaQ1u8syBWjCeQcGdg6OKMyuvUw-3D-3DwOPl_E3jX7UdwUvWW16GmiaKN7AWqGNZgB7sICAI-2B1oMckzhrienpd9fI6NvJGgzA-2FeuQG2xvp1Hh-2BxW1KjkAVhC2Jjt0iy8ByeNy81Jo9YjZhHIXQpSpGC8TxBN4x91NlQ99YKy-2FiVJW4xiy7v0gbFmooN72snjPVkKB12oPi0bXUS5P2es8qcyhYWxJ6xsC4Wy3quMXQTPKw9vPTEOuXsGRAw9F-2BERoWnRHsqtMJhdCCRFVBvhWHDh3KHsgr6i5yLMZ5AntqmzVA-2BdzWS-2BvyD85TzDYf5-2BfUh5b9gummRv3A-2FdC9fwPoG-2FieGfqHrbOJSYI',
+          title:'⚽ Campanha GOL de Placa', sub:'People & Culture · seu elogio faz a diferença!',
+          body:'Dê um passe especial: um elogio sincero pra alguém que merece!\n\n⭐ Cada elogio vale 10 pontos\n🎯 Cite uma atitude, resultado ou comportamento específico\n🚫 Não vale repetir o mesmo elogio pra mesma pessoa\n🎁 Sorteios semanais de brindes + os 3 Craques do Reconhecimento premiados no final\n\nAbrir o formulário e marcar seu GOL de PLACA?'} },
     ];
     // mesas do bullpen → cartão da pessoa (dados reais)
     for (const [id, c, r] of [['duda',21,14.3],['bruna',27,14.3],['gui',33,14.3],['isabela',21,19.3],['marlison',27,19.3],['ruda',33,19.3]]) {
@@ -209,6 +217,8 @@ window.WORLD = {
       falas:['cold call é arte ☎️','foco no C-Level 🎯','pipeline não dorme 💪'] },
     { id:'roberto',  px:48, py:6,  room:'roberto', pal:{hair:'#94a3b8',skin:'#f5cfa6',shirt:'#334155',pants:'#0f172a'},
       falas:['bem-vindo ao Brasil 🇧🇷','vamos crescer juntos 📈','o time tá voando ✈️'] },
+    { id:'ormigo',   px:44, py:6,  room:'roberto', pal:{hair:'#27190e',skin:'#f5cfa6',shirt:'#131B41',pants:'#44403c'},
+      falas:['Stratview na área 🚀','Oracle, OCI e AI 🤖','dois negócios, um time 🤝'] },
     { id:'anderson', px:6,  py:15, room:'voices',  pal:{hair:'#27190e',skin:'#e8b58a',shirt:'#60a5fa',pants:'#334155'},
       falas:['post novo no LinkedIn 🎙️','bora ser Voice também?'] },
     { id:'carlos',   px:11, py:15, room:'voices',  pal:{hair:'#0f172a',skin:'#f5cfa6',shirt:'#60a5fa',pants:'#44403c'},
@@ -221,7 +231,7 @@ window.WORLD = {
       { type:'room', key:'optimizer', label:'🪪 Optimizer' },
       { type:'room', key:'hub',       label:'📺 Marketing Hub' },
       { type:'room', key:'inbound',   label:'📡 Inbound HQ' },
-      { type:'room', key:'roberto',   label:'🏛️ Sala do Roberto' },
+      { type:'room', key:'roberto',   label:'🏛️ Diretoria' },
       { type:'room', key:'voices',    label:'🎙️ Voices Studio' },
       { type:'room', key:'bullpen',   label:'💼 Time de Marketing' },
       { type:'room', key:'field',     label:'📅 Field & Eventos' },

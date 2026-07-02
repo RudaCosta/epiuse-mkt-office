@@ -190,10 +190,11 @@ function charSprite(pal, dir, frame, blink) {
   spriteCache.set(key, cv);
   return cv;
 }
-// Sprite alternativo: elefantinho (mascote ERP.ngo — NPC recepcionista do hub)
+// Sprite alternativo: elefantinho (mascote — NPC recepcionista do hub).
+// kit=true veste a camisa 10 da seleção 🇧🇷 (campanha Gol de Placa ativa).
 const elephantSprites = new Map();
-function elephantSprite(dir, frame) {
-  const key = dir + frame;
+function elephantSprite(dir, frame, kit) {
+  const key = dir + frame + (kit ? 'k' : '');
   if (elephantSprites.has(key)) return elephantSprites.get(key);
   const cv = document.createElement('canvas'); cv.width = 24; cv.height = 32;
   const g = cv.getContext('2d');
@@ -202,6 +203,13 @@ function elephantSprite(dir, frame) {
   const X = x => flip ? 24 - x - 2 : x; // espelha blocos 2px
   g.fillStyle = '#9ca3af';
   g.fillRect(4, 8 + bob, 16, 14);                    // corpo
+  if (kit) {                                          // camisa amarela + calção verde
+    g.fillStyle = '#fbbf24'; g.fillRect(4, 10 + bob, 16, 9);
+    g.fillStyle = '#16a34a'; g.fillRect(4, 19 + bob, 16, 3);
+    g.fillStyle = '#0f172a'; g.font = 'bold 7px Inter'; g.textAlign = 'center';
+    g.fillText('10', 12, 17 + bob);
+  }
+  g.fillStyle = '#9ca3af';
   g.fillRect(X(14), 2 + bob, 8, 10);                 // cabeça
   g.fillRect(X(20), 10 + bob, 3, 10);                // tromba
   g.fillStyle = '#6b7280';
@@ -354,6 +362,19 @@ function pWaterCooler(g, x, y) {
   g.fillStyle = '#bfdbfe'; g.fillRect(x+6, y, 12, 16);
   g.fillStyle = '#93c5fd'; g.fillRect(x+8, y+4, 8, 8);
 }
+// Trave de gol + bola (campanha Gol de Placa 🇧🇷)
+function pGoal(g, x, y) {
+  g.fillStyle = 'rgba(0,0,0,0.12)'; g.fillRect(x + 2, y + 44, 92, 5);        // sombra
+  g.fillStyle = '#f8fafc';
+  g.fillRect(x, y, 4, 46); g.fillRect(x + 92, y, 4, 46); g.fillRect(x, y, 96, 4); // postes + travessão
+  g.strokeStyle = 'rgba(226,232,240,0.75)'; g.lineWidth = 1;                 // rede
+  for (let i = 1; i < 8; i++) { g.beginPath(); g.moveTo(x + 4 + i * 11, y + 4); g.lineTo(x + 4 + i * 11, y + 44); g.stroke(); }
+  for (let j = 1; j < 5; j++) { g.beginPath(); g.moveTo(x + 4, y + 4 + j * 8); g.lineTo(x + 92, y + 4 + j * 8); g.stroke(); }
+  // bola na marca do pênalti
+  g.fillStyle = 'rgba(0,0,0,0.12)'; g.fillRect(x + 42, y + 62, 14, 3);
+  g.fillStyle = '#fff'; g.beginPath(); g.arc(x + 48, y + 56, 7, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#0f172a'; g.fillRect(x + 45, y + 53, 4, 4); g.fillRect(x + 50, y + 57, 3, 3);
+}
 // NOVO v3: estande de exposição (mundo do colaborador)
 function pStand(g, x, y, emoji, accent) {
   g.fillStyle = 'rgba(0,0,0,0.14)'; g.fillRect(x+4, y+52, 56, 6);       // sombra
@@ -366,7 +387,7 @@ function pStand(g, x, y, emoji, accent) {
   g.fillText(emoji || '⭐', x+32, y+18);
   g.textBaseline = 'alphabetic';
 }
-const P = { TS, drawItem, pDesk, pChair, pMicBooth, pPlant, pTree, pSofa, pCoffeeMachine, pCounter, pTV, pCork, pBookshelf, pMeetTable, pElephant, pReception, pWaterCooler, pStand };
+const P = { TS, drawItem, pDesk, pChair, pMicBooth, pPlant, pTree, pSofa, pCoffeeMachine, pCounter, pTV, pCork, pBookshelf, pMeetTable, pElephant, pReception, pWaterCooler, pStand, pGoal };
 
 // ── PRERENDER DO MUNDO (camada estática) ───────────────────────────
 const world = document.createElement('canvas'); world.width = WW; world.height = WH;
@@ -442,6 +463,7 @@ let officeVersion = '';       // /api/changelog.json
 let specialToday = null;      // /api/datas-especiais-2026.json
 let teamMeta = {};            // /api/team.json — foco/aniversário por primeiro nome
 let ssoUser = null;           // /api/auth/status
+let golplacaKit = false;      // campanha Gol de Placa ativa → mascote de camisa 10 🇧🇷
 
 fetch('/api/office-desks.json').then(r => r.json()).then(d => { DESKS = d.mesas || {}; prerenderWorld(); }).catch(()=>{});
 fetch('/api/changelog.json').then(r => r.json()).then(d => { officeVersion = d.current || ''; }).catch(()=>{});
@@ -463,6 +485,9 @@ fetch('/api/events.json').then(r => r.json()).then(d => {
 fetch('/api/datas-especiais-2026.json').then(r => r.json()).then(d => {
   const hoje = new Date().toISOString().slice(0, 10);
   specialToday = (d.itens || []).find(i => i.data === hoje) || null;
+}).catch(()=>{});
+fetch('/api/campanhas-ativas.json').then(r => r.json()).then(d => {
+  golplacaKit = (d.campanhas || []).some(c => c.id === 'golplaca' && c.ativa);
 }).catch(()=>{});
 fetch('/api/team.json').then(r => r.json()).then(d => {
   const put = (nome, info) => { if (nome) teamMeta[nome.split(' ')[0].toLowerCase()] = info; };
@@ -862,6 +887,10 @@ function runAction(z) {
   const a = z.action;
   sfx('blip');
   questVisit('zone', z.id);
+  // registro silencioso de participação em campanha (nada é exibido)
+  if (a.coinsEvento) {
+    try { fetch('/api/game/coins', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ evento: a.coinsEvento, ref: z.id }), keepalive:true }).catch(()=>{}); } catch {}
+  }
   if (a.type === 'iframe') openModal(a.url);
   else if (a.type === 'info') {
     openInfo(`
@@ -929,6 +958,8 @@ function questVisit(type, key) {
     questDone = true;
     confettiBurst();
     sfx('win');
+    // registro silencioso de participação (nada é exibido ao jogador)
+    try { fetch('/api/game/coins', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ evento:'quest', ref: W.id }), keepalive:true }).catch(()=>{}); } catch {}
     setTimeout(() => openInfo(`
       <div class="info-head"><div class="info-ava">🏅</div>
         <div><div class="info-title">${escH(quest.doneTitle)}</div><div class="info-sub">${escH(quest.titulo)}</div></div></div>
@@ -1198,7 +1229,7 @@ function rr(g, x, y, w, h, r) {
 function drawChar(c) {
   const x = c.x, y = c.y;
   const spr = c.sprite === 'elephant'
-    ? elephantSprite(c.dir, c.f)
+    ? elephantSprite(c.dir, c.f, golplacaKit)
     : charSprite(c.pal, c.dir, c.f, c.blink);
   ctx.fillStyle = 'rgba(0,0,0,0.18)';
   ctx.beginPath(); ctx.ellipse(x - cam.x + 12, y - cam.y + 31, 9, 4, 0, 0, Math.PI*2); ctx.fill();
