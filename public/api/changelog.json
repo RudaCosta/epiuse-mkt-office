@@ -1,6 +1,6 @@
 {
-  "current": "0.59.1",
-  "atualizado_em": "30/jun/2026",
+  "current": "0.60.0",
+  "atualizado_em": "02/jul/2026",
   "next": [
     {
       "version": "0.53.0",
@@ -54,9 +54,29 @@
   ],
   "releases": [
     {
-      "version": "0.59.1",
+      "version": "0.60.0",
       "date": "02/jul/2026",
       "status": "current",
+      "path": null,
+      "title": "Game v2 'Fable Edition' — engine 3.0 nos dois games",
+      "summary": "Segunda versao dos games /game (MKT) e /game-hub (colaborador): engine compartilhado (office-engine-v3.js), presenca multiplayer em tempo real, NPCs com rotina por horario e baloes de fala, iluminacao dia/noite pela hora real, dados reais nas estacoes (eventos, versao, datas especiais, aniversarios), spawn integrado ao SSO, emotes, quests de exploracao, sons procedurais e mundo vivo (particulas, TVs animadas, borboletas). Mundo do colaborador redesenhado como centro de visitantes com a mascote Ellie e estandes para /brand e /optimizer.",
+      "highlights": [
+        "engine compartilhado public/js/office-engine-v3.js (elimina duplicacao ~1100 linhas x2)",
+        "multiplayer: POST /api/game/presence (memoria, sem SQLite) + interpolacao + minimapa + contador online",
+        "NPCs 2.0: rotina por hora real (cafe/mesa/almoco/lobby), falas de proximidade, cartao rico (team.json + office-desks.json), chapeu de aniversario real",
+        "dados reais: post-its de eventos no quadro (events.json) + TV ciclando versao/eventos/data especial",
+        "iluminacao por hora real (manha/dia/tarde/noite com pocas de luz) — teste com ?hora=22",
+        "spawn SSO-aware (Entrar como <nome>) + avatar por email + tom de pele/cabelo",
+        "emotes 1-4 replicados via presence · quests Giro do Escritorio (11 salas) e Tour do Colaborador (7 estacoes)",
+        "game-hub: centro de visitantes com mascote Ellie 🐘, estandes, estacoes /brand e /optimizer",
+        "fix: /game com role hub agora redireciona pro /game-hub (antes caia no /hub)",
+        "v1 arquivada em _versoes-office/v1-office-game.html e v1-game-hub.html"
+      ]
+    },
+    {
+      "version": "0.59.1",
+      "date": "02/jul/2026",
+      "status": "released",
       "path": null,
       "title": "✍️ Stratview Generator — office-nav + footer integrados",
       "summary": "Adiciona o menu global do Office (office-nav) e rodapé (office-footer) à página do Stratview Generator, permitindo navegação entre áreas sem sair da ferramenta.",
@@ -68,7 +88,7 @@
     {
       "version": "0.59.0",
       "date": "30/jun/2026",
-      "status": "past",
+      "status": "released",
       "path": null,
       "title": "Hub: nav a direita, onboarding so MKT, pagina /brand, escolher visao",
       "summary": "Lote de refinamentos do Hub e login. Controles do nav vao pra direita no modo colaborador; logo sempre branco (nav escuro em todos os temas). Aba Onboarding so aparece pro time de MKT. Brand Assets vira pagina propria /brand. Pos-login o usuario escolhe a visualizacao (Office|Game) e ela vira o default, trocavel no menu. StratView padronizado pra Stratview.",
