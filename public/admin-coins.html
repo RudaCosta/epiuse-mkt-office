@@ -27,7 +27,7 @@
 <div class="container">
   <h1>🪙 ERP Coins</h1>
   <div class="sub">Acúmulo silencioso de participação (share 10 · Gol de Placa 10 · quest 50). Os usuários <b>não veem</b> este painel nem o saldo.</div>
-  <div class="aviso">⚠️ Os coins vivem no SQLite — sem Railway Volume (DATA_DIR) eles zeram a cada deploy. Backup: <code>GET /api/admin/coins/backup</code> (editor token) · restore: <code>POST /api/admin/coins/restore</code>.</div>
+  <div class="aviso">ℹ️ Dados persistem no volume Railway (<code>/data</code>) — mesmo mecanismo usado por cases/eventos/calendário. Export manual (migração/backup pontual): <code>GET /api/admin/coins/backup</code> (editor token) · restore: <code>POST /api/admin/coins/restore</code>.</div>
 
   <h2>Ranking</h2>
   <table><thead><tr><th>#</th><th>Email</th><th>ERP Coins</th><th>Ações</th><th>Última</th></tr></thead><tbody id="rk"><tr><td colspan="5" class="vazio">Carregando…</td></tr></tbody></table>

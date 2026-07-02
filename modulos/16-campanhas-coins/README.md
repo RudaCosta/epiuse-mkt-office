@@ -18,10 +18,10 @@
 | Games | Estação "📣 Campanhas em jogo" + zona "⚽ GOL de Placa" (trave + bola no jardim) nos 2 mundos; quest completa também registra. Mascote **Fante** 🐘 veste a camisa 10 🇧🇷 enquanto `golplaca.ativa:true`. |
 | Hub | Card "📣 Campanhas" no Acesso Rápido. |
 
-## ⚠️ Persistência (P0 conhecido)
-Os coins vivem no SQLite. **Sem Railway Volume (`DATA_DIR`) eles ZERAM a cada deploy.** Enquanto o volume não for montado (pendência humana do Rudá):
-1. Antes de cada deploy: `GET /api/admin/coins/backup` (header `X-Editor-Token`) → salvar o JSON.
-2. Depois do deploy: `POST /api/admin/coins/restore` com o JSON salvo.
+## ✅ Persistência (não é P0 — volume já montado)
+Os coins vivem no SQLite, no mesmo banco de cases/eventos/calendário. O Railway Volume em `/data` (`DATA_DIR=/data`) já foi montado e **provado em produção desde 09/jun/2026** (ver `vault/00-contexto/pendencias.md`, item D1) — um deploy real (v0.31.1) manteve todos os dados sem re-sync manual, com `GET /api/version` confirmando `persistencia.status: "volume-persistente"`. Os ERP Coins seguem exatamente esse caminho: sobrevivem a deploy normalmente, sem ação extra.
+
+`GET /api/admin/coins/backup` (header `X-Editor-Token`) e `POST /api/admin/coins/restore` continuam disponíveis como export/import manual pontual (ex.: migração), não como mitigação de risco.
 
 ## Como funciona a mecânica (honestidade do dado)
 - **"Compartilhar no LinkedIn"** = registramos o **clique de intenção** (o LinkedIn não confirma shares sem API parceira). Ver DECISIONS.
