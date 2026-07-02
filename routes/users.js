@@ -14,7 +14,7 @@ const ROLE_CONFIG = {
   'head':            { persona: 'ruda',      landing: '/',     admin: true },
   'intelligence':    { persona: 'bruna',     landing: '/' },
   'growth':          { persona: 'gui',       landing: '/' },
-  'field':           { persona: 'isabela',   landing: '/' },
+  'field':           { persona: 'fernanda',  landing: '/' },
   'pipeline':        { persona: 'marlison',  landing: '/' },
   'brand':           { persona: 'duda',      landing: '/' },
   'conteudo':        { persona: 'conteudo',  landing: '/' },

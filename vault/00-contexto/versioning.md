@@ -21,7 +21,7 @@ Pra rastrear partes de uma sprint maior, usar `0.3.5.1`, `0.3.5.2` etc. **Não v
 Versão `1.0.0` significa "**estável o suficiente pra adoção formal pelo time + clientes externos eventuais (via /seja-voice etc)**". Bate quando:
 
 1. **SSO Microsoft (Entra ID) entregue** — autenticação real, sem prompt() de nome
-2. **Adoção do time medida** — pelo menos 4 das 5 áreas MKT (Bruna, Gui, Isabela, Marlison, Duda) usando ativamente o Office no dia-a-dia por 2+ semanas
+2. **Adoção do time medida** — pelo menos 4 das 5 áreas MKT (Bruna, Gui, Fernanda, Marlison, Duda) usando ativamente o Office no dia-a-dia por 2+ semanas
 3. **Estabilidade Railway** — 14 dias seguidos sem incidente (502/build crash/data loss)
 4. **Módulos core completos** — Voices, Inbound, Calendar, Cases & CS, Painel da Duda
 5. **Doc de operação** — runbook pra Roberto/IT, plano de backup, política de retenção de dados

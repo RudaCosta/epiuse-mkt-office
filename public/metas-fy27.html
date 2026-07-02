@@ -190,7 +190,7 @@
   /* Filter specific colors */
   .tab-btn[data-owner="Marlison Estrela"].active { --tab-bg: var(--color-accent-red-500, #ef4444); --tab-shadow: rgba(239, 68, 68, 0.25); }
   .tab-btn[data-owner="Bruna Yamagami"].active { --tab-bg: var(--color-info-500, #3b82f6); --tab-shadow: rgba(59, 130, 246, 0.25); }
-  .tab-btn[data-owner="Isabela de Oliveira"].active { --tab-bg: var(--color-warning-500, #eab308); --tab-shadow: rgba(234, 179, 8, 0.25); }
+  .tab-btn[data-owner="Fernanda Mattos"].active { --tab-bg: var(--color-warning-500, #eab308); --tab-shadow: rgba(234, 179, 8, 0.25); }
   .tab-btn[data-owner="Designer Pleno/Sênior"].active { --tab-bg: var(--color-accent-purple-500, #a855f7); --tab-shadow: rgba(168, 85, 247, 0.25); }
 
   /* Premium Search Bar */
@@ -494,7 +494,7 @@
       <button class="tab-btn active" data-owner="todos">Geral (Todos)</button>
       <button class="tab-btn" data-owner="Marlison Estrela">Marlison (SDR)</button>
       <button class="tab-btn" data-owner="Bruna Yamagami">Bruna (CRM/Data)</button>
-      <button class="tab-btn" data-owner="Isabela de Oliveira">Isabela (Eventos)</button>
+      <button class="tab-btn" data-owner="Fernanda Mattos">Fernanda (Eventos)</button>
       <button class="tab-btn" data-owner="Designer Pleno/Sênior">Designer</button>
     </div>
     
@@ -532,7 +532,7 @@ const OWNER_THEME = {
     borderAlpha: 'rgba(59, 130, 246, 0.25)',
     bgAlpha: 'rgba(59, 130, 246, 0.08)'
   },
-  'Isabela de Oliveira': {
+  'Fernanda Mattos': {
     border: '#eab308',
     hover: '#fbbf24',
     glow: 'rgba(234, 179, 8, 0.15)',
@@ -596,14 +596,14 @@ function renderMetas() {
   const ORDEM_AREAS = [
     'SDR · Prospecção (Marlison)', 
     'Data Intelligence & CRM (Bruna)', 
-    'Eventos & Field Marketing (Isabela)',
+    'Eventos & Field Marketing (Fernanda)',
     'Envelopamento Visual (Designer)'
   ];
   
   const ICONES = {
     'SDR · Prospecção (Marlison)': '📞',
     'Data Intelligence & CRM (Bruna)': '📊',
-    'Eventos & Field Marketing (Isabela)': '🎤',
+    'Eventos & Field Marketing (Fernanda)': '🎤',
     'Envelopamento Visual (Designer)': '🎨'
   };
 
@@ -701,7 +701,7 @@ function renderMeta(m) {
       </div>`;
   }
   
-  // === Bruna / Designer / Isabela — meta de projeto SMART (status + prazo + % concluído) ===
+  // === Bruna / Designer / Fernanda — meta de projeto SMART (status + prazo + % concluído) ===
   if (m.periodo === 'projeto') {
     const st = (m.status||'').toLowerCase();
     let bar = 'danger';

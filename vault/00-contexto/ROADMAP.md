@@ -52,7 +52,7 @@
 ### 💡 Metas sugeridas por área (validar com Rudá)
 - **Intelligence/Bruna:** % base higienizada · MQL→SQL · cobertura UTM
 - **Growth/Gui:** seguidores LinkedIn +120/mês → stretch +200 · sessões orgânicas (GA4) · CPL
-- **Eventos/Isabela:** nº eventos c/ stand · leads/evento · slots de speaker
+- **Eventos/Fernanda:** nº eventos c/ stand · leads/evento · slots de speaker
 - **SDR/Marlison:** reuniões agendadas · sequências ativas (Apollo) · deals SDR R$ (Zoho)
 - **Brand/Duda:** Voices ativos (5) · posts/mês por voicer (2) · engajamento
 - **Conteúdo/Lisiane:** artigos publicados · cobertura pilares · conteúdo→Voice
