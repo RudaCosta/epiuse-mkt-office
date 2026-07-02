@@ -731,8 +731,12 @@ function buildBrindesEmailHTML(rec) {
         <div style="font-size:14px;font-weight:600;color:#1e293b">${safe(rec.tier)} — ${safe(rec.itensSugeridos)}</div>
       </div>
     </td></tr>
-    <tr><td style="padding:14px 24px 22px;border-top:1px solid #e2e8f0;font-size:11px;color:#94a3b8">
-      Recebido em ${safe(rec.date)} · Protocolo #${safe(rec.id)} · <a href="http://localhost:3000/brindes" style="color:#001844">Ver no Office</a>
+    <tr><td style="padding:20px 24px;background:#f8fafc;border-top:2px solid #e2e8f0">
+      <div style="text-align:center">
+        <div style="font-size:10px;color:#94a3b8;letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px;font-weight:700">Protocolo de Rastreamento</div>
+        <div style="font-family:monospace;font-size:28px;font-weight:900;color:#001844;letter-spacing:.15em">#${safe(rec.id)}</div>
+        <div style="font-size:11px;color:#94a3b8;margin-top:8px">Recebido em ${safe(rec.date)} · <a href="https://office.epiuse.com.br/brindes" style="color:#001844;font-weight:700">Ver no Office →</a></div>
+      </div>
     </td></tr>
   </table></body></html>`;
 }
@@ -742,7 +746,7 @@ async function sendBrindesEmail(rec) {
   try {
     await resend.emails.send({
       from: FROM_EMAIL,
-      to: process.env.BRINDES_NOTIFY_EMAIL || 'marketing@epiuse.com.br',
+      to: process.env.BRINDES_NOTIFY_EMAIL || 'bruna.yamagami@epiuse.com.br',
       subject: `🎁 Brindes #${rec.id} — ${rec.nomeCliente} · ${rec.tier}${rec.isUrgent ? ' ⚡ URGENTE' : ''}`,
       html: buildBrindesEmailHTML(rec),
       reply_to: rec.email

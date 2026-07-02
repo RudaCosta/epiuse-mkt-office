@@ -31,6 +31,18 @@
     [data-theme="dark"] .text-gray-800, [data-theme="dark"] .text-gray-700 { color: #c8d8ee !important; }
     [data-theme="dark"] .step-indicator span { background-color: #0a1e38 !important; border-color: rgba(255,255,255,.12) !important; color: #7a9cc0 !important; }
     [data-theme="dark"] .bg-blue-50 { background-color: rgba(74,158,255,.1) !important; }
+    [data-theme="dark"] .radio-card input:checked + div { background-color: rgba(0,24,68,0.9) !important; border-color: #4a9eff !important; color: #e8f2ff !important; }
+    [data-theme="dark"] .checkbox-card input:checked + div { background-color: rgba(0,24,68,0.9) !important; border-color: #4a9eff !important; color: #e8f2ff !important; }
+    [data-theme="dark"] select.input-premium { background-color: #0a1e38 !important; color: #e8f2ff !important; }
+    [data-theme="dark"] select.input-premium option { background-color: #0a1e38; color: #e8f2ff; }
+    [data-theme="dark"] .bg-amber-50 { background-color: rgba(120,80,0,0.2) !important; border-color: rgba(180,120,0,0.3) !important; }
+    [data-theme="dark"] .text-amber-800 { color: #fbbf24 !important; }
+    [data-theme="dark"] .text-amber-700 { color: #fcd34d !important; }
+    [data-theme="dark"] .bg-amber-100 { background-color: rgba(120,80,0,0.3) !important; }
+    [data-theme="dark"] .text-amber-600 { color: #fbbf24 !important; }
+    [data-theme="dark"] .bg-gray-100 { background-color: #061628 !important; }
+    [data-theme="dark"] .bg-red-50 { background-color: rgba(120,0,0,0.2) !important; }
+    [data-theme="dark"] .text-red-600 { color: #f87171 !important; }
     </style>
 
     <script>
@@ -153,8 +165,7 @@
                     <p class="text-gray-500 mt-2 font-medium">Preencha os detalhes do evento ou presente para análise do marketing.</p>
                 </div>
                 <div class="mb-8 px-2">
-                    <div class="flex justify-between items-end mb-2">
-                        <span class="text-xs text-gray-400 font-bold uppercase tracking-wider" id="stepCounterText">Passo 1 de 5</span>
+                    <div class="flex justify-end items-center mb-2">
                         <span class="text-xs text-primary font-bold bg-blue-50 px-3 py-1 rounded-full"><i class="fas fa-bolt text-yellow-500 mr-1"></i> Leva 2 minutos</span>
                     </div>
                     <div class="relative w-full h-2 bg-gray-100 rounded-full overflow-hidden shadow-inner">
@@ -244,11 +255,11 @@
                                             <p class="text-xs text-red-600 mt-1">Pedidos com menos de 7 dias de antecedência podem não ser atendidos. O time de marketing avaliará a viabilidade.</p>
                                         </div>
                                     </div>
-                                    <div id="financialRuleWarning" class="mt-3 hidden bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
-                                        <div class="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0"><i class="fas fa-calendar-week text-amber-600"></i></div>
+                                    <div id="financialRuleWarning" class="mt-3 bg-blue-50 border border-blue-100 rounded-xl p-4 flex items-start gap-3 transition-all duration-300">
+                                        <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0 financial-icon"><i class="fas fa-calendar-week text-blue-500"></i></div>
                                         <div>
-                                            <p class="text-sm font-bold text-amber-800">Regra Financeira EPI-USE</p>
-                                            <p class="text-xs text-amber-700 mt-1">Os pagamentos são processados em lote <b>toda sexta-feira à tarde</b>. Pedidos feitos na sexta-feira só entram no pagamento da <b>sexta seguinte</b> — adicione pelo menos <b>+7 dias</b> ao seu prazo.</p>
+                                            <p class="text-sm font-bold text-blue-800 financial-title">Regra Financeira EPI-USE</p>
+                                            <p class="text-xs text-blue-700 mt-1">Os pagamentos são processados em lote <b>toda sexta-feira à tarde</b>. Pedidos feitos na sexta-feira só entram no pagamento da <b>sexta seguinte</b> — adicione pelo menos <b>+7 dias</b> ao seu prazo.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -359,10 +370,16 @@
                             <div>
                                 <label class="block text-sm font-bold text-gray-800 mb-3">Restrições ou Logística Especial (Opcional)</label>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    <label class="checkbox-card cursor-pointer"><input type="checkbox" name="restricao" value="SemAlcool" class="peer hidden"><div class="input-premium rounded-xl p-3 flex items-center gap-3 font-bold text-sm text-gray-700"><i class="fas fa-ban text-secondary"></i> Não consome Álcool</div></label>
-                                    <label class="checkbox-card cursor-pointer"><input type="checkbox" name="restricao" value="Vegano" class="peer hidden"><div class="input-premium rounded-xl p-3 flex items-center gap-3 font-bold text-sm text-gray-700"><i class="fas fa-leaf text-green-500"></i> Produto Vegano</div></label>
+                                    <label class="checkbox-card cursor-pointer"><input type="checkbox" name="restricao" value="SemAlcool" class="peer hidden"><div class="input-premium rounded-xl p-3 flex items-center gap-3 font-bold text-sm text-gray-700"><i class="fas fa-wine-bottle text-secondary"></i> Não consome Álcool</div></label>
+                                    <label class="checkbox-card cursor-pointer"><input type="checkbox" name="restricao" value="Vegano" class="peer hidden"><div class="input-premium rounded-xl p-3 flex items-center gap-3 font-bold text-sm text-gray-700"><i class="fas fa-leaf text-green-500"></i> Produto 100% Vegano</div></label>
+                                    <label class="checkbox-card cursor-pointer"><input type="checkbox" name="restricao" value="SemLactose" class="peer hidden"><div class="input-premium rounded-xl p-3 flex items-center gap-3 font-bold text-sm text-gray-700"><i class="fas fa-cheese text-yellow-500"></i> Sem Lactose</div></label>
+                                    <label class="checkbox-card cursor-pointer"><input type="checkbox" name="restricao" value="SemGluten" class="peer hidden"><div class="input-premium rounded-xl p-3 flex items-center gap-3 font-bold text-sm text-gray-700"><i class="fas fa-bread-slice text-orange-400"></i> Sem Glúten</div></label>
+                                    <label class="checkbox-card cursor-pointer"><input type="checkbox" name="restricao" value="SemCarnePorco" class="peer hidden"><div class="input-premium rounded-xl p-3 flex items-center gap-3 font-bold text-sm text-gray-700"><i class="fas fa-star-and-crescent text-teal-500"></i> Sem Carne de Porco / Halal</div></label>
+                                    <label class="checkbox-card cursor-pointer"><input type="checkbox" name="restricao" value="SemCouro" class="peer hidden"><div class="input-premium rounded-xl p-3 flex items-center gap-3 font-bold text-sm text-gray-700"><i class="fas fa-hand-sparkles text-purple-500"></i> Sem Couro ou Seda</div></label>
+                                    <label class="checkbox-card cursor-pointer"><input type="checkbox" name="restricao" value="SemPerfume" class="peer hidden"><div class="input-premium rounded-xl p-3 flex items-center gap-3 font-bold text-sm text-gray-700"><i class="fas fa-allergies text-pink-500"></i> Sem Perfume / Fragrância</div></label>
+                                    <label class="checkbox-card cursor-pointer"><input type="checkbox" name="restricao" value="NacionalApenas" class="peer hidden"><div class="input-premium rounded-xl p-3 flex items-center gap-3 font-bold text-sm text-gray-700"><i class="fas fa-flag text-green-600"></i> Nacional Apenas (sem importado)</div></label>
                                     <label class="checkbox-card cursor-pointer"><input type="checkbox" name="restricao" value="Intl" class="peer hidden"><div class="input-premium rounded-xl p-3 flex items-center gap-3 font-bold text-sm text-gray-700"><i class="fas fa-plane text-blue-500"></i> Frete Internacional</div></label>
-                                    <label class="checkbox-card cursor-pointer"><input type="checkbox" id="chkNenhuma" name="restricao" value="Nenhuma" class="peer hidden"><div class="input-premium rounded-xl p-3 flex items-center gap-3 font-bold text-sm text-gray-700"><i class="fas fa-check text-gray-400"></i> Nenhuma restrição</div></label>
+                                    <label class="checkbox-card cursor-pointer"><input type="checkbox" id="chkNenhuma" name="restricao" value="Nenhuma" class="peer hidden"><div class="input-premium rounded-xl p-3 flex items-center gap-3 font-bold text-sm text-gray-700"><i class="fas fa-check-circle text-gray-400"></i> Nenhuma restrição</div></label>
                                 </div>
                             </div>
                             <div id="diamondChoice" class="hidden bg-gradient-to-r from-purple-50 to-blue-50 p-6 rounded-2xl border border-purple-100">
@@ -394,11 +411,16 @@
                         <h2 class="text-4xl font-black text-primary mb-4 tracking-tight">Pedido Recebido!</h2>
                         <p class="text-lg text-gray-600 mb-8 font-medium">Sua solicitação está na fila do Marketing e passará pela esteira de aprovações.</p>
                         <div id="resultBlockedMsg" class="hidden bg-red-50 text-secondary p-5 rounded-2xl text-sm mb-8 font-bold border border-red-100 text-left"><i class="fas fa-lock mr-2"></i> Este pedido exigirá validação especial de Diretoria devido a pendências de verba ou alinhamento com o gestor.</div>
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-10">
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-6">
                             <p class="text-sm text-gray-500 font-bold uppercase tracking-wider mb-1">Protocolo de Rastreamento</p>
                             <p id="resProtocol" class="font-mono text-3xl font-black text-primary tracking-widest"></p>
                         </div>
-                        <button onclick="resetForm()" class="px-8 py-3 bg-gray-100 text-gray-700 rounded-full font-bold hover:bg-gray-200 transition-colors">Voltar ao Início</button>
+                        <!-- Prévia do brinde sugerido pela IA -->
+                        <div id="brindePreview" class="hidden mb-8 text-left">
+                            <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-3 text-center">Sugestão da IA para o seu pedido</p>
+                            <div id="brindePreviewCard" class="rounded-2xl p-6 border-2"></div>
+                        </div>
+                        <button onclick="resetForm()" class="px-8 py-3 bg-gray-100 text-gray-700 rounded-full font-bold hover:bg-gray-200 transition-colors">Nova Solicitação</button>
                     </div>
                 </div>
             </div>
@@ -490,7 +512,16 @@
         try {
             const r = await fetch('/api/brindes', { headers: { 'Authorization': `Bearer ${ADMIN_TOKEN}` } });
             if (!r.ok) throw new Error(r.status);
-            _cache = await r.json();
+            const serverData = await r.json();
+            if (serverData.length > 0) {
+                // servidor tem dados: merge (prioriza servidor, preserva locais pendentes)
+                const serverIds = new Set(serverData.map(r => r.id));
+                const localOnly = (_cache || []).filter(r => !serverIds.has(r.id));
+                _cache = [...serverData, ...localOnly];
+            } else if (!_cache || _cache.length === 0) {
+                _cache = [];
+            }
+            // se servidor vazio mas cache local tem registros: preserva (ex: Railway SQLite resetou)
         } catch { _cache = _cache || []; }
         return _cache;
     }
@@ -683,7 +714,6 @@
             if (i + 1 === window.currentStep) el.classList.add('active'); else el.classList.remove('active');
         });
         document.getElementById('progressBar').style.width = (window.currentStep / window.totalSteps * 100) + '%';
-        document.getElementById('stepCounterText').innerText = `Passo ${window.currentStep} de ${window.totalSteps}`;
         document.getElementById('btnPrev').style.display = window.currentStep > 1 ? 'block' : 'none';
         if (window.currentStep === window.totalSteps) {
             document.getElementById('btnNext').style.display = 'none';
@@ -700,7 +730,18 @@
         const now = new Date(); const day = now.getDay(); const hour = now.getHours();
         const isLateWeek = (day === 4 && hour >= 18) || day === 5 || day === 6 || day === 0;
         const w = document.getElementById('financialRuleWarning');
-        if (w) { if (isLateWeek) w.classList.remove('hidden'); else w.classList.add('hidden'); }
+        if (!w) return;
+        if (isLateWeek) {
+            w.className = 'mt-3 bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3 transition-all duration-300';
+            w.querySelector('.financial-icon').className = 'w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0 financial-icon';
+            w.querySelector('.financial-icon i').className = 'fas fa-exclamation-triangle text-amber-600';
+            w.querySelector('.financial-title').className = 'text-sm font-bold text-amber-800 financial-title';
+        } else {
+            w.className = 'mt-3 bg-blue-50 border border-blue-100 rounded-xl p-4 flex items-start gap-3 transition-all duration-300';
+            w.querySelector('.financial-icon').className = 'w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0 financial-icon';
+            w.querySelector('.financial-icon i').className = 'fas fa-calendar-week text-blue-500';
+            w.querySelector('.financial-title').className = 'text-sm font-bold text-blue-800 financial-title';
+        }
     };
 
     window.checkIfUrgent = function(dateStr) {
@@ -837,6 +878,31 @@
         else document.getElementById('resultBlockedMsg').classList.add('hidden');
         document.getElementById('resProtocol').innerText = protocolID;
 
+        // Prévia visual do brinde sugerido
+        const tierMeta = {
+            'Essential': { emoji: '🎁', color: '#059669', bg: '#ecfdf5', border: '#6ee7b7', label: 'Essential', desc: 'Kit de relacionamento corporativo' },
+            'Premium':   { emoji: '🎒', color: '#2563eb', bg: '#eff6ff', border: '#93c5fd', label: 'Premium',   desc: 'Kit de alto impacto executivo' },
+            'Diamond':   { emoji: '💎', color: '#7c3aed', bg: '#f5f3ff', border: '#c4b5fd', label: 'Diamond',   desc: 'Kit estratégico de alto valor' },
+        };
+        const tm = tierMeta[decision.tier] || tierMeta['Essential'];
+        const prev = document.getElementById('brindePreview');
+        const card = document.getElementById('brindePreviewCard');
+        card.style.cssText = `background:${tm.bg};border-color:${tm.border}`;
+        card.innerHTML = `
+            <div class="flex items-center gap-4 mb-4">
+                <div class="text-5xl">${tm.emoji}</div>
+                <div>
+                    <span style="background:${tm.color}" class="text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider">${tm.label}</span>
+                    <p class="text-xs text-gray-500 mt-1 font-medium">${tm.desc}</p>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl p-4 border border-gray-100">
+                <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-2">Itens sugeridos</p>
+                <p class="font-bold text-gray-800 text-sm leading-relaxed">${decision.items}</p>
+            </div>
+            <p class="text-xs text-gray-400 mt-3 text-center"><i class="fas fa-robot mr-1"></i> Sugestão gerada pela IA com base nos dados do pedido · sujeita a disponibilidade de estoque</p>`;
+        prev.classList.remove('hidden');
+
         btnSubmit.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> Enviar Pedido';
         btnSubmit.disabled = false;
     });
@@ -866,6 +932,7 @@
 
     window.resetForm = function() {
         document.getElementById('brindesForm').reset();
+        document.getElementById('brindePreview').classList.add('hidden');
         window.currentStep = 1; window.updateUI();
         document.querySelectorAll('.radio-card input,.checkbox-card input').forEach(el => el.checked = false);
         ['subEventoExterno','subVisita','subOutraData','boxMotivoOutro','diamondChoice','dataWarning','boxComplianceSim','boxComplianceNao','boxEndereco','boxMisto'].forEach(id => document.getElementById(id).classList.add('hidden'));
