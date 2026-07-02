@@ -819,6 +819,8 @@ async function sendBrindesEmail(rec) {
 }
 
 app.get('/brindes', (req, res) => res.sendFile(path.join(__dirname, 'public/brindes.html')));
+// Alias via Hub — link curto compartilhável internamente
+app.get('/hub/solicitacao-brindes', (req, res) => res.redirect(301, '/hub?tab=brindes'));
 
 // ── BRINDES: backup JSON para sobreviver a restarts (complementa o SQLite) ──────
 // Em produção sem Railway Volume, o SQLite reseta a cada deploy. O backup JSON
