@@ -819,11 +819,11 @@ async function sendBrindesEmail(rec) {
 }
 
 app.get('/brindes', (req, res) => res.sendFile(path.join(__dirname, 'public/brindes.html')));
-// Alias via Hub — link curto compartilhável internamente
-app.get('/hub/solicitacao-brindes', (req, res) => res.redirect(301, '/hub?tab=brindes'));
-// Link direto pro painel admin (usado no email de notificação)
-// Acesso ao painel dentro da aba brindes — quem pode ver é controlado pelo SSO role
-app.get('/hub/solicitacao-brindes/painel-admin', (req, res) => res.redirect(302, '/hub?tab=brindes'));
+// Página dedicada de solicitação de brindes (standalone, fora da aba do Hub)
+app.get('/hub/solicitacao-brindes', (req, res) => res.sendFile(path.join(__dirname, 'public/brindes.html')));
+// Painel admin como página própria — o brindes.html detecta o path e abre a view
+// admin; quem pode ver é controlado pelo SSO role (role !== 'hub')
+app.get('/hub/solicitacao-brindes/painel-admin', (req, res) => res.sendFile(path.join(__dirname, 'public/brindes.html')));
 
 // ── BRINDES: backup JSON para sobreviver a restarts (complementa o SQLite) ──────
 // Em produção sem Railway Volume, o SQLite reseta a cada deploy. O backup JSON

@@ -658,18 +658,28 @@
             document.getElementById('btnAdmin').classList.remove('hidden');
         }
 
+        // URL /hub/solicitacao-brindes/painel-admin → abre direto a view admin
+        // (só se o SSO autorizar; senão cai no modal de login)
+        if (window.location.pathname.replace(/\/$/, '').endsWith('/painel-admin')) {
+            window.requestAdminAccess();
+        }
+
         // Sincronizar tema com o Office — dark/atlas-dark → escuro; o resto → light
         try {
             const DARK_THEMES = new Set(['dark', 'atlas-dark']);
-            const applyTheme = () => {
-                const t = window.parent.document.documentElement.getAttribute('data-theme') || '';
-                document.documentElement.setAttribute('data-theme', DARK_THEMES.has(t) ? 'dark' : 'light');
-            };
-            applyTheme();
-            new MutationObserver(applyTheme).observe(
-                window.parent.document.documentElement,
-                { attributes: true, attributeFilter: ['data-theme'] }
-            );
+            const setTheme = t => document.documentElement.setAttribute('data-theme', DARK_THEMES.has(t) ? 'dark' : 'light');
+            if (window.parent !== window) {
+                // Dentro do iframe do Hub — segue o data-theme do pai em tempo real
+                const applyTheme = () => setTheme(window.parent.document.documentElement.getAttribute('data-theme') || '');
+                applyTheme();
+                new MutationObserver(applyTheme).observe(
+                    window.parent.document.documentElement,
+                    { attributes: true, attributeFilter: ['data-theme'] }
+                );
+            } else {
+                // Página standalone (/hub/solicitacao-brindes) — lê o tema salvo do Office
+                setTheme(localStorage.getItem('office.theme') || 'dark');
+            }
         } catch {}
 
         window.updateUI();
