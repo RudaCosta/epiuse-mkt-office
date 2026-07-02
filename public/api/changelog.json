@@ -1,5 +1,5 @@
 {
-  "current": "0.71.0",
+  "current": "0.72.0",
   "atualizado_em": "02/jul/2026",
   "next": [
     {
@@ -54,9 +54,27 @@
   ],
   "releases": [
     {
-      "version": "0.71.0",
+      "version": "0.72.0",
       "date": "02/jul/2026",
       "status": "current",
+      "path": null,
+      "title": "⚽ Campanhas em jogo + Gol de Placa + Diretoria com Ormigo",
+      "summary": "Nova area /campanhas com as campanhas ativas (curadas em campanhas-ativas.json): GOL de Placa (People & Culture, tema Copa) com regras e formulario, e campanha LinkedIn com botao de compartilhar. Participacoes registradas silenciosamente por usuario SSO (painel /admin/coins so pro head). Nos games: estacao Campanhas + trave de gol com a campanha no jardim, mascote renomeada pra Fante (de camisa 10 enquanto a campanha rola), sala do Roberto virou Diretoria com Alexandre Ormigo (Stratview), e botao Home do game volta pra raiz do Office.",
+      "highlights": [
+        "nova pagina /campanhas (fonte curada public/api/campanhas-ativas.json) + card no Acesso Rapido do Hub",
+        "registro silencioso de participacao (share/golplaca/quest) por usuario SSO com trava anti-farm diaria",
+        "painel /admin/coins (so head) + backup/restore por editor token (workaround do SQLite sem volume)",
+        "games: estacao 'Campanhas em jogo' + zona 'GOL de Placa' com trave/bola no jardim dos 2 mundos",
+        "mascote Ellie -> Fante; camisa 10 verde-amarela enquanto a golplaca estiver ativa",
+        "game MKT: sala 'Diretoria' com Roberto + Alexandre Ormigo (mesa, NPC, cartao Stratview)",
+        "botao Home do /game -> raiz do Office (/)",
+        "fix: /brindes adicionado ao HUB_LOCK (colaborador nao era redirecionado corretamente)"
+      ]
+    },
+    {
+      "version": "0.71.0",
+      "date": "02/jul/2026",
+      "status": "released",
       "path": null,
       "title": "🎁 Brindes v2 — admin fix, restrições, preview brinde, regra financeira",
       "highlights": [

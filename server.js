@@ -616,7 +616,8 @@ app.use((req, res, next) => {
 // destinos do menu de acesso rápido do portal. O resto do Office segue bloqueado.
 const HUB_LOCK_PAGES = new Set([
   '/hub', '/game', '/game-hub', '/login', '/escolher-visao', '/brand',
-  '/design', '/erp-impacto', '/seja-voice', '/artigos', '/optimizer'
+  '/design', '/erp-impacto', '/seja-voice', '/artigos', '/optimizer',
+  '/campanhas', '/brindes'
 ]);
 // nota: '/game' passa pelo lock só pra rota fazer o redirect por role → /game-hub.
 app.use((req, res, next) => {
@@ -666,6 +667,68 @@ app.post('/api/game/presence', express.json({ limit: '4kb' }), (req, res) => {
     }
   }
   res.json({ others });
+});
+
+// ── ERP COINS (v0.72.0) — acúmulo SILENCIOSO de participação ─────────────────
+// Cada ação (compartilhar campanha, marcar Gol de Placa, completar quest do
+// game) credita coins pro email da sessão SSO. O usuário NÃO vê saldo em
+// lugar nenhum (decisão do Rudá — resgate por brindes/dinheiro vem depois).
+// Anti-farm: UNIQUE(email,evento,ref,dia) = 1 crédito por ação/campanha/dia.
+// ⚠️ Persiste no SQLite → precisa do Railway Volume (DATA_DIR) pra sobreviver
+// a deploys. Enquanto não houver, usar backup/restore abaixo (editor token).
+db.exec(`
+  CREATE TABLE IF NOT EXISTS erp_coins (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    email      TEXT NOT NULL,
+    evento     TEXT NOT NULL,             -- share | golplaca | quest
+    ref        TEXT DEFAULT '',           -- id da campanha / mundo do game
+    coins      INTEGER NOT NULL,
+    dia        TEXT DEFAULT (date('now')),
+    created_at TEXT DEFAULT (datetime('now')),
+    UNIQUE(email, evento, ref, dia)
+  );
+  CREATE INDEX IF NOT EXISTS idx_coins_email ON erp_coins(email);
+`);
+const COIN_VALUES = { share: 10, golplaca: 10, quest: 50 }; // valores só no server
+
+app.post('/api/game/coins', express.json({ limit: '2kb' }), (req, res) => {
+  const u = req.session && req.session.user;
+  if (!u || !u.email) return res.status(401).json({ error: 'auth_required' });
+  const evento = String((req.body || {}).evento || '');
+  if (!COIN_VALUES[evento]) return res.status(400).json({ error: 'evento_invalido' });
+  const ref = String((req.body || {}).ref || '').replace(/[^a-z0-9-]/gi, '').slice(0, 40);
+  try {
+    db.prepare(`INSERT OR IGNORE INTO erp_coins (email, evento, ref, coins) VALUES (?,?,?,?)`)
+      .run(u.email, evento, ref, COIN_VALUES[evento]);
+  } catch (e) { console.warn('[coins]', e.message); }
+  res.json({ ok: true });   // silencioso: sem saldo, sem "ganhou X"
+});
+
+// Painel do head: ranking + ledger (não linkado em nenhum menu de usuário)
+const { requireAdmin: _coinsAdmin } = require('./routes/users');
+app.get('/api/admin/coins', _coinsAdmin, (req, res) => {
+  try {
+    const ranking = db.prepare(`SELECT email, SUM(coins) total, COUNT(*) acoes, MAX(created_at) ultimo
+                                FROM erp_coins GROUP BY email ORDER BY total DESC`).all();
+    const ledger = db.prepare(`SELECT * FROM erp_coins ORDER BY id DESC LIMIT 500`).all();
+    res.json({ valores: COIN_VALUES, ranking, ledger });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+app.get('/admin/coins', _coinsAdmin, (req, res) => res.sendFile(path.join(__dirname, 'public/admin-coins.html')));
+
+// Backup/restore do ledger (workaround do P0 do SQLite sem volume no Railway)
+app.get('/api/admin/coins/backup', requireEditorToken, (req, res) => {
+  try { res.json({ exportado_em: new Date().toISOString(), rows: db.prepare('SELECT * FROM erp_coins').all() }); }
+  catch (e) { res.status(500).json({ error: e.message }); }
+});
+app.post('/api/admin/coins/restore', requireEditorToken, express.json({ limit: '4mb' }), (req, res) => {
+  try {
+    const rows = (req.body || {}).rows || [];
+    const ins = db.prepare(`INSERT OR IGNORE INTO erp_coins (email, evento, ref, coins, dia, created_at) VALUES (?,?,?,?,?,?)`);
+    let n = 0;
+    for (const r of rows) { const c = ins.run(r.email, r.evento, r.ref || '', r.coins, r.dia, r.created_at); n += c.changes; }
+    res.json({ ok: true, restaurados: n });
+  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 // ── RATE LIMITERS ─────────────────────────────────────────────────────────────
@@ -2488,6 +2551,8 @@ app.get('/dashboard', (req, res) => res.redirect(301, '/'));
 app.get('/hub',       (req, res) => res.sendFile(HUB_HTML));
 // Brand Assets — página própria (paleta, tipografia, logos). Linkada por último no Hub.
 app.get('/brand',     (req, res) => res.sendFile(path.join(__dirname, 'public/brand.html')));
+// Campanhas em jogo — campanhas internas (Gol de Placa) + LinkedIn ativas.
+app.get('/campanhas', (req, res) => res.sendFile(path.join(__dirname, 'public/campanhas.html')));
 // Escolher visualização (Office | Game) pós-login. Requer sessão (enforcement cuida disso).
 app.get('/escolher-visao', (req, res) => res.sendFile(path.join(__dirname, 'public/escolher-visao.html')));
 // v0.5.0 — Novas rotas (Onda 2-6)

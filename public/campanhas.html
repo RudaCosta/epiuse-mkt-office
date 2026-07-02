@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Campanhas em jogo · EPI-USE Office</title>
+<link rel="stylesheet" href="/design-tokens.css">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0a1426; --surface:#0f1d36; --text:#e8f0ff; --text2:#9fb2d4;
+    --line:rgba(134,158,195,.18); --accent:#cd1543; --green:#16a34a; --yellow:#fbbf24;
+  }
+  body{font-family:'Maven Pro','Poppins',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.55}
+  .container{max-width:980px;margin:0 auto;padding:0 24px}
+  .hero{padding:52px 24px 30px;background:linear-gradient(160deg,#03291a 0%,#001844 70%);border-bottom:1px solid var(--line)}
+  .hero .eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--yellow);font-weight:700;margin-bottom:10px}
+  .hero h1{font-size:30px;font-weight:800;letter-spacing:-.4px;margin-bottom:8px}
+  .hero p{font-size:15px;color:var(--text2);max-width:640px}
+  .grid{display:grid;gap:20px;padding:32px 0 56px}
+  .camp{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:28px;overflow:hidden;position:relative}
+  .camp.destaque{border-color:rgba(251,191,36,.45);background:linear-gradient(150deg,rgba(22,101,52,.22),var(--surface) 55%);display:grid;grid-template-columns:220px 1fr;gap:26px;align-items:center;padding:0}
+  .camp.destaque .banner{width:100%;height:100%;object-fit:cover;display:block}
+  .camp.destaque .corpo{padding:24px 28px 24px 0}
+  .camp .org{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text2);font-weight:700}
+  .camp h2{font-size:22px;font-weight:800;margin:6px 0 2px}
+  .camp .tagline{font-size:13px;color:var(--yellow);font-weight:700;margin-bottom:12px}
+  .camp .desc{font-size:14px;color:var(--text2);margin-bottom:14px}
+  .regras{list-style:none;display:flex;flex-direction:column;gap:6px;margin-bottom:18px}
+  .regras li{font-size:13px;color:var(--text2);padding-left:22px;position:relative}
+  .regras li::before{content:'⚽';position:absolute;left:0;font-size:11px}
+  .cta{
+    display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;
+    border:none;border-radius:11px;padding:13px 22px;font-size:14px;font-weight:800;
+    font-family:inherit;cursor:pointer;text-decoration:none;transition:filter .15s,transform .06s;
+  }
+  .cta:hover{filter:brightness(1.1)} .cta:active{transform:translateY(1px)}
+  .cta.li{background:#0a66c2}
+  .placar{position:absolute;top:20px;right:24px;background:#04270f;border:2px solid #16a34a;border-radius:10px;
+    padding:6px 12px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:#4ade80}
+  .vazio{padding:60px 24px;text-align:center;color:var(--text2);font-size:14px}
+  @media(max-width:560px){
+    .placar{position:static;display:inline-block;margin-bottom:10px}
+    .camp.destaque{grid-template-columns:1fr}
+    .camp.destaque .banner{max-height:220px}
+    .camp.destaque .corpo{padding:24px 28px}
+  }
+</style>
+</head>
+<body data-route="campanhas">
+<office-nav></office-nav>
+
+<div class="hero">
+  <div class="container">
+    <div class="eyebrow">🏟️ Campanhas em jogo</div>
+    <h1>Entra em campo com a gente</h1>
+    <p>As campanhas que estão rolando AGORA na EPI-USE. Participe, compartilhe e faça a diferença — dentro e fora de campo.</p>
+  </div>
+</div>
+
+<div class="container">
+  <div class="grid" id="grid"><div class="vazio">Carregando campanhas…</div></div>
+</div>
+
+<script src="/office-nav.js"></script>
+<script>
+(function () {
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+  // Registro silencioso de participação (fire-and-forget; nada é exibido).
+  function registrar(evento, ref) {
+    try {
+      fetch('/api/game/coins', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ evento, ref }), keepalive: true
+      }).catch(() => {});
+    } catch {}
+  }
+
+  fetch('/api/campanhas-ativas.json').then(r => r.json()).then(d => {
+    const ativas = (d.campanhas || []).filter(c => c.ativa);
+    const grid = document.getElementById('grid');
+    if (!ativas.length) { grid.innerHTML = '<div class="vazio">Nenhuma campanha rolando agora. Volta logo! 👀</div>'; return; }
+    grid.innerHTML = '';
+    for (const c of ativas) {
+      const card = document.createElement('div');
+      const destaque = c.id === 'golplaca';
+      card.className = 'camp' + (destaque ? ' destaque' : '');
+      const regras = (c.regras || []).map(r => '<li>' + esc(r) + '</li>').join('');
+      const corpo =
+        (destaque ? '<div class="placar">GOOOL · 1-0 🇧🇷</div>' : '') +
+        '<div class="org">' + esc(c.org) + '</div>' +
+        '<h2>' + esc(c.nome) + '</h2>' +
+        (c.tagline ? '<div class="tagline">' + esc(c.tagline) + '</div>' : '') +
+        '<div class="desc">' + esc(c.desc) + '</div>' +
+        (regras ? '<ul class="regras">' + regras + '</ul>' : '') +
+        '<a class="cta ' + (c.tipo === 'linkedin' ? 'li' : '') + '" href="' + esc(c.url) + '" target="_blank" rel="noopener">' + esc(c.cta) + '</a>';
+      card.innerHTML = c.imagem
+        ? '<img class="banner" src="' + esc(c.imagem) + '" alt="' + esc(c.nome) + '"><div class="corpo">' + corpo + '</div>'
+        : corpo;
+      card.querySelector('.cta').addEventListener('click', () => registrar(c.coins_evento, c.id));
+      grid.appendChild(card);
+    }
+  }).catch(() => {
+    document.getElementById('grid').innerHTML = '<div class="vazio">Não foi possível carregar as campanhas.</div>';
+  });
+})();
+</script>
+</body>
+</html>

@@ -129,9 +129,11 @@ window.WORLD = {
     P.pReception(g, 26*TS, 29.5*TS, 'EPI-USE');
     P.pCork(g, 19*TS, 24.4*TS, 270);
     P.pSofa(g, 34*TS, 26*TS, 120);
-    // Garden ERP.ngo
-    P.pElephant(g, 47.5*TS, 26.5*TS);
-    P.pTree(g, 43*TS, 24.2*TS); P.pTree(g, 53*TS, 24.2*TS);
+    P.pStand(g, 36.5*TS, 29*TS, '📣', '#16a34a');           // Campanhas em jogo
+    // Garden ERP.ngo — elefante + trave da campanha Gol de Placa ⚽
+    P.pElephant(g, 45*TS, 26.5*TS);
+    P.pGoal(g, 50.5*TS, 25.5*TS);
+    P.pTree(g, 43*TS, 24.2*TS); P.pTree(g, 55*TS, 30*TS);
   },
 
   solids: [
@@ -144,8 +146,8 @@ window.WORLD = {
     [22,18.5,3,2],[30,18.5,3,2],
     [47,14.4,2,2],[46,19.3,2,2],[50,20.4,2,1],
     [4,25,5,1],[4,29.5,4,1],[9,29.5,4,1],[6.8,27.4,3,2],
-    [26,29.5,3,1],[34,26,4,1],
-    [47.5,26.5,2,2],[43,24.2,2,2],[53,24.2,2,2],
+    [26,29.5,3,1],[34,26,4,1],[36.5,29,2,2],
+    [45,26.5,2,2],[50.5,25.5,3,2],[43,24.2,2,2],[55,30,2,2],
   ],
 
   animDecor: [
@@ -180,24 +182,29 @@ window.WORLD = {
     { id:'ideias',     px:23.2*TS, py:25.5*TS, r:90,  name:'💡 Mural de Ideias', tip:'Sugira ideias pro marketing', action:{type:'iframe', url:'/ideias'} },
     { id:'recepcao',   px:27.5*TS, py:30*TS,   r:80,  name:'🛎️ Recepção', tip:'Como usar', action:{type:'info',
         title:'🏢 Hub do Colaborador EPI-USE', emoji:'🏢', sub:'Guia rápido · v3 Fable Edition',
-        body:'Este é o espaço do marketing pra todo o time EPI-USE!\n\n🚶 Andar: WASD/setas — ou clica/toca no chão.\n⚡ Interagir: chega perto de uma estação e aperta E.\n😄 Emotes: teclas 1-4 — quem estiver online vê!\n📋 Tour: visita as 7 estações e ganha o selo de colaborador explorador.\n\nAqui você acha: apresentação institucional, templates, calendário de eventos, cases, assinatura de e-mail, kit de marca e o otimizador de LinkedIn — tudo num lugar só. E a Ellie 🐘 te acompanha na recepção!' } },
+        body:'Este é o espaço do marketing pra todo o time EPI-USE!\n\n🚶 Andar: WASD/setas — ou clica/toca no chão.\n⚡ Interagir: chega perto de uma estação e aperta E.\n😄 Emotes: teclas 1-4 — quem estiver online vê!\n📋 Tour: visita as 7 estações e ganha o selo de colaborador explorador.\n\nAqui você acha: apresentação institucional, templates, calendário de eventos, cases, assinatura de e-mail, kit de marca e o otimizador de LinkedIn — tudo num lugar só. E a Fante 🐘 te acompanha na recepção!' } },
     { id:'coffee',     px:5.5*TS,  py:25.5*TS, r:70,  name:'☕ Coffee Lounge', tip:'Sobre a EPI-USE', action:{type:'info',
         title:'☕ Coffee Lounge', emoji:'☕', sub:'EPI-USE · groupelephant.com',
         body:'A EPI-USE é a maior consultoria SAP HCM/Payroll do Brasil, parte do grupo groupelephant.com — 4.500+ profissionais, 40+ países, SAP Gold Partner.\n\nTodo o grupo é embaixador do ERP.ngo: 1% da receita global vai pra conservação de elefantes e combate à pobreza rural na África.\n\nPega um café e explora o Hub! ☕' } },
-    { id:'elefante',   px:48.5*TS, py:28*TS,   r:80,  name:'🐘 ERP.ngo', tip:'1% da receita global → conservação', action:{type:'confirm-external', url:'https://erp.ngo', emoji:'🐘',
+    { id:'elefante',   px:46*TS, py:28*TS,   r:70,  name:'🐘 ERP.ngo', tip:'1% da receita global → conservação', action:{type:'confirm-external', url:'https://erp.ngo', emoji:'🐘',
         title:'🐘 ERP.ngo', sub:'groupelephant.com · beyond corporate purpose', body:'O grupo groupelephant.com destina 1% da receita global pra conservação de elefantes e combate à pobreza rural na África.\n\nAbrir erp.ngo em nova aba?'} },
+    { id:'campanhas',  px:37.5*TS, py:29.8*TS, r:75, name:'📣 Campanhas em jogo', tip:'O que está rolando agora na EPI-USE', action:{type:'iframe', url:'/campanhas'} },
+    { id:'golplaca',   px:52*TS, py:27*TS,   r:85,  name:'⚽ GOL de Placa', tip:'Seu elogio faz a diferença!', action:{type:'confirm-external', coinsEvento:'golplaca', emoji:'⚽',
+        url:'https://t.rdsv2.net/ls/click?upn=u001.ulJvYqXscyHAyIBX6-2FX-2B5aSDduGX-2Bek-2Bpi0KPpbvKc7tv48xGGNItz0RhJAXcOl3YSRQgQX-2FeOecBvfuBJj0arKFeYcmWAwSHYM7RbXkEK9-2FuAmsytQY-2BoXGdx7Qp5NJjs8MP3no17JMRMw8Ui6sffua4o8riQVGU8VDechcWu1XWoAxpVVY7-2F-2B3ymiMaQ1u8syBWjCeQcGdg6OKMyuvUw-3D-3DwOPl_E3jX7UdwUvWW16GmiaKN7AWqGNZgB7sICAI-2B1oMckzhrienpd9fI6NvJGgzA-2FeuQG2xvp1Hh-2BxW1KjkAVhC2Jjt0iy8ByeNy81Jo9YjZhHIXQpSpGC8TxBN4x91NlQ99YKy-2FiVJW4xiy7v0gbFmooN72snjPVkKB12oPi0bXUS5P2es8qcyhYWxJ6xsC4Wy3quMXQTPKw9vPTEOuXsGRAw9F-2BERoWnRHsqtMJhdCCRFVBvhWHDh3KHsgr6i5yLMZ5AntqmzVA-2BdzWS-2BvyD85TzDYf5-2BfUh5b9gummRv3A-2FdC9fwPoG-2FieGfqHrbOJSYI',
+        title:'⚽ Campanha GOL de Placa', sub:'People & Culture · seu elogio faz a diferença!',
+        body:'Dê um passe especial: um elogio sincero pra alguém que merece!\n\n⭐ Cada elogio vale 10 pontos\n🎯 Cite uma atitude, resultado ou comportamento específico\n🚫 Não vale repetir o mesmo elogio pra mesma pessoa\n🎁 Sorteios semanais de brindes + os 3 Craques do Reconhecimento premiados no final\n\nAbrir o formulário e marcar seu GOL de PLACA?'} },
   ],
 
-  // NPC: Ellie, a elefantinha mascote (ERP.ngo) — recepcionista do Hub.
+  // NPC: Fante, a elefantinha mascote (ERP.ngo) — recepcionista do Hub.
   // Personagem fictícia da marca (não é uma pessoa) — sempre presente.
   team: [
-    { id:'ellie', nome:'Ellie 🐘', px:29, py:28, room:'lobby', rotina:false, sprite:'elephant',
+    { id:'fante', nome:'Fante 🐘', px:29, py:28, room:'lobby', rotina:false, sprite:'elephant',
       pal:{hair:'#9ca3af',skin:'#9ca3af',shirt:'#9ca3af',pants:'#6b7280'},
       falas:['bem-vinda(o) ao Hub! 🐘','aperta E nas estações ✨','já fez o tour completo? 📋','1% da receita vira conservação 💚','pega um café no lounge ☕'],
       card() {
         return '<div class="info-head"><div class="info-ava">🐘</div>' +
-          '<div><div class="info-title">Ellie</div><div class="info-sub">Mascote ERP.ngo · recepcionista do Hub</div></div></div>' +
-          '<div class="info-body">A Ellie representa o ERP.ngo — o compromisso do grupo groupelephant.com de destinar 1% da receita global pra conservação de elefantes e combate à pobreza rural na África.\n\nEla te ajuda a achar as estações do Hub. Complete o tour! 📋</div>' +
+          '<div><div class="info-title">Fante</div><div class="info-sub">Mascote ERP.ngo · recepcionista do Hub</div></div></div>' +
+          '<div class="info-body">A Fante representa o ERP.ngo — o compromisso do grupo groupelephant.com de destinar 1% da receita global pra conservação de elefantes e combate à pobreza rural na África.\n\nEla te ajuda a achar as estações do Hub. Complete o tour! 📋</div>' +
           '<div class="info-actions"><button class="info-btn pri" onclick="closeInfo()">Fechar</button></div>';
       } },
   ],
@@ -214,7 +221,7 @@ window.WORLD = {
       { type:'zone', key:'elefante',   label:'🐘 ERP.ngo' },
     ],
     doneTitle: '🏅 Tour do Colaborador completo!',
-    doneBody: 'Você conheceu as 7 estações do Marketing Hub: agora sabe onde achar a apresentação institucional, templates, cases, eventos, assinatura e a marca. A Ellie tá orgulhosa. 🐘💚',
+    doneBody: 'Você conheceu as 7 estações do Marketing Hub: agora sabe onde achar a apresentação institucional, templates, cases, eventos, assinatura e a marca. A Fante tá orgulhosa. 🐘💚',
   },
 
   spawn: { x: 29.5*TS, y: 31*TS },
