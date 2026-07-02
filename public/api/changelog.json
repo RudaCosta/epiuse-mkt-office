@@ -1,5 +1,5 @@
 {
-  "current": "0.71.0",
+  "current": "0.72.0",
   "atualizado_em": "02/jul/2026",
   "next": [
     {
@@ -67,6 +67,21 @@
         "Regra financeira sempre visível: azul passivo fora do horário, âmbar ativo na sexta-feira",
         "Barra de progresso sem contador 'Passo X de Y' — só a barra + '2 minutos'",
         "Prévia do brinde sugerido na tela de resultado (Essential/Premium/Diamond com emoji)"
+      ]
+    },
+    {
+      "version": "0.72.0",
+      "date": "02/jul/2026",
+      "status": "past",
+      "path": null,
+      "title": "🎁 Brindes v0.72.0 — foto real do kit, persistência JSON + export CSV",
+      "summary": "Preview do brinde passa a exibir foto real do kit EPI-USE com legenda ilustrativa. Admin panel ganha backup JSON automático (restaura SQLite no restart) + exportação CSV. Adicionada variável BRINDES_NOTIFY_EMAIL ao .env.example para configuração do email de notificação via Resend.",
+      "highlights": [
+        "Foto real do kit EPI-USE (kit-epiuse.jpg) na prévia do resultado, com overlay de tier e legenda 'foto ilustrativa'",
+        "Backup JSON automático (data/brindes-backup.json): escrito após cada write, restaura SQLite no restart",
+        "Export CSV: botão no admin panel → /api/brindes/export-csv?token=MKt123 com BOM UTF-8",
+        "BRINDES_NOTIFY_EMAIL adicionado ao .env.example (default: bruna.yamagami@epiuse.com.br)",
+        "Nota: persistência total requer Railway Volume em DATA_DIR=/data"
       ]
     },
     {

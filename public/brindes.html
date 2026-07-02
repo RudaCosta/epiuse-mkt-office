@@ -447,7 +447,10 @@
                 <div class="glass-panel rounded-2xl overflow-hidden">
                     <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-white">
                         <h3 class="font-bold text-gray-900 text-lg" id="tableTitle"><i class="fas fa-list-ul mr-2 text-primary"></i> Fila de Produção</h3>
-                        <button onclick="exportToExcel()" class="text-xs bg-[#107c41] hover:bg-[#0c5e31] text-white py-2 px-4 rounded-lg font-bold transition-all shadow-sm"><i class="fas fa-file-excel mr-1"></i> Exportar XLSX</button>
+                        <div class="flex gap-2 items-center">
+                            <button onclick="exportToExcel()" class="text-xs bg-[#107c41] hover:bg-[#0c5e31] text-white py-2 px-4 rounded-lg font-bold transition-all shadow-sm"><i class="fas fa-file-excel mr-1"></i> XLSX</button>
+                            <a href="/api/brindes/export-csv?token=MKt123" download class="text-xs bg-primary hover:bg-blue-900 text-white py-2 px-4 rounded-lg font-bold transition-all shadow-sm inline-flex items-center gap-1"><i class="fas fa-file-csv"></i> CSV</a>
+                        </div>
                     </div>
                     <div class="overflow-x-auto max-h-[600px] bg-white">
                         <table class="w-full text-sm text-left">
@@ -880,27 +883,28 @@
 
         // Prévia visual do brinde sugerido
         const tierMeta = {
-            'Essential': { emoji: '🎁', color: '#059669', bg: '#ecfdf5', border: '#6ee7b7', label: 'Essential', desc: 'Kit de relacionamento corporativo' },
-            'Premium':   { emoji: '🎒', color: '#2563eb', bg: '#eff6ff', border: '#93c5fd', label: 'Premium',   desc: 'Kit de alto impacto executivo' },
-            'Diamond':   { emoji: '💎', color: '#7c3aed', bg: '#f5f3ff', border: '#c4b5fd', label: 'Diamond',   desc: 'Kit estratégico de alto valor' },
+            'Essential': { color: '#059669', bg: '#ecfdf5', border: '#6ee7b7', label: 'Essential', desc: 'Kit de relacionamento corporativo' },
+            'Premium':   { color: '#2563eb', bg: '#eff6ff', border: '#93c5fd', label: 'Premium',   desc: 'Kit de alto impacto executivo' },
+            'Diamond':   { color: '#7c3aed', bg: '#f5f3ff', border: '#c4b5fd', label: 'Diamond',   desc: 'Kit estratégico de alto valor' },
         };
         const tm = tierMeta[decision.tier] || tierMeta['Essential'];
         const prev = document.getElementById('brindePreview');
         const card = document.getElementById('brindePreviewCard');
-        card.style.cssText = `background:${tm.bg};border-color:${tm.border}`;
+        card.style.cssText = `background:${tm.bg};border-color:${tm.border};padding:0;overflow:hidden`;
         card.innerHTML = `
-            <div class="flex items-center gap-4 mb-4">
-                <div class="text-5xl">${tm.emoji}</div>
-                <div>
-                    <span style="background:${tm.color}" class="text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider">${tm.label}</span>
-                    <p class="text-xs text-gray-500 mt-1 font-medium">${tm.desc}</p>
+            <div style="position:relative">
+                <img src="/img/kit-epiuse.jpg" alt="Kit EPI-USE" style="width:100%;height:220px;object-fit:cover;display:block">
+                <span style="position:absolute;top:12px;left:12px;background:${tm.color}" class="text-white text-xs font-black px-3 py-1.5 rounded-full uppercase tracking-wider shadow-lg">${tm.label}</span>
+            </div>
+            <div class="p-5">
+                <p class="text-xs text-gray-400 italic text-center mb-4">📸 foto ilustrativa — o marketing entrará em contato com você para definir o brinde. Fique atento ao seu email e Teams.</p>
+                <div class="bg-white rounded-xl p-4 border border-gray-100">
+                    <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-2">Sugestão da IA para o seu pedido</p>
+                    <p class="font-bold text-gray-800 text-sm leading-relaxed">${decision.items}</p>
+                    <p class="text-xs text-gray-400 mt-2">${tm.desc}</p>
                 </div>
-            </div>
-            <div class="bg-white rounded-xl p-4 border border-gray-100">
-                <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-2">Itens sugeridos</p>
-                <p class="font-bold text-gray-800 text-sm leading-relaxed">${decision.items}</p>
-            </div>
-            <p class="text-xs text-gray-400 mt-3 text-center"><i class="fas fa-robot mr-1"></i> Sugestão gerada pela IA com base nos dados do pedido · sujeita a disponibilidade de estoque</p>`;
+                <p class="text-xs text-gray-400 mt-3 text-center"><i class="fas fa-robot mr-1"></i> Sugestão gerada pela IA · sujeita a disponibilidade de estoque</p>
+            </div>`;
         prev.classList.remove('hidden');
 
         btnSubmit.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> Enviar Pedido';

@@ -757,11 +757,42 @@ async function sendBrindesEmail(rec) {
 
 app.get('/brindes', (req, res) => res.sendFile(path.join(__dirname, 'public/brindes.html')));
 
+// ── BRINDES: backup JSON para sobreviver a restarts (complementa o SQLite) ──────
+// Em produção sem Railway Volume, o SQLite reseta a cada deploy. O backup JSON
+// fica no mesmo DB_DIR — se DATA_DIR apontar para um Volume, tudo persiste.
+const BRINDES_BACKUP = path.join(DB_DIR, 'brindes-backup.json');
+
+function brindesWriteBackup() {
+  try {
+    const rows = db.prepare('SELECT data, created_at FROM brindes_requests ORDER BY created_at DESC').all();
+    const records = rows.map(r => { try { return JSON.parse(r.data); } catch { return null; } }).filter(Boolean);
+    fs.writeFileSync(BRINDES_BACKUP, JSON.stringify(records, null, 2), 'utf8');
+  } catch (e) { console.warn('[BRINDES-BACKUP-WRITE]', e.message); }
+}
+
+// Na inicialização, restaura do JSON se o SQLite estiver vazio
+;(function restoreBrindesIfEmpty() {
+  try {
+    const count = db.prepare('SELECT COUNT(*) as n FROM brindes_requests').get().n;
+    if (count > 0 || !fs.existsSync(BRINDES_BACKUP)) return;
+    const records = JSON.parse(fs.readFileSync(BRINDES_BACKUP, 'utf8'));
+    const ins = db.prepare('INSERT OR IGNORE INTO brindes_requests (id, data, created_at) VALUES (?, ?, ?)');
+    const tx = db.transaction(() => {
+      for (const rec of records) {
+        if (rec && rec.id) ins.run(rec.id, JSON.stringify(rec), rec.date || new Date().toISOString());
+      }
+    });
+    tx();
+    console.log(`[BRINDES-RESTORE] ${records.length} registro(s) restaurados do backup JSON`);
+  } catch (e) { console.warn('[BRINDES-RESTORE]', e.message); }
+})();
+
 app.post('/api/brindes', (req, res) => {
   try {
     const rec = req.body;
     if (!rec || !rec.id || !rec.nome || !rec.email) return res.status(400).json({ error: 'campos obrigatorios ausentes' });
     db.prepare('INSERT OR REPLACE INTO brindes_requests (id, data, created_at) VALUES (?, ?, datetime("now"))').run(rec.id, JSON.stringify(rec));
+    brindesWriteBackup();
     sendBrindesEmail(rec);
     res.json({ ok: true, id: rec.id });
   } catch (e) { console.error('[BRINDES-POST]', e); res.status(500).json({ error: e.message }); }
@@ -776,6 +807,21 @@ app.get('/api/brindes', (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+app.get('/api/brindes/export-csv', (req, res) => {
+  const auth = (req.headers.authorization || '');
+  if (!auth.includes('MKt123') && req.query.token !== 'MKt123') return res.status(401).json({ error: 'nao autorizado' });
+  try {
+    const rows = db.prepare('SELECT data, created_at FROM brindes_requests ORDER BY created_at DESC').all();
+    const records = rows.map(r => { try { return JSON.parse(r.data); } catch { return null; } }).filter(Boolean);
+    const cols = ['id','date','nome','email','setor','gestorResponsavel','nomeCliente','codigoProjeto','ocasiao','dataEvento','localEntrega','qtd','perfil','relacionamento','verba','restricoes','tier','itensSugeridos','status'];
+    const esc = v => `"${String(v == null ? '' : Array.isArray(v) ? v.join('; ') : v).replace(/"/g, '""')}"`;
+    const csv = [cols.join(','), ...records.map(r => cols.map(c => esc(r[c])).join(','))].join('\r\n');
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="brindes-${new Date().toISOString().slice(0,10)}.csv"`);
+    res.send('﻿' + csv);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 app.patch('/api/brindes/:id', (req, res) => {
   const auth = (req.headers.authorization || '');
   if (!auth.includes('MKt123') && req.query.token !== 'MKt123') return res.status(401).json({ error: 'nao autorizado' });
@@ -784,6 +830,7 @@ app.patch('/api/brindes/:id', (req, res) => {
     if (!row) return res.status(404).json({ error: 'nao encontrado' });
     const updated = { ...JSON.parse(row.data), ...req.body };
     db.prepare('UPDATE brindes_requests SET data = ?, updated_at = datetime("now") WHERE id = ?').run(JSON.stringify(updated), req.params.id);
+    brindesWriteBackup();
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
