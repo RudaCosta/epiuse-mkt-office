@@ -887,7 +887,22 @@
 
         // fallback notificação: Power Automate (enquanto RESEND_API_KEY não está configurada no servidor)
         const PA_WEBHOOK = "https://default83b6aaa2757547369328b4576f3517.d5.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/f88fa272b1ec4f5a8f6eefbe6f7ceaa3/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=IJIKQHwAPGXIRbUUJ1Jde2yXdT5LWvwbh8D0IwQDOvw";
-        fetch(PA_WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: record.id, nome: record.nome, email: record.email, setor: record.setor, gestorResponsavel: record.gestorResponsavel, nomeCliente: record.nomeCliente, codigoProjeto: record.codigoProjeto, ocasiao: record.ocasiao, dataEvento: record.dataEvento, tier: record.tier, itensSugeridos: record.itensSugeridos, isUrgent: !!record.isUrgent }) }).catch(() => {});
+        fetch(PA_WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+            id: record.id, protocolo: '#' + record.id,
+            nome: record.nome, email: record.email, setor: record.setor,
+            gestorResponsavel: record.gestorResponsavel,
+            nomeCliente: record.nomeCliente, codigoProjeto: record.codigoProjeto,
+            ocasiao: record.ocasiao, detalheOcasiao: record.detalheOcasiao || '',
+            dataEvento: record.dataEvento, localEntrega: record.localEntrega || '',
+            qtd: record.qtd || '', perfil: record.perfil || '',
+            relacionamento: record.relacionamento || '', verba: record.verba || '',
+            restricoes: (record.restricoes || []).join(', '),
+            embalagem: record.embalagem || '',
+            tier: record.tier, itensSugeridos: record.itensSugeridos,
+            isUrgent: !!record.isUrgent, urgente: record.isUrgent ? 'SIM ⚡' : 'Não',
+            date: record.date,
+            linkOffice: 'https://office.epiuse.com.br/hub/solicitacao-brindes'
+        }) }).catch(() => {});
 
         document.getElementById('viewForm').classList.add('hidden');
         document.getElementById('viewResult').classList.remove('hidden');
