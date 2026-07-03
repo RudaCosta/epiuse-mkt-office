@@ -930,6 +930,46 @@ async function imagenPredict(model, body) {
   return r.json();
 }
 
+// Regras de escrita compartilhadas (gerar + refinar) — calibradas pro Yoast SEO (legibilidade)
+const ARTIGOS_REGRAS_ESTILO = `REGRAS DE PORTUGUÊS (INEGOCIÁVEIS — ZERO ERRO):
+- Português do Brasil impecável: gramática, ortografia (Acordo Ortográfico vigente), acentuação, crase, concordância verbal e nominal, regência.
+- Nunca misture inglês e português na mesma frase sem necessidade. Termos técnicos consagrados (cloud, workload) podem ficar em inglês, mas o texto ao redor é pt-BR correto.
+- Antes de finalizar, releia o texto inteiro procurando erros de digitação, palavras trocadas e vírgulas faltando.
+
+REGRAS DE LEGIBILIDADE (calibradas pro Yoast SEO — cumprir TODAS):
+1. FRASES CURTAS: a maioria das frases deve ter até 20 palavras. NO MÁXIMO 1 em cada 5 frases pode passar de 25 palavras. Prefira dividir em duas frases a usar orações longas encadeadas.
+2. PALAVRAS DE TRANSIÇÃO: pelo menos 35% das frases devem começar ou conter palavras/expressões de transição — por exemplo: além disso, no entanto, portanto, ou seja, por isso, em primeiro lugar, na prática, como resultado, da mesma forma, em resumo, afinal, enquanto isso, apesar disso, assim.
+3. SUBTÍTULOS: NENHUMA seção pode ter mais de 250 palavras sem um <h2> ou <h3>. Distribua subtítulos a cada 2-4 parágrafos.
+4. PARÁGRAFOS CURTOS: máximo 4 frases (ou ~90 palavras) por parágrafo.
+5. VOZ ATIVA: prefira voz ativa; use voz passiva em menos de 10% das frases.
+6. Não comece 3 frases seguidas com a mesma palavra.`;
+
+// Passo de revisão: segunda chamada só pra caçar erro de português (barato no Flash, elimina typo/concordância)
+async function artigosRevisarPortugues(html) {
+  try {
+    const result = await geminiPost('gemini-2.5-flash', {
+      contents: [{ parts: [{ text: `Você é um revisor profissional de português do Brasil (norma culta, Acordo Ortográfico vigente).
+
+Revise o HTML abaixo corrigindo APENAS: erros de ortografia, acentuação, crase, concordância verbal/nominal, regência, pontuação e palavras digitadas errado.
+NÃO reescreva frases corretas. NÃO altere estrutura HTML, tags, classes ou conteúdo técnico. NÃO adicione nem remova seções.
+Se uma frase tiver mais de 25 palavras, divida-a em duas mantendo o sentido.
+
+Retorne APENAS o HTML corrigido, sem \`\`\`.
+
+${html}` }] }],
+      generationConfig: { temperature: 0.1 }
+    });
+    const revised = result.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!revised) return html;
+    const clean = revised.replace(/^```(?:html)?\n?|\n?```$/g, '').trim();
+    // Sanidade: se a revisão encolheu demais (>30%), algo deu errado — mantém o original
+    return clean.length > html.length * 0.7 ? clean : html;
+  } catch (e) {
+    console.warn('[ARTIGOS-REVISAO] falhou, mantendo original:', e.message.slice(0, 100));
+    return html;
+  }
+}
+
 app.post('/api/artigos/ideias', async (req, res) => {
   try {
     const prompt = `Você é o Diretor de Marketing de Conteúdo da Stratview (uma consultoria boutique líder em Oracle Cloud no Brasil, especializada em HCM, Inteligência Artificial e OCI).
@@ -946,6 +986,7 @@ Distribuição obrigatória:
 - 1 artigo sobre Sinergia de C-Levels (CHRO e CIO) proporcionada pela tecnologia
 
 OBRIGATÓRIO: Use a ferramenta de busca do Google para cruzar com Google Trends sobre tendências reais e atuais do mercado.
+OBRIGATÓRIO: Títulos e descrições em português do Brasil impecável — gramática, acentuação e concordância perfeitas.
 
 Retorne APENAS JSON válido neste formato:
 {"ideas":[{"id":"string_unica","title":"título","description":"resumo 1-2 frases","keywords":["5","palavras","chave","seo","aqui"],"score":9.5,"volume":"Alto","competition":"Média","trendsInfo":"insight trends max 20 palavras","imagePrompt":"prompt em inglês sem texto"}]}`;
@@ -979,6 +1020,8 @@ DIRETRIZ DE QUALIDADE E ESTILO (ANTI-REPETIÇÃO):
 - NÃO seja repetitivo. Evite usar os mesmos jargões em todos os parágrafos.
 - Traga exemplos práticos, analogias de mercado e varie o vocabulário.
 
+${ARTIGOS_REGRAS_ESTILO}
+
 DIRETRIZES SEO/GEO (Google AI Optimization):
 1. Perspectiva Exclusiva: experiência em primeira mão. Fuja do senso comum. Traga a visão especialista da Stratview.
 2. HTML Semântico Claro: use <h1>, <h2> e <h3> claramente hierarquizados.
@@ -1002,6 +1045,7 @@ Retorne APENAS HTML puro. Sem \`\`\`html.`;
     let html = result.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!html) throw new Error('A IA não retornou conteúdo.');
     html = html.replace(/^```(?:html)?\n?|\n?```$/g,'').trim();
+    html = await artigosRevisarPortugues(html);
     res.json({ html });
   } catch (e) { console.error('[ARTIGOS-GERAR]', e.message); res.status(500).json({ error: e.message }); }
 });
@@ -1100,6 +1144,9 @@ app.post('/api/artigos/refinar', async (req, res) => {
 ${ctx}
 
 QUALIDADE: Não seja repetitivo. Exemplos concretos SAP Brasil. Tom de consultor experiente.
+
+${ARTIGOS_REGRAS_ESTILO}
+
 ESTRUTURA: Mantenha div.seo-meta, h1, h2, h3, blockquote e obrigatoriamente o FAQ com <details class="faq-item"> e <summary> no final.
 
 Artigo original:
@@ -1108,6 +1155,7 @@ ${content}`;
     let html = result.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!html) throw new Error('Sem resposta');
     html = html.replace(/^```(?:html)?\n?|\n?```$/g,'').trim();
+    html = await artigosRevisarPortugues(html);
     res.json({ html });
   } catch (e) { console.error('[ARTIGOS-REFINAR]', e.message); res.status(500).json({ error: e.message }); }
 });

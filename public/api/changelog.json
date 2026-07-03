@@ -1,5 +1,5 @@
 {
-  "current": "0.73.4",
+  "current": "0.73.5",
   "atualizado_em": "03/jul/2026",
   "next": [
     {
@@ -54,9 +54,22 @@
   ],
   "releases": [
     {
-      "version": "0.73.4",
+      "version": "0.73.5",
       "date": "03/jul/2026",
       "status": "current",
+      "path": null,
+      "title": "✍️ Stratview Generator v0.73.5 — português impecável + legibilidade Yoast",
+      "highlights": [
+        "Passo de revisão automática de português (2ª chamada Gemini temp 0.1) em /api/artigos/gerar e /refinar — caça erro de ortografia, crase, concordância e regência antes de devolver o artigo",
+        "Regras de legibilidade calibradas pro Yoast nos prompts: frases ≤20 palavras (máx 1/5 acima de 25), ≥35% com palavras de transição, subtítulo H2/H3 a cada ≤250 palavras, parágrafos ≤4 frases, voz ativa",
+        "Prompt de ideias também exige pt-BR impecável em títulos/descrições",
+        "Guarda de sanidade: se a revisão encolher o HTML >30%, mantém o original"
+      ]
+    },
+    {
+      "version": "0.73.4",
+      "date": "03/jul/2026",
+      "status": "previous",
       "path": null,
       "title": "🔧 Brindes v0.73.4 — URL sincronizada entre form/admin + fix ícones FontAwesome",
       "highlights": [
