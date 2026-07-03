@@ -10,8 +10,21 @@
     <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400;500;600;700;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="/design-tokens.css">
+    <script src="/office-nav.js" defer></script>
 
     <style>
+    /* ── HEADER DO HUB (office-nav + tab bar, espelha o /hub) ── */
+    office-nav { display:block; flex-shrink:0; }
+    .hub-tabbar{flex-shrink:0;background:#fff;border-bottom:1px solid #e5e7eb;padding:0 24px;display:flex;gap:2px;position:relative;z-index:20}
+    .hub-pill{padding:12px 20px;border:none;background:none;font-family:'Maven Pro',system-ui,sans-serif;font-size:13px;font-weight:600;color:#6b7280;cursor:pointer;position:relative;transition:color .2s cubic-bezier(.4,0,.2,1)}
+    .hub-pill::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(135deg,#00d4c8 0%,#4a9eff 100%);border-radius:2px 2px 0 0;transform:scaleX(0);transition:transform .25s cubic-bezier(.4,0,.2,1)}
+    .hub-pill:hover{color:#111827}
+    .hub-pill.active{color:#111827}
+    .hub-pill.active::after{transform:scaleX(1)}
+    [data-theme="dark"] .hub-tabbar{background:#061628 !important;border-color:rgba(255,255,255,.07) !important}
+    [data-theme="dark"] .hub-pill{color:#7a9cc0 !important}
+    [data-theme="dark"] .hub-pill:hover,[data-theme="dark"] .hub-pill.active{color:#e8f2ff !important}
+
     /* ── TEMA DARK (sincronizado com o Office) ── */
     [data-theme="dark"] body { background-color: #030e20 !important; color: #e8f2ff !important; }
     [data-theme="dark"] nav { background-color: #061628 !important; border-color: rgba(255,255,255,.07) !important; }
@@ -146,7 +159,15 @@
     <!-- MAIN APP -->
     <div id="app-wrapper" class="flex flex-1 flex-col h-screen overflow-hidden">
 
-        <!-- Nav simples (sem office-nav para não conflitar com tailwind) -->
+        <!-- Header do Office (shadow DOM — não conflita com tailwind) + tabs do Hub -->
+        <office-nav></office-nav>
+        <div class="hub-tabbar">
+            <button class="hub-pill" onclick="window.location.href='/hub'">📈 MKT Hub</button>
+            <button class="hub-pill" id="hubTabOnboarding" onclick="window.location.href='/hub?tab=onboarding'">🚀 Onboarding</button>
+            <button class="hub-pill active">🎁 Solicitar Brindes</button>
+        </div>
+
+        <!-- Nav interna da página (views + usuário) -->
         <nav class="bg-white shadow-sm border-b border-gray-200 z-10 relative flex-shrink-0">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between h-20 items-center">
@@ -656,6 +677,13 @@
         if (role && role !== 'hub') {
             window.isAdminAuthenticated = true;
             document.getElementById('btnAdmin').classList.remove('hidden');
+        }
+
+        // Aba Onboarding só pro time de marketing (mesma regra do /hub)
+        const MKT_ROLES = ['head','intelligence','growth','field','pipeline','brand','conteudo'];
+        if (MKT_ROLES.indexOf(role) === -1) {
+            const tOnb = document.getElementById('hubTabOnboarding');
+            if (tOnb) tOnb.style.display = 'none';
         }
 
         // URL /hub/brindes/painel-admin → abre direto a view admin
