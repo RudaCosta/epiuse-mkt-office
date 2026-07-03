@@ -193,14 +193,14 @@
 
   <div class="btn-row">
     <button class="btn btn-primary" onclick="copiarPromptV2()">📋 Copiar prompt V2 com variáveis</button>
-    <button class="btn btn-secondary" onclick="abrirClaudeAi()">🚀 Abrir Claude.ai</button>
+    <button class="btn btn-secondary" onclick="abrirAssistente()">🚀 Abrir assistente de IA</button>
   </div>
-  <p style="font-size:11px;color:var(--muted);margin:10px 0 0">💡 Depois de colar no Claude.ai, escreve: <b>"renderiza como artifact"</b>.</p>
+  <p style="font-size:11px;color:var(--muted);margin:10px 0 0">💡 Depois de colar no seu assistente de IA, escreve: <b>"renderiza como artifact"</b>.</p>
 
   <!-- PREVIEW -->
   <div class="card" style="margin-top:18px">
     <details>
-      <summary>👁️ Ver o template completo V2 que vai pro Claude.ai</summary>
+      <summary>👁️ Ver o template completo V2 que vai pro seu assistente de IA</summary>
       <pre class="tpl-preview" id="tpl-preview">Carregando…</pre>
     </details>
   </div>
@@ -305,11 +305,11 @@ function copiarPromptV2() {
     prompt = prompt.replace(re, vars[k]);
   });
   navigator.clipboard.writeText(prompt).then(() => {
-    mostrarToast('✓ Prompt V2 copiado! Cola no Claude.ai e diz "renderiza como artifact".');
+    mostrarToast('✓ Prompt V2 copiado! Cola no seu assistente de IA e diz "renderiza como artifact".');
   }).catch(err => alert('Erro ao copiar: ' + err.message));
 }
 
-function abrirClaudeAi() { window.open('https://claude.ai/new', '_blank'); }
+function abrirAssistente() { window.open('https://claude.ai/new', '_blank'); }
 
 function mostrarToast(msg) {
   const t = document.getElementById('toast');

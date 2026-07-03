@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════
-   EPI-USE OFFICE ENGINE 3.0 — "Fable Edition" · jul/2026
+   EPI-USE OFFICE ENGINE 3.0 — Marketing EPI-USE Brasil · jul/2026
    Engine 2D compartilhado: /game (mundo MKT) e /game-hub (colaborador).
    Pixel-art procedural · zero assets externos · vanilla JS.
 
@@ -223,12 +223,13 @@ function elephantSprite(dir, frame, kit) {
 }
 
 const SHIRT_CHOICES = ['#cd1543','#001844','#10b981','#7c3aed','#f59e0b','#0d9488'];
-const SKINS = ['#f5cfa6','#e8b58a','#c98e62','#9c6644'];
-const HAIRS = ['#27190e','#0f172a','#5b3a1e','#7c5a3a','#94a3b8'];
+// Tons de pele — gama completa e inclusiva (claro → retinto), representando todo o time
+const SKINS = ['#ffe0bd','#f5cfa6','#e8b58a','#d9a06b','#c98e62','#9c6644','#7a4b2b','#5c3a21','#3d2817'];
+const HAIRS = ['#0a0a0a','#27190e','#0f172a','#5b3a1e','#7c5a3a','#3b2f2f','#94a3b8'];
 function palFor(seed, shirt, skin, hair) {
   const h = strHash(seed);
   return {
-    hair: hair || HAIRS[h % 5],
+    hair: hair || HAIRS[h % HAIRS.length],
     skin: skin || SKINS[h % SKINS.length],
     shirt: shirt || SHIRT_CHOICES[h % SHIRT_CHOICES.length],
     pants: ['#334155','#1e3a5f','#44403c'][h % 3]
@@ -350,6 +351,28 @@ function pElephant(g, x, y) {
   g.fillStyle = '#d1d5db'; g.fillRect(x+44, y+20, 5, 4);
   g.fillStyle = '#1f2937'; g.fillRect(x+48, y+9, 3, 3);
 }
+// 🥚 filhote de elefante — easter egg (escondido atrás de uma árvore)
+function pBabyElephant(g, x, y) {
+  g.fillStyle = 'rgba(0,0,0,0.12)'; g.fillRect(x+2, y+20, 26, 3);
+  g.fillStyle = '#b0b7c3';
+  g.fillRect(x+4, y+6, 16, 11);  g.fillRect(x+17, y+3, 9, 9);      // corpo + cabeça
+  g.fillRect(x+23, y+10, 3, 7);                                     // tromba
+  g.fillRect(x+5, y+16, 4, 5); g.fillRect(x+13, y+16, 4, 5);        // patas
+  g.fillStyle = '#8b93a3'; g.fillRect(x+16, y+4, 4, 6);             // orelha
+  g.fillStyle = '#1f2937'; g.fillRect(x+22, y+5, 2, 2);             // olho
+}
+// Faixa de torcida (ex.: VEM HEXA! na Diretoria)
+function pBanner(g, x, y, w, text) {
+  g.fillStyle = 'rgba(0,0,0,0.15)'; g.fillRect(x+3, y+24, w-6, 3);
+  g.fillStyle = '#15803d'; g.fillRect(x, y, w, 24);                  // faixa verde
+  g.fillStyle = '#fde047'; g.fillRect(x, y, w, 3); g.fillRect(x, y+21, w, 3); // bordas amarelas
+  g.fillStyle = '#fde047';                                           // pontas
+  g.beginPath(); g.moveTo(x, y); g.lineTo(x-8, y+12); g.lineTo(x, y+24); g.fill();
+  g.beginPath(); g.moveTo(x+w, y); g.lineTo(x+w+8, y+12); g.lineTo(x+w, y+24); g.fill();
+  g.fillStyle = '#fff'; g.font = 'bold 13px Inter'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillText(text, x + w/2, y + 13);
+  g.textBaseline = 'alphabetic'; g.textAlign = 'left';
+}
 function pReception(g, x, y, label) {
   g.fillStyle = '#9f1239'; g.fillRect(x, y+24, 96, 8);
   g.fillStyle = '#cd1543'; g.fillRect(x, y, 96, 26);
@@ -362,7 +385,9 @@ function pWaterCooler(g, x, y) {
   g.fillStyle = '#bfdbfe'; g.fillRect(x+6, y, 12, 16);
   g.fillStyle = '#93c5fd'; g.fillRect(x+8, y+4, 8, 8);
 }
-// Trave de gol + bola (campanha Gol de Placa 🇧🇷)
+// Trave de gol (campanha Gol de Placa 🇧🇷) — a BOLA é dinâmica (chutável
+// com E): pintada por drawGoals() a cada frame, animada por kickGoal().
+const goals = [];
 function pGoal(g, x, y) {
   g.fillStyle = 'rgba(0,0,0,0.12)'; g.fillRect(x + 2, y + 44, 92, 5);        // sombra
   g.fillStyle = '#f8fafc';
@@ -370,10 +395,7 @@ function pGoal(g, x, y) {
   g.strokeStyle = 'rgba(226,232,240,0.75)'; g.lineWidth = 1;                 // rede
   for (let i = 1; i < 8; i++) { g.beginPath(); g.moveTo(x + 4 + i * 11, y + 4); g.lineTo(x + 4 + i * 11, y + 44); g.stroke(); }
   for (let j = 1; j < 5; j++) { g.beginPath(); g.moveTo(x + 4, y + 4 + j * 8); g.lineTo(x + 92, y + 4 + j * 8); g.stroke(); }
-  // bola na marca do pênalti
-  g.fillStyle = 'rgba(0,0,0,0.12)'; g.fillRect(x + 42, y + 62, 14, 3);
-  g.fillStyle = '#fff'; g.beginPath(); g.arc(x + 48, y + 56, 7, 0, Math.PI * 2); g.fill();
-  g.fillStyle = '#0f172a'; g.fillRect(x + 45, y + 53, 4, 4); g.fillRect(x + 50, y + 57, 3, 3);
+  if (!goals.some(gl => gl.x === x && gl.y === y)) goals.push({ x, y, phase: 'rest', t: 0, shake: 0 });
 }
 // NOVO v3: estande de exposição (mundo do colaborador)
 function pStand(g, x, y, emoji, accent) {
@@ -387,7 +409,7 @@ function pStand(g, x, y, emoji, accent) {
   g.fillText(emoji || '⭐', x+32, y+18);
   g.textBaseline = 'alphabetic';
 }
-const P = { TS, drawItem, pDesk, pChair, pMicBooth, pPlant, pTree, pSofa, pCoffeeMachine, pCounter, pTV, pCork, pBookshelf, pMeetTable, pElephant, pReception, pWaterCooler, pStand, pGoal };
+const P = { TS, drawItem, pDesk, pChair, pMicBooth, pPlant, pTree, pSofa, pCoffeeMachine, pCounter, pTV, pCork, pBookshelf, pMeetTable, pElephant, pBabyElephant, pBanner, pReception, pWaterCooler, pStand, pGoal };
 
 // ── PRERENDER DO MUNDO (camada estática) ───────────────────────────
 const world = document.createElement('canvas'); world.width = WW; world.height = WH;
@@ -908,17 +930,41 @@ function runAction(z) {
       <div class="info-body">${escH(a.body)}</div>
       <div class="info-actions"><button class="info-btn pri" onclick="closeInfo()">Fechar</button></div>`);
   }
-  else if (a.type === 'confirm-external') {
-    openInfo(`
-      <div class="info-head"><div class="info-ava">${a.emoji || '↗'}</div>
-        <div><div class="info-title">${escH(a.title)}</div><div class="info-sub">${escH(a.sub || 'abre em nova aba')}</div></div></div>
-      <div class="info-body">${escH(a.body)}</div>
-      <div class="info-actions">
-        <button class="info-btn sec" onclick="closeInfo()">Agora não</button>
-        <button class="info-btn pri" data-url="${escH(a.url)}" onclick="window.open(this.dataset.url,'_blank');closeInfo()">Abrir ↗</button>
-      </div>`);
-  }
+  else if (a.type === 'confirm-external') openConfirmExternal(a);
+  else if (a.type === 'goal') kickGoal(z, a);   // ⚽ chuta a bola pro gol, depois abre o card
+  else if (a.type === 'egg') foundEgg();        // 🐘 easter egg do filhote
   else if (a.type === 'person') showPerson(a.id);
+}
+
+// 🥚 EASTER EGG — filhote de elefante escondido → conquista "Guardião dos
+// Elefantes". Na 1ª descoberta o server registra e avisa o time por email.
+function foundEgg() {
+  const k = 'office.egg.elefantes';
+  let again = false;
+  try { again = !!localStorage.getItem(k); localStorage.setItem(k, new Date().toISOString()); } catch {}
+  if (!again) {
+    sfx('win'); confettiBurst();
+    try { fetch('/api/game/egg', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ world: W.id }), keepalive:true }).catch(()=>{}); } catch {}
+  }
+  openInfo(`
+    <div class="info-head"><div class="info-ava">🐘</div>
+      <div><div class="info-title">${again ? 'Vocês já se conhecem 🐾' : '🏆 Conquista desbloqueada!'}</div>
+      <div class="info-sub">Guardião dos Elefantes · ERP.ngo</div></div></div>
+    <div class="info-body">${again
+      ? 'O filhote continua aqui, seguro atrás da árvore — graças a você. 💚'
+      : 'Você achou o filhote de elefante escondido no jardim! 🐘\n\nNa vida real é assim também: o grupo groupelephant.com destina 1% da receita global pra conservação de elefantes e rinocerontes e combate à pobreza rural na África.\n\nPouca gente acha esse cantinho — o time já foi avisado da sua descoberta. 😉'}</div>
+    <div class="info-actions"><button class="info-btn pri" onclick="closeInfo()">${again ? 'Até mais 🐾' : 'Demais! 🎉'}</button></div>`);
+}
+
+function openConfirmExternal(a) {
+  openInfo(`
+    <div class="info-head"><div class="info-ava">${a.emoji || '↗'}</div>
+      <div><div class="info-title">${escH(a.title)}</div><div class="info-sub">${escH(a.sub || 'abre em nova aba')}</div></div></div>
+    <div class="info-body">${escH(a.body)}</div>
+    <div class="info-actions">
+      <button class="info-btn sec" onclick="closeInfo()">Agora não</button>
+      <button class="info-btn pri" data-url="${escH(a.url)}" onclick="window.open(this.dataset.url,'_blank');closeInfo()">Abrir ↗</button>
+    </div>`);
 }
 
 function showPerson(id) {
@@ -1066,6 +1112,58 @@ function updateDecor(dt) {
     if (b.y > WH - 8) { b.y = WH - 8; b.a = -b.a; }
     if (b.y > 2.2*TS && b.y < 33.5*TS && b.x > 2*TS && b.x < 57.5*TS) b.y = b.y < 17*TS ? 1.4*TS : 34.4*TS;
   }
+  updateGoals(dt);
+}
+
+// ── GOL DE PLACA: bola chutável ────────────────────────────────────
+// rest = bola parada na marca do pênalti · fly = voando pro gol ·
+// net = balançando a rede; depois volta sozinha pro pênalti.
+const KICK_FLY = 0.55, KICK_NET = 1.6;
+function updateGoals(dt) {
+  for (const gl of goals) {
+    if (gl.phase === 'fly') {
+      gl.t += dt;
+      if (gl.t >= KICK_FLY) { gl.phase = 'net'; gl.t = 0; gl.shake = 1; }
+    } else if (gl.phase === 'net') {
+      gl.t += dt; gl.shake = Math.max(0, gl.shake - dt * 0.8);
+      if (gl.t >= KICK_NET) { gl.phase = 'rest'; gl.t = 0; }
+    }
+  }
+}
+function drawGoals() {
+  for (const gl of goals) {
+    let bx = gl.x + 48, by = gl.y + 56, r = 7;
+    if (gl.phase === 'fly') {
+      const k = Math.min(1, gl.t / KICK_FLY);
+      by = gl.y + 56 - 34 * k - Math.sin(k * Math.PI) * 12;  // sobe até a rede com arco
+      r = 7 - 2.5 * k;                                        // "afasta" (perspectiva)
+    } else if (gl.phase === 'net') {
+      bx += Math.sin(gl.t * 26) * gl.shake * 2.5;
+      by = gl.y + 22; r = 4.5;
+    }
+    const x = bx - cam.x, y = by - cam.y;
+    if (x < -30 || x > gc.clientWidth / Z + 30 || y < -30 || y > gc.clientHeight / Z + 30) continue;
+    if (gl.phase === 'rest') { ctx.fillStyle = 'rgba(0,0,0,0.12)'; ctx.fillRect(x - 6, y + 6, 13, 3); }
+    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#0f172a';
+    const s = r / 7;
+    ctx.fillRect(x - 3 * s, y - 3 * s, 4 * s, 4 * s); ctx.fillRect(x + 2 * s, y + 1 * s, 3 * s, 3 * s);
+  }
+}
+function kickGoal(z, a) {
+  let g0 = null, bd = 1e9;
+  for (const gl of goals) {
+    const d = Math.hypot(gl.x + 48 - z.px, gl.y + 56 - z.py);
+    if (d < bd) { bd = d; g0 = gl; }
+  }
+  if (!g0) { openConfirmExternal(a); return; }       // mundo sem trave — vai direto pro card
+  if (g0.phase !== 'rest') return;                    // bola ainda voltando — segura o replay
+  g0.phase = 'fly'; g0.t = 0;
+  setTimeout(() => {
+    sfx('win'); confettiBurst();
+    toast('⚽ GOOOOL DE PLACA! Agora manda teu elogio 🇧🇷');
+  }, KICK_FLY * 1000);
+  setTimeout(() => { if (!modalOpen && !infoOpen) openConfirmExternal(a); }, 1500);
 }
 
 function drawDecor() {
@@ -1099,6 +1197,7 @@ function drawDecor() {
     ctx.fillRect(x - wing - 2, y - 2, wing + 2, 4); ctx.fillRect(x + 1, y - 2, wing + 2, 4);
     ctx.fillStyle = '#44403c'; ctx.fillRect(x - 1, y - 3, 2, 6);
   }
+  drawGoals();
 }
 
 // TV com conteúdo REAL ciclando (versão · eventos · data especial · online)
@@ -1342,9 +1441,12 @@ function loop(ts) {
   updateDecor(dt);
   updateCamera(vw, vh);
 
-  // quest por sala
+  // quest por sala + toast de entrada (ex.: VEM HEXA! na Diretoria)
   const room = roomOf(player.x + 12, player.y + 16);
-  if (room && room.key !== lastRoomKey) { lastRoomKey = room.key; questVisit('room', room.key); }
+  if (room && room.key !== lastRoomKey) {
+    lastRoomKey = room.key; questVisit('room', room.key);
+    if (W.roomToasts && W.roomToasts[room.key]) toast(W.roomToasts[room.key]);
+  }
 
   // ── render ──
   ctx.setTransform(DPR * Z, 0, 0, DPR * Z, 0, 0);
@@ -1480,4 +1582,7 @@ function spawn() {
 }
 document.getElementById('sg-go').addEventListener('click', spawn);
 nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') spawn(); });
+
+// hook de teste E2E (?debug=1) — sem efeito em uso normal
+if (new URLSearchParams(location.search).has('debug')) window.__game = { player, cam, npcs, goals };
 })();

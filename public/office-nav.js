@@ -1,14 +1,14 @@
 // ════════════════════════════════════════════════════════════════════════════
 // <office-nav> — Web Component vanilla, sem build, sem deps
 // Nav global persistente em todas as rotas do Office Engine v3.3+
-// Briefing do Claude Design: 5 seções, logomark à esquerda, controles à direita.
+// Design do Office EPI-USE: 5 seções, logomark à esquerda, controles à direita.
 // ════════════════════════════════════════════════════════════════════════════
 
 // Versão atual exposta no chip ao lado do logomark.
 // Fonte ÚNICA da verdade: public/api/changelog.json#current via /api/version
 // Fallback hardcoded usado SÓ se fetch falhar (offline, etc).
 // Sincronização automática — não editar manualmente, basta bumpar changelog.json.
-let OFFICE_NAV_VERSION = '0.73.6';
+let OFFICE_NAV_VERSION = '0.74.0';
 // Promise compartilhada — nav + footer reaproveitam o mesmo fetch
 window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/version')
   .then(r => r.ok ? r.json() : null)
@@ -162,6 +162,7 @@ const OFFICE_NAV_OVERFLOW = [
   { label: '💡 Mural de Ideias',         href: '/ideias' },
   { label: '🤖 Agentes & Contexto',      href: '/agentes' },
   { label: '⚡ Central (pendências+prazos)', href: '/war-room' },
+  { label: '📄 PDF-QA (RAG)',            href: '/rag-panel' },
 
   { section: '📞 Biz Dev' },
   { label: '🤖 JARVIS — Copiloto SDR',   href: '/jarvis' },
@@ -181,8 +182,7 @@ const OFFICE_NAV_OVERFLOW = [
 
   { section: '🎙️ Voices & Optimizer' },
   { label: '🦝 Raccoon Studio',          href: '/raccoon' },
-  { label: '🪪 Profile Optimizer (V1)',   href: '/optimizer' },
-  { label: '🪪 Profile Optimizer V2 (findskill)', href: '/optimizer-v2' },
+  { label: '🪪 Profile Optimizer',        href: '/voices/optimizer-v3' },
   { label: '📨 Seja um Voice (LP)',      href: '/seja-voice' },
 
   { section: '🎨 Design & Sistema' },
@@ -1698,7 +1698,7 @@ const OfficeCommandPalette = (() => {
       { group:'Rotas', icon:'▦',  label:'Calendário Editorial', hint:'/inbound/calendar', action:'/inbound/calendar' },
       { group:'Rotas', icon:'▤',  label:'Playbook (deck 19 slides)', hint:'/inbound/playbook', action:'/inbound/playbook' },
       { group:'Rotas', icon:'🎨', label:'Brand Experience / Voices', hint:'/area/brand', action:'/area/brand' },
-      { group:'Rotas', icon:'🪪', label:'Profile Optimizer',    hint:'/optimizer',  action:'/optimizer' },
+      { group:'Rotas', icon:'🪪', label:'Profile Optimizer',    hint:'/voices/optimizer-v3',  action:'/voices/optimizer-v3' },
       { group:'Rotas', icon:'📨', label:'LP Seja um Voice',     hint:'/seja-voice', action:'/seja-voice' },
       { group:'Rotas', icon:'📜', label:'Changelog',            hint:'/changelog',  action:'/changelog' },
       // Ações

@@ -1,6 +1,6 @@
 # 🪪 KIT LINKEDIN V1 · EPI-USE VOICES — Padrão Visual Anderson Costa
 
-> **Como usar:** copia este arquivo INTEIRO · cola a transcrição da reunião na seção TRANSCRIÇÃO · cola tudo no [claude.ai](https://claude.ai/new) num chat novo dizendo *"renderiza como artifact"* · Claude.ai gera o HTML do kit no padrão visual oficial · salva PDF dentro do artifact pelo botão "Salvar como PDF" no topo.
+> **Como usar:** copia este arquivo INTEIRO · cola a transcrição da reunião na seção TRANSCRIÇÃO · cola tudo no [claude.ai](https://claude.ai/new) num chat novo dizendo *"renderiza como artifact"* · o assistente gera o HTML do kit no padrão visual oficial · salva PDF dentro do artifact pelo botão "Salvar como PDF" no topo.
 
 ---
 
@@ -277,7 +277,7 @@ E cada `.checklist-item` deve ter `onclick="toggleCheck(this)"` e estrutura:
 - Áudio transcrito (mesmo bagunçado)
 - Respostas do roteiro de 12 perguntas
 - Email ou chat WhatsApp com as respostas
-- TUDO JUNTO MISTURADO — Claude separa]
+- TUDO JUNTO MISTURADO — o assistente separa]
 
 Não precisa formatar nada. Quanto mais natural, melhor a IA captura tom.
 

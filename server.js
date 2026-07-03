@@ -682,7 +682,7 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS erp_coins (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
     email      TEXT NOT NULL,
-    evento     TEXT NOT NULL,             -- share | golplaca | quest
+    evento     TEXT NOT NULL,             -- share | golplaca | quest | egg
     ref        TEXT DEFAULT '',           -- id da campanha / mundo do game
     coins      INTEGER NOT NULL,
     dia        TEXT DEFAULT (date('now')),
@@ -704,6 +704,43 @@ app.post('/api/game/coins', express.json({ limit: '2kb' }), (req, res) => {
       .run(u.email, evento, ref, COIN_VALUES[evento]);
   } catch (e) { console.warn('[coins]', e.message); }
   res.json({ ok: true });   // silencioso: sem saldo, sem "ganhou X"
+});
+
+// 🥚 Easter egg dos elefantes — quem achar o filhote escondido no jardim
+// desbloqueia a conquista "Guardião dos Elefantes". Na 1ª descoberta de cada
+// pessoa: registra no ledger (1x por vida — dia fixo '∀') e avisa o Rudá por
+// email. Descobertas repetidas não geram email nem coins (INSERT OR IGNORE).
+const EGG_NOTIFY = process.env.EGG_NOTIFY_EMAIL || 'ruda.costa@epiuse.com.br';
+app.post('/api/game/egg', express.json({ limit: '2kb' }), async (req, res) => {
+  const u = req.session && req.session.user;
+  if (!u || !u.email) return res.status(401).json({ error: 'auth_required' });
+  const world = String((req.body || {}).world || '').replace(/[^a-z0-9-]/gi, '').slice(0, 20);
+  let first = false;
+  try {
+    const r = db.prepare(`INSERT OR IGNORE INTO erp_coins (email, evento, ref, coins, dia) VALUES (?,?,?,?,?)`)
+      .run(u.email, 'egg', 'elefantes', 100, '∀');
+    first = r.changes > 0;
+  } catch (e) { console.warn('[egg]', e.message); }
+  if (first) {
+    console.log(`[egg] 🐘 ${u.email} achou o filhote (mundo: ${world || '?'})`);
+    if (resend) {
+      try {
+        await resend.emails.send({
+          from: FROM_EMAIL,
+          to: EGG_NOTIFY,
+          subject: `🐘 Easter egg encontrado! ${u.name || u.email} achou o filhote`,
+          html: `<div style="font-family:sans-serif;line-height:1.6;max-width:520px">
+            <h2 style="margin:0 0 8px">🐘🏆 Guardião dos Elefantes</h2>
+            <p><b>${String(u.name || u.email).replace(/[<>&]/g, '')}</b> (${String(u.email).replace(/[<>&]/g, '')}) encontrou o filhote de elefante escondido no Office game (mundo: <b>${world || '?'}</b>).</p>
+            <p>${new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}</p>
+            <p style="color:#64748b;font-size:13px">Conquista registrada no ledger de ERP Coins (evento "egg", 1x por pessoa, +100).</p>
+          </div>`,
+        });
+        console.log(`[egg-email] enviado pra ${EGG_NOTIFY}`);
+      } catch (e) { console.warn('[egg-email]', e.message); }
+    } else console.log('[egg-email] skipped (sem RESEND_API_KEY)');
+  }
+  res.json({ ok: true });
 });
 
 // Painel do head: ranking + ledger (não linkado em nenhum menu de usuário)

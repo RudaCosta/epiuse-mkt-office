@@ -348,7 +348,7 @@
 
       <div class="actions">
         <button class="btn btn--primary" id="btn-generate">
-          <span id="gen-label">✨ Estruturar com Claude</span>
+          <span id="gen-label">✨ Estruturar com a IA da EPI-USE</span>
         </button>
         <button class="btn btn--ghost" id="btn-clear">↺ Limpar tudo</button>
       </div>
@@ -390,7 +390,7 @@
         <h3>Editar slide <span class="badge" id="editor-num">—</span></h3>
         <div id="editor-body">
           <div class="ai-box">
-            Clique em qualquer slide à esquerda para editar, ou <b>Estruturar com Claude</b> a partir do brief.
+            Clique em qualquer slide à esquerda para editar, ou <b>Estruturar com a IA da EPI-USE</b> a partir do brief.
           </div>
         </div>
       </div>
@@ -825,7 +825,7 @@
       // Mostrar banner sinalizando que o draft foi importado
       var hint = document.createElement('div');
       hint.style.cssText = 'margin:8px 0 14px;padding:10px 14px;background:rgba(91,188,235,.08);border:1px solid rgba(91,188,235,.25);border-radius:6px;font-size:12px;color:var(--d-ink-2)';
-      hint.innerHTML = '↪ <b>Brief importado</b> do Brief→Post. Ajuste tema/dados extras se quiser, e clique <b>Estruturar com Claude</b>.';
+      hint.innerHTML = '↪ <b>Brief importado</b> do Brief→Post. Ajuste tema/dados extras se quiser, e clique <b>Estruturar com a IA da EPI-USE</b>.';
       var briefField = document.getElementById('brief').closest('.field');
       if (briefField && briefField.parentNode) briefField.parentNode.insertBefore(hint, briefField);
     } catch(e) { console.warn('[carousel] import bridge falhou:', e.message); }
@@ -859,9 +859,9 @@
     btn.setAttribute('disabled','true');
     lbl.innerHTML = '<span class="spin"></span> Estruturando…';
     status.className = 'gen-status busy';
-    status.innerHTML = '<span class="spin"></span> Claude estruturando…';
+    status.innerHTML = '<span class="spin"></span> IA da EPI-USE estruturando…';
 
-    // Backend (Claude Haiku) — substitui o window.claude.complete() do artifact host
+    // Backend (IA da EPI-USE) — substitui o window.claude.complete() do artifact host
     try {
       var apiRes = await fetch('/api/inbound/generate', {
         method: 'POST',
@@ -898,7 +898,7 @@
       alert('Erro: '+(e.message||''));
     } finally {
       btn.removeAttribute('disabled');
-      lbl.textContent = '✨ Estruturar com Claude';
+      lbl.textContent = '✨ Estruturar com a IA da EPI-USE';
     }
   });
 

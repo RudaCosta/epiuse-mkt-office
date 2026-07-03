@@ -229,11 +229,11 @@
         Brief <em style="font-style:normal; color: var(--d-accent);">→</em> Post
       </h1>
       <p style="font-size: 14px; color: var(--d-ink-2); margin: 6px 0 0; max-width: 70ch;">
-        Cole o brief, escolha categoria e LOB. Claude aplica a regra dos 5 elementos do playbook e devolve headline, copy de LinkedIn, hashtags e preview do template renderizado.
+        Cole o brief, escolha categoria e LOB. A IA da EPI-USE aplica a regra dos 5 elementos do playbook e devolve headline, copy de LinkedIn, hashtags e preview do template renderizado.
       </p>
     </div>
     <div class="ai-status" id="ai-status">
-      <span class="dot pill ok" style="display:inline-flex;"><span class="dot"></span>Claude online</span>
+      <span class="dot pill ok" style="display:inline-flex;"><span class="dot"></span>IA da EPI-USE online</span>
     </div>
   </div>
 
@@ -250,7 +250,7 @@
 
       <!-- ░░░░░░░░░░ 00 · ORIGEM ░░░░░░░░░░ -->
       <h2 style="margin-top:0"><em>00.</em> Origem do conteúdo</h2>
-      <p class="sub">De onde vem o texto? Se a Redatoria (Lisiane) mandou um material pronto, cole aqui — Claude extrai dor + persona + LOB + número-chave automaticamente. Se está criando do zero, pule pra etapa 01.</p>
+      <p class="sub">De onde vem o texto? Se a Redatoria (Lisiane) mandou um material pronto, cole aqui — a IA da EPI-USE extrai dor + persona + LOB + número-chave automaticamente. Se está criando do zero, pule pra etapa 01.</p>
 
       <!-- Tabs de origem -->
       <div style="display:flex;gap:6px;margin:8px 0 14px;border-bottom:1px solid var(--d-border)">
@@ -262,19 +262,19 @@
       <div id="origin-redatoria-pane">
         <div class="field">
           <label>Texto bruto da Redatoria · cola aqui</label>
-          <textarea id="redatoria-input" placeholder="Cole aqui o texto que a Lisiane (Redatoria) mandou. Pode ser email, doc, brief solto — Claude lê, identifica a dor central, a persona alvo e os pontos editoriais e popula os campos abaixo automaticamente." style="min-height:140px"></textarea>
-          <span class="hint">Texto pode ter formatação, fontes citadas, headers — Claude limpa.</span>
+          <textarea id="redatoria-input" placeholder="Cole aqui o texto que a Lisiane (Redatoria) mandou. Pode ser email, doc, brief solto — a IA da EPI-USE lê, identifica a dor central, a persona alvo e os pontos editoriais e popula os campos abaixo automaticamente." style="min-height:140px"></textarea>
+          <span class="hint">Texto pode ter formatação, fontes citadas, headers — a IA da EPI-USE limpa.</span>
         </div>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
           <button id="btn-extract" type="button" class="btn btn--primary" style="display:inline-flex;align-items:center;gap:8px">
-            <span id="extract-label">✨ Extrair com Claude</span>
+            <span id="extract-label">✨ Extrair com a IA da EPI-USE</span>
           </button>
           <span id="extract-status" class="ai-status" style="font-size:11px;color:var(--d-ink-3)">Aguardando texto…</span>
         </div>
 
         <!-- Pills de resultado (preenchidas após extração) -->
         <div id="extract-result" style="display:none;margin-top:14px;padding:14px;background:rgba(91,188,235,.05);border:1px solid rgba(91,188,235,.20);border-radius:8px">
-          <div style="font-family:var(--eu-font-mono);font-size:10px;letter-spacing:.14em;color:var(--d-accent);text-transform:uppercase;margin-bottom:10px">↓ Extraído pelo Claude · revise antes de gerar</div>
+          <div style="font-family:var(--eu-font-mono);font-size:10px;letter-spacing:.14em;color:var(--d-accent);text-transform:uppercase;margin-bottom:10px">↓ Extraído pela IA da EPI-USE · revise antes de gerar</div>
           <div style="display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:12px;line-height:1.5">
             <span style="color:var(--d-ink-3);font-weight:700">DOR:</span>            <span id="ext-dor" style="color:var(--d-ink)">—</span>
             <span style="color:var(--d-ink-3);font-weight:700">PERSONA:</span>        <span id="ext-persona" style="color:var(--d-ink)">—</span>
@@ -287,7 +287,7 @@
             <div style="color:var(--d-ink-3);font-weight:700;font-size:11px;margin-bottom:4px">PONTOS-CHAVE:</div>
             <ul id="ext-key-points" style="margin:0;padding-left:18px;font-size:12px;color:var(--d-ink-2);line-height:1.6"></ul>
           </div>
-          <div style="margin-top:12px;font-size:11px;color:var(--d-ink-3);font-style:italic">↓ Os campos do formulário abaixo já foram preenchidos. Ajuste o que precisar e clique <b>"Gerar com Claude"</b>.</div>
+          <div style="margin-top:12px;font-size:11px;color:var(--d-ink-3);font-style:italic">↓ Os campos do formulário abaixo já foram preenchidos. Ajuste o que precisar e clique <b>"Gerar com a IA da EPI-USE"</b>.</div>
         </div>
       </div>
 
@@ -384,7 +384,7 @@
         <div style="display:flex; gap:10px;">
           <button class="btn btn--ghost" id="btn-save">Salvar rascunho</button>
           <button class="btn btn--primary" id="btn-gen">
-            <span id="gen-label">Gerar com Claude →</span>
+            <span id="gen-label">Gerar com a IA da EPI-USE →</span>
           </button>
         </div>
       </div>
@@ -427,7 +427,7 @@
           <h4>LinkedIn copy
             <button class="copy-btn" data-copy="li-copy">Copiar</button>
           </h4>
-          <div class="li-copy" id="li-copy">Cole um brief e gere com Claude — o copy aparece aqui.</div>
+          <div class="li-copy" id="li-copy">Cole um brief e gere com a IA da EPI-USE — o copy aparece aqui.</div>
         </div>
         <div class="copy-panel">
           <h4>Hashtags
@@ -602,7 +602,7 @@
 
     btn.setAttribute('disabled', 'true');
     lbl.innerHTML = '<span class="spin"></span> Extraindo…';
-    status.textContent = 'Claude lendo…';
+    status.textContent = 'IA da EPI-USE lendo…';
     status.style.color = 'var(--d-accent)';
 
     try {
@@ -656,7 +656,7 @@
       status.style.color = 'var(--d-bad)';
     } finally {
       btn.removeAttribute('disabled');
-      lbl.textContent = '✨ Extrair com Claude';
+      lbl.textContent = '✨ Extrair com a IA da EPI-USE';
     }
   });
 
@@ -675,9 +675,9 @@
     btn.setAttribute('disabled', 'true');
     lbl.innerHTML = '<span class="spin"></span> Gerando...';
     status.className = 'ai-status busy';
-    status.innerHTML = '<span class="spin"></span> Claude está pensando…';
+    status.innerHTML = '<span class="spin"></span> IA da EPI-USE está pensando…';
 
-    // Chama o backend (Claude Haiku via /api/inbound/generate) — substitui o
+    // Chama o backend (IA da EPI-USE via /api/inbound/generate) — substitui o
     // window.claude.complete() que só funcionava dentro do artifact host.
     try {
       var apiRes = await fetch('/api/inbound/generate', {
@@ -743,7 +743,7 @@
       alert('Erro ao gerar. ' + (e.message || ''));
     } finally {
       btn.removeAttribute('disabled');
-      lbl.textContent = 'Gerar com Claude →';
+      lbl.textContent = 'Gerar com a IA da EPI-USE →';
     }
   });
 </script>
