@@ -72,6 +72,56 @@
       ]
     },
     {
+      "version": "0.73.4",
+      "date": "03/jul/2026",
+      "status": "past",
+      "path": null,
+      "title": "🔧 Brindes v0.73.4 — URL sincronizada entre form/admin + fix ícones FontAwesome",
+      "highlights": [
+        "Trocar entre Nova Solicitação e Painel Admin agora atualiza a URL (pushState): /hub/brindes ↔ /hub/brindes/painel-admin, com voltar/avançar do navegador funcionando",
+        "Fix global no office-nav: a exceção de fonte pra ícones usava 'revert' e apagava a fonte do FontAwesome (ícones viravam □ em toda tela com FA) — famílias FA reafirmadas explicitamente",
+        "Emojis reais nunca quebraram — só os ícones <i class=fa-*>; agora ambos ok"
+      ]
+    },
+    {
+      "version": "0.73.3",
+      "date": "03/jul/2026",
+      "status": "previous",
+      "path": null,
+      "title": "🎨 Brindes v0.73.3 — fix tema Nova · Escuro (e demais temas) na página de brindes",
+      "highlights": [
+        "Skin escuro da página desacoplado do data-theme: atributo próprio data-brindes-dark mapeado de QUALQUER tema escuro do Office (dark, atlas-dark/Nova, aurora, liquid-glass)",
+        "Antes só 'dark' legado aplicava o skin — no Nova · Escuro o card ficava branco com textos lavados",
+        "Troca de tema pelo dropdown do office-nav atualiza a página ao vivo (MutationObserver)"
+      ]
+    },
+    {
+      "version": "0.73.2",
+      "date": "03/jul/2026",
+      "status": "past",
+      "path": null,
+      "title": "🎁 Brindes v0.73.2 — header do Office + tabs do Hub na página de brindes",
+      "highlights": [
+        "/hub/brindes e /hub/brindes/painel-admin agora exibem o <office-nav> global + a barra de abas do Hub (MKT Hub · Onboarding · Solicitar Brindes)",
+        "Pill 'Solicitar Brindes' fica ativa; MKT Hub e Onboarding navegam de volta pro /hub",
+        "Aba Onboarding respeita a mesma regra de role do /hub (só time de marketing)",
+        "Fix mojibake na description do package.json (encoding PS 5.1)"
+      ]
+    },
+    {
+      "version": "0.73.1",
+      "date": "03/jul/2026",
+      "status": "past",
+      "path": null,
+      "title": "🎁 Brindes v0.73.1 — URLs canônicas /hub/brindes + /hub/brindes/painel-admin",
+      "highlights": [
+        "Formulário agora vive em /hub/brindes e o painel admin em /hub/brindes/painel-admin (páginas próprias, sem ?tab=)",
+        "URLs antigas (/brindes, /hub/solicitacao-brindes, /hub/solicitar-brindes e seus /painel-admin) redirecionam 301 pras canônicas",
+        "Aba 'Solicitar Brindes' do Hub deixou de ser iframe — o pill navega direto pra /hub/brindes; /hub?tab=brindes também redireciona",
+        "Links de email (Ver no Office) e linkOffice atualizados pro painel admin novo"
+      ]
+    },
+    {
       "version": "0.73.0",
       "date": "02/jul/2026",
       "status": "past",
@@ -85,6 +135,18 @@
         "Quem loga via SSO não vê mais um clone de si mesmo como NPC (esconde o próprio personagem)",
         "Nova estação 😂 Parede de Memes no game → abre /memes",
         "/memes curada: mantém o folclore interno real (Mega Brain, Marco Véio, ERROUUU, REAL DATA, ERP.ngo) + 2 novos (Eventos e a Argentina que aqui não pode torcer); removidos os memes genéricos de internet"
+      ]
+    },
+    {
+      "version": "0.72.5",
+      "date": "02/jul/2026",
+      "status": "past",
+      "path": null,
+      "title": "🎁 Brindes v0.72.5 — páginas dedicadas /hub/solicitacao-brindes + painel-admin",
+      "highlights": [
+        "/hub/solicitacao-brindes agora é página standalone (antes era redirect pra aba do Hub)",
+        "/hub/solicitacao-brindes/painel-admin abre direto a view admin (gated por SSO role)",
+        "Tema standalone: lê office.theme do localStorage quando fora do iframe do Hub"
       ]
     },
     {

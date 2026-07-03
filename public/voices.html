@@ -623,13 +623,9 @@ async function renderGallery() {
       <div style="font-family:'JetBrains Mono', monospace;font-weight:700;font-size:9px;letter-spacing:.12em;color:#fbbf24;margin-bottom:6px">ENGAJAMENTO TOTAL</div>
       <div style="font-size:24px;font-weight:700;color:var(--text)">${progEng.toLocaleString('pt-BR')}<span style="font-size:13px;color:var(--text-muted);font-weight:400"> ❤️💬🔄</span></div>
     </div>
-    <a href="/optimizer" style="background:rgba(192,132,252,.08);border:1px solid rgba(192,132,252,.25);border-radius:10px;padding:14px 16px;text-decoration:none;transition:background .15s" onmouseover="this.style.background='rgba(192,132,252,.18)'" onmouseout="this.style.background='rgba(192,132,252,.08)'">
-      <div style="font-family:'JetBrains Mono', monospace;font-weight:700;font-size:9px;letter-spacing:.12em;color:#c084fc;margin-bottom:6px">🪪 PROFILE OPTIMIZER</div>
-      <div style="font-size:13px;color:var(--text);line-height:1.4">Análise de perfil LinkedIn via IA da EPI-USE — abrir →</div>
-    </a>
     <a href="/voices/optimizer-v3" style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);border-radius:10px;padding:14px 16px;text-decoration:none;transition:background .15s" onmouseover="this.style.background='rgba(34,197,94,.18)'" onmouseout="this.style.background='rgba(34,197,94,.08)'">
-      <div style="font-family:'JetBrains Mono', monospace;font-weight:700;font-size:9px;letter-spacing:.12em;color:#22c55e;margin-bottom:6px">🪪 OPTIMIZER v3 · 21 SKILLS</div>
-      <div style="font-size:13px;color:var(--text);line-height:1.4">Groq Vision (free) · redator + revisor · cobre 21 skills LinkedIn — abrir →</div>
+      <div style="font-family:'JetBrains Mono', monospace;font-weight:700;font-size:9px;letter-spacing:.12em;color:#22c55e;margin-bottom:6px">🪪 PROFILE OPTIMIZER · 21 SKILLS + SSI</div>
+      <div style="font-size:13px;color:var(--text);line-height:1.4">Groq Vision (free) · redator + revisor · cobre 21 skills LinkedIn + tracking SSI — abrir →</div>
     </a>
   </div>
 
@@ -879,7 +875,7 @@ async function renderProfile(slug) {
         headline, About, primeiros 3 posts, banner, e Causa Social (ERP.ngo).
       </p>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <a class="btn btn-primary" href="/optimizer?voice=${slug}" target="_blank">🪪 Abrir Optimizer pra ${voice.nome.split(' ')[0]}</a>
+        <a class="btn btn-primary" href="/voices/optimizer-v3?voice=${slug}" target="_blank">🪪 Abrir Optimizer pra ${voice.nome.split(' ')[0]}</a>
         <a class="btn btn-secondary" href="${linkedinUrl}" target="_blank" style="font-size:13px">↗ Abrir LinkedIn deste Voice</a>
       </div>
     </div>

@@ -10,55 +10,68 @@
     <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400;500;600;700;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="/design-tokens.css">
+    <script src="/office-nav.js" defer></script>
 
     <style>
+    /* ── HEADER DO HUB (office-nav + tab bar, espelha o /hub) ── */
+    office-nav { display:block; flex-shrink:0; }
+    .hub-tabbar{flex-shrink:0;background:#fff;border-bottom:1px solid #e5e7eb;padding:0 24px;display:flex;gap:2px;position:relative;z-index:20}
+    .hub-pill{padding:12px 20px;border:none;background:none;font-family:'Maven Pro',system-ui,sans-serif;font-size:13px;font-weight:600;color:#6b7280;cursor:pointer;position:relative;transition:color .2s cubic-bezier(.4,0,.2,1)}
+    .hub-pill::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(135deg,#00d4c8 0%,#4a9eff 100%);border-radius:2px 2px 0 0;transform:scaleX(0);transition:transform .25s cubic-bezier(.4,0,.2,1)}
+    .hub-pill:hover{color:#111827}
+    .hub-pill.active{color:#111827}
+    .hub-pill.active::after{transform:scaleX(1)}
+    html[data-brindes-dark] .hub-tabbar{background:#061628 !important;border-color:rgba(255,255,255,.07) !important}
+    html[data-brindes-dark] .hub-pill{color:#7a9cc0 !important}
+    html[data-brindes-dark] .hub-pill:hover,html[data-brindes-dark] .hub-pill.active{color:#e8f2ff !important}
+
     /* ── TEMA DARK (sincronizado com o Office) ── */
-    [data-theme="dark"] body { background-color: #030e20 !important; color: #e8f2ff !important; }
-    [data-theme="dark"] nav { background-color: #061628 !important; border-color: rgba(255,255,255,.07) !important; }
-    [data-theme="dark"] nav span, [data-theme="dark"] nav p { color: #e8f2ff !important; }
-    [data-theme="dark"] .glass-panel { background: rgba(10,30,56,0.95) !important; border-color: rgba(255,255,255,.07) !important; }
-    [data-theme="dark"] .input-premium { background-color: #0a1e38 !important; border-color: rgba(255,255,255,.12) !important; color: #e8f2ff !important; }
-    [data-theme="dark"] .input-premium::placeholder { color: #3d5a7a !important; }
-    [data-theme="dark"] .input-premium[readonly] { background-color: #061628 !important; color: #7a9cc0 !important; }
-    [data-theme="dark"] h2.text-gray-900, [data-theme="dark"] h3.text-gray-900 { color: #e8f2ff !important; }
-    [data-theme="dark"] label.text-gray-700, [data-theme="dark"] label.text-gray-800, [data-theme="dark"] label.text-sm { color: #c8d8ee !important; }
-    [data-theme="dark"] .text-gray-500, [data-theme="dark"] .text-gray-400 { color: #7a9cc0 !important; }
-    [data-theme="dark"] .bg-\[#f8fafc\] { background-color: #0a1e38 !important; border-color: rgba(255,255,255,.07) !important; }
-    [data-theme="dark"] .bg-gray-50 { background-color: #061628 !important; }
-    [data-theme="dark"] .bg-white { background-color: #0a1e38 !important; }
-    [data-theme="dark"] .border-gray-100, [data-theme="dark"] .border-gray-200 { border-color: rgba(255,255,255,.07) !important; }
-    [data-theme="dark"] .divide-gray-100 > * { border-color: rgba(255,255,255,.07) !important; }
-    [data-theme="dark"] .text-gray-800, [data-theme="dark"] .text-gray-700 { color: #c8d8ee !important; }
-    [data-theme="dark"] .step-indicator span { background-color: #0a1e38 !important; border-color: rgba(255,255,255,.12) !important; color: #7a9cc0 !important; }
-    [data-theme="dark"] .bg-blue-50 { background-color: rgba(74,158,255,.1) !important; }
-    [data-theme="dark"] .radio-card input:checked + div { background-color: rgba(0,24,68,0.9) !important; border-color: #4a9eff !important; color: #e8f2ff !important; }
-    [data-theme="dark"] .checkbox-card input:checked + div { background-color: rgba(0,24,68,0.9) !important; border-color: #4a9eff !important; color: #e8f2ff !important; }
-    [data-theme="dark"] select.input-premium { background-color: #0a1e38 !important; color: #e8f2ff !important; }
-    [data-theme="dark"] select.input-premium option { background-color: #0a1e38; color: #e8f2ff; }
-    [data-theme="dark"] .bg-amber-50 { background-color: rgba(120,80,0,0.2) !important; border-color: rgba(180,120,0,0.3) !important; }
-    [data-theme="dark"] .text-amber-800 { color: #fbbf24 !important; }
-    [data-theme="dark"] .text-amber-700 { color: #fcd34d !important; }
-    [data-theme="dark"] .bg-amber-100 { background-color: rgba(120,80,0,0.3) !important; }
-    [data-theme="dark"] .text-amber-600 { color: #fbbf24 !important; }
-    [data-theme="dark"] .bg-gray-100 { background-color: #061628 !important; }
-    [data-theme="dark"] .bg-red-50 { background-color: rgba(120,0,0,0.2) !important; }
-    [data-theme="dark"] .text-red-600 { color: #f87171 !important; }
+    html[data-brindes-dark] body { background-color: #030e20 !important; color: #e8f2ff !important; }
+    html[data-brindes-dark] nav { background-color: #061628 !important; border-color: rgba(255,255,255,.07) !important; }
+    html[data-brindes-dark] nav span, html[data-brindes-dark] nav p { color: #e8f2ff !important; }
+    html[data-brindes-dark] .glass-panel { background: rgba(10,30,56,0.95) !important; border-color: rgba(255,255,255,.07) !important; }
+    html[data-brindes-dark] .input-premium { background-color: #0a1e38 !important; border-color: rgba(255,255,255,.12) !important; color: #e8f2ff !important; }
+    html[data-brindes-dark] .input-premium::placeholder { color: #3d5a7a !important; }
+    html[data-brindes-dark] .input-premium[readonly] { background-color: #061628 !important; color: #7a9cc0 !important; }
+    html[data-brindes-dark] h2.text-gray-900, html[data-brindes-dark] h3.text-gray-900 { color: #e8f2ff !important; }
+    html[data-brindes-dark] label.text-gray-700, html[data-brindes-dark] label.text-gray-800, html[data-brindes-dark] label.text-sm { color: #c8d8ee !important; }
+    html[data-brindes-dark] .text-gray-500, html[data-brindes-dark] .text-gray-400 { color: #7a9cc0 !important; }
+    html[data-brindes-dark] .bg-\[#f8fafc\] { background-color: #0a1e38 !important; border-color: rgba(255,255,255,.07) !important; }
+    html[data-brindes-dark] .bg-gray-50 { background-color: #061628 !important; }
+    html[data-brindes-dark] .bg-white { background-color: #0a1e38 !important; }
+    html[data-brindes-dark] .border-gray-100, html[data-brindes-dark] .border-gray-200 { border-color: rgba(255,255,255,.07) !important; }
+    html[data-brindes-dark] .divide-gray-100 > * { border-color: rgba(255,255,255,.07) !important; }
+    html[data-brindes-dark] .text-gray-800, html[data-brindes-dark] .text-gray-700 { color: #c8d8ee !important; }
+    html[data-brindes-dark] .step-indicator span { background-color: #0a1e38 !important; border-color: rgba(255,255,255,.12) !important; color: #7a9cc0 !important; }
+    html[data-brindes-dark] .bg-blue-50 { background-color: rgba(74,158,255,.1) !important; }
+    html[data-brindes-dark] .radio-card input:checked + div { background-color: rgba(0,24,68,0.9) !important; border-color: #4a9eff !important; color: #e8f2ff !important; }
+    html[data-brindes-dark] .checkbox-card input:checked + div { background-color: rgba(0,24,68,0.9) !important; border-color: #4a9eff !important; color: #e8f2ff !important; }
+    html[data-brindes-dark] select.input-premium { background-color: #0a1e38 !important; color: #e8f2ff !important; }
+    html[data-brindes-dark] select.input-premium option { background-color: #0a1e38; color: #e8f2ff; }
+    html[data-brindes-dark] .bg-amber-50 { background-color: rgba(120,80,0,0.2) !important; border-color: rgba(180,120,0,0.3) !important; }
+    html[data-brindes-dark] .text-amber-800 { color: #fbbf24 !important; }
+    html[data-brindes-dark] .text-amber-700 { color: #fcd34d !important; }
+    html[data-brindes-dark] .bg-amber-100 { background-color: rgba(120,80,0,0.3) !important; }
+    html[data-brindes-dark] .text-amber-600 { color: #fbbf24 !important; }
+    html[data-brindes-dark] .bg-gray-100 { background-color: #061628 !important; }
+    html[data-brindes-dark] .bg-red-50 { background-color: rgba(120,0,0,0.2) !important; }
+    html[data-brindes-dark] .text-red-600 { color: #f87171 !important; }
     /* Correções de contraste dark mode */
-    [data-theme="dark"] .text-primary { color: #4a9eff !important; }
-    [data-theme="dark"] .text-gray-900 { color: #e8f2ff !important; }
-    [data-theme="dark"] .text-gray-600 { color: #8ab0d0 !important; }
-    [data-theme="dark"] .text-diamond { color: #a78bfa !important; }
-    [data-theme="dark"] .checkbox-card div, [data-theme="dark"] .radio-card div { color: #c8d8ee !important; }
-    [data-theme="dark"] nav a, [data-theme="dark"] nav button { color: #e8f2ff !important; }
-    [data-theme="dark"] #nav-user-name { color: #e8f2ff !important; }
-    [data-theme="dark"] #toastTitle { color: #e8f2ff !important; }
-    [data-theme="dark"] #toastMessage { color: #8ab0d0 !important; }
-    [data-theme="dark"] table td { color: #c8d8ee !important; }
-    [data-theme="dark"] table th { color: #7a9cc0 !important; background-color: #061628 !important; }
-    [data-theme="dark"] .font-mono { color: #4a9eff !important; }
-    [data-theme="dark"] .text-gray-400.italic { color: #7a9cc0 !important; }
+    html[data-brindes-dark] .text-primary { color: #4a9eff !important; }
+    html[data-brindes-dark] .text-gray-900 { color: #e8f2ff !important; }
+    html[data-brindes-dark] .text-gray-600 { color: #8ab0d0 !important; }
+    html[data-brindes-dark] .text-diamond { color: #a78bfa !important; }
+    html[data-brindes-dark] .checkbox-card div, html[data-brindes-dark] .radio-card div { color: #c8d8ee !important; }
+    html[data-brindes-dark] nav a, html[data-brindes-dark] nav button { color: #e8f2ff !important; }
+    html[data-brindes-dark] #nav-user-name { color: #e8f2ff !important; }
+    html[data-brindes-dark] #toastTitle { color: #e8f2ff !important; }
+    html[data-brindes-dark] #toastMessage { color: #8ab0d0 !important; }
+    html[data-brindes-dark] table td { color: #c8d8ee !important; }
+    html[data-brindes-dark] table th { color: #7a9cc0 !important; background-color: #061628 !important; }
+    html[data-brindes-dark] .font-mono { color: #4a9eff !important; }
+    html[data-brindes-dark] .text-gray-400.italic { color: #7a9cc0 !important; }
     /* Logo branco em temas escuros */
-    [data-theme="dark"] img.logo-epiuse { content: url('/assets/logos-epi-use/epi-use-logo-white.svg'); }
+    html[data-brindes-dark] img.logo-epiuse { content: url('/assets/logos-epi-use/epi-use-logo-white.svg'); }
     </style>
 
     <script>
@@ -146,7 +159,15 @@
     <!-- MAIN APP -->
     <div id="app-wrapper" class="flex flex-1 flex-col h-screen overflow-hidden">
 
-        <!-- Nav simples (sem office-nav para não conflitar com tailwind) -->
+        <!-- Header do Office (shadow DOM — não conflita com tailwind) + tabs do Hub -->
+        <office-nav></office-nav>
+        <div class="hub-tabbar">
+            <button class="hub-pill" onclick="window.location.href='/hub'">📈 MKT Hub</button>
+            <button class="hub-pill" id="hubTabOnboarding" onclick="window.location.href='/hub?tab=onboarding'">🚀 Onboarding</button>
+            <button class="hub-pill active">🎁 Solicitar Brindes</button>
+        </div>
+
+        <!-- Nav interna da página (views + usuário) -->
         <nav class="bg-white shadow-sm border-b border-gray-200 z-10 relative flex-shrink-0">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between h-20 items-center">
@@ -658,16 +679,34 @@
             document.getElementById('btnAdmin').classList.remove('hidden');
         }
 
-        // Sincronizar tema com o Office — dark/atlas-dark → escuro; o resto → light
+        // Aba Onboarding só pro time de marketing (mesma regra do /hub)
+        const MKT_ROLES = ['head','intelligence','growth','field','pipeline','brand','conteudo'];
+        if (MKT_ROLES.indexOf(role) === -1) {
+            const tOnb = document.getElementById('hubTabOnboarding');
+            if (tOnb) tOnb.style.display = 'none';
+        }
+
+        // URL /hub/brindes/painel-admin → abre direto a view admin
+        // (só se o SSO autorizar; senão cai no modal de login)
+        if (window.location.pathname.replace(/\/$/, '').endsWith('/painel-admin')) {
+            window.requestAdminAccess();
+        }
+
+        // Sincronizar skin com o tema do Office — o office-nav grava a chave real
+        // (dark, atlas-dark, aurora, liquid-glass, light...) no data-theme do <html>.
+        // O skin escuro da página usa atributo próprio (data-brindes-dark) pra não
+        // brigar com esse valor: qualquer tema que não seja claro → escuro.
         try {
-            const DARK_THEMES = new Set(['dark', 'atlas-dark']);
-            const applyTheme = () => {
-                const t = window.parent.document.documentElement.getAttribute('data-theme') || '';
-                document.documentElement.setAttribute('data-theme', DARK_THEMES.has(t) ? 'dark' : 'light');
+            const LIGHT_THEMES = new Set(['light', 'epiuse-light', 'atlas-light']);
+            const applyBrindesTheme = () => {
+                const t = document.documentElement.getAttribute('data-theme')
+                    || localStorage.getItem('office.theme') || 'dark';
+                document.documentElement.toggleAttribute('data-brindes-dark', !LIGHT_THEMES.has(t));
             };
-            applyTheme();
-            new MutationObserver(applyTheme).observe(
-                window.parent.document.documentElement,
+            applyBrindesTheme();
+            // Troca ao vivo quando o usuário muda o tema no dropdown do office-nav
+            new MutationObserver(applyBrindesTheme).observe(
+                document.documentElement,
                 { attributes: true, attributeFilter: ['data-theme'] }
             );
         } catch {}
@@ -903,7 +942,7 @@
             tier: record.tier, itensSugeridos: record.itensSugeridos,
             isUrgent: !!record.isUrgent, urgente: record.isUrgent ? 'SIM ⚡' : 'Não',
             date: record.date,
-            linkOffice: 'https://office.epiuse.com.br/hub/solicitacao-brindes/painel-admin'
+            linkOffice: 'https://office.epiuse.com.br/hub/brindes/painel-admin'
         }) }).catch(() => {});
 
         document.getElementById('viewForm').classList.add('hidden');
@@ -949,16 +988,30 @@
     // email de resumo disparado pelo servidor (POST /api/brindes → Resend)
 
     // ── VIEWS ──────────────────────────────────────────────────────────
-    window.switchView = function(view) {
+    // A URL acompanha a view: form → /hub/brindes · admin → /hub/brindes/painel-admin
+    const VIEW_PATHS = { form: '/hub/brindes', admin: '/hub/brindes/painel-admin' };
+    window.switchView = function(view, skipUrl) {
         ['viewForm','viewResult','viewAdmin'].forEach(id => document.getElementById(id).classList.add('hidden'));
         document.getElementById('btnSolicitar').className = 'text-sm font-bold text-gray-400 hover:text-primary transition-colors';
         document.getElementById('btnAdmin').className = 'text-sm font-bold text-gray-400 hover:text-primary transition-colors flex items-center gap-2';
         if (view === 'form') { document.getElementById('viewForm').classList.remove('hidden'); document.getElementById('btnSolicitar').className = 'text-sm font-bold text-secondary transition-colors'; }
         else if (view === 'admin') { document.getElementById('viewAdmin').classList.remove('hidden'); document.getElementById('btnAdmin').className = 'text-sm font-bold text-secondary transition-colors flex items-center gap-2'; dbFetchAll().then(() => window.updateDashboard()); }
+        const want = VIEW_PATHS[view];
+        if (!skipUrl && want && window.location.pathname.replace(/\/$/, '') !== want) {
+            try { history.pushState({ brindesView: view }, '', want); } catch {}
+        }
     };
+
+    // Voltar/avançar do navegador troca a view sem recarregar
+    window.addEventListener('popstate', () => {
+        const admin = window.location.pathname.replace(/\/$/, '').endsWith('/painel-admin');
+        if (admin) { if (window.isAdminAuthenticated) window.switchView('admin', true); }
+        else window.switchView('form', true);
+    });
 
     window.requestAdminAccess = function() {
         if (window.isAdminAuthenticated) window.switchView('admin');
+        else document.getElementById('loginModal').classList.remove('hidden');
     };
     window.closeLogin = () => document.getElementById('loginModal').classList.add('hidden');
     window.tryLogin = () => {
