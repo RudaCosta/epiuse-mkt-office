@@ -87,7 +87,7 @@
   </div>
 
   <div class="flag">
-    🟢 <b>Dado real</b> — eventos de <code>events.json</code> (BR+LATAM) + processo do template da Isabela (<code>cronograma_gantt_eventos</code>). Briefing/brindes/captura editáveis salvos no Office.
+    🟢 <b>Dado real</b> — eventos de <code>events.json</code> (BR+LATAM) + processo do template da Fernanda (<code>cronograma_gantt_eventos</code>). Briefing/brindes/captura editáveis salvos no Office.
   </div>
 
   <div id="content"><div class="loading">Carregando eventos…</div></div>
@@ -198,7 +198,7 @@ function openModal(id) {
       </div>
       <div class="m-row">
         <div class="m-field"><label>Local</label><input id="f-local" value="${esc(cur.local)}" placeholder="Cidade / venue"></div>
-        <div class="m-field"><label>Responsável</label><input id="f-resp" value="${esc(cur.responsavel)}" placeholder="Isabela / ..."></div>
+        <div class="m-field"><label>Responsável</label><input id="f-resp" value="${esc(cur.responsavel)}" placeholder="Fernanda / ..."></div>
         <div class="m-field"><label>Orçamento (R$)</label><input id="f-orc" type="number" value="${cur.orcamento||''}"></div>
       </div>
     </div>
@@ -215,7 +215,7 @@ function openModal(id) {
     </div>
 
     <div class="m-section">
-      <h3>📋 Briefing (processo Isabela) <button class="btn" style="float:right;padding:3px 8px;font-size:10px" onclick="printBriefing()">⬇ PDF</button></h3>
+      <h3>📋 Briefing (processo Fernanda) <button class="btn" style="float:right;padding:3px 8px;font-size:10px" onclick="printBriefing()">⬇ PDF</button></h3>
       <div id="briefing-content">${renderBriefing()}</div>
     </div>
 

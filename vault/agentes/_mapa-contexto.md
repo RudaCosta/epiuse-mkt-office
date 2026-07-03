@@ -16,7 +16,7 @@ graph TD
 
     CEO --> AI[🧠 area-intelligence<br/>Bruna]
     CEO --> AG[🚀 area-growth<br/>Gui]
-    CEO --> AE[📅 area-eventos<br/>Isabela]
+    CEO --> AE[📅 area-eventos<br/>Fernanda]
     CEO --> AP[📞 area-pipeline<br/>Marlison]
     CEO --> AB[🎨 area-brand<br/>Duda]
     CEO --> AC[📣 area-conteudo<br/>Lisiane]
@@ -49,7 +49,7 @@ graph TD
 |---|---|---|---|---|
 | `area-intelligence` | Bruna | empresa·projetos·mapa-fontes | `/area/intelligence` | campanhas |
 | `area-growth` | Gui | empresa·projetos·branding·mapa-fontes | `/area/growth` | campanhas·criativos·conteúdo |
-| `area-eventos` | Isabela | empresa·projetos·branding | `/area/eventos` | criativos·LPs |
+| `area-eventos` | Fernanda | empresa·projetos·branding | `/area/eventos` | criativos·LPs |
 | `area-pipeline` | Marlison | empresa·projetos·mapa-fontes | `/area/pipeline` | propostas·intelligence |
 | `area-brand` | Duda | branding·pessoas·DESIGN·projetos | `/area/brand` | criativos·LPs |
 | `area-conteudo` | Lisiane | branding·empresa·projetos | `/area/conteudo` | criativos |

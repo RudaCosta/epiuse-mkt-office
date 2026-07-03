@@ -24,9 +24,11 @@ O time de marketing está organizado em **5 áreas operacionais**, cada uma com 
 - **Limites**: não diagrama artes, não faz postagem manual
 - **No programa Voices**: define KPIs de engajamento, monitora performance de pautas
 
-### 📅 Isabela Carvalho — Field Marketing
+### 📅 Fernanda Mattos — Field Marketing
 - **Foco**: 30+ eventos/ano (Brasil + LATAM), Business Plans SAP MDF, Proof of Performance, ativações presenciais
-- **Anterior**: "Isabela de Oliveira — Analista Eventos & MDF" — sobrenome e cargo atualizados em 2026
+- **Nasc.**: 13/12/1988 (aniversário 13/12)
+- **Anterior**: substituiu a Isabela (Isabela Carvalho / "Isabela de Oliveira") na área de Field Marketing em jul/2026 — trocar todas as referências
+- **Pendência**: e-mail @epiuse a confirmar → cadastrar no `/admin/usuarios` (role `field`); até lá cai como `hub`
 - **Limites**: não faz régua de e-mail de evento
 - **No programa Voices**: garante presença dos Voices nos eventos relevantes (palestras, content capture)
 

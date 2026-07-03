@@ -14,7 +14,7 @@ Imagem: `team/novos-talentos-stratview.png`
 |---|---|---|---|
 | 1 | **Bruna Yamagami** | Marketing Intelligence &amp; CRM | dados, segmentação, CRM ops |
 | 2 | **Guilherme Marques** | Growth Hacking &amp; Performance | mídia paga, funil, experimentação |
-| 3 | **Isabela Carvalho** | Field Marketing | eventos presenciais, MDF, ativações |
+| 3 | **Fernanda Mattos** | Field Marketing | eventos presenciais, MDF, ativações |
 | 4 | **Marlison Estrela** | Development Sales (SDR) | prospecção, qualificação, hand-off |
 | 5 | **Eduarda Hirose** | Brand Experience | identidade, narrativa, design ops |
 
@@ -28,7 +28,7 @@ Vindo das telas do War Room / Painel da Duda atuais. Inclui pra ter o roster com
 |---|---|---|
 | **Rudá Costa** | Head RevOps &amp; Marketing | dono do projeto Office Engine, by Ruds |
 | **Bruna Yamagami** | MKT Intelligence &amp; CRM | ↑ duplicado intencional — confirma a área |
-| **Isabela de Oliveira** ⚠️ | Eventos &amp; MDF | **conferir** — no War Room aparece "Isabela de Oliveira", no slide aparece "Isabela Carvalho · Field Marketing". Pode ser pessoa diferente ou inconsistência de nome. |
+| **Fernanda Mattos** | Field Marketing & Eventos | substituiu a Isabela (Isabela Carvalho / "Isabela de Oliveira") em jul/2026 — nasc. 13/12; e-mail @epiuse a cadastrar |
 | **Gui** | Growth &amp; IA | provavelmente é o Guilherme Marques (mesmo Growth) |
 | **Lisiane (Redatoria)** | Tom de Voz | revisão editorial, redatoria |
 | **Duda** | Brand Experience | dona do Painel — pode coincidir com Eduarda Hirose |
@@ -39,7 +39,7 @@ Vindo das telas do War Room / Painel da Duda atuais. Inclui pra ter o roster com
 
 ## Conflitos a resolver (pra Duda confirmar)
 
-1. **Isabela** — Carvalho (Field Marketing) vs de Oliveira (Eventos &amp; MDF). Field Marketing e Eventos podem ser a mesma função descrita de jeitos diferentes; ou são duas pessoas. Verificar.
+1. **Isabela → Fernanda** — RESOLVIDO: a Fernanda Mattos assumiu Field Marketing & Eventos no lugar da Isabela (que tinha os dois nomes Carvalho/de Oliveira nas telas antigas).
 2. **Gui x Guilherme Marques** — "Gui · Growth &amp; IA" no War Room provavelmente é o Guilherme Marques (Growth Hacking). Nome curto vs completo.
 3. **Duda x Eduarda Hirose** — "Duda · Brand Experience" no War Room bate exato com "Eduarda Hirose · Brand Experience" do slide Stratview. Confirmar se é a mesma pessoa (Duda = apelido de Eduarda).
 
@@ -58,7 +58,7 @@ Quando a Sprint v3.2 do UX-AUDIT (fonte única de "Time") for executada, sugiro 
     { "id": "lisiane",   "name": "Lisiane de Assis",  "role": "Redatoria · Tom de Voz" },
     { "id": "bruna",     "name": "Bruna Yamagami",    "role": "MKT Intelligence &amp; CRM" },
     { "id": "gui",       "name": "Guilherme Marques", "alias": "Gui", "role": "Growth Hacking &amp; Performance · IA" },
-    { "id": "isabela",   "name": "Isabela Carvalho",  "role": "Field Marketing · Eventos &amp; MDF" },
+    { "id": "fernanda",  "name": "Fernanda Mattos",   "role": "Field Marketing · Eventos & MDF" },
     { "id": "marlison",  "name": "Marlison Estrela",  "role": "Development Sales (SDR)" }
   ]
 }

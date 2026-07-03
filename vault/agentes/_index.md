@@ -17,7 +17,7 @@
 |---|---|---|---|
 | 🧠 area-intelligence | Bruna Yamagami | Marketing Intelligence & CRM | `/area/intelligence` |
 | 🚀 area-growth | Guilherme (Gui) | Growth & Performance | `/area/growth` |
-| 📅 area-eventos | Isabela Carvalho | Field Marketing & Eventos | `/area/eventos` |
+| 📅 area-eventos | Fernanda Mattos | Field Marketing & Eventos | `/area/eventos` |
 | 📞 area-pipeline | Marlison Estrela | Development Sales / Pipeline | `/area/pipeline` |
 | 🎨 area-brand | Eduarda (Duda) | Brand Experience / Voices | `/area/brand` |
 | 📣 area-conteudo | Lisiane de Assis | Conteúdo / Redatoria | `/area/conteudo` |
