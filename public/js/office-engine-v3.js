@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════
-   EPI-USE OFFICE ENGINE 3.0 — "Fable Edition" · jul/2026
+   EPI-USE OFFICE ENGINE 3.0 — Marketing EPI-USE Brasil · jul/2026
    Engine 2D compartilhado: /game (mundo MKT) e /game-hub (colaborador).
    Pixel-art procedural · zero assets externos · vanilla JS.
 
@@ -223,12 +223,13 @@ function elephantSprite(dir, frame, kit) {
 }
 
 const SHIRT_CHOICES = ['#cd1543','#001844','#10b981','#7c3aed','#f59e0b','#0d9488'];
-const SKINS = ['#f5cfa6','#e8b58a','#c98e62','#9c6644'];
-const HAIRS = ['#27190e','#0f172a','#5b3a1e','#7c5a3a','#94a3b8'];
+// Tons de pele — gama completa e inclusiva (claro → retinto), representando todo o time
+const SKINS = ['#ffe0bd','#f5cfa6','#e8b58a','#d9a06b','#c98e62','#9c6644','#7a4b2b','#5c3a21','#3d2817'];
+const HAIRS = ['#0a0a0a','#27190e','#0f172a','#5b3a1e','#7c5a3a','#3b2f2f','#94a3b8'];
 function palFor(seed, shirt, skin, hair) {
   const h = strHash(seed);
   return {
-    hair: hair || HAIRS[h % 5],
+    hair: hair || HAIRS[h % HAIRS.length],
     skin: skin || SKINS[h % SKINS.length],
     shirt: shirt || SHIRT_CHOICES[h % SHIRT_CHOICES.length],
     pants: ['#334155','#1e3a5f','#44403c'][h % 3]

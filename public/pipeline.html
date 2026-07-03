@@ -63,7 +63,7 @@
     <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px">
       <div>
         <h2 style="font-size:16px;margin:0">Pipeline CRM — Zoho (MKT + SDR)</h2>
-        <p style="font-size:11px;color:var(--muted,#94a3b8);margin-top:4px">141 deals reais · dados até abr/2026 · sync via sessão Claude</p>
+        <p style="font-size:11px;color:var(--muted,#94a3b8);margin-top:4px">141 deals reais · dados até abr/2026 · sync automático</p>
       </div>
       <div style="display:flex;gap:6px;align-items:center">
         <button id="zp-src-all" onclick="setZohoSrc('all')" style="font-size:10px;padding:4px 10px;border-radius:6px;border:1px solid rgba(96,165,250,.3);background:rgba(96,165,250,.15);color:var(--blue,#60a5fa);cursor:pointer">Todos</button>
@@ -102,7 +102,7 @@
   </div>
 
   <div class="sync-info" id="sync-info">
-    <strong>✅ Sync automático diário</strong> — a Tarefa Agendada <code>EPI-USE-Apollo-Sync</code> roda todo dia às 6h e atualiza estes números sozinha (sem Claude no meio).<br>
+    <strong>✅ Sync automático diário</strong> — a Tarefa Agendada <code>EPI-USE-Apollo-Sync</code> roda todo dia às 6h e atualiza estes números sozinha (sem intervenção manual).<br>
     <span id="sync-meta"></span><br><br>
     <span style="color:var(--color-text-muted,#8aa);font-size:12px">🟡 Contatos = base Apollo total (inclui importados/seed). 💰 Pipeline em R$ precisa de um CRM — Apollo não tem valor de oportunidade.</span>
   </div>

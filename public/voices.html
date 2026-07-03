@@ -412,10 +412,10 @@ body {
   <div class="modal-bg" id="new-voice-modal">
     <div class="modal-box" style="max-width:560px">
       <button class="modal-close" onclick="closeNewVoiceModal()">✕</button>
-      <div class="modal-title">+ Novo Voice — auto-preenche via Claude Vision</div>
+      <div class="modal-title">+ Novo Voice — auto-preenche via IA da EPI-USE</div>
       <p style="font-size:13px;color:var(--text-dim);margin:0 0 16px;line-height:1.5">
         Cole o LinkedIn do novo participante + arraste 2-4 screenshots do perfil (foto, headline, sobre, destaques).
-        Claude lê e devolve o cadastro pré-preenchido — você revisa e salva.
+        A IA da EPI-USE lê e devolve o cadastro pré-preenchido — você revisa e salva.
       </p>
       <form id="new-voice-form" onsubmit="submitNewVoiceForm(event)">
         <div class="modal-row">
@@ -427,7 +427,7 @@ body {
           <input id="nv-url" type="url" required placeholder="https://www.linkedin.com/in/maria-souza/">
         </div>
         <div class="modal-row">
-          <label>Área principal (opcional — Claude infere se vazio)</label>
+          <label>Área principal (opcional — a IA da EPI-USE infere se vazio)</label>
           <input id="nv-area" type="text" placeholder="Ex: SAP HCM · SuccessFactors">
         </div>
         <div class="modal-row">
@@ -595,7 +595,7 @@ async function renderGallery() {
 
   let html = `<p class="intro">
     Cada <b>Voice</b> tem um agente de IA com sua personalidade, nicho e regras de tom. Clique num Voice abaixo
-    para ver o prompt do agente (copiável pra colar no Claude.ai/Gemini) + checklist + dashboard de performance.
+    para ver o prompt do agente (copiável pra colar no seu assistente de IA) + checklist + dashboard de performance.
   </p>
 
   <!-- Painel da Duda — destaque no topo, é o backstage de operação do programa Voices -->
@@ -625,7 +625,7 @@ async function renderGallery() {
     </div>
     <a href="/optimizer" style="background:rgba(192,132,252,.08);border:1px solid rgba(192,132,252,.25);border-radius:10px;padding:14px 16px;text-decoration:none;transition:background .15s" onmouseover="this.style.background='rgba(192,132,252,.18)'" onmouseout="this.style.background='rgba(192,132,252,.08)'">
       <div style="font-family:'JetBrains Mono', monospace;font-weight:700;font-size:9px;letter-spacing:.12em;color:#c084fc;margin-bottom:6px">🪪 PROFILE OPTIMIZER</div>
-      <div style="font-size:13px;color:var(--text);line-height:1.4">Análise de perfil LinkedIn via Claude Vision — abrir →</div>
+      <div style="font-size:13px;color:var(--text);line-height:1.4">Análise de perfil LinkedIn via IA da EPI-USE — abrir →</div>
     </a>
     <a href="/voices/optimizer-v3" style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);border-radius:10px;padding:14px 16px;text-decoration:none;transition:background .15s" onmouseover="this.style.background='rgba(34,197,94,.18)'" onmouseout="this.style.background='rgba(34,197,94,.08)'">
       <div style="font-family:'JetBrains Mono', monospace;font-weight:700;font-size:9px;letter-spacing:.12em;color:#22c55e;margin-bottom:6px">🪪 OPTIMIZER v3 · 21 SKILLS</div>
@@ -803,19 +803,19 @@ async function renderProfile(slug) {
     </div>
 
     <div class="card">
-      <div class="card-title"><span class="ico">💬</span> Ativar Agente — copie e cole no Claude.ai/Gemini/ChatGPT</div>
+      <div class="card-title"><span class="ico">💬</span> Ativar Agente — copie e cole no seu assistente de IA</div>
       <div class="prompt-wrap">
         <textarea id="prompt-area" class="prompt-textarea" readonly>${systemPrompt.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</textarea>
         <div class="prompt-actions">
           <button class="btn btn-primary" onclick="copyPrompt()">📋 Copiar prompt completo</button>
-          <a class="btn btn-secondary" href="https://claude.ai/new" target="_blank">↗ Abrir Claude.ai</a>
+          <a class="btn btn-secondary" href="https://claude.ai/new" target="_blank">↗ Abrir assistente de IA</a>
           <span class="copy-status" id="copy-status">✓ Copiado para clipboard</span>
         </div>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-title"><span class="ico">🧠</span> Sugerir 3 pautas pra esta semana <span style="font-size:11px;font-weight:400;color:var(--text-muted);margin-left:8px">via Claude API</span></div>
+      <div class="card-title"><span class="ico">🧠</span> Sugerir 3 pautas pra esta semana <span style="font-size:11px;font-weight:400;color:var(--text-muted);margin-left:8px">via IA da EPI-USE</span></div>
       <div id="pautas-area">
         <p style="color:var(--text-dim);font-size:13px;line-height:1.55">Geração baseada em: <b>tom do Voice</b> + <b>resultados</b> + <b>eventos próximos 8 semanas</b> + <b>posts recentes</b> (evita repetição).</p>
         <div style="display:flex;gap:10px;margin-top:12px">
@@ -872,7 +872,7 @@ async function renderProfile(slug) {
     <div class="card" style="border-color:rgba(192,132,252,.30);background:linear-gradient(135deg,rgba(192,132,252,.04),rgba(96,165,250,.04))">
       <div class="card-title">
         <span class="ico">🪪</span> Profile Optimizer
-        <span style="font-size:11px;font-weight:400;color:var(--text-muted);margin-left:8px">Módulo A · análise via Claude Vision</span>
+        <span style="font-size:11px;font-weight:400;color:var(--text-muted);margin-left:8px">Módulo A · análise via IA da EPI-USE</span>
       </div>
       <p style="color:var(--text-dim);font-size:13px;line-height:1.55;margin-bottom:14px">
         Tire 5 screenshots do perfil LinkedIn do(a) <b>${voice.nome}</b> e receba diagnóstico + kit pronto:
@@ -1179,10 +1179,10 @@ async function submitPostForm(e) {
   }
 }
 
-// ── GERAR PAUTAS (Claude API) ────────────────────────────────────────────────
+// ── GERAR PAUTAS (IA da EPI-USE) ────────────────────────────────────────────────
 async function generatePautas(slug) {
   const area = document.getElementById('pautas-list');
-  area.innerHTML = '<div class="pauta-loading">⏳ Gerando 3 pautas via Claude (~10s)...</div>';
+  area.innerHTML = '<div class="pauta-loading">⏳ Gerando 3 pautas via IA da EPI-USE (~10s)...</div>';
   try {
     const res = await fetch(`/api/voice/${slug}/generate-pautas`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
     const data = await res.json();
@@ -1236,7 +1236,7 @@ ${p.insight_chave || '(desenvolver)'}
 ${p.cta_sugerido || '(definir)'}
 
 ---
-Gerado via Voice Agent · Claude API · ${new Date().toLocaleString('pt-BR')}`;
+Gerado via Voice Agent · IA da EPI-USE · ${new Date().toLocaleString('pt-BR')}`;
   navigator.clipboard.writeText(brief).then(() => {
     if (window.plausible) plausible('Pauta Copied');
     // Quick visual feedback
@@ -1274,12 +1274,12 @@ async function renderEditor(slug) {
       </div>
     </div>
 
-    <!-- Auto-preencher via Claude Vision (campos faltantes) -->
+    <!-- Auto-preencher via IA da EPI-USE (campos faltantes) -->
     <div style="background:linear-gradient(135deg,rgba(96,165,250,.06),rgba(192,132,252,.06));border:1px solid rgba(96,165,250,.25);border-radius:10px;padding:14px 18px;margin:14px 0 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
       <div style="font-size:22px">✨</div>
       <div style="flex:1;min-width:200px">
-        <div style="font-weight:600;color:var(--text);font-size:13px">Auto-preencher campos vazios via Claude</div>
-        <div id="auto-fill-banner" style="font-size:12px;color:var(--text-dim);margin-top:3px">Cole URL do LinkedIn + arraste 2-3 screenshots do perfil. Claude extrai e preenche apenas o que estiver vazio.</div>
+        <div style="font-weight:600;color:var(--text);font-size:13px">Auto-preencher campos vazios via IA da EPI-USE</div>
+        <div id="auto-fill-banner" style="font-size:12px;color:var(--text-dim);margin-top:3px">Cole URL do LinkedIn + arraste 2-3 screenshots do perfil. a IA da EPI-USE extrai e preenche apenas o que estiver vazio.</div>
       </div>
       <button class="btn btn-secondary" style="font-size:12px;padding:8px 14px" onclick="openExtractFromLinkedIn('${slug}', '${(getField(voice, 'linkedin')||'').replace(/'/g, '&apos;')}')">📸 Buscar do LinkedIn</button>
     </div>
@@ -1396,7 +1396,7 @@ async function saveEditor(slug) {
   }
 }
 
-// ── NOVO VOICE (auto-preenche via Claude Vision) ─────────────────────────────
+// ── NOVO VOICE (auto-preenche via IA da EPI-USE) ─────────────────────────────
 window.openNewVoiceModal = function() {
   document.getElementById('new-voice-modal').classList.add('open');
 };
@@ -1430,11 +1430,11 @@ window.submitNewVoiceForm = async function(e) {
   const files = Array.from(document.getElementById('nv-files').files || []);
 
   if (!nome || !url) { status.textContent = '⚠️ Nome e URL são obrigatórios.'; return; }
-  if (files.length === 0 && !confirm('Sem screenshots, Claude só vai conseguir extrair muito pouco. Continuar mesmo assim?')) return;
+  if (files.length === 0 && !confirm('Sem screenshots, a IA da EPI-USE só vai conseguir extrair muito pouco. Continuar mesmo assim?')) return;
 
   btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Analisando…';
   status.style.color = 'var(--text-dim)';
-  status.textContent = 'Claude lendo screenshots (15-20s)…';
+  status.textContent = 'IA da EPI-USE lendo screenshots (15-20s)…';
 
   const fd = new FormData();
   fd.append('nome', nome);
@@ -1475,7 +1475,7 @@ function showReviewForm(d) {
     </div>`;
   form.innerHTML = `
     <div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.30);border-radius:8px;padding:10px 14px;margin-bottom:14px;color:#10b981;font-size:12px">
-      ✓ <b>Extraído pelo Claude.</b> Revise abaixo, ajuste o que precisar, depois clique "Salvar como novo Voice".
+      ✓ <b>Extraído pela IA da EPI-USE.</b> Revise abaixo, ajuste o que precisar, depois clique "Salvar como novo Voice".
     </div>
     ${ed({id:'nome',      label:'Nome'},                 d.nome)}
     ${ed({id:'cargo',     label:'Cargo'},                d.cargo)}
@@ -1550,7 +1550,7 @@ window.openExtractFromLinkedIn = async function(slug, currentLinkedin) {
     const files = Array.from(filesInput.files || []);
     if (!url && files.length === 0) { alert('Forneça URL OU screenshots.'); return; }
     const banner = document.getElementById('auto-fill-banner');
-    if (banner) banner.innerHTML = '<span class="spin"></span> Claude analisando perfil…';
+    if (banner) banner.innerHTML = '<span class="spin"></span> IA da EPI-USE analisando perfil…';
     const fd = new FormData();
     if (url) fd.append('linkedin_url', url);
     fd.append('nome', document.getElementById('hdr-title')?.textContent || '');

@@ -1,7 +1,7 @@
 // ════════════════════════════════════════════════════════════════════════════
 // <office-nav> — Web Component vanilla, sem build, sem deps
 // Nav global persistente em todas as rotas do Office Engine v3.3+
-// Briefing do Claude Design: 5 seções, logomark à esquerda, controles à direita.
+// Design do Office EPI-USE: 5 seções, logomark à esquerda, controles à direita.
 // ════════════════════════════════════════════════════════════════════════════
 
 // Versão atual exposta no chip ao lado do logomark.
