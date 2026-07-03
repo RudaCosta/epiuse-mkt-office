@@ -8,7 +8,7 @@
 // Fonte ÚNICA da verdade: public/api/changelog.json#current via /api/version
 // Fallback hardcoded usado SÓ se fetch falhar (offline, etc).
 // Sincronização automática — não editar manualmente, basta bumpar changelog.json.
-let OFFICE_NAV_VERSION = '0.73.3';
+let OFFICE_NAV_VERSION = '0.73.4';
 // Promise compartilhada — nav + footer reaproveitam o mesmo fetch
 window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/version')
   .then(r => r.ok ? r.json() : null)
@@ -74,8 +74,13 @@ window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/ver
         font-family: 'Fira Code', 'JetBrains Mono', ui-monospace, monospace !important;
       }
       /* icones (emoji/material/etc) nao herdam Poppins */
-      .material-icons, .material-symbols-outlined, [class*="fa-"], .ic {
+      .material-icons, .material-symbols-outlined, .ic {
         font-family: revert !important;
+      }
+      /* FontAwesome: 'revert' apagava a fonte do FA (regra de autor) e os icones
+         viravam tofu — reafirmar as familias explicitamente */
+      .fa, .fas, .far, .fab, .fal, .fad, [class*="fa-"] {
+        font-family: 'Font Awesome 6 Free', 'Font Awesome 6 Brands', 'Font Awesome 5 Free', 'Font Awesome 5 Brands', 'FontAwesome' !important;
       }`;
     document.head.appendChild(fs);
   }

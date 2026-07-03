@@ -988,13 +988,26 @@
     // email de resumo disparado pelo servidor (POST /api/brindes → Resend)
 
     // ── VIEWS ──────────────────────────────────────────────────────────
-    window.switchView = function(view) {
+    // A URL acompanha a view: form → /hub/brindes · admin → /hub/brindes/painel-admin
+    const VIEW_PATHS = { form: '/hub/brindes', admin: '/hub/brindes/painel-admin' };
+    window.switchView = function(view, skipUrl) {
         ['viewForm','viewResult','viewAdmin'].forEach(id => document.getElementById(id).classList.add('hidden'));
         document.getElementById('btnSolicitar').className = 'text-sm font-bold text-gray-400 hover:text-primary transition-colors';
         document.getElementById('btnAdmin').className = 'text-sm font-bold text-gray-400 hover:text-primary transition-colors flex items-center gap-2';
         if (view === 'form') { document.getElementById('viewForm').classList.remove('hidden'); document.getElementById('btnSolicitar').className = 'text-sm font-bold text-secondary transition-colors'; }
         else if (view === 'admin') { document.getElementById('viewAdmin').classList.remove('hidden'); document.getElementById('btnAdmin').className = 'text-sm font-bold text-secondary transition-colors flex items-center gap-2'; dbFetchAll().then(() => window.updateDashboard()); }
+        const want = VIEW_PATHS[view];
+        if (!skipUrl && want && window.location.pathname.replace(/\/$/, '') !== want) {
+            try { history.pushState({ brindesView: view }, '', want); } catch {}
+        }
     };
+
+    // Voltar/avançar do navegador troca a view sem recarregar
+    window.addEventListener('popstate', () => {
+        const admin = window.location.pathname.replace(/\/$/, '').endsWith('/painel-admin');
+        if (admin) { if (window.isAdminAuthenticated) window.switchView('admin', true); }
+        else window.switchView('form', true);
+    });
 
     window.requestAdminAccess = function() {
         if (window.isAdminAuthenticated) window.switchView('admin');
