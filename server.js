@@ -988,6 +988,13 @@ Distribuição obrigatória:
 OBRIGATÓRIO: Use a ferramenta de busca do Google para cruzar com Google Trends sobre tendências reais e atuais do mercado.
 OBRIGATÓRIO: Títulos e descrições em português do Brasil impecável — gramática, acentuação e concordância perfeitas.
 
+REGRAS DE TÍTULO (SEO — cumprir TODAS):
+- MÁXIMO 60 caracteres (pra não cortar na SERP do Google). Conte antes de responder.
+- Palavra-chave principal no INÍCIO do título (primeiras 3-4 palavras).
+- Concreto e específico: prefira número, benefício ou pergunta direta ("Como reduzir custos de OCI em 30%") a abstrações ("Desvendando o futuro da nuvem").
+- No máximo UM dois-pontos. Proibido travessão decorativo, reticências e clickbait vazio ("Você não vai acreditar").
+- Sem jargão interno da Stratview no título (CSS só se o artigo for sobre isso).
+
 Retorne APENAS JSON válido neste formato:
 {"ideas":[{"id":"string_unica","title":"título","description":"resumo 1-2 frases","keywords":["5","palavras","chave","seo","aqui"],"score":9.5,"volume":"Alto","competition":"Média","trendsInfo":"insight trends max 20 palavras","imagePrompt":"prompt em inglês sem texto"}]}`;
 
@@ -1027,11 +1034,17 @@ DIRETRIZES SEO/GEO (Google AI Optimization):
 2. HTML Semântico Claro: use <h1>, <h2> e <h3> claramente hierarquizados.
 3. Pessoas em 1º Lugar: escreva para líderes reais (C-Level). Fluência e utilidade.
 
+REGRAS DE TÍTULO (SEO):
+- <h1> com NO MÁXIMO 60 caracteres, palavra-chave principal nas primeiras 3-4 palavras.
+- Se o tema recebido for longo demais, REESCREVA o título pra caber em 60 caracteres sem perder a palavra-chave.
+- Concreto e específico (número, benefício ou pergunta direta). No máximo um dois-pontos, sem clickbait.
+- <h2>/<h3> também curtos (até 8 palavras), descritivos, com variações da palavra-chave quando natural.
+
 ESTRUTURA HTML OBRIGATÓRIA:
 1. Bloco de meta tags:
-<div class="seo-meta"><p><strong>Slug:</strong> [slug-url]</p><p><strong>Meta:</strong> [max 160 chars]</p><p><strong>Alt text:</strong> [descrição imagem]</p></div>
+<div class="seo-meta"><p><strong>Título SEO:</strong> [máx 60 chars, keyword no início]</p><p><strong>Slug:</strong> [slug-url curto, 3-5 palavras, sem stopwords]</p><p><strong>Meta:</strong> [max 155 chars, com keyword e chamada pra ação]</p><p><strong>Alt text:</strong> [descrição imagem]</p></div>
 
-2. Título em <h1>, introdução em <p class="lead">.
+2. Título em <h1>, introdução em <p class="lead"> que usa a palavra-chave principal na primeira frase.
 3. Destaques em <blockquote>.
 4. FAQ ao final com EXATAMENTE 3 perguntas:
 <details class="faq-item"><summary>[PERGUNTA]</summary><div class="faq-answer">[RESPOSTA COM EXPERTISE]</div></details>
@@ -1148,6 +1161,7 @@ QUALIDADE: Não seja repetitivo. Exemplos concretos SAP Brasil. Tom de consultor
 ${ARTIGOS_REGRAS_ESTILO}
 
 ESTRUTURA: Mantenha div.seo-meta, h1, h2, h3, blockquote e obrigatoriamente o FAQ com <details class="faq-item"> e <summary> no final.
+TÍTULO: se ajustar o <h1> pra persona, mantenha NO MÁXIMO 60 caracteres, keyword no início, sem clickbait. Atualize o "Título SEO" do seo-meta junto.
 
 Artigo original:
 ${content}`;
