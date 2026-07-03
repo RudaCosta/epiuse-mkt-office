@@ -351,6 +351,28 @@ function pElephant(g, x, y) {
   g.fillStyle = '#d1d5db'; g.fillRect(x+44, y+20, 5, 4);
   g.fillStyle = '#1f2937'; g.fillRect(x+48, y+9, 3, 3);
 }
+// 🥚 filhote de elefante — easter egg (escondido atrás de uma árvore)
+function pBabyElephant(g, x, y) {
+  g.fillStyle = 'rgba(0,0,0,0.12)'; g.fillRect(x+2, y+20, 26, 3);
+  g.fillStyle = '#b0b7c3';
+  g.fillRect(x+4, y+6, 16, 11);  g.fillRect(x+17, y+3, 9, 9);      // corpo + cabeça
+  g.fillRect(x+23, y+10, 3, 7);                                     // tromba
+  g.fillRect(x+5, y+16, 4, 5); g.fillRect(x+13, y+16, 4, 5);        // patas
+  g.fillStyle = '#8b93a3'; g.fillRect(x+16, y+4, 4, 6);             // orelha
+  g.fillStyle = '#1f2937'; g.fillRect(x+22, y+5, 2, 2);             // olho
+}
+// Faixa de torcida (ex.: VEM HEXA! na Diretoria)
+function pBanner(g, x, y, w, text) {
+  g.fillStyle = 'rgba(0,0,0,0.15)'; g.fillRect(x+3, y+24, w-6, 3);
+  g.fillStyle = '#15803d'; g.fillRect(x, y, w, 24);                  // faixa verde
+  g.fillStyle = '#fde047'; g.fillRect(x, y, w, 3); g.fillRect(x, y+21, w, 3); // bordas amarelas
+  g.fillStyle = '#fde047';                                           // pontas
+  g.beginPath(); g.moveTo(x, y); g.lineTo(x-8, y+12); g.lineTo(x, y+24); g.fill();
+  g.beginPath(); g.moveTo(x+w, y); g.lineTo(x+w+8, y+12); g.lineTo(x+w, y+24); g.fill();
+  g.fillStyle = '#fff'; g.font = 'bold 13px Inter'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillText(text, x + w/2, y + 13);
+  g.textBaseline = 'alphabetic'; g.textAlign = 'left';
+}
 function pReception(g, x, y, label) {
   g.fillStyle = '#9f1239'; g.fillRect(x, y+24, 96, 8);
   g.fillStyle = '#cd1543'; g.fillRect(x, y, 96, 26);
@@ -387,7 +409,7 @@ function pStand(g, x, y, emoji, accent) {
   g.fillText(emoji || '⭐', x+32, y+18);
   g.textBaseline = 'alphabetic';
 }
-const P = { TS, drawItem, pDesk, pChair, pMicBooth, pPlant, pTree, pSofa, pCoffeeMachine, pCounter, pTV, pCork, pBookshelf, pMeetTable, pElephant, pReception, pWaterCooler, pStand, pGoal };
+const P = { TS, drawItem, pDesk, pChair, pMicBooth, pPlant, pTree, pSofa, pCoffeeMachine, pCounter, pTV, pCork, pBookshelf, pMeetTable, pElephant, pBabyElephant, pBanner, pReception, pWaterCooler, pStand, pGoal };
 
 // ── PRERENDER DO MUNDO (camada estática) ───────────────────────────
 const world = document.createElement('canvas'); world.width = WW; world.height = WH;
@@ -910,7 +932,28 @@ function runAction(z) {
   }
   else if (a.type === 'confirm-external') openConfirmExternal(a);
   else if (a.type === 'goal') kickGoal(z, a);   // ⚽ chuta a bola pro gol, depois abre o card
+  else if (a.type === 'egg') foundEgg();        // 🐘 easter egg do filhote
   else if (a.type === 'person') showPerson(a.id);
+}
+
+// 🥚 EASTER EGG — filhote de elefante escondido → conquista "Guardião dos
+// Elefantes". Na 1ª descoberta o server registra e avisa o time por email.
+function foundEgg() {
+  const k = 'office.egg.elefantes';
+  let again = false;
+  try { again = !!localStorage.getItem(k); localStorage.setItem(k, new Date().toISOString()); } catch {}
+  if (!again) {
+    sfx('win'); confettiBurst();
+    try { fetch('/api/game/egg', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ world: W.id }), keepalive:true }).catch(()=>{}); } catch {}
+  }
+  openInfo(`
+    <div class="info-head"><div class="info-ava">🐘</div>
+      <div><div class="info-title">${again ? 'Vocês já se conhecem 🐾' : '🏆 Conquista desbloqueada!'}</div>
+      <div class="info-sub">Guardião dos Elefantes · ERP.ngo</div></div></div>
+    <div class="info-body">${again
+      ? 'O filhote continua aqui, seguro atrás da árvore — graças a você. 💚'
+      : 'Você achou o filhote de elefante escondido no jardim! 🐘\n\nNa vida real é assim também: o grupo groupelephant.com destina 1% da receita global pra conservação de elefantes e rinocerontes e combate à pobreza rural na África.\n\nPouca gente acha esse cantinho — o time já foi avisado da sua descoberta. 😉'}</div>
+    <div class="info-actions"><button class="info-btn pri" onclick="closeInfo()">${again ? 'Até mais 🐾' : 'Demais! 🎉'}</button></div>`);
 }
 
 function openConfirmExternal(a) {
@@ -1398,9 +1441,12 @@ function loop(ts) {
   updateDecor(dt);
   updateCamera(vw, vh);
 
-  // quest por sala
+  // quest por sala + toast de entrada (ex.: VEM HEXA! na Diretoria)
   const room = roomOf(player.x + 12, player.y + 16);
-  if (room && room.key !== lastRoomKey) { lastRoomKey = room.key; questVisit('room', room.key); }
+  if (room && room.key !== lastRoomKey) {
+    lastRoomKey = room.key; questVisit('room', room.key);
+    if (W.roomToasts && W.roomToasts[room.key]) toast(W.roomToasts[room.key]);
+  }
 
   // ── render ──
   ctx.setTransform(DPR * Z, 0, 0, DPR * Z, 0, 0);
@@ -1536,4 +1582,7 @@ function spawn() {
 }
 document.getElementById('sg-go').addEventListener('click', spawn);
 nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') spawn(); });
+
+// hook de teste E2E (?debug=1) — sem efeito em uso normal
+if (new URLSearchParams(location.search).has('debug')) window.__game = { player, cam, npcs, goals };
 })();

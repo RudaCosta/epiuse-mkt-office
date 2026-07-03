@@ -133,6 +133,7 @@ window.WORLD = {
     // Garden ERP.ngo — elefante + trave da campanha Gol de Placa ⚽
     P.pElephant(g, 45*TS, 26.5*TS);
     P.pGoal(g, 50.5*TS, 25.5*TS);
+    P.pBabyElephant(g, 54.7*TS, 31.2*TS);   // 🥚 filhote escondido (easter egg)
     P.pTree(g, 43*TS, 24.2*TS); P.pTree(g, 55*TS, 30*TS);
   },
 
@@ -193,6 +194,8 @@ window.WORLD = {
         url:'https://t.rdsv2.net/ls/click?upn=u001.ulJvYqXscyHAyIBX6-2FX-2B5aSDduGX-2Bek-2Bpi0KPpbvKc7tv48xGGNItz0RhJAXcOl3YSRQgQX-2FeOecBvfuBJj0arKFeYcmWAwSHYM7RbXkEK9-2FuAmsytQY-2BoXGdx7Qp5NJjs8MP3no17JMRMw8Ui6sffua4o8riQVGU8VDechcWu1XWoAxpVVY7-2F-2B3ymiMaQ1u8syBWjCeQcGdg6OKMyuvUw-3D-3DwOPl_E3jX7UdwUvWW16GmiaKN7AWqGNZgB7sICAI-2B1oMckzhrienpd9fI6NvJGgzA-2FeuQG2xvp1Hh-2BxW1KjkAVhC2Jjt0iy8ByeNy81Jo9YjZhHIXQpSpGC8TxBN4x91NlQ99YKy-2FiVJW4xiy7v0gbFmooN72snjPVkKB12oPi0bXUS5P2es8qcyhYWxJ6xsC4Wy3quMXQTPKw9vPTEOuXsGRAw9F-2BERoWnRHsqtMJhdCCRFVBvhWHDh3KHsgr6i5yLMZ5AntqmzVA-2BdzWS-2BvyD85TzDYf5-2BfUh5b9gummRv3A-2FdC9fwPoG-2FieGfqHrbOJSYI',
         title:'⚽ Campanha GOL de Placa', sub:'People & Culture · seu elogio faz a diferença!',
         body:'Dê um passe especial: um elogio sincero pra alguém que merece!\n\n⭐ Cada elogio vale 10 pontos\n🎯 Cite uma atitude, resultado ou comportamento específico\n🚫 Não vale repetir o mesmo elogio pra mesma pessoa\n🎁 Sorteios semanais de brindes + os 3 Craques do Reconhecimento premiados no final\n\nAbrir o formulário e marcar seu GOL de PLACA?'} },
+    // 🥚 easter egg — filhote escondido atrás da árvore do canto (não aparece no minimapa)
+    { id:'egg-elefante', px:54.9*TS, py:31.7*TS, r:48, name:'🐾 …?', tip:'algo pequeno se mexe atrás da árvore', action:{type:'egg'} },
   ],
 
   // NPC: Fante, a elefantinha mascote (ERP.ngo) — recepcionista do Hub.
