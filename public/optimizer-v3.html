@@ -506,7 +506,7 @@ function renderSsi(d){
       <div class="ssi-num">${d.ssi_total}</div>
       <div style="flex:1">
         <div style="font-size:13px;font-weight:700;color:#fff">SSI Total · ${esc(d.data||new Date().toISOString().slice(0,10))}</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:4px">${esc(d.etiqueta||'🤖 Extraído por IA — confirmar')}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">${esc(d.etiqueta||'🤖 Extraído pela IA da EPI-USE — confirmar')}</div>
         ${d.componentes?`<div style="font-size:11px;color:var(--muted);margin-top:6px;font-family:JetBrains Mono,monospace">
           marca:${d.componentes.marca||'?'} · pessoas:${d.componentes.pessoas||'?'} · insights:${d.componentes.insights||'?'} · relacao:${d.componentes.relacao||'?'}</div>`:''}
         ${d.delta!==undefined&&d.delta!==null?`<div class="ssi-row"><span class="ssi-delta ${d.delta>=0?'up':'down'}">${d.delta>=0?'▲':'▼'} ${Math.abs(d.delta)}</span><span style="font-size:11px;color:var(--muted)">vs medição anterior</span></div>`:''}

@@ -76,7 +76,7 @@
 
 <div class="wrap">
   <h1>🪪 Profile Optimizer <span class="badge">v2 · cola transcrição · IA faz tudo</span></h1>
-  <div class="sub">Cola a transcrição da reunião com o Voice abaixo, copia o prompt completo e cola no <b>Claude.ai</b>. A IA extrai os dados, gera o kit já formatado como artifact, com <b>Página 1 = Resumo Executivo</b> (Voice Index 0-100 + tabela de status). PDF sai direto do artifact.</div>
+  <div class="sub">Cola a transcrição da reunião com o Voice abaixo, copia o prompt completo e cola no <b>seu assistente de IA</b>. A IA extrai os dados, gera o kit já formatado como artifact, com <b>Página 1 = Resumo Executivo</b> (Voice Index 0-100 + tabela de status). PDF sai direto do artifact.</div>
 
   <!-- HERO 3 PASSOS -->
   <div class="hero">
@@ -89,8 +89,8 @@
       </div>
       <div class="step">
         <div class="step-n">2</div>
-        <div class="step-t">Copia o prompt + cola no Claude.ai</div>
-        <div class="step-d">1 clique copia tudo (template + transcrição). Abre <a href="https://claude.ai/new" target="_blank" style="color:var(--primary-light)">claude.ai</a>, cola, e diz: <i>"renderiza como artifact"</i>.</div>
+        <div class="step-t">Copia o prompt + cola no seu assistente de IA</div>
+        <div class="step-d">1 clique copia tudo (template + transcrição). Abre o <a href="https://claude.ai/new" target="_blank" style="color:var(--primary-light)">seu assistente de IA</a>, cola, e diz: <i>"renderiza como artifact"</i>.</div>
       </div>
       <div class="step">
         <div class="step-n">3</div>
@@ -128,15 +128,15 @@
 
     <div class="btn-row">
       <button class="btn btn-primary" onclick="copiarPromptCompleto()">📋 Copiar prompt completo + transcrição</button>
-      <button class="btn btn-secondary" onclick="abrirClaudeAi()">🚀 Abrir Claude.ai</button>
+      <button class="btn btn-secondary" onclick="abrirAssistente()">🚀 Abrir seu assistente de IA</button>
     </div>
-    <p style="font-size:11px;color:var(--muted);margin:10px 0 0">💡 Depois de colar no Claude.ai, escreve: <b>"renderiza como artifact"</b>. Não precisa anexar nada.</p>
+    <p style="font-size:11px;color:var(--muted);margin:10px 0 0">💡 Depois de colar no seu assistente de IA, escreve: <b>"renderiza como artifact"</b>. Não precisa anexar nada.</p>
   </div>
 
   <!-- PREVIEW -->
   <div class="card">
     <details>
-      <summary>👁️ Ver o template completo que vai pro Claude.ai (sem a transcrição)</summary>
+      <summary>👁️ Ver o template completo que vai pro seu assistente de IA (sem a transcrição)</summary>
       <pre class="tpl-preview" id="tpl-preview">Carregando…</pre>
     </details>
   </div>
@@ -149,7 +149,7 @@
       <li><b>SSI Score:</b> peça pro Voice abrir <a href="https://www.linkedin.com/sales/ssi" target="_blank" style="color:var(--primary-light)">linkedin.com/sales/ssi</a> antes da reunião — sem isso o diagnóstico fica genérico.</li>
       <li><b>Lado humano</b> (família · maratona · voluntariado · paixão) é o que humaniza o Sobre. Pergunte SEMPRE.</li>
       <li>Onde tiver <code style="background:rgba(0,0,0,.25);padding:1px 5px;border-radius:3px;color:var(--yellow)">[preencher: ...]</code> no kit gerado = dado que faltou. Edita à mão antes de mandar pro Voice.</li>
-      <li>Se ChatGPT/Gemini em vez de Claude.ai: também funciona, mas o artifact é nativo só do Claude — em outras IAs, salva o HTML em arquivo `.html` local e abre no browser.</li>
+      <li>O artifact é um recurso nativo de alguns assistentes de IA — em outros, salva o HTML em arquivo `.html` local e abre no browser.</li>
     </ul>
   </div>
 </div>
@@ -274,13 +274,13 @@ function copiarPromptCompleto() {
   }
   navigator.clipboard.writeText(prompt).then(() => {
     const msg = transcricao
-      ? '✓ Prompt + transcrição copiados! Agora cola no Claude.ai e diz "renderiza como artifact".'
+      ? '✓ Prompt + transcrição copiados! Agora cola no seu assistente de IA e diz "renderiza como artifact".'
       : '✓ Template em branco copiado (sem transcrição — IA vai gerar com [preencher: ...] em tudo).';
     mostrarToast(msg);
   }).catch(err => alert('Erro ao copiar: ' + err.message));
 }
 
-function abrirClaudeAi() { window.open('https://claude.ai/new', '_blank'); }
+function abrirAssistente() { window.open('https://claude.ai/new', '_blank'); }
 
 function mostrarToast(msg) {
   const t = document.getElementById('toast');
