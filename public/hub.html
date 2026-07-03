@@ -658,7 +658,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   <div class="tab-bar">
     <button class="tab-pill active" id="t-hub" onclick="switchTab('hub',this)">📈 MKT Hub</button>
     <button class="tab-pill" id="t-onboarding" onclick="switchTab('onboarding',this)">🚀 Onboarding</button>
-    <button class="tab-pill" id="t-brindes" onclick="switchTab('brindes',this)">🎁 Solicitar Brindes</button>
+    <button class="tab-pill" id="t-brindes" onclick="window.location.href='/hub/brindes'">🎁 Solicitar Brindes</button>
   </div>
 
   <div class="tab-content">
@@ -786,7 +786,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
               <div class="card-title">Logos &amp; Assets</div>
               <div class="card-desc">Logos oficiais EPI-USE &amp; Stratview (download).</div>
             </a>
-            <a class="bento-card" href="/brindes" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;display:block">
+            <a class="bento-card" href="/hub/brindes" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;display:block">
               <div class="bento-icon icon-orange">🎁</div>
               <div class="card-title">Brindes</div>
               <div class="card-desc">Catálogo de brindes corporativos.</div>
@@ -1127,16 +1127,6 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 
     </div><!-- /pane-onboarding -->
 
-    <!-- ════════════════════════ BRINDES TAB ════════════════════════ -->
-    <div class="tab-pane" id="pane-brindes">
-      <iframe
-        id="brindes-iframe"
-        src="/brindes"
-        style="width:100%;height:calc(100vh - 96px);border:none;display:block;"
-        title="Solicitação de Brindes"
-      ></iframe>
-    </div><!-- /pane-brindes -->
-
   </div>
 </div><!-- /portal -->
 
@@ -1224,9 +1214,10 @@ renderLogos();
   } catch (_e) { /* sem status → mantém padrão (aba aparece); enforcement cuida do acesso */ }
 })();
 
-// Abre aba pela query string: /hub?tab=brindes
+// Abre aba pela query string: /hub?tab=X (brindes virou página própria → redirect)
 (function() {
   var p = new URLSearchParams(window.location.search).get('tab');
+  if (p === 'brindes') { window.location.replace('/hub/brindes'); return; }
   if (p) {
     var btn = document.getElementById('t-' + p);
     if (btn) { setTimeout(function() { switchTab(p, btn); }, 100); }

@@ -658,7 +658,7 @@
             document.getElementById('btnAdmin').classList.remove('hidden');
         }
 
-        // URL /hub/solicitacao-brindes/painel-admin → abre direto a view admin
+        // URL /hub/brindes/painel-admin → abre direto a view admin
         // (só se o SSO autorizar; senão cai no modal de login)
         if (window.location.pathname.replace(/\/$/, '').endsWith('/painel-admin')) {
             window.requestAdminAccess();
@@ -677,7 +677,7 @@
                     { attributes: true, attributeFilter: ['data-theme'] }
                 );
             } else {
-                // Página standalone (/hub/solicitacao-brindes) — lê o tema salvo do Office
+                // Página standalone (/hub/brindes) — lê o tema salvo do Office
                 setTheme(localStorage.getItem('office.theme') || 'dark');
             }
         } catch {}
@@ -913,7 +913,7 @@
             tier: record.tier, itensSugeridos: record.itensSugeridos,
             isUrgent: !!record.isUrgent, urgente: record.isUrgent ? 'SIM ⚡' : 'Não',
             date: record.date,
-            linkOffice: 'https://office.epiuse.com.br/hub/solicitacao-brindes/painel-admin'
+            linkOffice: 'https://office.epiuse.com.br/hub/brindes/painel-admin'
         }) }).catch(() => {});
 
         document.getElementById('viewForm').classList.add('hidden');
@@ -969,6 +969,7 @@
 
     window.requestAdminAccess = function() {
         if (window.isAdminAuthenticated) window.switchView('admin');
+        else document.getElementById('loginModal').classList.remove('hidden');
     };
     window.closeLogin = () => document.getElementById('loginModal').classList.add('hidden');
     window.tryLogin = () => {

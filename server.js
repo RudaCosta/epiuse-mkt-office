@@ -617,7 +617,8 @@ app.use((req, res, next) => {
 const HUB_LOCK_PAGES = new Set([
   '/hub', '/game', '/game-hub', '/login', '/escolher-visao', '/brand',
   '/design', '/erp-impacto', '/seja-voice', '/artigos', '/optimizer',
-  '/campanhas', '/brindes'
+  '/campanhas', '/brindes', '/hub/brindes', '/hub/solicitacao-brindes',
+  '/hub/solicitar-brindes'
 ]);
 // nota: '/game' passa pelo lock só pra rota fazer o redirect por role → /game-hub.
 app.use((req, res, next) => {
@@ -798,7 +799,7 @@ function buildBrindesEmailHTML(rec) {
       <div style="text-align:center">
         <div style="font-size:10px;color:#94a3b8;letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px;font-weight:700">Protocolo de Rastreamento</div>
         <div style="font-family:monospace;font-size:28px;font-weight:900;color:#001844;letter-spacing:.15em">#${safe(rec.id)}</div>
-        <div style="font-size:11px;color:#94a3b8;margin-top:8px">Recebido em ${safe(rec.date)} · <a href="https://office.epiuse.com.br/brindes" style="color:#001844;font-weight:700">Ver no Office →</a></div>
+        <div style="font-size:11px;color:#94a3b8;margin-top:8px">Recebido em ${safe(rec.date)} · <a href="https://office.epiuse.com.br/hub/brindes/painel-admin" style="color:#001844;font-weight:700">Ver no Office →</a></div>
       </div>
     </td></tr>
   </table></body></html>`;
@@ -818,12 +819,16 @@ async function sendBrindesEmail(rec) {
   } catch (e) { console.error(`[BRINDES-EMAIL-FAIL] ${e.message}`); }
 }
 
-app.get('/brindes', (req, res) => res.sendFile(path.join(__dirname, 'public/brindes.html')));
-// Página dedicada de solicitação de brindes (standalone, fora da aba do Hub)
-app.get('/hub/solicitacao-brindes', (req, res) => res.sendFile(path.join(__dirname, 'public/brindes.html')));
+// Formulário de solicitação de brindes — página dedicada com URL própria
+app.get('/hub/brindes', (req, res) => res.sendFile(path.join(__dirname, 'public/brindes.html')));
 // Painel admin como página própria — o brindes.html detecta o path e abre a view
 // admin; quem pode ver é controlado pelo SSO role (role !== 'hub')
-app.get('/hub/solicitacao-brindes/painel-admin', (req, res) => res.sendFile(path.join(__dirname, 'public/brindes.html')));
+app.get('/hub/brindes/painel-admin', (req, res) => res.sendFile(path.join(__dirname, 'public/brindes.html')));
+// URLs antigas/variações → redirect permanente pras canônicas
+app.get(['/brindes', '/hub/solicitacao-brindes', '/hub/solicitar-brindes'],
+  (req, res) => res.redirect(301, '/hub/brindes'));
+app.get(['/hub/solicitacao-brindes/painel-admin', '/hub/solicitar-brindes/painel-admin'],
+  (req, res) => res.redirect(301, '/hub/brindes/painel-admin'));
 
 // ── BRINDES: backup JSON para sobreviver a restarts (complementa o SQLite) ──────
 // Em produção sem Railway Volume, o SQLite reseta a cada deploy. O backup JSON
