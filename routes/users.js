@@ -6,7 +6,7 @@
 const express = require('express');
 const router = express.Router();
 const path = require('path');
-const { db, requireEditorToken } = require('../server-context');
+const { db, hasValidEditorToken } = require('../server-context');
 
 // role -> { persona (home), landing }. persona casa com os ids de personas.json.
 // Quem não está cadastrado entra como 'hub' e cai no Marketing Hub central.
@@ -104,10 +104,14 @@ function requireRole(...roles) {
 }
 
 // Admin guard: passa se for 'head' na sessão OU se trouxer editor token válido.
+// Check PURO do token (hasValidEditorToken) de propósito: requireEditorToken
+// também aceita sessão de time, o que deixaria qualquer role de MKT virar
+// admin de usuários — admin é só head ou automação server-to-server.
 function requireAdmin(req, res, next) {
   const role = req.session && req.session.user && req.session.user.role;
   if (role === 'head') return next();
-  return requireEditorToken(req, res, next);
+  if (hasValidEditorToken(req)) return next();
+  return res.status(401).json({ success: false, error: 'Acesso restrito (admin)' });
 }
 
 // ── Página admin ──────────────────────────────────────────────────────────────

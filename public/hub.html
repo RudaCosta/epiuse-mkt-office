@@ -1150,19 +1150,12 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 <script>
 const LOGOS = window.LOGOS || [];
 
-var SK='mkt_eubr_26',PW='mktepiuse2026';
+// Gate de senha legado REMOVIDO — o acesso é 100% via SSO Microsoft
+// (o #gate fica display:none). Nunca reintroduzir senha no client-side.
+var SK='mkt_eubr_26';
 
 function unlock(){
-  var v=document.getElementById('pw-in').value;
-  if(v===PW){
-    sessionStorage.setItem(SK,'1');
-    document.getElementById('gate').style.display='none';
-    document.getElementById('portal').style.display='flex';
-    renderLogos();
-  } else {
-    document.getElementById('gate-err').textContent='Senha incorreta. Tente novamente.';
-    document.getElementById('pw-in').select();
-  }
+  document.getElementById('gate-err').textContent='Acesso via login Microsoft (SSO). Use a página /login.';
 }
 function lockPortal(){
   sessionStorage.removeItem(SK);

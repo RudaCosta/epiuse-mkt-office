@@ -60,7 +60,7 @@ process.on('unhandledRejection', (reason) => {
 });
 
 // ── EDITOR AUTH E CONTEXTO COMPARTILHADO ───────────────────────────────────────
-const { ACTIVE_EDITOR_TOKEN, requireEditorToken, requireAuth } = require('./server-context');
+const { ACTIVE_EDITOR_TOKEN, hasValidEditorToken, requireEditorToken, requireApiAccess, requireAuth } = require('./server-context');
 const EDITOR_TOKEN = ACTIVE_EDITOR_TOKEN;
 
 // ── PATHS DE DADOS ────────────────────────────────────────────────────────────
@@ -484,11 +484,21 @@ const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 // Trust proxy 1 hop pra Railway (rate limit reconhece IP real)
 app.set('trust proxy', 1);
 
+// ── SECURITY HEADERS (sem dependência nova) ───────────────────────────────────
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  if (!IS_LOCAL_DEV) res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  next();
+});
+
 // ── /api/areas.json — overlay de valores LIVE em serve-time (fonte unica, v0.52) ──
-// Registrado ANTES do express.static p/ sobrepor o arquivo estatico.
+// Registrado DEPOIS do gate de /api/* (exige sessão/token — KPIs internos) e
+// ANTES do express.static p/ sobrepor o arquivo estatico.
 // Sobrepoe: seguidores (linkedin-routine) + contatos/empresas (apollo pipeline-snapshot).
 // Mantem null como pendente (regra 7) — nunca chumba numero.
-app.get('/api/areas.json', (req, res) => {
+function areasOverlayHandler(req, res) {
   try {
     const fsx = require('fs');
     const apiPath = (f) => path.join(__dirname, 'public/api', f);
@@ -558,7 +568,7 @@ app.get('/api/areas.json', (req, res) => {
   } catch (e) {
     return res.status(500).json({ error: 'overlay areas falhou', detail: String(e) });
   }
-});
+}
 
 // ── SSO MICROSOFT & SESSÃO (ECC Security Guidelines) ─────────────────────────
 // Registrado ANTES do express.static: precisa que req.session já exista
@@ -592,44 +602,64 @@ if (SSO_ENABLED) {
 // ── GATE DE APIs (antes do express.static) ────────────────────────────────────
 // Cobre tanto as rotas dinâmicas GET /api/* quanto os JSONs estáticos em
 // public/api/*.json (pipeline Zoho, KPIs executivos, orçamento/dev-funds,
-// metas) — antes disso, nenhum dos dois exigia autenticação. Usa
-// requireEditorToken (sessão SSO OU X-Editor-Token) em vez de requireAuth
-// puro pra preservar os fluxos server-to-server já existentes (scripts de
-// sync via X-Editor-Token). Allowlist curta: só o que o fluxo de login e
-// health-check precisam funcionar sem sessão.
+// metas, team.json) — antes disso, nenhum dos dois exigia autenticação.
+// requireApiAccess = qualquer sessão SSO (inclusive role 'hub' — o Marketing
+// Hub, game e brindes consomem essas APIs) OU X-Editor-Token (scripts de
+// sync server-to-server e automações/IAs) OU dev local (IS_LOCAL_DEV, sem
+// SSO na máquina). Rotas de ESCRITA sensíveis continuam com o guard próprio
+// requireEditorToken (token OU sessão de time) por cima deste gate.
+// Allowlist curta: só o que o fluxo de login e health-check precisam antes
+// de existir sessão.
 const API_PUBLIC_ALLOWLIST = ['/api/health', '/api/version', '/api/auth/status'];
 app.use((req, res, next) => {
   if (!req.path.startsWith('/api/')) return next();
   if (API_PUBLIC_ALLOWLIST.includes(req.path)) return next();
-  return requireEditorToken(req, res, next);
+  return requireApiAccess(req, res, next);
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.json({ limit: '4mb' })); // 4mb cobre syncs grandes (SAP 4 ME 705 projetos ~370KB)
+// Overlay de áreas registrado AQUI (depois do gate, antes do static) — a
+// definição do handler fica lá em cima, perto do bloco de contexto.
+app.get('/api/areas.json', areasOverlayHandler);
 
-// ── ENFORCEMENT GLOBAL (SSO_ENFORCE) ──────────────────────────────────────────
+// ── AUDIT LOG DE ESCRITA ──────────────────────────────────────────────────────
+// Toda mutação em /api/* fica registrada nos logs (Railway) com o autor:
+// e-mail da sessão, 'editor-token' (automação) ou 'anon' (dev local).
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api/') && ['POST', 'PUT', 'DELETE', 'PATCH'].includes(req.method)) {
+    const who = (req.session && req.session.user && req.session.user.email)
+      || (hasValidEditorToken(req) ? 'editor-token' : 'anon');
+    console.log(`[audit] ${req.method} ${req.path} por ${who}`);
+  }
+  next();
+});
+
+// ── ENFORCEMENT GLOBAL (SSO_ENFORCE) — ANTES do express.static ────────────────
 // Exige login nas PÁGINAS (navegação humana). requireAuth (server-context)
-// agora falha fechado em produção quando o SSO não está configurado (ver
-// SECURITY.md) — antes, faltar as env vars deixava a aplicação inteira aberta.
+// falha fechado em produção quando o SSO não está configurado (ver SECURITY.md).
 //
-// Escopo: só páginas. As rotas /api/* já passaram pelo gate acima (session
-// OU X-Editor-Token) antes de chegar aqui — isso preserva os fluxos
-// server-to-server por X-Editor-Token (ex: resync-railway-all) mesmo com
-// enforcement ligado. Allowlist abaixo evita loop no fluxo de login.
+// Fica ANTES do express.static de propósito: com o static primeiro, qualquer
+// anônimo baixava /hub.html, /cockpit.html etc. direto (bypass total do SSO —
+// o requireAuth das rotas era decorativo). Regra: documentos .html e rotas
+// sem extensão exigem sessão; assets (css/js/img/fonts/design-tokens) passam
+// livres — a página /login precisa deles antes de existir sessão.
+// As rotas /api/* já passaram pelo gate próprio acima (session OU
+// X-Editor-Token) — preserva fluxos server-to-server mesmo com enforcement.
 const ENFORCE_PUBLIC = ['/login', '/auth/login', '/auth/callback', '/auth/logout', '/auth/rd-callback'];
+const _isStaticAsset = (p) => { const ext = path.extname(p).toLowerCase(); return ext && ext !== '.html'; };
 app.use((req, res, next) => {
   if (req.path.startsWith('/api/')) return next();
   if (ENFORCE_PUBLIC.includes(req.path)) return next();
+  if (_isStaticAsset(req.path)) return next();
   return requireAuth(req, res, next);
 });
 
-// ── HARD-LOCK DO COLABORADOR (role 'hub') ─────────────────────────────────────
+// ── HARD-LOCK DO COLABORADOR (role 'hub') — ANTES do express.static ───────────
 // Quem não é do time de marketing nem country manager (role 'hub') só acessa o
 // Marketing Hub (+ o game do colaborador). Qualquer outra PÁGINA -> redirect /hub.
 // Time de MKT, head e country-manager/diretoria NÃO são afetados.
 // APIs (/api/*) e /auth/* passam (o /hub e /game-hub precisam de /api/auth/status).
-// Páginas que o colaborador (role hub) PODE acessar: o hub, o game dele, e os
-// destinos do menu de acesso rápido do portal. O resto do Office segue bloqueado.
+// Normaliza ".html" pra cobrir também o acesso direto ao arquivo estático
+// (ex.: /cockpit.html), não só a rota (/cockpit).
 const HUB_LOCK_PAGES = new Set([
   '/hub', '/game', '/game-hub', '/login', '/escolher-visao', '/brand',
   '/design', '/erp-impacto', '/seja-voice', '/artigos', '/optimizer'
@@ -637,10 +667,15 @@ const HUB_LOCK_PAGES = new Set([
 // nota: '/game' passa pelo lock só pra rota fazer o redirect por role → /game-hub.
 app.use((req, res, next) => {
   if (req.path.startsWith('/api/') || req.path.startsWith('/auth/')) return next();
+  if (_isStaticAsset(req.path)) return next();
   const u = req.session && req.session.user;
-  if (u && u.role === 'hub' && !HUB_LOCK_PAGES.has(req.path)) return res.redirect('/hub');
+  const page = req.path.replace(/\.html$/i, '');
+  if (u && u.role === 'hub' && !HUB_LOCK_PAGES.has(page)) return res.redirect('/hub');
   next();
 });
+
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.json({ limit: '4mb' })); // 4mb cobre syncs grandes (SAP 4 ME 705 projetos ~370KB)
 
 // ── PRESENÇA MULTIPLAYER DO GAME (v0.60.0) ────────────────────────────────────
 // Estado EFÊMERO em memória (nada no SQLite — presença zera a cada deploy, ok).
@@ -783,18 +818,30 @@ app.post('/api/brindes', (req, res) => {
   } catch (e) { console.error('[BRINDES-POST]', e); res.status(500).json({ error: e.message }); }
 });
 
-app.get('/api/brindes', (req, res) => {
-  const auth = (req.headers.authorization || '');
-  if (!auth.includes('MKt123') && req.query.token !== 'MKt123') return res.status(401).json({ error: 'nao autorizado' });
+// Proxy do webhook Power Automate (notificação Teams do fluxo de brindes).
+// A URL do trigger carrega assinatura SAS = segredo → vive só em env var,
+// nunca no HTML do client (a versão antiga vazou no repo público — rotacionar).
+app.post('/api/brindes/notify', (req, res) => {
+  const hook = process.env.POWERAUTOMATE_BRINDES_WEBHOOK;
+  if (!hook) {
+    console.warn('[brindes-notify] POWERAUTOMATE_BRINDES_WEBHOOK não configurado — notificação pulada');
+    return res.json({ ok: false, skipped: true });
+  }
+  fetch(hook, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(req.body || {}) })
+    .then(r => res.json({ ok: r.ok }))
+    .catch(e => { console.error('[brindes-notify]', e.message); res.json({ ok: false }); });
+});
+
+// Admin de brindes (lista completa + edição): time de MKT via sessão SSO ou
+// automação via X-Editor-Token. (Antes: senha fraca hardcoded no HTML.)
+app.get('/api/brindes', requireEditorToken, (req, res) => {
   try {
     const rows = db.prepare('SELECT data FROM brindes_requests ORDER BY created_at DESC').all();
     res.json(rows.map(r => { try { return JSON.parse(r.data); } catch { return null; } }).filter(Boolean));
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.patch('/api/brindes/:id', (req, res) => {
-  const auth = (req.headers.authorization || '');
-  if (!auth.includes('MKt123') && req.query.token !== 'MKt123') return res.status(401).json({ error: 'nao autorizado' });
+app.patch('/api/brindes/:id', requireEditorToken, (req, res) => {
   try {
     const row = db.prepare('SELECT data FROM brindes_requests WHERE id = ?').get(req.params.id);
     if (!row) return res.status(404).json({ error: 'nao encontrado' });
@@ -3157,10 +3204,12 @@ app.get('/api/relatorio/download-pptx', (req, res) => {
   
   const PYBIN = process.env.PYTHON_BIN || (process.platform === 'win32' ? 'python' : 'python3');
   const cmd = `${PYBIN} "${path.join(__dirname, 'scripts/relatorio/gerar_pptx.py')}" --mes "${mes}" --output "${tempFile}" --base-url "${baseUrl}"`;
-  
+
   console.log(`[relatorio] executando comando: ${cmd}`);
-  
-  exec(cmd, (error, stdout, stderr) => {
+
+  // EDITOR_TOKEN no env do filho: o script chama de volta /api/relatorio/snapshot
+  // neste mesmo servidor, e o gate de /api/* exige sessão ou token.
+  exec(cmd, { env: { ...process.env, EDITOR_TOKEN: ACTIVE_EDITOR_TOKEN } }, (error, stdout, stderr) => {
     if (error) {
       console.error(`[relatorio] erro ao gerar PPTX: ${error.message}`);
       return res.status(500).json({ 

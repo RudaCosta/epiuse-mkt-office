@@ -17,6 +17,7 @@ Se o user não especificou, peça: "qual mês? (formato YYYY-MM, ex: 2026-05 pra
 
 ## 3. Coletar snapshot
 - `curl http://localhost:3000/api/relatorio/snapshot?mes=YYYY-MM` — agrega Cases, Voices, LinkedIn historical, eventos, KPIs digitais
+- Localhost (dev) não exige auth. Contra o Railway, incluir o token: `curl -H "X-Editor-Token: $EDITOR_TOKEN" https://epiuse-voices-optimizer.up.railway.app/api/relatorio/snapshot?mes=YYYY-MM` (valor vem do `.env` local / env vars — nunca hardcodar)
 - Validar: número de seguidores LinkedIn não é null · Cases tem ao menos 1 publicado · Eventos do mês listados
 
 ## 4. Gerar o PPTX

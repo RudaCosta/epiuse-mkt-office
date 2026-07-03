@@ -10,7 +10,7 @@ Uso:
   python scripts/relatorio/gerar_pptx.py --mes 2026-05
   python scripts/relatorio/gerar_pptx.py --mes 2026-05 --output "C:/path/file.pptx"
 """
-import argparse, json, urllib.request, urllib.error
+import argparse, json, os, urllib.request, urllib.error
 from pathlib import Path
 from datetime import datetime
 import sys
@@ -56,8 +56,15 @@ def get_layout(prs, name, fallback_idx=6):
 
 def fetch_snapshot(mes, base_url="http://localhost:3000"):
     url = f"{base_url}/api/relatorio/snapshot?mes={mes}"
+    # O gate de /api/* exige sessão ou X-Editor-Token; o server injeta
+    # EDITOR_TOKEN no env quando chama este script (dev local fica aberto).
+    headers = {}
+    editor_token = os.environ.get("EDITOR_TOKEN")
+    if editor_token:
+        headers["X-Editor-Token"] = editor_token
     try:
-        with urllib.request.urlopen(url, timeout=30) as r:
+        req = urllib.request.Request(url, headers=headers)
+        with urllib.request.urlopen(req, timeout=30) as r:
             return json.loads(r.read().decode("utf-8"))
     except urllib.error.URLError as e:
         print(f"ERRO: não conseguiu acessar {url}. Office tá rodando? ({e})")

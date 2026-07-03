@@ -503,14 +503,14 @@
 
     <script>
     // ── STORAGE (SQLite via API + cache local) ─────────────────────────
+    // Auth do admin: cookie de sessão SSO (role de time) — sem token no client.
     let _cache = null;
-    const ADMIN_TOKEN = 'MKt123';
 
     function dbLoad() { return _cache || []; }
 
     async function dbFetchAll() {
         try {
-            const r = await fetch('/api/brindes', { headers: { 'Authorization': `Bearer ${ADMIN_TOKEN}` } });
+            const r = await fetch('/api/brindes');
             if (!r.ok) throw new Error(r.status);
             const serverData = await r.json();
             if (serverData.length > 0) {
@@ -536,7 +536,7 @@
 
     async function dbUpdate(id, patch) {
         try {
-            await fetch(`/api/brindes/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${ADMIN_TOKEN}` }, body: JSON.stringify(patch) });
+            await fetch(`/api/brindes/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(patch) });
         } catch (e) { console.error('[brindes] PATCH falhou:', e); }
         if (_cache) {
             const idx = _cache.findIndex(r => r.id === id);
@@ -549,7 +549,6 @@
     window.totalSteps = 5;
     window.isAdminAuthenticated = false;
     window.isViewingTrash = false;
-    window.powerAutomateWebhookUrl = "https://default83b6aaa2757547369328b4576f3517.d5.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/f88fa272b1ec4f5a8f6eefbe6f7ceaa3/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=IJIKQHwAPGXIRbUUJ1Jde2yXdT5LWvwbh8D0IwQDOvw";
 
     // ── SSO (tenta Office real, cai no mock) ───────────────────────────
     window.loginMicrosoft = async function() {
@@ -868,9 +867,9 @@
         };
         await dbAdd(record);
 
-        // fallback notificação: Power Automate (enquanto RESEND_API_KEY não está configurada no servidor)
-        const PA_WEBHOOK = "https://default83b6aaa2757547369328b4576f3517.d5.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/f88fa272b1ec4f5a8f6eefbe6f7ceaa3/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=IJIKQHwAPGXIRbUUJ1Jde2yXdT5LWvwbh8D0IwQDOvw";
-        fetch(PA_WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: record.id, nome: record.nome, email: record.email, setor: record.setor, gestorResponsavel: record.gestorResponsavel, nomeCliente: record.nomeCliente, codigoProjeto: record.codigoProjeto, ocasiao: record.ocasiao, dataEvento: record.dataEvento, tier: record.tier, itensSugeridos: record.itensSugeridos, isUrgent: !!record.isUrgent }) }).catch(() => {});
+        // fallback notificação: Power Automate via proxy do server (a URL do
+        // webhook tem assinatura SAS = segredo; vive em env var no servidor)
+        fetch('/api/brindes/notify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: record.id, nome: record.nome, email: record.email, setor: record.setor, gestorResponsavel: record.gestorResponsavel, nomeCliente: record.nomeCliente, codigoProjeto: record.codigoProjeto, ocasiao: record.ocasiao, dataEvento: record.dataEvento, tier: record.tier, itensSugeridos: record.itensSugeridos, isUrgent: !!record.isUrgent }) }).catch(() => {});
 
         document.getElementById('viewForm').classList.add('hidden');
         document.getElementById('viewResult').classList.remove('hidden');
@@ -922,11 +921,10 @@
         if (window.isAdminAuthenticated) window.switchView('admin');
     };
     window.closeLogin = () => document.getElementById('loginModal').classList.add('hidden');
+    // Login manual removido: acesso admin vem SÓ da sessão SSO (role de time,
+    // resolvido no autoLogin via /api/auth/status). Sem credencial no client.
     window.tryLogin = () => {
-        const user = document.getElementById('adminUser').value.trim().toLowerCase();
-        const pass = document.getElementById('adminPass').value.trim();
-        if (user === 'marketing@epiuse.com.br' && pass === 'MKt123') { window.isAdminAuthenticated = true; window.closeLogin(); window.switchView('admin'); }
-        else document.getElementById('loginError').classList.remove('hidden');
+        document.getElementById('loginError').classList.remove('hidden');
     };
     window.logoutAdmin = () => { window.isAdminAuthenticated = false; window.switchView('form'); };
 

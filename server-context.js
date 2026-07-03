@@ -65,13 +65,33 @@ if (!SESSION_SECRET) {
 }
 const ACTIVE_SESSION_SECRET = SESSION_SECRET || crypto.randomBytes(32).toString('hex');
 
-function requireEditorToken(req, res, next) {
-  // Sessão SSO autenticada também autoriza (páginas logadas do Office não
-  // precisam mais embutir o token estático no client-side JS).
-  if (req.session && req.session.user) return next();
+// Check puro do token, comparação constant-time (evita timing attack).
+function hasValidEditorToken(req) {
   const t = req.query.token || req.headers['x-editor-token'];
-  if (t !== ACTIVE_EDITOR_TOKEN) return res.status(401).json({ success: false, error: 'Token inválido' });
-  next();
+  if (!t || typeof t !== 'string') return false;
+  const a = Buffer.from(t), b = Buffer.from(ACTIVE_EDITOR_TOKEN);
+  if (a.length !== b.length) return false;
+  return crypto.timingSafeEqual(a, b);
+}
+
+// Rotas de ESCRITA sensíveis: token server-to-server OU sessão SSO de quem é
+// do time de marketing (qualquer role exceto 'hub' — colaborador comum só lê).
+function requireEditorToken(req, res, next) {
+  if (hasValidEditorToken(req)) return next();
+  const role = req.session && req.session.user && req.session.user.role;
+  if (role && role !== 'hub') return next();
+  return res.status(401).json({ success: false, error: 'Token inválido' });
+}
+
+// Gate global de /api/*: qualquer sessão autenticada (inclusive role 'hub' —
+// o Marketing Hub, game e brindes dependem dessas APIs) OU token de editor.
+// Dev local fica aberto: não há SSO configurado na máquina do desenvolvedor
+// e as telas locais do Office precisam continuar funcionando sem token.
+function requireApiAccess(req, res, next) {
+  if (IS_LOCAL_DEV) return next();
+  if (req.session && req.session.user) return next();
+  if (hasValidEditorToken(req)) return next();
+  return res.status(401).json({ error: 'auth_required' });
 }
 
 // ── PATHS DE DADOS ────────────────────────────────────────────────────────────
@@ -147,7 +167,9 @@ module.exports = {
   db,
   ACTIVE_EDITOR_TOKEN,
   ACTIVE_SESSION_SECRET,
+  hasValidEditorToken,
   requireEditorToken,
+  requireApiAccess,
   requireAuth,
   client,
   resend,
