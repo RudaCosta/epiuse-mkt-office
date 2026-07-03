@@ -1007,7 +1007,7 @@ ${html}` }] }],
   }
 }
 
-app.post('/api/artigos/ideias', async (req, res) => {
+app.post('/api/stratview/ideias', async (req, res) => {
   try {
     const prompt = `Você é o Diretor de Marketing de Conteúdo da Stratview (uma consultoria boutique líder em Oracle Cloud no Brasil, especializada em HCM, Inteligência Artificial e OCI).
 A Stratview se diferencia por seu modelo "Client Side Services (CSS)".
@@ -1032,8 +1032,13 @@ REGRAS DE TÍTULO (SEO — cumprir TODAS):
 - No máximo UM dois-pontos. Proibido travessão decorativo, reticências e clickbait vazio ("Você não vai acreditar").
 - Sem jargão interno da Stratview no título (CSS só se o artigo for sobre isso).
 
+FRASE-CHAVE DE FOCO (campo "keyphrase"):
+- Cada ideia tem UMA frase-chave de foco: 2-4 palavras, termo REAL que um executivo digitaria no Google (ex: "otimizar custos OCI", "Oracle HCM IA").
+- O título DEVE começar com a frase-chave (ou variação mínima dela).
+- Sem nome de marca na frase-chave (exceto Oracle/OCI quando for o assunto).
+
 Retorne APENAS JSON válido neste formato:
-{"ideas":[{"id":"string_unica","title":"título","description":"resumo 1-2 frases","keywords":["5","palavras","chave","seo","aqui"],"score":9.5,"volume":"Alto","competition":"Média","trendsInfo":"insight trends max 20 palavras","imagePrompt":"prompt em inglês sem texto"}]}`;
+{"ideas":[{"id":"string_unica","title":"título","keyphrase":"frase-chave 2-4 palavras","description":"resumo 1-2 frases","keywords":["5","palavras","chave","seo","aqui"],"score":9.5,"volume":"Alto","competition":"Média","trendsInfo":"insight trends max 20 palavras","imagePrompt":"prompt em inglês sem texto"}]}`;
 
     // google_search é incompatível com responseMimeType:json — deixar a IA retornar JSON como texto
     const result = await geminiPost('gemini-2.5-flash', {
@@ -1049,15 +1054,23 @@ Retorne APENAS JSON válido neste formato:
   } catch (e) { console.error('[ARTIGOS-IDEIAS]', e.message); res.status(500).json({ error: e.message }); }
 });
 
-app.post('/api/artigos/gerar', async (req, res) => {
+app.post('/api/stratview/gerar', async (req, res) => {
   try {
     const { idea } = req.body;
     if (!idea || !idea.title) return res.status(400).json({ error: 'idea.title obrigatório' });
+    const keyphrase = (idea.keyphrase || (idea.keywords || [])[0] || '').trim();
 
     const systemPrompt = `Você é um Consultor Estratégico Sênior da Stratview focado na tríade: Oracle HCM, IA (Agentic Apps) e OCI.
 Defenda metodologias ágeis e parceiras (Client Side Services - CSS).`;
 
-    const userPrompt = `Escreva um artigo premium (~900 palavras) para o blog sobre: "${idea.title}".
+    const userPrompt = `Escreva um artigo premium (~1000-1200 palavras) para o blog da Stratview sobre: "${idea.title}".
+
+FRASE-CHAVE DE FOCO: "${keyphrase}"
+Esta é a frase que o Yoast SEO vai auditar. Regras OBRIGATÓRIAS sobre ela (correspondência EXATA, não só sinônimos):
+- Na PRIMEIRA frase do primeiro parágrafo.
+- De 4 a 6 vezes no corpo do texto, distribuídas naturalmente (nunca 2x no mesmo parágrafo).
+- Em pelo menos 2 subtítulos <h2> ou <h3> (pode ser variação próxima).
+- No Título SEO (no início), na Meta description, no Alt text e no Slug.
 
 DIRETRIZ DE QUALIDADE E ESTILO (ANTI-REPETIÇÃO):
 - Seja criativo, dinâmico e agradável de ler. Pareça um ser humano experiente.
@@ -1072,18 +1085,31 @@ DIRETRIZES SEO/GEO (Google AI Optimization):
 3. Pessoas em 1º Lugar: escreva para líderes reais (C-Level). Fluência e utilidade.
 
 REGRAS DE TÍTULO (SEO):
-- <h1> com NO MÁXIMO 60 caracteres, palavra-chave principal nas primeiras 3-4 palavras.
-- Se o tema recebido for longo demais, REESCREVA o título pra caber em 60 caracteres sem perder a palavra-chave.
+- <h1> com NO MÁXIMO 60 caracteres, frase-chave nas primeiras 3-4 palavras.
+- Se o tema recebido for longo demais, REESCREVA o título pra caber em 60 caracteres sem perder a frase-chave.
 - Concreto e específico (número, benefício ou pergunta direta). No máximo um dois-pontos, sem clickbait.
-- <h2>/<h3> também curtos (até 8 palavras), descritivos, com variações da palavra-chave quando natural.
+- <h2>/<h3> também curtos (até 8 palavras), descritivos.
 
-ESTRUTURA HTML OBRIGATÓRIA:
+LINKS (obrigatório — Yoast exige internos E externos; use SOMENTE as URLs desta lista, não invente outras):
+- 2 links internos no corpo, escolhidos pelo tema:
+  · CSS → https://stratview.com.br/project/client-side-services-css/
+  · Oracle HCM → https://stratview.com.br/oracle-fusion-cloud-hcm/
+  · OCI → https://stratview.com.br/oracle-cloud-infrastructure-oci/
+  · IA/ML → https://stratview.com.br/artificial-intelligence-e-machine-learning/
+- CTA final SEMPRE pra <a href="https://stratview.com.br/contato/">fale com a Stratview</a>.
+- 1 link externo de autoridade com target="_blank" rel="noopener": https://www.oracle.com/br/cloud/ (OCI) ou https://www.oracle.com/br/human-capital-management/ (HCM).
+- Âncoras descritivas (nunca "clique aqui").
+
+ESTRUTURA HTML OBRIGATÓRIA (siga o padrão editorial do blog da Stratview):
 1. Bloco de meta tags:
-<div class="seo-meta"><p><strong>Título SEO:</strong> [máx 60 chars, keyword no início]</p><p><strong>Slug:</strong> [slug-url curto, 3-5 palavras, sem stopwords]</p><p><strong>Meta:</strong> [max 155 chars, com keyword e chamada pra ação]</p><p><strong>Alt text:</strong> [descrição imagem]</p></div>
+<div class="seo-meta"><p><strong>Frase-chave de foco:</strong> ${keyphrase || '[frase-chave 2-4 palavras]'}</p><p><strong>Título SEO:</strong> [máx 60 chars, frase-chave no início]</p><p><strong>Slug:</strong> [slug curto com a frase-chave, sem stopwords]</p><p><strong>Meta:</strong> [MÁXIMO 150 caracteres — conte! — com a frase-chave e chamada pra ação]</p><p><strong>Alt text:</strong> [descrição da imagem contendo a frase-chave]</p></div>
 
-2. Título em <h1>, introdução em <p class="lead"> que usa a palavra-chave principal na primeira frase.
-3. Destaques em <blockquote>.
-4. FAQ ao final com EXATAMENTE 3 perguntas:
+2. Título em <h1>. Introdução: NO MÁXIMO 3 parágrafos antes do primeiro <h2> (o Yoast conta a introdução como seção — se passar de 250 palavras, quebra com <h2>). Primeiro parágrafo em <p class="lead"> abrindo com a frase-chave.
+3. 1 <blockquote> de tese/citação de marca logo na introdução ou primeira seção (1-2 frases fortes).
+4. Corpo: 4 a 5 seções <h2> (use <h3> pra subdividir quando natural). NENHUMA seção com mais de 200 palavras sem novo <h2>/<h3>.
+5. Penúltima seção: o diferencial Stratview (CSS, neutralidade, expertise) conectado ao tema.
+6. Parágrafo de CTA convidando o leitor a falar com a Stratview (link de contato acima).
+7. FAQ ao final, em <h2>Perguntas Frequentes (FAQ)</h2>, com EXATAMENTE 3 perguntas (pelo menos 1 contendo a frase-chave):
 <details class="faq-item"><summary>[PERGUNTA]</summary><div class="faq-answer">[RESPOSTA COM EXPERTISE]</div></details>
 
 Retorne APENAS HTML puro. Sem \`\`\`html.`;
@@ -1100,7 +1126,7 @@ Retorne APENAS HTML puro. Sem \`\`\`html.`;
   } catch (e) { console.error('[ARTIGOS-GERAR]', e.message); res.status(500).json({ error: e.message }); }
 });
 
-app.post('/api/artigos/imagem', async (req, res) => {
+app.post('/api/stratview/imagem', async (req, res) => {
   try {
     const { prompt } = req.body;
     if (!prompt) return res.status(400).json({ error: 'prompt obrigatório' });
@@ -1138,7 +1164,7 @@ STRICT REQUIREMENTS — follow exactly:
   } catch (e) { console.error('[ARTIGOS-IMAGEM]', e.message); res.status(500).json({ error: e.message }); }
 });
 
-app.post('/api/artigos/tts', async (req, res) => {
+app.post('/api/stratview/tts', async (req, res) => {
   try {
     const { text } = req.body;
     if (!text) return res.status(400).json({ error: 'text obrigatório' });
@@ -1152,8 +1178,8 @@ app.post('/api/artigos/tts', async (req, res) => {
   } catch (e) { console.error('[ARTIGOS-TTS]', e.message); res.status(500).json({ error: e.message }); }
 });
 
-// POST /api/artigos/historico — salva artigo gerado
-app.post('/api/artigos/historico', (req, res) => {
+// POST /api/stratview/historico — salva artigo gerado
+app.post('/api/stratview/historico', (req, res) => {
   try {
     const { id, title, description, keywords, content, persona } = req.body;
     if (!id || !title) return res.status(400).json({ error: 'id e title obrigatórios' });
@@ -1164,8 +1190,8 @@ app.post('/api/artigos/historico', (req, res) => {
   } catch (e) { console.error('[ARTIGOS-HIST-POST]', e.message); res.status(500).json({ error: e.message }); }
 });
 
-// PATCH /api/artigos/historico/:id — marca como publicado
-app.patch('/api/artigos/historico/:id', (req, res) => {
+// PATCH /api/stratview/historico/:id — marca como publicado
+app.patch('/api/stratview/historico/:id', (req, res) => {
   try {
     const result = db.prepare(`UPDATE stratview_articles SET status = 'publicado', published_at = datetime('now') WHERE id = ?`)
       .run(req.params.id);
@@ -1174,8 +1200,8 @@ app.patch('/api/artigos/historico/:id', (req, res) => {
   } catch (e) { console.error('[ARTIGOS-HIST-PATCH]', e.message); res.status(500).json({ error: e.message }); }
 });
 
-// GET /api/artigos/historico — lista histórico (últimos 50)
-app.get('/api/artigos/historico', (req, res) => {
+// GET /api/stratview/historico — lista histórico (últimos 50)
+app.get('/api/stratview/historico', (req, res) => {
   try {
     const rows = db.prepare(`SELECT id, title, description, keywords, content, persona, status, generated_at, published_at
       FROM stratview_articles ORDER BY generated_at DESC LIMIT 50`).all();
@@ -1183,7 +1209,7 @@ app.get('/api/artigos/historico', (req, res) => {
   } catch (e) { console.error('[ARTIGOS-HIST-GET]', e.message); res.status(500).json({ error: e.message }); }
 });
 
-app.post('/api/artigos/refinar', async (req, res) => {
+app.post('/api/stratview/refinar', async (req, res) => {
   try {
     const { content, persona } = req.body;
     if (!content || !persona) return res.status(400).json({ error: 'content e persona obrigatórios' });
@@ -1199,6 +1225,7 @@ ${ARTIGOS_REGRAS_ESTILO}
 
 ESTRUTURA: Mantenha div.seo-meta, h1, h2, h3, blockquote e obrigatoriamente o FAQ com <details class="faq-item"> e <summary> no final.
 TÍTULO: se ajustar o <h1> pra persona, mantenha NO MÁXIMO 60 caracteres, keyword no início, sem clickbait. Atualize o "Título SEO" do seo-meta junto.
+SEO (NÃO REGREDIR): preserve a frase-chave de foco do seo-meta com a MESMA densidade (4-6 ocorrências exatas no corpo, 1ª frase do 1º parágrafo, 2 subtítulos). Preserve TODOS os links <a> internos e externos. Nenhuma seção pode ficar com mais de 200 palavras sem <h2>/<h3>.
 
 Artigo original:
 ${content}`;

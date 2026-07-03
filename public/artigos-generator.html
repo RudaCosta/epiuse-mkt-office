@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -591,7 +591,7 @@ async function generateIdeas() {
   $('ideas-grid').innerHTML = '';
 
   try {
-    const data = await apiFetch('/api/artigos/ideias', {});
+    const data = await apiFetch('/api/stratview/ideias', {});
     state.ideas = data.ideas || [];
     if (!state.ideas.length) throw new Error('Nenhuma ideia retornada.');
   } catch (e) {
@@ -664,7 +664,7 @@ async function generateArticle(idx) {
   $('gen-overlay').classList.remove('hidden');
 
   try {
-    const data = await apiFetch('/api/artigos/gerar', { idea });
+    const data = await apiFetch('/api/stratview/gerar', { idea });
     state.article = { ...idea, content: data.html };
   } catch (e) {
     alert('Erro ao gerar artigo: ' + e.message);
@@ -696,7 +696,7 @@ async function generateImage(prompt) {
   // Tenta API de geração (requer Google Cloud pago)
   let usedGeneration = false;
   try {
-    const data = await apiFetch('/api/artigos/imagem', { prompt });
+    const data = await apiFetch('/api/stratview/imagem', { prompt });
     if (data.base64) {
       const img = $('cover-img');
       img.src = `data:image/png;base64,${data.base64}`;
@@ -880,7 +880,7 @@ async function toggleTTS() {
   const text = `Resumo executivo do artigo: ${art.title}. ${art.description} Abordagem focada em ${state.persona === 'Geral' ? 'estratégia C-Level' : state.persona}.`;
 
   try {
-    const data = await apiFetch('/api/artigos/tts', { text });
+    const data = await apiFetch('/api/stratview/tts', { text });
     const url = pcmBase64ToWavUrl(data.audioBase64, data.sampleRate || 24000);
     const audio = new Audio(url);
     audio.onended = () => {
@@ -923,7 +923,7 @@ async function refinePersona(persona) {
   $('refine-overlay').classList.remove('hidden');
 
   try {
-    const data = await apiFetch('/api/artigos/refinar', { content: state.article.content, persona });
+    const data = await apiFetch('/api/stratview/refinar', { content: state.article.content, persona });
     state.article = { ...state.article, content: data.html };
     $('article-content').innerHTML = data.html;
 
@@ -1015,7 +1015,7 @@ async function publishToWordPress() {
 // ── HISTORY ───────────────────────────────────────────────────────────────────
 async function saveToHistory(article) {
   try {
-    await fetch('/api/artigos/historico', {
+    await fetch('/api/stratview/historico', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1033,14 +1033,14 @@ async function saveToHistory(article) {
 
 async function markPublished(id) {
   try {
-    await fetch(`/api/artigos/historico/${id}`, { method: 'PATCH' });
+    await fetch(`/api/stratview/historico/${id}`, { method: 'PATCH' });
   } catch (e) { console.warn('[HIST] falha ao marcar publicado:', e.message); }
   await loadHistory();
 }
 
 async function loadHistory() {
   try {
-    const r = await fetch('/api/artigos/historico');
+    const r = await fetch('/api/stratview/historico');
     if (!r.ok) return;
     const items = await r.json();
     renderHistory(items);
