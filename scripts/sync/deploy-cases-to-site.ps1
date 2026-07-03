@@ -9,7 +9,7 @@ $log  = "$root\logs\cases-ftp.log"
 
 # ── OPCAO A: endpoint HTTP (quando o site tiver API) ─────────────────────────
 # $siteUrl   = 'https://www.epiuse.com.br/api/cases/sync'
-# $token     = 'eubr-voices-edit-2026'
+# $token     = $env:EDITOR_TOKEN
 # Invoke-RestMethod -Uri $siteUrl -Method POST -ContentType 'application/json' `
 #   -Headers @{ 'X-Editor-Token' = $token } -InFile $tmp
 

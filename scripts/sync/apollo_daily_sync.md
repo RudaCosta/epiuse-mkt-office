@@ -52,7 +52,7 @@ Salvar:
 
 ```bash
 curl -X POST http://localhost:3000/api/pipeline/sync \
-  -H "X-Editor-Token: eubr-voices-edit-2026" \
+  -H "X-Editor-Token: $EDITOR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "contas_ativas": 142,

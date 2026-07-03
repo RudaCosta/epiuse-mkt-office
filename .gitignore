@@ -53,3 +53,11 @@ data/eventos/*.xlsx
 # backups locais (nao versionar)
 vault-backups/
 public/api/*.bak-*
+
+# defesa em profundidade: nunca versionar segredos/DBs, mesmo fora dos paths acima
+*.env
+.env.*
+!.env.example
+*.db
+*.sqlite
+*.sqlite3

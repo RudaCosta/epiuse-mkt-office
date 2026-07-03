@@ -53,7 +53,8 @@ if (-not (Test-Path $tmp) -or (Get-Item $tmp).Length -lt 50) {
 Add-Content $log ("[" + $ts + "] payload OK: " + (Get-Item $tmp).Length + " bytes")
 
 # ── 2. DEFINE TARGETS ─────────────────────────────────────────────────────────
-$token = 'eubr-voices-edit-2026'
+$token = $env:EDITOR_TOKEN
+if (-not $token) { Write-Host 'ERRO: variavel de ambiente EDITOR_TOKEN nao definida.' -ForegroundColor Red; exit 1 }
 
 $targets = @()
 

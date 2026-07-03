@@ -25,7 +25,8 @@ const body = {
   nota: flag('nota', ''),
 };
 const target = flag('target', 'all');
-const TOKEN = process.env.EDITOR_TOKEN || 'eubr-voices-edit-2026';
+const TOKEN = process.env.EDITOR_TOKEN;
+if (!TOKEN) { console.error('ERRO: variável de ambiente EDITOR_TOKEN não definida.'); process.exit(1); }
 const URLS = {
   local: 'http://localhost:3000',
   railway: 'https://epiuse-voices-optimizer.up.railway.app',

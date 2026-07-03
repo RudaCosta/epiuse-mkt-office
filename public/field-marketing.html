@@ -271,7 +271,7 @@ async function salvar() {
   };
   try {
     const r = await fetch('/api/field-marketing/'+encodeURIComponent(cur.event_id), {
-      method:'POST', headers:{'Content-Type':'application/json','x-editor-token':'eubr-voices-edit-2026'},
+      method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify(body),
     });
     const j = await r.json();

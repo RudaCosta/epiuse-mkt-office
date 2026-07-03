@@ -66,6 +66,9 @@ if (!SESSION_SECRET) {
 const ACTIVE_SESSION_SECRET = SESSION_SECRET || crypto.randomBytes(32).toString('hex');
 
 function requireEditorToken(req, res, next) {
+  // Sessão SSO autenticada também autoriza (páginas logadas do Office não
+  // precisam mais embutir o token estático no client-side JS).
+  if (req.session && req.session.user) return next();
   const t = req.query.token || req.headers['x-editor-token'];
   if (t !== ACTIVE_EDITOR_TOKEN) return res.status(401).json({ success: false, error: 'Token inválido' });
   next();
@@ -117,9 +120,18 @@ if (SSO_ENABLED) {
 }
 
 function requireAuth(req, res, next) {
-  // Login-first por padrão quando o SSO está configurado (creds presentes).
-  // Escape explícito: SSO_ENFORCE=false. Sem SSO configurado, fica aberto.
-  if (!SSO_ENABLED || process.env.SSO_ENFORCE === 'false') return next();
+  // Dev local: nunca bloqueia (não há Azure configurado na máquina do dev).
+  if (IS_LOCAL_DEV) return next();
+  // Em produção, exigir SSO configurado é o padrão (fail-closed). Antes,
+  // faltar as env vars do Azure deixava a aplicação inteira aberta pra
+  // qualquer visitante — isso foi corrigido aqui (ver SECURITY.md).
+  // Escape explícito e documentado: SSO_ENFORCE=false (uso só emergencial).
+  if (process.env.SSO_ENFORCE === 'false') return next();
+  if (!SSO_ENABLED) {
+    console.error('[auth] BLOQUEADO: SSO não configurado em produção (faltam AZURE_CLIENT_ID/AZURE_CLIENT_SECRET/AZURE_TENANT_ID). Acesso negado por padrão até a configuração ser concluída no Railway.');
+    if (req.path.startsWith('/api/')) return res.status(503).json({ error: 'auth_not_configured' });
+    return res.status(503).send('Autenticação não configurada. Contate o administrador.');
+  }
   if (req.session && req.session.user) return next();
   if (req.path.startsWith('/api/')) return res.status(401).json({ error: 'auth_required' });
   // Manda pra tela de login branded (com portas Office/Game), não direto pro Microsoft.

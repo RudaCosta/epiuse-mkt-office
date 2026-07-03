@@ -54,7 +54,8 @@ const flag   = (k, def) => { const a = args.find(x => x.startsWith('--' + k + '=
 const target = flag('target', 'all');
 const DRY_RUN = process.argv.includes('--dry-run');
 
-const TOKEN = process.env.EDITOR_TOKEN || 'eubr-voices-edit-2026';
+const TOKEN = process.env.EDITOR_TOKEN;
+if (!TOKEN) { console.error('ERRO: variável de ambiente EDITOR_TOKEN não definida.'); process.exit(1); }
 let RD_API_KEY = process.env.RD_API_KEY;
 
 // Credenciais OAuth2 para renovação automática (mesma lógica do Zoho CRM)

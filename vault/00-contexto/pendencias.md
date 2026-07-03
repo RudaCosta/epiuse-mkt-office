@@ -58,7 +58,7 @@
 - **Workaround atual:** depois de cada push, rodar manualmente:
   ```bash
   curl -X POST https://epiuse-voices-optimizer.up.railway.app/api/cases/sync \
-    -H "X-Editor-Token: eubr-voices-edit-2026" \
+    -H "X-Editor-Token: $EDITOR_TOKEN" \
     -H "Content-Type: application/json" \
     --data @C:/Users/Ruds/AppData/Local/Temp/cases-payload-prod.json
   ```

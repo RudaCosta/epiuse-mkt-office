@@ -34,7 +34,7 @@ Em qualquer sessão nova, faça **NA ORDEM**:
 
 3. **Push pra Railway SÓ sob ordem explícita E para CADA push individual** — Rudá tem que falar literalmente "sobe", "deploy", "push", "sobe pro railway" antes de CADA `git push`. Uma ordem dada no início da sessão NÃO autoriza pushes posteriores. Se eu fizer mudanças e quiser deployar, eu PERGUNTO "quer que eu suba?". Caso negativo: faço só commit local, ou nem isso. **Violei essa regra em 26/mai (0.4.7, 0.4.9, 0.4.10, 0.4.11) — Rudá ralou. Não repetir.**
 
-4. **Sempre re-sync os cases** depois de cada push (workaround do P0 do SQLite Railway não persistir) usando `eubr-voices-edit-2026` como EDITOR_TOKEN.
+4. **Sempre re-sync os cases** depois de cada push (workaround do P0 do SQLite Railway não persistir) usando o valor de `EDITOR_TOKEN` configurado nas env vars do Railway (nunca hardcodar o token em código ou docs — ver `SECURITY.md`).
 
 5. **Ler arquivos automaticamente quando user passar path** (27/mai/2026) — quando user mandar `@"C:\..."` ou `@"G:\..."`, eu já leio direto via skill (`xlsx`/`pdf`/`pptx`/Read/Bash) **sem perguntar**. Suporto: PDF (pypdf), XLS/XLSX (pandas + openpyxl), PPT/PPTX (python-pptx), DOCX (python-docx), MD/TXT, imagens (Vision), CSV. SharePoint URL não dá pra ler — pedir baixar local ou anexar no chat. **Violação 27/mai:** disse "não achei" sem nem tentar — Rudá ralou.
 

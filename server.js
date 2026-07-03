@@ -560,10 +560,11 @@ app.get('/api/areas.json', (req, res) => {
   }
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.json({ limit: '4mb' })); // 4mb cobre syncs grandes (SAP 4 ME 705 projetos ~370KB)
-
 // ── SSO MICROSOFT & SESSÃO (ECC Security Guidelines) ─────────────────────────
+// Registrado ANTES do express.static: precisa que req.session já exista
+// quando o gate de /api/* (logo abaixo) avaliar autenticação — senão os
+// JSONs estáticos em public/api/*.json (pipeline, KPIs, orçamento) seriam
+// servidos direto pelo express.static sem passar por nenhum guard.
 const session = IS_LOCAL_DEV ? require(localModules + '/express-session') : require('express-session');
 const { ACTIVE_SESSION_SECRET, SSO_ENABLED, SSO_REDIRECT, SSO_DOMAINS, msalClient } = require('./server-context');
 
@@ -588,18 +589,33 @@ if (SSO_ENABLED) {
   console.log('[sso] Microsoft SSO inativo (faltam credenciais ou modulo)');
 }
 
+// ── GATE DE APIs (antes do express.static) ────────────────────────────────────
+// Cobre tanto as rotas dinâmicas GET /api/* quanto os JSONs estáticos em
+// public/api/*.json (pipeline Zoho, KPIs executivos, orçamento/dev-funds,
+// metas) — antes disso, nenhum dos dois exigia autenticação. Usa
+// requireEditorToken (sessão SSO OU X-Editor-Token) em vez de requireAuth
+// puro pra preservar os fluxos server-to-server já existentes (scripts de
+// sync via X-Editor-Token). Allowlist curta: só o que o fluxo de login e
+// health-check precisam funcionar sem sessão.
+const API_PUBLIC_ALLOWLIST = ['/api/health', '/api/version', '/api/auth/status'];
+app.use((req, res, next) => {
+  if (!req.path.startsWith('/api/')) return next();
+  if (API_PUBLIC_ALLOWLIST.includes(req.path)) return next();
+  return requireEditorToken(req, res, next);
+});
+
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.json({ limit: '4mb' })); // 4mb cobre syncs grandes (SAP 4 ME 705 projetos ~370KB)
+
 // ── ENFORCEMENT GLOBAL (SSO_ENFORCE) ──────────────────────────────────────────
-// Exige login nas PÁGINAS (navegação humana) quando SSO_ENFORCE=true E o SSO
-// estiver configurado (env AZURE_*). requireAuth (server-context) já é seguro:
-// sem as credenciais ele deixa passar — então em prod o acesso só tranca depois
-// das env vars entrarem no Railway (migração segura). Assets estáticos já foram
-// servidos por express.static acima e não chegam aqui.
+// Exige login nas PÁGINAS (navegação humana). requireAuth (server-context)
+// agora falha fechado em produção quando o SSO não está configurado (ver
+// SECURITY.md) — antes, faltar as env vars deixava a aplicação inteira aberta.
 //
-// Escopo: só páginas. As rotas /api/* NÃO passam por aqui — cada uma tem seu
-// próprio guard (requireAuth em cases/inbound, requireEditorToken nos syncs,
-// requireAdmin no admin). Isso preserva os fluxos server-to-server por
-// X-Editor-Token (ex: resync-railway-all) mesmo com enforcement ligado.
-// Allowlist abaixo evita loop no fluxo de login.
+// Escopo: só páginas. As rotas /api/* já passaram pelo gate acima (session
+// OU X-Editor-Token) antes de chegar aqui — isso preserva os fluxos
+// server-to-server por X-Editor-Token (ex: resync-railway-all) mesmo com
+// enforcement ligado. Allowlist abaixo evita loop no fluxo de login.
 const ENFORCE_PUBLIC = ['/login', '/auth/login', '/auth/callback', '/auth/logout', '/auth/rd-callback'];
 app.use((req, res, next) => {
   if (req.path.startsWith('/api/')) return next();

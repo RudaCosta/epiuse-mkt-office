@@ -1877,8 +1877,6 @@
 <office-footer></office-footer>
 
 <script>
-  const TOKEN = 'eubr-voices-edit-2026';
-
   function playChime() {
     try {
       var ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -2922,8 +2920,7 @@
       const res = await fetch('/api/content', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'x-editor-token': TOKEN
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(payload)
       });

@@ -98,7 +98,6 @@ body { background:linear-gradient(180deg,var(--bg,#061020) 0%,var(--bg,#0a1525) 
 <office-footer></office-footer>
 
 <script>
-const TOKEN = 'eubr-voices-edit-2026';
 const ESTADOS = [
   { id:'recebido', label:'Recebido' }, { id:'seo_geo', label:'SEO / GEO' },
   { id:'persona', label:'Persona' }, { id:'copy_cta', label:'Copy + CTA' },
@@ -233,8 +232,8 @@ async function salvar() {
   if (!body.titulo) { toast('Título obrigatório'); return; }
   try {
     let r;
-    if (cur.id) r = await fetch('/api/content/'+cur.id, { method:'PUT', headers:{'Content-Type':'application/json','x-editor-token':TOKEN}, body:JSON.stringify(body) });
-    else r = await fetch('/api/content', { method:'POST', headers:{'Content-Type':'application/json','x-editor-token':TOKEN}, body:JSON.stringify(body) });
+    if (cur.id) r = await fetch('/api/content/'+cur.id, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+    else r = await fetch('/api/content', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
     const j = await r.json();
     if (j.success) { toast('✅ Salvo'); closeModal(); load(); } else toast('Erro: '+(j.error||'falhou'));
   } catch(e) { toast('Erro: '+e.message); }
@@ -243,9 +242,9 @@ async function salvar() {
 async function analisar() {
   if (!cur.id) { toast('Salve primeiro pra analisar'); return; }
   // salva corpo atual antes de analisar
-  await fetch('/api/content/'+cur.id, { method:'PUT', headers:{'Content-Type':'application/json','x-editor-token':TOKEN}, body:JSON.stringify(collectBody()) });
+  await fetch('/api/content/'+cur.id, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(collectBody()) });
   try {
-    const r = await fetch('/api/content/'+cur.id+'/seo-check', { method:'POST', headers:{'x-editor-token':TOKEN} });
+    const r = await fetch('/api/content/'+cur.id+'/seo-check', { method:'POST' });
     const j = await r.json();
     if (j.success) { cur.seo=j.seo; cur.geo=j.geo; if(!cur.cta_sugerido)cur.cta_sugerido=j.cta.cta; cur.corpo=document.getElementById('f-corpo').value; renderModal(); toast(`SEO ${j.seo.score} · GEO ${j.geo.score}`); load(); }
     else toast('Erro: '+(j.error||'falhou'));
@@ -254,13 +253,13 @@ async function analisar() {
 
 async function excluir() {
   if (!cur.id || !confirm('Excluir este conteúdo?')) return;
-  await fetch('/api/content/'+cur.id, { method:'DELETE', headers:{'x-editor-token':TOKEN} });
+  await fetch('/api/content/'+cur.id, { method:'DELETE' });
   toast('Excluído'); closeModal(); load();
 }
 
 async function importRedatoria() {
   try {
-    const r = await fetch('/api/content/import-redatoria', { method:'POST', headers:{'x-editor-token':TOKEN} });
+    const r = await fetch('/api/content/import-redatoria', { method:'POST' });
     const j = await r.json();
     if (j.success) { toast(`✅ ${j.importados} importados (${j.total_redatoria} na Redatoria)`); load(); }
     else toast('Erro: '+(j.error||'falhou'));

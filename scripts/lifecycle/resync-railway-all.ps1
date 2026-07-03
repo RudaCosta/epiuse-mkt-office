@@ -5,7 +5,8 @@ $ErrorActionPreference = 'SilentlyContinue'
 $root = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 if (-not (Test-Path "$root\server.js")) { $root = 'C:\epiuse-mkt-office' }
 $RAILWAY = 'https://epiuse-voices-optimizer.up.railway.app'
-$token = 'eubr-voices-edit-2026'
+$token = $env:EDITOR_TOKEN
+if (-not $token) { Write-Host 'ERRO: variavel de ambiente EDITOR_TOKEN nao definida.' -ForegroundColor Red; exit 1 }
 $log = "$root\logs\resync-railway.log"
 $dir = Split-Path $log -Parent
 if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir | Out-Null }
