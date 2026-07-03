@@ -105,7 +105,7 @@ window.WORLD = {
     P.pMicBooth(g, 4*TS, 18.5*TS); P.pChair(g, 4.8*TS, 19.9*TS);
     P.pMicBooth(g, 9*TS, 18.5*TS); P.pChair(g, 9.8*TS, 19.9*TS);
     // Bullpen — mesas personalizadas (dados reais do office-desks.json)
-    const BULL = [['duda',20,13.5],['bruna',26,13.5],['gui',32,13.5],['isabela',20,18.5],['marlison',26,18.5],['ruda',32,18.5]];
+    const BULL = [['duda',20,13.5],['bruna',26,13.5],['gui',32,13.5],['fernanda',20,18.5],['marlison',26,18.5],['ruda',32,18.5]];
     for (const [id, bc, br] of BULL) { P.pDesk(g, bc*TS, br*TS, id); P.pChair(g, (bc+0.6)*TS, (br+1.2)*TS); }
     P.pWaterCooler(g, 38.8*TS, 20.6*TS);
     // Field — o quadro recebe post-its de eventos REAIS (eventsBoard)
@@ -185,6 +185,7 @@ window.WORLD = {
           title:'☕ Coffee Lounge', emoji:'☕', sub:'EPI-USE Voices · groupelephant.com',
           body:'Bem-vindo ao escritório virtual do marketing EPI-USE Brasil!\n\nSomos a maior consultoria SAP HCM/Payroll do Brasil, parte do grupo groupelephant.com — 4.500+ profissionais, 40+ países, SAP Gold Partner.\n\nO programa EPI-USE Voices transforma colaboradores em referências no LinkedIn. E todos os Voices são embaixadores do ERP.ngo: 1% da receita global do grupo vai pra conservação de elefantes e combate à pobreza rural na África.\n\nPega um café e explora o escritório! ☕' } },
       { id:'ideias',    px:23.2*TS, py:25.5*TS, r:90,  name:'💡 Mural de Ideias', tip:'Repositório de ideias do time', action:{type:'iframe', url:'/ideias'} },
+      { id:'memes',     px:30.5*TS, py:25.5*TS, r:78,  name:'😂 Parede de Memes', tip:'Folclore interno do Office', action:{type:'iframe', url:'/memes'} },
       { id:'recepcao',  px:27.5*TS, py:30*TS,   r:70,  name:'🛎️ Recepção', tip:'Como jogar', action:{type:'info',
           title:'🛎️ Recepção EPI-USE Office', emoji:'🛎️', sub:'Guia rápido · v3 Fable Edition',
           body:'🚶 Andar: WASD ou setas — ou clica/toca no chão que o avatar vai sozinho.\n\n⚡ Interagir: chega perto de mesa, TV, quadro ou COLEGA e aperta E.\n\n😄 Emotes: teclas 1-4 (👋 ❤️ 😄 🎉) — quem estiver online vê!\n\n🔍 Zoom: teclas + e − (0 reseta) ou pinça no celular.\n\n📋 Quest: visita as 11 salas pra completar o Giro do Escritório.\n\n💡 O escritório segue o horário REAL: café de manhã, almoço ao meio-dia, e à noite… olha as luzes.' } },
@@ -197,7 +198,7 @@ window.WORLD = {
           body:'Dê um passe especial: um elogio sincero pra alguém que merece!\n\n⭐ Cada elogio vale 10 pontos\n🎯 Cite uma atitude, resultado ou comportamento específico\n🚫 Não vale repetir o mesmo elogio pra mesma pessoa\n🎁 Sorteios semanais de brindes + os 3 Craques do Reconhecimento premiados no final\n\nAbrir o formulário e marcar seu GOL de PLACA?'} },
     ];
     // mesas do bullpen → cartão da pessoa (dados reais)
-    for (const [id, c, r] of [['duda',21,14.3],['bruna',27,14.3],['gui',33,14.3],['isabela',21,19.3],['marlison',27,19.3],['ruda',33,19.3]]) {
+    for (const [id, c, r] of [['duda',21,14.3],['bruna',27,14.3],['gui',33,14.3],['fernanda',21,19.3],['marlison',27,19.3],['ruda',33,19.3]]) {
       Z.push({ id:'desk-'+id, px:c*TS, py:r*TS, r:46, name:'Mesa', tip:'Ver perfil', action:{type:'person', id} });
     }
     return Z;
@@ -206,23 +207,23 @@ window.WORLD = {
   // NPCs — pessoas reais do time; falas curtas de personagem (tom, não dados)
   team: [
     { id:'duda',     px:21, py:14, room:'bullpen', pal:{hair:'#5b3a1e',skin:'#f5cfa6',shirt:'#cd1543',pants:'#334155'},
-      falas:['aprova comigo antes de postar 👀','consistência de marca é tudo ✨','já viu o brand guide novo?'] },
+      falas:['aprova comigo antes de postar 👀','consistência de marca é tudo ✨','já viu o brand guide novo?','esse Canva tá on 🎨','isso aqui vai pro brand guide','a marca fala por nós 💬','cor fora da paleta? nem pensar 🚫'] },
     { id:'bruna',    px:27, py:14, room:'bullpen', pal:{hair:'#0f172a',skin:'#e8b58a',shirt:'#2563eb',pants:'#1e3a5f'},
-      falas:['dado bom é dado limpo 🧹','o CRM agradece 🙏','bora segmentar essa base 🎯'] },
+      falas:['dado bom é dado limpo 🧹','o CRM agradece 🙏','bora segmentar essa base 🎯','dedup na base hoje 🧽','lead sem UTM me dói 😩','o funil não mente 📊','higiene de base é sagrado ✨'] },
     { id:'gui',      px:33, py:14, room:'bullpen', pal:{hair:'#27190e',skin:'#f5cfa6',shirt:'#10b981',pants:'#44403c'},
-      falas:['teste A/B rodando 🧪','SEO é maratona, não sprint 🏃','viu o CTR de hoje? 👀'] },
-    { id:'isabela',  px:21, py:19, room:'bullpen', pal:{hair:'#7c5a3a',skin:'#f5cfa6',shirt:'#f59e0b',pants:'#334155'},
-      falas:['evento chegando! 📅','já confirmou presença?','checklist do estande ✓'] },
+      falas:['teste A/B rodando 🧪','SEO é maratona, não sprint 🏃','viu o CTR de hoje? 👀','subiu o CPC, calma 📉','growth é experimento atrás de experimento 🔬','essa pauta vai ranquear 📈','otimiza e mede, sempre'] },
+    { id:'fernanda', px:21, py:19, room:'bullpen', pal:{hair:'#7c5a3a',skin:'#f5cfa6',shirt:'#f59e0b',pants:'#334155'},
+      falas:['evento chegando! 📅','já confirmou presença?','checklist do estande ✓','MDF aprovado, bora! 💰','roll-up impresso? ✅','logística de evento é arte 🎪','LATAM tá no radar 🌎','proof of performance depois do evento 📸'] },
     { id:'marlison', px:27, py:19, room:'bullpen', pal:{hair:'#0f172a',skin:'#c98e62',shirt:'#0d9488',pants:'#1e3a5f'},
-      falas:['cold call é arte ☎️','foco no C-Level 🎯','pipeline não dorme 💪'] },
+      falas:['cold call é arte ☎️','foco no C-Level 🎯','pipeline não dorme 💪','cadência no Apollo rodando 📨','CHRO, CIO, CFO — é com eles 👔','follow-up salva deal 🔁','high intent primeiro 🔥'] },
     { id:'roberto',  px:48, py:6,  room:'roberto', pal:{hair:'#94a3b8',skin:'#f5cfa6',shirt:'#334155',pants:'#0f172a'},
-      falas:['bem-vindo ao Brasil 🇧🇷','vamos crescer juntos 📈','o time tá voando ✈️'] },
+      falas:['VAI ARGENTINA! 🇦🇷','ARGENTINA VAI SER CAMPEÃ DA COPA! 🏆🇦🇷','EU AMO A ARGENTINA ❤️🇦🇷','vamos crescer juntos 📈','VAI ARGENTINA! 🇦🇷','ARGENTINA CAMPEÃ DO MUNDO! 🏆','EU AMO A ARGENTINA ❤️🇦🇷','o time tá voando ✈️'] },
     { id:'ormigo',   px:44, py:6,  room:'roberto', pal:{hair:'#27190e',skin:'#f5cfa6',shirt:'#131B41',pants:'#44403c'},
-      falas:['Stratview na área 🚀','Oracle, OCI e AI 🤖','dois negócios, um time 🤝'] },
+      falas:['Stratview na área 🚀','Oracle, OCI e AI 🤖','dois negócios, um time 🤝','Group Elephant no coração 🐘','HCM que transforma 💼'] },
     { id:'anderson', px:6,  py:15, room:'voices',  pal:{hair:'#27190e',skin:'#e8b58a',shirt:'#60a5fa',pants:'#334155'},
-      falas:['post novo no LinkedIn 🎙️','bora ser Voice também?'] },
+      falas:['post novo no LinkedIn 🎙️','bora ser Voice também?','o SSI subiu essa semana 📈','conteúdo é reputação 💬'] },
     { id:'carlos',   px:11, py:15, room:'voices',  pal:{hair:'#0f172a',skin:'#f5cfa6',shirt:'#60a5fa',pants:'#44403c'},
-      falas:['gravando um insight 🎙️','o LinkedIn não para 📱'] },
+      falas:['gravando um insight 🎙️','o LinkedIn não para 📱','engajamento orgânico é rei 👑','postei e já bombou 🚀'] },
   ],
 
   quest: {

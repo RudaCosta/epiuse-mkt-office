@@ -101,7 +101,7 @@ Em qualquer sessão nova, faça **NA ORDEM**:
 |---|---|---|
 | `area-intelligence` | Bruna | CRM, lead scoring, attribution, higiene de base, funil |
 | `area-growth` | Gui | mídia paga, SEO/pautas, LinkedIn growth, briefing agência |
-| `area-eventos` | Isabela | eventos BR/LATAM, MDF SAP, ativações, tática elefante |
+| `area-eventos` | Fernanda | eventos BR/LATAM, MDF SAP, ativações, tática elefante |
 | `area-pipeline` | Marlison | outbound Apollo, prospecção C-Level, sequências |
 | `area-brand` | Duda | identidade visual, Voices, Inbound, Cases, tom |
 | `area-conteudo` | Lisiane | artigos, curadoria, jornadas de compra por LOB |

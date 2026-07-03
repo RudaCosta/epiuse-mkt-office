@@ -676,10 +676,19 @@ function scheduledRoom(npc, h) {
 
 const npcs = [];
 function setupNPCs() {
+  // primeiro nome de quem está jogando — do nome digitado E do login SSO
+  // (assim um membro do time nunca vê um clone de si mesmo, mesmo com nome custom)
+  const selfNames = [];
+  if (player.name) selfNames.push(player.name.toLowerCase().split(' ')[0]);
+  if (ssoUser) {
+    const g = (ssoUser.given || ssoUser.name || '').toLowerCase().split(' ')[0];
+    if (g) selfNames.push(g);
+  }
   for (const t of (W.team || [])) {
     const meta = DESKS[t.id] || {};
     const nome = t.nome || meta.nome || t.id;
-    if (player.name && nome.toLowerCase().startsWith(player.name.toLowerCase().split(' ')[0])) continue;
+    const nomeLC = nome.toLowerCase();
+    if (selfNames.some(n => n && (nomeLC.startsWith(n) || t.id === n))) continue;
     npcs.push({
       id: t.id, nome, area: (t.area || meta.area || ''),
       x: t.px * TS, y: t.py * TS, dir: 'down', walkF: 0, walkT: 0, walkPhase: 0, moving: false,
