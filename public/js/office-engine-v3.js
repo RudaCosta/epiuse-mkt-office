@@ -363,7 +363,9 @@ function pWaterCooler(g, x, y) {
   g.fillStyle = '#bfdbfe'; g.fillRect(x+6, y, 12, 16);
   g.fillStyle = '#93c5fd'; g.fillRect(x+8, y+4, 8, 8);
 }
-// Trave de gol + bola (campanha Gol de Placa 🇧🇷)
+// Trave de gol (campanha Gol de Placa 🇧🇷) — a BOLA é dinâmica (chutável
+// com E): pintada por drawGoals() a cada frame, animada por kickGoal().
+const goals = [];
 function pGoal(g, x, y) {
   g.fillStyle = 'rgba(0,0,0,0.12)'; g.fillRect(x + 2, y + 44, 92, 5);        // sombra
   g.fillStyle = '#f8fafc';
@@ -371,10 +373,7 @@ function pGoal(g, x, y) {
   g.strokeStyle = 'rgba(226,232,240,0.75)'; g.lineWidth = 1;                 // rede
   for (let i = 1; i < 8; i++) { g.beginPath(); g.moveTo(x + 4 + i * 11, y + 4); g.lineTo(x + 4 + i * 11, y + 44); g.stroke(); }
   for (let j = 1; j < 5; j++) { g.beginPath(); g.moveTo(x + 4, y + 4 + j * 8); g.lineTo(x + 92, y + 4 + j * 8); g.stroke(); }
-  // bola na marca do pênalti
-  g.fillStyle = 'rgba(0,0,0,0.12)'; g.fillRect(x + 42, y + 62, 14, 3);
-  g.fillStyle = '#fff'; g.beginPath(); g.arc(x + 48, y + 56, 7, 0, Math.PI * 2); g.fill();
-  g.fillStyle = '#0f172a'; g.fillRect(x + 45, y + 53, 4, 4); g.fillRect(x + 50, y + 57, 3, 3);
+  if (!goals.some(gl => gl.x === x && gl.y === y)) goals.push({ x, y, phase: 'rest', t: 0, shake: 0 });
 }
 // NOVO v3: estande de exposição (mundo do colaborador)
 function pStand(g, x, y, emoji, accent) {
@@ -909,17 +908,20 @@ function runAction(z) {
       <div class="info-body">${escH(a.body)}</div>
       <div class="info-actions"><button class="info-btn pri" onclick="closeInfo()">Fechar</button></div>`);
   }
-  else if (a.type === 'confirm-external') {
-    openInfo(`
-      <div class="info-head"><div class="info-ava">${a.emoji || '↗'}</div>
-        <div><div class="info-title">${escH(a.title)}</div><div class="info-sub">${escH(a.sub || 'abre em nova aba')}</div></div></div>
-      <div class="info-body">${escH(a.body)}</div>
-      <div class="info-actions">
-        <button class="info-btn sec" onclick="closeInfo()">Agora não</button>
-        <button class="info-btn pri" data-url="${escH(a.url)}" onclick="window.open(this.dataset.url,'_blank');closeInfo()">Abrir ↗</button>
-      </div>`);
-  }
+  else if (a.type === 'confirm-external') openConfirmExternal(a);
+  else if (a.type === 'goal') kickGoal(z, a);   // ⚽ chuta a bola pro gol, depois abre o card
   else if (a.type === 'person') showPerson(a.id);
+}
+
+function openConfirmExternal(a) {
+  openInfo(`
+    <div class="info-head"><div class="info-ava">${a.emoji || '↗'}</div>
+      <div><div class="info-title">${escH(a.title)}</div><div class="info-sub">${escH(a.sub || 'abre em nova aba')}</div></div></div>
+    <div class="info-body">${escH(a.body)}</div>
+    <div class="info-actions">
+      <button class="info-btn sec" onclick="closeInfo()">Agora não</button>
+      <button class="info-btn pri" data-url="${escH(a.url)}" onclick="window.open(this.dataset.url,'_blank');closeInfo()">Abrir ↗</button>
+    </div>`);
 }
 
 function showPerson(id) {
@@ -1067,6 +1069,58 @@ function updateDecor(dt) {
     if (b.y > WH - 8) { b.y = WH - 8; b.a = -b.a; }
     if (b.y > 2.2*TS && b.y < 33.5*TS && b.x > 2*TS && b.x < 57.5*TS) b.y = b.y < 17*TS ? 1.4*TS : 34.4*TS;
   }
+  updateGoals(dt);
+}
+
+// ── GOL DE PLACA: bola chutável ────────────────────────────────────
+// rest = bola parada na marca do pênalti · fly = voando pro gol ·
+// net = balançando a rede; depois volta sozinha pro pênalti.
+const KICK_FLY = 0.55, KICK_NET = 1.6;
+function updateGoals(dt) {
+  for (const gl of goals) {
+    if (gl.phase === 'fly') {
+      gl.t += dt;
+      if (gl.t >= KICK_FLY) { gl.phase = 'net'; gl.t = 0; gl.shake = 1; }
+    } else if (gl.phase === 'net') {
+      gl.t += dt; gl.shake = Math.max(0, gl.shake - dt * 0.8);
+      if (gl.t >= KICK_NET) { gl.phase = 'rest'; gl.t = 0; }
+    }
+  }
+}
+function drawGoals() {
+  for (const gl of goals) {
+    let bx = gl.x + 48, by = gl.y + 56, r = 7;
+    if (gl.phase === 'fly') {
+      const k = Math.min(1, gl.t / KICK_FLY);
+      by = gl.y + 56 - 34 * k - Math.sin(k * Math.PI) * 12;  // sobe até a rede com arco
+      r = 7 - 2.5 * k;                                        // "afasta" (perspectiva)
+    } else if (gl.phase === 'net') {
+      bx += Math.sin(gl.t * 26) * gl.shake * 2.5;
+      by = gl.y + 22; r = 4.5;
+    }
+    const x = bx - cam.x, y = by - cam.y;
+    if (x < -30 || x > gc.clientWidth / Z + 30 || y < -30 || y > gc.clientHeight / Z + 30) continue;
+    if (gl.phase === 'rest') { ctx.fillStyle = 'rgba(0,0,0,0.12)'; ctx.fillRect(x - 6, y + 6, 13, 3); }
+    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#0f172a';
+    const s = r / 7;
+    ctx.fillRect(x - 3 * s, y - 3 * s, 4 * s, 4 * s); ctx.fillRect(x + 2 * s, y + 1 * s, 3 * s, 3 * s);
+  }
+}
+function kickGoal(z, a) {
+  let g0 = null, bd = 1e9;
+  for (const gl of goals) {
+    const d = Math.hypot(gl.x + 48 - z.px, gl.y + 56 - z.py);
+    if (d < bd) { bd = d; g0 = gl; }
+  }
+  if (!g0) { openConfirmExternal(a); return; }       // mundo sem trave — vai direto pro card
+  if (g0.phase !== 'rest') return;                    // bola ainda voltando — segura o replay
+  g0.phase = 'fly'; g0.t = 0;
+  setTimeout(() => {
+    sfx('win'); confettiBurst();
+    toast('⚽ GOOOOL DE PLACA! Agora manda teu elogio 🇧🇷');
+  }, KICK_FLY * 1000);
+  setTimeout(() => { if (!modalOpen && !infoOpen) openConfirmExternal(a); }, 1500);
 }
 
 function drawDecor() {
@@ -1100,6 +1154,7 @@ function drawDecor() {
     ctx.fillRect(x - wing - 2, y - 2, wing + 2, 4); ctx.fillRect(x + 1, y - 2, wing + 2, 4);
     ctx.fillStyle = '#44403c'; ctx.fillRect(x - 1, y - 3, 2, 6);
   }
+  drawGoals();
 }
 
 // TV com conteúdo REAL ciclando (versão · eventos · data especial · online)
