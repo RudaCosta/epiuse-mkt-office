@@ -61,6 +61,10 @@ try {
 } catch (e) {
   console.warn('[curva-abc] falha ao preparar tabelas:', e.message);
 }
+// migration idempotente: campos do cadastro manual (dono AE/SDR + notas livres)
+for (const _col of ['dono', 'notas']) {
+  try { db.exec(`ALTER TABLE curva_abc_contas ADD COLUMN ${_col} TEXT DEFAULT ''`); } catch (_e) { /* ja existe */ }
+}
 
 function slugConta(nome) {
   return String(nome || '')
@@ -252,13 +256,21 @@ router.post('/api/curva-abc/contas', requireAuth, (req, res) => {
   try {
     const nome = String(req.body?.nome_empresa || '').trim();
     const vertical = String(req.body?.vertical || '').trim();
+    const dono = String(req.body?.dono || '').trim().slice(0, 100);
+    const notas = String(req.body?.notas || '').trim().slice(0, 2000);
     if (!nome) return res.status(400).json({ success: false, error: 'nome_empresa é obrigatório' });
 
     const contaId = slugConta(nome);
     if (!contaId) return res.status(400).json({ success: false, error: 'nome_empresa inválido' });
 
-    const existente = db.prepare('SELECT conta_id FROM curva_abc_contas WHERE conta_id = ?').get(contaId);
-    if (existente) return res.status(409).json({ success: false, error: 'Já existe uma conta com esse nome. Use "Recalcular" pra atualizar os sinais dela.' });
+    const existente = db.prepare('SELECT nome_empresa, classificacao_final, fonte FROM curva_abc_contas WHERE conta_id = ?').get(contaId);
+    if (existente) {
+      return res.status(409).json({
+        success: false,
+        error: `"${existente.nome_empresa}" já está na base (tier ${existente.classificacao_final || '?'} · fonte: ${existente.fonte || '?'}). Use a busca pra encontrá-la ou "Recalcular" pra atualizar os sinais.`,
+        conta_id: contaId
+      });
+    }
 
     const lobsComCase = carregarLobsComCase();
     const doresPorLob = carregarDoresPorLob();
@@ -270,13 +282,44 @@ router.post('/api/curva-abc/contas', requireAuth, (req, res) => {
     const classificacao = classificar(fitScore, propensaoScore);
 
     db.prepare(`
-      INSERT INTO curva_abc_contas (conta_id, nome_empresa, fonte, vertical, fit_score, fit_sinais_json, propensao_score, propensao_sinais_json, classificacao_calculada, classificacao_final, atualizado_em)
-      VALUES (?, ?, 'manual', ?, ?, ?, ?, ?, ?, ?, datetime('now'))
-    `).run(contaId, nome, verticalTexto || null, fitScore, JSON.stringify(fitSinais), propensaoScore, JSON.stringify(propensaoSinais), classificacao, classificacao);
+      INSERT INTO curva_abc_contas (conta_id, nome_empresa, fonte, vertical, fit_score, fit_sinais_json, propensao_score, propensao_sinais_json, classificacao_calculada, classificacao_final, dono, notas, atualizado_em)
+      VALUES (?, ?, 'manual', ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+    `).run(contaId, nome, verticalTexto || null, fitScore, JSON.stringify(fitSinais), propensaoScore, JSON.stringify(propensaoSinais), classificacao, classificacao, dono, notas);
 
-    res.json({ success: true, conta_id: contaId });
+    // devolve a classificação na hora pro front mostrar o resultado sem re-fetch
+    res.json({
+      success: true,
+      conta: {
+        conta_id: contaId,
+        nome_empresa: nome,
+        classificacao,
+        fit_score: fitScore,
+        propensao_score: propensaoScore,
+        fit_sinais: fitSinais,
+        propensao_sinais: propensaoSinais,
+        sem_vertical: !vertical
+      }
+    });
   } catch (e) {
     res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+// ── API: verticais/LOBs reais do playbook (autocomplete do cadastro manual) ──
+// Cadastro com vertical que casa com o playbook = score mais fiel; texto livre
+// continua aceito, mas o front sugere primeiro as opções que o motor reconhece.
+router.get('/api/curva-abc/verticais', requireAuth, (req, res) => {
+  try {
+    const doPlaybook = (PLAYBOOK.lobs || []).map(l => l.nome).filter(Boolean);
+    let daBase = [];
+    try {
+      daBase = db.prepare("SELECT DISTINCT vertical FROM curva_abc_contas WHERE vertical IS NOT NULL AND vertical != ''").all()
+        .flatMap(r => r.vertical.split(',').map(v => v.trim())).filter(Boolean);
+    } catch (e) { /* ok */ }
+    const unicas = [...new Set([...doPlaybook, ...daBase])];
+    res.json({ verticais: unicas });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
   }
 });
 
