@@ -191,6 +191,18 @@ body {
     </p>
     <div id="pm-table"><p style="color:var(--text-muted);font-size:13px;padding:12px">Carregando…</p></div>
   </section>
+
+  <!-- ITENS INATIVOS NO MENU (removidos da navegação, ainda acessíveis por URL) -->
+  <section class="inactive-section" id="inactive-menu" style="margin-top:40px">
+    <div class="sec-head">
+      <div class="sec-h2"><span class="ic">🚫</span>Itens inativos no menu</div>
+      <span class="sec-count" id="inactive-count"></span>
+    </div>
+    <p style="font-size:12px;color:var(--text-muted);margin:-8px 0 14px">
+      Removidos da navegação por não estarem em uso (decisão do Rudá · 06/jul/2026). <b>Não foram deletados</b> — as telas seguem acessíveis pela URL direta e podem voltar ao menu quando quiser.
+    </p>
+    <div class="inactive-grid" id="inactive-grid"></div>
+  </section>
 </div>
 
 <office-footer></office-footer>
@@ -307,6 +319,32 @@ function shortTitle(s, max) {
     document.getElementById('pm-table').innerHTML = '<p style="color:#fca5a5;font-size:12px;padding:12px">Erro: ' + esc(e.message) + '</p>';
   }
 })();
+
+// Itens inativos no menu — fonte única em office-nav.js (window.OFFICE_NAV_INACTIVE),
+// com fallback estático caso o módulo do nav ainda não tenha carregado.
+(function renderInactive(tries){
+  const FALLBACK = [
+    { label: '🤖 Agentes & Contexto',       href: '/agentes' },
+    { label: '⚡ Central (pendências+prazos)', href: '/war-room' },
+    { label: '📄 PDF-QA (RAG)',             href: '/rag-panel' },
+    { label: '📊 Visão Executiva (CMO)',    href: '/executivo' },
+    { label: '💶 Development Funds (SAP)',   href: '/development-funds' },
+    { label: '📊 Planilhas (Live API)',     href: '/planilhas' }
+  ];
+  const list = (window.OFFICE_NAV_INACTIVE && window.OFFICE_NAV_INACTIVE.length) ? window.OFFICE_NAV_INACTIVE : ((tries||0) < 10 && !window.OFFICE_NAV_INACTIVE ? null : FALLBACK);
+  if (list === null) { setTimeout(() => renderInactive((tries||0)+1), 120); return; }
+  const grid = document.getElementById('inactive-grid');
+  const count = document.getElementById('inactive-count');
+  if (count) count.textContent = list.length + ' itens';
+  grid.innerHTML = list.map(it => `
+    <a href="${esc(it.href)}" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 14px;background:var(--bg-card-2);border:1px solid var(--border-light);border-radius:8px;text-decoration:none;color:var(--text-dim);font-size:13px;transition:border-color .15s" onmouseover="this.style.borderColor='var(--border)'" onmouseout="this.style.borderColor='var(--border-light)'">
+      <span>${esc(it.label)}</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--text-muted)">${esc(it.href)} →</span>
+    </a>`).join('');
+})(0);
 </script>
+<style>
+  .inactive-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:10px; }
+</style>
 </body>
 </html>

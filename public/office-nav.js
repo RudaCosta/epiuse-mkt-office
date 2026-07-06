@@ -160,9 +160,6 @@ const OFFICE_NAV_OVERFLOW = [
   { section: '🤖 Escritório Virtual' },
   { label: '🏢 Marketing Hub (portal)',  href: '/hub' },
   { label: '💡 Mural de Ideias',         href: '/ideias' },
-  { label: '🤖 Agentes & Contexto',      href: '/agentes' },
-  { label: '⚡ Central (pendências+prazos)', href: '/war-room' },
-  { label: '📄 PDF-QA (RAG)',            href: '/rag-panel' },
 
   { section: '📞 Biz Dev' },
   { label: '🤖 JARVIS — Copiloto SDR',   href: '/jarvis' },
@@ -170,15 +167,12 @@ const OFFICE_NAV_OVERFLOW = [
 
   { section: '📊 Reports & Análises' },
   { label: '🔗 LinkedIn Intelligence',   href: '/linkedin' },
-  { label: '📊 Visão Executiva (CMO)',   href: '/executivo' },
   { label: '📈 Relatório Mensal',        href: '/relatorio' },
-  { label: '💶 Development Funds (SAP)',  href: '/development-funds' },
   { label: '🗂️ Área de Clientes',        href: '/area-clientes' },
   { label: '📣 Field Marketing',         href: '/field-marketing' },
   { label: '✍️ Pipeline de Conteúdo',     href: '/content-pipeline' },
   { label: '🗺️ Jornadas de Compra',      href: '/jornadas' },
   { label: '📚 Artigos do Blog',         href: '/artigos' },
-  { label: '📊 Planilhas (Live API)',    href: '/planilhas' },
 
   { section: '🎙️ Voices & Optimizer' },
   { label: '🦝 Raccoon Studio',          href: '/raccoon' },
@@ -198,6 +192,21 @@ const OFFICE_NAV_OVERFLOW = [
   { label: '🧠 Memes do Office',         href: '/memes' },
   { label: '🐘 ERP.ngo',                 href: 'https://erp.ngo', external: true }
 ];
+
+// Itens REMOVIDOS do menu por decisão do Rudá (06/jul/2026) — NÃO deletados: as
+// rotas/telas seguem acessíveis por URL direta, só saíram da navegação por não
+// estarem em uso. A lista aparece também no final do /changelog ("Itens inativos").
+// Para reativar, é só devolver o item pro OFFICE_NAV_OVERFLOW na seção certa.
+const OFFICE_NAV_INACTIVE = [
+  { label: '🤖 Agentes & Contexto',       href: '/agentes' },
+  { label: '⚡ Central (pendências+prazos)', href: '/war-room' },
+  { label: '📄 PDF-QA (RAG)',             href: '/rag-panel' },
+  { label: '📊 Visão Executiva (CMO)',    href: '/executivo' },
+  { label: '💶 Development Funds (SAP)',   href: '/development-funds' },
+  { label: '📊 Planilhas (Live API)',     href: '/planilhas' }
+];
+// Fonte única para o /changelog listar os inativos
+try { window.OFFICE_NAV_INACTIVE = OFFICE_NAV_INACTIVE; } catch (e) {}
 
 class OfficeNav extends HTMLElement {
   constructor() {
