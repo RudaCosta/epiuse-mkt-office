@@ -1,11 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const path = require('path');
+const fs = require('fs');
 const { db, requireAuth, requireEditorToken } = require('../server-context');
 
 // Rota da página executiva (com autenticação obrigatória)
 router.get('/clientes-sap-4me', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, '../public/clientes-sap-4me.html'));
+});
+
+// Alias amigável — "Área de Clientes" é o nome público da mesma tela
+router.get('/area-clientes', requireAuth, (req, res) => {
+  res.redirect('/clientes-sap-4me');
 });
 
 // Sincronização via POST (Requer Token do Editor)
@@ -104,6 +110,183 @@ router.get('/api/clientes-sap-4me', requireAuth, (req, res) => {
       last_sync: last?.s || null,
     });
   } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── ÁREA DE CLIENTES — base de conhecimento + chat ─────────────────────────────
+// Municia os comerciais com números institucionais reais (slide + contexto interno)
+// e dados vivos (SAP 4 ME por país, cases publicáveis). Regra de ouro do escritório:
+// NUNCA inventar número — só responder com o que está na base/agregados, sempre com fonte.
+
+const KB_PATH = path.join(__dirname, '../public/api/area-clientes-kb.json');
+let _kbCache = null;
+let _kbMtime = 0;
+function loadKB() {
+  try {
+    const st = fs.statSync(KB_PATH);
+    if (!_kbCache || st.mtimeMs !== _kbMtime) {
+      _kbCache = JSON.parse(fs.readFileSync(KB_PATH, 'utf8'));
+      _kbMtime = st.mtimeMs;
+    }
+  } catch (e) {
+    console.warn('[area-clientes] falha ao carregar KB:', e.message);
+    _kbCache = _kbCache || { fontes: {}, itens: [] };
+  }
+  return _kbCache;
+}
+
+// Agregados vivos do SQLite (SAP 4 ME por país + etapa; cases publicáveis)
+function liveContext() {
+  const out = { sap4me: null, cases: [] };
+  try {
+    const all = db.prepare('SELECT pais, etapa FROM clientes_sap_4me').all();
+    if (all.length) {
+      const byPais = {}; const byEtapa = {};
+      for (const c of all) {
+        const p = c.pais || '(vazio)'; byPais[p] = (byPais[p] || 0) + 1;
+        const e = c.etapa || '(vazio)'; byEtapa[e] = (byEtapa[e] || 0) + 1;
+      }
+      out.sap4me = {
+        total: all.length,
+        por_pais: Object.entries(byPais).map(([label, count]) => ({ label, count })).sort((a, b) => b.count - a.count),
+        por_etapa: Object.entries(byEtapa).map(([label, count]) => ({ label, count })).sort((a, b) => b.count - a.count),
+      };
+    }
+  } catch (e) { /* tabela pode não existir ainda */ }
+  try {
+    out.cases = db.prepare("SELECT cliente_nome, lob, nps, case_resumo FROM cs_clientes WHERE case_publicavel = 1 AND case_resumo != '' ORDER BY cliente_nome").all();
+  } catch (e) { /* idem */ }
+  return out;
+}
+
+// Retrieval determinístico: pontua itens da KB por sobreposição de termos
+function normalize(s) {
+  return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+}
+function scoreItens(pergunta, itens) {
+  const q = normalize(pergunta);
+  const termos = q.split(/[^a-z0-9]+/).filter(t => t.length >= 3);
+  return itens.map(it => {
+    const hay = normalize([it.resposta, (it.tags || []).join(' '), it.categoria, it.valor].join(' '));
+    let score = 0;
+    for (const t of termos) if (hay.includes(t)) score += 1;
+    for (const tag of (it.tags || [])) if (q.includes(normalize(tag))) score += 2;
+    return { it, score };
+  }).filter(x => x.score > 0).sort((a, b) => b.score - a.score);
+}
+
+function fonteLabel(kb, key) {
+  return (kb.fontes && kb.fontes[key]) || key || 'fonte não informada';
+}
+
+// GET base de conhecimento (para a UI listar temas/atalhos)
+router.get('/api/area-clientes/kb', requireAuth, (req, res) => {
+  const kb = loadKB();
+  const live = liveContext();
+  res.json({
+    meta: kb._meta || {},
+    fontes: kb.fontes || {},
+    itens: (kb.itens || []).map(it => ({
+      id: it.id, categoria: it.categoria, resposta: it.resposta, valor: it.valor,
+      fonte: fonteLabel(kb, it.fonte), etiqueta: it.etiqueta, tela: it.tela
+    })),
+    live: {
+      sap4me_total: live.sap4me ? live.sap4me.total : null,
+      cases_publicaveis: live.cases.length,
+    },
+  });
+});
+
+// POST chat — resposta compilada com fontes. LLM grátis (Qwen via OpenRouter) quando
+// disponível; senão, fallback determinístico (retrieval) que direciona pra tela/fonte certa.
+router.post('/api/area-clientes/chat', requireAuth, async (req, res) => {
+  const pergunta = String(req.body?.pergunta || '').trim().slice(0, 500);
+  if (!pergunta) return res.status(400).json({ error: 'pergunta vazia' });
+
+  const kb = loadKB();
+  const live = liveContext();
+  const ranked = scoreItens(pergunta, kb.itens || []);
+  const top = ranked.slice(0, 6).map(x => x.it);
+
+  // Fontes citáveis dos itens que casaram
+  const sources = top.map(it => ({
+    label: it.resposta, valor: it.valor, fonte: fonteLabel(kb, it.fonte),
+    etiqueta: it.etiqueta, tela: it.tela,
+  }));
+
+  // Bloco de contexto vivo textual (SAP 4 ME por país + cases publicáveis)
+  let liveText = '';
+  if (live.sap4me) {
+    const topPaises = live.sap4me.por_pais.slice(0, 15).map(p => `${p.label}: ${p.count}`).join(' · ');
+    liveText += `\n[Projetos SAP 4 ME — dado vivo, tela /clientes-sap-4me] Total: ${live.sap4me.total}. Por país: ${topPaises}. Por etapa: ${live.sap4me.por_etapa.map(e => `${e.label}: ${e.count}`).join(' · ')}.`;
+  }
+  if (live.cases.length) {
+    liveText += `\n[Cases publicáveis — dado vivo, tela /cases] ${live.cases.slice(0, 10).map(c => `${c.cliente_nome} (${c.lob || 's/ LOB'}${c.nps ? ', NPS ' + c.nps : ''}): ${c.case_resumo}`).join(' | ')}`;
+  }
+
+  // Resposta determinística (fallback e base do prompt)
+  const fallbackAnswer = () => {
+    if (!top.length && !liveText) {
+      return 'Não encontrei esse número na base da Área de Clientes. Os dados disponíveis cobrem: clientes ativos (Brasil), colaboradores, países, implementações, NPS, receita recorrente, renovação de licenças, ERP.ngo, portfólio e projetos SAP 4 ME por país. Para o que faltar, levante com Intelligence/CRM (Zoho) ou na tela /clientes-sap-4me.';
+    }
+    const linhas = top.map(it => `• ${it.resposta}  —  ${it.etiqueta} · fonte: ${fonteLabel(kb, it.fonte)}${it.tela ? ' · ver em ' + it.tela : ''}`);
+    let ans = linhas.join('\n');
+    if (live.sap4me && /pais|país|latam|regiao|região|onde|global|mundo/.test(normalize(pergunta))) {
+      const topPaises = live.sap4me.por_pais.slice(0, 8).map(p => `${p.label}: ${p.count}`).join(' · ');
+      ans += `\n\n🌐 Projetos SAP 4 ME por país (dado vivo — /clientes-sap-4me): ${topPaises}.`;
+    }
+    return ans;
+  };
+
+  const orKey = process.env.OPENROUTER_API_KEY;
+  // Qwen grátis por padrão; override por AREA_CLIENTES_MODEL ou OPENROUTER_MODEL.
+  const model = process.env.AREA_CLIENTES_MODEL || 'qwen/qwen-2.5-72b-instruct:free';
+
+  if (!orKey) {
+    return res.json({ mode: 'retrieval', answer: fallbackAnswer(), sources, model: null,
+      nota: 'Chat determinístico (sem OPENROUTER_API_KEY). Configure a chave para respostas compiladas por IA.' });
+  }
+
+  // Contexto para o LLM: só os itens que casaram + agregados vivos. O modelo é
+  // instruído a NÃO inventar — se o número não estiver aqui, deve dizer que não tem.
+  const ctxItens = top.map(it => `- ${it.resposta} [valor: ${it.valor || '—'} | etiqueta: ${it.etiqueta} | fonte: ${fonteLabel(kb, it.fonte)}${it.tela ? ' | tela: ' + it.tela : ''}]`).join('\n');
+  const system = `Você é o assistente da "Área de Clientes" da EPI-USE Brasil, feito para municiar os comerciais com números institucionais REAIS.
+REGRAS RÍGIDAS:
+1. Responda em português do Brasil, direto e curto (o vendedor está com pressa).
+2. Use APENAS os dados do CONTEXTO abaixo. NUNCA invente, arredonde ou estime números que não estejam ali.
+3. Sempre cite a FONTE de cada número entre parênteses (ex.: "(fonte: slide institucional)").
+4. Se a informação pedida não estiver no contexto, diga claramente que não está disponível nesta base e sugira onde buscar (CRM/Zoho, Intelligence, ou a tela indicada). Não preencha com achismo.
+5. Quando houver uma tela relacionada, aponte o caminho (ex.: "ver em /clientes-sap-4me").
+6. Sempre escreva "EPI-USE Brasil", nunca só "EPI-USE".`;
+  const userMsg = `PERGUNTA DO COMERCIAL: ${pergunta}\n\nCONTEXTO (itens da base que casaram):\n${ctxItens || '(nenhum item específico casou)'}\n${liveText || ''}`;
+
+  try {
+    const orResp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${orKey}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://epiuse-mkt-office-production.up.railway.app',
+        'X-Title': 'EPI-USE Office - Area de Clientes',
+      },
+      body: JSON.stringify({
+        model, temperature: 0.2, max_tokens: 700,
+        messages: [{ role: 'system', content: system }, { role: 'user', content: userMsg }],
+      }),
+    });
+    if (!orResp.ok) {
+      const detail = await orResp.text().catch(() => '');
+      console.warn('[area-clientes-chat] OpenRouter', orResp.status, detail.slice(0, 200));
+      return res.json({ mode: 'retrieval', answer: fallbackAnswer(), sources, model: null,
+        nota: orResp.status === 429 ? 'Limite gratuito do modelo atingido — resposta determinística.' : `IA indisponível (status ${orResp.status}) — resposta determinística.` });
+    }
+    const data = await orResp.json();
+    const answer = ((data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '').trim();
+    if (!answer) return res.json({ mode: 'retrieval', answer: fallbackAnswer(), sources, model: null });
+    return res.json({ mode: 'llm', answer, sources, model });
+  } catch (e) {
+    console.warn('[area-clientes-chat] exceção:', e.message);
+    return res.json({ mode: 'retrieval', answer: fallbackAnswer(), sources, model: null, nota: 'Falha na IA — resposta determinística.' });
+  }
 });
 
 module.exports = router;

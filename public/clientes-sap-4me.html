@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Clientes SAP 4 ME · EPI-USE Office</title>
+<title>Área de Clientes · EPI-USE Office</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="/design-tokens.css">
 <link rel="stylesheet" href="/css/office-theme.css">
@@ -38,8 +38,34 @@
 .etapa-hold { background:rgba(251,191,36,.12); color:var(--yellow) }
 .tbl-count { font-size:11px; color:var(--muted); margin-top:8px; text-align:right }
 
+/* CHAT — ÁREA DE CLIENTES */
+.chat-panel { background:var(--panel,rgba(96,165,250,.04)); border:1px solid var(--border); border-radius:16px; padding:18px; margin-bottom:20px }
+.chat-panel h2 { display:flex; align-items:center; gap:8px; font-size:15px; margin-bottom:4px }
+.chat-panel .chat-sub { font-size:12px; color:var(--muted); margin-bottom:14px }
+.chat-log { display:flex; flex-direction:column; gap:12px; max-height:420px; overflow-y:auto; padding:4px 2px 12px }
+.chat-log:empty { display:none }
+.msg { max-width:88%; padding:11px 14px; border-radius:14px; font-size:13px; line-height:1.55; white-space:pre-wrap; word-break:break-word }
+.msg.user { align-self:flex-end; background:rgba(96,165,250,.16); border:1px solid rgba(96,165,250,.25); color:var(--text) }
+.msg.bot { align-self:flex-start; background:rgba(148,163,184,.07); border:1px solid var(--border); color:var(--text) }
+.msg.bot.thinking { color:var(--muted); font-style:italic }
+.msg .sources { margin-top:10px; padding-top:9px; border-top:1px dashed rgba(148,163,184,.18); display:flex; flex-direction:column; gap:6px }
+.msg .src { font-size:10.5px; color:var(--muted); display:flex; gap:6px; flex-wrap:wrap; align-items:baseline }
+.msg .src a { color:var(--accent); text-decoration:none }
+.msg .src a:hover { text-decoration:underline }
+.msg .mode-tag { display:inline-block; font-size:9.5px; font-weight:700; padding:1px 7px; border-radius:8px; margin-top:8px; letter-spacing:.03em }
+.mode-llm { background:rgba(16,185,129,.14); color:var(--green) }
+.mode-retrieval { background:rgba(251,191,36,.14); color:var(--yellow) }
+.chat-input-row { display:flex; gap:8px; margin-top:6px }
+.chat-input-row input { flex:1; background:rgba(96,165,250,.06); border:1px solid var(--border); color:var(--text); padding:11px 14px; border-radius:12px; font-family:inherit; font-size:13px }
+.chat-input-row input:focus { outline:none; border-color:var(--accent) }
+.chat-input-row button { white-space:nowrap }
+.chat-input-row button:disabled { opacity:.5; cursor:not-allowed }
+.chips { display:flex; gap:7px; flex-wrap:wrap; margin-top:12px }
+.chip { font-size:11px; padding:6px 12px; border-radius:20px; border:1px solid var(--border); background:rgba(148,163,184,.06); color:var(--muted); cursor:pointer; transition:all .15s }
+.chip:hover { border-color:var(--accent); color:var(--text) }
+
 @media print {
-  office-nav, office-footer, .hdr-actions, .filters, #loadBar { display:none !important }
+  office-nav, office-footer, .hdr-actions, .filters, #loadBar, .chat-panel { display:none !important }
   body { background:white; color:var(--surface-2,#1e293b) }
   .panel, .kpi, .tbl-wrap { background:white !important; border-color:var(--text,#e2e8f0) !important; break-inside:avoid }
   .kpi-val, .bar-val, .evt-date { color:var(--surface,#001844) !important }
@@ -53,12 +79,30 @@
 <div class="office-container" id="root">
   <div class="office-hdr">
     <div>
-      <h1>🌐 Clientes SAP 4 ME</h1>
-      <div class="sub">Projetos de nuvem SAP em todos os países EPI-USE · <span id="total-lbl">—</span></div>
+      <h1>🗂️ Área de Clientes</h1>
+      <div class="sub">Números institucionais para municiar os comerciais · SAP 4 ME global · <span id="total-lbl">—</span></div>
     </div>
     <div class="hdr-actions">
       <button class="btn" onclick="location.href='/relatorio'">📊 Relatório</button>
       <button class="btn primary" onclick="exportPDF()">⬇ PDF</button>
+    </div>
+  </div>
+
+  <div class="chat-panel">
+    <h2>💬 Pergunte à Área de Clientes</h2>
+    <div class="chat-sub">Números para armar sua conversa comercial — clientes, colaboradores, países, licenças, NPS, implementações. Toda resposta vem <b>com a fonte</b>. Se o dado não existir, o assistente diz onde buscar (nunca inventa número).</div>
+    <div class="chat-log" id="chatLog"></div>
+    <div class="chat-input-row">
+      <input id="chatInput" type="text" placeholder="Ex.: Quantos clientes ativos temos no Brasil?" autocomplete="off">
+      <button class="btn primary" id="chatSend" onclick="askChat()">Perguntar</button>
+    </div>
+    <div class="chips" id="chatChips">
+      <span class="chip" onclick="askChip(this)">Quantos clientes ativos no Brasil?</span>
+      <span class="chip" onclick="askChip(this)">Em quantos países atuamos?</span>
+      <span class="chip" onclick="askChip(this)">Quantas licenças temos globalmente?</span>
+      <span class="chip" onclick="askChip(this)">Qual o NPS e a taxa de renovação?</span>
+      <span class="chip" onclick="askChip(this)">Projetos SAP por país</span>
+      <span class="chip" onclick="askChip(this)">Quais projetos são referência?</span>
     </div>
   </div>
 
@@ -232,6 +276,66 @@ function exportPDF() {
     pagebreak:{mode:['css','legacy'],avoid:['.panel','.kpi']}
   }).from(document.getElementById('root')).save();
 }
+
+// ── CHAT — ÁREA DE CLIENTES ──────────────────────────────────────────────────
+let chatBusy = false;
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function addMsg(kind, html){
+  const log = document.getElementById('chatLog');
+  const div = document.createElement('div');
+  div.className = 'msg ' + kind;
+  div.innerHTML = html;
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+  return div;
+}
+
+function askChip(el){ document.getElementById('chatInput').value = el.textContent; askChat(); }
+
+async function askChat(){
+  if (chatBusy) return;
+  const inp = document.getElementById('chatInput');
+  const pergunta = inp.value.trim();
+  if (!pergunta) return;
+  chatBusy = true;
+  document.getElementById('chatSend').disabled = true;
+  addMsg('user', esc(pergunta));
+  inp.value = '';
+  const thinking = addMsg('bot thinking', 'Consultando a base…');
+
+  try {
+    const r = await fetch('/api/area-clientes/chat', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ pergunta })
+    });
+    const d = await r.json();
+    thinking.remove();
+    if (!r.ok) { addMsg('bot', '⚠️ ' + esc(d.error || 'Erro ao consultar.')); return; }
+
+    let srcHtml = '';
+    if (d.sources && d.sources.length){
+      srcHtml = '<div class="sources">' + d.sources.map(s => {
+        const tela = s.tela ? ` · <a href="${esc(s.tela)}">${esc(s.tela)}</a>` : '';
+        return `<div class="src"><span>${esc(s.etiqueta||'')}</span><span>fonte: ${esc(s.fonte||'')}${tela}</span></div>`;
+      }).join('') + '</div>';
+    }
+    const modeTag = d.mode === 'llm'
+      ? `<span class="mode-tag mode-llm">🤖 compilado por IA${d.model ? ' · ' + esc(d.model.split('/').pop()) : ''}</span>`
+      : `<span class="mode-tag mode-retrieval">📇 resposta direta da base</span>`;
+    const nota = d.nota ? `<div class="src" style="margin-top:6px">${esc(d.nota)}</div>` : '';
+    addMsg('bot', esc(d.answer).replace(/\n/g,'<br>') + srcHtml + modeTag + nota);
+  } catch(e){
+    thinking.remove();
+    addMsg('bot', '⚠️ Falha de conexão: ' + esc(e.message));
+  } finally {
+    chatBusy = false;
+    document.getElementById('chatSend').disabled = false;
+    inp.focus();
+  }
+}
+
+document.getElementById('chatInput').addEventListener('keydown', e => { if (e.key === 'Enter') askChat(); });
 
 load();
 </script>
