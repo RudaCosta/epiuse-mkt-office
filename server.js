@@ -266,7 +266,7 @@ try {
     ['ruda.costa@epiuse.com.br',        'Rudá Costa',         'head'],
     ['bruna.yamagami@epiuse.com.br',    'Bruna Yamagami',     'intelligence'],
     ['guilherme.marques@epiuse.com.br', 'Guilherme Marques',  'growth'],
-    // Fernanda Mattos (Field Marketing, entrou no lugar da Isabela em jul/2026)
+    // Fernanda Mattos Tavares (Field Marketing, entrou no lugar da Isabela em jul/2026)
     // entra via /admin/usuarios — email @epiuse ainda a confirmar; role 'field'.
     ['marlison.estrela@epiuse.com.br',  'Marlison Estrela',   'pipeline'],
     ['eduarda.hirose@epiuse.com.br',    'Eduarda Hirose',     'brand'],
@@ -647,6 +647,7 @@ app.use((req, res, next) => {
 const HUB_LOCK_PAGES = new Set([
   '/hub', '/game', '/game-hub', '/login', '/escolher-visao', '/brand',
   '/design', '/erp-impacto', '/seja-voice', '/artigos', '/optimizer',
+  '/optimizer-v3', '/voices/optimizer-v3',
   '/campanhas', '/brindes', '/hub/brindes', '/hub/solicitacao-brindes',
   '/hub/solicitar-brindes'
 ]);
