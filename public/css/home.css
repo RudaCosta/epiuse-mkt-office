@@ -745,9 +745,11 @@ html.js-loaded .home-section.visible { opacity: 1; transform: none; }
 
 /* ── MOBILE (R2 do review) ──────────────────────────────────────── */
 @media (max-width: 480px) {
+  .home-wrap { padding: 16px 12px 48px; }
   .home-areas-grid { grid-template-columns: 1fr; }
   .home-area-card { aspect-ratio: auto; min-height: 260px; }
   .home-hero { grid-template-columns: 1fr; }
+  .home-hero h1 { font-size: 21px; }
   .home-hero .chip-online { justify-self: start; }
 }
 

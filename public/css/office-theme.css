@@ -92,3 +92,45 @@ table.tbl tr:hover td { background:rgba(96,165,250,.04); }
   color:var(--text); padding:12px 18px; border-radius:10px; font-size:13px; z-index:300; display:none; }
 .load-bar { height:3px; background:linear-gradient(90deg,var(--navy),var(--red)); position:fixed; top:60px;
   left:0; right:0; z-index:100; transform:scaleX(0); transform-origin:left; transition:transform .4s; display:none; }
+
+/* ── MOBILE (v0.75 · melhoria geral de responsividade) ──────────────────────
+   Ajustes compartilhados por TODAS as telas que consomem este tema.
+   Evita zoom automático do iOS, quebra de palavras longas e overflow lateral. */
+html { -webkit-text-size-adjust:100%; }
+
+/* Tablet e telas médias */
+@media (max-width:900px){
+  .office-container { padding:18px 16px; }
+  .office-hdr h1 { font-size:21px; }
+  .kpi-grid { grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; }
+  /* Abas roláveis na horizontal em vez de quebrar em várias linhas */
+  .tabs { flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch; padding-bottom:2px; }
+  .tabs::-webkit-scrollbar { display:none; }
+  .tab { flex-shrink:0; }
+}
+
+/* Celular */
+@media (max-width:600px){
+  .office-body { padding-bottom:48px; }
+  .office-container { padding:14px 12px; }
+  .office-hdr { gap:10px; margin-bottom:14px; }
+  .office-hdr h1 { font-size:19px; line-height:1.25; }
+  .office-hdr .sub { font-size:12px; }
+  .hdr-actions, .office-hdr > div:last-child { flex-wrap:wrap; }
+  /* KPIs em 2 colunas confortáveis no telefone */
+  .kpi-grid { grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:16px; }
+  .kpi { padding:13px; }
+  .kpi-val { font-size:22px; }
+  .panel { padding:14px; border-radius:12px; }
+  /* Alvos de toque maiores */
+  .btn { padding:11px 15px; font-size:13px; }
+  .tab { padding:9px 14px; font-size:13px; }
+  /* Tabela mais compacta (o wrapper .tbl-wrap já rola na horizontal) */
+  table.tbl { font-size:11.5px; }
+  table.tbl th { padding:8px 10px; }
+  table.tbl td { padding:7px 10px; }
+  .bar-track { width:84px; }
+  .toast { left:14px; right:14px; bottom:14px; text-align:center; }
+  /* Nunca deixar palavra/URL longa estourar a largura */
+  .panel, .kpi, .flag, .bar-lbl { overflow-wrap:anywhere; }
+}
