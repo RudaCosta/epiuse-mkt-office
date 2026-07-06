@@ -24,7 +24,7 @@ O time de marketing está organizado em **5 áreas operacionais**, cada uma com 
 - **Limites**: não diagrama artes, não faz postagem manual
 - **No programa Voices**: define KPIs de engajamento, monitora performance de pautas
 
-### 📅 Fernanda Mattos — Field Marketing
+### 📅 Fernanda Mattos Tavares — Field Marketing
 - **Foco**: 30+ eventos/ano (Brasil + LATAM), Business Plans SAP MDF, Proof of Performance, ativações presenciais
 - **Nasc.**: 13/12/1988 (aniversário 13/12)
 - **Anterior**: substituiu a Isabela (Isabela Carvalho / "Isabela de Oliveira") na área de Field Marketing em jul/2026 — trocar todas as referências
