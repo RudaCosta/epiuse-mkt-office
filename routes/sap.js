@@ -205,9 +205,17 @@ router.post('/api/area-clientes/chat', requireAuth, async (req, res) => {
   const kb = loadKB();
   const live = liveContext();
   const ranked = scoreItens(pergunta, kb.itens || []);
-  const top = ranked.slice(0, 6).map(x => x.it);
+  // Objetividade (modo determinístico): responde SÓ o que foi perguntado — o item
+  // de MAIOR relevância, nada mais. O retrieval por keyword não consegue separar
+  // com segurança uma pergunta dupla real (ex. "NPS e renovação") de um vizinho que
+  // só compartilha tokens genéricos ("brasil", "licencas"), então não arrisca um 2º
+  // item aqui: perguntas compostas ficam cobertas pelo modo IA (Qwen), que lê todo
+  // o contexto. PISO de relevância (>=3): abaixo é ruído (1 termo casando por acaso,
+  // ex. "cor" dentro de "recorrente") → responde "não tenho".
+  const bestScore = ranked.length ? ranked[0].score : 0;
+  const top = bestScore >= 3 ? [ranked[0].it] : [];
 
-  // Fontes citáveis dos itens que casaram
+  // Fontes citáveis só dos itens realmente usados na resposta
   const sources = top.map(it => ({
     label: it.resposta, valor: it.valor, fonte: fonteLabel(kb, it.fonte),
     etiqueta: it.etiqueta, tela: it.tela,
@@ -223,16 +231,20 @@ router.post('/api/area-clientes/chat', requireAuth, async (req, res) => {
     liveText += `\n[Cases publicáveis — dado vivo, tela /cases] ${live.cases.slice(0, 10).map(c => `${c.cliente_nome} (${c.lob || 's/ LOB'}${c.nps ? ', NPS ' + c.nps : ''}): ${c.case_resumo}`).join(' | ')}`;
   }
 
-  // Resposta determinística (fallback e base do prompt)
+  // Pergunta é especificamente sobre projetos por país? (para anexar o dado vivo)
+  const perguntaPais = /pais|país|latam|regiao|região|onde atua|por pais|projetos sap/.test(normalize(pergunta));
+
+  // Resposta determinística: curta e direta. 1 item = frase única; vários = bullets enxutos.
   const fallbackAnswer = () => {
-    if (!top.length && !liveText) {
-      return 'Não encontrei esse número na base da Área de Clientes. Os dados disponíveis cobrem: clientes ativos (Brasil), colaboradores, países, implementações, NPS, receita recorrente, renovação de licenças, ERP.ngo, portfólio e projetos SAP 4 ME por país. Para o que faltar, levante com Intelligence/CRM (Zoho) ou na tela /clientes-sap-4me.';
+    if (!top.length && !(perguntaPais && live.sap4me)) {
+      return 'Não tenho esse número na base da Área de Clientes. Ele pode estar no CRM (Zoho) ou com o time de Intelligence — posso apontar o caminho se você disser qual dado exatamente.';
     }
-    const linhas = top.map(it => `• ${it.resposta}  —  ${it.etiqueta} · fonte: ${fonteLabel(kb, it.fonte)}${it.tela ? ' · ver em ' + it.tela : ''}`);
-    let ans = linhas.join('\n');
-    if (live.sap4me && /pais|país|latam|regiao|região|onde|global|mundo/.test(normalize(pergunta))) {
+    const linha = it => `${it.resposta} (${it.etiqueta} · fonte: ${fonteLabel(kb, it.fonte)}${it.tela ? ' · ' + it.tela : ''})`;
+    let ans = top.length === 1 ? linha(top[0]) : top.map(it => '• ' + linha(it)).join('\n');
+    if (perguntaPais && live.sap4me) {
       const topPaises = live.sap4me.por_pais.slice(0, 8).map(p => `${p.label}: ${p.count}`).join(' · ');
-      ans += `\n\n🌐 Projetos SAP 4 ME por país (dado vivo — /clientes-sap-4me): ${topPaises}.`;
+      const bloco = `🌐 Projetos SAP 4 ME por país (dado vivo — /clientes-sap-4me): ${topPaises}.`;
+      ans = ans ? ans + '\n\n' + bloco : bloco;
     }
     return ans;
   };
@@ -251,7 +263,7 @@ router.post('/api/area-clientes/chat', requireAuth, async (req, res) => {
   const ctxItens = top.map(it => `- ${it.resposta} [valor: ${it.valor || '—'} | etiqueta: ${it.etiqueta} | fonte: ${fonteLabel(kb, it.fonte)}${it.tela ? ' | tela: ' + it.tela : ''}]`).join('\n');
   const system = `Você é o assistente da "Área de Clientes" da EPI-USE Brasil, feito para municiar os comerciais com números institucionais REAIS.
 REGRAS RÍGIDAS:
-1. Responda em português do Brasil, direto e curto (o vendedor está com pressa).
+1. Responda em português do Brasil, EXCLUSIVAMENTE o que foi perguntado — 1 a 2 frases. Não liste dados que não foram pedidos, não faça introdução nem resumo do portfólio. Vendedor com pressa: dê o número e a fonte, nada mais.
 2. Use APENAS os dados do CONTEXTO abaixo. NUNCA invente, arredonde ou estime números que não estejam ali.
 3. Sempre cite a FONTE de cada número entre parênteses (ex.: "(fonte: slide institucional)").
 4. Se a informação pedida não estiver no contexto, diga claramente que não está disponível nesta base e sugira onde buscar (CRM/Zoho, Intelligence, ou a tela indicada). Não preencha com achismo.
