@@ -137,34 +137,21 @@ textarea:focus,select:focus,input:focus{outline:2px solid rgba(96,165,250,.5);ou
 
 <div class="wrap">
   <h1>🪪 Profile Optimizer <span class="badge v3">v3 · 21 skills · Groq Vision free</span></h1>
-  <div class="sub">Analisa perfil LinkedIn cobrindo <b>21 LinkedIn Skills</b>. Aceita screenshots do perfil <b>e/ou</b> transcrição de reunião com o Voice. Pipeline: <b>Redator (Llama 4 Scout Vision)</b> → <b>Revisor (Llama 3.3 70B)</b>. Output: kit + revisão + score.</div>
+  <div class="sub">Analisa perfil LinkedIn cobrindo <b>21 LinkedIn Skills</b>. Aceita screenshots do perfil <b>e/ou</b> transcrição de reunião com o Voice.</div>
 
   <div class="hero">
     <h2>🎯 Como funciona</h2>
     <div class="steps">
       <div class="step">
         <div class="step-n">1</div>
-        <div class="step-t">Pick o Voice (opcional)</div>
-        <div class="step-d">Pré-popula nome/cargo se cadastrado. Senão, IA detecta do perfil.</div>
-      </div>
-      <div class="step">
-        <div class="step-n">2</div>
         <div class="step-t">Manda input</div>
         <div class="step-d">Screenshots do perfil OU transcrição da reunião OU ambos. Quanto mais sinal, melhor.</div>
       </div>
       <div class="step">
-        <div class="step-n">3</div>
+        <div class="step-n">2</div>
         <div class="step-t">Recebe kit + SSI tracking</div>
         <div class="step-d">21 skills diagnosticadas, headline, sobre, featured, checklist. Sobe print do SSI pra acompanhar evolução.</div>
       </div>
-    </div>
-  </div>
-
-  <!-- VOICE PICKER -->
-  <div class="card">
-    <div class="card-h"><span class="ico">⭐</span> Voice (opcional)</div>
-    <div class="voices-row" id="vchips">
-      <div class="voice-chip active" data-slug=""><span class="ico">📄</span> Voice novo / não cadastrado</div>
     </div>
   </div>
 
@@ -225,7 +212,6 @@ textarea:focus,select:focus,input:focus{outline:2px solid rgba(96,165,250,.5);ou
   <div class="card">
     <div class="card-h"><span class="ico">📈</span> SSI Tracking <span class="badge">opcional · entra no kit</span></div>
     <div class="card-sub">Sobe print do Social Selling Index (<a href="https://linkedin.com/sales/ssi" target="_blank" style="color:var(--primary-light)">linkedin.com/sales/ssi</a>). Se subir aqui <b>antes de gerar o kit</b>, o SSI vai junto no relatório final + salva no histórico. Ou usa o botão abaixo pra extrair sozinho (só tracking).</div>
-    <div id="ssi-need-voice" style="font-size:12px;color:var(--yellow);margin-bottom:10px;display:none">⚠️ Sem Voice selecionado: SSI ainda é extraído e mostrado, mas não vai pro histórico.</div>
     <div class="upload" id="ssi-up">
       <input type="file" id="ssi-file" accept="image/jpeg,image/png,image/webp">
       <div style="font-size:22px">📊</div>
@@ -276,34 +262,9 @@ textarea:focus,select:focus,input:focus{outline:2px solid rgba(96,165,250,.5);ou
 <script>
 const $=id=>document.getElementById(id);
 const sel={screenshots:[],ambos:[]};
-let mode='screenshots',ssiFile=null,voices=[],activeVoice='';
-
-// ── Voices fetch ─────────────────────────────────────────────────────────────
-fetch('/api/voices').then(r=>r.ok?r.json():{voices:[]}).then(d=>{
-  voices=d.voices||[];
-  const row=$('vchips');
-  for(const v of voices){
-    const c=document.createElement('div');
-    c.className='voice-chip';
-    c.dataset.slug=v.id||v.slug;
-    c.innerHTML=`<span class="ico">⭐</span> ${esc(v.nome||v.id)}`;
-    row.appendChild(c);
-  }
-  row.addEventListener('click',e=>{
-    const chip=e.target.closest('.voice-chip');if(!chip)return;
-    row.querySelectorAll('.voice-chip').forEach(c=>c.classList.remove('active'));
-    chip.classList.add('active');
-    activeVoice=chip.dataset.slug;
-    if(activeVoice){
-      const v=voices.find(x=>(x.id||x.slug)===activeVoice);
-      if(v?.url_linkedin) $('url').value=v.url_linkedin;
-      else if(v?.linkedin_url) $('url').value=v.linkedin_url;
-    }
-    $('ssi-need-voice').style.display=activeVoice?'none':'block';
-    upd();
-  });
-  $('ssi-need-voice').style.display='block';
-}).catch(()=>{});
+let mode='screenshots',ssiFile=null,activeVoice='';
+// Picker de Voice removido — o kit roda sempre como perfil novo (sem voice_slug);
+// o SSI é extraído e mostrado, apenas não salva no histórico de um Voice.
 
 // ── Mode tabs ────────────────────────────────────────────────────────────────
 document.querySelectorAll('.mode-tab').forEach(t=>t.onclick=()=>{
