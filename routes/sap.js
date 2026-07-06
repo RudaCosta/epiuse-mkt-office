@@ -215,10 +215,11 @@ router.post('/api/area-clientes/chat', requireAuth, async (req, res) => {
   const bestScore = ranked.length ? ranked[0].score : 0;
   const top = bestScore >= 3 ? [ranked[0].it] : [];
 
-  // Fontes citáveis só dos itens realmente usados na resposta
+  // Fontes só dos itens realmente usados. `real` = dado confirmado (🟢) vs
+  // pendente de integração (⏳) → a UI mostra isso de forma discreta.
   const sources = top.map(it => ({
     label: it.resposta, valor: it.valor, fonte: fonteLabel(kb, it.fonte),
-    etiqueta: it.etiqueta, tela: it.tela,
+    etiqueta: it.etiqueta, tela: it.tela, real: /^\s*🟢/.test(it.etiqueta || ''),
   }));
 
   // Bloco de contexto vivo textual (SAP 4 ME por país + cases publicáveis)
@@ -239,8 +240,8 @@ router.post('/api/area-clientes/chat', requireAuth, async (req, res) => {
     if (!top.length && !(perguntaPais && live.sap4me)) {
       return 'Não tenho esse número na base da Área de Clientes. Ele pode estar no CRM (Zoho) ou com o time de Intelligence — posso apontar o caminho se você disser qual dado exatamente.';
     }
-    const linha = it => `${it.resposta} (${it.etiqueta} · fonte: ${fonteLabel(kb, it.fonte)}${it.tela ? ' · ' + it.tela : ''})`;
-    let ans = top.length === 1 ? linha(top[0]) : top.map(it => '• ' + linha(it)).join('\n');
+    // Só o dado — a procedência (real/pendente + fonte) aparece discreta na UI.
+    let ans = top.length === 1 ? top[0].resposta : top.map(it => '• ' + it.resposta).join('\n');
     if (perguntaPais && live.sap4me) {
       const topPaises = live.sap4me.por_pais.slice(0, 8).map(p => `${p.label}: ${p.count}`).join(' · ');
       const bloco = `🌐 Projetos SAP 4 ME por país (dado vivo — /clientes-sap-4me): ${topPaises}.`;
@@ -254,8 +255,8 @@ router.post('/api/area-clientes/chat', requireAuth, async (req, res) => {
   const model = process.env.AREA_CLIENTES_MODEL || 'qwen/qwen-2.5-72b-instruct:free';
 
   if (!orKey) {
-    return res.json({ mode: 'retrieval', answer: fallbackAnswer(), sources, model: null,
-      nota: 'Chat determinístico (sem OPENROUTER_API_KEY). Configure a chave para respostas compiladas por IA.' });
+    // Sem chave de IA é o modo normal da base — nada de aviso técnico pro comercial.
+    return res.json({ mode: 'retrieval', answer: fallbackAnswer(), sources, model: null });
   }
 
   // Contexto para o LLM: só os itens que casaram + agregados vivos. O modelo é
@@ -263,12 +264,11 @@ router.post('/api/area-clientes/chat', requireAuth, async (req, res) => {
   const ctxItens = top.map(it => `- ${it.resposta} [valor: ${it.valor || '—'} | etiqueta: ${it.etiqueta} | fonte: ${fonteLabel(kb, it.fonte)}${it.tela ? ' | tela: ' + it.tela : ''}]`).join('\n');
   const system = `Você é o assistente da "Área de Clientes" da EPI-USE Brasil, feito para municiar os comerciais com números institucionais REAIS.
 REGRAS RÍGIDAS:
-1. Responda em português do Brasil, EXCLUSIVAMENTE o que foi perguntado — 1 a 2 frases. Não liste dados que não foram pedidos, não faça introdução nem resumo do portfólio. Vendedor com pressa: dê o número e a fonte, nada mais.
+1. Responda em português do Brasil, EXCLUSIVAMENTE o que foi perguntado — 1 a 2 frases. Não liste dados que não foram pedidos, não faça introdução nem resumo do portfólio. Vendedor com pressa: dê o número, nada mais.
 2. Use APENAS os dados do CONTEXTO abaixo. NUNCA invente, arredonde ou estime números que não estejam ali.
-3. Sempre cite a FONTE de cada número entre parênteses (ex.: "(fonte: slide institucional)").
-4. Se a informação pedida não estiver no contexto, diga claramente que não está disponível nesta base e sugira onde buscar (CRM/Zoho, Intelligence, ou a tela indicada). Não preencha com achismo.
-5. Quando houver uma tela relacionada, aponte o caminho (ex.: "ver em /clientes-sap-4me").
-6. Sempre escreva "EPI-USE Brasil", nunca só "EPI-USE".`;
+3. NÃO cite a fonte nem etiquetas dentro do texto — a interface já mostra a procedência de forma discreta. Escreva só o dado, limpo.
+4. Se a informação pedida não estiver no contexto, diga claramente que não está disponível nesta base e sugira onde buscar (CRM/Zoho, Intelligence). Não preencha com achismo.
+5. Sempre escreva "EPI-USE Brasil", nunca só "EPI-USE".`;
   const userMsg = `PERGUNTA DO COMERCIAL: ${pergunta}\n\nCONTEXTO (itens da base que casaram):\n${ctxItens || '(nenhum item específico casou)'}\n${liveText || ''}`;
 
   try {
@@ -288,8 +288,8 @@ REGRAS RÍGIDAS:
     if (!orResp.ok) {
       const detail = await orResp.text().catch(() => '');
       console.warn('[area-clientes-chat] OpenRouter', orResp.status, detail.slice(0, 200));
-      return res.json({ mode: 'retrieval', answer: fallbackAnswer(), sources, model: null,
-        nota: orResp.status === 429 ? 'Limite gratuito do modelo atingido — resposta determinística.' : `IA indisponível (status ${orResp.status}) — resposta determinística.` });
+      // Degradou pra base silenciosamente — motivo técnico só no log, não pro comercial.
+      return res.json({ mode: 'retrieval', answer: fallbackAnswer(), sources, model: null });
     }
     const data = await orResp.json();
     const answer = ((data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '').trim();
@@ -297,7 +297,7 @@ REGRAS RÍGIDAS:
     return res.json({ mode: 'llm', answer, sources, model });
   } catch (e) {
     console.warn('[area-clientes-chat] exceção:', e.message);
-    return res.json({ mode: 'retrieval', answer: fallbackAnswer(), sources, model: null, nota: 'Falha na IA — resposta determinística.' });
+    return res.json({ mode: 'retrieval', answer: fallbackAnswer(), sources, model: null });
   }
 });
 

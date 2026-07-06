@@ -48,13 +48,15 @@
 .msg.user { align-self:flex-end; background:rgba(96,165,250,.16); border:1px solid rgba(96,165,250,.25); color:var(--text) }
 .msg.bot { align-self:flex-start; background:rgba(148,163,184,.07); border:1px solid var(--border); color:var(--text) }
 .msg.bot.thinking { color:var(--muted); font-style:italic }
-.msg .sources { margin-top:10px; padding-top:9px; border-top:1px dashed rgba(148,163,184,.18); display:flex; flex-direction:column; gap:6px }
-.msg .src { font-size:10.5px; color:var(--muted); display:flex; gap:6px; flex-wrap:wrap; align-items:baseline }
-.msg .src a { color:var(--accent); text-decoration:none }
-.msg .src a:hover { text-decoration:underline }
-.msg .mode-tag { display:inline-block; font-size:9.5px; font-weight:700; padding:1px 7px; border-radius:8px; margin-top:8px; letter-spacing:.03em }
-.mode-llm { background:rgba(16,185,129,.14); color:var(--green) }
-.mode-retrieval { background:rgba(251,191,36,.14); color:var(--yellow) }
+/* Procedência discreta: um ponto colorido + rótulo curto (detalhe no tooltip) */
+.msg .srcline { margin-top:9px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-size:10.5px; color:var(--muted) }
+.msg .srcdot { font-size:8px; line-height:1 }
+.msg .srcdot.ok { color:var(--green) }
+.msg .srcdot.pend { color:var(--yellow) }
+.msg .srctxt { cursor:default }
+.msg .srclink { color:var(--muted); text-decoration:none; opacity:.7 }
+.msg .srclink:hover { color:var(--accent); opacity:1 }
+.msg .srcnote { margin-top:5px; font-size:10px; color:var(--muted); opacity:.85 }
 .chat-input-row { display:flex; gap:8px; margin-top:6px }
 .chat-input-row input { flex:1; background:rgba(96,165,250,.06); border:1px solid var(--border); color:var(--text); padding:11px 14px; border-radius:12px; font-family:inherit; font-size:13px }
 .chat-input-row input:focus { outline:none; border-color:var(--accent) }
@@ -313,18 +315,23 @@ async function askChat(){
     thinking.remove();
     if (!r.ok) { addMsg('bot', '⚠️ ' + esc(d.error || 'Erro ao consultar.')); return; }
 
+    // Procedência discreta: ponto verde = dado real · amarelo = aguarda integração.
+    // Detalhe completo (fonte) fica no tooltip; link pra tela é opcional e sutil.
     let srcHtml = '';
     if (d.sources && d.sources.length){
-      srcHtml = '<div class="sources">' + d.sources.map(s => {
-        const tela = s.tela ? ` · <a href="${esc(s.tela)}">${esc(s.tela)}</a>` : '';
-        return `<div class="src"><span>${esc(s.etiqueta||'')}</span><span>fonte: ${esc(s.fonte||'')}${tela}</span></div>`;
-      }).join('') + '</div>';
+      const seen = new Set();
+      srcHtml = '<div class="srcline">' + d.sources.map(s => {
+        const real = (s.real != null) ? s.real : /🟢/.test(s.etiqueta||'');
+        const key = real ? 'ok' : 'pend';
+        if (seen.has(key)) return ''; seen.add(key);
+        const label = real ? 'dado real' : 'aguarda integração';
+        const tip = esc([s.fonte, s.tela].filter(Boolean).join(' · '));
+        const link = s.tela ? ` <a class="srclink" href="${esc(s.tela)}">abrir ↗</a>` : '';
+        return `<span class="srcdot ${key}">●</span><span class="srctxt" title="${tip}">${label}</span>${link}`;
+      }).join('&nbsp;&nbsp;') + '</div>';
     }
-    const modeTag = d.mode === 'llm'
-      ? `<span class="mode-tag mode-llm">🤖 compilado por IA${d.model ? ' · ' + esc(d.model.split('/').pop()) : ''}</span>`
-      : `<span class="mode-tag mode-retrieval">📇 resposta direta da base</span>`;
-    const nota = d.nota ? `<div class="src" style="margin-top:6px">${esc(d.nota)}</div>` : '';
-    addMsg('bot', esc(d.answer).replace(/\n/g,'<br>') + srcHtml + modeTag + nota);
+    const nota = d.nota ? `<div class="srcnote">${esc(d.nota)}</div>` : '';
+    addMsg('bot', esc(d.answer).replace(/\n/g,'<br>') + srcHtml + nota);
   } catch(e){
     thinking.remove();
     addMsg('bot', '⚠️ Falha de conexão: ' + esc(e.message));
