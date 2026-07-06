@@ -1,0 +1,223 @@
+{
+  "_meta": {
+    "titulo": "Base de conhecimento — Área de Clientes EPI-USE Brasil",
+    "descricao": "Números institucionais reais para municiar os comerciais. Cada item traz FONTE etiquetada (Regra 6/7 do escritório: nunca inventar número). Dados vivos (projetos SAP 4 ME por país, cases publicáveis) entram em runtime pelo backend a partir do SQLite.",
+    "atualizado_em": "2026-07-06",
+    "responsavel": "Marketing EPI-USE Brasil",
+    "regras": [
+      "Só usar números que estão nesta base ou nos agregados vivos injetados pelo backend.",
+      "Sempre citar a FONTE de cada número na resposta.",
+      "Se a informação não existir, dizer que não está disponível e apontar onde buscar — nunca estimar."
+    ]
+  },
+  "fontes": {
+    "slide": "Slide institucional EPI-USE Brasil (imagem enviada por Rudá em 06/jul/2026)",
+    "empresa_md": "vault/00-contexto/empresa.md (contexto interno do escritório)",
+    "sap4me": "Planilha 'clientes epiuse sap 4 me' → tela /clientes-sap-4me (dado vivo, sync via script)",
+    "cases": "Base de Cases (Customer Success) → tela /cases (só cases marcados como publicáveis)",
+    "gap": "Sem fonte oficial consolidada ainda — a integrar"
+  },
+  "itens": [
+    {
+      "id": "clientes-ativos-brasil",
+      "categoria": "clientes",
+      "tags": ["clientes", "ativos", "brasil", "br", "quantos clientes", "base de clientes"],
+      "resposta": "+140 clientes ativos no Brasil.",
+      "valor": "+140",
+      "fonte": "slide",
+      "etiqueta": "🟢 Dado real (slide institucional)",
+      "tela": "/clientes-sap-4me"
+    },
+    {
+      "id": "clientes-mundo",
+      "categoria": "clientes",
+      "tags": ["clientes", "mundo", "global", "grupo", "empresas atendidas", "quantos clientes no mundo"],
+      "resposta": "Globalmente o grupo (EPI-USE / Group Elephant) atende +2.000 das maiores empresas e organizações públicas do mundo.",
+      "valor": "+2.000",
+      "fonte": "empresa_md",
+      "etiqueta": "🟢 Dado real (contexto interno)",
+      "tela": null
+    },
+    {
+      "id": "clientes-latam",
+      "categoria": "clientes",
+      "tags": ["clientes", "latam", "latino", "america latina", "regiao", "quantos clientes latam"],
+      "resposta": "Não há um número oficial consolidado de 'clientes ativos LATAM' isolado. O proxy mais próximo é a contagem de projetos SAP 4 ME por país na tela /clientes-sap-4me (que inclui os países da região). Peça o recorte por país lá, ou levante com o time de Intelligence/CRM.",
+      "valor": null,
+      "fonte": "gap",
+      "etiqueta": "⏳ Aguarda integração (CRM/Zoho) — usar SAP 4 ME por país como proxy",
+      "tela": "/clientes-sap-4me"
+    },
+    {
+      "id": "colaboradores-brasil",
+      "categoria": "empresa",
+      "tags": ["colaboradores", "funcionarios", "time", "pessoas", "brasil", "quantos colaboradores brasil"],
+      "resposta": "+500 colaboradores no Brasil.",
+      "valor": "+500",
+      "fonte": "slide",
+      "etiqueta": "🟢 Dado real (slide institucional)",
+      "tela": null
+    },
+    {
+      "id": "colaboradores-global",
+      "categoria": "empresa",
+      "tags": ["colaboradores", "funcionarios", "global", "grupo", "mundo", "profissionais", "quantos colaboradores no mundo"],
+      "resposta": "+4.200 colaboradores no grupo (global). Obs.: o contexto interno (empresa.md) registra a marca '4.500+ profissionais' para o grupo global — vintages diferentes; use +4.200 do slide como número aprovado de marketing e +4.500 como referência de contexto.",
+      "valor": "+4.200",
+      "fonte": "slide",
+      "etiqueta": "🟢 Dado real (slide institucional) — ver nota de divergência",
+      "tela": null
+    },
+    {
+      "id": "marcas",
+      "categoria": "empresa",
+      "tags": ["marcas", "brands", "brand groups", "grupos de marcas", "quantas marcas"],
+      "resposta": "Mais de 20 marcas de sucesso no grupo. Obs.: empresa.md registra '10 grupos de marcas (brand groups)' — 'marcas' e 'grupos de marcas' são recortes diferentes.",
+      "valor": "+20",
+      "fonte": "slide",
+      "etiqueta": "🟢 Dado real (slide institucional) — ver nota de divergência",
+      "tela": null
+    },
+    {
+      "id": "implementacoes",
+      "categoria": "entrega",
+      "tags": ["implementacoes", "implementações", "projetos entregues", "go-lives historicos", "quantas implementacoes"],
+      "resposta": "+2.000 implementações realizadas.",
+      "valor": "+2.000",
+      "fonte": "slide",
+      "etiqueta": "🟢 Dado real (slide institucional)",
+      "tela": "/clientes-sap-4me"
+    },
+    {
+      "id": "nps-brasil",
+      "categoria": "satisfacao",
+      "tags": ["nps", "satisfacao", "net promoter", "nota", "brasil", "qual o nps"],
+      "resposta": "NPS médio 65 no Brasil.",
+      "valor": "65",
+      "fonte": "slide",
+      "etiqueta": "🟢 Dado real (slide institucional)",
+      "tela": "/cases"
+    },
+    {
+      "id": "paises",
+      "categoria": "empresa",
+      "tags": ["paises", "países", "presenca", "presença", "quantos paises", "onde atua"],
+      "resposta": "Presença em 42 países. Obs.: empresa.md registra '40+ países' — mesma ordem de grandeza, vintages diferentes.",
+      "valor": "42",
+      "fonte": "slide",
+      "etiqueta": "🟢 Dado real (slide institucional)",
+      "tela": "/clientes-sap-4me"
+    },
+    {
+      "id": "anos-mercado",
+      "categoria": "empresa",
+      "tags": ["anos", "idade", "fundacao", "desde", "tempo de mercado", "1983", "ha quanto tempo"],
+      "resposta": "42 anos de mercado (desde 1983).",
+      "valor": "42 anos",
+      "fonte": "slide",
+      "etiqueta": "🟢 Dado real (slide institucional)",
+      "tela": null
+    },
+    {
+      "id": "receita-recorrente",
+      "categoria": "financeiro",
+      "tags": ["receita recorrente", "recorrencia", "recurring", "assinaturas", "ams", "evolution", "taxa de receita"],
+      "resposta": "54% de taxa de receita recorrente atual (Assinaturas / AMS / Evolution).",
+      "valor": "54%",
+      "fonte": "slide",
+      "etiqueta": "🟢 Dado real (slide institucional)",
+      "tela": null
+    },
+    {
+      "id": "renovacao-licencas",
+      "categoria": "licencas",
+      "tags": ["renovacao", "renovação", "renewal", "licencas", "licenças", "taxa de renovacao", "retencao"],
+      "resposta": "97% de taxa de renovação de licenças.",
+      "valor": "97%",
+      "fonte": "slide",
+      "etiqueta": "🟢 Dado real (slide institucional)",
+      "tela": null
+    },
+    {
+      "id": "licencas-brasil",
+      "categoria": "licencas",
+      "tags": ["licencas brasil", "licenças brasil", "quantas licencas brasil", "numero de licencas br"],
+      "resposta": "Não há um número oficial consolidado de licenças ativas do Brasil nesta base. O que temos publicado é a taxa de renovação (97%). Para a quantidade absoluta, levante com o time de Licenças/Intelligence ou no CRM (Zoho).",
+      "valor": null,
+      "fonte": "gap",
+      "etiqueta": "⏳ Aguarda integração (Licenças/Zoho CRM)",
+      "tela": null
+    },
+    {
+      "id": "licencas-global",
+      "categoria": "licencas",
+      "tags": ["licencas global", "licenças global", "organizacoes licenciadas", "software licenciado", "quantas licencas mundo"],
+      "resposta": "Globalmente, +1.800 organizações com software licenciado do grupo.",
+      "valor": "+1.800",
+      "fonte": "empresa_md",
+      "etiqueta": "🟢 Dado real (contexto interno)",
+      "tela": null
+    },
+    {
+      "id": "erpngo",
+      "categoria": "proposito",
+      "tags": ["erp.ngo", "erpngo", "elefantes", "rinocerontes", "proposito", "propósito", "1%", "impacto social", "esg"],
+      "resposta": "1% da receita global do grupo é destinada à proteção de elefantes, rinocerontes e pessoas (iniciativa ERP.ngo). Todo Voice EPI-USE é embaixador do ERP.ngo.",
+      "valor": "1% da receita global",
+      "fonte": "slide",
+      "etiqueta": "🟢 Dado real (slide institucional)",
+      "tela": "/erp-impacto"
+    },
+    {
+      "id": "sap-gold-partner",
+      "categoria": "credencial",
+      "tags": ["sap gold partner", "gold partner", "parceria sap", "certificacao sap", "credencial"],
+      "resposta": "EPI-USE é SAP Gold Partner.",
+      "valor": "SAP Gold Partner",
+      "fonte": "slide",
+      "etiqueta": "🟢 Dado real (slide institucional)",
+      "tela": null
+    },
+    {
+      "id": "posicionamento",
+      "categoria": "empresa",
+      "tags": ["posicionamento", "quem somos", "especialidade", "hcm", "payroll", "consultoria sap"],
+      "resposta": "EPI-USE Brasil é a maior consultoria SAP especializada em HCM/Payroll do Brasil, em evolução para EPI-USE 5.0 (consultoria de Transformação Empresarial, não apenas SAP). Sempre usar 'EPI-USE Brasil' — nunca só 'EPI-USE'.",
+      "valor": null,
+      "fonte": "empresa_md",
+      "etiqueta": "🟢 Dado real (contexto interno)",
+      "tela": null
+    },
+    {
+      "id": "lobs",
+      "categoria": "portfolio",
+      "tags": ["lob", "lobs", "linhas de negocio", "portfolio", "solucoes", "o que vende", "produtos"],
+      "resposta": "Lines of Business: SAP HCM / SuccessFactors · SAP ERP / S/4HANA (RISE & GROW, foco Clean Core e Reforma Tributária) · SAP BTP · SAP Signavio · ServiceNow (HRSD/ITSM) · Analytics / Stratview · ERP.ngo (Terceiro Setor).",
+      "valor": null,
+      "fonte": "empresa_md",
+      "etiqueta": "🟢 Dado real (contexto interno)",
+      "tela": null
+    },
+    {
+      "id": "frentes-receita",
+      "categoria": "financeiro",
+      "tags": ["frentes de receita", "receita", "como ganha", "modelo de negocio", "licenca implementacao suporte desenvolvimento"],
+      "resposta": "4 frentes de receita: Licença (revenda/gestão de licenças SAP) · Implementação (implantação e go-live) · Suporte (AMS e sustentação pós-go-live) · Desenvolvimento (custom dev, ABAP, BTP, IPs).",
+      "valor": null,
+      "fonte": "empresa_md",
+      "etiqueta": "🟢 Dado real (contexto interno)",
+      "tela": null
+    },
+    {
+      "id": "bracos-grupo",
+      "categoria": "empresa",
+      "tags": ["bracos", "braços", "empresas do grupo", "labs", "stratview", "valcann", "estrutura"],
+      "resposta": "Braços do grupo no Brasil: EPI-USE Brasil (consultoria SAP) · EPI-USE Labs (P&D de IPs: DSM, XCODESEEKER, OmniPOS, Talentools) · Stratview (Analytics/Reporting) · Valcann (Infra e Cloud).",
+      "valor": null,
+      "fonte": "empresa_md",
+      "etiqueta": "🟢 Dado real (contexto interno)",
+      "tela": null
+    }
+  ],
+  "projetos_referencia_nota": "Os projetos de referência (cases publicáveis) são carregados AO VIVO pelo backend a partir da base de Cases (/cases). Só entram os marcados como publicáveis — nunca citar cliente sem aprovação (regra do escritório)."
+}

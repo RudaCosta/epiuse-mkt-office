@@ -173,7 +173,7 @@ const OFFICE_NAV_OVERFLOW = [
   { label: '📊 Visão Executiva (CMO)',   href: '/executivo' },
   { label: '📈 Relatório Mensal',        href: '/relatorio' },
   { label: '💶 Development Funds (SAP)',  href: '/development-funds' },
-  { label: '🌐 Clientes SAP 4 ME',       href: '/clientes-sap-4me' },
+  { label: '🗂️ Área de Clientes',        href: '/clientes-sap-4me' },
   { label: '📣 Field Marketing',         href: '/field-marketing' },
   { label: '✍️ Pipeline de Conteúdo',     href: '/content-pipeline' },
   { label: '🗺️ Jornadas de Compra',      href: '/jornadas' },
