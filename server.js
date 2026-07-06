@@ -589,6 +589,35 @@ if (SSO_ENABLED) {
   console.log('[sso] Microsoft SSO inativo (faltam credenciais ou modulo)');
 }
 
+// ── RE-HIDRATAÇÃO DE ROLE/PERSONA A PARTIR DO BANCO ───────────────────────────
+// O login (routes/auth.js) grava role/persona/admin na SESSÃO. Sem isto, uma
+// mudança no /admin/usuarios só valeria depois da pessoa deslogar e relogar
+// (a sessão viva mantém o role antigo). Aqui, a cada navegação de página,
+// relemos a linha do usuário no SQLite e sincronizamos a sessão — assim um
+// cadastro/edição de perfil passa a valer no PRÓXIMO carregamento, sem relogin.
+// Barato: 1 SELECT por PK (email) só em rotas dinâmicas (assets estáticos já
+// foram servidos por express.static acima e não chegam aqui). Seguro: se a
+// leitura falhar/retornar nulo (erro transitório ou usuário removido), NÃO
+// mexe na sessão — evita rebaixar o head por um erro momentâneo de DB.
+const { getUserByEmail: _rhGetUser, profileFor: _rhProfileFor } = require('./routes/users');
+app.use((req, res, next) => {
+  try {
+    const u = req.session && req.session.user;
+    if (u && u.email) {
+      const row = _rhGetUser(u.email);
+      if (row) {
+        const prof = _rhProfileFor(row);
+        if (u.role !== prof.role || u.persona !== prof.persona || u.admin !== prof.admin) {
+          u.role = prof.role;
+          u.persona = prof.persona;
+          u.admin = prof.admin;
+        }
+      }
+    }
+  } catch (_e) { /* nunca quebra a request por causa disto */ }
+  next();
+});
+
 // ── ENFORCEMENT GLOBAL (SSO_ENFORCE) ──────────────────────────────────────────
 // Exige login nas PÁGINAS (navegação humana) quando SSO_ENFORCE=true E o SSO
 // estiver configurado (env AZURE_*). requireAuth (server-context) já é seguro:
