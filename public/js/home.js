@@ -757,7 +757,7 @@
     posts_semana: '/inbound/calendar', content_aguardando: '/content-pipeline',
     voices_ativos: '/voices', apollo_contatos: '/pipeline', apollo_sequencias: '/pipeline',
     ga4_usuarios: '/relatorio', eventos_30d: '/field-marketing', capturas_pendentes: '/field-marketing',
-    golives_30d: '/clientes-sap-4me', sap_live: '/clientes-sap-4me', cases_publicaveis: '/cases',
+    golives_30d: '/area-clientes', sap_live: '/area-clientes', cases_publicaveis: '/cases',
     pipeline_mkt_sourced: '/executivo', receita_ganha: '/executivo', df_meta_pct: '/executivo',
   };
 
