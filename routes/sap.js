@@ -4,14 +4,14 @@ const path = require('path');
 const fs = require('fs');
 const { db, requireAuth, requireEditorToken } = require('../server-context');
 
-// Rota da página executiva (com autenticação obrigatória)
-router.get('/clientes-sap-4me', requireAuth, (req, res) => {
+// Rota da página (nome público: "Área de Clientes"). Auth obrigatória.
+router.get('/area-clientes', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, '../public/clientes-sap-4me.html'));
 });
 
-// Alias amigável — "Área de Clientes" é o nome público da mesma tela
-router.get('/area-clientes', requireAuth, (req, res) => {
-  res.redirect('/clientes-sap-4me');
+// Redirect da URL antiga → mantém links legados funcionando
+router.get('/clientes-sap-4me', requireAuth, (req, res) => {
+  res.redirect(301, '/area-clientes');
 });
 
 // Sincronização via POST (Requer Token do Editor)
