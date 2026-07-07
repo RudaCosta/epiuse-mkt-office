@@ -1,0 +1,54 @@
+# 🗺️ Plano — Programa de Revisão TOTAL de Conteúdo (F1–F7)
+
+> **Criado:** 07/jul/2026 (sessão de planejamento com Rudá) · **Status:** em execução
+> **Objetivo:** unificar a categorização de todo o conteúdo (blog · LinkedIn · calendário · pipeline · jornadas · RAG) na taxonomia mestra v1.1 — LOB × oferta × funil — com checkpoints humanos entre fases.
+> **Docs irmãos:** `auditoria-categorizacao-conteudo.md` (o porquê) · `taxonomia-conteudo.md` (o quê) · `public/api/taxonomia-conteudo.json` (fonte-máquina).
+
+---
+
+## Decisões que governam o programa (Rudá, 07/jul)
+
+1. **Q1:** Qualtrics e WFS = ofertas dentro de `hcm`.
+2. **Q2:** EPI-USE Labs/PRISM = LOB próprio `labs` → **10 LOBs canônicos**.
+3. **Q3:** Funil com **4 etapas** (`topo` `meio` `fundo` `pos`).
+4. **Método F3:** heurística por keywords + IA em lote etiquetada (`🤖 revisar`), campos Manus **read-only**.
+5. Regras do repo respeitadas sempre: **zero deploy Railway sem ordem explícita** · dados IA etiquetados (Regras 6/7) · vanilla JS · tokens de design.
+
+## Fases
+
+| # | Entrega | Status | Risco |
+|---|---|---|---|
+| **F1** | Taxonomia v1.1 (10 LOBs, ~44 ofertas, funil 4) + `taxonomia-conteudo.json` servido em `/api/taxonomia-conteudo.json` via express.static | ✅ 07/jul | nulo |
+| **F2** | Decisões Q1–Q3 congeladas | ✅ 07/jul (refinamentos nível 2 seguem abertos pra Bruna/Duda/Lisiane) | — |
+| **F3a** | Blindagens: `sync_artigos_blog.py` com merge-preserve por `id` (re-sync do Manus não destrói mais enriquecimento) · `build_artigos_scores.py` parou de mutar `etapa_funil` | ✅ 07/jul | nulo |
+| **F3b** | `build_artigos_taxonomia.py` — reclassificação dos 707 artigos, heurística **aplicada** | ✅ 07/jul — números abaixo | baixo (só adiciona campos) |
+| **F3c** | Fallback IA nos 311 sem LOB: `python scripts/sync/build_artigos_taxonomia.py --apply --ia` (precisa `ANTHROPIC_API_KEY`; claude-haiku-4-5, lotes de 20, slugs validados, etiqueta `ia`) | ⏳ rodar na máquina do Rudá | baixo |
+| **F3d** | Leitura canônica: filtros `?lob=&funil=&oferta=&metodo=` no `GET /api/artigos` · `/api/jornadas` v2 agrupando por `lob`×`funil` (10 LOBs sempre presentes, célula com contagem `pendente_revisao`) + `jornadas.html` no MESMO commit · selects canônicos + badge `🤖 revisar` em `artigos.html` | ⏳ próximo bloco de código | médio (muda shape do /api/jornadas) |
+| **F4** | LinkedIn: `sync_linkedin_posts.py` (lê BASE da planilha da Bruna, valida via aliases, report de valores sem mapa = ferramenta de conferência dela). Re-tag de funil (evento-cobertura=topo) é trabalho humano com a Bruna | ⏳ esqueleto + sessão com Bruna | nulo (só roda local) |
+| **F5** | Travar inputs: dropdown de slugs no `/content-pipeline` (substitui texto livre `f-pilar`) · coluna `editorial_calendar.lob` (ALTER idempotente) · endpoint admin `POST /api/admin/migrate-taxonomia?dry=1` (requireEditorToken) migrando `content_pipeline.lob` + `editorial_calendar` (só `fonte IN ('redatoria','raccoon')` — RD Station grava valores não-LOB em `pilar`) · escritores atualizados (`sync_redatoria_to_calendar.js` ganha `editoriaToLob()`, `import-redatoria`, espelho agendado, upsert calendar) · validação server-side só DEPOIS da migração | ⏳ | médio (migração antes da validação; `pilar` intocado = rollback trivial) |
+| **F6** | 7 jornadas faltantes (hcm, wfs/qualtrics como ofertas, btm, tech, cloud, ilab, ams, labs) via `pipe-briefing`, template das jornadas S/4HANA e ServiceNow da FY27 + Matriz Personas×Conteúdos preenchida | ⏳ | nulo |
+| **F7** | RAG/NotebookLM + JARVIS: metadados `lob`/`oferta`/`funil` nos documentos indexados; substituir `_postToLob()`/`_LOB_CANON` do `/api/linkedin/intelligence` pela leitura dos slugs canônicos | ⏳ | baixo |
+
+## F3b — Resultado real da 1ª aplicação (07/jul/2026)
+
+Heurística aplicada nos 707 artigos (`--apply`, sem IA ainda). **Dados reais do report `data/metas/artigos_reclassificacao.json`:**
+
+- **396 classificados** (56%): 337 por alias determinístico (confiança alta) + 59 por keywords (média)
+- **311 na fila IA/humana** (44%) — majoritariamente o balde "Estratégia & ESG (ERP.ngo)" cujos títulos não têm sinal de LOB
+- Distribuição LOB (classificados): hcm 150 · erp 93 · btm 50 · cloud 36 · institucional 26 · servicenow 20 · tech 13 · ilab 7 · ams 1
+- **Funil: 0 divergências** entre heurística de intenção e rótulo Manus — onde o título tem sinal claro de meio/fundo (42 casos), o Manus já tinha acertado. Ou seja: o excesso de Topo (597) é parte gap editorial REAL, parte títulos sem sinal — a separação final vem da fila IA + revisão humana
+- **Todos os 707 marcados `classificacao_pendente_revisao: true`** — nenhum número vira "real" sem revisão (Regra 7). Campos Manus 100% preservados; chaves legadas dos `agregados` recontadas e mantidas (artigos.html não quebra)
+
+## Invariantes técnicos (contrato — não violar)
+
+1. **Campos legados são read-only**: `linha_de_negocio`, `etapa_funil`, `oferta_especifica`, `linhas_de_negocio_multi`. Mutar quebra filtros exatos de `/api/artigos`, selects de `artigos.html`, `LOB_TO_LINHA` do `routes/jarvis.js` e `_ART_LOB` do server.
+2. **`classificacao_metodo: "humano"` nunca é sobrescrito** pelo script (idempotência + respeito à revisão humana).
+3. **Taxonomia = `public/api/taxonomia-conteudo.json`** — toda tela/script consome dali. Mudou LOB pai de uma oferta? Edita 1 linha no JSON + re-roda o script (idempotente).
+4. **`editorial_calendar.pilar` fica intocado** (UI do calendário + RD Station dependem); canônico entra na coluna nova `lob`.
+5. Server + página mudam **no mesmo commit** quando o shape de API muda (`/api/jornadas` v2 ↔ `jornadas.html`).
+
+## Checkpoints humanos restantes
+
+- 🙋 **Rudá:** rodar F3c (`--apply --ia`) na máquina com `ANTHROPIC_API_KEY` OU autorizar rodar em sessão remota; depois revisar a fila (`fila_revisao_sem_lob` do report + badge `🤖 revisar` nas telas).
+- 🙋 **Bruna:** validar de-para do LinkedIn + critério unificado de funil (evento-cobertura = topo) antes do re-tag dos 214 posts (F4).
+- 🙋 **Duda/Lisiane:** refinar ofertas nível 2 e keywords (edição direta no JSON, sem código).

@@ -1,35 +1,38 @@
-# 🏷️ Taxonomia Mestra de Conteúdo — v1 (DRAFT)
+# 🏷️ Taxonomia Mestra de Conteúdo — v1.1 (VIGENTE)
 
-> **Status:** 🤖 Proposta gerada em 07/jul/2026 — **pendente de validação** (Rudá + Bruna + Duda + Lisiane).
+> **Status:** ✅ v1.1 vigente — Q1/Q2/Q3 decididas pelo Rudá em 07/jul/2026. Refinamentos de nível 2 (ofertas/keywords) seguem abertos pra Bruna/Duda/Lisiane.
+> **Fonte pra máquinas:** `public/api/taxonomia-conteudo.json` (servido em `/api/taxonomia-conteudo.json`) — telas e scripts consomem o JSON; este .md é o documento humano. Editar um = refletir no outro.
 > **Escopo:** blog · LinkedIn · calendário editorial · content-pipeline · jornadas · RAG (NotebookLM) · réguas RD.
 > **Base:** slide oficial "Ofertas", planilha Estratégia FY27, GUIA_LOB LinkedIn, auditoria em `auditoria-categorizacao-conteudo.md`.
 > **Princípio:** slug estável em inglês/minúsculo pra máquina, rótulo PT-BR pra humano. Todo sistema consome os MESMOS slugs.
 
+## Decisões registradas (07/jul/2026 — Rudá)
+
+- **Q1:** Qualtrics e WFS = **ofertas dentro de `hcm`** (não LOBs próprios).
+- **Q2:** PRISM / EPI-USE Labs = **LOB próprio `labs`** → taxonomia tem **10 LOBs**.
+- **Q3:** Funil com **4 etapas** — `topo` · `meio` · `fundo` · `pos` (pós-venda/retenção/advocacy).
+- **Método F3:** reclassificação por heurística + IA em lote etiquetada (`classificacao_metodo`, `🤖 revisar`), campos Manus preservados.
+
 ---
 
-## Dimensão 1 — LOB canônico (9)
+## Dimensão 1 — LOB canônico (10)
 
-Alinhado ao slide oficial de Ofertas (9 blocos). AMS é cross-LOB; institucional cobre marca/ESG.
+Alinhado ao slide oficial de Ofertas + FY27 (Labs). AMS é cross-LOB; institucional cobre marca/ESG.
 
 | slug | Rótulo | Cobre | Personas núcleo |
 |---|---|---|---|
 | `erp` | Ecossistema SAP ERP | S/4HANA (Green/Brown/Bluefield), RISE, GROW, Conversão, Fábrica/Melhorias, Solução Fiscal, SAP DRC, Reforma Tributária | CEO, CFO, CIO, CTO, Dir. Operações |
-| `hcm` | Ecossistema SAP HCM | SFSF (EC, ECP, Talent, WFA, Admissão digital), Talentools, **WFS**, **Qualtrics EX** ⚠️ ver questão Q1 | CHRO, Ger. RH/DP, CIO, Analista RH/TI |
+| `hcm` | Ecossistema SAP HCM | SFSF (EC, ECP, Talent, WFA, Admissão digital), Talentools, **WFS**, **Qualtrics EX** (decisão Q1: ofertas de hcm) | CHRO, Ger. RH/DP, CIO, Analista RH/TI |
 | `tech` | Tecnologia (SAP BTP) | Integration Suite, SAP Build, SAC + Datasphere, AI Foundation/Joule, extensões, ABAP Cloud | CIO, CTO, Arquiteto SAP |
 | `btm` | Excelência de Processos | Signavio, LeanIX, WalkMe, Process Mining, CoE Processos, Arquitetura Empresarial | COO, CTO, CIO, Ger. Processos |
 | `servicenow` | ServiceNow | ITSM, ITOM, HRSD, SecOps, DevOps, CSM, IRM, Integração SAP↔SN | CIO, CISO, COO, CHRO, Ger. TI |
 | `cloud` | Cloud Intelligence (Valcann) | AWS, CloudOps, DevOps & SRE, Data & Analytics, AI/ML, FinOps, Aplicações de Negócio | CIO, CTO, Ger. Infra/Cloud |
 | `ilab` | iLab — Testes & Observabilidade | Automação de testes (Tricentis), QA, Grafana, Datadog | CIO, Ger. TI, PM SAP, QA Lead |
 | `ams` | AMS / Evolução | Sustentação N1-N3, evolutivo, extensão de equipe — **cross-LOB**: usar `ams` + tag da tecnologia | Ger. TI, CIO, CHRO |
+| `labs` | EPI-USE Labs (PRISM) | DSM (Client/Object Sync, System Builder), Query Manager, Data Transform, carve-out, Archive Central | CIO, Ger. TI, Arquiteto SAP, PM S/4 |
 | `institucional` | Institucional & Marca | Brand, cultura, employer branding, prêmios, **ESG/ERP.ngo**, **Elephants Rhinos & People**, eventos institucionais | Mercado, talentos, clientes |
 
 **Regra da sigla ERP (resolve colisão):** `erp` = SAP ERP, sempre. ERP.ngo e Elephants Rhinos & People → `institucional` com tags `erp-ngo` / `elephants-rhinos-people`. Nunca abreviar o projeto de conservação como "ERP" em classificação.
-
-### Questões em aberto (decidir antes de congelar v1)
-
-- **Q1 — Qualtrics e WFS:** oferta dentro de `hcm` (proposta atual, segue FY27 que lista os 3 como HCM) **ou** LOBs próprios (slide de Ofertas trata Qualtrics como bloco separado)? Impacto: metas editoriais e filtros.
-- **Q2 — EPI-USE Labs / PRISM:** FY27 tem como LOB (DSM, Query Manager, carve-out); GUIA_LOB e blog ignoram. Criar slug `labs` ou tratar como oferta de `erp`?
-- **Q3 — 4ª etapa de funil `pos`** (retenção/advocacy — cases de renovação AMS, comunidade): adotar ou manter 3?
 
 ---
 
@@ -53,8 +56,8 @@ Cada conteúdo pode ter **1 LOB primário + 1 oferta** (e LOBs secundários opci
 | `workforce-analytics` | hcm | Workforce Analytics / People Analytics |
 | `talentools` | hcm | Talentools |
 | `admissao-digital` | hcm | SFSF Admissão digital |
-| `wfs` | hcm ⚠️Q1 | WorkForce Software (Time & Attendance, escalas) |
-| `qualtrics-ex` | hcm ⚠️Q1 | Qualtrics EmployeeXM / iQ / XM Directory |
+| `wfs` | hcm | WorkForce Software (Time & Attendance, escalas) |
+| `qualtrics-ex` | hcm | Qualtrics EmployeeXM / iQ / XM Directory |
 | `integration-suite` | tech | Integration Suite (SAP↔SAP, SAP↔terceiros) |
 | `sap-build` | tech | SAP Build (low-code / automação) |
 | `sac-datasphere` | tech | SAP Analytics Cloud + Datasphere |
@@ -78,7 +81,9 @@ Cada conteúdo pode ter **1 LOB primário + 1 oferta** (e LOBs secundários opci
 | `observabilidade` | ilab | Grafana · Datadog |
 | `ams-suporte` | ams | Sustentação / AMS multi-nível |
 | `ams-evolutivo` | ams | Melhoria contínua / extensão de equipe |
-| `prism-dsm` | ⚠️Q2 | PRISM / EPI-USE Labs (DSM, Query Manager, carve-out) |
+| `prism-dsm` | labs | PRISM / DSM (Client Sync, Object Sync, System Builder, carve-out) |
+| `query-manager` | labs | Query Manager |
+| `data-transform` | labs | Data Transform · LT Posting · Variance Monitor · Archive Central |
 | `brand` | institucional | Brand awareness, prêmios, cultura |
 | `employer-branding` | institucional | Recrutamento, Life at EPI-USE |
 | `erp-ngo` | institucional | ESG · ERP.ngo · Elephants Rhinos & People |
@@ -90,7 +95,7 @@ Cada conteúdo pode ter **1 LOB primário + 1 oferta** (e LOBs secundários opci
 | `topo` | Topo — Aprendizado e Descoberta | Leitor descobrindo o problema. Sem menção comparativa a solução. **Cobertura de evento = topo** | blog educacional, tendências, poll, cultura, prêmios, foto de evento |
 | `meio` | Meio — Consideração e Avaliação | Leitor compara abordagens/parceiros | webinar, comparativo, metodologia, demo, case resumido, datasheet, **convite de evento com CTA de inscrição** |
 | `fundo` | Fundo — Decisão | Leitor decidindo com quem fechar | case detalhado, TCO/calculadora, assessment, POC, proposta, depoimento C-level |
-| `pos` ⚠️Q3 | Pós-venda — Retenção/Advocacy | Cliente atual | renovação AMS, comunidade, release notes |
+| `pos` | Pós-venda — Retenção/Advocacy | Cliente atual | renovação AMS, comunidade, release notes |
 
 **De-para dos 7 estágios do MODELO_CLASSIFICACAO:** Awareness, Engagement → `topo` · Consideration, Intent → `meio` · Conversion → `fundo` · Retention, Advocacy → `pos`.
 **De-para FY27:** Aprendizagem e Descoberta → `topo` · Consideração e Avaliação → `meio` · Decisão e Compra → `fundo` (siglas C/R/D idem).
@@ -137,8 +142,8 @@ rh→`hcm` · servicenow→`servicenow` · institucional→`institucional` · **
 
 | Fase | O quê | Como | Status |
 |---|---|---|---|
-| **F1** | Taxonomia v1 + auditoria documentadas | este doc + `auditoria-categorizacao-conteudo.md` | ✅ nesta entrega (draft) |
-| **F2** | Validar Q1-Q3 e congelar v1 | Rudá + Bruna + Duda + Lisiane | 🙋 humano |
+| **F1** | Taxonomia + auditoria documentadas + JSON fonte-máquina | este doc + `auditoria-categorizacao-conteudo.md` + `public/api/taxonomia-conteudo.json` | ✅ |
+| **F2** | Validar Q1-Q3 e congelar v1.1 | Rudá decidiu 07/jul (Bruna/Duda/Lisiane refinam nível 2) | ✅ |
 | **F3** | Re-classificar 707 artigos do blog | script (heurística keywords + batch IA) gera campos novos `lob`, `oferta`, `funil` no artigos.json **preservando** os campos Manus originais; saída etiquetada `🤖 revisar` | ⏳ |
 | **F4** | Re-taggear 214 posts LinkedIn com critério unificado de funil | com a Bruna, na planilha dela (evento-cobertura = topo) | ⏳ |
 | **F5** | Travar inputs | dropdown de slugs no `/content-pipeline` + migração `pilar` do SQLite via de-para | ⏳ |
@@ -147,4 +152,4 @@ rh→`hcm` · servicenow→`servicenow` · institucional→`institucional` · **
 
 ---
 
-*🤖 Documento gerado por IA em 07/jul/2026 — proposta v1 DRAFT. Slugs e de-para só viram fonte de verdade após validação humana (F2). Números citados vêm da auditoria (dados reais).*
+*v1.1 vigente desde 07/jul/2026 (decisões Q1-Q3 do Rudá). Plano de execução detalhado: `plano-revisao-conteudo.md`. Números citados vêm da auditoria (dados reais).*
