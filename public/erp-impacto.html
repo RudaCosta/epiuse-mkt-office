@@ -344,36 +344,14 @@
       padding: 48px 40px;
       display: flex;
       flex-direction: column;
-      align-items: flex-start;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
       gap: 16px;
     }
-    .erp-logo-mark {
-      background: rgba(255,255,255,.12);
-      border: 1px solid rgba(255,255,255,.2);
-      border-radius: 10px;
-      padding: 10px 16px;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .erp-logo-mark svg { width: 28px; height: 28px; color: #fff; }
-    .erp-logo-mark span { font-family: 'Maven Pro', sans-serif; font-size: 18px; font-weight: 800; color: #fff; letter-spacing: .04em; }
+    .erp-logo-img { height: 88px; width: auto; object-fit: contain; }
     .cta-left h2 { font-family: 'Maven Pro', sans-serif; font-size: 24px; font-weight: 800; color: #fff; line-height: 1.25; }
-    .cta-left p { font-size: 14px; color: rgba(255,255,255,.65); line-height: 1.6; }
-    .cta-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(255,255,255,.1);
-      color: rgba(255,255,255,.85);
-      border: 1px solid rgba(255,255,255,.15);
-      border-radius: 100px;
-      padding: 4px 14px;
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: .04em;
-    }
-    .cta-badge svg { width: 12px; height: 12px; }
+    .cta-left p { font-size: 14px; color: #869ec3; line-height: 1.6; }
 
     .cta-right {
       background: var(--surface);
@@ -385,8 +363,6 @@
     }
     .cta-right h3 { font-family: 'Maven Pro', sans-serif; font-size: 22px; font-weight: 800; color: var(--text); line-height: 1.3; }
     .cta-right p { font-size: 15px; color: var(--muted); line-height: 1.65; }
-    .cta-right .note { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--teal,#6ee7b7); font-weight: 600; }
-    .cta-right .note svg { width: 14px; height: 14px; flex-shrink: 0; }
 
     :focus-visible { outline: 2px solid var(--red-solid); outline-offset: 3px; }
   </style>
@@ -424,10 +400,6 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 3a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h14zm-.5 15.5v-5.3a3.26 3.26 0 00-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 011.4 1.4v4.93h2.79zM6.88 8.56a1.68 1.68 0 001.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 00-1.69 1.69c0 .93.76 1.68 1.69 1.68zm1.39 9.94v-8.37H5.5v8.37h2.77z"/></svg>
           Acompanhe nossas ações
         </a>
-        <a href="#impacto" class="btn btn-outline">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-          Ver impacto FY26
-        </a>
       </div>
     </div>
   </section>
@@ -449,12 +421,6 @@
 
     <!-- ── TAB 1: IMPACTO FY26 ── -->
     <div id="panel-parceria" class="tab-panel active" role="tabpanel" aria-labelledby="tab-parceria">
-      <header class="section-header">
-        <p class="section-eyebrow">FY26 · Ano fiscal em curso</p>
-        <h2 class="section-title">Canva de Impacto Projetado</h2>
-        <p class="section-sub">Cada linha representa o que nossos projetos conjuntos financiam diretamente nas operações de campo do ERP.ngo. Números da planilha oficial de estimativas de custo (Rudá V2).</p>
-      </header>
-
       <div class="impact-grid" id="grid-fy26" aria-label="Cards de impacto FY26"></div>
 
       <!-- Summary strip -->
@@ -477,9 +443,8 @@
     <!-- ── TAB 2: LEGADO ── -->
     <div id="panel-legado" class="tab-panel" role="tabpanel" aria-labelledby="tab-legado">
       <header class="section-header">
-        <p class="section-eyebrow">Histórico</p>
         <h2 class="section-title">Nosso Legado de Impacto</h2>
-        <p class="section-sub">Resultados consolidados da parceria EPI-USE × ERP.ngo — do resumo histórico global aos anos fiscais recentes.</p>
+        <p class="section-sub">Tudo o que a parceria entre a EPI-USE e o ERP.ngo já construiu, desde o começo da história até os anos fiscais mais recentes.</p>
       </header>
 
       <!-- Sub-tabs -->
@@ -498,7 +463,7 @@
         </div>
         <p class="infographic-note">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-          Infográfico oficial do ERP.ngo — impacto global consolidado de 2015 ao Q4 2023.
+          Infográfico oficial do ERP.ngo com o impacto global consolidado de 2015 ao Q4 2023.
         </p>
       </div>
 
@@ -514,26 +479,13 @@
     <!-- ── CTA SPLIT ─────────────────────────────────────────────── -->
     <div class="cta-split" role="complementary" aria-label="Apoie o projeto diretamente">
       <div class="cta-left">
-        <div class="erp-logo-mark">
-          <svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
-            <path d="M26 6c1.65 0 3 1.35 3 3v1.5c0 1.65-1.35 3-3 3h-1.5v3l3 4.5H4.5l3-4.5v-3H6C4.35 13.5 3 12.15 3 10.5V9c0-1.65 1.35-3 3-3h20zm-8 16.5v3m4-3v3M5.5 16v6h21v-6"/>
-          </svg>
-          <span>ERP.ngo</span>
-        </div>
-        <div class="cta-badge">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-          100% dos fundos vão para o campo
-        </div>
+        <img class="erp-logo-img" src="/img/erp/erp-ngo-branco.png" alt="ERP.ngo — Elephants, Rhinos & People" />
         <h2>Faça a diferença hoje.</h2>
-        <p>Sua contribuição adicional pode financiar operações imediatas de resgate de rinocerontes ou alimentar órfãos da comunidade Ndumo.</p>
+        <p>100% dos fundos vão para os programas de proteção e comunidade.</p>
       </div>
       <div class="cta-right">
         <h3>Apoie o projeto diretamente</h3>
-        <p>Junte-se à linha de frente da conservação. Cada real investido vai 100% para os programas de proteção de elefantes, rinocerontes e comunidade.</p>
-        <div class="note">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-          100% dos fundos vão para os programas
-        </div>
+        <p>Sua contribuição adicional pode financiar operações imediatas de resgate de rinocerontes ou alimentar órfãos da comunidade Ndumo. Junte-se à linha de frente.</p>
         <a href="https://www.erp.ngo/donations/general-donations" target="_blank" rel="noopener" class="btn btn-primary" style="margin-top:8px; align-self:flex-start;" aria-label="Fazer uma doação para o ERP.ngo (abre em nova aba)">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
           Fazer uma Doação
