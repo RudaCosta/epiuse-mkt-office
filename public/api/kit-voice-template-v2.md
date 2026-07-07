@@ -2,7 +2,7 @@
 
 > **V2 — método findskill.ai** com **5 variáveis estruturadas + transcrição opcional**, gerando o kit no padrão visual oficial Anderson Costa.
 >
-> **Como usar:** cola este arquivo INTEIRO · troca os `{{campos}}` por dados reais · cola no seu assistente de IA (ex.: [claude.ai](https://claude.ai/new)) dizendo *"renderiza como artifact"* · o assistente gera o HTML do kit · salva PDF dentro do artifact.
+> **Como usar:** cola este arquivo INTEIRO · troca os `{{campos}}` por dados reais · cola no seu assistente de IA dizendo *"renderiza como artifact"* · o assistente gera o HTML do kit · salva PDF dentro do artifact.
 
 ---
 
