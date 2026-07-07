@@ -2798,13 +2798,25 @@ function _readJSON(filePath, fallback = null) {
   }
 }
 
+// Taxonomia mestra de conteúdo (LOB × oferta × funil) — fonte única pra máquinas.
+// Doc humano: vault/00-contexto/conteudo/taxonomia-conteudo.md
+const TAXONOMIA_PATH = path.join(__dirname, 'public/api/taxonomia-conteudo.json');
+function readTaxonomia() {
+  return _readJSON(TAXONOMIA_PATH, { lobs: [], ofertas: [], funil: [], aliases: { lob: {}, funil: {}, oferta: {} } });
+}
+
 // GET /api/artigos?linha=X&etapa=Y&q=texto&voice=slug&status=reescrever&limit=50&offset=0
+// Filtros canônicos (taxonomia v1.1): ?lob=hcm&funil=meio&oferta=wfs&metodo=heuristica|ia|humano|pendente
 app.get('/api/artigos', (req, res) => {
   const data = _readJSON(ARTIGOS_JSON_PATH, { artigos: [], agregados: {} });
   let lista = data.artigos || [];
-  const { linha, etapa, q, voice, status, limit = 50, offset = 0 } = req.query;
+  const { linha, etapa, q, voice, status, lob, funil, oferta, metodo, limit = 50, offset = 0 } = req.query;
   if (linha) lista = lista.filter(a => a.linha_de_negocio === linha);
   if (etapa) lista = lista.filter(a => a.etapa_funil === etapa);
+  if (lob) lista = lista.filter(a => lob === 'null' ? !a.lob : a.lob === lob);
+  if (funil) lista = lista.filter(a => a.funil === funil);
+  if (oferta) lista = lista.filter(a => a.oferta === oferta);
+  if (metodo) lista = lista.filter(a => metodo === 'pendente' ? a.classificacao_pendente_revisao : a.classificacao_metodo === metodo);
   if (status) lista = lista.filter(a => a.status_reaproveitamento === status);
   if (voice) lista = lista.filter(a => a.voice_atribuido === voice || (a.favorito_voices || []).includes(voice));
   if (q) {
@@ -2823,29 +2835,58 @@ app.get('/api/artigos', (req, res) => {
   });
 });
 
-// GET /api/jornadas — matriz LOB × etapa funil com gaps
+// GET /api/jornadas — v2 (taxonomia canônica): matriz LOB slug × funil (topo|meio|fundo|pos)
+// Os 10 LOBs aparecem SEMPRE (mesmo com 0 artigos = gap visível). Artigos sem `lob`
+// entram no bucket nao_classificados (fila IA/humana — F3c).
 app.get('/api/jornadas', (req, res) => {
   const data = _readJSON(ARTIGOS_JSON_PATH, { artigos: [] });
-  const matriz = {};
-  for (const a of data.artigos || []) {
-    const lob = a.linha_de_negocio || 'Sem LOB';
-    const et = a.etapa_funil || 'Sem Etapa';
-    matriz[lob] = matriz[lob] || { 'Topo (Aprendizado)': [], 'Meio (Consideração)': [], 'Fundo (Decisão)': [] };
-    if (!matriz[lob][et]) matriz[lob][et] = [];
-    matriz[lob][et].push({ id: a.id, titulo: a.titulo, url: a.url });
+  const taxo = readTaxonomia();
+  const funilEtapas = (taxo.funil || []).map(f => f.slug);
+  const aliasLob = (taxo.aliases && taxo.aliases.lob) || {};
+
+  const porLob = {};
+  for (const l of taxo.lobs || []) {
+    porLob[l.slug] = { slug: l.slug, rotulo: l.rotulo, total: 0, pendentes: 0, etapas: {} };
+    for (const f of funilEtapas) porLob[l.slug].etapas[f] = { count: 0, artigos: [] };
   }
-  // Calcula gaps (LOB sem Meio ou sem Fundo)
+  const naoClassificados = { count: 0, artigos: [] };
+
+  for (const a of data.artigos || []) {
+    const lob = a.lob || aliasLob[a.linha_de_negocio] || null;
+    const funil = a.funil || 'topo';
+    if (!lob || !porLob[lob]) {
+      naoClassificados.count++;
+      if (naoClassificados.artigos.length < 10) naoClassificados.artigos.push({ id: a.id, titulo: a.titulo, url: a.url });
+      continue;
+    }
+    const row = porLob[lob];
+    row.total++;
+    if (a.classificacao_pendente_revisao) row.pendentes++;
+    const cell = row.etapas[funil] || (row.etapas[funil] = { count: 0, artigos: [] });
+    cell.count++;
+    if (cell.artigos.length < 5) cell.artigos.push({ id: a.id, titulo: a.titulo, url: a.url });
+  }
+
+  // Gaps: célula zerada = crítico · meio/fundo com <3 = insuficiente.
+  // `pos` (pós-venda) fica fora do cálculo de gap — etapa nova, base ainda não populada.
   const gaps = [];
-  for (const [lob, etapas] of Object.entries(matriz)) {
-    for (const [etapa, artigos] of Object.entries(etapas)) {
-      if (artigos.length === 0 && etapa !== 'Sem Etapa') {
-        gaps.push({ lob, etapa, situacao: 'crítico' });
-      } else if (artigos.length < 3 && etapa !== 'Topo (Aprendizado)') {
-        gaps.push({ lob, etapa, situacao: 'insuficiente', count: artigos.length });
-      }
+  for (const row of Object.values(porLob)) {
+    for (const f of funilEtapas) {
+      if (f === 'pos') continue;
+      const c = row.etapas[f].count;
+      if (c === 0) gaps.push({ lob: row.slug, rotulo: row.rotulo, etapa: f, situacao: 'crítico' });
+      else if (c < 3 && f !== 'topo') gaps.push({ lob: row.slug, rotulo: row.rotulo, etapa: f, situacao: 'insuficiente', count: c });
     }
   }
-  res.json({ success: true, matriz, gaps });
+
+  res.json({
+    success: true,
+    taxonomia_versao: taxo.versao,
+    funil: taxo.funil,
+    lobs: Object.values(porLob),
+    nao_classificados: naoClassificados,
+    gaps,
+  });
 });
 
 // ── Fonte ÚNICA do nº de seguidores (v0.46.0) ──────────────────────────────

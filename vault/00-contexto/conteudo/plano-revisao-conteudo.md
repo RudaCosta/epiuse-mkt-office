@@ -23,11 +23,20 @@
 | **F3a** | Blindagens: `sync_artigos_blog.py` com merge-preserve por `id` (re-sync do Manus não destrói mais enriquecimento) · `build_artigos_scores.py` parou de mutar `etapa_funil` | ✅ 07/jul | nulo |
 | **F3b** | `build_artigos_taxonomia.py` — reclassificação dos 707 artigos, heurística **aplicada** | ✅ 07/jul — números abaixo | baixo (só adiciona campos) |
 | **F3c** | Fallback IA nos 311 sem LOB: `python scripts/sync/build_artigos_taxonomia.py --apply --ia` (precisa `ANTHROPIC_API_KEY`; claude-haiku-4-5, lotes de 20, slugs validados, etiqueta `ia`) | ⏳ rodar na máquina do Rudá | baixo |
-| **F3d** | Leitura canônica: filtros `?lob=&funil=&oferta=&metodo=` no `GET /api/artigos` · `/api/jornadas` v2 agrupando por `lob`×`funil` (10 LOBs sempre presentes, célula com contagem `pendente_revisao`) + `jornadas.html` no MESMO commit · selects canônicos + badge `🤖 revisar` em `artigos.html` | ⏳ próximo bloco de código | médio (muda shape do /api/jornadas) |
+| **F3d** | Leitura canônica: filtros `?lob=&funil=&oferta=&metodo=` no `GET /api/artigos` · `/api/jornadas` v2 agrupando por `lob`×`funil` (10 LOBs sempre presentes, `pos` fora do cálculo de gap, fila de não-classificados exposta) + `jornadas.html` no MESMO commit · selects canônicos + badge `🤖 revisar` em `artigos.html` | ✅ 07/jul (lógica validada com dados reais; validação visual pendente no localhost — server não roda no ambiente remoto por falta dos node_modules off-repo) | médio (mitigado: filtros legados `?linha/?etapa` preservados) |
 | **F4** | LinkedIn: `sync_linkedin_posts.py` (lê BASE da planilha da Bruna, valida via aliases, report de valores sem mapa = ferramenta de conferência dela). Re-tag de funil (evento-cobertura=topo) é trabalho humano com a Bruna | ⏳ esqueleto + sessão com Bruna | nulo (só roda local) |
 | **F5** | Travar inputs: dropdown de slugs no `/content-pipeline` (substitui texto livre `f-pilar`) · coluna `editorial_calendar.lob` (ALTER idempotente) · endpoint admin `POST /api/admin/migrate-taxonomia?dry=1` (requireEditorToken) migrando `content_pipeline.lob` + `editorial_calendar` (só `fonte IN ('redatoria','raccoon')` — RD Station grava valores não-LOB em `pilar`) · escritores atualizados (`sync_redatoria_to_calendar.js` ganha `editoriaToLob()`, `import-redatoria`, espelho agendado, upsert calendar) · validação server-side só DEPOIS da migração | ⏳ | médio (migração antes da validação; `pilar` intocado = rollback trivial) |
 | **F6** | 7 jornadas faltantes (hcm, wfs/qualtrics como ofertas, btm, tech, cloud, ilab, ams, labs) via `pipe-briefing`, template das jornadas S/4HANA e ServiceNow da FY27 + Matriz Personas×Conteúdos preenchida | ⏳ | nulo |
 | **F7** | RAG/NotebookLM + JARVIS: metadados `lob`/`oferta`/`funil` nos documentos indexados; substituir `_postToLob()`/`_LOB_CANON` do `/api/linkedin/intelligence` pela leitura dos slugs canônicos | ⏳ | baixo |
+
+## F3d — Mapa de gaps REAL (pós-taxonomia, 07/jul/2026)
+
+Com a matriz canônica, o gap editorial ficou acionável (15 lacunas nos 396 já classificados — os 311 da fila IA podem mudar esses números):
+
+- **`labs`**: 0 artigos em TODAS as etapas (LOB novo — Q2) → pauta do zero
+- **`ams`**: meio e fundo zerados (1 artigo total, sendo AMS a linha com 97% de renovação!)
+- **Fundo crítico** (0 artigos): `tech` · `servicenow` · `ilab` · `institucional`
+- **Insuficiente** (<3): tech/meio 1 · btm/fundo 2 · servicenow/meio 1 · cloud/fundo 2 · ilab/meio 1
 
 ## F3b — Resultado real da 1ª aplicação (07/jul/2026)
 
