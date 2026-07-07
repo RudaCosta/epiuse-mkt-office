@@ -236,6 +236,12 @@ db.exec(`
 for (const _col of ['carrossel_json', 'capa_url']) {
   try { db.exec(`ALTER TABLE content_pipeline ADD COLUMN ${_col} TEXT DEFAULT ''`); } catch (_e) { /* ja existe */ }
 }
+// migration idempotente (jul/2026 — taxonomia v1.1): LOB canônico no calendário.
+// `pilar` fica INTOCADO (UI do calendário + RD Station gravam valores não-LOB nele);
+// o slug canônico vive na coluna nova `lob`. Migração: POST /api/admin/migrate-taxonomia.
+try { db.exec(`ALTER TABLE editorial_calendar ADD COLUMN lob TEXT DEFAULT ''`); } catch (_e) { /* ja existe */ }
+// oferta canônica opcional no pipeline de conteúdo
+try { db.exec(`ALTER TABLE content_pipeline ADD COLUMN oferta TEXT DEFAULT ''`); } catch (_e) { /* ja existe */ }
 
 // ── USERS & ROLES (SSO Microsoft) ─────────────────────────────────────────────
 // Fonte de verdade do perfil/role de cada pessoa que loga via SSO.
@@ -2305,14 +2311,21 @@ app.get('/api/content', (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// LOB precisa ser slug canônico (taxonomia v1.1) — valida contra /api/taxonomia-conteudo.json
+function _lobValido(slug) {
+  if (!slug) return true; // vazio é permitido (item ainda não classificado)
+  return (readTaxonomia().lobs || []).some(l => l.slug === slug);
+}
+
 app.post('/api/content', requireEditorToken, (req, res) => {
   try {
     const b = req.body || {};
     if (!b.titulo) return res.status(400).json({ success: false, error: 'titulo obrigatório.' });
-    
+    if (b.lob && !_lobValido(b.lob)) return res.status(400).json({ success: false, error: `lob inválido: '${b.lob}' — use slug canônico da taxonomia (/api/taxonomia-conteudo.json).` });
+
     // Generate unique external_id if not present
     const extId = b.external_id || `rax-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-    
+
     // 1. Insert into content_pipeline with all generated details
     const r = db.prepare(`
       INSERT INTO content_pipeline (
@@ -2357,6 +2370,10 @@ app.put('/api/content/:id', requireEditorToken, (req, res) => {
     if (!ex) return res.status(404).json({ success: false, error: 'item não encontrado.' });
     const b = req.body || {};
     if (b.estado && !CONTENT_ESTADOS.includes(b.estado)) return res.status(400).json({ success: false, error: 'estado inválido.' });
+    // valida LOB só quando MUDOU — item legado pode ser salvo sem mexer no LOB
+    if (b.lob != null && b.lob !== ex.lob && !_lobValido(b.lob)) {
+      return res.status(400).json({ success: false, error: `lob inválido: '${b.lob}' — use slug canônico da taxonomia.` });
+    }
     const m = {
       id,
       titulo: b.titulo ?? ex.titulo, tema_keyword: b.tema_keyword ?? ex.tema_keyword,
@@ -2378,16 +2395,17 @@ app.put('/api/content/:id', requireEditorToken, (req, res) => {
     if (m.estado === 'agendado' && m.agendado_para) {
       const calExtId = ex.external_id || `rax-content-${id}`;
       db.prepare(`
-        INSERT INTO editorial_calendar (external_id, fonte, data, canal, autor, titulo, resumo, pilar, status, url_post, synced_at)
-        VALUES (@external_id,'raccoon',@data,@canal,@autor,@titulo,@resumo,@pilar,'planned','',datetime('now'))
+        INSERT INTO editorial_calendar (external_id, fonte, data, canal, autor, titulo, resumo, pilar, lob, status, url_post, synced_at)
+        VALUES (@external_id,'raccoon',@data,@canal,@autor,@titulo,@resumo,@pilar,@lob,'planned','',datetime('now'))
         ON CONFLICT(external_id) DO UPDATE SET data=excluded.data, canal=excluded.canal, autor=excluded.autor,
-          titulo=excluded.titulo, resumo=excluded.resumo, pilar=excluded.pilar, synced_at=datetime('now'), updated_at=datetime('now')
+          titulo=excluded.titulo, resumo=excluded.resumo, pilar=excluded.pilar, lob=excluded.lob, synced_at=datetime('now'), updated_at=datetime('now')
       `).run({
         external_id: calExtId, data: m.agendado_para,
         canal: m.corpo ? 'artigo' : 'linkedin', autor: m.autor || 'Rax',
         titulo: String(m.titulo).slice(0,300),
         resumo: String(m.copy_text || m.corpo || '').slice(0,2000).replace(/<[^>]*>/g,''),
         pilar: m.lob || '',
+        lob: _lobValido(m.lob) ? (m.lob || '') : '',
       });
     }
     res.json({ success: true, id });
@@ -2570,6 +2588,7 @@ app.post('/api/raccoon/generate', (req, res) => {
 // Importa itens fonte=redatoria do editorial_calendar pro pipeline (estado 'recebido')
 app.post('/api/content/import-redatoria', requireEditorToken, (req, res) => {
   try {
+    const aliasLob = (readTaxonomia().aliases || {}).lob || {};
     const posts = db.prepare("SELECT * FROM editorial_calendar WHERE fonte = 'redatoria'").all();
     const existing = new Set(db.prepare("SELECT external_id FROM content_pipeline WHERE external_id IS NOT NULL").all().map(r => r.external_id));
     const ins = db.prepare(`INSERT INTO content_pipeline (external_id, titulo, tema_keyword, lob, pilar, autor, estado, corpo)
@@ -2578,12 +2597,69 @@ app.post('/api/content/import-redatoria', requireEditorToken, (req, res) => {
     db.transaction(() => {
       for (const p of posts) {
         if (existing.has(p.external_id)) continue;
+        // lob = slug canônico via de-para (pilar 'produto' não mapeia → fica vazio pra reclassificar)
         ins.run({ external_id: p.external_id, titulo: p.titulo || '(sem título)', tema_keyword: '',
-          lob: p.pilar || '', pilar: p.pilar || '', autor: p.autor || 'Redatoria', corpo: p.resumo || '' });
+          lob: p.lob || aliasLob[p.pilar] || '', pilar: p.pilar || '', autor: p.autor || 'Redatoria', corpo: p.resumo || '' });
         n++;
       }
     })();
     res.json({ success: true, importados: n, total_redatoria: posts.length });
+  } catch (e) { res.status(500).json({ success: false, error: e.message }); }
+});
+
+// ── MIGRAÇÃO TAXONOMIA v1.1 (F5) — one-shot idempotente, re-executável ───────
+// POST /api/admin/migrate-taxonomia?dry=1  (requireEditorToken)
+// 1. content_pipeline: normaliza `lob` pra slug canônico via aliases (pilar como
+//    fonte secundária). Sem mapa → não toca e lista no retorno (corrigir no kanban).
+// 2. editorial_calendar: preenche coluna `lob` SÓ pra fonte redatoria/raccoon
+//    ('produto' e valores RD Station não mapeiam → pendente). `pilar` fica intocado.
+// Obs Railway: SQLite em volume /data — se o volume resetar, re-rodar (idempotente:
+// slug já migrado passa direto pelo alias/validação).
+app.post('/api/admin/migrate-taxonomia', requireEditorToken, (req, res) => {
+  try {
+    const dry = req.query.dry === '1' || req.query.dry === 'true';
+    const taxo = readTaxonomia();
+    const slugs = new Set((taxo.lobs || []).map(l => l.slug));
+    const aliasRaw = (taxo.aliases || {}).lob || {};
+    // lookup case-insensitive/trim
+    const alias = {};
+    for (const [k, v] of Object.entries(aliasRaw)) alias[k.toLowerCase().trim()] = v;
+    // 4 estados: slug (canônico/mapeável) · bucket (alias→null, ex. 'produto' = reclassificar)
+    //            unknown (valor sem mapa) · empty (nada a migrar)
+    const resolve = (val) => {
+      const v = String(val || '').toLowerCase().trim();
+      if (!v) return { st: 'empty' };
+      if (slugs.has(v)) return { st: 'slug', slug: v };
+      if (v in alias) return alias[v] ? { st: 'slug', slug: alias[v] } : { st: 'bucket' };
+      return { st: 'unknown' };
+    };
+
+    const rel = { dry, content_pipeline: { migrados: 0, pendentes: 0, sem_mapa: [] }, editorial_calendar: { migrados: 0, pendentes: 0 } };
+
+    const cpRows = db.prepare('SELECT id, lob, pilar FROM content_pipeline').all();
+    const cpUpd = db.prepare("UPDATE content_pipeline SET lob = ?, updated_at = datetime('now') WHERE id = ?");
+    for (const r of cpRows) {
+      const a = resolve(r.lob), b = resolve(r.pilar);
+      const hit = a.st === 'slug' ? a : b.st === 'slug' ? b : null;
+      if (hit) {
+        if (hit.slug !== r.lob) { rel.content_pipeline.migrados++; if (!dry) cpUpd.run(hit.slug, r.id); }
+      } else if (a.st === 'bucket' || b.st === 'bucket') {
+        rel.content_pipeline.pendentes++; // balde tipo 'produto' — reclassificar no kanban
+      } else if (a.st === 'unknown' || b.st === 'unknown') {
+        rel.content_pipeline.sem_mapa.push({ id: r.id, lob: r.lob, pilar: r.pilar });
+      }
+    }
+
+    const calRows = db.prepare("SELECT id, pilar, lob FROM editorial_calendar WHERE fonte IN ('redatoria','raccoon')").all();
+    const calUpd = db.prepare("UPDATE editorial_calendar SET lob = ?, updated_at = datetime('now') WHERE id = ?");
+    for (const r of calRows) {
+      if (r.lob && slugs.has(r.lob)) continue; // já migrado
+      const p = resolve(r.pilar);
+      if (p.st === 'slug') { rel.editorial_calendar.migrados++; if (!dry) calUpd.run(p.slug, r.id); }
+      else if (p.st !== 'empty') rel.editorial_calendar.pendentes++;
+    }
+
+    res.json({ success: true, taxonomia_versao: taxo.versao, ...rel });
   } catch (e) { res.status(500).json({ success: false, error: e.message }); }
 });
 
