@@ -2408,7 +2408,7 @@
       try {
         // Run states visual timer concurrently
         let stateTimer = setTimeout(() => {
-          setRaxState('escrevendo', 'Redigindo artigo e copies com Qwen2.5 B2B... 📝');
+          setRaxState('escrevendo', 'Redigindo artigo e copies B2B com IA... 📝');
           loadingTxt.textContent = 'Escrevendo proposta e copies de posts...';
         }, 3000);
         
@@ -2451,7 +2451,7 @@
       await new Promise(r => setTimeout(r, 2500));
       
       // 2. Escrevendo
-      setRaxState('escrevendo', 'Redigindo artigo e copies com Qwen2.5 B2B... 📝');
+      setRaxState('escrevendo', 'Redigindo artigo e copies B2B com IA... 📝');
       loadingTxt.textContent = 'Escrevendo proposta e copies de posts...';
       await new Promise(r => setTimeout(r, 3000));
       
@@ -2486,7 +2486,7 @@
     var srvRes = $('srv-results'); if(srvRes) srvRes.style.display='none';
     var srvArt = $('srv-artigo-melhorado'); if(srvArt) srvArt.style.display='none';
 
-    $('out-motor').textContent = `Motor: ${data.motor || 'Ollama offline'}`;
+    $('out-motor').textContent = 'Motor: IA da EPI-USE';
     $('out-badge').textContent = data.etiqueta || '🤖 GERADO LOCAL';
     
     // Update Editorial Score card
