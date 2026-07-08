@@ -518,27 +518,32 @@ function buildEmailHTML(app) {
 const WEBHOOK_RECRUITMENT_URL = process.env.WEBHOOK_RECRUITMENT_URL || '';
 async function sendRecruitmentWebhook(data) {
   if (!WEBHOOK_RECRUITMENT_URL) { console.log('[WEBHOOK-SKIPPED] sem WEBHOOK_RECRUITMENT_URL'); return; }
-  try {
-    const res = await fetch(WEBHOOK_RECRUITMENT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        nome: data.nome, email: data.email, cargo: data.cargo, endereco: data.endereco,
-        tempo_epiuse: data.tempo_epiuse, dia_a_dia: data.dia_a_dia, dominio_tecnico: data.dominio_tecnico,
-        trajetoria: data.trajetoria, palestras: data.palestras, videos: data.videos,
-        lado_humano: data.lado_humano, tem_fotos: data.tem_fotos, linkedin: data.linkedin,
-        projeto_orgulho: data.projeto_orgulho, desafio: data.desafio, lideranca: data.lideranca,
-        competencias: data.competencias, exposicoes: data.exposicoes,
-        tom: data.tom, publico_alvo: data.publico_alvo, tema_adoraria: data.tema_adoraria,
-        tema_evitar: data.tema_evitar, artigos_ref: data.artigos_ref,
-        dia_tipico: data.dia_tipico, bastidores: data.bastidores, fora_trabalho: data.fora_trabalho,
-        utm_source: data.utm_source, utm_medium: data.utm_medium, timestamp: data.timestamp
-      })
-    });
-    console.log(`[WEBHOOK-SENT] status=${res.status}`);
-  } catch (e) {
-    console.error(`[WEBHOOK-FAIL] ${e.message}`);
-  }
+  const payload = JSON.stringify({
+    nome: data.nome, email: data.email, cargo: data.cargo, endereco: data.endereco,
+    tempo_epiuse: data.tempo_epiuse, dia_a_dia: data.dia_a_dia, dominio_tecnico: data.dominio_tecnico,
+    trajetoria: data.trajetoria, palestras: data.palestras, videos: data.videos,
+    lado_humano: data.lado_humano, tem_fotos: data.tem_fotos, linkedin: data.linkedin,
+    projeto_orgulho: data.projeto_orgulho, desafio: data.desafio, lideranca: data.lideranca,
+    competencias: data.competencias, exposicoes: data.exposicoes,
+    tom: data.tom, publico_alvo: data.publico_alvo, tema_adoraria: data.tema_adoraria,
+    tema_evitar: data.tema_evitar, artigos_ref: data.artigos_ref,
+    dia_tipico: data.dia_tipico, bastidores: data.bastidores, fora_trabalho: data.fora_trabalho,
+    utm_source: data.utm_source, utm_medium: data.utm_medium, timestamp: data.timestamp
+  });
+  return new Promise(resolve => {
+    try {
+      const url = new URL(WEBHOOK_RECRUITMENT_URL);
+      const mod = url.protocol === 'https:' ? require('https') : require('http');
+      const req = mod.request(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(payload) } }, res => {
+        console.log(`[WEBHOOK-SENT] status=${res.statusCode}`);
+        res.resume();
+        resolve();
+      });
+      req.on('error', e => { console.error(`[WEBHOOK-FAIL] ${e.message}`); resolve(); });
+      req.write(payload);
+      req.end();
+    } catch (e) { console.error(`[WEBHOOK-FAIL] ${e.message}`); resolve(); }
+  });
 }
 
 async function sendRecruitmentEmail(app) {
