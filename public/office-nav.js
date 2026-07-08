@@ -2028,6 +2028,9 @@ class HubSubmenu extends HTMLElement {
         }).join('')}
       </div>
     `;
+    // Traduz o shadow root se o idioma ativo não for PT (i18n.js pode ter
+    // carregado antes ou depois deste componente).
+    if (window.translateRoot) { try { window.translateRoot(this.shadowRoot); } catch (e) {} }
   }
 
   _detectActive(path) {
