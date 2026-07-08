@@ -8,7 +8,7 @@
 // Fonte ÚNICA da verdade: public/api/changelog.json#current via /api/version
 // Fallback hardcoded usado SÓ se fetch falhar (offline, etc).
 // Sincronização automática — não editar manualmente, basta bumpar changelog.json.
-let OFFICE_NAV_VERSION = '0.74.5';
+let OFFICE_NAV_VERSION = '0.75.0';
 // Promise compartilhada — nav + footer reaproveitam o mesmo fetch
 window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/version')
   .then(r => r.ok ? r.json() : null)
@@ -147,7 +147,6 @@ const OFFICE_NAV_BREADCRUMBS = {
   'inbound-playbook': ['🎨 Brand Experience', '📡 Inbound', 'Playbook'],
   'voices': ['🎨 Brand Experience', '🎙️ Voices'],
   'painel': ['🎨 Brand Experience', '🎙️ Voices'],
-  'optimizer': ['🎨 Brand Experience', '🪪 Profile Optimizer'],
   'cases': ['🎨 Brand Experience', '🤝 Cases & CS'],
   'artigos': ['🎨 Brand Experience', '📚 Artigos do Blog'],
   'jornadas': ['🎨 Brand Experience', '🗺️ Jornadas de Compra'],
@@ -258,7 +257,8 @@ class OfficeNav extends HTMLElement {
     if (path === '/' || path === '/dashboard' || path.startsWith('/game')) return 'hub';
     if (path.startsWith('/painel') || path === '/voices/painel') return 'brand';
     if (path.startsWith('/raccoon')) return 'raccoon';
-    if (path.startsWith('/voices') || path.startsWith('/optimizer') || path.startsWith('/seja-voice')) return 'voices';
+    if (path.startsWith('/seja-voice') || path.startsWith('/optimizer') || path.startsWith('/erp-impacto')) return 'hub-mkt';
+    if (path.startsWith('/voices')) return 'voices';
     if (path === '/inbound/brief') return 'inbound-brief';
     if (path === '/inbound/carousel') return 'inbound-carousel';
     if (path === '/inbound/calendar') return 'inbound-calendar';
@@ -283,6 +283,7 @@ class OfficeNav extends HTMLElement {
     if (r === 'area-growth' || r === 'growth') return 'intelligence';
     if (r === 'area-eventos' || r === 'area-field' || r === 'eventos') return 'field';
     if (r === 'artigos' || r === 'jornadas' || r === 'area-conteudo') return 'brand';
+    if (r === 'hub-mkt') return 'hub';
     if (r === 'relatorio') return 'relatorio';
     return r;
   }
@@ -1941,3 +1942,106 @@ const OfficeCommandPalette = (() => {
   }
   if(document.readyState !== 'loading') initSSO(); else document.addEventListener('DOMContentLoaded', function(){ initSSO(); });
 })();
+
+// ════════════════════════════════════════════════════════════════════════════
+// <hub-submenu> — Barra de atalhos do MKT Hub, persistente em todas as
+// páginas que a incluem (hub, seja-voice, optimizer, game, erp-impacto).
+// ERP.ngo fica alinhado à direita (margin-left:auto).
+// ════════════════════════════════════════════════════════════════════════════
+const HUB_SUBMENU_ITEMS = [
+  { id: 'hub',        label: 'MKT Hub',                icon: '📈', href: '/hub' },
+  { id: 'institucional', label: 'Apresentação Institucional', icon: '🏢', href: '/hub', tab: 'institucional' },
+  { id: 'seja-voice', label: 'Seja um Voice',           icon: '🎙️', href: '/seja-voice' },
+  { id: 'optimizer',  label: 'LinkedIn Optimizer',      icon: '🪪', href: '/optimizer' },
+  { id: 'game',       label: 'Game do Office',          icon: '🎮', href: '/game' },
+  { id: 'impacto',    label: 'Impacto ERP.ngo',         icon: '🐘', href: '/erp-impacto', right: true },
+];
+
+class HubSubmenu extends HTMLElement {
+  constructor() { super(); this.attachShadow({ mode: 'open' }); }
+
+  connectedCallback() {
+    const path = location.pathname;
+    const activeId = this._detectActive(path);
+
+    this.shadowRoot.innerHTML = `
+      <style>
+        :host {
+          display: block;
+          background: rgba(6, 14, 26, 0.75);
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+          border-bottom: 1px solid rgba(37, 99, 235, 0.12);
+          position: sticky;
+          top: 48px;
+          z-index: 99;
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        .bar {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          padding: 6px 14px;
+          max-width: 100%;
+          overflow-x: auto;
+          scrollbar-width: none;
+        }
+        .bar::-webkit-scrollbar { display: none; }
+        .pill {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          font-size: 12px;
+          font-weight: 500;
+          color: #94a3b8;
+          text-decoration: none;
+          padding: 7px 14px;
+          border-radius: 8px;
+          border: 1px solid transparent;
+          white-space: nowrap;
+          cursor: pointer;
+          background: transparent;
+          font-family: inherit;
+          transition: all .15s;
+        }
+        .pill:hover {
+          background: rgba(255, 255, 255, 0.05);
+          color: #e2e8f0;
+        }
+        .pill.active {
+          background: rgba(37, 99, 235, 0.18);
+          border-color: rgba(37, 99, 235, 0.5);
+          color: #ffffff;
+          font-weight: 600;
+        }
+        .right { margin-left: auto; }
+        @media (max-width: 720px) {
+          .pill { font-size: 11px; padding: 6px 10px; }
+        }
+      </style>
+      <div class="bar">
+        ${HUB_SUBMENU_ITEMS.map(it => {
+          const isActive = it.id === activeId;
+          const cls = (isActive ? 'pill active' : 'pill') + (it.right ? ' right' : '');
+          const href = it.tab ? it.href + '?tab=' + it.tab : it.href;
+          return `<a class="${cls}" href="${href}">${it.icon} ${it.label}</a>`;
+        }).join('')}
+      </div>
+    `;
+  }
+
+  _detectActive(path) {
+    if (path === '/hub' || path === '/hub/') {
+      const tab = new URLSearchParams(location.search).get('tab');
+      if (tab === 'institucional') return 'institucional';
+      return 'hub';
+    }
+    if (path.startsWith('/seja-voice')) return 'seja-voice';
+    if (path.startsWith('/optimizer') || path.startsWith('/voices/optimizer')) return 'optimizer';
+    if (path.startsWith('/game')) return 'game';
+    if (path.startsWith('/erp-impacto')) return 'impacto';
+    return 'hub';
+  }
+}
+
+customElements.define('hub-submenu', HubSubmenu);

@@ -655,11 +655,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 <!-- ═══════════════ PORTAL ═══════════════ -->
 <div id="portal" style="display:none">
 
-  <div class="tab-bar">
-    <button class="tab-pill active" id="t-hub" onclick="switchTab('hub',this)">📈 MKT Hub</button>
-    <button class="tab-pill" id="t-institucional" onclick="switchTab('institucional',this)">🏢 Apresentação Institucional</button>
-    <button class="tab-pill" id="t-brindes" onclick="window.location.href='/hub/brindes'">🎁 Solicitar Brindes</button>
-  </div>
+  <hub-submenu></hub-submenu>
 
   <div class="tab-content">
 
@@ -786,10 +782,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
               <div class="card-title">Logos &amp; Assets</div>
               <div class="card-desc">Logos oficiais EPI-USE &amp; Stratview (download).</div>
             </a>
-            <a class="bento-card" href="/hub/brindes" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;display:block">
-              <div class="bento-icon icon-orange">🎁</div>
-              <div class="card-title">Brindes</div>
-              <div class="card-desc">Catálogo de brindes corporativos.</div>
+            <a class="bento-card" href="/seja-voice" style="text-decoration:none;color:inherit;display:block">
+              <div class="bento-icon icon-orange">🎙️</div>
+              <div class="card-title">Seja um Voice</div>
+              <div class="card-desc">Programa de influência executiva no LinkedIn.</div>
             </a>
           </div>
         </div>
@@ -1023,10 +1019,12 @@ function lockPortal(){
 function togglePw(){var i=document.getElementById('pw-in');i.type=i.type==='password'?'text':'password'}
 function switchTab(name,btn){
   document.querySelectorAll('.tab-pill').forEach(function(p){p.classList.remove('active')});
-  btn.classList.add('active');
+  if(btn) btn.classList.add('active');
   document.querySelectorAll('.tab-pane').forEach(function(p){p.classList.remove('active')});
-  document.getElementById('pane-'+name).classList.add('active');
-  document.querySelector('.tab-content').scrollTop=0;
+  var pane = document.getElementById('pane-'+name);
+  if(pane) pane.classList.add('active');
+  var tc = document.querySelector('.tab-content');
+  if(tc) tc.scrollTop=0;
 }
 function toggleAcc(item){
   var isOpen=item.classList.contains('open');
@@ -1050,13 +1048,11 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLogos()
 // SSO substitui o gate de senha — portal sempre visível.
 renderLogos();
 
-// Abre aba pela query string: /hub?tab=X (brindes virou página própria → redirect)
+// Abre aba pela query string: /hub?tab=X
 (function() {
   var p = new URLSearchParams(window.location.search).get('tab');
-  if (p === 'brindes') { window.location.replace('/hub/brindes'); return; }
-  if (p) {
-    var btn = document.getElementById('t-' + p);
-    if (btn) { setTimeout(function() { switchTab(p, btn); }, 100); }
+  if (p === 'institucional') {
+    setTimeout(function() { switchTab('institucional'); }, 100);
   }
 })();
 </script>
