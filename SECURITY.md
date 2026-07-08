@@ -31,7 +31,7 @@ antes de qualquer deploy público:
 | Camada | Guard | Quem passa |
 |---|---|---|
 | Páginas HTML | `requireAuth` (`server-context.js`) | Sessão SSO em produção; dev local (`IS_LOCAL_DEV`) aberto. Fail-closed: sem SSO configurado em prod → 503, nunca aberto. |
-| Leitura de APIs `/api/*` (gate global + JSONs estáticos de `public/api/`) | `requireApiAccess` (`server-context.js`) | Qualquer sessão SSO (inclusive role `hub` — Marketing Hub, game e brindes dependem dessas APIs) OU `X-Editor-Token` OU dev local. Allowlist sem auth: `/api/health`, `/api/version`, `/api/auth/status`. |
+| Leitura de APIs `/api/*` (gate global + JSONs estáticos de `public/api/`) | `requireApiAccess` (`server-context.js`) | Qualquer sessão SSO (inclusive role `hub` — Marketing Hub, game e brindes dependem dessas APIs) OU `X-Editor-Token` OU dev local. Allowlist sem auth: `/api/health`, `/api/version`, `/api/auth/status`, `/api/changelog.json`, `/api/ideias`. GET `/api/inbound/calendar` também aberto (sincronização pública de calendário). |
 | Escrita sensível (voices, cases, content, metas, syncs) | `requireEditorToken` (`server-context.js`) | `X-Editor-Token` OU sessão SSO com role de time de MKT (qualquer role exceto `hub`). |
 | Admin de usuários (`/admin/usuarios`, `/api/admin/users`) | `requireAdmin` (`routes/users.js`) | Role `head` OU `X-Editor-Token` puro. Roles de time NÃO herdam admin. |
 

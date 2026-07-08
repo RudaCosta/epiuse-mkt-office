@@ -609,11 +609,13 @@ if (SSO_ENABLED) {
 // SSO na máquina). Rotas de ESCRITA sensíveis continuam com o guard próprio
 // requireEditorToken (token OU sessão de time) por cima deste gate.
 // Allowlist curta: só o que o fluxo de login e health-check precisam antes
-// de existir sessão.
-const API_PUBLIC_ALLOWLIST = ['/api/health', '/api/version', '/api/auth/status'];
+// de existir sessão, + endpoints lidos por telas públicas (status chip, etc).
+const API_PUBLIC_ALLOWLIST = ['/api/health', '/api/version', '/api/auth/status', '/api/changelog.json', '/api/ideias'];
 app.use((req, res, next) => {
   if (!req.path.startsWith('/api/')) return next();
   if (API_PUBLIC_ALLOWLIST.includes(req.path)) return next();
+  // GET /api/inbound/calendar é apenas leitura pública (raccoon_to_xlsx.py synca daí)
+  if (req.method === 'GET' && req.path === '/api/inbound/calendar') return next();
   return requireApiAccess(req, res, next);
 });
 
