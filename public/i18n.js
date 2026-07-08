@@ -512,13 +512,21 @@ function startI18nObserver() {
   } catch {}
 })();
 
+// Traduz os shadow roots dos web components (nav/footer/submenu do hub).
+// Eles ficam fora do document.body walk do translatePage, então precisam de
+// varredura explícita — no boot E a cada troca de idioma (sem isto, as abas do
+// MKT Hub ficavam presas em PT enquanto o resto da página já traduzia).
+function translateWebComponents() {
+  document.querySelectorAll('office-nav, office-footer, hub-submenu').forEach(el => {
+    if (el.shadowRoot) { try { i18nWalk(el.shadowRoot, window.getLang()); } catch (e) {} }
+  });
+}
+window.translateWebComponents = translateWebComponents;
+
 function i18nBoot() {
   window.applyI18n();
   window.translatePage();
-  // Traduz shadow roots de web components já montados (nav/footer carregam antes do i18n)
-  document.querySelectorAll('office-nav, office-footer').forEach(el => {
-    if (el.shadowRoot) { try { i18nWalk(el.shadowRoot, window.getLang()); } catch (e) {} }
-  });
+  translateWebComponents();
   startI18nObserver();
   document.dispatchEvent(new CustomEvent('office:i18nready'));
 }
@@ -528,6 +536,7 @@ const _origSetLang = window.setLang;
 window.setLang = function(lang) {
   _origSetLang(lang);
   window.translatePage();
+  translateWebComponents();
 };
 
 // Reaplica quando DOM carregar
