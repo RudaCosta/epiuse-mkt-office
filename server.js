@@ -456,35 +456,89 @@ else        console.log(`[boot] email desabilitado (sem RESEND_API_KEY) — insc
 
 function buildEmailHTML(app) {
   const safe = (s) => String(s||'').replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
-  const utmRow = (k, v) => v ? `<tr><td style="padding:4px 12px;color:#64748b;font-size:12px">${k}</td><td style="padding:4px 12px;color:#334155;font-size:12px"><b>${safe(v)}</b></td></tr>` : '';
+  const row = (label, val) => val ? `<tr><td style="padding:5px 0;color:#64748b;width:180px;vertical-align:top;font-size:13px">${label}</td><td style="padding:5px 0;font-size:13px">${safe(val)}</td></tr>` : '';
+  const section = (title) => `<tr><td colspan="2" style="padding:14px 0 6px;font-size:11px;letter-spacing:.16em;color:#2563EB;text-transform:uppercase;font-weight:700;border-bottom:1px solid #e2e8f0">${title}</td></tr>`;
+  const block = (label, val) => val ? `<div style="margin:10px 0 4px;color:#64748b;font-size:11px;letter-spacing:.12em;text-transform:uppercase">${label}</div><div style="background:#f8fafc;border-left:3px solid #2563EB;padding:10px 14px;border-radius:4px;font-size:13px;color:#334155;line-height:1.5;white-space:pre-wrap">${safe(val)}</div>` : '';
   return `<!DOCTYPE html><html><body style="font-family:Inter,Arial,sans-serif;background:#f1f5f9;margin:0;padding:24px">
-  <table cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e2e8f0">
+  <table cellpadding="0" cellspacing="0" style="max-width:620px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e2e8f0">
     <tr><td style="background:linear-gradient(135deg,#0a1628,#2563EB);padding:24px;color:#fff">
-      <div style="font-size:11px;letter-spacing:.2em;opacity:.7;text-transform:uppercase;margin-bottom:6px">EPI-USE Voices · LP</div>
+      <div style="font-size:11px;letter-spacing:.2em;opacity:.7;text-transform:uppercase;margin-bottom:6px">EPI-USE Voices · Briefing Redatoria</div>
       <div style="font-size:20px;font-weight:700">🎙️ Nova inscrição: ${safe(app.nome)}</div>
+      <div style="font-size:13px;opacity:.8;margin-top:4px">${safe(app.cargo)} · ${safe(app.tempo_epiuse)} na EPI-USE</div>
     </td></tr>
-    <tr><td style="padding:22px 24px">
-      <table cellpadding="0" cellspacing="0" style="width:100%;font-size:14px;color:#1e293b">
-        <tr><td style="padding:6px 0;color:#64748b;width:130px">Nome</td><td style="padding:6px 0"><b>${safe(app.nome)}</b></td></tr>
-        <tr><td style="padding:6px 0;color:#64748b">E-mail</td><td style="padding:6px 0"><a href="mailto:${safe(app.email)}" style="color:#2563EB">${safe(app.email)}</a></td></tr>
-        <tr><td style="padding:6px 0;color:#64748b">LinkedIn</td><td style="padding:6px 0"><a href="${safe(app.linkedin)}" style="color:#2563EB">${safe(app.linkedin)}</a></td></tr>
-        <tr><td style="padding:6px 0;color:#64748b">Vaga</td><td style="padding:6px 0"><b>${safe(app.area)}</b></td></tr>
+    <tr><td style="padding:20px 24px">
+      <table cellpadding="0" cellspacing="0" style="width:100%;color:#1e293b">
+        ${section('1. Sobre a pessoa')}
+        ${row('Nome', app.nome)}
+        ${row('E-mail', app.email)}
+        ${row('Cargo', app.cargo)}
+        ${row('Endereço (kit)', app.endereco)}
+        ${row('Tempo na EPI-USE', app.tempo_epiuse)}
+        ${row('Palestras', app.palestras)}
+        ${row('Vídeos', app.videos)}
+        ${row('Tem fotos', app.tem_fotos)}
+        ${row('LinkedIn', app.linkedin)}
       </table>
-      <div style="margin:16px 0 6px;color:#64748b;font-size:11px;letter-spacing:.16em;text-transform:uppercase">Motivo</div>
-      <div style="background:#f8fafc;border-left:3px solid #2563EB;padding:12px 14px;border-radius:4px;font-size:13px;color:#334155;line-height:1.55;white-space:pre-wrap">${safe(app.motivo)}</div>
+      ${block('O que faz no dia a dia (sem jargão)', app.dia_a_dia)}
+      ${block('Domínio técnico / certificações', app.dominio_tecnico)}
+      ${block('Trajetória até a EPI-USE', app.trajetoria)}
+      ${block('Lado humano', app.lado_humano)}
+      <table cellpadding="0" cellspacing="0" style="width:100%;color:#1e293b">
+        ${section('2. Projetos & experiência')}
+        ${row('Competências', app.competencias)}
+      </table>
+      ${block('Projeto de maior orgulho', app.projeto_orgulho)}
+      ${block('Desafio técnico/equipe', app.desafio)}
+      ${block('Liderança', app.lideranca)}
+      ${block('Exposições / premiações', app.exposicoes)}
+      <table cellpadding="0" cellspacing="0" style="width:100%;color:#1e293b">
+        ${section('3. Estilo & público')}
+        ${row('Tom', app.tom)}
+      </table>
+      ${block('Público-alvo', app.publico_alvo)}
+      ${block('Tema que adoraria falar', app.tema_adoraria)}
+      ${block('Tema que prefere evitar', app.tema_evitar)}
+      ${block('Artigos de referência', app.artigos_ref)}
+      <table cellpadding="0" cellspacing="0" style="width:100%;color:#1e293b">
+        ${section('4. Rotina & bastidores')}
+      </table>
+      ${block('Dia típico', app.dia_tipico)}
+      ${block('Bastidores da área', app.bastidores)}
+      ${block('Fora do trabalho', app.fora_trabalho)}
     </td></tr>
-    <tr><td style="padding:0 24px 18px"><div style="background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:10px 14px">
-      <div style="font-size:10px;letter-spacing:.18em;color:#92400e;text-transform:uppercase;font-weight:700;margin-bottom:6px">🎯 ATRIBUIÇÃO</div>
-      <table cellpadding="0" cellspacing="0" style="width:100%;font-size:12px">
-        ${utmRow('source', app.utm_source)}${utmRow('medium', app.utm_medium)}${utmRow('campaign', app.utm_campaign)}${utmRow('voice', app.utm_voice) || `<tr><td colspan="2" style="padding:4px 12px;color:#92400e;font-size:12px;font-style:italic">— sem UTM (acesso direto) —</td></tr>`}
-      </table>
-    </div></td></tr>
     <tr><td style="padding:14px 24px 22px;border-top:1px solid #e2e8f0;font-size:11px;color:#94a3b8">
-      <div>Recebido em ${safe(app.timestamp)}</div>
-      <div style="margin-top:6px"><a href="https://epiuse-voices-optimizer.up.railway.app/painel" style="color:#2563EB;text-decoration:none">→ Ver todas inscrições no Painel da Duda</a></div>
+      <div>Recebido em ${safe(app.timestamp)} · IP ${safe(app.ip)}</div>
+      <div style="margin-top:6px"><a href="https://epiuse-voices-optimizer.up.railway.app/painel" style="color:#2563EB;text-decoration:none">→ Ver todas inscrições no Painel</a></div>
     </td></tr>
   </table>
   </body></html>`;
+}
+
+// ── WEBHOOK (opcional — alimenta planilha Excel via Power Automate) ──────────
+const WEBHOOK_RECRUITMENT_URL = process.env.WEBHOOK_RECRUITMENT_URL || '';
+async function sendRecruitmentWebhook(data) {
+  if (!WEBHOOK_RECRUITMENT_URL) { console.log('[WEBHOOK-SKIPPED] sem WEBHOOK_RECRUITMENT_URL'); return; }
+  try {
+    const res = await fetch(WEBHOOK_RECRUITMENT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nome: data.nome, email: data.email, cargo: data.cargo, endereco: data.endereco,
+        tempo_epiuse: data.tempo_epiuse, dia_a_dia: data.dia_a_dia, dominio_tecnico: data.dominio_tecnico,
+        trajetoria: data.trajetoria, palestras: data.palestras, videos: data.videos,
+        lado_humano: data.lado_humano, tem_fotos: data.tem_fotos, linkedin: data.linkedin,
+        projeto_orgulho: data.projeto_orgulho, desafio: data.desafio, lideranca: data.lideranca,
+        competencias: data.competencias, exposicoes: data.exposicoes,
+        tom: data.tom, publico_alvo: data.publico_alvo, tema_adoraria: data.tema_adoraria,
+        tema_evitar: data.tema_evitar, artigos_ref: data.artigos_ref,
+        dia_tipico: data.dia_tipico, bastidores: data.bastidores, fora_trabalho: data.fora_trabalho,
+        utm_source: data.utm_source, utm_medium: data.utm_medium, timestamp: data.timestamp
+      })
+    });
+    console.log(`[WEBHOOK-SENT] status=${res.status}`);
+  } catch (e) {
+    console.error(`[WEBHOOK-FAIL] ${e.message}`);
+  }
 }
 
 async function sendRecruitmentEmail(app) {
@@ -3752,8 +3806,9 @@ app.post('/api/seja-voice', recruitmentLimiter, async (req, res) => {
   }
   console.log(`[RECRUITMENT] ${clean.nome} (${clean.email}) → cargo=${clean.cargo} | tom=${clean.tom} | utm_source=${clean.utm_source}`);
 
-  // Dispara email (não bloqueia response — best effort)
+  // Dispara email + webhook (não bloqueiam response — best effort)
   sendRecruitmentEmail(clean).catch(e => console.error('[EMAIL-UNCAUGHT]', e.message));
+  sendRecruitmentWebhook(clean).catch(e => console.error('[WEBHOOK-UNCAUGHT]', e.message));
 
   res.json({ success: true, message: 'Inscrição recebida. Você será contactado em até 5 dias úteis.' });
 });
