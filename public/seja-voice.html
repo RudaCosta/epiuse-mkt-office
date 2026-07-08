@@ -14,124 +14,204 @@
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --bg: #0a1628; --bg-2: var(--surface,#0d1e36);
-  --bg-card: rgba(15, 30, 53, 0.6); --bg-elev: var(--surface,#112540);
-  --border: rgba(37,99,235,0.18); --border-light: rgba(255,255,255,0.06); --border-active: rgba(37,99,235,0.5);
-  --text: var(--text,#e2e8f0); --text-dim: var(--muted,#94a3b8); --text-muted: var(--muted,#64748b);
-  --primary: var(--blue,#2563eb); --primary-light: var(--blue,#60a5fa); --primary-dark: #1d4ed8;
-  --success: var(--teal,#10b981); --warning: var(--gold,#f59e0b); --purple: var(--violet,#a855f7); --pink: var(--violet,#ec4899);
+  --sv-bg: #0a1628; --sv-bg-2: #0d1e36;
+  --sv-bg-card: rgba(15, 30, 53, 0.6); --sv-bg-elev: #112540;
+  --sv-border: rgba(37,99,235,0.18); --sv-border-light: rgba(255,255,255,0.06); --sv-border-active: rgba(37,99,235,0.5);
+  --sv-text: #e2e8f0; --sv-text-dim: #94a3b8; --sv-text-muted: #64748b;
+  --sv-primary: #2563eb; --sv-primary-light: #60a5fa; --sv-primary-dark: #1d4ed8;
+  --sv-success: #10b981; --sv-warning: #f59e0b; --sv-purple: #a855f7; --sv-pink: #ec4899;
+  --sv-input-bg: rgba(0,0,0,0.25); --sv-input-focus-bg: rgba(37,99,235,0.06);
+  --sv-gradient-word: linear-gradient(135deg, #60a5fa, #c084fc, #f472b6);
+  --sv-btn-secondary-bg: rgba(37,99,235,0.10); --sv-btn-secondary-color: #93c5fd; --sv-btn-secondary-border: rgba(37,99,235,0.4);
 }
-html, body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
-body {
+
+/* ── LIGHT THEME ─────────────────────────────────────────────── */
+:root[data-theme="light"] {
+  --sv-bg: #f0f4f8; --sv-bg-2: #e7ecf2;
+  --sv-bg-card: rgba(255,255,255,0.85); --sv-bg-elev: #ffffff;
+  --sv-border: rgba(37,99,235,0.15); --sv-border-light: rgba(15,23,42,0.08); --sv-border-active: rgba(37,99,235,0.5);
+  --sv-text: #0f172a; --sv-text-dim: #334155; --sv-text-muted: #64748b;
+  --sv-primary: #2563eb; --sv-primary-light: #1d4ed8; --sv-primary-dark: #1e40af;
+  --sv-success: #059669; --sv-warning: #d97706;
+  --sv-input-bg: rgba(15,23,42,0.04); --sv-input-focus-bg: rgba(37,99,235,0.06);
+  --sv-gradient-word: linear-gradient(135deg, #2563eb, #7c3aed, #db2777);
+  --sv-btn-secondary-bg: rgba(37,99,235,0.08); --sv-btn-secondary-color: #1d4ed8; --sv-btn-secondary-border: rgba(37,99,235,0.3);
+}
+
+/* ── ARMORY THEME ────────────────────────────────────────────── */
+:root[data-theme="armory"] {
+  --sv-bg: #0a0a0a; --sv-bg-2: #111111;
+  --sv-bg-card: rgba(22,22,22,0.8); --sv-bg-elev: #1c1c1c;
+  --sv-border: rgba(0,255,153,0.18); --sv-border-light: rgba(255,255,255,0.06); --sv-border-active: rgba(0,255,153,0.5);
+  --sv-text: #f5f5f5; --sv-text-dim: #c0c0c0; --sv-text-muted: #888;
+  --sv-primary: #00ff99; --sv-primary-light: #00ff99; --sv-primary-dark: #00cc77;
+  --sv-success: #00ff99; --sv-warning: #ffcc00;
+  --sv-input-bg: rgba(0,0,0,0.4); --sv-input-focus-bg: rgba(0,255,153,0.06);
+  --sv-gradient-word: linear-gradient(135deg, #00ff99, #00ccff, #ff66cc);
+  --sv-btn-secondary-bg: rgba(0,255,153,0.10); --sv-btn-secondary-color: #00ff99; --sv-btn-secondary-border: rgba(0,255,153,0.4);
+}
+
+/* ── ELEPHANT THEME ──────────────────────────────────────────── */
+:root[data-theme="elephant"] {
+  --sv-bg: #f5f1eb; --sv-bg-2: #ece5db;
+  --sv-bg-card: rgba(255,255,255,0.7); --sv-bg-elev: #fff;
+  --sv-border: rgba(45,74,51,0.18); --sv-border-light: rgba(45,74,51,0.08); --sv-border-active: rgba(45,74,51,0.5);
+  --sv-text: #2c2c2c; --sv-text-dim: #555; --sv-text-muted: #888;
+  --sv-primary: #2d4a33; --sv-primary-light: #3d6b45; --sv-primary-dark: #1f3524;
+  --sv-success: #2d4a33; --sv-warning: #c17f24;
+  --sv-input-bg: rgba(45,74,51,0.04); --sv-input-focus-bg: rgba(45,74,51,0.08);
+  --sv-gradient-word: linear-gradient(135deg, #2d4a33, #5a8f65, #c17f24);
+  --sv-btn-secondary-bg: rgba(45,74,51,0.08); --sv-btn-secondary-color: #2d4a33; --sv-btn-secondary-border: rgba(45,74,51,0.3);
+}
+
+/* ── AURORA THEME ────────────────────────────────────────────── */
+:root[data-theme="aurora"] {
+  --sv-bg: #0d0b1a; --sv-bg-2: #130f25;
+  --sv-bg-card: rgba(19,15,37,0.7); --sv-bg-elev: #1a1530;
+  --sv-border: rgba(168,85,247,0.22); --sv-border-light: rgba(255,255,255,0.06); --sv-border-active: rgba(168,85,247,0.5);
+  --sv-text: #e8e0f0; --sv-text-dim: #b8a8d0; --sv-text-muted: #7a6a9a;
+  --sv-primary: #a855f7; --sv-primary-light: #c084fc; --sv-primary-dark: #7c3aed;
+  --sv-success: #22d3ee; --sv-warning: #fbbf24;
+  --sv-input-bg: rgba(0,0,0,0.3); --sv-input-focus-bg: rgba(168,85,247,0.08);
+  --sv-gradient-word: linear-gradient(135deg, #a855f7, #ec4899, #fbbf24);
+  --sv-btn-secondary-bg: rgba(168,85,247,0.12); --sv-btn-secondary-color: #c084fc; --sv-btn-secondary-border: rgba(168,85,247,0.4);
+}
+
+/* ── LIQUID GLASS THEME ──────────────────────────────────────── */
+:root[data-theme="liquid-glass"] {
+  --sv-bg: #e8ecf0; --sv-bg-2: #dde2e8;
+  --sv-bg-card: rgba(255,255,255,0.35); --sv-bg-elev: rgba(255,255,255,0.5);
+  --sv-border: rgba(255,255,255,0.5); --sv-border-light: rgba(255,255,255,0.3); --sv-border-active: rgba(37,99,235,0.5);
+  --sv-text: #1a1a2e; --sv-text-dim: #3a3a5c; --sv-text-muted: #6a6a8e;
+  --sv-primary: #2563eb; --sv-primary-light: #3b82f6; --sv-primary-dark: #1d4ed8;
+  --sv-success: #059669; --sv-warning: #d97706;
+  --sv-input-bg: rgba(255,255,255,0.25); --sv-input-focus-bg: rgba(37,99,235,0.08);
+  --sv-gradient-word: linear-gradient(135deg, #2563eb, #7c3aed, #db2777);
+  --sv-btn-secondary-bg: rgba(37,99,235,0.08); --sv-btn-secondary-color: #1d4ed8; --sv-btn-secondary-border: rgba(37,99,235,0.25);
+}
+
+html, body { background: var(--sv-bg); color: var(--sv-text); font-family: 'Inter', sans-serif; min-height: 100vh; }
+body[data-route="seja-voice"] {
   background:
-    radial-gradient(ellipse 90% 60% at 50% 0%, rgba(37,99,235,0.16), transparent 70%),
-    radial-gradient(ellipse 60% 50% at 100% 50%, rgba(168,85,247,0.08), transparent 60%),
-    radial-gradient(ellipse 60% 50% at 0% 100%, rgba(16,185,129,0.06), transparent 60%),
-    var(--bg);
-  background-attachment: fixed;
+    radial-gradient(ellipse 90% 60% at 50% 0%, color-mix(in srgb, var(--sv-primary) 16%, transparent), transparent 70%),
+    radial-gradient(ellipse 60% 50% at 100% 50%, color-mix(in srgb, var(--sv-purple, #a855f7) 8%, transparent), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 0% 100%, color-mix(in srgb, var(--sv-success) 6%, transparent), transparent 60%),
+    var(--sv-bg) !important;
+  background-attachment: fixed !important;
+  color: var(--sv-text) !important;
 }
 .wrap { max-width: 1100px; margin: 0 auto; padding: 24px 28px 60px; }
 
 /* TOP NAV */
 .topnav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
-.topnav-logo { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 14px; color: var(--primary-light); letter-spacing: 0.06em; }
+.topnav-logo { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 14px; color: var(--sv-primary-light); letter-spacing: 0.06em; }
 .topnav-links { display: flex; gap: 10px; }
-.topnav-links a { font-size: 12px; color: var(--text-dim); text-decoration: none; padding: 6px 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--border-light); border-radius: 20px; }
-.topnav-links a:hover { color: var(--text); background: rgba(255,255,255,0.08); }
+.topnav-links a { font-size: 12px; color: var(--sv-text-dim); text-decoration: none; padding: 6px 12px; background: var(--sv-bg-card); border: 1px solid var(--sv-border-light); border-radius: 20px; }
+.topnav-links a:hover { color: var(--sv-text); }
 
 /* HERO */
 .hero { text-align: center; padding: 50px 0 60px; position: relative; }
-.hero-tag { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.2em; color: var(--primary-light); background: rgba(37,99,235,0.10); border: 1px solid rgba(37,99,235,0.3); padding: 6px 16px; border-radius: 20px; margin-bottom: 24px; text-transform: uppercase; }
+.hero-tag { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.2em; color: var(--sv-primary-light); background: var(--sv-btn-secondary-bg); border: 1px solid var(--sv-btn-secondary-border); padding: 6px 16px; border-radius: 20px; margin-bottom: 24px; text-transform: uppercase; }
 .hero-h1 { font-size: clamp(32px, 5vw, 52px); font-weight: 800; line-height: 1.15; margin-bottom: 18px; letter-spacing: -0.02em; }
-.hero-h1 .gradient { background: linear-gradient(135deg, var(--blue,#60a5fa), var(--violet,#c084fc), #f472b6); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-.hero-sub { font-size: 18px; color: var(--text-dim); max-width: 640px; margin: 0 auto 36px; line-height: 1.55; }
+.hero-h1 .gradient { background: var(--sv-gradient-word); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.hero-sub { font-size: 18px; color: var(--sv-text-dim); max-width: 640px; margin: 0 auto 36px; line-height: 1.55; }
 .hero-cta-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 .btn { padding: 14px 28px; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; transition: background .15s, transform .1s, border-color .15s; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; font-family: inherit; }
-.btn-primary { background: var(--primary); color: #fff; }
-.btn-primary:hover { background: var(--primary-dark); }
+.btn-primary { background: var(--sv-primary) !important; color: #fff !important; }
+.btn-primary:hover { background: var(--sv-primary-dark) !important; }
 .btn-primary:active { transform: scale(0.98); }
-.btn-secondary { background: rgba(37,99,235,0.10); color: var(--blue,#93c5fd); border: 1px solid rgba(37,99,235,0.4); }
-.btn-secondary:hover { background: rgba(37,99,235,0.22); }
-.hero-meta { margin-top: 28px; font-size: 12px; color: var(--text-muted); display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+.btn-secondary { background: var(--sv-btn-secondary-bg) !important; color: var(--sv-btn-secondary-color) !important; border: 1px solid var(--sv-btn-secondary-border) !important; }
+.btn-secondary:hover { opacity: 0.85; }
+.hero-meta { margin-top: 28px; font-size: 12px; color: var(--sv-text-muted); display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
 .hero-meta span { display: inline-flex; align-items: center; gap: 6px; }
 
 /* SECTIONS */
 .section { margin-bottom: 60px; }
-.section-tag { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.24em; color: var(--primary-light); text-transform: uppercase; margin-bottom: 12px; }
+.section-tag { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.24em; color: var(--sv-primary-light); text-transform: uppercase; margin-bottom: 12px; }
 .section-h2 { font-size: 28px; font-weight: 800; margin-bottom: 16px; letter-spacing: -0.01em; }
-.section-intro { font-size: 15px; color: var(--text-dim); max-width: 680px; line-height: 1.6; margin-bottom: 28px; }
+.section-intro { font-size: 15px; color: var(--sv-text-dim); max-width: 680px; line-height: 1.6; margin-bottom: 28px; }
 
 /* CARDS GRID */
 .cards-3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
-.feat-card { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 14px; padding: 24px; backdrop-filter: blur(8px); }
+.feat-card { background: var(--sv-bg-card); border: 1px solid var(--sv-border-light); border-radius: 14px; padding: 24px; backdrop-filter: blur(8px); }
 .feat-ico { font-size: 32px; margin-bottom: 14px; }
 .feat-title { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
-.feat-desc { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+.feat-desc { font-size: 13px; color: var(--sv-text-dim); line-height: 1.6; }
 
 /* VOICES SOCIAL PROOF */
 .voices-row { display: flex; gap: 14px; flex-wrap: wrap; }
-.voice-mini { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 12px; padding: 14px 18px; display: flex; align-items: center; gap: 12px; flex: 1; min-width: 240px; }
-.voice-mini-avatar { width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 16px; border: 2px solid rgba(255,255,255,0.06); }
+.voice-mini { background: var(--sv-bg-card); border: 1px solid var(--sv-border-light); border-radius: 12px; padding: 14px 18px; display: flex; align-items: center; gap: 12px; flex: 1; min-width: 240px; }
+.voice-mini-avatar { width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 16px; border: 2px solid var(--sv-border-light); }
 .voice-mini-info { flex: 1; min-width: 0; }
 .voice-mini-name { font-size: 14px; font-weight: 700; }
-.voice-mini-role { font-size: 11px; color: var(--text-muted); }
+.voice-mini-role { font-size: 11px; color: var(--sv-text-muted); }
 
 /* VAGAS */
 .vagas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 16px; }
-.vaga-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; position: relative; overflow: hidden; transition: transform .2s, border-color .2s, box-shadow .2s; }
-.vaga-card:hover { transform: translateY(-3px); border-color: var(--border-active); box-shadow: 0 10px 28px rgba(37,99,235,0.12); }
-.vaga-num { position: absolute; top: 16px; right: 18px; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 20px; color: rgba(96,165,250,0.3); }
+.vaga-card { background: var(--sv-bg-card); border: 1px solid var(--sv-border); border-radius: 16px; padding: 24px; position: relative; overflow: hidden; transition: transform .2s, border-color .2s, box-shadow .2s; }
+.vaga-card:hover { transform: translateY(-3px); border-color: var(--sv-border-active); box-shadow: 0 10px 28px color-mix(in srgb, var(--sv-primary) 12%, transparent); }
+.vaga-num { position: absolute; top: 16px; right: 18px; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 20px; color: color-mix(in srgb, var(--sv-primary-light) 30%, transparent); }
 .vaga-nicho { font-size: 18px; font-weight: 700; margin-bottom: 10px; padding-right: 50px; }
-.vaga-perfil { font-size: 13px; color: var(--text-dim); line-height: 1.55; margin-bottom: 14px; }
+.vaga-perfil { font-size: 13px; color: var(--sv-text-dim); line-height: 1.55; margin-bottom: 14px; }
 .vaga-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
-.vaga-tag { font-size: 11px; background: rgba(37,99,235,0.10); border: 1px solid rgba(37,99,235,0.25); color: var(--primary-light); padding: 3px 9px; border-radius: 5px; }
-.vaga-audi { font-size: 11px; color: var(--text-muted); margin-bottom: 16px; }
-.vaga-cta { display: block; text-align: center; padding: 10px; background: rgba(37,99,235,0.12); border: 1px solid rgba(37,99,235,0.35); color: var(--blue,#93c5fd); border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 600; transition: background .15s; }
-.vaga-cta:hover { background: rgba(37,99,235,0.22); }
+.vaga-tag { font-size: 11px; background: var(--sv-btn-secondary-bg); border: 1px solid var(--sv-btn-secondary-border); color: var(--sv-primary-light); padding: 3px 9px; border-radius: 5px; }
+.vaga-audi { font-size: 11px; color: var(--sv-text-muted); margin-bottom: 16px; }
+.vaga-cta { display: block; text-align: center; padding: 10px; background: var(--sv-btn-secondary-bg); border: 1px solid var(--sv-btn-secondary-border); color: var(--sv-btn-secondary-color); border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 600; transition: opacity .15s; }
+.vaga-cta:hover { opacity: 0.8; }
 
 /* FORM */
-.form-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; max-width: 580px; margin: 0 auto; backdrop-filter: blur(8px); }
+.form-card { background: var(--sv-bg-card); border: 1px solid var(--sv-border); border-radius: 16px; padding: 32px; max-width: 680px; margin: 0 auto; backdrop-filter: blur(8px); }
 .form-row { margin-bottom: 16px; }
-.form-row label { display: block; font-size: 12px; font-weight: 600; color: var(--text-dim); margin-bottom: 6px; letter-spacing: 0.04em; }
-.form-row label .req { color: var(--warning); }
+.form-row label { display: block; font-size: 12px; font-weight: 600; color: var(--sv-text-dim); margin-bottom: 6px; letter-spacing: 0.04em; }
+.form-row label .req { color: var(--sv-warning); }
 .form-row input, .form-row select, .form-row textarea {
-  width: 100%; padding: 12px 14px; background: rgba(0,0,0,0.25);
-  border: 1px solid var(--border-light); border-radius: 8px;
-  color: var(--text); font-size: 14px; font-family: inherit; outline: none;
+  width: 100%; padding: 12px 14px; background: var(--sv-input-bg);
+  border: 1px solid var(--sv-border-light); border-radius: 8px;
+  color: var(--sv-text); font-size: 14px; font-family: inherit; outline: none;
   transition: border-color .2s, background .2s;
 }
-.form-row input:focus, .form-row select:focus, .form-row textarea:focus { border-color: var(--primary); background: rgba(37,99,235,0.06); }
+.form-row input:focus, .form-row select:focus, .form-row textarea:focus { border-color: var(--sv-primary); background: var(--sv-input-focus-bg); }
+.form-row select option { background: var(--sv-bg-2); color: var(--sv-text); }
 .form-row textarea { resize: vertical; min-height: 90px; }
-.form-row .helper { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+.form-row .helper { font-size: 11px; color: var(--sv-text-muted); margin-top: 4px; }
+.form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+@media (max-width: 540px) { .form-grid-2 { grid-template-columns: 1fr; } }
+.form-divider { border: none; border-top: 1px dashed var(--sv-border-light); margin: 24px 0; }
+.form-section-label { font-size: 13px; font-weight: 700; color: var(--sv-primary-light); margin-bottom: 14px; letter-spacing: 0.04em; }
+.checkbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; margin-top: 6px; }
+@media (max-width: 540px) { .checkbox-grid { grid-template-columns: 1fr; } }
+.checkbox-label { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--sv-text-dim); cursor: pointer; padding: 6px 8px; border-radius: 6px; transition: background .15s; }
+.checkbox-label:hover { background: var(--sv-input-bg); }
+.checkbox-label input[type="checkbox"] { accent-color: var(--sv-primary); width: 16px; height: 16px; cursor: pointer; }
 .form-submit-row { margin-top: 24px; }
 .form-submit-row .btn { width: 100%; justify-content: center; }
-.form-success { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.4); color: var(--success); padding: 14px 18px; border-radius: 10px; font-size: 14px; margin-bottom: 16px; display: none; }
+.form-success { background: color-mix(in srgb, var(--sv-success) 8%, transparent); border: 1px solid color-mix(in srgb, var(--sv-success) 40%, transparent); color: var(--sv-success); padding: 14px 18px; border-radius: 10px; font-size: 14px; margin-bottom: 16px; display: none; }
 .form-success.show { display: block; }
-.form-error { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.4); color: var(--red,#f87171); padding: 14px 18px; border-radius: 10px; font-size: 14px; margin-bottom: 16px; display: none; }
+.form-error { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.4); color: #f87171; padding: 14px 18px; border-radius: 10px; font-size: 14px; margin-bottom: 16px; display: none; }
 .form-error.show { display: block; }
 
 /* FAQ */
 .faq { display: grid; gap: 10px; }
-.faq-item { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 10px; padding: 14px 18px; }
-.faq-q { font-size: 14px; font-weight: 600; color: var(--text); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-.faq-q::after { content: '+'; color: var(--primary-light); font-size: 18px; font-weight: 300; }
+.faq-item { background: var(--sv-bg-card); border: 1px solid var(--sv-border-light); border-radius: 10px; padding: 14px 18px; }
+.faq-q { font-size: 14px; font-weight: 600; color: var(--sv-text); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+.faq-q::after { content: '+'; color: var(--sv-primary-light); font-size: 18px; font-weight: 300; }
 .faq-item.open .faq-q::after { content: '−'; }
-.faq-a { font-size: 13px; color: var(--text-dim); line-height: 1.6; margin-top: 10px; display: none; padding-top: 10px; border-top: 1px dashed var(--border-light); }
+.faq-a { font-size: 13px; color: var(--sv-text-dim); line-height: 1.6; margin-top: 10px; display: none; padding-top: 10px; border-top: 1px dashed var(--sv-border-light); }
 .faq-item.open .faq-a { display: block; }
 
 /* ERP STRIP */
-.erp-strip { background: linear-gradient(135deg, rgba(16,185,129,0.08), rgba(20,184,166,0.04)); border: 1px solid rgba(16,185,129,0.25); border-radius: 16px; padding: 28px; display: flex; gap: 20px; align-items: center; margin-bottom: 40px; }
+.erp-strip { background: color-mix(in srgb, var(--sv-success) 8%, transparent); border: 1px solid color-mix(in srgb, var(--sv-success) 25%, transparent); border-radius: 16px; padding: 28px; display: flex; gap: 20px; align-items: center; margin-bottom: 40px; }
 .erp-ico { font-size: 48px; flex-shrink: 0; }
 .erp-body { flex: 1; }
-.erp-title { font-size: 16px; font-weight: 700; color: var(--success); margin-bottom: 4px; }
-.erp-desc { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
-.erp-link { color: var(--success); text-decoration: none; font-weight: 600; }
+.erp-title { font-size: 16px; font-weight: 700; color: var(--sv-success); margin-bottom: 4px; }
+.erp-desc { font-size: 13px; color: var(--sv-text-dim); line-height: 1.6; }
+.erp-link { color: var(--sv-success); text-decoration: none; font-weight: 600; }
 
 /* FOOT */
-.foot { border-top: 1px solid var(--border-light); padding: 28px 0 8px; text-align: center; margin-top: 30px; }
-.foot-line { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
-.foot-line a { color: var(--primary-light); text-decoration: none; }
-.foot-meta { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 9px; color: rgba(148,163,184,0.35); letter-spacing: 0.15em; margin-top: 16px; }
+.foot { border-top: 1px solid var(--sv-border-light); padding: 28px 0 8px; text-align: center; margin-top: 30px; }
+.foot-line { font-size: 13px; color: var(--sv-text-muted); margin-bottom: 6px; }
+.foot-line a { color: var(--sv-primary-light); text-decoration: none; }
+.foot-meta { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 9px; color: color-mix(in srgb, var(--sv-text-muted) 35%, transparent); letter-spacing: 0.15em; margin-top: 16px; }
 
 @media (max-width: 720px) {
   .erp-strip { flex-direction: column; text-align: center; }
@@ -194,8 +274,8 @@ body {
   <section class="section">
     <div class="section-tag">Quem já está</div>
     <h2 class="section-h2">Voices ativos no MVP</h2>
-    <p class="section-intro">Conheça os 2 primeiros Voices do programa — todos consultores sêniores da EPI-USE Brasil.</p>
-    <div class="voices-row" id="voices-row"><div style="color:var(--text-muted);font-size:13px">Carregando…</div></div>
+    <p class="section-intro">Conheça os primeiros Voices do programa — todos consultores sêniores da EPI-USE Brasil.</p>
+    <div class="voices-row" id="voices-row"><div style="color:var(--sv-text-muted);font-size:13px">Carregando…</div></div>
   </section>
 
   <!-- VOCÊ GANHA -->
@@ -301,33 +381,166 @@ body {
         Erro ao enviar. Tente novamente ou mande direto pra rudacosta@epiuse.com.br.
       </div>
       <form id="seja-voice-form" novalidate>
-        <div class="form-row">
-          <label for="f-nome">Nome completo <span class="req">*</span></label>
-          <input id="f-nome" name="nome" type="text" required maxlength="100">
+
+        <!-- SEÇÃO 1: Sobre a pessoa -->
+        <div class="form-section-label">1. Sobre a pessoa</div>
+        <div class="form-grid-2">
+          <div class="form-row">
+            <label for="f-nome">Nome completo <span class="req">*</span></label>
+            <input id="f-nome" name="nome" type="text" required maxlength="100">
+          </div>
+          <div class="form-row">
+            <label for="f-email">E-mail corporativo EPI-USE <span class="req">*</span></label>
+            <input id="f-email" name="email" type="email" required maxlength="100" placeholder="nome@epiuse.com.br">
+          </div>
+        </div>
+        <div class="form-grid-2">
+          <div class="form-row">
+            <label for="f-cargo">Cargo e área <span class="req">*</span></label>
+            <input id="f-cargo" name="cargo" type="text" required maxlength="100" placeholder="Ex: Consultor Sênior — SAP HCM">
+          </div>
+          <div class="form-row">
+            <label for="f-endereco">Endereço completo (para envio de kit) <span class="req">*</span></label>
+            <input id="f-endereco" name="endereco" type="text" required maxlength="200" placeholder="Rua, nº, bairro — Cidade/UF — CEP">
+          </div>
         </div>
         <div class="form-row">
-          <label for="f-email">E-mail corporativo EPI-USE <span class="req">*</span></label>
-          <input id="f-email" name="email" type="email" required maxlength="100" placeholder="nome@epiuse.com.br">
+          <label for="f-tempo-epiuse">Há quanto tempo está na EPI-USE? <span class="req">*</span></label>
+          <input id="f-tempo-epiuse" name="tempo_epiuse" type="text" required maxlength="50" placeholder="Ex: 3 anos e 4 meses">
         </div>
         <div class="form-row">
-          <label for="f-linkedin">URL do LinkedIn <span class="req">*</span></label>
-          <input id="f-linkedin" name="linkedin" type="url" required placeholder="https://linkedin.com/in/seu-perfil">
+          <label for="f-dia-a-dia">Como você descreveria o que faz no dia a dia — sem jargão técnico? <span class="req">*</span></label>
+          <textarea id="f-dia-a-dia" name="dia_a_dia" required maxlength="600" placeholder="Imagine que está explicando pra alguém de fora da TI..."></textarea>
         </div>
         <div class="form-row">
-          <label for="f-area">Vaga de interesse <span class="req">*</span></label>
-          <select id="f-area" name="area" required>
-            <option value="">— escolha uma —</option>
-            <option value="signavio">#03 — Signavio / Process Mining</option>
-            <option value="analytics">#04 — Analytics / BI / Data</option>
-            <option value="industria">#05 — Indústria / Manufacturing</option>
-            <option value="outro">Outra área (descreva abaixo)</option>
+          <label for="f-dominio-tecnico">Qual é o seu maior domínio técnico? Possui certificações? <span class="req">*</span></label>
+          <textarea id="f-dominio-tecnico" name="dominio_tecnico" required maxlength="400" placeholder="Ex: SAP HCM · SuccessFactors EC · Certificação C_THR81"></textarea>
+        </div>
+        <div class="form-row">
+          <label for="f-trajetoria">Conte brevemente a sua trajetória até chegar na EPI-USE <span class="req">*</span></label>
+          <textarea id="f-trajetoria" name="trajetoria" required maxlength="800" placeholder="De onde veio, como chegou no mundo SAP, o que te trouxe até aqui..."></textarea>
+        </div>
+        <div class="form-grid-2">
+          <div class="form-row">
+            <label for="f-palestras">Pode dar palestras / webinars? <span class="req">*</span></label>
+            <select id="f-palestras" name="palestras" required>
+              <option value="">— selecione —</option>
+              <option value="sim">Sim, com certeza</option>
+              <option value="talvez">Talvez, com apoio</option>
+              <option value="nao">Prefiro não</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="f-videos">Gravaria vídeos curtos? <span class="req">*</span></label>
+            <select id="f-videos" name="videos" required>
+              <option value="">— selecione —</option>
+              <option value="sim">Sim, me sinto à vontade</option>
+              <option value="talvez">Talvez, se tiver roteiro</option>
+              <option value="nao">Prefiro não</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <label for="f-lado-humano">Lado humano — conte algo sobre você fora do trabalho</label>
+          <textarea id="f-lado-humano" name="lado_humano" maxlength="600" placeholder="Filhos, causas que apoia, filmes favoritos, hobbies, músicas que não saem da cabeça..."></textarea>
+          <div class="helper">Isso humaniza os posts e gera identificação com a audiência</div>
+        </div>
+        <div class="form-row">
+          <label for="f-fotos">Tem fotos profissionais / de bastidores que possamos usar nos posts? <span class="req">*</span></label>
+          <select id="f-fotos" name="tem_fotos" required>
+            <option value="">— selecione —</option>
+            <option value="sim-muitas">Sim, tenho várias</option>
+            <option value="sim-poucas">Tenho algumas</option>
+            <option value="nao">Não tenho, mas posso tirar</option>
+          </select>
+        </div>
+
+        <hr class="form-divider">
+
+        <!-- SEÇÃO 2: Projetos & experiência -->
+        <div class="form-section-label">2. Projetos & experiência</div>
+        <div class="form-row">
+          <label for="f-projeto-orgulho">Qual projeto da EPI-USE te dá mais orgulho? Por quê? Se puder, traga números. <span class="req">*</span></label>
+          <textarea id="f-projeto-orgulho" name="projeto_orgulho" required maxlength="800" placeholder="Ex: Migração de folha do cliente X — 12.000 colaboradores em 6 meses, sem atrasos de pagamento"></textarea>
+        </div>
+        <div class="form-row">
+          <label for="f-desafio">Tem algum desafio técnico ou de equipe que valha contar?</label>
+          <textarea id="f-desafio" name="desafio" maxlength="800" placeholder="Uma situação difícil que você resolveu, uma virada em projeto, um aprendizado marcante..."></textarea>
+        </div>
+        <div class="form-row">
+          <label for="f-lideranca">Lidera equipe? Como é esse processo?</label>
+          <textarea id="f-lideranca" name="lideranca" maxlength="400" placeholder="Tamanho do time, metodologia, como lida com conflitos, cultura que cultiva..."></textarea>
+        </div>
+        <div class="form-row">
+          <label for="f-competencias">Competências — selecione as que se aplicam</label>
+          <div class="checkbox-grid">
+            <label class="checkbox-label"><input type="checkbox" name="comp_gestao_projetos" value="sim"> Gestão de projetos</label>
+            <label class="checkbox-label"><input type="checkbox" name="comp_lideranca" value="sim"> Liderança de equipe</label>
+            <label class="checkbox-label"><input type="checkbox" name="comp_consultoria" value="sim"> Consultoria funcional</label>
+            <label class="checkbox-label"><input type="checkbox" name="comp_tecnico" value="sim"> Desenvolvimento técnico</label>
+            <label class="checkbox-label"><input type="checkbox" name="comp_integracao" value="sim"> Integração de sistemas</label>
+            <label class="checkbox-label"><input type="checkbox" name="comp_treinamento" value="sim"> Treinamento / capacitação</label>
+            <label class="checkbox-label"><input type="checkbox" name="comp_migracao" value="sim"> Migração / upgrade</label>
+            <label class="checkbox-label"><input type="checkbox" name="comp_suporte" value="sim"> Suporte / sustentação</label>
+          </div>
+        </div>
+        <div class="form-row">
+          <label for="f-exposicoes">Exposições, premiações, elogios de clientes, participação em eventos</label>
+          <textarea id="f-exposicoes" name="exposicoes" maxlength="600" placeholder="Prêmios SAP, menções de clientes, palestras anteriores, artigos publicados, participação em eventos..."></textarea>
+        </div>
+
+        <hr class="form-divider">
+
+        <!-- SEÇÃO 3: Estilo & público -->
+        <div class="form-section-label">3. Estilo & público</div>
+        <div class="form-row">
+          <label for="f-tom">Qual tom combina mais com você? <span class="req">*</span></label>
+          <select id="f-tom" name="tom" required>
+            <option value="">— selecione —</option>
+            <option value="tecnico">Técnico — dados, detalhes, profundidade</option>
+            <option value="moderno">Moderno — storytelling, cases, linguagem acessível</option>
+            <option value="meio-termo">Meio-termo — técnico mas acessível</option>
           </select>
         </div>
         <div class="form-row">
-          <label for="f-motivo">Por que você quer ser Voice? <span class="req">*</span></label>
-          <textarea id="f-motivo" name="motivo" required maxlength="800" placeholder="Conte em 3-4 frases o que te motiva e o que você quer compartilhar..."></textarea>
-          <div class="helper">Máx 800 caracteres · Será lido pela Duda e pelo Rudá</div>
+          <label for="f-publico-alvo">Qual público você quer atingir? <span class="req">*</span></label>
+          <textarea id="f-publico-alvo" name="publico_alvo" required maxlength="300" placeholder="Ex: Gestores de RH de grandes empresas, CTOs buscando modernização SAP, profissionais em transição..."></textarea>
         </div>
+        <div class="form-row">
+          <label for="f-tema-adoraria">Tem algum tema que adoraria falar e nunca teve espaço?</label>
+          <textarea id="f-tema-adoraria" name="tema_adoraria" maxlength="400" placeholder="Aquele assunto que você domina mas nunca publicou sobre..."></textarea>
+        </div>
+        <div class="form-row">
+          <label for="f-tema-evitar">Tem algum tema que prefere evitar?</label>
+          <input id="f-tema-evitar" name="tema_evitar" type="text" maxlength="200" placeholder="Ex: Política interna, comparações com concorrentes...">
+        </div>
+        <div class="form-row">
+          <label for="f-artigos-ref">Adicione até 5 artigos/posts que você se identifica</label>
+          <textarea id="f-artigos-ref" name="artigos_ref" maxlength="1000" placeholder="Cole os links (um por linha) — nos ajuda a entender seu estilo e referências"></textarea>
+          <div class="helper">Podem ser artigos, posts no LinkedIn, vídeos — qualquer conteúdo que represente o tom que você quer</div>
+        </div>
+        <div class="form-row">
+          <label for="f-linkedin">URL do seu perfil LinkedIn <span class="req">*</span></label>
+          <input id="f-linkedin" name="linkedin" type="url" required placeholder="https://linkedin.com/in/seu-perfil">
+        </div>
+
+        <hr class="form-divider">
+
+        <!-- SEÇÃO 4: Rotina & bastidores -->
+        <div class="form-section-label">4. Rotina & bastidores</div>
+        <div class="form-row">
+          <label for="f-dia-tipico">Como é um dia típico seu na EPI-USE? <span class="req">*</span></label>
+          <textarea id="f-dia-tipico" name="dia_tipico" required maxlength="600" placeholder="Da hora que liga o notebook até encerrar o dia — reuniões, entregas, calls com cliente..."></textarea>
+        </div>
+        <div class="form-row">
+          <label for="f-bastidores">O que existe na sua área que ninguém de fora imagina?</label>
+          <textarea id="f-bastidores" name="bastidores" maxlength="600" placeholder="Curiosidades, desafios ocultos, coisas surpreendentes do dia a dia..."></textarea>
+        </div>
+        <div class="form-row">
+          <label for="f-fora-trabalho">O que gosta de fazer fora do trabalho?</label>
+          <textarea id="f-fora-trabalho" name="fora_trabalho" maxlength="400" placeholder="Hobbies, esportes, livros, séries, viagens, voluntariado..."></textarea>
+        </div>
+
         <!-- UTM hidden inputs -->
         <input type="hidden" name="utm_source" id="utm_source">
         <input type="hidden" name="utm_medium" id="utm_medium">
@@ -335,7 +548,7 @@ body {
         <input type="hidden" name="utm_voice" id="utm_voice">
 
         <div class="form-submit-row">
-          <button type="submit" class="btn btn-primary" id="submit-btn">📨 Enviar inscrição</button>
+          <button type="submit" class="btn btn-primary" id="submit-btn">Enviar inscrição</button>
         </div>
       </form>
     </div>
@@ -385,7 +598,7 @@ async function loadData() {
       <div class="vaga-perfil">${vg.perfil_ideal}</div>
       <div class="vaga-tags">${vg.tags.map(t => `<span class="vaga-tag">${t}</span>`).join('')}</div>
       <div class="vaga-audi">🎯 ${vg.audiencia_alvo.join(', ')}</div>
-      <a class="vaga-cta" href="#inscrever" onclick="document.getElementById('f-area').value='${vg.nicho.split(' /')[0].split(' (')[0].toLowerCase().includes('signavio')?'signavio':vg.nicho.toLowerCase().includes('analytics')?'analytics':'industria'}'">Aplicar para esta vaga →</a>
+      <a class="vaga-cta" href="#inscrever">Aplicar para esta vaga →</a>
     </div>
   `).join('');
 }
@@ -406,7 +619,10 @@ document.getElementById('seja-voice-form').addEventListener('submit', async (e) 
   const error = document.getElementById('form-error');
   success.classList.remove('show'); error.classList.remove('show');
 
-  const formData = Object.fromEntries(new FormData(form).entries());
+  const fd = new FormData(form);
+  const formData = {};
+  for (const [k, v] of fd.entries()) formData[k] = v;
+  form.querySelectorAll('input[type="checkbox"]').forEach(cb => { formData[cb.name] = cb.checked ? 'sim' : ''; });
   formData.timestamp = new Date().toISOString();
 
   btn.disabled = true; btn.textContent = '⏳ Enviando…';
@@ -421,7 +637,7 @@ document.getElementById('seja-voice-form').addEventListener('submit', async (e) 
     success.classList.add('show');
     form.reset();
     btn.textContent = '✓ Enviado!';
-    if (window.plausible) plausible('Recruitment Form', { props: { area: formData.area || 'unknown' } });
+    if (window.plausible) plausible('Recruitment Form', { props: { cargo: formData.cargo || 'unknown' } });
     setTimeout(() => { btn.textContent = '📨 Enviar inscrição'; btn.disabled = false; }, 3500);
   } catch (err) {
     console.error(err);

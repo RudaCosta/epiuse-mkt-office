@@ -96,12 +96,36 @@ db.exec(`
     linkedin     TEXT NOT NULL,
     area         TEXT NOT NULL,
     motivo       TEXT DEFAULT '',
+    cargo        TEXT DEFAULT '',
+    endereco     TEXT DEFAULT '',
+    tempo_epiuse TEXT DEFAULT '',
+    dia_a_dia    TEXT DEFAULT '',
+    dominio_tecnico TEXT DEFAULT '',
+    trajetoria   TEXT DEFAULT '',
+    palestras    TEXT DEFAULT '',
+    videos       TEXT DEFAULT '',
+    lado_humano  TEXT DEFAULT '',
+    tem_fotos    TEXT DEFAULT '',
+    projeto_orgulho TEXT DEFAULT '',
+    desafio      TEXT DEFAULT '',
+    lideranca    TEXT DEFAULT '',
+    competencias TEXT DEFAULT '',
+    exposicoes   TEXT DEFAULT '',
+    tom          TEXT DEFAULT '',
+    publico_alvo TEXT DEFAULT '',
+    tema_adoraria TEXT DEFAULT '',
+    tema_evitar  TEXT DEFAULT '',
+    artigos_ref  TEXT DEFAULT '',
+    dia_tipico   TEXT DEFAULT '',
+    bastidores   TEXT DEFAULT '',
+    fora_trabalho TEXT DEFAULT '',
     utm_source   TEXT DEFAULT '',
     utm_medium   TEXT DEFAULT '',
     utm_campaign TEXT DEFAULT '',
     utm_voice    TEXT DEFAULT '',
     timestamp    TEXT NOT NULL,
     ip           TEXT DEFAULT '',
+    status       TEXT DEFAULT 'novo',
     created_at   TEXT DEFAULT (datetime('now'))
   );
   CREATE TABLE IF NOT EXISTS cs_clientes (
@@ -232,6 +256,11 @@ db.exec(`
   );
   CREATE INDEX IF NOT EXISTS idx_content_estado ON content_pipeline(estado);
 `);
+// migration idempotente: colunas novas do formulário expandido de recrutamento Voices
+for (const _col of ['telefone','cidade','cargo','tempo_epiuse','experiencia_sap','especialidades','seguidores_faixa','frequencia_post','temas_interesse','horas_semanais','disponibilidade_inicio','gestor','observacoes','status','endereco','dia_a_dia','dominio_tecnico','trajetoria','palestras','videos','lado_humano','tem_fotos','projeto_orgulho','desafio','lideranca','competencias','exposicoes','tom','publico_alvo','tema_adoraria','tema_evitar','artigos_ref','dia_tipico','bastidores','fora_trabalho']) {
+  try { db.exec(`ALTER TABLE recruitment_applications ADD COLUMN ${_col} TEXT DEFAULT ''`); } catch (_e) { /* ja existe */ }
+}
+
 // migration idempotente: colunas do produto completo do Raccoon (carrossel estruturado + arte)
 for (const _col of ['carrossel_json', 'capa_url']) {
   try { db.exec(`ALTER TABLE content_pipeline ADD COLUMN ${_col} TEXT DEFAULT ''`); } catch (_e) { /* ja existe */ }
@@ -3672,30 +3701,56 @@ app.get('/v/:slug', (req, res) => {
 // ── FORM SUBMIT: /api/seja-voice (LP recrutamento) ────────────────────────────
 app.post('/api/seja-voice', recruitmentLimiter, async (req, res) => {
   const data = req.body || {};
-  // Sanitização básica
+  const s = (v, max) => String(v || '').slice(0, max);
+  const comps = ['comp_gestao_projetos','comp_lideranca','comp_consultoria','comp_tecnico','comp_integracao','comp_treinamento','comp_migracao','comp_suporte']
+    .filter(k => data[k] === 'sim').join(', ');
   const clean = {
-    nome:        String(data.nome || '').slice(0, 100),
-    email:       String(data.email || '').slice(0, 100),
-    linkedin:    String(data.linkedin || '').slice(0, 200),
-    area:        String(data.area || '').slice(0, 50),
-    motivo:      String(data.motivo || '').slice(0, 800),
-    utm_source:  String(data.utm_source || '').slice(0, 50),
-    utm_medium:  String(data.utm_medium || '').slice(0, 50),
-    utm_campaign: String(data.utm_campaign || '').slice(0, 50),
-    utm_voice:   String(data.utm_voice || '').slice(0, 50),
+    nome:        s(data.nome, 100),
+    email:       s(data.email, 100),
+    linkedin:    s(data.linkedin, 200),
+    area:        s(data.area || 'voices', 50),
+    motivo:      s(data.motivo, 800),
+    cargo:       s(data.cargo, 100),
+    endereco:    s(data.endereco, 200),
+    tempo_epiuse: s(data.tempo_epiuse, 50),
+    dia_a_dia:   s(data.dia_a_dia, 600),
+    dominio_tecnico: s(data.dominio_tecnico, 400),
+    trajetoria:  s(data.trajetoria, 800),
+    palestras:   s(data.palestras, 20),
+    videos:      s(data.videos, 20),
+    lado_humano: s(data.lado_humano, 600),
+    tem_fotos:   s(data.tem_fotos, 20),
+    projeto_orgulho: s(data.projeto_orgulho, 800),
+    desafio:     s(data.desafio, 800),
+    lideranca:   s(data.lideranca, 400),
+    competencias: s(comps, 300),
+    exposicoes:  s(data.exposicoes, 600),
+    tom:         s(data.tom, 20),
+    publico_alvo: s(data.publico_alvo, 300),
+    tema_adoraria: s(data.tema_adoraria, 400),
+    tema_evitar: s(data.tema_evitar, 200),
+    artigos_ref: s(data.artigos_ref, 1000),
+    dia_tipico:  s(data.dia_tipico, 600),
+    bastidores:  s(data.bastidores, 600),
+    fora_trabalho: s(data.fora_trabalho, 400),
+    utm_source:  s(data.utm_source, 50),
+    utm_medium:  s(data.utm_medium, 50),
+    utm_campaign: s(data.utm_campaign, 50),
+    utm_voice:   s(data.utm_voice, 50),
     timestamp:   data.timestamp || new Date().toISOString(),
     ip:          req.ip || 'unknown'
   };
-  if (!clean.nome || !clean.email || !clean.linkedin || !clean.area || !clean.motivo) {
+  if (!clean.nome || !clean.email || !clean.linkedin || !clean.cargo || !clean.endereco || !clean.tempo_epiuse || !clean.dia_a_dia || !clean.dominio_tecnico || !clean.trajetoria || !clean.palestras || !clean.videos || !clean.tem_fotos || !clean.projeto_orgulho || !clean.tom || !clean.publico_alvo || !clean.dia_tipico) {
     return res.status(400).json({ success: false, error: 'Campos obrigatórios não preenchidos.' });
   }
+  const cols = ['nome','email','linkedin','area','motivo','cargo','endereco','tempo_epiuse','dia_a_dia','dominio_tecnico','trajetoria','palestras','videos','lado_humano','tem_fotos','projeto_orgulho','desafio','lideranca','competencias','exposicoes','tom','publico_alvo','tema_adoraria','tema_evitar','artigos_ref','dia_tipico','bastidores','fora_trabalho','utm_source','utm_medium','utm_campaign','utm_voice','timestamp','ip'];
   try {
-    db.prepare('INSERT INTO recruitment_applications (nome,email,linkedin,area,motivo,utm_source,utm_medium,utm_campaign,utm_voice,timestamp,ip) VALUES (?,?,?,?,?,?,?,?,?,?,?)')
-      .run(clean.nome,clean.email,clean.linkedin,clean.area,clean.motivo,clean.utm_source,clean.utm_medium,clean.utm_campaign,clean.utm_voice,clean.timestamp,clean.ip);
+    db.prepare(`INSERT INTO recruitment_applications (${cols.join(',')}) VALUES (${Array(cols.length).fill('?').join(',')})`)
+      .run(...cols.map(c => clean[c]));
   } catch (e) {
     console.error('[RECRUITMENT-WRITE-FAIL]', e.message);
   }
-  console.log(`[RECRUITMENT] ${clean.nome} (${clean.email}) → vaga ${clean.area} | utm_source=${clean.utm_source}`);
+  console.log(`[RECRUITMENT] ${clean.nome} (${clean.email}) → cargo=${clean.cargo} | tom=${clean.tom} | utm_source=${clean.utm_source}`);
 
   // Dispara email (não bloqueia response — best effort)
   sendRecruitmentEmail(clean).catch(e => console.error('[EMAIL-UNCAUGHT]', e.message));
