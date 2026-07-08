@@ -5608,7 +5608,11 @@ app.get('/api/health', (req, res) => {
     service: 'epi-use-office',
     version: (() => { try { return require('./package.json').version; } catch { return 'unknown'; } })(),
     uptime_s: Math.round(process.uptime()),
-    ts: new Date().toISOString()
+    ts: new Date().toISOString(),
+    webhooks: {
+      recruitment: WEBHOOK_RECRUITMENT_URL ? `SET (${WEBHOOK_RECRUITMENT_URL.length} chars, starts: ${WEBHOOK_RECRUITMENT_URL.slice(0,40)}...)` : 'NOT SET',
+      brindes: process.env.WEBHOOK_BRINDES_URL ? 'SET' : 'NOT SET'
+    }
   });
 });
 
