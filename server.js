@@ -747,6 +747,13 @@ app.use((req, res, next) => {
   next();
 });
 
+// ── ANALYTICS DE USO (Módulo 15) — log de navegação de página ─────────────────
+// Roda após session/enforce/hub-lock: só loga páginas que o usuário realmente
+// alcançou, já com o email da sessão resolvido. O tempo na página vem do beacon
+// do cliente (office-nav.js → POST /api/analytics/track). Report: /admin/analytics.
+const analyticsRouter = require('./routes/analytics');
+app.use(analyticsRouter.logPageView);
+
 // ── PRESENÇA MULTIPLAYER DO GAME (v0.60.0) ────────────────────────────────────
 // Estado EFÊMERO em memória (nada no SQLite — presença zera a cada deploy, ok).
 // Clientes dos games (/game e /game-hub) POSTam posição a cada ~2s e recebem
@@ -5623,6 +5630,7 @@ app.use('/', jarvisRouter);
 app.use('/', optimizerV3Router);
 app.use('/', usersRouter);
 app.use('/', curvaAbcRouter);
+app.use('/', analyticsRouter); // Módulo 15 — Analytics de uso (report /admin/analytics)
 
 app.listen(PORT, () => {
   console.log(`\n🎙️  EPI-USE Voices — Profile Optimizer`);

@@ -366,6 +366,13 @@ class OfficeNav extends HTMLElement {
         grp.links.push({ label: '👥 Usuários & Perfis', href: '/admin/usuarios' });
       }
     }
+    // Analytics de uso — exclusivo do dono (ruda.costa@epiuse.com.br).
+    if ((this._sso && String(this._sso.email || '').toLowerCase()) === 'ruda.costa@epiuse.com.br') {
+      const grpA = col1Items.find(g => g.section === '🤖 Escritório Virtual');
+      if (grpA && !grpA.links.some(l => l.href === '/admin/analytics')) {
+        grpA.links.push({ label: '📊 Analytics de Uso', href: '/admin/analytics' });
+      }
+    }
 
     const col1Html = renderColumn(col1Items);
     const col2Html = renderColumn(col2Items);
@@ -2048,3 +2055,36 @@ class HubSubmenu extends HTMLElement {
 }
 
 customElements.define('hub-submenu', HubSubmenu);
+
+// ════════════════════════════════════════════════════════════════════════════
+// Analytics de uso — tempo ativo na página (Módulo 17)
+// O QUEM/QUE-PÁGINA/QUANDO é logado server-side (routes/analytics.js). Aqui só
+// medimos o tempo ATIVO na página (descontando quando a aba fica em background)
+// e mandamos no pagehide/ocultar via sendBeacon (não bloqueia a navegação).
+// ════════════════════════════════════════════════════════════════════════════
+(function officeUsageBeacon() {
+  if (window.__officeUsageBeacon) return;
+  window.__officeUsageBeacon = true;
+  var active = 0, last = Date.now(), visible = !document.hidden;
+  function tick() { var now = Date.now(); if (visible) active += now - last; last = now; }
+  function send() {
+    tick();
+    if (active < 1000) return;              // ignora < 1s
+    var body = JSON.stringify({ path: location.pathname, dur_ms: Math.round(active) });
+    active = 0;
+    try {
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon('/api/analytics/track', new Blob([body], { type: 'application/json' }));
+      } else {
+        fetch('/api/analytics/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body, keepalive: true }).catch(function () {});
+      }
+    } catch (e) {}
+  }
+  document.addEventListener('visibilitychange', function () {
+    tick();
+    if (document.hidden) { visible = false; send(); }
+    else { visible = true; last = Date.now(); }
+  });
+  window.addEventListener('pagehide', send);
+  setInterval(tick, 15000); // acumula em sessões longas na mesma aba
+})();
