@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Analytics de Uso · Admin</title>
+<link rel="stylesheet" href="/design-tokens.css">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Maven Pro',system-ui,sans-serif;background:#0a1426;color:#e8f0ff;line-height:1.5}
+  .container{max-width:1080px;margin:0 auto;padding:32px 24px 80px}
+  h1{font-size:24px;font-weight:800;margin-bottom:4px}
+  .sub{font-size:13px;color:#9fb2d4;margin-bottom:20px}
+  .owner{font-size:12px;color:#fbbf24;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.3);border-radius:10px;padding:8px 12px;margin-bottom:20px;display:inline-block}
+  .controls{display:flex;gap:8px;align-items:center;margin-bottom:24px;flex-wrap:wrap}
+  .controls label{font-size:12px;color:#9fb2d4}
+  select{background:#0f1d36;border:1px solid rgba(134,158,195,.25);color:#e8f0ff;padding:7px 10px;border-radius:8px;font-family:inherit;font-size:13px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:28px}
+  .card{background:#0f1d36;border:1px solid rgba(134,158,195,.18);border-radius:12px;padding:16px 18px}
+  .card .n{font-size:26px;font-weight:800;font-family:'JetBrains Mono',monospace;color:#60a5fa}
+  .card .l{font-size:12px;color:#9fb2d4;text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+  h2{font-size:14px;font-weight:800;margin:28px 0 10px;color:#9fb2d4;text-transform:uppercase;letter-spacing:.06em}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid rgba(134,158,195,.14)}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#9fb2d4;cursor:default}
+  td.num,th.num{text-align:right;font-family:'JetBrains Mono',monospace}
+  .num-hi{color:#fbbf24;font-weight:700}
+  tr:hover td{background:rgba(134,158,195,.05)}
+  .panel{background:#0b1830;border:1px solid rgba(134,158,195,.16);border-radius:14px;padding:8px 4px;overflow-x:auto;margin-bottom:8px}
+  .vazio{color:#9fb2d4;font-size:13px;padding:16px}
+  .spark{display:flex;align-items:flex-end;gap:3px;height:64px;padding:8px 12px;background:#0b1830;border:1px solid rgba(134,158,195,.16);border-radius:12px;margin-bottom:8px;overflow-x:auto}
+  .spark .bar{flex:0 0 auto;width:10px;min-height:2px;background:linear-gradient(180deg,#60a5fa,#2563eb);border-radius:2px 2px 0 0}
+  .spark .bar:hover{background:#fbbf24}
+  .path{font-family:'JetBrains Mono',monospace;font-size:12px;color:#a7c0e8}
+  .email{font-weight:600}
+  .muted{color:#9fb2d4;font-size:12px}
+</style>
+</head>
+<body>
+<office-nav></office-nav>
+<div class="container">
+  <h1>📊 Analytics de Uso</h1>
+  <div class="sub">Quem acessou a plataforma, quanto tempo ficou e quais páginas visitou.</div>
+  <div class="owner" id="owner-tag">🔒 Área restrita</div>
+
+  <div class="controls">
+    <label for="days">Período:</label>
+    <select id="days">
+      <option value="1">Últimas 24h</option>
+      <option value="7">7 dias</option>
+      <option value="30" selected>30 dias</option>
+      <option value="90">90 dias</option>
+      <option value="365">1 ano</option>
+    </select>
+  </div>
+
+  <div class="cards" id="cards"></div>
+
+  <h2>Visitas por dia</h2>
+  <div class="spark" id="spark"></div>
+
+  <h2>Usuários</h2>
+  <div class="panel">
+    <table><thead><tr>
+      <th>Usuário</th><th class="num">Tempo total</th><th class="num">Sessões</th>
+      <th class="num">Visitas</th><th class="num">Páginas</th><th>Último acesso</th>
+    </tr></thead><tbody id="tb-users"><tr><td colspan="6" class="vazio">Carregando…</td></tr></tbody></table>
+  </div>
+
+  <h2>Páginas mais acessadas</h2>
+  <div class="panel">
+    <table><thead><tr>
+      <th>Página</th><th class="num">Visitas</th><th class="num">Usuários</th><th class="num">Tempo médio</th>
+    </tr></thead><tbody id="tb-pages"></tbody></table>
+  </div>
+
+  <h2>Atividade recente</h2>
+  <div class="panel">
+    <table><thead><tr><th>Quando</th><th>Usuário</th><th>Página</th></tr></thead>
+    <tbody id="tb-recent"></tbody></table>
+  </div>
+</div>
+<script src="/office-nav.js"></script>
+<script>
+(function(){
+  // Token de editor (fallback quando não há sessão do dono — ex: acesso local).
+  // Passar via ?token=... uma vez; fica salvo em localStorage.
+  try {
+    var _t = new URL(location.href).searchParams.get('token');
+    if (_t) localStorage.setItem('office.editorToken', _t);
+  } catch(e){}
+  function authHeaders(){
+    var h = {};
+    try { var t = localStorage.getItem('office.editorToken'); if (t) h['X-Editor-Token'] = t; } catch(e){}
+    return h;
+  }
+  var esc = function(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c];}); };
+  function fmtDur(ms){
+    ms = +ms||0; var s = Math.round(ms/1000);
+    if (s < 60) return s + 's';
+    var m = Math.floor(s/60); var sec = s%60;
+    if (m < 60) return m + 'm' + (sec?(' '+sec+'s'):'');
+    var h = Math.floor(m/60); m = m%60;
+    return h + 'h' + (m?(' '+m+'m'):'');
+  }
+  function fmtWhen(ts){
+    var d = new Date(+ts);
+    var pad = function(n){ return (n<10?'0':'')+n; };
+    return pad(d.getDate())+'/'+pad(d.getMonth()+1)+' '+pad(d.getHours())+':'+pad(d.getMinutes());
+  }
+  function fmtDay(ts){ var d=new Date(+ts); return (d.getDate())+'/'+(d.getMonth()+1); }
+
+  function render(d){
+    document.getElementById('owner-tag').textContent = '🔒 Acesso restrito · ' + d.owner;
+    var s = d.summary || {};
+    document.getElementById('cards').innerHTML =
+      card(s.usuarios, 'Usuários únicos') +
+      card(s.sessoes, 'Sessões') +
+      card(s.visitas, 'Visitas de página') +
+      card(fmtDur(s.tempo_ms), 'Tempo total') +
+      card(s.anon, 'Visitas anônimas');
+
+    // sparkline
+    var dias = d.porDia || [];
+    var max = dias.reduce(function(m,x){ return Math.max(m,x.n); }, 1);
+    document.getElementById('spark').innerHTML = dias.length
+      ? dias.map(function(x){ var h = Math.max(2, Math.round(x.n/max*56)); return '<div class="bar" style="height:'+h+'px" title="'+fmtDay(x.dia)+': '+x.n+' visitas"></div>'; }).join('')
+      : '<div class="vazio">Sem dados no período.</div>';
+
+    var us = d.usuarios || [];
+    document.getElementById('tb-users').innerHTML = us.length ? us.map(function(u){
+      return '<tr><td class="email">'+esc(u.email)+'</td>'+
+        '<td class="num num-hi">'+fmtDur(u.tempo_ms)+'</td>'+
+        '<td class="num">'+u.sessoes+'</td>'+
+        '<td class="num">'+u.visitas+'</td>'+
+        '<td class="num">'+u.paginas+'</td>'+
+        '<td class="muted">'+fmtWhen(u.ultimo)+'</td></tr>';
+    }).join('') : '<tr><td colspan="6" class="vazio">Ninguém acessou no período.</td></tr>';
+
+    var pg = d.paginas || [];
+    document.getElementById('tb-pages').innerHTML = pg.length ? pg.map(function(p){
+      return '<tr><td class="path">'+esc(p.path)+'</td>'+
+        '<td class="num num-hi">'+p.visitas+'</td>'+
+        '<td class="num">'+p.usuarios+'</td>'+
+        '<td class="num">'+(p.media_ms?fmtDur(p.media_ms):'—')+'</td></tr>';
+    }).join('') : '<tr><td colspan="4" class="vazio">—</td></tr>';
+
+    var rc = d.recente || [];
+    document.getElementById('tb-recent').innerHTML = rc.length ? rc.map(function(r){
+      return '<tr><td class="muted">'+fmtWhen(r.ts)+'</td><td>'+esc(r.email)+'</td><td class="path">'+esc(r.path)+'</td></tr>';
+    }).join('') : '<tr><td colspan="3" class="vazio">—</td></tr>';
+  }
+  function card(n, l){ return '<div class="card"><div class="n">'+esc(n)+'</div><div class="l">'+esc(l)+'</div></div>'; }
+
+  function load(){
+    var days = document.getElementById('days').value;
+    fetch('/api/admin/analytics?days='+days, { headers: authHeaders() })
+      .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+      .then(render)
+      .catch(function(e){
+        document.getElementById('tb-users').innerHTML = '<tr><td colspan="6" class="vazio">Acesso negado ou erro ('+esc(e.message)+'). Esta área é exclusiva do dono.</td></tr>';
+      });
+  }
+  document.getElementById('days').addEventListener('change', load);
+  load();
+})();
+</script>
+</body>
+</html>
