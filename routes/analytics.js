@@ -38,7 +38,7 @@ const _insEvent = db.prepare(
 // Só rotas de PÁGINA entram no analytics (não assets, api, auth).
 function isTrackablePath(p) {
   if (!p || p.length > 200) return false;
-  if (p.startsWith('/api/') || p.startsWith('/auth/')) return false;
+  if (p.startsWith('/api/') || p.startsWith('/auth/') || p.startsWith('/go/')) return false;
   if (/\.(css|js|mjs|png|jpe?g|svg|webp|gif|ico|woff2?|ttf|eot|map|json|mp4|webm|mp3|pdf|xml|txt|zip|csv|xlsx?)$/i.test(p)) return false;
   return true;
 }

@@ -721,6 +721,7 @@ app.use((req, res, next) => {
 const ENFORCE_PUBLIC = ['/login', '/auth/login', '/auth/callback', '/auth/logout', '/auth/rd-callback'];
 app.use((req, res, next) => {
   if (req.path.startsWith('/api/')) return next();
+  if (req.path.startsWith('/go/')) return next(); // link rastreado UTM — público (clicker externo não loga)
   if (ENFORCE_PUBLIC.includes(req.path)) return next();
   return requireAuth(req, res, next);
 });
@@ -741,7 +742,7 @@ const HUB_LOCK_PAGES = new Set([
 ]);
 // nota: '/game' passa pelo lock só pra rota fazer o redirect por role → /game-hub.
 app.use((req, res, next) => {
-  if (req.path.startsWith('/api/') || req.path.startsWith('/auth/')) return next();
+  if (req.path.startsWith('/api/') || req.path.startsWith('/auth/') || req.path.startsWith('/go/')) return next();
   const u = req.session && req.session.user;
   if (u && u.role === 'hub' && !HUB_LOCK_PAGES.has(req.path)) return res.redirect('/hub');
   next();
@@ -5631,6 +5632,7 @@ app.use('/', optimizerV3Router);
 app.use('/', usersRouter);
 app.use('/', curvaAbcRouter);
 app.use('/', analyticsRouter); // Módulo 15 — Analytics de uso (report /admin/analytics)
+app.use('/', require('./routes/utm')); // Módulo 18 — UTM / links rastreados (report /admin/utm)
 
 app.listen(PORT, () => {
   console.log(`\n🎙️  EPI-USE Voices — Profile Optimizer`);

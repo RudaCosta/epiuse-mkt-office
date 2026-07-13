@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>UTM &amp; Links Rastreados · Admin</title>
+<link rel="stylesheet" href="/design-tokens.css">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Maven Pro',system-ui,sans-serif;background:#0a1426;color:#e8f0ff;line-height:1.5}
+  .container{max-width:1080px;margin:0 auto;padding:32px 24px 80px}
+  h1{font-size:24px;font-weight:800;margin-bottom:4px}
+  .sub{font-size:13px;color:#9fb2d4;margin-bottom:16px}
+  .owner{font-size:12px;color:#fbbf24;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.3);border-radius:10px;padding:8px 12px;margin-bottom:8px;display:inline-block}
+  .xlink{font-size:12px;margin:10px 0 20px}
+  .xlink a{color:#60a5fa;text-decoration:none}
+  .controls{display:flex;gap:8px;align-items:center;margin-bottom:24px;flex-wrap:wrap}
+  .controls label{font-size:12px;color:#9fb2d4}
+  select{background:#0f1d36;border:1px solid rgba(134,158,195,.25);color:#e8f0ff;padding:7px 10px;border-radius:8px;font-family:inherit;font-size:13px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:28px}
+  .card{background:#0f1d36;border:1px solid rgba(134,158,195,.18);border-radius:12px;padding:16px 18px}
+  .card .n{font-size:26px;font-weight:800;font-family:'JetBrains Mono',monospace;color:#60a5fa}
+  .card .l{font-size:12px;color:#9fb2d4;text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+  h2{font-size:14px;font-weight:800;margin:28px 0 10px;color:#9fb2d4;text-transform:uppercase;letter-spacing:.06em}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid rgba(134,158,195,.14)}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#9fb2d4}
+  td.num,th.num{text-align:right;font-family:'JetBrains Mono',monospace}
+  .num-hi{color:#fbbf24;font-weight:700}
+  tr:hover td{background:rgba(134,158,195,.05)}
+  .panel{background:#0b1830;border:1px solid rgba(134,158,195,.16);border-radius:14px;padding:8px 4px;overflow-x:auto;margin-bottom:8px}
+  .vazio{color:#9fb2d4;font-size:13px;padding:16px}
+  .path,.mono{font-family:'JetBrains Mono',monospace;font-size:12px;color:#a7c0e8;word-break:break-all}
+  .uname{font-weight:700}.uemail{color:#9fb2d4;font-size:12px}
+  .muted{color:#9fb2d4;font-size:12px}
+  .role-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(96,165,250,.14);color:#93c5fd;border:1px solid rgba(96,165,250,.3);text-transform:uppercase;letter-spacing:.04em}
+  .role-badge.mkt{background:rgba(34,211,122,.14);color:#4ade80;border-color:rgba(34,211,122,.35)}
+  .role-badge.head{background:rgba(205,21,67,.16);color:#fda4af;border-color:rgba(205,21,67,.4)}
+  .role-badge.none{background:rgba(148,163,184,.12);color:#cbd5e1;border-color:rgba(148,163,184,.28)}
+</style>
+</head>
+<body>
+<office-nav></office-nav>
+<div class="container">
+  <h1>🔗 UTM &amp; Links Rastreados</h1>
+  <div class="sub">O que cada usuário compartilhou pra fora, quantos cliques gerou e os ERP Coins ganhos.</div>
+  <div class="owner" id="owner-tag">🔒 Área restrita</div>
+  <div class="xlink"><a href="/admin/analytics">← Analytics de Uso</a></div>
+
+  <div class="controls">
+    <label for="days">Período dos cliques:</label>
+    <select id="days">
+      <option value="1">Últimas 24h</option>
+      <option value="7">7 dias</option>
+      <option value="30" selected>30 dias</option>
+      <option value="90">90 dias</option>
+      <option value="365">1 ano</option>
+    </select>
+  </div>
+
+  <div class="cards" id="cards"></div>
+
+  <h2>Por usuário</h2>
+  <div class="panel">
+    <table><thead><tr>
+      <th>Usuário</th><th>Área</th><th class="num">Links</th><th class="num">Cliques</th><th class="num">Coins (cliques)</th>
+    </tr></thead><tbody id="tb-users"><tr><td colspan="5" class="vazio">Carregando…</td></tr></tbody></table>
+  </div>
+
+  <h2>Por campanha</h2>
+  <div class="panel">
+    <table><thead><tr><th>Campanha</th><th class="num">Links</th><th class="num">Cliques</th></tr></thead>
+    <tbody id="tb-camp"></tbody></table>
+  </div>
+
+  <h2>Links (mais clicados)</h2>
+  <div class="panel">
+    <table><thead><tr><th>Link</th><th>Usuário</th><th>Campanha</th><th>Destino</th><th class="num">Cliques</th></tr></thead>
+    <tbody id="tb-links"></tbody></table>
+  </div>
+
+  <h2>Cliques recentes</h2>
+  <div class="panel">
+    <table><thead><tr><th>Quando</th><th>Usuário</th><th>Campanha</th><th>Origem</th></tr></thead>
+    <tbody id="tb-recent"></tbody></table>
+  </div>
+</div>
+<script src="/office-nav.js"></script>
+<script>
+(function(){
+  try { var _t = new URL(location.href).searchParams.get('token'); if (_t) localStorage.setItem('office.editorToken', _t); } catch(e){}
+  function authHeaders(){ var h={}; try { var t=localStorage.getItem('office.editorToken'); if(t) h['X-Editor-Token']=t; } catch(e){} return h; }
+  var esc = function(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]; }); };
+  function fmtWhen(ts){ var d=new Date(+ts); var p=function(n){return (n<10?'0':'')+n;}; return p(d.getDate())+'/'+p(d.getMonth()+1)+' '+p(d.getHours())+':'+p(d.getMinutes()); }
+  function card(n,l){ return '<div class="card"><div class="n">'+esc(n)+'</div><div class="l">'+esc(l)+'</div></div>'; }
+  var ROLE_LABELS={head:'Head',intelligence:'Intelligence',growth:'Growth',field:'Field Mkt',pipeline:'Pipeline',brand:'Brand',conteudo:'Conteúdo','country-manager':'Country Mgr',diretoria:'Diretoria',hub:'Colaborador'};
+  var MKT_ROLES={head:1,intelligence:1,growth:1,field:1,pipeline:1,brand:1,conteudo:1};
+  function roleBadge(role){ if(!role) return '<span class="role-badge none">não cadastrado</span>'; var cls=role==='head'?'head':(MKT_ROLES[role]?'mkt':''); return '<span class="role-badge '+cls+'">'+esc(ROLE_LABELS[role]||role)+'</span>'; }
+  function shorten(u){ return String(u||'').replace(/^https?:\/\//,'').slice(0,44); }
+
+  function render(d){
+    document.getElementById('owner-tag').textContent = '🔒 Acesso restrito · ' + d.owner;
+    var s = d.summary||{};
+    document.getElementById('cards').innerHTML =
+      card(s.links,'Links criados') + card(s.cliques,'Cliques') + card(s.clickers,'Pessoas distintas') +
+      card(s.coins,'ERP Coins (cliques)');
+
+    var us=d.por_usuario||[];
+    document.getElementById('tb-users').innerHTML = us.length ? us.map(function(u){
+      var nome=u.nome||u.email.split('@')[0];
+      return '<tr><td><div class="uname">'+esc(nome)+'</div><div class="uemail">'+esc(u.email)+'</div></td>'+
+        '<td>'+roleBadge(u.role)+'</td><td class="num">'+u.links+'</td>'+
+        '<td class="num num-hi">'+u.cliques+'</td><td class="num">'+(u.coins||0)+'</td></tr>';
+    }).join('') : '<tr><td colspan="5" class="vazio">Ninguém gerou link ainda.</td></tr>';
+
+    var cp=d.por_campanha||[];
+    document.getElementById('tb-camp').innerHTML = cp.length ? cp.map(function(c){
+      return '<tr><td>'+esc(c.campaign)+'</td><td class="num">'+c.links+'</td><td class="num num-hi">'+c.cliques+'</td></tr>';
+    }).join('') : '<tr><td colspan="3" class="vazio">—</td></tr>';
+
+    var lk=d.links||[];
+    document.getElementById('tb-links').innerHTML = lk.length ? lk.map(function(l){
+      return '<tr><td class="mono">/go/'+esc(l.token)+'</td><td class="uemail">'+esc(l.email)+'</td>'+
+        '<td>'+esc(l.campaign)+'</td><td class="path">'+esc(shorten(l.dest))+'</td>'+
+        '<td class="num num-hi">'+l.cliques+'</td></tr>';
+    }).join('') : '<tr><td colspan="5" class="vazio">—</td></tr>';
+
+    var rc=d.recente||[];
+    document.getElementById('tb-recent').innerHTML = rc.length ? rc.map(function(r){
+      return '<tr><td class="muted">'+fmtWhen(r.ts)+'</td><td class="uemail">'+esc(r.email||'—')+'</td>'+
+        '<td>'+esc(r.campaign||'—')+'</td><td class="path">'+esc(shorten(r.ref)||'direto')+'</td></tr>';
+    }).join('') : '<tr><td colspan="4" class="vazio">—</td></tr>';
+  }
+
+  function load(){
+    var days=document.getElementById('days').value;
+    fetch('/api/admin/utm?days='+days,{headers:authHeaders()})
+      .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+      .then(render)
+      .catch(function(e){ document.getElementById('tb-users').innerHTML='<tr><td colspan="5" class="vazio">Acesso negado ou erro ('+esc(e.message)+'). Área exclusiva do dono.</td></tr>'; });
+  }
+  document.getElementById('days').addEventListener('change', load);
+  load();
+})();
+</script>
+</body>
+</html>

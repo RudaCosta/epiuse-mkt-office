@@ -39,6 +39,20 @@
   .placar{position:absolute;top:20px;right:24px;background:#04270f;border:2px solid #16a34a;border-radius:10px;
     padding:6px 12px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:#4ade80}
   .vazio{padding:60px 24px;text-align:center;color:var(--text2);font-size:14px}
+  .gen{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:26px;margin:0 0 56px}
+  .gen-eyebrow{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--yellow);font-weight:700;margin-bottom:8px}
+  .gen h3{font-size:20px;font-weight:800;margin-bottom:6px}
+  .gen p{font-size:14px;color:var(--text2);margin-bottom:16px;max-width:640px}
+  .gen-row{display:flex;gap:10px;flex-wrap:wrap}
+  .gen-row input{flex:1;min-width:180px;background:#0a1426;border:1px solid var(--line);border-radius:10px;padding:12px 14px;color:var(--text);font-family:inherit;font-size:14px}
+  .gen-row input:focus{outline:none;border-color:var(--accent)}
+  .gen-row button{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:12px 20px;font-size:14px;font-weight:800;font-family:inherit;cursor:pointer}
+  .gen-row button:hover{filter:brightness(1.1)}
+  .gen-out{margin-top:14px;font-size:13px;color:var(--text2)}
+  .gen-err{color:#f87171;font-weight:600}
+  .gen-link{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .gen-link input{flex:1;min-width:220px;background:#0a1426;border:1px solid var(--line);border-radius:10px;padding:11px 13px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px}
+  .gen-hint{margin-top:8px;font-size:12px;color:var(--green)}
   @media(max-width:560px){
     .placar{position:static;display:inline-block;margin-bottom:10px}
     .camp.destaque{grid-template-columns:1fr}
@@ -60,6 +74,18 @@
 
 <div class="container">
   <div class="grid" id="grid"><div class="vazio">Carregando campanhas…</div></div>
+
+  <div class="gen">
+    <div class="gen-eyebrow">🔗 Link rastreado</div>
+    <h3>Gere o SEU link pra compartilhar fora</h3>
+    <p>Cole o link de qualquer conteúdo (artigo, landing page, post) e receba o seu link exclusivo. Cada clique nele é atribuído a você — e vira <b>ERP Coins</b>.</p>
+    <div class="gen-row">
+      <input id="gen-url" type="url" placeholder="https://... (link do conteúdo)">
+      <input id="gen-camp" type="text" placeholder="campanha (opcional)">
+      <button id="gen-btn" type="button">Gerar meu link</button>
+    </div>
+    <div id="gen-out" class="gen-out"></div>
+  </div>
 </div>
 
 <script src="/office-nav.js"></script>
@@ -98,12 +124,59 @@
       card.innerHTML = c.imagem
         ? '<img class="banner" src="' + esc(c.imagem) + '" alt="' + esc(c.nome) + '"><div class="corpo">' + corpo + '</div>'
         : corpo;
-      card.querySelector('.cta').addEventListener('click', () => registrar(c.coins_evento, c.id));
+      card.querySelector('.cta').addEventListener('click', async (e) => {
+        registrar(c.coins_evento, c.id);
+        // Compartilhamento pra fora → gera link rastreado (UTM) e abre o share do
+        // LinkedIn com ele, pra medir os cliques atribuídos a quem compartilhou.
+        if (c.tipo === 'linkedin' && c.url) {
+          e.preventDefault();
+          let shareUrl = c.url;
+          try {
+            const r = await fetch('/api/utm/link', {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ campaign: c.id, dest: c.url, source: 'linkedin' })
+            });
+            const d = await r.json();
+            if (d && d.url) shareUrl = d.url;
+          } catch (_e) {}
+          window.open('https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(shareUrl), '_blank', 'noopener');
+        }
+      });
       grid.appendChild(card);
     }
   }).catch(() => {
     document.getElementById('grid').innerHTML = '<div class="vazio">Não foi possível carregar as campanhas.</div>';
   });
+
+  // ── Gerador genérico de link rastreado ──────────────────────────────────────
+  const gBtn = document.getElementById('gen-btn');
+  if (gBtn) {
+    gBtn.addEventListener('click', async () => {
+      const url = (document.getElementById('gen-url').value || '').trim();
+      const camp = (document.getElementById('gen-camp').value || '').trim();
+      const out = document.getElementById('gen-out');
+      if (!/^https?:\/\/.+/i.test(url)) { out.innerHTML = '<span class="gen-err">Cole uma URL válida (começando com http).</span>'; return; }
+      out.textContent = 'Gerando…';
+      try {
+        const r = await fetch('/api/utm/link', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ dest: url, campaign: camp || 'geral', source: 'linkedin' })
+        });
+        if (r.status === 401) { out.innerHTML = '<span class="gen-err">Você precisa estar logado pra gerar o seu link.</span>'; return; }
+        const d = await r.json();
+        if (!d.url) throw new Error(d.error || 'falhou');
+        out.innerHTML = '<div class="gen-link"><input id="gen-result" readonly value="' + esc(d.url) + '">' +
+          '<button id="gen-copy" class="cta li" type="button">Copiar</button>' +
+          '<a class="cta" href="https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(d.url) + '" target="_blank" rel="noopener">Compartilhar no LinkedIn</a></div>' +
+          '<div class="gen-hint">Cada clique nesse link conta como seu e vira ERP Coins.</div>';
+        document.getElementById('gen-copy').addEventListener('click', () => {
+          const el = document.getElementById('gen-result'); el.select();
+          try { navigator.clipboard.writeText(el.value); } catch (_e) { document.execCommand('copy'); }
+          document.getElementById('gen-copy').textContent = 'Copiado ✓';
+        });
+      } catch (e) { out.innerHTML = '<span class="gen-err">Não foi possível gerar o link.</span>'; }
+    });
+  }
 })();
 </script>
 </body>
