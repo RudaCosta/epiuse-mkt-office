@@ -17,7 +17,7 @@ Não dá pra medir cliques num link cru do LinkedIn — o LinkedIn não reporta 
 `utm_click` = **5 coins** (env `UTM_CLICK_COINS`) por **clicker único / link / dia** (anti-farm via `UNIQUE(email,evento,ref,dia)` do `erp_coins`, com `ref = token:hash-do-IP`). Os cliques (todos) são contados em `utm_clicks`; só o crédito de coin é deduplicado. Esses coins entram no ledger e aparecem no detalhe por usuário do `/admin/analytics` (conquista "🔗 Clique em link compartilhado").
 
 ## Acesso
-Report restrito a `ruda.costa@epiuse.com.br` (`requireOwner`; fallback editor token). A geração de link (`/api/utm/link`) exige apenas sessão logada — qualquer usuário gera o seu. `/go/<token>` é público (clicker externo não está logado).
+Report (`/admin/utm`) liberado pra **todo o time de Marketing** (`requireMkt` — roles head/intelligence/growth/field/pipeline/brand/conteudo; fallback editor token). O report mostra o autor e a **origem/canal** (utm_source) de cada link. A geração de link (`/api/utm/link`) exige apenas sessão logada — qualquer usuário gera o seu. `/go/<token>` é público (clicker externo não está logado). _(O `/admin/analytics` segue exclusivo do dono; só o UTM foi aberto pro time.)_
 
 ## Privacidade
 Não guarda IP cru — só um hash (`sha256(ip+salt)`) pra dedupe. Guarda referer + user-agent do clique.

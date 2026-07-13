@@ -366,15 +366,17 @@ class OfficeNav extends HTMLElement {
         grp.links.push({ label: '👥 Usuários & Perfis', href: '/admin/usuarios' });
       }
     }
-    // Analytics de uso + UTM — exclusivos do dono (ruda.costa@epiuse.com.br).
+    const grpA = col1Items.find(g => g.section === '🤖 Escritório Virtual');
+    // Analytics de uso — exclusivo do dono (ruda.costa@epiuse.com.br).
     if ((this._sso && String(this._sso.email || '').toLowerCase()) === 'ruda.costa@epiuse.com.br') {
-      const grpA = col1Items.find(g => g.section === '🤖 Escritório Virtual');
       if (grpA && !grpA.links.some(l => l.href === '/admin/analytics')) {
         grpA.links.push({ label: '📊 Analytics de Uso', href: '/admin/analytics' });
       }
-      if (grpA && !grpA.links.some(l => l.href === '/admin/utm')) {
-        grpA.links.push({ label: '🔗 UTM & Links Rastreados', href: '/admin/utm' });
-      }
+    }
+    // UTM & Links Rastreados — todo o time de Marketing.
+    const MKT_ROLES = ['head', 'intelligence', 'growth', 'field', 'pipeline', 'brand', 'conteudo'];
+    if (grpA && MKT_ROLES.includes(this._role) && !grpA.links.some(l => l.href === '/admin/utm')) {
+      grpA.links.push({ label: '🔗 UTM & Links Rastreados', href: '/admin/utm' });
     }
 
     const col1Html = renderColumn(col1Items);

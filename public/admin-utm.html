@@ -43,9 +43,8 @@
 <office-nav></office-nav>
 <div class="container">
   <h1>🔗 UTM &amp; Links Rastreados</h1>
-  <div class="sub">O que cada usuário compartilhou pra fora, quantos cliques gerou e os ERP Coins ganhos.</div>
-  <div class="owner" id="owner-tag">🔒 Área restrita</div>
-  <div class="xlink"><a href="/admin/analytics">← Analytics de Uso</a></div>
+  <div class="sub">O que cada um do time compartilhou pra fora, de onde saiu cada link, quantos cliques gerou e os ERP Coins ganhos.</div>
+  <div class="owner" id="owner-tag">👥 Time de Marketing</div>
 
   <div class="controls">
     <label for="days">Período dos cliques:</label>
@@ -75,7 +74,7 @@
 
   <h2>Links (mais clicados)</h2>
   <div class="panel">
-    <table><thead><tr><th>Link</th><th>Usuário</th><th>Campanha</th><th>Destino</th><th class="num">Cliques</th></tr></thead>
+    <table><thead><tr><th>Link</th><th>Usuário</th><th>Campanha</th><th>Origem</th><th>Destino</th><th class="num">Cliques</th></tr></thead>
     <tbody id="tb-links"></tbody></table>
   </div>
 
@@ -99,7 +98,7 @@
   function shorten(u){ return String(u||'').replace(/^https?:\/\//,'').slice(0,44); }
 
   function render(d){
-    document.getElementById('owner-tag').textContent = '🔒 Acesso restrito · ' + d.owner;
+    document.getElementById('owner-tag').textContent = '👥 Time de Marketing · cada clique vale ' + (d.click_coins||5) + ' coins';
     var s = d.summary||{};
     document.getElementById('cards').innerHTML =
       card(s.links,'Links criados') + card(s.cliques,'Cliques') + card(s.clickers,'Pessoas distintas') +
@@ -121,9 +120,9 @@
     var lk=d.links||[];
     document.getElementById('tb-links').innerHTML = lk.length ? lk.map(function(l){
       return '<tr><td class="mono">/go/'+esc(l.token)+'</td><td class="uemail">'+esc(l.email)+'</td>'+
-        '<td>'+esc(l.campaign)+'</td><td class="path">'+esc(shorten(l.dest))+'</td>'+
+        '<td>'+esc(l.campaign)+'</td><td>'+esc(l.source||'—')+'</td><td class="path">'+esc(shorten(l.dest))+'</td>'+
         '<td class="num num-hi">'+l.cliques+'</td></tr>';
-    }).join('') : '<tr><td colspan="5" class="vazio">—</td></tr>';
+    }).join('') : '<tr><td colspan="6" class="vazio">—</td></tr>';
 
     var rc=d.recente||[];
     document.getElementById('tb-recent').innerHTML = rc.length ? rc.map(function(r){

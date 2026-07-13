@@ -46,12 +46,17 @@ function sessionEmail(req) {
   const e = req.session && req.session.user && req.session.user.email;
   return e ? String(e).toLowerCase() : null;
 }
-function requireOwner(req, res, next) {
-  if (sessionEmail(req) === OWNER_EMAIL) return next();
+function sessionRole(req) {
+  return req.session && req.session.user && req.session.user.role;
+}
+// Report do UTM é ferramenta do time de Marketing (não exclusivo do dono).
+const MKT_ROLES = new Set(['head', 'intelligence', 'growth', 'field', 'pipeline', 'brand', 'conteudo']);
+function requireMkt(req, res, next) {
+  if (MKT_ROLES.has(sessionRole(req))) return next();
   const t = req.query.token || req.headers['x-editor-token'];
   if (t) return requireEditorToken(req, res, next);
   if (req.path.startsWith('/api/')) return res.status(403).json({ error: 'forbidden' });
-  return res.status(403).send('Acesso restrito.');
+  return res.status(403).send('Acesso restrito ao time de Marketing.');
 }
 function ipHash(req) {
   const ip = String(req.headers['x-forwarded-for'] || req.ip || '').split(',')[0].trim();
@@ -131,7 +136,7 @@ router.get('/go/:token', (req, res) => {
 });
 
 // ── Report (dono) ─────────────────────────────────────────────────────────────
-router.get('/api/admin/utm', requireOwner, (req, res) => {
+router.get('/api/admin/utm', requireMkt, (req, res) => {
   try {
     const days = Math.max(1, Math.min(365, parseInt(req.query.days, 10) || 30));
     const since = Date.now() - days * 86400000;
@@ -175,11 +180,11 @@ router.get('/api/admin/utm', requireOwner, (req, res) => {
       WHERE c.ts>=? ORDER BY c.ts DESC LIMIT 200
     `).all(since);
 
-    res.json({ days, owner: OWNER_EMAIL, click_coins: UTM_CLICK_COINS, summary, por_usuario, por_campanha, links, recente });
+    res.json({ days, escopo: 'time-marketing', click_coins: UTM_CLICK_COINS, summary, por_usuario, por_campanha, links, recente });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-router.get('/admin/utm', requireOwner, (req, res) => {
+router.get('/admin/utm', requireMkt, (req, res) => {
   res.sendFile(path.join(__dirname, '../public/admin-utm.html'));
 });
 
