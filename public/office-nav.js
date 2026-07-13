@@ -1965,7 +1965,8 @@ const HUB_SUBMENU_ITEMS = [
   { id: 'institucional', label: 'Apresentação Institucional', icon: '🏢', href: '/hub', tab: 'institucional' },
   { id: 'seja-voice', label: 'Seja um Voice',           icon: '🎙️', href: '/seja-voice' },
   { id: 'optimizer',  label: 'LinkedIn Optimizer',      icon: '🪪', href: '/optimizer' },
-  { id: 'game',       label: 'Game do Office',          icon: '🎮', href: '/game' },
+  { id: 'brindes',    label: 'Brindes',                 icon: '🎁', href: '/hub/brindes' },
+  { id: 'game',       label: 'Game do Office',          icon: '🎮', href: '/game-hub' },
   { id: 'impacto',    label: 'Impacto ERP.ngo',         icon: '🐘', href: '/erp-impacto', right: true },
 ];
 
@@ -2053,6 +2054,7 @@ class HubSubmenu extends HTMLElement {
     }
     if (path.startsWith('/seja-voice')) return 'seja-voice';
     if (path.startsWith('/optimizer') || path.startsWith('/voices/optimizer')) return 'optimizer';
+    if (path.startsWith('/hub/brindes') || path === '/brindes') return 'brindes';
     if (path.startsWith('/game')) return 'game';
     if (path.startsWith('/erp-impacto')) return 'impacto';
     return 'hub';

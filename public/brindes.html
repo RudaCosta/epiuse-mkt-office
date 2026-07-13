@@ -161,11 +161,7 @@
 
         <!-- Header do Office (shadow DOM — não conflita com tailwind) + tabs do Hub -->
         <office-nav></office-nav>
-        <div class="hub-tabbar">
-            <button class="hub-pill" onclick="window.location.href='/hub'">📈 MKT Hub</button>
-            <button class="hub-pill" id="hubTabOnboarding" onclick="window.location.href='/hub?tab=onboarding'">🚀 Onboarding</button>
-            <button class="hub-pill active">🎁 Solicitar Brindes</button>
-        </div>
+        <hub-submenu></hub-submenu>
 
         <!-- Nav interna da página (views + usuário) -->
         <nav class="bg-white shadow-sm border-b border-gray-200 z-10 relative flex-shrink-0">
