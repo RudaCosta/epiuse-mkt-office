@@ -209,6 +209,7 @@
     if (evento==='quest') return (ref==='mkt') ? '🏢 Giro do Escritório' : ((ref==='hub'||ref==='game-hub') ? '🎫 Tour do Colaborador' : '🎯 Quest'+(ref?(' · '+ref):''));
     if (evento==='golplaca') return '⚽ Gol de Placa';
     if (evento==='share') return '📣 Compartilhou no LinkedIn';
+    if (evento==='utm_click') return '🔗 Clique em link compartilhado';
     return evento + (ref?(' · '+ref):'');
   }
 

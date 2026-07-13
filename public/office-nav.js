@@ -366,11 +366,14 @@ class OfficeNav extends HTMLElement {
         grp.links.push({ label: '👥 Usuários & Perfis', href: '/admin/usuarios' });
       }
     }
-    // Analytics de uso — exclusivo do dono (ruda.costa@epiuse.com.br).
+    // Analytics de uso + UTM — exclusivos do dono (ruda.costa@epiuse.com.br).
     if ((this._sso && String(this._sso.email || '').toLowerCase()) === 'ruda.costa@epiuse.com.br') {
       const grpA = col1Items.find(g => g.section === '🤖 Escritório Virtual');
       if (grpA && !grpA.links.some(l => l.href === '/admin/analytics')) {
         grpA.links.push({ label: '📊 Analytics de Uso', href: '/admin/analytics' });
+      }
+      if (grpA && !grpA.links.some(l => l.href === '/admin/utm')) {
+        grpA.links.push({ label: '🔗 UTM & Links Rastreados', href: '/admin/utm' });
       }
     }
 
