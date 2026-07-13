@@ -114,7 +114,10 @@ router.get('/api/admin/analytics', requireOwner, (req, res) => {
              MAX(v.ts) AS ultimo,
              MIN(v.ts) AS primeiro,
              (SELECT COALESCE(SUM(dur_ms),0) FROM analytics_events d
-                WHERE d.kind='dur' AND d.email=v.email AND d.ts>=?) AS tempo_ms
+                WHERE d.kind='dur' AND d.email=v.email AND d.ts>=?) AS tempo_ms,
+             (SELECT u.name FROM users u WHERE u.email=v.email) AS nome,
+             (SELECT u.role FROM users u WHERE u.email=v.email) AS role,
+             (SELECT COALESCE(SUM(c.coins),0) FROM erp_coins c WHERE c.email=v.email) AS coins
       FROM analytics_events v
       WHERE v.kind='view' AND v.ts>=? AND v.email!='anon'
       GROUP BY v.email
@@ -150,6 +153,72 @@ router.get('/api/admin/analytics', requireOwner, (req, res) => {
     const porDia = porDiaRaw.map(r => ({ dia: r.dia * 86400000, n: r.n }));
 
     res.json({ days, owner: OWNER_EMAIL, summary, usuarios, paginas, recente, porDia });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── Detalhe de UM usuário (drill-down) ────────────────────────────────────────
+router.get('/api/admin/analytics/user', requireOwner, (req, res) => {
+  try {
+    const email = String(req.query.email || '').toLowerCase().trim();
+    if (!email) return res.status(400).json({ error: 'email_obrigatorio' });
+    const days = Math.max(1, Math.min(365, parseInt(req.query.days, 10) || 30));
+    const since = Date.now() - days * 86400000;
+
+    let meta = null;
+    try { meta = db.prepare(`SELECT email, name, role, persona, active, created_at FROM users WHERE email=?`).get(email); } catch (e) {}
+    meta = meta || { email, name: '', role: null, persona: null, active: null, created_at: null };
+
+    const one = (sql, ...args) => db.prepare(sql).get(...args).n;
+    const resumo = {
+      visitas:  one(`SELECT COUNT(*) n FROM analytics_events WHERE kind='view' AND email=? AND ts>=?`, email, since),
+      sessoes:  one(`SELECT COUNT(DISTINCT sid) n FROM analytics_events WHERE kind='view' AND email=? AND ts>=?`, email, since),
+      paginas:  one(`SELECT COUNT(DISTINCT path) n FROM analytics_events WHERE kind='view' AND email=? AND ts>=?`, email, since),
+      tempo_ms: one(`SELECT COALESCE(SUM(dur_ms),0) n FROM analytics_events WHERE kind='dur' AND email=? AND ts>=?`, email, since),
+      primeiro: one(`SELECT COALESCE(MIN(ts),0) n FROM analytics_events WHERE email=? AND ts>=?`, email, since),
+      ultimo:   one(`SELECT COALESCE(MAX(ts),0) n FROM analytics_events WHERE email=? AND ts>=?`, email, since),
+    };
+
+    const paginas = db.prepare(`
+      SELECT v.path AS path, COUNT(*) AS visitas,
+             (SELECT COALESCE(SUM(dur_ms),0) FROM analytics_events d
+                WHERE d.kind='dur' AND d.email=? AND d.path=v.path AND d.ts>=?) AS tempo_ms,
+             MAX(v.ts) AS ultimo
+      FROM analytics_events v
+      WHERE v.kind='view' AND v.email=? AND v.ts>=?
+      GROUP BY v.path ORDER BY visitas DESC LIMIT 200
+    `).all(email, since, email, since);
+
+    // Tempo ativo por sessão (1 query) → mapa sid -> ms
+    const durBySid = {};
+    db.prepare(`SELECT sid, COALESCE(SUM(dur_ms),0) t FROM analytics_events
+                WHERE kind='dur' AND email=? AND ts>=? GROUP BY sid`).all(email, since)
+      .forEach(r => { durBySid[r.sid] = r.t; });
+
+    const sessoes = db.prepare(`
+      SELECT sid, MIN(ts) AS inicio, MAX(ts) AS fim, COUNT(*) AS visitas
+      FROM analytics_events
+      WHERE kind='view' AND email=? AND ts>=?
+      GROUP BY sid ORDER BY inicio DESC LIMIT 100
+    `).all(email, since).map(s => ({
+      inicio: s.inicio, fim: s.fim, visitas: s.visitas,
+      span_ms: Math.max(0, s.fim - s.inicio),
+      tempo_ms: durBySid[s.sid] || 0,
+    }));
+
+    const timeline = db.prepare(`
+      SELECT path, ts FROM analytics_events
+      WHERE kind='view' AND email=? AND ts>=? ORDER BY ts DESC LIMIT 300
+    `).all(email, since);
+
+    // Conquistas & ERP Coins (lifetime — não filtra por período).
+    let coins = [], coins_total = 0;
+    try {
+      coins = db.prepare(`SELECT evento, ref, coins, dia, created_at
+                          FROM erp_coins WHERE email=? ORDER BY id DESC`).all(email);
+      coins_total = coins.reduce((a, r) => a + (r.coins || 0), 0);
+    } catch (e) { /* tabela pode não existir em ambiente isolado */ }
+
+    res.json({ email, meta, days, resumo, paginas, sessoes, timeline, coins, coins_total });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

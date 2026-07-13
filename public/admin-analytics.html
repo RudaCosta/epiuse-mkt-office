@@ -34,6 +34,25 @@
   .path{font-family:'JetBrains Mono',monospace;font-size:12px;color:#a7c0e8}
   .email{font-weight:600}
   .muted{color:#9fb2d4;font-size:12px}
+  .uname{font-weight:700}
+  .uemail{color:#9fb2d4;font-size:12px}
+  tr.clickable{cursor:pointer}
+  tr.clickable:hover td{background:rgba(96,165,250,.08)}
+  .role-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(96,165,250,.14);color:#93c5fd;border:1px solid rgba(96,165,250,.3);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+  .role-badge.mkt{background:rgba(34,211,122,.14);color:#4ade80;border-color:rgba(34,211,122,.35)}
+  .role-badge.head{background:rgba(205,21,67,.16);color:#fda4af;border-color:rgba(205,21,67,.4)}
+  .role-badge.none{background:rgba(148,163,184,.12);color:#cbd5e1;border-color:rgba(148,163,184,.28)}
+  /* modal de detalhe do usuário */
+  #umodal{position:fixed;inset:0;z-index:9999;display:none;align-items:flex-start;justify-content:center;background:rgba(3,10,22,.82);overflow-y:auto;padding:40px 16px}
+  #umodal.open{display:flex}
+  .ubox{background:#0b1830;border:1px solid rgba(134,158,195,.2);border-radius:16px;max-width:860px;width:100%;padding:24px;box-shadow:0 24px 80px rgba(0,0,0,.6)}
+  .ubox-hdr{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid rgba(134,158,195,.16)}
+  .ubox-hdr h2{font-size:19px;font-weight:800;margin:0;text-transform:none;letter-spacing:0;color:#e8f0ff}
+  .ubox-close{background:rgba(255,255,255,.05);border:1px solid rgba(134,158,195,.25);color:#9fb2d4;border-radius:8px;width:32px;height:32px;font-size:15px;cursor:pointer;flex-shrink:0}
+  .ubox-close:hover{background:rgba(255,90,100,.12);color:#ff8593;border-color:rgba(255,90,100,.35)}
+  .ubox h3{font-size:12px;font-weight:800;color:#9fb2d4;text-transform:uppercase;letter-spacing:.06em;margin:20px 0 8px}
+  .ubox .cards{margin-bottom:4px}
+  .ubox .card .n{font-size:20px}
 </style>
 </head>
 <body>
@@ -60,11 +79,12 @@
   <div class="spark" id="spark"></div>
 
   <h2>Usuários</h2>
+  <div class="muted" style="margin:-4px 0 8px">👆 Clique num usuário pra ver o detalhe completo (sessões, tempo por página, linha do tempo).</div>
   <div class="panel">
     <table><thead><tr>
-      <th>Usuário</th><th class="num">Tempo total</th><th class="num">Sessões</th>
-      <th class="num">Visitas</th><th class="num">Páginas</th><th>Último acesso</th>
-    </tr></thead><tbody id="tb-users"><tr><td colspan="6" class="vazio">Carregando…</td></tr></tbody></table>
+      <th>Usuário</th><th>Área</th><th class="num">Tempo total</th><th class="num">Sessões</th>
+      <th class="num">Visitas</th><th class="num">Páginas</th><th class="num">Coins</th><th>Último acesso</th>
+    </tr></thead><tbody id="tb-users"><tr><td colspan="8" class="vazio">Carregando…</td></tr></tbody></table>
   </div>
 
   <h2>Páginas mais acessadas</h2>
@@ -80,6 +100,21 @@
     <tbody id="tb-recent"></tbody></table>
   </div>
 </div>
+
+<!-- ═══════════ MODAL: detalhe do usuário ═══════════ -->
+<div id="umodal"><div class="ubox">
+  <div class="ubox-hdr"><h2 id="u-title">—</h2><button class="ubox-close" id="u-close" aria-label="Fechar">✕</button></div>
+  <div class="cards" id="u-cards"></div>
+  <h3>Conquistas &amp; ERP Coins</h3>
+  <div class="panel"><table><thead><tr><th>Conquista</th><th>Referência</th><th class="num">Coins</th><th>Quando</th></tr></thead><tbody id="u-coins"></tbody></table></div>
+  <h3>Páginas visitadas</h3>
+  <div class="panel"><table><thead><tr><th>Página</th><th class="num">Visitas</th><th class="num">Tempo</th><th>Último</th></tr></thead><tbody id="u-pages"></tbody></table></div>
+  <h3>Sessões</h3>
+  <div class="panel"><table><thead><tr><th>Início</th><th>Fim</th><th class="num">Duração</th><th class="num">Tempo ativo</th><th class="num">Visitas</th></tr></thead><tbody id="u-sessions"></tbody></table></div>
+  <h3>Linha do tempo</h3>
+  <div class="panel"><table><thead><tr><th>Quando</th><th>Página</th></tr></thead><tbody id="u-timeline"></tbody></table></div>
+</div></div>
+
 <script src="/office-nav.js"></script>
 <script>
 (function(){
@@ -129,13 +164,20 @@
 
     var us = d.usuarios || [];
     document.getElementById('tb-users').innerHTML = us.length ? us.map(function(u){
-      return '<tr><td class="email">'+esc(u.email)+'</td>'+
+      var nome = u.nome || u.email.split('@')[0];
+      return '<tr class="clickable" data-email="'+esc(u.email)+'">'+
+        '<td><div class="uname">'+esc(nome)+'</div><div class="uemail">'+esc(u.email)+'</div></td>'+
+        '<td>'+roleBadge(u.role)+'</td>'+
         '<td class="num num-hi">'+fmtDur(u.tempo_ms)+'</td>'+
         '<td class="num">'+u.sessoes+'</td>'+
         '<td class="num">'+u.visitas+'</td>'+
         '<td class="num">'+u.paginas+'</td>'+
+        '<td class="num">'+(u.coins||0)+'</td>'+
         '<td class="muted">'+fmtWhen(u.ultimo)+'</td></tr>';
-    }).join('') : '<tr><td colspan="6" class="vazio">Ninguém acessou no período.</td></tr>';
+    }).join('') : '<tr><td colspan="8" class="vazio">Ninguém acessou no período.</td></tr>';
+    Array.prototype.forEach.call(document.querySelectorAll('#tb-users tr.clickable'), function(tr){
+      tr.addEventListener('click', function(){ openUser(tr.dataset.email); });
+    });
 
     var pg = d.paginas || [];
     document.getElementById('tb-pages').innerHTML = pg.length ? pg.map(function(p){
@@ -151,6 +193,76 @@
     }).join('') : '<tr><td colspan="3" class="vazio">—</td></tr>';
   }
   function card(n, l){ return '<div class="card"><div class="n">'+esc(n)+'</div><div class="l">'+esc(l)+'</div></div>'; }
+
+  // ── Área (role) ────────────────────────────────────────────────────────────
+  var ROLE_LABELS = { head:'Head', intelligence:'Intelligence', growth:'Growth', field:'Field Mkt', pipeline:'Pipeline', brand:'Brand', conteudo:'Conteúdo', 'country-manager':'Country Mgr', diretoria:'Diretoria', hub:'Colaborador' };
+  var MKT_ROLES = { head:1, intelligence:1, growth:1, field:1, pipeline:1, brand:1, conteudo:1 };
+  function roleBadge(role){
+    if (!role) return '<span class="role-badge none">não cadastrado</span>';
+    var label = ROLE_LABELS[role] || role;
+    var cls = role==='head' ? 'head' : (MKT_ROLES[role] ? 'mkt' : '');
+    return '<span class="role-badge '+cls+'">'+esc(label)+'</span>';
+  }
+  // ── Conquistas (derivadas dos eventos de ERP Coins) ────────────────────────
+  function conquistaLabel(evento, ref){
+    if (evento==='egg') return '🐘 Guardião dos Elefantes';
+    if (evento==='quest') return (ref==='mkt') ? '🏢 Giro do Escritório' : ((ref==='hub'||ref==='game-hub') ? '🎫 Tour do Colaborador' : '🎯 Quest'+(ref?(' · '+ref):''));
+    if (evento==='golplaca') return '⚽ Gol de Placa';
+    if (evento==='share') return '📣 Compartilhou no LinkedIn';
+    return evento + (ref?(' · '+ref):'');
+  }
+
+  // ── Modal de detalhe do usuário ────────────────────────────────────────────
+  var umodal = document.getElementById('umodal');
+  function closeUser(){ umodal.classList.remove('open'); }
+  document.getElementById('u-close').addEventListener('click', closeUser);
+  umodal.addEventListener('click', function(e){ if(e.target===umodal) closeUser(); });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeUser(); });
+
+  function openUser(email){
+    ['u-cards','u-coins','u-pages','u-sessions','u-timeline'].forEach(function(id){ document.getElementById(id).innerHTML=''; });
+    document.getElementById('u-title').textContent = 'Carregando…';
+    umodal.classList.add('open');
+    var days = document.getElementById('days').value;
+    fetch('/api/admin/analytics/user?days='+days+'&email='+encodeURIComponent(email), { headers: authHeaders() })
+      .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+      .then(renderUser)
+      .catch(function(e){ document.getElementById('u-title').textContent = 'Erro ('+esc(e.message)+')'; });
+  }
+  function renderUser(d){
+    var m = d.meta||{}, r = d.resumo||{};
+    var nome = m.name || d.email.split('@')[0];
+    document.getElementById('u-title').innerHTML = esc(nome) + ' ' + roleBadge(m.role) +
+      '<div class="uemail" style="margin-top:4px">'+esc(d.email)+'</div>';
+    document.getElementById('u-cards').innerHTML =
+      card(fmtDur(r.tempo_ms),'Tempo total') + card(r.sessoes,'Sessões') + card(r.visitas,'Visitas') +
+      card(r.paginas,'Páginas distintas') + card(d.coins_total||0,'ERP Coins') +
+      card(r.ultimo?fmtWhen(r.ultimo):'—','Último acesso');
+
+    var co = d.coins||[];
+    document.getElementById('u-coins').innerHTML = co.length ? co.map(function(c){
+      return '<tr><td>'+esc(conquistaLabel(c.evento,c.ref))+'</td><td class="muted">'+esc(c.ref||'—')+'</td>'+
+        '<td class="num num-hi">+'+c.coins+'</td><td class="muted">'+esc(c.dia||(c.created_at||'').slice(0,10))+'</td></tr>';
+    }).join('') : '<tr><td colspan="4" class="vazio">Nenhuma conquista ou coin ainda.</td></tr>';
+
+    var pg = d.paginas||[];
+    document.getElementById('u-pages').innerHTML = pg.length ? pg.map(function(p){
+      return '<tr><td class="path">'+esc(p.path)+'</td><td class="num num-hi">'+p.visitas+'</td>'+
+        '<td class="num">'+(p.tempo_ms?fmtDur(p.tempo_ms):'—')+'</td><td class="muted">'+fmtWhen(p.ultimo)+'</td></tr>';
+    }).join('') : '<tr><td colspan="4" class="vazio">—</td></tr>';
+
+    var ss = d.sessoes||[];
+    document.getElementById('u-sessions').innerHTML = ss.length ? ss.map(function(s){
+      return '<tr><td class="muted">'+fmtWhen(s.inicio)+'</td><td class="muted">'+fmtWhen(s.fim)+'</td>'+
+        '<td class="num">'+fmtDur(s.span_ms)+'</td><td class="num num-hi">'+(s.tempo_ms?fmtDur(s.tempo_ms):'—')+'</td>'+
+        '<td class="num">'+s.visitas+'</td></tr>';
+    }).join('') : '<tr><td colspan="5" class="vazio">—</td></tr>';
+
+    var tl = d.timeline||[];
+    document.getElementById('u-timeline').innerHTML = tl.length ? tl.map(function(t){
+      return '<tr><td class="muted">'+fmtWhen(t.ts)+'</td><td class="path">'+esc(t.path)+'</td></tr>';
+    }).join('') : '<tr><td colspan="2" class="vazio">—</td></tr>';
+  }
 
   function load(){
     var days = document.getElementById('days').value;
