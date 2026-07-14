@@ -35,6 +35,39 @@ const _insEvent = db.prepare(
   `INSERT INTO analytics_events (sid, email, path, kind, dur_ms, ua, ts) VALUES (?,?,?,?,?,?,?)`
 );
 
+// ── BACKFILL RETROATIVO (kind='login') ────────────────────────────────────────
+// O tracking de páginas só existe a partir do deploy do Módulo 17. Mas quem já
+// logou via SSO ANTES disso deixou rastro REAL na tabela users (azure_oid é
+// preenchido só no login; created_at = 1º registro, updated_at = última
+// atividade). Trazemos essas pessoas pro report como eventos 'login' (acesso
+// comprovado) — SEM inventar quais páginas visitaram nem quanto tempo ficaram
+// (esse dado nunca existiu). Idempotente: só insere quem ainda não tem 'login'.
+try {
+  const toMs = (s) => { if (!s) return null; const t = Date.parse(String(s).replace(' ', 'T') + 'Z'); return isNaN(t) ? null : t; };
+  const already = new Set(
+    db.prepare(`SELECT DISTINCT email FROM analytics_events WHERE kind='login'`).all().map(r => r.email)
+  );
+  let rows = [];
+  try {
+    rows = db.prepare(`SELECT email, created_at, updated_at FROM users
+                       WHERE azure_oid IS NOT NULL AND azure_oid <> ''`).all();
+  } catch (e) { /* tabela users pode não existir em ambiente isolado */ }
+  const insLogin = db.prepare(`INSERT INTO analytics_events (sid, email, path, kind, dur_ms, ua, ts) VALUES ('backfill', ?, '(login SSO)', 'login', 0, 'backfill', ?)`);
+  const tx = db.transaction(() => {
+    let n = 0;
+    for (const u of rows) {
+      const em = String(u.email || '').toLowerCase();
+      if (!em || already.has(em)) continue;
+      const first = toMs(u.created_at), last = toMs(u.updated_at);
+      if (first) { insLogin.run(em, first); n++; }
+      if (last && last !== first) { insLogin.run(em, last); n++; }
+    }
+    return n;
+  });
+  const inserted = tx();
+  if (inserted) console.log(`[analytics] backfill retroativo: ${inserted} eventos de login inseridos`);
+} catch (e) { console.warn('[analytics] backfill:', e.message); }
+
 // Só rotas de PÁGINA entram no analytics (não assets, api, auth).
 function isTrackablePath(p) {
   if (!p || p.length > 200) return false;
@@ -99,18 +132,21 @@ router.get('/api/admin/analytics', requireOwner, (req, res) => {
     const since = Date.now() - days * 86400000;
 
     const summary = {
-      usuarios: db.prepare(`SELECT COUNT(DISTINCT email) n FROM analytics_events WHERE kind='view' AND ts>=? AND email!='anon'`).get(since).n,
+      // usuários únicos = quem navegou OU logou (inclui retroativo)
+      usuarios: db.prepare(`SELECT COUNT(DISTINCT email) n FROM analytics_events WHERE kind IN ('view','login') AND ts>=? AND email!='anon'`).get(since).n,
       sessoes:  db.prepare(`SELECT COUNT(DISTINCT sid) n FROM analytics_events WHERE kind='view' AND ts>=?`).get(since).n,
       visitas:  db.prepare(`SELECT COUNT(*) n FROM analytics_events WHERE kind='view' AND ts>=?`).get(since).n,
       tempo_ms: db.prepare(`SELECT COALESCE(SUM(dur_ms),0) n FROM analytics_events WHERE kind='dur' AND ts>=?`).get(since).n,
       anon:     db.prepare(`SELECT COUNT(*) n FROM analytics_events WHERE kind='view' AND ts>=? AND email='anon'`).get(since).n,
     };
 
+    // Inclui eventos 'login' (retroativo) pra o usuário APARECER e ter primeiro/
+    // último acesso reais; visitas/sessões/páginas contam só navegação ('view').
     const usuarios = db.prepare(`
       SELECT v.email AS email,
-             COUNT(*) AS visitas,
-             COUNT(DISTINCT v.sid) AS sessoes,
-             COUNT(DISTINCT v.path) AS paginas,
+             SUM(CASE WHEN v.kind='view' THEN 1 ELSE 0 END) AS visitas,
+             COUNT(DISTINCT CASE WHEN v.kind='view' THEN v.sid END) AS sessoes,
+             COUNT(DISTINCT CASE WHEN v.kind='view' THEN v.path END) AS paginas,
              MAX(v.ts) AS ultimo,
              MIN(v.ts) AS primeiro,
              (SELECT COALESCE(SUM(dur_ms),0) FROM analytics_events d
@@ -119,7 +155,7 @@ router.get('/api/admin/analytics', requireOwner, (req, res) => {
              (SELECT u.role FROM users u WHERE u.email=v.email) AS role,
              (SELECT COALESCE(SUM(c.coins),0) FROM erp_coins c WHERE c.email=v.email) AS coins
       FROM analytics_events v
-      WHERE v.kind='view' AND v.ts>=? AND v.email!='anon'
+      WHERE v.kind IN ('view','login') AND v.ts>=? AND v.email!='anon'
       GROUP BY v.email
       ORDER BY ultimo DESC
       LIMIT 500
@@ -207,7 +243,7 @@ router.get('/api/admin/analytics/user', requireOwner, (req, res) => {
 
     const timeline = db.prepare(`
       SELECT path, ts FROM analytics_events
-      WHERE kind='view' AND email=? AND ts>=? ORDER BY ts DESC LIMIT 300
+      WHERE kind IN ('view','login') AND email=? AND ts>=? ORDER BY ts DESC LIMIT 300
     `).all(email, since);
 
     // Conquistas & ERP Coins (lifetime — não filtra por período).
