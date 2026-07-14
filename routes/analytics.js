@@ -263,6 +263,89 @@ router.get('/admin/analytics', requireOwner, (req, res) => {
   res.sendFile(path.join(__dirname, '../public/admin-analytics.html'));
 });
 
+// ── RESUMO SEMANAL (digest por e-mail) ────────────────────────────────────────
+// Dados 100% reais das tabelas analytics_events / utm_* / erp_coins (regra 7).
+// server.js agenda o envio (segunda ~8h BRT) e expõe preview/send admin.
+function buildDigestData(days) {
+  const d = Math.max(1, Math.min(90, days || 7));
+  const since = Date.now() - d * 86400000;
+  const one = (sql, ...a) => { try { return db.prepare(sql).get(...a).n; } catch (e) { return 0; } };
+  const all = (sql, ...a) => { try { return db.prepare(sql).all(...a); } catch (e) { return []; } };
+  return {
+    days: d,
+    periodo_inicio: since,
+    gerado_em: Date.now(),
+    uso: {
+      usuarios: one(`SELECT COUNT(DISTINCT email) n FROM analytics_events WHERE kind IN ('view','login') AND ts>=? AND email!='anon'`, since),
+      visitas:  one(`SELECT COUNT(*) n FROM analytics_events WHERE kind='view' AND ts>=?`, since),
+      sessoes:  one(`SELECT COUNT(DISTINCT sid) n FROM analytics_events WHERE kind='view' AND ts>=?`, since),
+      tempo_ms: one(`SELECT COALESCE(SUM(dur_ms),0) n FROM analytics_events WHERE kind='dur' AND ts>=?`, since),
+      top_usuarios: all(`
+        SELECT v.email, COUNT(*) AS visitas,
+               (SELECT COALESCE(SUM(dur_ms),0) FROM analytics_events x WHERE x.kind='dur' AND x.email=v.email AND x.ts>=?) AS tempo_ms
+        FROM analytics_events v WHERE v.kind='view' AND v.ts>=? AND v.email!='anon'
+        GROUP BY v.email ORDER BY tempo_ms DESC, visitas DESC LIMIT 5`, since, since),
+      top_paginas: all(`
+        SELECT path, COUNT(*) AS visitas FROM analytics_events
+        WHERE kind='view' AND ts>=? GROUP BY path ORDER BY visitas DESC LIMIT 5`, since),
+    },
+    utm: {
+      cliques:  one(`SELECT COUNT(*) n FROM utm_clicks WHERE ts>=?`, since),
+      clickers: one(`SELECT COUNT(DISTINCT ip_hash) n FROM utm_clicks WHERE ts>=?`, since),
+      top_links: all(`
+        SELECT l.email, l.campaign, l.source,
+               (SELECT COUNT(*) FROM utm_clicks c WHERE c.token=l.token AND c.ts>=?) AS cliques
+        FROM utm_links l ORDER BY cliques DESC LIMIT 5`, since).filter(x => x.cliques > 0),
+    },
+    coins: {
+      ganhos: one(`SELECT COALESCE(SUM(coins),0) n FROM erp_coins WHERE coins>0 AND created_at >= datetime(?/1000,'unixepoch')`, since),
+    },
+  };
+}
+
+function _fmtDur(ms) {
+  const s = Math.round((+ms || 0) / 1000);
+  if (s < 60) return s + 's';
+  const m = Math.floor(s / 60);
+  if (m < 60) return m + 'm';
+  return Math.floor(m / 60) + 'h' + (m % 60 ? (m % 60) + 'm' : '');
+}
+function buildDigestHTML(data) {
+  const esc = (x) => String(x == null ? '' : x).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const tr = (cells) => '<tr>' + cells.map((c, i) => `<td style="padding:6px 10px;border-bottom:1px solid #e2e8f0;${i > 0 ? 'text-align:right;font-family:monospace' : ''}">${c}</td>`).join('') + '</tr>';
+  const h3 = (t) => `<h3 style="margin:20px 0 8px;font-size:14px;color:#334155">${t}</h3>`;
+  const u = data.uso, m = data.utm;
+  return `
+  <div style="font-family:system-ui,sans-serif;max-width:560px;color:#0f172a">
+    <h2 style="margin:0 0 4px">📊 Office — resumo da semana</h2>
+    <p style="margin:0 0 16px;color:#64748b;font-size:13px">Últimos ${data.days} dias · dados reais do Analytics + UTM</p>
+    <table style="border-collapse:collapse;width:100%;font-size:14px"><tr>
+      <td style="padding:10px;background:#f1f5f9;border-radius:8px"><b>${u.usuarios}</b><br><span style="font-size:11px;color:#64748b">usuários</span></td>
+      <td style="width:8px"></td>
+      <td style="padding:10px;background:#f1f5f9;border-radius:8px"><b>${u.visitas}</b><br><span style="font-size:11px;color:#64748b">visitas</span></td>
+      <td style="width:8px"></td>
+      <td style="padding:10px;background:#f1f5f9;border-radius:8px"><b>${_fmtDur(u.tempo_ms)}</b><br><span style="font-size:11px;color:#64748b">tempo total</span></td>
+      <td style="width:8px"></td>
+      <td style="padding:10px;background:#f1f5f9;border-radius:8px"><b>${m.cliques}</b><br><span style="font-size:11px;color:#64748b">cliques UTM</span></td>
+    </tr></table>
+    ${h3('👥 Top usuários (tempo ativo)')}
+    <table style="border-collapse:collapse;width:100%;font-size:13px">
+      ${u.top_usuarios.length ? u.top_usuarios.map(x => tr([esc(x.email), x.visitas + ' visitas', _fmtDur(x.tempo_ms)])).join('') : tr(['— sem navegação no período', '', ''])}
+    </table>
+    ${h3('📄 Top páginas')}
+    <table style="border-collapse:collapse;width:100%;font-size:13px">
+      ${u.top_paginas.length ? u.top_paginas.map(x => tr([esc(x.path), x.visitas + '×'])).join('') : tr(['—', ''])}
+    </table>
+    ${h3('🔗 Links compartilhados (cliques)')}
+    <table style="border-collapse:collapse;width:100%;font-size:13px">
+      ${m.top_links.length ? m.top_links.map(x => tr([esc(x.email) + ' · ' + esc(x.campaign) + ' <span style="color:#94a3b8">(' + esc(x.source) + ')</span>', x.cliques + '×'])).join('') : tr(['— nenhum clique no período', ''])}
+    </table>
+    <p style="margin:18px 0 0;font-size:12px;color:#64748b">🪙 ${data.coins.ganhos} ERP Coins distribuídos no período · Reports completos: /admin/analytics · /admin/utm</p>
+  </div>`;
+}
+
 module.exports = router;
 module.exports.logPageView = logPageView;
 module.exports.OWNER_EMAIL = OWNER_EMAIL;
+module.exports.buildDigestData = buildDigestData;
+module.exports.buildDigestHTML = buildDigestHTML;

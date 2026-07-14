@@ -11,3 +11,7 @@
 7. **Persistência**: não há risco — o Railway Volume em `/data` já está montado e provado em produção desde 09/jun/2026 (`vault/00-contexto/pendencias.md`, item D1). Os coins vivem no mesmo SQLite que cases/eventos/calendário, que já sobrevivem a deploy. `backup`/`restore` por editor token seguem como utilitário de export manual, não como mitigação de um risco real.
 8. **Fante 🐘** — mascote renomeada (era Ellie). Veste camisa 10 verde-amarela automaticamente enquanto `golplaca.ativa:true` no JSON — remoção da campanha despe o kit sem deploy de código.
 9. **Link do form Gol de Placa** = tracker RD original do email (t.rdsv2.net) — egress do ambiente bloqueou a resolução da URL limpa. Trocar pela URL direta do form quando o Rudá passar (os cliques via Office inflam levemente a métrica de clique do email da Daniela).
+
+## 14/jul/2026 — v0.76.0 · REVOGAÇÃO da decisão 1 (silêncio)
+
+**A decisão 1 ("Coins em SILÊNCIO total") foi REVOGADA por ordem explícita do Rudá** ao aprovar a Loja de ERP Coins (Módulo 19). O usuário agora VÊ o saldo, o histórico e resgata brindes em `/loja`. O que permanece: valores server-side, anti-farm, identidade por SSO e o painel admin. Os games seguem sem HUD de coins (ganho continua discreto — o que abriu foi a consulta/resgate, não notificações a cada ação).

@@ -110,6 +110,29 @@ router.post('/api/utm/link', express.json({ limit: '2kb' }), (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// ── Meus links (self-service) — o usuário logado vê SÓ os próprios ────────────
+router.get('/api/utm/mine', (req, res) => {
+  const email = sessionEmail(req);
+  if (!email) return res.status(401).json({ error: 'auth_required' });
+  try {
+    const since7 = Date.now() - 7 * 86400000;
+    const links = db.prepare(`
+      SELECT l.token, l.campaign, l.source, l.medium, l.dest, l.created_at,
+             (SELECT COUNT(*) FROM utm_clicks c WHERE c.token=l.token) AS cliques,
+             (SELECT COUNT(*) FROM utm_clicks c WHERE c.token=l.token AND c.ts>=?) AS cliques_7d,
+             (SELECT COALESCE(SUM(coins),0) FROM erp_coins e
+                WHERE e.email=l.email AND e.evento='utm_click' AND e.ref LIKE l.token || ':%') AS coins
+      FROM utm_links l WHERE l.email=? ORDER BY cliques DESC, l.created_at DESC LIMIT 200
+    `).all(since7, email);
+    const totais = {
+      links: links.length,
+      cliques: links.reduce((a, l) => a + l.cliques, 0),
+      coins: links.reduce((a, l) => a + l.coins, 0),
+    };
+    res.json({ email, base: baseUrl(req) + '/go/', click_coins: UTM_CLICK_COINS, totais, links });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 // ── Redirect rastreado — loga o clique, credita coins e manda pro destino ──────
 router.get('/go/:token', (req, res) => {
   const token = sanitizeSlug(req.params.token, 24);
@@ -186,6 +209,11 @@ router.get('/api/admin/utm', requireMkt, (req, res) => {
 
 router.get('/admin/utm', requireMkt, (req, res) => {
   res.sendFile(path.join(__dirname, '../public/admin-utm.html'));
+});
+
+// Página self-service "Meus Links" (qualquer usuário logado; enforcement cuida do login).
+router.get('/meus-links', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/meus-links.html'));
 });
 
 module.exports = router;

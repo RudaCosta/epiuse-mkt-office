@@ -29,6 +29,9 @@
   <div class="sub">Acúmulo silencioso de participação (share 10 · Gol de Placa 10 · quest 50 · 🥚 egg 100). Os usuários <b>não veem</b> este painel nem o saldo.</div>
   <div class="aviso">ℹ️ Dados persistem no volume Railway (<code>/data</code>) — mesmo mecanismo usado por cases/eventos/calendário. Export manual (migração/backup pontual): <code>GET /api/admin/coins/backup</code> (editor token) · restore: <code>POST /api/admin/coins/restore</code>.</div>
 
+  <h2>🎁 Resgates da Loja</h2>
+  <table><thead><tr><th>#</th><th>Quem</th><th>Item</th><th>Coins</th><th>Status</th><th>Quando</th><th>Ações</th></tr></thead><tbody id="rg"><tr><td colspan="7" class="vazio">Carregando…</td></tr></tbody></table>
+
   <h2>Ranking</h2>
   <table><thead><tr><th>#</th><th>Email</th><th>ERP Coins</th><th>Ações</th><th>Última</th></tr></thead><tbody id="rk"><tr><td colspan="5" class="vazio">Carregando…</td></tr></tbody></table>
 
@@ -39,15 +42,55 @@
 <script>
 (function(){
   const esc = s => String(s==null?'':s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-  fetch('/api/admin/coins').then(r => { if(!r.ok) throw new Error(r.status); return r.json(); }).then(d => {
+  // Token de editor (fallback quando não há sessão head): ?token=... fica salvo.
+  try { const _t = new URL(location.href).searchParams.get('token'); if (_t) localStorage.setItem('office.editorToken', _t); } catch(e){}
+  function authHeaders(extra){
+    const h = Object.assign({}, extra || {});
+    try { const t = localStorage.getItem('office.editorToken'); if (t) h['X-Editor-Token'] = t; } catch(e){}
+    return h;
+  }
+
+  fetch('/api/admin/coins', { headers: authHeaders() }).then(r => { if(!r.ok) throw new Error(r.status); return r.json(); }).then(d => {
     const rk = document.getElementById('rk');
     rk.innerHTML = d.ranking.length ? d.ranking.map((r,i) =>
       '<tr><td>'+(i+1)+'</td><td>'+esc(r.email)+'</td><td class="num">'+r.total+'</td><td>'+r.acoes+'</td><td>'+esc(r.ultimo)+'</td></tr>'
     ).join('') : '<tr><td colspan="5" class="vazio">Ninguém acumulou coins ainda.</td></tr>';
     document.getElementById('lg').innerHTML = d.ledger.map(l =>
-      '<tr><td>'+esc(l.created_at)+'</td><td>'+esc(l.email)+'</td><td><span class="tag '+esc(l.evento)+'">'+esc(l.evento)+'</span></td><td>'+esc(l.ref)+'</td><td class="num">+'+l.coins+'</td></tr>'
+      '<tr><td>'+esc(l.created_at)+'</td><td>'+esc(l.email)+'</td><td><span class="tag '+esc(l.evento)+'">'+esc(l.evento)+'</span></td><td>'+esc(l.ref)+'</td><td class="num">'+(l.coins>=0?'+':'')+l.coins+'</td></tr>'
     ).join('');
   }).catch(e => { document.getElementById('rk').innerHTML = '<tr><td colspan="5" class="vazio">Acesso negado ou erro ('+esc(e.message)+').</td></tr>'; });
+
+  // ── Resgates da Loja (Módulo 19) ─────────────────────────────────────────────
+  function stChip(s){
+    const cor = { pendente:'#fbbf24', aprovado:'#4ade80', negado:'#f87171', entregue:'#93c5fd' }[s] || '#cbd5e1';
+    return '<span class="tag" style="color:'+cor+'">'+esc(s)+'</span>';
+  }
+  function loadResgates(){
+    fetch('/api/admin/loja', { headers: authHeaders() }).then(r => { if(!r.ok) throw new Error(r.status); return r.json(); }).then(d => {
+      const rows = d.resgates || [];
+      document.getElementById('rg').innerHTML = rows.length ? rows.map(r => {
+        let acts = '';
+        if (r.status === 'pendente') acts = btn(r.id,'aprovar','✅ Aprovar') + btn(r.id,'negar','❌ Negar');
+        else if (r.status === 'aprovado') acts = btn(r.id,'entregue','📦 Entregue') + btn(r.id,'negar','❌ Negar');
+        return '<tr><td>'+r.id+'</td><td>'+esc(r.nome||r.email)+'<div style="font-size:11px;color:#9fb2d4">'+esc(r.email)+'</div></td>'+
+          '<td>'+esc(r.item_nome)+'</td><td class="num">'+r.coins+'</td><td>'+stChip(r.status)+'</td>'+
+          '<td style="font-size:12px;color:#9fb2d4">'+esc((r.created_at||'').slice(0,16))+'</td><td>'+acts+'</td></tr>';
+      }).join('') : '<tr><td colspan="7" class="vazio">Nenhum resgate ainda (catálogo: '+((d.catalogo||[]).length)+' itens).</td></tr>';
+      Array.prototype.forEach.call(document.querySelectorAll('[data-acao]'), b => {
+        b.addEventListener('click', () => decidir(b.dataset.rid, b.dataset.acao));
+      });
+    }).catch(e => { document.getElementById('rg').innerHTML = '<tr><td colspan="7" class="vazio">Erro ('+esc(e.message)+').</td></tr>'; });
+  }
+  function btn(id, acao, label){
+    return '<button data-rid="'+id+'" data-acao="'+acao+'" style="background:rgba(96,165,250,.15);border:1px solid rgba(96,165,250,.4);color:#bfdbfe;border-radius:7px;padding:4px 9px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;margin-right:4px">'+label+'</button>';
+  }
+  function decidir(id, acao){
+    const obs = acao==='negar' ? (prompt('Motivo (opcional):')||'') : '';
+    fetch('/api/admin/loja/'+id, { method:'POST', headers: authHeaders({'Content-Type':'application/json'}), body: JSON.stringify({ acao, obs }) })
+      .then(r => r.json()).then(d => { if (d.success) loadResgates(); else alert('Erro: '+(d.error||'?')); })
+      .catch(() => alert('Erro de rede.'));
+  }
+  loadResgates();
 })();
 </script>
 </body>

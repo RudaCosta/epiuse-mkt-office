@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Loja de ERP Coins · EPI-USE Office</title>
+<link rel="stylesheet" href="/design-tokens.css">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0a1426; --surface:#0f1d36; --text:#e8f0ff; --text2:#9fb2d4;
+    --line:rgba(134,158,195,.18); --accent:#cd1543; --green:#16a34a; --yellow:#fbbf24; --blue:#60a5fa;
+  }
+  body{font-family:'Maven Pro','Poppins',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.55}
+  .container{max-width:980px;margin:0 auto;padding:0 24px 64px}
+  .hero{padding:44px 24px 26px;background:linear-gradient(160deg,#2a1a04 0%,#001844 70%);border-bottom:1px solid var(--line);margin-bottom:26px}
+  .hero .eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--yellow);font-weight:700;margin-bottom:8px}
+  .hero h1{font-size:28px;font-weight:800;letter-spacing:-.4px;margin-bottom:6px}
+  .hero p{font-size:14px;color:var(--text2);max-width:640px}
+  .saldo-card{display:flex;gap:14px;align-items:center;background:linear-gradient(135deg,rgba(251,191,36,.12),var(--surface) 70%);border:1px solid rgba(251,191,36,.35);border-radius:16px;padding:20px 24px;margin-bottom:26px;flex-wrap:wrap}
+  .saldo-num{font-size:38px;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--yellow)}
+  .saldo-lbl{font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.06em}
+  .saldo-det{margin-left:auto;font-size:12px;color:var(--text2);text-align:right}
+  h2{font-size:14px;font-weight:800;margin:26px 0 10px;color:var(--text2);text-transform:uppercase;letter-spacing:.06em}
+  .aviso{font-size:13px;color:#fbbf24;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.3);border-radius:12px;padding:14px 16px;margin-bottom:8px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+  .item{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;text-align:center}
+  .item .em{font-size:38px;margin-bottom:8px}
+  .item .nm{font-size:14px;font-weight:800;margin-bottom:4px}
+  .item .ds{font-size:12px;color:var(--text2);margin-bottom:10px;min-height:32px}
+  .item .pc{font-size:16px;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--yellow);margin-bottom:10px}
+  .btn{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:13px;font-weight:800;font-family:inherit;cursor:pointer}
+  .btn:hover{filter:brightness(1.12)} .btn:disabled{opacity:.4;cursor:not-allowed}
+  .panel{background:#0b1830;border:1px solid var(--line);border-radius:14px;padding:8px 4px;overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid rgba(134,158,195,.12)}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text2)}
+  td.num,th.num{text-align:right;font-family:'JetBrains Mono',monospace}
+  .vazio{color:var(--text2);font-size:13px;padding:16px}
+  .st{font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;text-transform:uppercase}
+  .st.pendente{background:rgba(251,191,36,.14);color:#fbbf24;border:1px solid rgba(251,191,36,.35)}
+  .st.aprovado{background:rgba(34,211,122,.14);color:#4ade80;border:1px solid rgba(34,211,122,.35)}
+  .st.negado{background:rgba(248,113,113,.14);color:#f87171;border:1px solid rgba(248,113,113,.35)}
+  .st.entregue{background:rgba(96,165,250,.14);color:#93c5fd;border:1px solid rgba(96,165,250,.35)}
+  .pos{color:#4ade80}.neg{color:#f87171}
+  .muted{color:var(--text2);font-size:12px}
+</style>
+</head>
+<body data-route="loja">
+<office-nav></office-nav>
+
+<div class="hero">
+  <div class="container" style="padding:0">
+    <div class="eyebrow">🪙 ERP Coins</div>
+    <h1>Loja de Coins</h1>
+    <p>Suas participações viram ERP Coins — compartilhar conteúdo, marcar Gol de Placa, completar quests do game e cada clique real nos seus links. Aqui você acompanha o saldo e troca por brindes.</p>
+  </div>
+</div>
+
+<div class="container">
+  <div class="saldo-card" id="saldo-card">
+    <div><div class="saldo-num" id="saldo">—</div><div class="saldo-lbl">Meu saldo</div></div>
+    <div class="saldo-det" id="saldo-det"></div>
+  </div>
+
+  <h2>🎁 Catálogo</h2>
+  <div id="catalogo"><div class="vazio">Carregando…</div></div>
+
+  <h2>📦 Meus resgates</h2>
+  <div class="panel">
+    <table><thead><tr><th>Item</th><th class="num">Coins</th><th>Status</th><th>Quando</th></tr></thead>
+    <tbody id="tb-resgates"></tbody></table>
+  </div>
+
+  <h2>📜 Histórico de coins</h2>
+  <div class="panel">
+    <table><thead><tr><th>Evento</th><th class="num">Coins</th><th>Quando</th></tr></thead>
+    <tbody id="tb-ledger"></tbody></table>
+  </div>
+</div>
+
+<script src="/office-nav.js"></script>
+<script>
+(function(){
+  var esc = function(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c];}); };
+  function eventoLabel(ev, ref){
+    if (ev==='egg') return '🐘 Guardião dos Elefantes';
+    if (ev==='quest') return '🎯 Quest do game' + (ref?(' · '+ref):'');
+    if (ev==='golplaca') return '⚽ Gol de Placa';
+    if (ev==='share') return '📣 Compartilhamento';
+    if (ev==='utm_click') return '🔗 Clique em link seu';
+    if (ev==='resgate') return '🛒 Resgate na loja';
+    if (ev==='estorno') return '↩️ Estorno de resgate';
+    return ev;
+  }
+  function fmtWhen(s){ return String(s||'').slice(0,16).replace('T',' '); }
+
+  var SALDO = 0;
+  function load(){
+    fetch('/api/loja/me').then(function(r){
+      if (r.status===401){ gate(); throw new Error('401'); }
+      if (!r.ok) throw new Error(r.status);
+      return r.json();
+    }).then(render).catch(function(e){
+      if (e.message!=='401') document.getElementById('catalogo').innerHTML = '<div class="vazio">Erro ('+esc(e.message)+').</div>';
+    });
+  }
+  function gate(){
+    document.getElementById('catalogo').innerHTML =
+      '<div class="vazio">🔐 Entre com a sua conta pra ver o saldo e o catálogo. <a href="/auth/login?returnTo=%2Floja" style="color:#60a5fa">Entrar →</a></div>';
+  }
+
+  function render(d){
+    SALDO = d.saldo||0;
+    document.getElementById('saldo').textContent = SALDO;
+    document.getElementById('saldo-det').innerHTML =
+      '<span class="pos">+'+(d.ganhos||0)+' ganhos</span> · <span class="neg">−'+(d.gastos||0)+' gastos</span><br>'+
+      '<span class="muted">'+esc(d.email)+'</span>';
+
+    var cat = d.catalogo||[];
+    document.getElementById('catalogo').innerHTML = cat.length
+      ? '<div class="grid">'+cat.map(function(i){
+          var pode = SALDO >= (i.preco_coins||0);
+          return '<div class="item"><div class="em">'+esc(i.emoji||'🎁')+'</div>'+
+            '<div class="nm">'+esc(i.nome)+'</div><div class="ds">'+esc(i.desc||'')+'</div>'+
+            '<div class="pc">🪙 '+(i.preco_coins||0)+'</div>'+
+            '<button class="btn" data-id="'+esc(i.id)+'" data-nome="'+esc(i.nome)+'" data-preco="'+(i.preco_coins||0)+'" '+(pode?'':'disabled')+'>'+(pode?'Resgatar':'Saldo insuficiente')+'</button></div>';
+        }).join('')+'</div>'
+      : '<div class="aviso">⏳ Catálogo em definição — seus coins já estão acumulando e valem quando a loja abrir. Fica de olho! 👀</div>';
+    Array.prototype.forEach.call(document.querySelectorAll('[data-id]'), function(b){
+      b.addEventListener('click', function(){ resgatar(b.dataset.id, b.dataset.nome, b.dataset.preco); });
+    });
+
+    var rs = d.resgates||[];
+    document.getElementById('tb-resgates').innerHTML = rs.length ? rs.map(function(r){
+      return '<tr><td>'+esc(r.item_nome)+'</td><td class="num neg">−'+r.coins+'</td>'+
+        '<td><span class="st '+esc(r.status)+'">'+esc(r.status)+'</span>'+(r.obs?(' <span class="muted">'+esc(r.obs)+'</span>'):'')+'</td>'+
+        '<td class="muted">'+fmtWhen(r.created_at)+'</td></tr>';
+    }).join('') : '<tr><td colspan="4" class="vazio">Nenhum resgate ainda.</td></tr>';
+
+    var lg = d.ledger||[];
+    document.getElementById('tb-ledger').innerHTML = lg.length ? lg.map(function(l){
+      var cls = l.coins>=0?'pos':'neg';
+      return '<tr><td>'+esc(eventoLabel(l.evento,l.ref&&!/^(resgate|estorno):/.test(l.ref)?l.ref:''))+'</td>'+
+        '<td class="num '+cls+'">'+(l.coins>=0?'+':'')+l.coins+'</td>'+
+        '<td class="muted">'+fmtWhen(l.created_at)+'</td></tr>';
+    }).join('') : '<tr><td colspan="3" class="vazio">Nada ainda — participa das campanhas, do game e compartilha conteúdo! 🚀</td></tr>';
+  }
+
+  function resgatar(id, nome, preco){
+    if (!confirm('Resgatar "'+nome+'" por '+preco+' coins? O pedido vai pra aprovação.')) return;
+    fetch('/api/loja/resgatar', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ item_id: id }) })
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if (d.success) { alert('Pedido enviado! 🎉 Aguarde a aprovação.'); load(); }
+        else alert('Não rolou: ' + (d.error==='saldo_insuficiente'?'saldo insuficiente':(d.error||'erro')));
+      }).catch(function(){ alert('Erro de rede.'); });
+  }
+
+  load();
+})();
+</script>
+</body>
+</html>

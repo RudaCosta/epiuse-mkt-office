@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Meus Links · EPI-USE Office</title>
+<link rel="stylesheet" href="/design-tokens.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0a1426; --surface:#0f1d36; --text:#e8f0ff; --text2:#9fb2d4;
+    --line:rgba(134,158,195,.18); --accent:#cd1543; --green:#16a34a; --yellow:#fbbf24; --blue:#60a5fa;
+  }
+  body{font-family:'Maven Pro','Poppins',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.55}
+  .container{max-width:980px;margin:0 auto;padding:0 24px 64px}
+  .hero{padding:44px 24px 26px;background:linear-gradient(160deg,#101c3a 0%,#001844 70%);border-bottom:1px solid var(--line);margin-bottom:26px}
+  .hero .eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--yellow);font-weight:700;margin-bottom:8px}
+  .hero h1{font-size:28px;font-weight:800;letter-spacing:-.4px;margin-bottom:6px}
+  .hero p{font-size:14px;color:var(--text2);max-width:640px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:26px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .card .n{font-size:24px;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--blue)}
+  .card .l{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+  h2{font-size:14px;font-weight:800;margin:26px 0 10px;color:var(--text2);text-transform:uppercase;letter-spacing:.06em}
+  .gen{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:8px}
+  .gen p{font-size:13px;color:var(--text2);margin-bottom:14px}
+  .gen-row{display:flex;gap:10px;flex-wrap:wrap}
+  .gen-row input,.gen-row select{background:#0a1426;border:1px solid var(--line);border-radius:10px;padding:11px 13px;color:var(--text);font-family:inherit;font-size:14px}
+  .gen-row input:focus,.gen-row select:focus{outline:none;border-color:var(--accent)}
+  #f-dest{flex:2;min-width:220px} #f-camp{flex:1;min-width:140px} #f-source{min-width:130px}
+  .btn{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:11px 18px;font-size:13px;font-weight:800;font-family:inherit;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+  .btn:hover{filter:brightness(1.12)}
+  .btn.sec{background:rgba(96,165,250,.16);border:1px solid rgba(96,165,250,.4);color:#bfdbfe}
+  .btn.mini{padding:6px 10px;font-size:12px;border-radius:8px}
+  .msg{font-size:12px;margin-top:10px;min-height:16px}
+  .msg.ok{color:#4ade80}.msg.err{color:#f87171}
+  .panel{background:#0b1830;border:1px solid var(--line);border-radius:14px;padding:8px 4px;overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid rgba(134,158,195,.12);vertical-align:middle}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text2)}
+  td.num,th.num{text-align:right;font-family:'JetBrains Mono',monospace}
+  .num-hi{color:var(--yellow);font-weight:700}
+  .mono{font-family:'JetBrains Mono',monospace;font-size:12px;color:#a7c0e8;word-break:break-all}
+  .tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(96,165,250,.14);color:#93c5fd;border:1px solid rgba(96,165,250,.3);text-transform:uppercase}
+  .vazio{color:var(--text2);font-size:13px;padding:18px}
+  .acts{display:flex;gap:6px;flex-wrap:wrap}
+  /* QR modal */
+  #qrmodal{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;background:rgba(3,10,22,.85);padding:20px}
+  #qrmodal.open{display:flex}
+  .qrbox{background:#fff;border-radius:18px;padding:26px;text-align:center;max-width:340px;width:100%;color:#0a1426}
+  .qrbox h3{font-size:15px;font-weight:800;margin-bottom:4px}
+  .qrbox .qsub{font-size:11px;color:#64748b;margin-bottom:14px;word-break:break-all}
+  #qrcanvas{display:flex;justify-content:center;margin-bottom:14px}
+  #qrcanvas img,#qrcanvas canvas{border-radius:8px}
+  .qracts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+  .qracts .btn{background:#001844}
+  .qracts .btn.close{background:#e2e8f0;color:#0a1426}
+  .qr-fallback{font-size:12px;color:#b45309;background:#fef3c7;border-radius:8px;padding:10px;margin-bottom:12px}
+</style>
+</head>
+<body data-route="meus-links">
+<office-nav></office-nav>
+
+<div class="hero">
+  <div class="container" style="padding:0">
+    <div class="eyebrow">🔗 Advocacy</div>
+    <h1>Meus Links</h1>
+    <p>Seus links rastreados pra compartilhar fora da plataforma. Cada clique é atribuído a você — e o QR code leva o mesmo link pro mundo físico (eventos, material impresso).</p>
+  </div>
+</div>
+
+<div class="container">
+  <div class="cards" id="cards"></div>
+
+  <h2>➕ Criar link rastreado</h2>
+  <div class="gen">
+    <p>Cole o destino (artigo, LP, post), dê um nome de campanha e escolha por onde vai compartilhar.</p>
+    <div class="gen-row">
+      <input id="f-dest" type="url" placeholder="https://... (link do conteúdo)">
+      <input id="f-camp" type="text" placeholder="campanha (ex: sap-now-2026)">
+      <select id="f-source">
+        <option value="linkedin">LinkedIn</option>
+        <option value="whatsapp">WhatsApp</option>
+        <option value="email">E-mail</option>
+        <option value="evento">Evento (QR)</option>
+        <option value="impresso">Impresso (QR)</option>
+      </select>
+      <button class="btn" id="f-btn" type="button">Gerar</button>
+    </div>
+    <div class="msg" id="f-msg"></div>
+  </div>
+
+  <h2>📂 Meus links</h2>
+  <div class="panel">
+    <table>
+      <thead><tr><th>Link</th><th>Campanha</th><th>Origem</th><th>Destino</th><th class="num">Cliques</th><th class="num">7d</th><th class="num">Coins</th><th>Ações</th></tr></thead>
+      <tbody id="rows"><tr><td colspan="8" class="vazio">Carregando…</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- QR MODAL -->
+<div id="qrmodal"><div class="qrbox">
+  <h3 id="qr-title">QR Code</h3>
+  <div class="qsub" id="qr-url"></div>
+  <div id="qr-warn"></div>
+  <div id="qrcanvas"></div>
+  <div class="qracts">
+    <button class="btn" id="qr-dl" type="button">⬇️ Baixar PNG</button>
+    <button class="btn close" id="qr-close" type="button">Fechar</button>
+  </div>
+</div></div>
+
+<script src="/office-nav.js"></script>
+<script>
+(function(){
+  var esc = function(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c];}); };
+  function shorten(u){ return String(u||'').replace(/^https?:\/\//,'').slice(0,40); }
+  var BASE = location.origin + '/go/';
+
+  function card(n,l){ return '<div class="card"><div class="n">'+esc(n)+'</div><div class="l">'+esc(l)+'</div></div>'; }
+
+  function load(){
+    fetch('/api/utm/mine').then(function(r){
+      if (r.status === 401) { authGate(); throw new Error('401'); }
+      if (!r.ok) throw new Error(r.status);
+      return r.json();
+    }).then(render).catch(function(e){
+      if (e.message !== '401')
+        document.getElementById('rows').innerHTML = '<tr><td colspan="8" class="vazio">Erro ('+esc(e.message)+').</td></tr>';
+    });
+  }
+  function authGate(){
+    document.getElementById('cards').innerHTML = '';
+    document.getElementById('rows').innerHTML =
+      '<tr><td colspan="8" class="vazio">🔐 Entre com a sua conta pra ver e criar os seus links. ' +
+      '<a href="/auth/login?returnTo=%2Fmeus-links" style="color:#60a5fa">Entrar →</a></td></tr>';
+  }
+
+  function render(d){
+    BASE = d.base || BASE;
+    var t = d.totais || {};
+    document.getElementById('cards').innerHTML =
+      card(t.links||0,'Links criados') + card(t.cliques||0,'Cliques gerados') + card(t.coins||0,'ERP Coins ganhos');
+    var ls = d.links || [];
+    document.getElementById('rows').innerHTML = ls.length ? ls.map(function(l){
+      var url = BASE + l.token;
+      return '<tr>'+
+        '<td class="mono">/go/'+esc(l.token)+'</td>'+
+        '<td>'+esc(l.campaign)+'</td>'+
+        '<td><span class="tag">'+esc(l.source)+'</span></td>'+
+        '<td class="mono">'+esc(shorten(l.dest))+'</td>'+
+        '<td class="num num-hi">'+l.cliques+'</td>'+
+        '<td class="num">'+l.cliques_7d+'</td>'+
+        '<td class="num">'+(l.coins||0)+'</td>'+
+        '<td class="acts">'+
+          '<button class="btn sec mini" data-copy="'+esc(url)+'">Copiar</button>'+
+          '<button class="btn sec mini" data-qr="'+esc(url)+'" data-camp="'+esc(l.campaign)+'">QR</button>'+
+          '<a class="btn sec mini" href="https://www.linkedin.com/sharing/share-offsite/?url='+encodeURIComponent(url)+'" target="_blank" rel="noopener">in</a>'+
+        '</td></tr>';
+    }).join('') : '<tr><td colspan="8" class="vazio">Você ainda não criou nenhum link. Gera o primeiro aí em cima 👆</td></tr>';
+
+    Array.prototype.forEach.call(document.querySelectorAll('[data-copy]'), function(b){
+      b.addEventListener('click', function(){
+        try { navigator.clipboard.writeText(b.dataset.copy); } catch(e){}
+        b.textContent = 'Copiado ✓'; setTimeout(function(){ b.textContent = 'Copiar'; }, 1600);
+      });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-qr]'), function(b){
+      b.addEventListener('click', function(){ openQr(b.dataset.qr, b.dataset.camp); });
+    });
+  }
+
+  // ── criar link ──────────────────────────────────────────────────────────────
+  document.getElementById('f-btn').addEventListener('click', function(){
+    var msg = document.getElementById('f-msg');
+    var dest = (document.getElementById('f-dest').value||'').trim();
+    if (!/^https?:\/\/.+/i.test(dest)) { msg.className='msg err'; msg.textContent='Cole uma URL válida (começando com http).'; return; }
+    msg.className='msg'; msg.textContent='Gerando…';
+    fetch('/api/utm/link', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ dest: dest,
+        campaign: (document.getElementById('f-camp').value||'').trim() || 'geral',
+        source: document.getElementById('f-source').value }) })
+      .then(function(r){ if (r.status===401){ msg.className='msg err'; msg.textContent='Você precisa estar logado.'; throw new Error('401'); } return r.json(); })
+      .then(function(d){
+        if (!d.url) throw new Error(d.error||'falhou');
+        msg.className='msg ok'; msg.textContent='Link pronto: ' + d.url;
+        document.getElementById('f-dest').value=''; load();
+      })
+      .catch(function(e){ if (e.message!=='401'){ msg.className='msg err'; msg.textContent='Não foi possível gerar ('+e.message+').'; } });
+  });
+
+  // ── QR modal ────────────────────────────────────────────────────────────────
+  var modal = document.getElementById('qrmodal');
+  var currentCamp = 'link';
+  function openQr(url, camp){
+    currentCamp = camp || 'link';
+    document.getElementById('qr-title').textContent = 'QR · ' + currentCamp;
+    document.getElementById('qr-url').textContent = url;
+    var box = document.getElementById('qrcanvas'); box.innerHTML = '';
+    var warn = document.getElementById('qr-warn'); warn.innerHTML = '';
+    if (typeof QRCode === 'undefined') {
+      warn.innerHTML = '<div class="qr-fallback">⚠️ Gerador de QR indisponível (rede). O link continua válido — copie e use um gerador de QR de sua preferência.</div>';
+    } else {
+      new QRCode(box, { text: url, width: 220, height: 220, correctLevel: QRCode.CorrectLevel.M });
+    }
+    modal.classList.add('open');
+  }
+  document.getElementById('qr-close').addEventListener('click', function(){ modal.classList.remove('open'); });
+  modal.addEventListener('click', function(e){ if (e.target===modal) modal.classList.remove('open'); });
+  document.addEventListener('keydown', function(e){ if (e.key==='Escape') modal.classList.remove('open'); });
+  document.getElementById('qr-dl').addEventListener('click', function(){
+    var box = document.getElementById('qrcanvas');
+    var img = box.querySelector('img'); var cv = box.querySelector('canvas');
+    var src = (img && img.src) || (cv && cv.toDataURL('image/png'));
+    if (!src) return;
+    var a = document.createElement('a');
+    a.href = src; a.download = 'qr-' + currentCamp.replace(/[^a-z0-9-]/gi,'') + '.png';
+    document.body.appendChild(a); a.click(); a.remove();
+  });
+
+  load();
+})();
+</script>
+</body>
+</html>

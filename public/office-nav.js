@@ -378,6 +378,15 @@ class OfficeNav extends HTMLElement {
     if (grpA && MKT_ROLES.includes(this._role) && !grpA.links.some(l => l.href === '/admin/utm')) {
       grpA.links.push({ label: '🔗 UTM & Links Rastreados', href: '/admin/utm' });
     }
+    // Meus Links (self-service) + Loja de Coins — qualquer usuário autenticado.
+    if (grpA && this._authed) {
+      if (!grpA.links.some(l => l.href === '/meus-links')) {
+        grpA.links.push({ label: '📂 Meus Links & QR', href: '/meus-links' });
+      }
+      if (!grpA.links.some(l => l.href === '/loja')) {
+        grpA.links.push({ label: '🏪 Loja de Coins', href: '/loja' });
+      }
+    }
 
     const col1Html = renderColumn(col1Items);
     const col2Html = renderColumn(col2Items);
