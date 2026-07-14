@@ -79,7 +79,7 @@
   <div class="spark" id="spark"></div>
 
   <h2>Usuários</h2>
-  <div class="muted" style="margin:-4px 0 8px">👆 Clique num usuário pra ver o detalhe completo (sessões, tempo por página, linha do tempo).</div>
+  <div class="muted" style="margin:-4px 0 8px">👆 Clique num usuário pra ver o detalhe completo. Quem logou antes do tracking existir aparece com <b>0 visitas</b> mas com o último acesso real (login SSO) — as páginas/tempo desse período não foram registrados na época.</div>
   <div class="panel">
     <table><thead><tr>
       <th>Usuário</th><th>Área</th><th class="num">Tempo total</th><th class="num">Sessões</th>
@@ -261,7 +261,8 @@
 
     var tl = d.timeline||[];
     document.getElementById('u-timeline').innerHTML = tl.length ? tl.map(function(t){
-      return '<tr><td class="muted">'+fmtWhen(t.ts)+'</td><td class="path">'+esc(t.path)+'</td></tr>';
+      var p = t.path==='(login SSO)' ? '🔐 Acesso (login SSO)' : t.path;
+      return '<tr><td class="muted">'+fmtWhen(t.ts)+'</td><td class="path">'+esc(p)+'</td></tr>';
     }).join('') : '<tr><td colspan="2" class="vazio">—</td></tr>';
   }
 

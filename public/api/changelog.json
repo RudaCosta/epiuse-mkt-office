@@ -1,5 +1,5 @@
 {
-  "current": "0.75.7",
+  "current": "0.75.8",
   "atualizado_em": "13/jul/2026",
   "next": [
     {
@@ -54,9 +54,21 @@
   ],
   "releases": [
     {
-      "version": "0.75.7",
+      "version": "0.75.8",
       "date": "13/jul/2026",
       "status": "current",
+      "path": null,
+      "title": "⏪ Analytics retroativo — quem já acessou antes do tracking aparece no report",
+      "highlights": [
+        "Backfill dos logins SSO já registrados (users.azure_oid + datas): quem acessou antes do Módulo 17 entra no report como evento 'login' real, com primeiro/último acesso e área",
+        "Sem invenção de dado: páginas visitadas e tempo desse período não existem, então ficam zerados/vazios (usuário aparece com 0 visitas + último acesso real) — regra REAL DATA ONLY",
+        "Idempotente (não duplica a cada deploy). UTM não é retroativo — não havia links rastreados antes"
+      ]
+    },
+    {
+      "version": "0.75.7",
+      "date": "13/jul/2026",
+      "status": "past",
       "path": null,
       "title": "🔗 UTM liberado pro time de Marketing + origem de cada link",
       "highlights": [
