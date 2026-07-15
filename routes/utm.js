@@ -41,6 +41,10 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_utm_clicks_token ON utm_clicks(token);
   CREATE INDEX IF NOT EXISTS idx_utm_clicks_ts ON utm_clicks(ts);
 `);
+// Flag de bot (v0.77.0): cliques de crawlers/preview (LinkedInBot, WhatsApp…)
+// são logados com bot=1 e NÃO contam nas métricas nem creditam coins (regra 7 —
+// clique de máquina não é clique real). Migração idempotente; histórico fica 0.
+try { db.exec(`ALTER TABLE utm_clicks ADD COLUMN bot INTEGER DEFAULT 0`); } catch (_e) { /* já existe */ }
 
 function sessionEmail(req) {
   const e = req.session && req.session.user && req.session.user.email;
@@ -68,7 +72,29 @@ function baseUrl(req) {
   const proto = (req.headers['x-forwarded-proto'] || req.protocol || 'https').split(',')[0];
   return proto + '://' + req.get('host');
 }
-function sanitizeSlug(s, max) { return String(s || '').replace(/[^a-z0-9._-]/gi, '').slice(0, max || 60); }
+// Slug legível: lowercase, espaços/underscores viram hífen, colapsa hífens.
+// Ex.: "SAP NOW 2026" → "sap-now-2026" (antes virava "SAPNOW2026").
+function sanitizeSlug(s, max) {
+  return String(s || '')
+    .toLowerCase()
+    .replace(/[\s_]+/g, '-')
+    .replace(/[^a-z0-9.-]/g, '')
+    .replace(/-{2,}/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, max || 60);
+}
+
+// Bots/crawlers de preview (LinkedInBot, WhatsApp, facebookexternalhit, Telegram,
+// Slack, curl…) — recebem o redirect normal (precisam do 302 pro preview), mas o
+// clique é marcado bot=1 e não credita coins nem entra nas contagens.
+const BOT_UA_RE = /bot|crawl|spider|linkedin|whatsapp|facebookexternalhit|facebot|telegram|slack|twitter|discord|skypeuripreview|preview|pinterest|curl|wget|python|axios|node-fetch|go-http|headless|lighthouse|monitor|uptime/i;
+function isBotUA(ua) { return BOT_UA_RE.test(String(ua || '')) || !String(ua || '').trim(); }
+
+// utm_medium padrão por canal (sobrescritível via body.medium).
+const MEDIUM_BY_SOURCE = {
+  linkedin: 'employee_advocacy', whatsapp: 'employee_advocacy',
+  email: 'email', evento: 'offline', impresso: 'offline', site: 'referral',
+};
 
 // Anexa os parâmetros UTM na URL de destino (preserva query existente).
 function appendUtm(dest, { source, medium, campaign, content }) {
@@ -83,30 +109,38 @@ function appendUtm(dest, { source, medium, campaign, content }) {
 }
 
 // ── Gera (ou reusa) um link rastreado pro usuário logado ──────────────────────
-// Idempotente por (email, campaign, source): o mesmo usuário reusa o token.
+// Reusa o token quando (email, campaign, source, dest) baterem TODOS. Se o
+// destino for diferente, cria token NOVO — nunca sobrescreve o destino de um
+// link já compartilhado/impresso (QR em material físico não pode quebrar).
 router.post('/api/utm/link', express.json({ limit: '2kb' }), (req, res) => {
   const email = sessionEmail(req);
   if (!email) return res.status(401).json({ error: 'auth_required' });
   const b = req.body || {};
-  const dest = String(b.dest || '').trim();
+  const dest = String(b.dest || '').trim().slice(0, 500);
   if (!isHttpUrl(dest)) return res.status(400).json({ error: 'dest_invalido' });
+  // Anti-loop: destino não pode ser o próprio Office /go/ (nem o host atual).
+  try {
+    const du = new URL(dest);
+    if (du.pathname.startsWith('/go/') || du.host === req.get('host')) {
+      return res.status(400).json({ error: 'dest_invalido', motivo: 'destino não pode ser o próprio Office' });
+    }
+  } catch (e) { return res.status(400).json({ error: 'dest_invalido' }); }
   const campaign = sanitizeSlug(b.campaign, 60) || 'geral';
   const source = sanitizeSlug(b.source, 30) || 'linkedin';
-  const medium = sanitizeSlug(b.medium, 30) || 'employee_advocacy';
+  const medium = sanitizeSlug(b.medium, 30) || MEDIUM_BY_SOURCE[source] || 'employee_advocacy';
   try {
-    let row = db.prepare(`SELECT token, dest FROM utm_links WHERE email=? AND campaign=? AND source=?`)
-                .get(email, campaign, source);
-    let token;
-    if (row) {
-      token = row.token;
-      if (row.dest !== dest) db.prepare(`UPDATE utm_links SET dest=? WHERE token=?`).run(dest, token);
-    } else {
+    const row = db.prepare(`SELECT token FROM utm_links WHERE email=? AND campaign=? AND source=? AND dest=?`)
+                  .get(email, campaign, source, dest);
+    let token, reused = false;
+    if (row) { token = row.token; reused = true; }
+    else {
       token = newToken();
       db.prepare(`INSERT INTO utm_links (token, email, campaign, source, medium, dest) VALUES (?,?,?,?,?,?)`)
         .run(token, email, campaign, source, medium, dest);
     }
     const url = baseUrl(req) + '/go/' + token;
-    res.json({ token, url, dest: appendUtm(dest, { source, medium, campaign, content: token }) });
+    res.json({ token, url, reused, campaign, source, medium,
+               dest: appendUtm(dest, { source, medium, campaign, content: token }) });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -118,8 +152,8 @@ router.get('/api/utm/mine', (req, res) => {
     const since7 = Date.now() - 7 * 86400000;
     const links = db.prepare(`
       SELECT l.token, l.campaign, l.source, l.medium, l.dest, l.created_at,
-             (SELECT COUNT(*) FROM utm_clicks c WHERE c.token=l.token) AS cliques,
-             (SELECT COUNT(*) FROM utm_clicks c WHERE c.token=l.token AND c.ts>=?) AS cliques_7d,
+             (SELECT COUNT(*) FROM utm_clicks c WHERE c.token=l.token AND c.bot=0) AS cliques,
+             (SELECT COUNT(*) FROM utm_clicks c WHERE c.token=l.token AND c.bot=0 AND c.ts>=?) AS cliques_7d,
              (SELECT COALESCE(SUM(coins),0) FROM erp_coins e
                 WHERE e.email=l.email AND e.evento='utm_click' AND e.ref LIKE l.token || ':%') AS coins
       FROM utm_links l WHERE l.email=? ORDER BY cliques DESC, l.created_at DESC LIMIT 200
@@ -142,19 +176,26 @@ router.get('/go/:token', (req, res) => {
 
   const now = Date.now();
   const iph = ipHash(req);
+  const ua = String(req.headers['user-agent'] || '').slice(0, 200);
+  const bot = isBotUA(ua) ? 1 : 0;
   try {
-    db.prepare(`INSERT INTO utm_clicks (token, ts, ref, ua, ip_hash) VALUES (?,?,?,?,?)`)
-      .run(token, now, String(req.headers['referer'] || '').slice(0, 200),
-           String(req.headers['user-agent'] || '').slice(0, 200), iph);
-    // Coins pro autor: 1 crédito por clicker único / link / dia (anti-farm via
-    // UNIQUE(email,evento,ref,dia) do erp_coins; ref = token:hash-do-clicker).
-    db.prepare(`INSERT OR IGNORE INTO erp_coins (email, evento, ref, coins) VALUES (?,?,?,?)`)
-      .run(link.email, 'utm_click', (token + ':' + iph).slice(0, 60), UTM_CLICK_COINS);
+    // HEAD de scrapers não conta; GET conta (bot marcado, humano credita coins).
+    if (req.method === 'GET') {
+      db.prepare(`INSERT INTO utm_clicks (token, ts, ref, ua, ip_hash, bot) VALUES (?,?,?,?,?,?)`)
+        .run(token, now, String(req.headers['referer'] || '').slice(0, 200), ua, iph, bot);
+      // Coins pro autor (SÓ clique humano): 1 crédito por clicker único / link /
+      // dia (anti-farm via UNIQUE(email,evento,ref,dia); ref = token:hash-do-clicker).
+      if (!bot) {
+        db.prepare(`INSERT OR IGNORE INTO erp_coins (email, evento, ref, coins) VALUES (?,?,?,?)`)
+          .run(link.email, 'utm_click', (token + ':' + iph).slice(0, 60), UTM_CLICK_COINS);
+      }
+    }
   } catch (e) { console.warn('[utm] click', e.message); }
 
   const target = appendUtm(link.dest, {
     source: link.source, medium: link.medium, campaign: link.campaign, content: token,
   });
+  res.set('Cache-Control', 'no-store'); // proxy/CDN não pode "engolir" cliques
   res.redirect(302, target);
 });
 
@@ -167,8 +208,9 @@ router.get('/api/admin/utm', requireMkt, (req, res) => {
 
     const summary = {
       links:    one(`SELECT COUNT(*) n FROM utm_links`),
-      cliques:  one(`SELECT COUNT(*) n FROM utm_clicks WHERE ts>=?`, since),
-      clickers: one(`SELECT COUNT(DISTINCT ip_hash) n FROM utm_clicks WHERE ts>=?`, since),
+      cliques:  one(`SELECT COUNT(*) n FROM utm_clicks WHERE ts>=? AND bot=0`, since),
+      clickers: one(`SELECT COUNT(DISTINCT ip_hash) n FROM utm_clicks WHERE ts>=? AND bot=0`, since),
+      bots:     one(`SELECT COUNT(*) n FROM utm_clicks WHERE ts>=? AND bot=1`, since),
       coins:    one(`SELECT COALESCE(SUM(coins),0) n FROM erp_coins WHERE evento='utm_click'`),
     };
 
@@ -176,7 +218,7 @@ router.get('/api/admin/utm', requireMkt, (req, res) => {
       SELECT l.email AS email,
              COUNT(DISTINCT l.token) AS links,
              (SELECT COUNT(*) FROM utm_clicks c WHERE c.token IN
-                (SELECT token FROM utm_links WHERE email=l.email) AND c.ts>=?) AS cliques,
+                (SELECT token FROM utm_links WHERE email=l.email) AND c.ts>=? AND c.bot=0) AS cliques,
              (SELECT COALESCE(SUM(coins),0) FROM erp_coins e WHERE e.email=l.email AND e.evento='utm_click') AS coins,
              (SELECT u.name FROM users u WHERE u.email=l.email) AS nome,
              (SELECT u.role FROM users u WHERE u.email=l.email) AS role
@@ -187,23 +229,49 @@ router.get('/api/admin/utm', requireMkt, (req, res) => {
       SELECT l.campaign AS campaign,
              COUNT(DISTINCT l.token) AS links,
              (SELECT COUNT(*) FROM utm_clicks c WHERE c.token IN
-                (SELECT token FROM utm_links WHERE campaign=l.campaign) AND c.ts>=?) AS cliques
+                (SELECT token FROM utm_links WHERE campaign=l.campaign) AND c.ts>=? AND c.bot=0) AS cliques
       FROM utm_links l GROUP BY l.campaign ORDER BY cliques DESC LIMIT 100
     `).all(since);
 
     const links = db.prepare(`
       SELECT l.token, l.email, l.campaign, l.source, l.dest, l.created_at,
-             (SELECT COUNT(*) FROM utm_clicks c WHERE c.token=l.token AND c.ts>=?) AS cliques
+             (SELECT COUNT(*) FROM utm_clicks c WHERE c.token=l.token AND c.ts>=? AND c.bot=0) AS cliques,
+             (SELECT COUNT(*) FROM utm_clicks c WHERE c.token=l.token AND c.ts>=? AND c.bot=1) AS bots
       FROM utm_links l ORDER BY cliques DESC LIMIT 200
-    `).all(since);
+    `).all(since, since);
 
     const recente = db.prepare(`
-      SELECT c.ts, c.token, c.ref, l.email, l.campaign
+      SELECT c.ts, c.token, c.ref, c.bot, l.email, l.campaign
       FROM utm_clicks c LEFT JOIN utm_links l ON l.token=c.token
       WHERE c.ts>=? ORDER BY c.ts DESC LIMIT 200
     `).all(since);
 
-    res.json({ days, escopo: 'time-marketing', click_coins: UTM_CLICK_COINS, summary, por_usuario, por_campanha, links, recente });
+    // Série diária de cliques humanos (p/ sparkline — mesmo formato do analytics).
+    const porDia = db.prepare(`
+      SELECT CAST((ts/86400000) AS INTEGER) AS dia, COUNT(*) AS n
+      FROM utm_clicks WHERE ts>=? AND bot=0 GROUP BY dia ORDER BY dia ASC
+    `).all(since).map(r => ({ dia: r.dia * 86400000, n: r.n }));
+
+    res.json({ days, escopo: 'time-marketing', click_coins: UTM_CLICK_COINS, summary, por_usuario, por_campanha, links, recente, porDia });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── Export CSV (time de Marketing) ────────────────────────────────────────────
+router.get('/api/admin/utm/export.csv', requireMkt, (req, res) => {
+  try {
+    const rows = db.prepare(`
+      SELECT l.token, l.email, l.campaign, l.source, l.medium, l.dest, l.created_at,
+             (SELECT COUNT(*) FROM utm_clicks c WHERE c.token=l.token AND c.bot=0) AS cliques,
+             (SELECT COUNT(*) FROM utm_clicks c WHERE c.token=l.token AND c.bot=1) AS bots
+      FROM utm_links l ORDER BY cliques DESC
+    `).all();
+    const q = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+    const csv = ['token,autor,campanha,origem,medium,destino,criado_em,cliques,bots']
+      .concat(rows.map(r => [r.token, r.email, r.campaign, r.source, r.medium, r.dest, r.created_at, r.cliques, r.bots].map(q).join(',')))
+      .join('\n');
+    res.set('Content-Type', 'text/csv; charset=utf-8');
+    res.set('Content-Disposition', 'attachment; filename="utm-links.csv"');
+    res.send('﻿' + csv); // BOM p/ Excel abrir acentos certo
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
