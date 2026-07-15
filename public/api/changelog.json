@@ -1,5 +1,5 @@
 {
-  "current": "0.76.1",
+  "current": "0.77.0",
   "atualizado_em": "13/jul/2026",
   "next": [
     {
@@ -54,9 +54,22 @@
   ],
   "releases": [
     {
+      "version": "0.77.0",
+      "date": "15/jul/2026",
+      "status": "current",
+      "path": null,
+      "title": "🔗 UTM v2 — cliques de bots filtrados, links imutáveis, QR/CSV/sparkline no report",
+      "highlights": [
+        "Bots de preview (LinkedInBot/WhatsApp/etc.) não contam mais como clique nem creditam coins — são logados à parte e aparecem no card 🤖 Bots filtrados (números antigos podiam incluir máquinas; daqui pra frente é só clique humano)",
+        "Link nunca muda de destino: gerar com o mesmo par campanha+origem mas outro destino cria um link NOVO (QR impresso jamais quebra); resposta indica ♻️ reusado vs ✨ novo",
+        "Gerador melhor: Enter submete, campanha vira slug legível (SAP NOW 2026 → sap-now-2026), utm_medium automático por canal (evento/impresso → offline), preview do destino final com os utm_*",
+        "Report: sparkline de cliques por dia, QR e copiar em cada link, filtro rápido, export CSV, coluna de bots; destino não pode ser o próprio Office (anti-loop) e redirect com no-store"
+      ]
+    },
+    {
       "version": "0.76.1",
       "date": "14/jul/2026",
-      "status": "current",
+      "status": "past",
       "path": null,
       "title": "🔗 Gerador de link rastreado direto no /admin/utm",
       "highlights": [

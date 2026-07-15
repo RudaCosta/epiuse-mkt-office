@@ -290,11 +290,11 @@ function buildDigestData(days) {
         WHERE kind='view' AND ts>=? GROUP BY path ORDER BY visitas DESC LIMIT 5`, since),
     },
     utm: {
-      cliques:  one(`SELECT COUNT(*) n FROM utm_clicks WHERE ts>=?`, since),
-      clickers: one(`SELECT COUNT(DISTINCT ip_hash) n FROM utm_clicks WHERE ts>=?`, since),
+      cliques:  one(`SELECT COUNT(*) n FROM utm_clicks WHERE ts>=? AND bot=0`, since),
+      clickers: one(`SELECT COUNT(DISTINCT ip_hash) n FROM utm_clicks WHERE ts>=? AND bot=0`, since),
       top_links: all(`
         SELECT l.email, l.campaign, l.source,
-               (SELECT COUNT(*) FROM utm_clicks c WHERE c.token=l.token AND c.ts>=?) AS cliques
+               (SELECT COUNT(*) FROM utm_clicks c WHERE c.token=l.token AND c.ts>=? AND c.bot=0) AS cliques
         FROM utm_links l ORDER BY cliques DESC LIMIT 5`, since).filter(x => x.cliques > 0),
     },
     coins: {
