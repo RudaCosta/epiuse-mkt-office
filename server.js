@@ -738,7 +738,7 @@ const HUB_LOCK_PAGES = new Set([
   '/design', '/erp-impacto', '/seja-voice', '/artigos', '/optimizer',
   '/optimizer-v3', '/voices/optimizer-v3',
   '/campanhas', '/brindes', '/hub/brindes', '/hub/solicitacao-brindes',
-  '/hub/solicitar-brindes'
+  '/hub/solicitar-brindes', '/meus-links', '/loja'
 ]);
 // nota: '/game' passa pelo lock só pra rota fazer o redirect por role → /game-hub.
 app.use((req, res, next) => {
@@ -5637,6 +5637,7 @@ app.use('/', usersRouter);
 app.use('/', curvaAbcRouter);
 app.use('/', analyticsRouter); // Módulo 15 — Analytics de uso (report /admin/analytics)
 app.use('/', require('./routes/utm')); // Módulo 18 — UTM / links rastreados (report /admin/utm)
+app.use('/', require('./routes/loja')); // Módulo 19 — Loja de ERP Coins (/loja + resgates no /admin/coins)
 
 app.listen(PORT, () => {
   console.log(`\n🎙️  EPI-USE Voices — Profile Optimizer`);
@@ -5675,3 +5676,57 @@ if (process.env.GA4_PROPERTY_ID || process.env.RD_REFRESH_TOKEN) {
 } else {
   console.log('[daily] refresh GA4/RD inativo (sem creds — esperado em local)');
 }
+
+// ── RESUMO SEMANAL POR E-MAIL (Módulo 17 · v0.76.0) ──────────────────────────
+// Toda segunda ~8h BRT (>=11h UTC) manda um digest do Analytics + UTM pro
+// NOTIFY_EMAIL (Rudá). Sem cron lib: tick horário + guard em app_blobs
+// (chave 'digest.lastSent' = ano-semana ISO) pra não duplicar entre restarts.
+// Sem RESEND_API_KEY: loga "skipped" e marca a semana (não fica re-tentando).
+function _isoWeekKey(d) {
+  const dt = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+  const day = dt.getUTCDay() || 7;
+  dt.setUTCDate(dt.getUTCDate() + 4 - day);
+  const y = dt.getUTCFullYear();
+  const week = Math.ceil((((dt - Date.UTC(y, 0, 1)) / 86400000) + 1) / 7);
+  return y + '-W' + String(week).padStart(2, '0');
+}
+async function sendWeeklyDigest(force) {
+  const anl = require('./routes/analytics');
+  const data = anl.buildDigestData(7);
+  const html = anl.buildDigestHTML(data);
+  if (!resend) { console.log('[digest] skipped (sem RESEND_API_KEY)'); return { sent: false, reason: 'sem_resend', html }; }
+  try {
+    await resend.emails.send({
+      from: FROM_EMAIL, to: NOTIFY_EMAIL,
+      subject: `📊 Office — resumo da semana (${data.uso.usuarios} usuários · ${data.uso.visitas} visitas · ${data.utm.cliques} cliques UTM)`,
+      html,
+    });
+    console.log(`[digest] enviado pra ${NOTIFY_EMAIL}${force ? ' (forçado)' : ''}`);
+    return { sent: true, to: NOTIFY_EMAIL };
+  } catch (e) { console.warn('[digest] falhou:', e.message); return { sent: false, reason: e.message }; }
+}
+async function weeklyDigestTick() {
+  try {
+    const now = new Date();
+    if (now.getUTCDay() !== 1 || now.getUTCHours() < 11) return; // segunda >= 8h BRT
+    const wk = _isoWeekKey(now);
+    const row = db.prepare(`SELECT value FROM app_blobs WHERE key='digest.lastSent'`).get();
+    if (row && row.value === wk) return; // já mandou esta semana
+    db.prepare(`INSERT OR REPLACE INTO app_blobs (key, value, updated_at) VALUES ('digest.lastSent', ?, datetime('now'))`).run(wk);
+    await sendWeeklyDigest(false);
+  } catch (e) { console.warn('[digest] tick:', e.message); }
+}
+setInterval(weeklyDigestTick, 60 * 60 * 1000); // checa a cada hora
+setTimeout(weeklyDigestTick, 90000);           // e uma vez ~90s após o boot
+
+// Preview/força-envio pro admin (testável sem esperar segunda-feira).
+app.get('/api/admin/digest/preview', _coinsAdmin, (req, res) => {
+  try {
+    const anl = require('./routes/analytics');
+    res.type('html').send(anl.buildDigestHTML(anl.buildDigestData(parseInt(req.query.days, 10) || 7)));
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+app.post('/api/admin/digest/send', _coinsAdmin, async (req, res) => {
+  try { res.json(await sendWeeklyDigest(true)); }
+  catch (e) { res.status(500).json({ error: e.message }); }
+});
