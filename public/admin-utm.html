@@ -37,6 +37,21 @@
   .role-badge.mkt{background:rgba(34,211,122,.14);color:#4ade80;border-color:rgba(34,211,122,.35)}
   .role-badge.head{background:rgba(205,21,67,.16);color:#fda4af;border-color:rgba(205,21,67,.4)}
   .role-badge.none{background:rgba(148,163,184,.12);color:#cbd5e1;border-color:rgba(148,163,184,.28)}
+  /* gerador de link */
+  .gen{background:#0f1d36;border:1px solid rgba(205,21,67,.28);border-radius:14px;padding:20px;margin:6px 0 26px}
+  .gen h2{margin:0 0 4px;color:#e8f0ff}
+  .gen p{font-size:13px;color:#9fb2d4;margin-bottom:14px}
+  .gen-row{display:flex;gap:10px;flex-wrap:wrap}
+  .gen-row input,.gen-row select{background:#0a1426;border:1px solid rgba(134,158,195,.25);color:#e8f0ff;padding:11px 13px;border-radius:9px;font-family:inherit;font-size:14px}
+  #g-dest{flex:2;min-width:220px} #g-camp{flex:1;min-width:150px}
+  .gen-row button{background:#cd1543;color:#fff;border:none;border-radius:9px;padding:11px 20px;font-size:13px;font-weight:800;font-family:inherit;cursor:pointer}
+  .gen-row button:hover{filter:brightness(1.12)}
+  #g-out{margin-top:14px;font-size:13px}
+  #g-out.err{color:#f87171}
+  .g-link{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:6px}
+  .g-link input{flex:1;min-width:240px;background:#0a1426;border:1px solid rgba(134,158,195,.25);color:#e8f0ff;padding:10px 12px;border-radius:9px;font-family:'JetBrains Mono',monospace;font-size:12px}
+  .g-link a,.g-link button{background:rgba(96,165,250,.16);border:1px solid rgba(96,165,250,.4);color:#bfdbfe;border-radius:9px;padding:9px 14px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;text-decoration:none}
+  .g-hint{margin-top:8px;font-size:12px;color:#4ade80}
 </style>
 </head>
 <body>
@@ -45,6 +60,25 @@
   <h1>🔗 UTM &amp; Links Rastreados</h1>
   <div class="sub">O que cada um do time compartilhou pra fora, de onde saiu cada link, quantos cliques gerou e os ERP Coins ganhos.</div>
   <div class="owner" id="owner-tag">👥 Time de Marketing</div>
+
+  <div class="gen">
+    <h2>➕ Gerar link rastreado</h2>
+    <p>Cole o link do conteúdo (artigo, LP, post), dê um nome de campanha e escolha o canal. O link fica atribuído a você e cada clique vira ERP Coins.</p>
+    <div class="gen-row">
+      <input id="g-dest" type="url" placeholder="https://... (link de destino)">
+      <input id="g-camp" type="text" placeholder="campanha (ex: sap-now-2026)">
+      <select id="g-source">
+        <option value="linkedin">LinkedIn</option>
+        <option value="whatsapp">WhatsApp</option>
+        <option value="email">E-mail</option>
+        <option value="evento">Evento (QR)</option>
+        <option value="impresso">Impresso (QR)</option>
+        <option value="site">Site</option>
+      </select>
+      <button id="g-btn" type="button">Gerar</button>
+    </div>
+    <div id="g-out"></div>
+  </div>
 
   <div class="controls">
     <label for="days">Período dos cliques:</label>
@@ -139,6 +173,37 @@
       .catch(function(e){ document.getElementById('tb-users').innerHTML='<tr><td colspan="5" class="vazio">Acesso negado ou erro ('+esc(e.message)+'). Área exclusiva do dono.</td></tr>'; });
   }
   document.getElementById('days').addEventListener('change', load);
+
+  // ── Gerar link rastreado ─────────────────────────────────────────────────────
+  document.getElementById('g-btn').addEventListener('click', function(){
+    var out = document.getElementById('g-out');
+    var dest = (document.getElementById('g-dest').value||'').trim();
+    if (!/^https?:\/\/.+/i.test(dest)) { out.className='err'; out.textContent='Cole uma URL válida (começando com http).'; return; }
+    out.className=''; out.textContent='Gerando…';
+    fetch('/api/utm/link', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ dest: dest,
+        campaign: (document.getElementById('g-camp').value||'').trim() || 'geral',
+        source: document.getElementById('g-source').value }) })
+      .then(function(r){ if (r.status===401){ out.className='err'; out.innerHTML='Você precisa estar logado (via SSO) pra gerar o seu link.'; throw new Error('401'); } return r.json(); })
+      .then(function(d){
+        if (!d.url) throw new Error(d.error||'falhou');
+        out.className='';
+        out.innerHTML = '<div class="g-link"><input id="g-result" readonly value="'+esc(d.url)+'">'+
+          '<button id="g-copy" type="button">Copiar</button>'+
+          '<a href="https://www.linkedin.com/sharing/share-offsite/?url='+encodeURIComponent(d.url)+'" target="_blank" rel="noopener">Compartilhar</a>'+
+          '<a href="/meus-links">📂 QR &amp; meus links</a></div>'+
+          '<div class="g-hint">Pronto! Cada clique nesse link é seu e vira ERP Coins. O QR pra imprimir está em Meus Links.</div>';
+        document.getElementById('g-copy').addEventListener('click', function(){
+          var el=document.getElementById('g-result'); el.select();
+          try { navigator.clipboard.writeText(el.value); } catch(e){}
+          document.getElementById('g-copy').textContent='Copiado ✓';
+        });
+        document.getElementById('g-dest').value='';
+        load(); // atualiza as tabelas do report com o novo link
+      })
+      .catch(function(e){ if (e.message!=='401'){ out.className='err'; out.textContent='Não foi possível gerar ('+esc(e.message)+').'; } });
+  });
+
   load();
 })();
 </script>
