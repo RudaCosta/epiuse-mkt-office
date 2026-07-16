@@ -22,6 +22,9 @@ Não dá pra medir cliques num link cru do LinkedIn — o LinkedIn não reporta 
 - **Slug legível** ("SAP NOW 2026" → `sap-now-2026`) · **utm_medium por canal** (linkedin/whatsapp→employee_advocacy · email→email · evento/impresso→offline · site→referral) · destino ≤500 chars e **anti-loop** (não pode apontar pro próprio Office) · redirect com `Cache-Control: no-store` · HEAD não conta clique.
 - **Report v2** (`/admin/utm`): sparkline cliques/dia, QR + copiar por link, filtro rápido, coluna de bots, **export CSV** (`/api/admin/utm/export.csv`). Gerador com Enter, estado de loading, badge ♻️ reusado/✨ novo e preview do destino final com utm_*.
 
+## Excluir link (v0.77.1)
+`DELETE /api/utm/link/:token` (sessão obrigatória) — **só o dono** apaga o próprio link. Remove `utm_links` + os `utm_clicks` do token numa transação; os `erp_coins` já creditados **NÃO** são estornados (participação real). Após excluir, `/go/<token>` volta a cair no redirect pra `/` (link/QR impresso para). Botão 🗑️ na tabela de `/meus-links` (confirm avisa). Card "🔗 Meus Links & QR" no Acesso Rápido do `/hub`.
+
 ## Acesso
 Report (`/admin/utm`) liberado pra **todo o time de Marketing** (`requireMkt` — roles head/intelligence/growth/field/pipeline/brand/conteudo; fallback editor token). O report mostra o autor e a **origem/canal** (utm_source) de cada link. A geração de link (`/api/utm/link`) exige apenas sessão logada — qualquer usuário gera o seu. `/go/<token>` é público (clicker externo não está logado). _(O `/admin/analytics` segue exclusivo do dono; só o UTM foi aberto pro time.)_
 

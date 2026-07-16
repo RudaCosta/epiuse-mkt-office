@@ -32,6 +32,8 @@
   .btn{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:11px 18px;font-size:13px;font-weight:800;font-family:inherit;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
   .btn:hover{filter:brightness(1.12)}
   .btn.sec{background:rgba(96,165,250,.16);border:1px solid rgba(96,165,250,.4);color:#bfdbfe}
+  .btn.danger{background:rgba(248,113,113,.14);border:1px solid rgba(248,113,113,.4);color:#fca5a5}
+  .btn.danger:hover{background:rgba(248,113,113,.24)}
   .btn.mini{padding:6px 10px;font-size:12px;border-radius:8px}
   .msg{font-size:12px;margin-top:10px;min-height:16px}
   .msg.ok{color:#4ade80}.msg.err{color:#f87171}
@@ -158,6 +160,7 @@
           '<button class="btn sec mini" data-copy="'+esc(url)+'">Copiar</button>'+
           '<button class="btn sec mini" data-qr="'+esc(url)+'" data-camp="'+esc(l.campaign)+'">QR</button>'+
           '<a class="btn sec mini" href="https://www.linkedin.com/sharing/share-offsite/?url='+encodeURIComponent(url)+'" target="_blank" rel="noopener">in</a>'+
+          '<button class="btn danger mini" data-del="'+esc(l.token)+'" data-camp="'+esc(l.campaign)+'" title="Excluir link">🗑️</button>'+
         '</td></tr>';
     }).join('') : '<tr><td colspan="8" class="vazio">Você ainda não criou nenhum link. Gera o primeiro aí em cima 👆</td></tr>';
 
@@ -170,6 +173,22 @@
     Array.prototype.forEach.call(document.querySelectorAll('[data-qr]'), function(b){
       b.addEventListener('click', function(){ openQr(b.dataset.qr, b.dataset.camp); });
     });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-del]'), function(b){
+      b.addEventListener('click', function(){ excluir(b.dataset.del, b.dataset.camp, b); });
+    });
+  }
+
+  // ── excluir link ────────────────────────────────────────────────────────────
+  function excluir(token, camp, btn){
+    if (!confirm('Excluir o link da campanha "'+camp+'"?\n\nO link e o QR param de funcionar imediatamente (inclusive material já impresso). Os ERP Coins que você já ganhou continuam seus.')) return;
+    btn.disabled = true; btn.textContent = '…';
+    fetch('/api/utm/link/' + encodeURIComponent(token), { method: 'DELETE' })
+      .then(function(r){ return r.json().then(function(d){ return { st: r.status, d: d }; }); })
+      .then(function(o){
+        if (o.st === 200 && o.d.success) { load(); }
+        else { btn.disabled = false; btn.textContent = '🗑️'; alert('Não foi possível excluir: ' + (o.d.error || o.st)); }
+      })
+      .catch(function(){ btn.disabled = false; btn.textContent = '🗑️'; alert('Erro de rede.'); });
   }
 
   // ── criar link ──────────────────────────────────────────────────────────────
