@@ -167,6 +167,26 @@ router.get('/api/utm/mine', (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// ── Excluir um link do próprio usuário ────────────────────────────────────────
+// Só o dono apaga. Remove o link + seus cliques (limpa o report); os ERP Coins
+// já creditados NÃO são estornados (participação real já aconteceu). Depois disto
+// o /go/<token> volta a cair no redirect pra '/' (link/QR impresso para).
+router.delete('/api/utm/link/:token', (req, res) => {
+  const email = sessionEmail(req);
+  if (!email) return res.status(401).json({ error: 'auth_required' });
+  const token = sanitizeSlug(req.params.token, 24);
+  try {
+    const link = db.prepare(`SELECT email FROM utm_links WHERE token=?`).get(token);
+    if (!link) return res.status(404).json({ error: 'nao_encontrado' });
+    if (String(link.email).toLowerCase() !== email) return res.status(403).json({ error: 'nao_e_seu' });
+    db.transaction(() => {
+      db.prepare(`DELETE FROM utm_clicks WHERE token=?`).run(token);
+      db.prepare(`DELETE FROM utm_links WHERE token=?`).run(token);
+    })();
+    res.json({ success: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 // ── Redirect rastreado — loga o clique, credita coins e manda pro destino ──────
 router.get('/go/:token', (req, res) => {
   const token = sanitizeSlug(req.params.token, 24);
