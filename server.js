@@ -1107,6 +1107,14 @@ REGRAS DE LEGIBILIDADE (calibradas pro Yoast SEO — cumprir TODAS):
 5. VOZ ATIVA: prefira voz ativa; use voz passiva em menos de 10% das frases.
 6. Não comece 3 frases seguidas com a mesma palavra.`;
 
+// Artigo completo = 3 FAQs fechados + HTML terminando em tag fechada (detecta resposta cortada por limite de tokens)
+function artigosHtmlCompleto(html) {
+  if (!html) return false;
+  const fechados = (html.match(/<\/details>/g) || []).length;
+  const abertos = (html.match(/<details/g) || []).length;
+  return fechados >= 3 && fechados === abertos && html.trim().endsWith('>');
+}
+
 // Passo de revisão: segunda chamada só pra caçar erro de português (barato no Flash, elimina typo/concordância)
 async function artigosRevisarPortugues(html) {
   try {
@@ -1120,13 +1128,15 @@ Se uma frase tiver mais de 25 palavras, divida-a em duas mantendo o sentido.
 Retorne APENAS o HTML corrigido, sem \`\`\`.
 
 ${html}` }] }],
-      generationConfig: { temperature: 0.1 }
+      generationConfig: { temperature: 0.1, maxOutputTokens: 16384 }
     });
     const revised = result.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!revised) return html;
     const clean = revised.replace(/^```(?:html)?\n?|\n?```$/g, '').trim();
-    // Sanidade: se a revisão encolheu demais (>30%), algo deu errado — mantém o original
-    return clean.length > html.length * 0.7 ? clean : html;
+    // Sanidade: se a revisão encolheu demais (>30%) ou saiu truncada (FAQ cortado), mantém o original
+    if (clean.length <= html.length * 0.7) return html;
+    if (artigosHtmlCompleto(html) && !artigosHtmlCompleto(clean)) return html;
+    return clean;
   } catch (e) {
     console.warn('[ARTIGOS-REVISAO] falhou, mantendo original:', e.message.slice(0, 100));
     return html;
@@ -1187,16 +1197,21 @@ app.post('/api/stratview/gerar', async (req, res) => {
     const keyphrase = (idea.keyphrase || (idea.keywords || [])[0] || '').trim();
 
     const systemPrompt = `Você é um Consultor Estratégico Sênior da Stratview focado na tríade: Oracle HCM, IA (Agentic Apps) e OCI.
-Defenda metodologias ágeis e parceiras (Client Side Services - CSS).`;
+
+PORTFÓLIO DE SERVIÇOS STRATVIEW — posicione o serviço CERTO pro tema do artigo (feedback do Country Manager, INEGOCIÁVEL):
+- Gestão, otimização, operação e monitoramento de OCI · FinOps · CloudOps · infraestrutura → **Serviços Gerenciados de TECH** (equivalente ao AMS, porém com foco em OCI — é o serviço correto pra gestão eficiente de nuvem). NUNCA posicione CSS pra esses temas.
+- Implementação, projetos e advocacia do cliente em Oracle HCM → **Client Side Services (CSS)**, o modelo "guardião do cliente".
+- Sustentação e evolução de aplicações Oracle → **AMS (Application Maintenance & Support)**.
+Mencione APENAS o serviço adequado ao tema — não liste o portfólio inteiro no artigo.`;
 
     const userPrompt = `Escreva um artigo premium (~1000-1200 palavras) para o blog da Stratview sobre: "${idea.title}".
 
 FRASE-CHAVE DE FOCO: "${keyphrase}"
 Esta é a frase que o Yoast SEO vai auditar. Regras OBRIGATÓRIAS sobre ela (correspondência EXATA, não só sinônimos):
-- Na PRIMEIRA frase do primeiro parágrafo.
+- O primeiro parágrafo COMEÇA LITERALMENTE com a frase-chave: as primeiras palavras do texto são "${keyphrase ? keyphrase.charAt(0).toUpperCase() + keyphrase.slice(1) : '[frase-chave]'}..." (ex: "Otimizar custos OCI é fundamental para..."). Não vale no meio da frase.
 - De 4 a 6 vezes no corpo do texto, distribuídas naturalmente (nunca 2x no mesmo parágrafo).
-- Em pelo menos 2 subtítulos <h2> ou <h3> (pode ser variação próxima).
-- No Título SEO (no início), na Meta description, no Alt text e no Slug.
+- Em cerca de METADE dos subtítulos <h2>/<h3> E perguntas do FAQ (ex: 5-6 de 11) — use a frase exata ou variação próxima. NÃO em todos (over-optimization penaliza).
+- No Título SEO (no início), na Meta description (no início), no Alt text e no Slug.
 
 DIRETRIZ DE QUALIDADE E ESTILO (ANTI-REPETIÇÃO):
 - Seja criativo, dinâmico e agradável de ler. Pareça um ser humano experiente.
@@ -1218,9 +1233,12 @@ REGRAS DE TÍTULO (SEO):
 
 LINKS (obrigatório — Yoast exige internos E externos; use SOMENTE as URLs desta lista, não invente outras):
 - 2 links internos no corpo, escolhidos pelo tema:
-  · CSS → https://stratview.com.br/project/client-side-services-css/
+  · CSS (projetos HCM) → https://stratview.com.br/project/client-side-services-css/
   · Oracle HCM → https://stratview.com.br/oracle-fusion-cloud-hcm/
   · OCI → https://stratview.com.br/oracle-cloud-infrastructure-oci/
+  · Gestão de nuvem / Serviços Gerenciados TECH → https://stratview.com.br/cloudops/
+  · Sustentação AMS → https://stratview.com.br/project/application-maintenance-support-ams/
+  · FinOps → https://stratview.com.br/finops/
   · IA/ML → https://stratview.com.br/artificial-intelligence-e-machine-learning/
 - CTA final SEMPRE pra <a href="https://stratview.com.br/contato/">fale com a Stratview</a>.
 - 1 link externo de autoridade com target="_blank" rel="noopener": https://www.oracle.com/br/cloud/ (OCI) ou https://www.oracle.com/br/human-capital-management/ (HCM).
@@ -1228,25 +1246,36 @@ LINKS (obrigatório — Yoast exige internos E externos; use SOMENTE as URLs des
 
 ESTRUTURA HTML OBRIGATÓRIA (siga o padrão editorial do blog da Stratview):
 1. Bloco de meta tags:
-<div class="seo-meta"><p><strong>Frase-chave de foco:</strong> ${keyphrase || '[frase-chave 2-4 palavras]'}</p><p><strong>Título SEO:</strong> [máx 60 chars, frase-chave no início]</p><p><strong>Slug:</strong> [slug curto com a frase-chave, sem stopwords]</p><p><strong>Meta:</strong> [MÁXIMO 150 caracteres — conte! — com a frase-chave e chamada pra ação]</p><p><strong>Alt text:</strong> [descrição da imagem contendo a frase-chave]</p></div>
+<div class="seo-meta"><p><strong>Frase-chave de foco:</strong> ${keyphrase || '[frase-chave 2-4 palavras]'}</p><p><strong>Título SEO:</strong> [máx 60 chars, frase-chave no início]</p><p><strong>Slug:</strong> [slug curto com a frase-chave, sem stopwords]</p><p><strong>Meta:</strong> [MÁXIMO 140 caracteres — conte! — COMEÇANDO com a frase-chave + chamada pra ação]</p><p><strong>Alt text:</strong> [descrição da imagem contendo a frase-chave]</p></div>
 
 2. Título em <h1>. Introdução: NO MÁXIMO 3 parágrafos antes do primeiro <h2> (o Yoast conta a introdução como seção — se passar de 250 palavras, quebra com <h2>). Primeiro parágrafo em <p class="lead"> abrindo com a frase-chave.
 3. 1 <blockquote> de tese/citação de marca logo na introdução ou primeira seção (1-2 frases fortes).
 4. Corpo: 4 a 5 seções <h2> (use <h3> pra subdividir quando natural). NENHUMA seção com mais de 200 palavras sem novo <h2>/<h3>.
-5. Penúltima seção: o diferencial Stratview (CSS, neutralidade, expertise) conectado ao tema.
+5. Penúltima seção: o diferencial Stratview conectado ao tema, usando o serviço CORRETO do portfólio (ver PORTFÓLIO DE SERVIÇOS no seu papel — TECH pra gestão de OCI/FinOps/CloudOps, CSS pra projetos HCM, AMS pra sustentação).
 6. Parágrafo de CTA convidando o leitor a falar com a Stratview (link de contato acima).
 7. FAQ ao final, em <h2>Perguntas Frequentes (FAQ)</h2>, com EXATAMENTE 3 perguntas (pelo menos 1 contendo a frase-chave):
 <details class="faq-item"><summary>[PERGUNTA]</summary><div class="faq-answer">[RESPOSTA COM EXPERTISE]</div></details>
 
+⚠️ FAQ — RESPOSTAS COMPLETAS (CRÍTICO): cada resposta do FAQ tem de 2 a 4 frases COMPLETAS, terminadas com ponto final. É PROIBIDO cortar uma resposta no meio. Feche TODAS as tags HTML (</div></details>) — o HTML precisa terminar completo e válido.
+
 Retorne APENAS HTML puro. Sem \`\`\`html.`;
 
-    const result = await geminiPost('gemini-2.5-flash', {
-      contents: [{ parts: [{ text: userPrompt }] }],
-      systemInstruction: { parts: [{ text: systemPrompt }] }
-    });
-    let html = result.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!html) throw new Error('A IA não retornou conteúdo.');
-    html = html.replace(/^```(?:html)?\n?|\n?```$/g,'').trim();
+    // Até 2 tentativas — se o FAQ vier cortado (limite de tokens/thinking do Flash), regenera
+    let html = null;
+    for (let tentativa = 1; tentativa <= 2; tentativa++) {
+      const result = await geminiPost('gemini-2.5-flash', {
+        contents: [{ parts: [{ text: userPrompt }] }],
+        systemInstruction: { parts: [{ text: systemPrompt }] },
+        generationConfig: { maxOutputTokens: 16384 }
+      });
+      const cand = result.candidates?.[0];
+      let out = cand?.content?.parts?.[0]?.text;
+      if (!out) continue;
+      out = out.replace(/^```(?:html)?\n?|\n?```$/g,'').trim();
+      if (artigosHtmlCompleto(out) && cand.finishReason !== 'MAX_TOKENS') { html = out; break; }
+      console.warn(`[ARTIGOS-GERAR] tentativa ${tentativa} truncada (finishReason=${cand.finishReason}) — ${tentativa < 2 ? 'regenerando' : 'desistindo'}`);
+    }
+    if (!html) throw new Error('A IA retornou o artigo incompleto (FAQ cortado) 2 vezes. Tente gerar de novo.');
     html = await artigosRevisarPortugues(html);
     res.json({ html });
   } catch (e) { console.error('[ARTIGOS-GERAR]', e.message); res.status(500).json({ error: e.message }); }
@@ -1355,10 +1384,14 @@ SEO (NÃO REGREDIR): preserve a frase-chave de foco do seo-meta com a MESMA dens
 
 Artigo original:
 ${content}`;
-    const result = await geminiPost('gemini-2.5-flash', { contents: [{ parts: [{ text: prompt }] }] });
+    const result = await geminiPost('gemini-2.5-flash', {
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: { maxOutputTokens: 16384 }
+    });
     let html = result.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!html) throw new Error('Sem resposta');
     html = html.replace(/^```(?:html)?\n?|\n?```$/g,'').trim();
+    if (!artigosHtmlCompleto(html)) throw new Error('O refino retornou o artigo incompleto (FAQ cortado). Tente refinar de novo.');
     html = await artigosRevisarPortugues(html);
     res.json({ html });
   } catch (e) { console.error('[ARTIGOS-REFINAR]', e.message); res.status(500).json({ error: e.message }); }
