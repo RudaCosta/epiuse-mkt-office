@@ -1210,7 +1210,7 @@ FRASE-CHAVE DE FOCO: "${keyphrase}"
 Esta é a frase que o Yoast SEO vai auditar. Regras OBRIGATÓRIAS sobre ela (correspondência EXATA, não só sinônimos):
 - O primeiro parágrafo COMEÇA LITERALMENTE com a frase-chave: as primeiras palavras do texto são "${keyphrase ? keyphrase.charAt(0).toUpperCase() + keyphrase.slice(1) : '[frase-chave]'}..." (ex: "Otimizar custos OCI é fundamental para..."). Não vale no meio da frase.
 - De 4 a 6 vezes no corpo do texto, distribuídas naturalmente (nunca 2x no mesmo parágrafo).
-- Em cerca de METADE dos subtítulos <h2>/<h3> E perguntas do FAQ (ex: 5-6 de 11) — use a frase exata ou variação próxima. NÃO em todos (over-optimization penaliza).
+- SUBTÍTULOS (siga à risca): dos <h2> do corpo, PELO MENOS 3 contêm a frase-chave exata (ex: "Estratégia 1 para ${keyphrase || '[frase-chave]'}: automação"). Das 3 perguntas do FAQ, PELO MENOS 1 contém a frase-chave exata. Os demais subtítulos ficam SEM (over-optimization penaliza se for em todos).
 - No Título SEO (no início), na Meta description (no início), no Alt text e no Slug.
 
 DIRETRIZ DE QUALIDADE E ESTILO (ANTI-REPETIÇÃO):
@@ -1246,7 +1246,7 @@ LINKS (obrigatório — Yoast exige internos E externos; use SOMENTE as URLs des
 
 ESTRUTURA HTML OBRIGATÓRIA (siga o padrão editorial do blog da Stratview):
 1. Bloco de meta tags:
-<div class="seo-meta"><p><strong>Frase-chave de foco:</strong> ${keyphrase || '[frase-chave 2-4 palavras]'}</p><p><strong>Título SEO:</strong> [máx 60 chars, frase-chave no início]</p><p><strong>Slug:</strong> [slug curto com a frase-chave, sem stopwords]</p><p><strong>Meta:</strong> [MÁXIMO 140 caracteres — conte! — COMEÇANDO com a frase-chave + chamada pra ação]</p><p><strong>Alt text:</strong> [descrição da imagem contendo a frase-chave]</p></div>
+<div class="seo-meta"><p><strong>Frase-chave de foco:</strong> ${keyphrase || '[frase-chave 2-4 palavras]'}</p><p><strong>Título SEO:</strong> [máx 60 chars, frase-chave no início]</p><p><strong>Slug:</strong> [slug curto com a frase-chave, sem stopwords]</p><p><strong>Meta:</strong> [de 100 a 130 caracteres — escreva CURTO, 2 frases no máximo — COMEÇANDO com a frase-chave + chamada pra ação]</p><p><strong>Alt text:</strong> [descrição da imagem contendo a frase-chave]</p></div>
 
 2. Título em <h1>. Introdução: NO MÁXIMO 3 parágrafos antes do primeiro <h2> (o Yoast conta a introdução como seção — se passar de 250 palavras, quebra com <h2>). Primeiro parágrafo em <p class="lead"> abrindo com a frase-chave.
 3. 1 <blockquote> de tese/citação de marca logo na introdução ou primeira seção (1-2 frases fortes).
