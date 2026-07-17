@@ -1080,8 +1080,25 @@ async function geminiPost(model, body) {
   if (!key) throw new Error('GEMINI_API_KEY não configurada. Adicione ao .env local.');
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
   const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-  if (!r.ok) { const err = await r.text(); throw new Error(`Gemini ${r.status}: ${err.slice(0, 300)}`); }
+  if (!r.ok) { const err = await r.text(); const e = new Error(`Gemini ${r.status}: ${err.slice(0, 300)}`); e.status = r.status; throw e; }
   return r.json();
+}
+
+// Cota do free tier é POR MODELO — no 429, cai pro próximo da cadeia em vez de falhar
+const GEMINI_FALLBACK_CHAIN = ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash'];
+async function geminiPostComFallback(body, chain = GEMINI_FALLBACK_CHAIN) {
+  let ultimoErro = null;
+  for (const model of chain) {
+    try { return { result: await geminiPost(model, body), model }; }
+    catch (e) {
+      ultimoErro = e;
+      if (e.status !== 429 && e.status !== 503) throw e; // só cota/indisponível justificam fallback
+      console.warn(`[GEMINI-FALLBACK] ${model} indisponível (${e.status}) — tentando próximo`);
+    }
+  }
+  if (ultimoErro && ultimoErro.status === 429)
+    throw new Error('Cota da API Gemini esgotada em todos os modelos (plano gratuito). Aguarde 1-2 minutos e tente de novo; se persistir, é o limite DIÁRIO (reseta ~4h da manhã BRT) — ou ative billing no Google AI Studio.');
+  throw ultimoErro;
 }
 
 async function imagenPredict(model, body) {
@@ -1138,7 +1155,7 @@ function artigosHtmlCompleto(html) {
 // Passo de revisão: segunda chamada só pra caçar erro de português (barato no Flash, elimina typo/concordância)
 async function artigosRevisarPortugues(html) {
   try {
-    const result = await geminiPost('gemini-2.5-flash', {
+    const { result } = await geminiPostComFallback({
       contents: [{ parts: [{ text: `Você é um revisor profissional de português do Brasil (norma culta, Acordo Ortográfico vigente).
 
 Revise o HTML abaixo corrigindo APENAS: erros de ortografia, acentuação, crase, concordância verbal/nominal, regência, pontuação e palavras digitadas errado.
@@ -1238,7 +1255,7 @@ Retorne APENAS JSON válido neste formato:
 {"ideas":[{"id":"string_unica","title":"título","keyphrase":"frase-chave 2-4 palavras","description":"resumo 1-2 frases","keywords":["5","palavras","chave","seo","aqui"],"score":9.5,"volume":"Alto","competition":"Média","trendsInfo":"insight trends max 20 palavras","imagePrompt":"prompt em inglês sem texto"}]}`;
 
     // google_search é incompatível com responseMimeType:json — deixar a IA retornar JSON como texto
-    const result = await geminiPost('gemini-2.5-flash', {
+    const { result } = await geminiPostComFallback({
       contents: [{ parts: [{ text: prompt }] }],
       tools: [{ google_search: {} }],
       generationConfig: { temperature: 0.9 }
@@ -1336,7 +1353,7 @@ Retorne APENAS HTML puro. Sem \`\`\`html.`;
     // Até 2 tentativas — se o FAQ vier cortado (limite de tokens/thinking do Flash), regenera
     let html = null;
     for (let tentativa = 1; tentativa <= 2; tentativa++) {
-      const result = await geminiPost('gemini-2.5-flash', {
+      const { result } = await geminiPostComFallback({
         contents: [{ parts: [{ text: userPrompt }] }],
         systemInstruction: { parts: [{ text: systemPrompt }] },
         generationConfig: { maxOutputTokens: 16384, temperature: 0.95, topP: 0.95 }
@@ -1459,7 +1476,7 @@ SEO (NÃO REGREDIR): preserve a frase-chave de foco do seo-meta com a MESMA dens
 
 Artigo original:
 ${content}`;
-    const result = await geminiPost('gemini-2.5-flash', {
+    const { result } = await geminiPostComFallback({
       contents: [{ parts: [{ text: prompt }] }],
       generationConfig: { maxOutputTokens: 16384 }
     });
