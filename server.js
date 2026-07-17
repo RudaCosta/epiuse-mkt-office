@@ -1107,6 +1107,26 @@ REGRAS DE LEGIBILIDADE (calibradas pro Yoast SEO — cumprir TODAS):
 5. VOZ ATIVA: prefira voz ativa; use voz passiva em menos de 10% das frases.
 6. Não comece 3 frases seguidas com a mesma palavra.`;
 
+// Anti-repetição entre artigos: clichês de IA proibidos + formatos/aberturas sorteados a cada geração
+const ARTIGOS_CLICHES_PROIBIDOS = `VOCABULÁRIO PROIBIDO (clichês de IA que aparecem em todo artigo — NÃO use nenhum):
+"no cenário atual", "em um mundo cada vez mais", "no dinâmico mundo de", "na era digital", "não é apenas X, é Y", "mais do que nunca", "desvendar", "revolucionar", "robusto(a)", "alavancar", "impulsionar" (mais de 1x), "seamless", "game-changer", "divisor de águas", "verdadeiro diferencial", "é fundamental" (mais de 1x), "papel crucial", "abordagem holística", "sinergia" (fora do título), "jornada" (mais de 2x), "transformação digital" (mais de 1x).
+Frases de fechamento proibidas: "Em resumo/Em suma/Concluindo, ..." iniciando a última seção.`;
+
+const ARTIGOS_FORMATOS = [
+  'GUIA PRÁTICO: seções numeradas com passos acionáveis; cada seção termina com uma recomendação concreta.',
+  'MITOS vs REALIDADE: cada seção H2 confronta uma crença comum do mercado com o que a prática mostra.',
+  'CENÁRIO NARRATIVO: abra cada seção com uma situação real de empresa (anonimizada) e extraia a lição.',
+  'DADOS E DECISÃO: cada seção parte de um número/tendência de mercado e mostra a decisão executiva que ele pede.',
+  'PERGUNTAS DO BOARD: cada H2 é uma pergunta que um conselho/CEO faria; o texto responde com posição firme.',
+  'ERROS COMUNS: cada seção disseca um erro recorrente do mercado e mostra como evitá-lo.'
+];
+const ARTIGOS_ABERTURAS = [
+  'termine a 1ª frase com um dado ou consequência concreta de negócio (a frase ainda COMEÇA com a frase-chave)',
+  'siga a frase-chave com uma tensão/paradoxo do mercado que o artigo vai resolver',
+  'siga a frase-chave com um mini-cenário de empresa (2ª frase: "Imagine..." ou situação real)',
+  'siga a frase-chave com uma afirmação contrária ao senso comum, que o artigo defende'
+];
+
 // Artigo completo = 3 FAQs fechados + HTML terminando em tag fechada (detecta resposta cortada por limite de tokens)
 function artigosHtmlCompleto(html) {
   if (!html) return false;
@@ -1145,12 +1165,21 @@ ${html}` }] }],
 
 app.post('/api/stratview/ideias', async (req, res) => {
   try {
+    // Memória anti-repetição: últimos títulos gerados entram no prompt como proibidos
+    let jaGerados = '';
+    try {
+      const rows = db.prepare('SELECT title FROM stratview_articles ORDER BY generated_at DESC LIMIT 20').all();
+      if (rows.length) jaGerados = `\nARTIGOS JÁ GERADOS (PROIBIDO repetir tema, ângulo ou título parecido — traga assuntos NOVOS):\n${rows.map(r => '- ' + r.title).join('\n')}\n`;
+    } catch (e) { console.warn('[STRATVIEW-IDEIAS] histórico indisponível:', e.message.slice(0, 80)); }
+
     const prompt = `Você é o Diretor de Marketing de Conteúdo da Stratview (uma consultoria boutique líder em Oracle Cloud no Brasil, especializada em HCM, Inteligência Artificial e OCI).
 A Stratview se diferencia por seu modelo "Client Side Services (CSS)".
 
 Gere 4 ideias de artigos para o blog corporativo focados na "Tríade de Valor" da Stratview.
 
 DIRETRIZ ANTI-REPETIÇÃO: Seja extremamente criativo e diversificado! Não crie temas repetitivos. Traga ângulos diferentes: técnico, cultura, finanças/riscos.
+PROIBIDO o padrão "Substantivo X: N Estratégias/Dicas para Y" em mais de 1 dos 4 títulos — varie o formato (pergunta, afirmação contrária, causa-efeito, comparação).
+${jaGerados}
 
 Distribuição obrigatória:
 - 1 artigo focado em Infraestrutura em Nuvem (OCI), Migração, Segurança ou Alta Disponibilidade técnica
@@ -1195,6 +1224,9 @@ app.post('/api/stratview/gerar', async (req, res) => {
     const { idea } = req.body;
     if (!idea || !idea.title) return res.status(400).json({ error: 'idea.title obrigatório' });
     const keyphrase = (idea.keyphrase || (idea.keywords || [])[0] || '').trim();
+    // Sorteio de formato/abertura a cada geração — quebra o molde único entre artigos
+    const formato = ARTIGOS_FORMATOS[Math.floor(Math.random() * ARTIGOS_FORMATOS.length)];
+    const abertura = ARTIGOS_ABERTURAS[Math.floor(Math.random() * ARTIGOS_ABERTURAS.length)];
 
     const systemPrompt = `Você é um Consultor Estratégico Sênior da Stratview focado na tríade: Oracle HCM, IA (Agentic Apps) e OCI.
 
@@ -1213,10 +1245,18 @@ Esta é a frase que o Yoast SEO vai auditar. Regras OBRIGATÓRIAS sobre ela (cor
 - SUBTÍTULOS (siga à risca): dos <h2> do corpo, PELO MENOS 3 contêm a frase-chave exata (ex: "Estratégia 1 para ${keyphrase || '[frase-chave]'}: automação"). Das 3 perguntas do FAQ, PELO MENOS 1 contém a frase-chave exata. Os demais subtítulos ficam SEM (over-optimization penaliza se for em todos).
 - No Título SEO (no início), na Meta description (no início), no Alt text e no Slug.
 
+FORMATO EDITORIAL DESTE ARTIGO (sorteado — siga-o, é o que diferencia este artigo dos demais do blog):
+${formato}
+
+ABERTURA: ${abertura}.
+
 DIRETRIZ DE QUALIDADE E ESTILO (ANTI-REPETIÇÃO):
 - Seja criativo, dinâmico e agradável de ler. Pareça um ser humano experiente.
 - NÃO seja repetitivo. Evite usar os mesmos jargões em todos os parágrafos.
 - Traga exemplos práticos, analogias de mercado e varie o vocabulário.
+- Cada seção deve ter conteúdo DIFERENTE de verdade — se duas seções dizem o mesmo com palavras trocadas, corte uma e aprofunde a outra (números, trade-offs, exemplos).
+
+${ARTIGOS_CLICHES_PROIBIDOS}
 
 ${ARTIGOS_REGRAS_ESTILO}
 
@@ -1266,7 +1306,7 @@ Retorne APENAS HTML puro. Sem \`\`\`html.`;
       const result = await geminiPost('gemini-2.5-flash', {
         contents: [{ parts: [{ text: userPrompt }] }],
         systemInstruction: { parts: [{ text: systemPrompt }] },
-        generationConfig: { maxOutputTokens: 16384 }
+        generationConfig: { maxOutputTokens: 16384, temperature: 0.95, topP: 0.95 }
       });
       const cand = result.candidates?.[0];
       let out = cand?.content?.parts?.[0]?.text;
@@ -1374,7 +1414,9 @@ app.post('/api/stratview/refinar', async (req, res) => {
     const prompt = `Reescreva o artigo para a perspectiva de um ${persona}.
 ${ctx}
 
-QUALIDADE: Não seja repetitivo. Exemplos concretos SAP Brasil. Tom de consultor experiente.
+QUALIDADE: Não seja repetitivo. Exemplos concretos do mercado brasileiro e do ecossistema Oracle. Tom de consultor experiente. Mantenha o formato editorial do artigo original (não reescreva pro molde genérico).
+
+${ARTIGOS_CLICHES_PROIBIDOS}
 
 ${ARTIGOS_REGRAS_ESTILO}
 
