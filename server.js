@@ -649,6 +649,56 @@ app.get('/api/areas.json', (req, res) => {
   }
 });
 
+// ── /api/voices.json — overlay: arquivo base + Voices publicados de inscrições ──
+// Registrado ANTES do express.static (mesmo padrão do areas.json). Os Voices
+// vindos de inscrição vivem na tabela voices_publicados (persiste no volume) e
+// são mesclados aqui — assim aparecem em /voices sem depender de escrever no
+// arquivo (que é efêmero a cada deploy).
+db.exec(`CREATE TABLE IF NOT EXISTS voices_publicados (
+  id           TEXT PRIMARY KEY,   -- slug do Voice
+  inscricao_id INTEGER,            -- id da recruitment_applications de origem
+  data         TEXT,               -- JSON da ficha do Voice
+  created_at   TEXT DEFAULT (datetime('now'))
+);`);
+function slugifyVoice(s) {
+  return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 50);
+}
+function readVoicesFile() {
+  try { return JSON.parse(fs.readFileSync(VOICES_JSON_PATH, 'utf8')); } catch (e) { return { voices: [] }; }
+}
+function publishedVoices() {
+  try { return db.prepare('SELECT data FROM voices_publicados ORDER BY id ASC').all().map(r => JSON.parse(r.data)); }
+  catch (e) { return []; }
+}
+function voiceFromApp(app_, numero, slug) {
+  return {
+    id: slug, numero,
+    nome: app_.nome, cargo: app_.cargo || '', empresa: 'EPI-USE Brasil',
+    nicho: app_.dominio_tecnico || app_.area || '', tags: [],
+    status: 'novo', status_label: 'Novo',
+    audiencia: app_.publico_alvo ? [app_.publico_alvo] : [],
+    linkedin: app_.linkedin || null,
+    ssi_baseline: null, seguidores_baseline: null,
+    posts_mes_atual: 0, kit_gerado: false, ultimo_post: null,
+    pendencia: 'Onboarding — coletar SSI/seguidores, validar tom e temas',
+    tom_voz: app_.tom || null, lado_humano: app_.lado_humano || null, resultados: null,
+    dados_a_confirmar: ['ssi_baseline', 'seguidores_baseline', 'resultados'],
+    baia: { x: 10, y: 8 }, avatar_grad: ['#2563EB', '#a855f7'], spawn_color: '#2563EB',
+    origem: 'inscricao', inscricao_id: app_.id,
+  };
+}
+app.get('/api/voices.json', (req, res) => {
+  try {
+    const base = readVoicesFile();
+    const baseIds = new Set((base.voices || []).map(v => v.id || v.slug));
+    const extra = publishedVoices().filter(v => !baseIds.has(v.id));
+    base.voices = (base.voices || []).concat(extra);
+    res.set('Cache-Control', 'no-store');
+    return res.json(base);
+  } catch (e) { return res.status(500).json({ error: 'overlay voices falhou', detail: String(e) }); }
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json({ limit: '4mb' })); // 4mb cobre syncs grandes (SAP 4 ME 705 projetos ~370KB)
 
@@ -3827,17 +3877,35 @@ app.post('/api/seja-voice', recruitmentLimiter, async (req, res) => {
 });
 
 // GET /api/applications — lista inscrições (head logado OU editor token)
+// Enriquecido com flags de triagem: dup (mesmo email/linkedin repetido),
+// interno (email é de alguém do time — bate com a tabela users) e publicado.
 app.get('/api/applications', _coinsAdmin, (req, res) => {
   try {
     const rows = db.prepare('SELECT * FROM recruitment_applications ORDER BY created_at DESC LIMIT 500').all();
-    res.json({ success: true, applications: rows, total: rows.length });
+    let userEmails = new Set(), pubIds = new Set();
+    try { userEmails = new Set(db.prepare('SELECT lower(email) e FROM users').all().map(r => r.e)); } catch (_) {}
+    try { pubIds = new Set(db.prepare('SELECT inscricao_id FROM voices_publicados').all().map(r => r.inscricao_id)); } catch (_) {}
+    const emailN = {}, liN = {};
+    for (const r of rows) {
+      const e = (r.email || '').toLowerCase(); if (e) emailN[e] = (emailN[e] || 0) + 1;
+      const l = (r.linkedin || '').toLowerCase().replace(/\/+$/, ''); if (l) liN[l] = (liN[l] || 0) + 1;
+    }
+    const apps = rows.map(r => {
+      const e = (r.email || '').toLowerCase(), l = (r.linkedin || '').toLowerCase().replace(/\/+$/, '');
+      return Object.assign({}, r, {
+        interno: userEmails.has(e),
+        dup: (emailN[e] || 0) > 1 || (l && (liN[l] || 0) > 1),
+        publicado: pubIds.has(r.id),
+      });
+    });
+    res.json({ success: true, applications: apps, total: apps.length });
   } catch (e) {
     res.status(500).json({ success: false, error: e.message });
   }
 });
 
 // PATCH /api/applications/:id — muda o status da inscrição (funil de triagem)
-const APP_STATUS = ['novo', 'contatado', 'em_analise', 'aprovado', 'reprovado'];
+const APP_STATUS = ['novo', 'contatado', 'em_analise', 'aprovado', 'reprovado', 'teste', 'ignorado'];
 app.patch('/api/applications/:id', _coinsAdmin, express.json({ limit: '1kb' }), (req, res) => {
   const id = parseInt(req.params.id, 10);
   const status = String((req.body || {}).status || '');
@@ -3846,6 +3914,39 @@ app.patch('/api/applications/:id', _coinsAdmin, express.json({ limit: '1kb' }), 
     const r = db.prepare('UPDATE recruitment_applications SET status=? WHERE id=?').run(status, id);
     if (!r.changes) return res.status(404).json({ success: false, error: 'nao_encontrado' });
     res.json({ success: true, id, status });
+  } catch (e) { res.status(500).json({ success: false, error: e.message }); }
+});
+
+// POST /api/applications/:id/publish — publica a candidatura como Voice em /voices
+// Cria a ficha na tabela voices_publicados (persiste) e marca a inscrição aprovada.
+app.post('/api/applications/:id/publish', _coinsAdmin, (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  try {
+    const app_ = db.prepare('SELECT * FROM recruitment_applications WHERE id=?').get(id);
+    if (!app_) return res.status(404).json({ success: false, error: 'nao_encontrado' });
+    const slug = slugifyVoice(app_.nome);
+    if (!slug) return res.status(400).json({ success: false, error: 'nome_invalido' });
+    const base = readVoicesFile();
+    const li = (app_.linkedin || '').toLowerCase().replace(/\/+$/, '');
+    const clashFile = (base.voices || []).some(v => (v.id === slug) ||
+      (li && v.linkedin && String(v.linkedin).toLowerCase().replace(/\/+$/, '') === li));
+    const clashPub = db.prepare('SELECT 1 FROM voices_publicados WHERE id=?').get(slug);
+    if (clashFile || clashPub) return res.status(409).json({ success: false, error: 'ja_publicado', slug });
+    const numero = (base.voices || []).length + db.prepare('SELECT COUNT(*) n FROM voices_publicados').get().n + 1;
+    const voice = voiceFromApp(app_, numero, slug);
+    db.prepare('INSERT INTO voices_publicados (id, inscricao_id, data) VALUES (?,?,?)').run(slug, id, JSON.stringify(voice));
+    db.prepare("UPDATE recruitment_applications SET status='aprovado' WHERE id=?").run(id);
+    console.log(`[voices] publicado: ${app_.nome} → /voices (slug=${slug})`);
+    res.json({ success: true, slug, numero });
+  } catch (e) { res.status(500).json({ success: false, error: e.message }); }
+});
+
+// DELETE /api/voices-publicados/:slug — remove um Voice publicado via inscrição
+app.delete('/api/voices-publicados/:slug', _coinsAdmin, (req, res) => {
+  try {
+    const slug = slugifyVoice(req.params.slug);
+    const r = db.prepare('DELETE FROM voices_publicados WHERE id=?').run(slug);
+    res.json({ success: true, removed: r.changes });
   } catch (e) { res.status(500).json({ success: false, error: e.message }); }
 });
 
