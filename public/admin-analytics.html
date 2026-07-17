@@ -80,6 +80,10 @@
 
   <h2>Usuários</h2>
   <div class="muted" style="margin:-4px 0 8px">👆 Clique num usuário pra ver o detalhe completo. Quem logou antes do tracking existir aparece com <b>0 visitas</b> mas com o último acesso real (login SSO) — as páginas/tempo desse período não foram registrados na época.</div>
+  <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap">
+    <input id="f-users" type="text" placeholder="🔎 Filtrar por nome, email ou área…" style="flex:1;max-width:340px;background:#0f1d36;border:1px solid rgba(134,158,195,.25);color:#e8f0ff;padding:8px 12px;border-radius:9px;font-family:inherit;font-size:13px">
+    <a id="exp-csv" href="/api/admin/analytics?days=30" download style="font-size:12px;color:#60a5fa;text-decoration:none;font-weight:700">⬇️ Exportar CSV</a>
+  </div>
   <div class="panel">
     <table><thead><tr>
       <th>Usuário</th><th>Área</th><th class="num">Tempo total</th><th class="num">Sessões</th>
@@ -162,10 +166,15 @@
       ? dias.map(function(x){ var h = Math.max(2, Math.round(x.n/max*56)); return '<div class="bar" style="height:'+h+'px" title="'+fmtDay(x.dia)+': '+x.n+' visitas"></div>'; }).join('')
       : '<div class="vazio">Sem dados no período.</div>';
 
+    // atualiza o link do CSV com o período atual + token (se houver)
+    var days = document.getElementById('days').value;
+    var tok = ''; try { var t = localStorage.getItem('office.editorToken'); if (t) tok = '&token=' + encodeURIComponent(t); } catch(e){}
+    document.getElementById('exp-csv').href = '/api/admin/analytics/export.csv?days=' + days + tok;
+
     var us = d.usuarios || [];
     document.getElementById('tb-users').innerHTML = us.length ? us.map(function(u){
       var nome = u.nome || u.email.split('@')[0];
-      return '<tr class="clickable" data-email="'+esc(u.email)+'">'+
+      return '<tr class="clickable" data-email="'+esc(u.email)+'" data-filter="'+esc((nome+' '+u.email+' '+(u.role||'')).toLowerCase())+'">'+
         '<td><div class="uname">'+esc(nome)+'</div><div class="uemail">'+esc(u.email)+'</div></td>'+
         '<td>'+roleBadge(u.role)+'</td>'+
         '<td class="num num-hi">'+fmtDur(u.tempo_ms)+'</td>'+
@@ -178,6 +187,7 @@
     Array.prototype.forEach.call(document.querySelectorAll('#tb-users tr.clickable'), function(tr){
       tr.addEventListener('click', function(){ openUser(tr.dataset.email); });
     });
+    applyUserFilter();
 
     var pg = d.paginas || [];
     document.getElementById('tb-pages').innerHTML = pg.length ? pg.map(function(p){
@@ -276,6 +286,16 @@
       });
   }
   document.getElementById('days').addEventListener('change', load);
+
+  // filtro rápido da tabela de usuários
+  function applyUserFilter(){
+    var q = (document.getElementById('f-users').value||'').toLowerCase().trim();
+    Array.prototype.forEach.call(document.querySelectorAll('#tb-users tr[data-filter]'), function(tr){
+      tr.style.display = (!q || tr.dataset.filter.indexOf(q) >= 0) ? '' : 'none';
+    });
+  }
+  document.getElementById('f-users').addEventListener('input', applyUserFilter);
+
   load();
 })();
 </script>
