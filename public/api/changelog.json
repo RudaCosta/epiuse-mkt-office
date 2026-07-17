@@ -1,5 +1,5 @@
 {
-  "current": "0.77.4",
+  "current": "0.77.5",
   "atualizado_em": "17/jul/2026",
   "next": [
     {
@@ -54,13 +54,14 @@
   ],
   "releases": [
     {
-      "version": "0.77.4",
+      "version": "0.77.5",
       "date": "17/jul/2026",
       "status": "current",
       "path": null,
-      "title": "🌗 Stratview Generator v0.77.4 — preview legível em qualquer tema",
+      "title": "🌗 Stratview Generator v0.77.5 — preview legível em qualquer tema (títulos incluídos)",
       "highlights": [
-        "Modal de preview do artigo (e overlays de geração/refino) com paleta local fixa: papel branco + texto escuro SEMPRE, independente do tema do Office (dark/atlas/aurora/liquid-glass sobrescreviam os tokens e deixavam texto claro sobre branco)"
+        "Modal de preview do artigo (e overlays de geração/refino) com paleta local fixa: papel branco + texto escuro SEMPRE, independente do tema do Office",
+        "Títulos h1-h4/summary do modal: o atlas-theme força color:var(--text) com :root[data-theme] + !important — overrides do modal subiram de especificidade (0,3,1+) pra vencer em qualquer ordem de cascata"
       ]
     },
     {

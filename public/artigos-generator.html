@@ -38,6 +38,16 @@
       color: #0f172a;
     }
     .modal .article-content, .modal .article-content p, .modal .article-content li { color: #334155; }
+    /* Títulos: temas do Office usam :root[data-theme] h2 {!important} (especificidade 0,2,1) —
+       seletores abaixo têm 0,3,1+ pra vencer em QUALQUER ordem de cascata */
+    :root .modal.modal h1, :root .modal.modal h2, :root .modal.modal h3, :root .modal.modal h4,
+    :root .modal.modal summary, :root .modal.modal strong,
+    :root .refine-overlay.refine-overlay h1, :root .refine-overlay.refine-overlay h2, :root .refine-overlay.refine-overlay h3,
+    :root .gen-overlay.gen-overlay h1, :root .gen-overlay.gen-overlay h2, :root .gen-overlay.gen-overlay h3 { color: #0f172a !important; }
+    :root .modal.modal .article-content h2, :root .modal.modal .article-content h3 { color: #1e293b !important; }
+    :root .modal.modal .modal-header-sub { color: #0284c7 !important; }
+    :root .modal.modal .article-content p, :root .modal.modal .article-content li,
+    :root .modal.modal .article-content .faq-answer { color: #334155 !important; }
     a { color: inherit; text-decoration: none; }
 
     /* ── HEADER ── */
