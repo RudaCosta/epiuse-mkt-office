@@ -1,5 +1,5 @@
 {
-  "current": "0.79.0",
+  "current": "0.80.0",
   "atualizado_em": "13/jul/2026",
   "next": [
     {
@@ -54,9 +54,21 @@
   ],
   "releases": [
     {
-      "version": "0.79.0",
+      "version": "0.80.0",
       "date": "17/jul/2026",
       "status": "current",
+      "path": null,
+      "title": "🎙️ Publicar candidatura como Voice (inscrição → /voices) + dedupe/time interno",
+      "highlights": [
+        "No /admin/inscricoes, cada candidato ganha o botão '🎙️ Publicar como Voice' — cria a ficha e ela aparece em /voices (persiste numa tabela no banco, via overlay do /api/voices.json, não some no deploy)",
+        "Auto-marcação: 🔁 duplicados (mesmo e-mail/LinkedIn) e 👥 time interno (e-mail que bate com o cadastro) — pra você não publicar por engano",
+        "Triagem: status 🧪 teste e 🗄️ ignorado escondem do painel (filtro 'Ativos'); dedupe impede publicar o mesmo Voice duas vezes"
+      ]
+    },
+    {
+      "version": "0.79.0",
+      "date": "17/jul/2026",
+      "status": "past",
       "path": null,
       "title": "🎙️ Painel de Inscrições dos Voices — candidaturas ao vivo com todo o detalhe",
       "highlights": [

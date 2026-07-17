@@ -29,6 +29,17 @@
   .st.em_analise{background:rgba(168,139,250,.16);color:#c4b5fd;border:1px solid rgba(168,139,250,.4)}
   .st.aprovado{background:rgba(34,211,122,.14);color:#4ade80;border:1px solid rgba(34,211,122,.35)}
   .st.reprovado{background:rgba(248,113,113,.14);color:#f87171;border:1px solid rgba(248,113,113,.35)}
+  .st.teste{background:rgba(148,163,184,.16);color:#cbd5e1;border:1px solid rgba(148,163,184,.4)}
+  .st.ignorado{background:rgba(100,116,139,.16);color:#94a3b8;border:1px solid rgba(100,116,139,.4)}
+  .bdg{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;border:1px solid;white-space:nowrap}
+  .bdg.pub{background:rgba(34,211,122,.14);color:#4ade80;border-color:rgba(34,211,122,.4)}
+  .bdg.int{background:rgba(251,191,36,.12);color:#fbbf24;border-color:rgba(251,191,36,.35)}
+  .bdg.dup{background:rgba(248,113,113,.12);color:#fca5a5;border-color:rgba(248,113,113,.35)}
+  .pub-btn{background:#22c55e;color:#04140a;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:800;font-family:inherit;cursor:pointer}
+  .pub-btn:hover{filter:brightness(1.1)}
+  .pub-btn.warn{background:#f59e0b}
+  .pub-done{font-size:12px;color:#4ade80;font-weight:700}
+  .arch-toggle{font-size:12px;color:#9fb2d4;display:inline-flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap}
   .chev{color:#9fb2d4;transition:transform .2s}
   .card.open .chev{transform:rotate(90deg)}
   .body{display:none;padding:4px 18px 20px;border-top:1px solid rgba(134,158,195,.14)}
@@ -50,17 +61,19 @@
 <office-nav></office-nav>
 <div class="container">
   <h1>🎙️ Inscrições · Seja um Voice</h1>
-  <div class="sub">Candidaturas recebidas na landing page, ao vivo do banco — com todo o detalhe preenchido. Triagem por status. <span style="color:#7a8ba8">(Publicar como Voice em <code>/voices</code> é uma etapa curada à parte.)</span></div>
+  <div class="sub">Candidaturas recebidas na landing page, ao vivo do banco — com todo o detalhe preenchido. Cada uma pode ser <b>publicada como Voice</b> em <code>/voices</code>. Duplicados 🔁 e time interno 👥 vêm marcados; marque 🧪 teste / 🗄️ ignorado pra tirar do painel.</div>
 
   <div class="bar">
     <input id="q" type="text" placeholder="🔎 Filtrar por nome, e-mail, cargo, tom…">
     <select id="fstatus">
-      <option value="">Todos os status</option>
+      <option value="">Ativos (esconde teste/ignorado/reprovado)</option>
       <option value="novo">Novo</option>
       <option value="contatado">Contatado</option>
       <option value="em_analise">Em análise</option>
-      <option value="aprovado">Aprovado</option>
+      <option value="aprovado">Aprovado (publicado)</option>
       <option value="reprovado">Reprovado</option>
+      <option value="teste">🧪 Teste</option>
+      <option value="ignorado">🗄️ Ignorado</option>
     </select>
     <button id="reload" type="button">↻ Atualizar</button>
     <span class="cnt" id="cnt"></span>
@@ -75,8 +88,9 @@
   function authHeaders(extra){ var h = Object.assign({}, extra||{}); try { var t = localStorage.getItem('office.editorToken'); if (t) h['X-Editor-Token'] = t; } catch(e){} return h; }
   var esc = function(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]; }); };
   function when(s){ if(!s) return ''; var d=new Date(s); if(isNaN(d)) return esc(s); var p=function(n){return (n<10?'0':'')+n;}; return p(d.getDate())+'/'+p(d.getMonth()+1)+'/'+d.getFullYear()+' '+p(d.getHours())+':'+p(d.getMinutes()); }
-  var STATUS = ['novo','contatado','em_analise','aprovado','reprovado'];
-  var STATUS_LBL = {novo:'Novo',contatado:'Contatado',em_analise:'Em análise',aprovado:'Aprovado',reprovado:'Reprovado'};
+  var STATUS = ['novo','contatado','em_analise','aprovado','reprovado','teste','ignorado'];
+  var STATUS_LBL = {novo:'Novo',contatado:'Contatado',em_analise:'Em análise',aprovado:'Aprovado',reprovado:'Reprovado',teste:'🧪 Teste',ignorado:'🗄️ Ignorado'};
+  var ARQUIVADOS = ['teste','ignorado','reprovado'];
 
   var LABELS = {
     nome:'Nome', email:'E-mail', linkedin:'LinkedIn', cargo:'Cargo', area:'Área', endereco:'Localização', tempo_epiuse:'Tempo de EPI-USE',
@@ -108,26 +122,35 @@
     // origem
     var utm = ['utm_source','utm_medium','utm_campaign','utm_voice'].map(function(k){ return a[k]? (k.replace('utm_','')+'='+esc(a[k])) : ''; }).filter(Boolean).join(' · ');
     html += '<div class="grp"><div class="grp-t">🔗 Origem</div><div class="fld"><div class="v" style="color:#9fb2d4;font-family:JetBrains Mono,monospace;font-size:12px">'+(utm||'—')+' · IP '+esc(a.ip||'—')+'</div></div></div>';
-    // status control
+    // status control + publicar
     var opts = STATUS.map(function(s){ return '<option value="'+s+'"'+(a.status===s?' selected':'')+'>'+STATUS_LBL[s]+'</option>'; }).join('');
-    html += '<div class="statusrow"><label>Status da triagem:</label><select data-status="'+a.id+'">'+opts+'</select></div>';
+    var pub = a.publicado
+      ? '<span class="pub-done">✅ Já publicado em /voices</span>'
+      : '<button class="pub-btn'+(a.interno||a.dup?' warn':'')+'" data-pub="'+a.id+'" data-nome="'+esc(a.nome||'')+'"'+((a.interno||a.dup)?' data-warn="1"':'')+'>🎙️ Publicar como Voice</button>';
+    html += '<div class="statusrow"><label>Status:</label><select data-status="'+a.id+'">'+opts+'</select>'+
+            '<span style="margin-left:auto"></span>'+pub+'</div>';
     return html;
   }
   function render(){
     var q = (document.getElementById('q').value||'').toLowerCase().trim();
     var fs = document.getElementById('fstatus').value;
     var rows = ALL.filter(function(a){
-      if (fs && (a.status||'novo') !== fs) return false;
+      var st = a.status || 'novo';
+      if (fs) { if (st !== fs) return false; }             // filtro explícito
+      else if (ARQUIVADOS.indexOf(st) >= 0) return false;  // "Ativos" esconde arquivados
       if (!q) return true;
       return (a.nome+' '+a.email+' '+a.cargo+' '+a.tom+' '+a.area+' '+(a.linkedin||'')).toLowerCase().indexOf(q) >= 0;
     });
     document.getElementById('cnt').textContent = rows.length + ' de ' + ALL.length;
     document.getElementById('list').innerHTML = rows.length ? rows.map(function(a){
       var st = a.status || 'novo';
+      var badges = (a.publicado?'<span class="bdg pub">✅ publicado</span>':'') +
+                   (a.interno?'<span class="bdg int">👥 time interno</span>':'') +
+                   (a.dup?'<span class="bdg dup">🔁 duplicado</span>':'');
       return '<div class="card" data-id="'+a.id+'">'+
         '<div class="card-h">'+
           '<div><div class="nome">'+esc(a.nome||'—')+'</div><div class="cargo">'+esc(a.cargo||'')+(a.area?(' · '+esc(a.area)):'')+'</div></div>'+
-          '<div class="meta"><span class="when">'+when(a.timestamp||a.created_at)+'</span><span class="st '+st+'">'+esc(STATUS_LBL[st]||st)+'</span><span class="chev">▶</span></div>'+
+          '<div class="meta">'+badges+'<span class="when">'+when(a.timestamp||a.created_at)+'</span><span class="st '+st+'">'+esc(STATUS_LBL[st]||st)+'</span><span class="chev">▶</span></div>'+
         '</div>'+
         '<div class="body">'+detail(a)+'</div>'+
       '</div>';
@@ -140,6 +163,9 @@
       sel.addEventListener('click', function(e){ e.stopPropagation(); });
       sel.addEventListener('change', function(){ setStatus(sel.dataset.status, sel.value); });
     });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-pub]'), function(b){
+      b.addEventListener('click', function(e){ e.stopPropagation(); publicar(b.dataset.pub, b.dataset.nome, b.dataset.warn==='1', b); });
+    });
   }
   function setStatus(id, status){
     fetch('/api/applications/'+id, { method:'PATCH', headers: authHeaders({'Content-Type':'application/json'}), body: JSON.stringify({ status: status }) })
@@ -147,6 +173,19 @@
         if (d.success) { var a = ALL.find(function(x){ return String(x.id)===String(id); }); if (a) a.status = status; render(); }
         else alert('Erro: '+(d.error||'?'));
       }).catch(function(){ alert('Erro de rede.'); });
+  }
+  function publicar(id, nome, warn, btn){
+    var msg = 'Publicar "'+nome+'" como Voice em /voices?';
+    if (warn) msg += '\n\n⚠️ Atenção: esta inscrição está marcada como duplicado e/ou time interno. Confirma mesmo assim?';
+    if (!confirm(msg)) return;
+    btn.disabled = true; btn.textContent = 'Publicando…';
+    fetch('/api/applications/'+id+'/publish', { method:'POST', headers: authHeaders() })
+      .then(function(r){ return r.json().then(function(d){ return { st:r.status, d:d }; }); })
+      .then(function(o){
+        if (o.st===200 && o.d.success) { alert('🎙️ Publicado! Aparece em /voices (slug: '+o.d.slug+').'); load(); }
+        else { btn.disabled=false; btn.textContent='🎙️ Publicar como Voice'; alert('Não deu: '+(o.d.error==='ja_publicado'?'já existe um Voice com esse nome/LinkedIn':(o.d.error||o.st))); }
+      })
+      .catch(function(){ btn.disabled=false; btn.textContent='🎙️ Publicar como Voice'; alert('Erro de rede.'); });
   }
   function load(){
     document.getElementById('list').innerHTML = '<div class="vazio">Carregando…</div>';
