@@ -22,6 +22,22 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Inter', sans-serif; background: var(--slate-50); color: var(--slate-900); min-height: 100vh; }
+
+    /* ── FIX TEMAS ESCUROS: o modal de preview é sempre "papel branco", então os tokens
+       de texto/fundo dele são REDEFINIDOS localmente com valores fixos. Temas do Office
+       (dark, atlas, aurora, liquid-glass) sobrescrevem --slate-*/--white no :root e
+       deixavam texto claro sobre fundo branco (ilegível). Escopo local vence o :root. ── */
+    .modal, .refine-overlay, .gen-overlay {
+      --white: #ffffff;
+      --sky: #0ea5e9; --sky-dark: #0284c7; --sky-light: #e0f2fe; --sky-50: #f0f9ff;
+      --slate-50: #f8fafc; --slate-100: #f1f5f9; --slate-200: #e2e8f0;
+      --slate-300: #cbd5e1; --slate-400: #94a3b8; --slate-500: #64748b;
+      --slate-600: #475569; --slate-700: #334155; --slate-800: #1e293b; --slate-900: #0f172a;
+      --green: #059669; --green-light: #d1fae5; --green-dark: #065f46;
+      --amber: #d97706; --amber-light: #fef3c7; --red: #dc2626; --red-light: #fee2e2;
+      color: #0f172a;
+    }
+    .modal .article-content, .modal .article-content p, .modal .article-content li { color: #334155; }
     a { color: inherit; text-decoration: none; }
 
     /* ── HEADER ── */
