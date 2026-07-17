@@ -8,7 +8,7 @@
 // Fonte ÚNICA da verdade: public/api/changelog.json#current via /api/version
 // Fallback hardcoded usado SÓ se fetch falhar (offline, etc).
 // Sincronização automática — não editar manualmente, basta bumpar changelog.json.
-let OFFICE_NAV_VERSION = '0.75.9';
+let OFFICE_NAV_VERSION = '0.77.2';
 // Promise compartilhada — nav + footer reaproveitam o mesmo fetch
 window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/version')
   .then(r => r.ok ? r.json() : null)
@@ -377,6 +377,15 @@ class OfficeNav extends HTMLElement {
     const MKT_ROLES = ['head', 'intelligence', 'growth', 'field', 'pipeline', 'brand', 'conteudo'];
     if (grpA && MKT_ROLES.includes(this._role) && !grpA.links.some(l => l.href === '/admin/utm')) {
       grpA.links.push({ label: '🔗 UTM & Links Rastreados', href: '/admin/utm' });
+    }
+    // Meus Links (self-service) + Loja de Coins — qualquer usuário autenticado.
+    if (grpA && this._authed) {
+      if (!grpA.links.some(l => l.href === '/meus-links')) {
+        grpA.links.push({ label: '📂 Meus Links & QR', href: '/meus-links' });
+      }
+      if (!grpA.links.some(l => l.href === '/loja')) {
+        grpA.links.push({ label: '🏪 Loja de Coins', href: '/loja' });
+      }
     }
 
     const col1Html = renderColumn(col1Items);
