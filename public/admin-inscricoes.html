@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Inscrições Voices · Admin</title>
+<link rel="stylesheet" href="/design-tokens.css">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Maven Pro',system-ui,sans-serif;background:#0a1426;color:#e8f0ff;line-height:1.55}
+  .container{max-width:980px;margin:0 auto;padding:32px 24px 80px}
+  h1{font-size:24px;font-weight:800;margin-bottom:4px}
+  .sub{font-size:13px;color:#9fb2d4;margin-bottom:18px}
+  .bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
+  .bar input,.bar select{background:#0f1d36;border:1px solid rgba(134,158,195,.25);color:#e8f0ff;padding:9px 12px;border-radius:9px;font-family:inherit;font-size:13px}
+  #q{flex:1;min-width:220px}
+  .bar .cnt{font-size:12px;color:#9fb2d4}
+  .bar button{background:rgba(96,165,250,.16);border:1px solid rgba(96,165,250,.4);color:#bfdbfe;border-radius:9px;padding:9px 14px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer}
+  .card{background:#0f1d36;border:1px solid rgba(134,158,195,.18);border-radius:14px;margin-bottom:12px;overflow:hidden}
+  .card-h{display:flex;align-items:center;gap:12px;padding:16px 18px;cursor:pointer;flex-wrap:wrap}
+  .card-h:hover{background:rgba(134,158,195,.05)}
+  .nome{font-size:16px;font-weight:800}
+  .cargo{font-size:12px;color:#9fb2d4}
+  .meta{margin-left:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .when{font-size:11px;color:#9fb2d4;font-family:'JetBrains Mono',monospace}
+  .st{font-size:11px;font-weight:700;padding:2px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.03em}
+  .st.novo{background:rgba(96,165,250,.16);color:#93c5fd;border:1px solid rgba(96,165,250,.4)}
+  .st.contatado{background:rgba(251,191,36,.14);color:#fbbf24;border:1px solid rgba(251,191,36,.35)}
+  .st.em_analise{background:rgba(168,139,250,.16);color:#c4b5fd;border:1px solid rgba(168,139,250,.4)}
+  .st.aprovado{background:rgba(34,211,122,.14);color:#4ade80;border:1px solid rgba(34,211,122,.35)}
+  .st.reprovado{background:rgba(248,113,113,.14);color:#f87171;border:1px solid rgba(248,113,113,.35)}
+  .chev{color:#9fb2d4;transition:transform .2s}
+  .card.open .chev{transform:rotate(90deg)}
+  .body{display:none;padding:4px 18px 20px;border-top:1px solid rgba(134,158,195,.14)}
+  .card.open .body{display:block}
+  .grp{margin-top:16px}
+  .grp-t{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#60a5fa;margin-bottom:8px}
+  .fld{margin-bottom:10px}
+  .fld .k{font-size:11px;color:#9fb2d4;text-transform:uppercase;letter-spacing:.04em}
+  .fld .v{font-size:13px;color:#e8f0ff;white-space:pre-wrap;word-break:break-word}
+  .fld .v a{color:#60a5fa}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px 24px}
+  @media(max-width:640px){.row2{grid-template-columns:1fr}}
+  .statusrow{display:flex;gap:8px;align-items:center;margin-top:16px;padding-top:14px;border-top:1px solid rgba(134,158,195,.14)}
+  .statusrow label{font-size:12px;color:#9fb2d4}
+  .vazio{color:#9fb2d4;font-size:14px;padding:40px;text-align:center}
+</style>
+</head>
+<body>
+<office-nav></office-nav>
+<div class="container">
+  <h1>🎙️ Inscrições · Seja um Voice</h1>
+  <div class="sub">Candidaturas recebidas na landing page, ao vivo do banco — com todo o detalhe preenchido. Triagem por status. <span style="color:#7a8ba8">(Publicar como Voice em <code>/voices</code> é uma etapa curada à parte.)</span></div>
+
+  <div class="bar">
+    <input id="q" type="text" placeholder="🔎 Filtrar por nome, e-mail, cargo, tom…">
+    <select id="fstatus">
+      <option value="">Todos os status</option>
+      <option value="novo">Novo</option>
+      <option value="contatado">Contatado</option>
+      <option value="em_analise">Em análise</option>
+      <option value="aprovado">Aprovado</option>
+      <option value="reprovado">Reprovado</option>
+    </select>
+    <button id="reload" type="button">↻ Atualizar</button>
+    <span class="cnt" id="cnt"></span>
+  </div>
+
+  <div id="list"><div class="vazio">Carregando…</div></div>
+</div>
+<script src="/office-nav.js"></script>
+<script>
+(function(){
+  try { var _t = new URL(location.href).searchParams.get('token'); if (_t) localStorage.setItem('office.editorToken', _t); } catch(e){}
+  function authHeaders(extra){ var h = Object.assign({}, extra||{}); try { var t = localStorage.getItem('office.editorToken'); if (t) h['X-Editor-Token'] = t; } catch(e){} return h; }
+  var esc = function(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]; }); };
+  function when(s){ if(!s) return ''; var d=new Date(s); if(isNaN(d)) return esc(s); var p=function(n){return (n<10?'0':'')+n;}; return p(d.getDate())+'/'+p(d.getMonth()+1)+'/'+d.getFullYear()+' '+p(d.getHours())+':'+p(d.getMinutes()); }
+  var STATUS = ['novo','contatado','em_analise','aprovado','reprovado'];
+  var STATUS_LBL = {novo:'Novo',contatado:'Contatado',em_analise:'Em análise',aprovado:'Aprovado',reprovado:'Reprovado'};
+
+  var LABELS = {
+    nome:'Nome', email:'E-mail', linkedin:'LinkedIn', cargo:'Cargo', area:'Área', endereco:'Localização', tempo_epiuse:'Tempo de EPI-USE',
+    dia_a_dia:'Dia a dia', dominio_tecnico:'Domínio técnico', trajetoria:'Trajetória', competencias:'Competências', projeto_orgulho:'Projeto de orgulho', desafio:'Desafio superado', lideranca:'Liderança', exposicoes:'Exposições / palcos',
+    tom:'Tom de voz', publico_alvo:'Público-alvo', tema_adoraria:'Tema que adoraria', tema_evitar:'Tema a evitar', artigos_ref:'Artigos de referência', palestras:'Já palestrou?', videos:'Confortável em vídeo?', tem_fotos:'Tem fotos?',
+    lado_humano:'Lado humano', dia_tipico:'Dia típico', bastidores:'Bastidores', fora_trabalho:'Fora do trabalho', motivo:'Motivação'
+  };
+  var GROUPS = [
+    ['👤 Identificação', ['nome','email','linkedin','cargo','area','endereco','tempo_epiuse']],
+    ['💼 Perfil profissional', ['dia_a_dia','dominio_tecnico','trajetoria','competencias','projeto_orgulho','desafio','lideranca','exposicoes']],
+    ['🗣️ Comunicação & conteúdo', ['tom','publico_alvo','tema_adoraria','tema_evitar','artigos_ref','palestras','videos','tem_fotos']],
+    ['❤️ Lado humano', ['lado_humano','dia_tipico','bastidores','fora_trabalho','motivo']]
+  ];
+
+  var ALL = [];
+  function fldHtml(k, v){
+    if (v == null || String(v).trim()==='') return '';
+    var val = esc(v);
+    if (k === 'linkedin' && /^https?:\/\//i.test(v)) val = '<a href="'+esc(v)+'" target="_blank" rel="noopener">'+esc(v)+'</a>';
+    if (k === 'email') val = '<a href="mailto:'+esc(v)+'">'+esc(v)+'</a>';
+    return '<div class="fld"><div class="k">'+esc(LABELS[k]||k)+'</div><div class="v">'+val+'</div></div>';
+  }
+  function detail(a){
+    var html = '';
+    GROUPS.forEach(function(g){
+      var inner = g[1].map(function(k){ return fldHtml(k, a[k]); }).filter(Boolean).join('');
+      if (inner) html += '<div class="grp"><div class="grp-t">'+g[0]+'</div><div class="row2">'+inner+'</div></div>';
+    });
+    // origem
+    var utm = ['utm_source','utm_medium','utm_campaign','utm_voice'].map(function(k){ return a[k]? (k.replace('utm_','')+'='+esc(a[k])) : ''; }).filter(Boolean).join(' · ');
+    html += '<div class="grp"><div class="grp-t">🔗 Origem</div><div class="fld"><div class="v" style="color:#9fb2d4;font-family:JetBrains Mono,monospace;font-size:12px">'+(utm||'—')+' · IP '+esc(a.ip||'—')+'</div></div></div>';
+    // status control
+    var opts = STATUS.map(function(s){ return '<option value="'+s+'"'+(a.status===s?' selected':'')+'>'+STATUS_LBL[s]+'</option>'; }).join('');
+    html += '<div class="statusrow"><label>Status da triagem:</label><select data-status="'+a.id+'">'+opts+'</select></div>';
+    return html;
+  }
+  function render(){
+    var q = (document.getElementById('q').value||'').toLowerCase().trim();
+    var fs = document.getElementById('fstatus').value;
+    var rows = ALL.filter(function(a){
+      if (fs && (a.status||'novo') !== fs) return false;
+      if (!q) return true;
+      return (a.nome+' '+a.email+' '+a.cargo+' '+a.tom+' '+a.area+' '+(a.linkedin||'')).toLowerCase().indexOf(q) >= 0;
+    });
+    document.getElementById('cnt').textContent = rows.length + ' de ' + ALL.length;
+    document.getElementById('list').innerHTML = rows.length ? rows.map(function(a){
+      var st = a.status || 'novo';
+      return '<div class="card" data-id="'+a.id+'">'+
+        '<div class="card-h">'+
+          '<div><div class="nome">'+esc(a.nome||'—')+'</div><div class="cargo">'+esc(a.cargo||'')+(a.area?(' · '+esc(a.area)):'')+'</div></div>'+
+          '<div class="meta"><span class="when">'+when(a.timestamp||a.created_at)+'</span><span class="st '+st+'">'+esc(STATUS_LBL[st]||st)+'</span><span class="chev">▶</span></div>'+
+        '</div>'+
+        '<div class="body">'+detail(a)+'</div>'+
+      '</div>';
+    }).join('') : '<div class="vazio">Nenhuma inscrição'+(q||fs?' com esse filtro':' ainda')+'.</div>';
+
+    Array.prototype.forEach.call(document.querySelectorAll('.card-h'), function(h){
+      h.addEventListener('click', function(){ h.parentElement.classList.toggle('open'); });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-status]'), function(sel){
+      sel.addEventListener('click', function(e){ e.stopPropagation(); });
+      sel.addEventListener('change', function(){ setStatus(sel.dataset.status, sel.value); });
+    });
+  }
+  function setStatus(id, status){
+    fetch('/api/applications/'+id, { method:'PATCH', headers: authHeaders({'Content-Type':'application/json'}), body: JSON.stringify({ status: status }) })
+      .then(function(r){ return r.json(); }).then(function(d){
+        if (d.success) { var a = ALL.find(function(x){ return String(x.id)===String(id); }); if (a) a.status = status; render(); }
+        else alert('Erro: '+(d.error||'?'));
+      }).catch(function(){ alert('Erro de rede.'); });
+  }
+  function load(){
+    document.getElementById('list').innerHTML = '<div class="vazio">Carregando…</div>';
+    fetch('/api/applications', { headers: authHeaders() })
+      .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function(d){ ALL = d.applications || []; render(); })
+      .catch(function(e){ document.getElementById('list').innerHTML = '<div class="vazio">Acesso negado ou erro ('+esc(e.message)+'). Área do head — entre logado ou com ?token=.</div>'; });
+  }
+  document.getElementById('q').addEventListener('input', render);
+  document.getElementById('fstatus').addEventListener('change', render);
+  document.getElementById('reload').addEventListener('click', load);
+  load();
+})();
+</script>
+</body>
+</html>
