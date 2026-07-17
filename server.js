@@ -1163,31 +1163,63 @@ ${html}` }] }],
   }
 }
 
+// Pool de ângulos temáticos — 4 são sorteados por rodada, quebrando os 4 baldes fixos que repetiam pauta
+const STRATVIEW_ANGULOS = [
+  'FinOps na prática: fatura OCI, custos ocultos, rightsizing e chargeback por área',
+  'Migração pra OCI: lift-and-shift vs re-arquitetura, janelas de corte, riscos reais',
+  'Segurança e compliance na nuvem Oracle: LGPD, soberania de dados, Zero Trust',
+  'Alta disponibilidade e disaster recovery: RTO/RPO que o board entende',
+  'Multicloud e lock-in: quando OCI convive com AWS/Azure e quando não vale',
+  'Licenciamento Oracle e TCO: o que ninguém explica antes do contrato',
+  'Observabilidade e performance: latência, sizing e gargalos em workloads Oracle',
+  'Oracle HCM Redwood: o que muda de verdade na experiência do usuário',
+  'People Analytics com Oracle HCM: métricas de RH que viram decisão de negócio',
+  'Folha de pagamento e compliance trabalhista Brasil no Oracle HCM',
+  'Agentic Apps no RH: casos concretos de agentes de IA em recrutamento e onboarding',
+  'IA generativa com governança: vieses, auditoria e supervisão humana',
+  'Gestão da mudança em projetos Oracle: por que projetos tecnicamente perfeitos falham',
+  'Talent marketplace e skills-based organization com Oracle HCM',
+  'Integrações Oracle: HCM + ERP + sistemas legados sem gambiarras',
+  'Upgrade e releases trimestrais Oracle (25A/25B...): como absorver sem caos',
+  'RH e TI dividindo o mesmo roadmap: orçamento, prioridades e atritos',
+  'Employee experience além do app: o que os dados de uso do HCM revelam',
+  'Automação de processos de RH: do formulário ao fluxo inteligente',
+  'Shadow IT no RH: planilhas paralelas como sintoma de implementação ruim',
+  'Sustentação pós-go-live: por que o go-live é o começo (AMS / Serviços Gerenciados)',
+  'Benchmarks de mercado Brasil: cloud, RH tech e o que o C-Level está priorizando'
+];
+
 app.post('/api/stratview/ideias', async (req, res) => {
   try {
     // Memória anti-repetição: últimos títulos gerados entram no prompt como proibidos
     let jaGerados = '';
     try {
-      const rows = db.prepare('SELECT title FROM stratview_articles ORDER BY generated_at DESC LIMIT 20').all();
+      const rows = db.prepare('SELECT title, keywords FROM stratview_articles ORDER BY generated_at DESC LIMIT 40').all();
       if (rows.length) jaGerados = `\nARTIGOS JÁ GERADOS (PROIBIDO repetir tema, ângulo ou título parecido — traga assuntos NOVOS):\n${rows.map(r => '- ' + r.title).join('\n')}\n`;
     } catch (e) { console.warn('[STRATVIEW-IDEIAS] histórico indisponível:', e.message.slice(0, 80)); }
 
+    // Sorteia 6 ângulos candidatos da rodada (o modelo escolhe 4 conforme o que a pesquisa render)
+    const angulos = [...STRATVIEW_ANGULOS].sort(() => Math.random() - 0.5).slice(0, 6);
+
     const prompt = `Você é o Diretor de Marketing de Conteúdo da Stratview (uma consultoria boutique líder em Oracle Cloud no Brasil, especializada em HCM, Inteligência Artificial e OCI).
-A Stratview se diferencia por seu modelo "Client Side Services (CSS)".
 
-Gere 4 ideias de artigos para o blog corporativo focados na "Tríade de Valor" da Stratview.
+Gere 4 ideias de artigos para o blog corporativo.
 
-DIRETRIZ ANTI-REPETIÇÃO: Seja extremamente criativo e diversificado! Não crie temas repetitivos. Traga ângulos diferentes: técnico, cultura, finanças/riscos.
+PESQUISA PROFUNDA OBRIGATÓRIA (use a busca do Google ANTES de propor qualquer ideia):
+1. Novidades Oracle dos últimos 60 dias: releases (25A/25B/26A...), anúncios de OCI, Redwood, agentes de IA, eventos (Oracle CloudWorld, etc).
+2. Notícias do mercado brasileiro: custos de nuvem, RH tech, IA nas empresas, regulação (LGPD, reforma trabalhista/tributária quando tocar TI/RH).
+3. O que executivos estão buscando agora (tendências de busca reais).
+CADA ideia deve nascer de um ACHADO REAL dessa pesquisa — nada de tema genérico atemporal. Registre o achado no campo "trendsInfo" (fato + por que agora).
+
+ÂNGULOS SORTEADOS DESTA RODADA — escolha 4 dos 6, um por ideia (é PROIBIDO propor ideia fora destes ângulos):
+${angulos.map((a, i) => `${i + 1}. ${a}`).join('\n')}
+
+Equilíbrio mínimo: pelo menos 1 ideia de infraestrutura/OCI e pelo menos 1 de HCM/pessoas.
+
+DIRETRIZ ANTI-REPETIÇÃO: Não crie temas repetitivos entre si nem parecidos com os já gerados.
 PROIBIDO o padrão "Substantivo X: N Estratégias/Dicas para Y" em mais de 1 dos 4 títulos — varie o formato (pergunta, afirmação contrária, causa-efeito, comparação).
 ${jaGerados}
 
-Distribuição obrigatória:
-- 1 artigo focado em Infraestrutura em Nuvem (OCI), Migração, Segurança ou Alta Disponibilidade técnica
-- 1 artigo focado em HCM e Inteligência Artificial (Agentic Apps)
-- 1 artigo sobre o serviço "Client Side Services (CSS)"
-- 1 artigo sobre Sinergia de C-Levels (CHRO e CIO) proporcionada pela tecnologia
-
-OBRIGATÓRIO: Use a ferramenta de busca do Google para cruzar com Google Trends sobre tendências reais e atuais do mercado.
 OBRIGATÓRIO: Títulos e descrições em português do Brasil impecável — gramática, acentuação e concordância perfeitas.
 
 REGRAS DE TÍTULO (SEO — cumprir TODAS):
@@ -1208,7 +1240,8 @@ Retorne APENAS JSON válido neste formato:
     // google_search é incompatível com responseMimeType:json — deixar a IA retornar JSON como texto
     const result = await geminiPost('gemini-2.5-flash', {
       contents: [{ parts: [{ text: prompt }] }],
-      tools: [{ google_search: {} }]
+      tools: [{ google_search: {} }],
+      generationConfig: { temperature: 0.9 }
     });
     const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!text) throw new Error('Sem resposta da IA');
