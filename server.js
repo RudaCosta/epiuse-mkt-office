@@ -3826,15 +3826,31 @@ app.post('/api/seja-voice', recruitmentLimiter, async (req, res) => {
   res.json({ success: true, message: 'Inscrição recebida. Você será contactado em até 5 dias úteis.' });
 });
 
-// GET /api/applications — lista inscrições (requer token de editor)
-app.get('/api/applications', requireEditorToken, (req, res) => {
+// GET /api/applications — lista inscrições (head logado OU editor token)
+app.get('/api/applications', _coinsAdmin, (req, res) => {
   try {
-    const rows = db.prepare('SELECT * FROM recruitment_applications ORDER BY created_at DESC LIMIT 200').all();
+    const rows = db.prepare('SELECT * FROM recruitment_applications ORDER BY created_at DESC LIMIT 500').all();
     res.json({ success: true, applications: rows, total: rows.length });
   } catch (e) {
     res.status(500).json({ success: false, error: e.message });
   }
 });
+
+// PATCH /api/applications/:id — muda o status da inscrição (funil de triagem)
+const APP_STATUS = ['novo', 'contatado', 'em_analise', 'aprovado', 'reprovado'];
+app.patch('/api/applications/:id', _coinsAdmin, express.json({ limit: '1kb' }), (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const status = String((req.body || {}).status || '');
+  if (!APP_STATUS.includes(status)) return res.status(400).json({ success: false, error: 'status_invalido' });
+  try {
+    const r = db.prepare('UPDATE recruitment_applications SET status=? WHERE id=?').run(status, id);
+    if (!r.changes) return res.status(404).json({ success: false, error: 'nao_encontrado' });
+    res.json({ success: true, id, status });
+  } catch (e) { res.status(500).json({ success: false, error: e.message }); }
+});
+
+// Página do painel de inscrições (head OU editor token)
+app.get('/admin/inscricoes', _coinsAdmin, (req, res) => res.sendFile(path.join(__dirname, 'public/admin-inscricoes.html')));
 
 // ─────────────────────────────────────────────────────────────────────────────
 // VOICE EDITOR — atualiza voices.json e .md de cada Voice via token auth

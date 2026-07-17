@@ -5,8 +5,9 @@
 //  - Saldo = SUM(coins) do ledger erp_coins (ganhos positivos; resgates entram
 //    como lançamentos NEGATIVOS evento='resgate'; negativa de resgate gera
 //    estorno positivo evento='estorno').
-//  - Catálogo = public/api/loja-coins.json (fonte CURADA — regra 7 REAL DATA
-//    ONLY: sobe VAZIO até o Rudá passar itens e preços reais).
+//  - Catálogo = tabela coin_shop_items no SQLite (persiste no volume), editável
+//    pelo admin em /admin/coins. Migração importa do JSON antigo (loja-coins.json)
+//    na 1ª vez, se houver itens lá.
 //  - Resgate debita na hora e cria pedido 'pendente'; aprovação é do admin
 //    (head/editor token) em /admin/coins → aprovar | negar (estorna) | entregue.
 // ════════════════════════════════════════════════════════════════════════════
@@ -33,14 +34,56 @@ db.exec(`
   );
   CREATE INDEX IF NOT EXISTS idx_redemptions_email ON coin_redemptions(email);
   CREATE INDEX IF NOT EXISTS idx_redemptions_status ON coin_redemptions(status);
+  CREATE TABLE IF NOT EXISTS coin_shop_items (
+    id          TEXT PRIMARY KEY,       -- slug (ex: 'elefante-pelucia')
+    nome        TEXT NOT NULL,
+    emoji       TEXT DEFAULT '🎁',
+    preco_coins INTEGER NOT NULL,
+    descricao   TEXT DEFAULT '',
+    ativa       INTEGER DEFAULT 1,
+    ordem       INTEGER DEFAULT 0,
+    updated_at  TEXT DEFAULT (datetime('now'))
+  );
 `);
 
-function sessionUser(req) { return (req.session && req.session.user) || null; }
+// Migração 1x: importa itens do JSON antigo se a tabela estiver vazia.
+try {
+  const vazia = db.prepare(`SELECT COUNT(*) n FROM coin_shop_items`).get().n === 0;
+  if (vazia) {
+    const j = JSON.parse(fs.readFileSync(CATALOGO_PATH, 'utf8'));
+    const itens = Array.isArray(j.itens) ? j.itens : [];
+    if (itens.length) {
+      const ins = db.prepare(`INSERT OR IGNORE INTO coin_shop_items (id,nome,emoji,preco_coins,descricao,ativa,ordem) VALUES (?,?,?,?,?,?,?)`);
+      itens.forEach((it, i) => ins.run(String(it.id||('item'+i)).slice(0,60), String(it.nome||it.id||'').slice(0,80),
+        String(it.emoji||'🎁').slice(0,8), parseInt(it.preco_coins,10)||0, String(it.desc||it.descricao||'').slice(0,200),
+        it.ativa===false?0:1, i));
+      console.log(`[loja] catálogo migrado do JSON: ${itens.length} itens`);
+    }
+  }
+} catch (e) { /* JSON pode não existir — ok, catálogo começa vazio */ }
 
+function sessionUser(req) { return (req.session && req.session.user) || null; }
+function slug(s) {
+  return String(s || '')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // tira acentos (Pelúcia→Pelucia)
+    .toLowerCase().replace(/[\s_]+/g, '-').replace(/[^a-z0-9-]/g, '')
+    .replace(/-{2,}/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
+}
+
+// Itens ATIVOS (loja do usuário), mapeados pro shape que o front espera.
 function lerCatalogo() {
   try {
-    const j = JSON.parse(fs.readFileSync(CATALOGO_PATH, 'utf8'));
-    return Array.isArray(j.itens) ? j.itens : [];
+    return db.prepare(`SELECT id,nome,emoji,preco_coins,descricao,ativa,ordem FROM coin_shop_items
+                       WHERE ativa=1 ORDER BY ordem ASC, nome ASC`).all()
+      .map(i => ({ id: i.id, nome: i.nome, emoji: i.emoji, preco_coins: i.preco_coins, desc: i.descricao, ativa: true }));
+  } catch (e) { return []; }
+}
+// Todos os itens (admin), incluindo inativos.
+function lerCatalogoAll() {
+  try {
+    return db.prepare(`SELECT id,nome,emoji,preco_coins,descricao,ativa,ordem FROM coin_shop_items
+                       ORDER BY ordem ASC, nome ASC`).all()
+      .map(i => ({ id: i.id, nome: i.nome, emoji: i.emoji, preco_coins: i.preco_coins, desc: i.descricao, ativa: !!i.ativa, ordem: i.ordem }));
   } catch (e) { return []; }
 }
 function saldoDe(email) {
@@ -102,7 +145,41 @@ router.get('/api/admin/loja', requireAdmin, (req, res) => {
       SELECT r.*, (SELECT u.name FROM users u WHERE u.email=r.email) AS nome
       FROM coin_redemptions r ORDER BY (r.status='pendente') DESC, r.id DESC LIMIT 300
     `).all();
-    res.json({ resgates: rows, catalogo: lerCatalogo() });
+    const pendentes = db.prepare(`SELECT COUNT(*) n FROM coin_redemptions WHERE status='pendente'`).get().n;
+    res.json({ resgates: rows, pendentes, catalogo: lerCatalogoAll() });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── Admin: CRUD do catálogo ───────────────────────────────────────────────────
+router.get('/api/admin/loja/catalogo', requireAdmin, (req, res) => {
+  res.json({ itens: lerCatalogoAll() });
+});
+// Cria ou atualiza um item (upsert por id). Body: {id?, nome, emoji, preco_coins, desc, ativa, ordem}
+router.post('/api/admin/loja/catalogo', requireAdmin, express.json({ limit: '4kb' }), (req, res) => {
+  const b = req.body || {};
+  const nome = String(b.nome || '').trim().slice(0, 80);
+  const preco = parseInt(b.preco_coins, 10);
+  if (!nome) return res.status(400).json({ error: 'nome_obrigatorio' });
+  if (!preco || preco <= 0) return res.status(400).json({ error: 'preco_invalido' });
+  const id = slug(b.id || nome) || ('item-' + Date.now());
+  const emoji = String(b.emoji || '🎁').slice(0, 8);
+  const desc = String(b.desc || '').slice(0, 200);
+  const ativa = b.ativa === false ? 0 : 1;
+  const ordem = parseInt(b.ordem, 10) || 0;
+  try {
+    db.prepare(`INSERT INTO coin_shop_items (id,nome,emoji,preco_coins,descricao,ativa,ordem,updated_at)
+                VALUES (?,?,?,?,?,?,?,datetime('now'))
+                ON CONFLICT(id) DO UPDATE SET nome=excluded.nome, emoji=excluded.emoji,
+                  preco_coins=excluded.preco_coins, descricao=excluded.descricao,
+                  ativa=excluded.ativa, ordem=excluded.ordem, updated_at=datetime('now')`)
+      .run(id, nome, emoji, preco, desc, ativa, ordem);
+    res.json({ success: true, id, itens: lerCatalogoAll() });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+router.delete('/api/admin/loja/catalogo/:id', requireAdmin, (req, res) => {
+  try {
+    db.prepare(`DELETE FROM coin_shop_items WHERE id=?`).run(slug(req.params.id));
+    res.json({ success: true, itens: lerCatalogoAll() });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

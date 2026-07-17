@@ -258,6 +258,37 @@ router.get('/api/admin/analytics/user', requireOwner, (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// ── Export CSV dos usuários (dono) ────────────────────────────────────────────
+router.get('/api/admin/analytics/export.csv', requireOwner, (req, res) => {
+  try {
+    const days = Math.max(1, Math.min(365, parseInt(req.query.days, 10) || 30));
+    const since = Date.now() - days * 86400000;
+    const rows = db.prepare(`
+      SELECT v.email AS email,
+             SUM(CASE WHEN v.kind='view' THEN 1 ELSE 0 END) AS visitas,
+             COUNT(DISTINCT CASE WHEN v.kind='view' THEN v.sid END) AS sessoes,
+             COUNT(DISTINCT CASE WHEN v.kind='view' THEN v.path END) AS paginas,
+             MAX(v.ts) AS ultimo, MIN(v.ts) AS primeiro,
+             (SELECT COALESCE(SUM(dur_ms),0) FROM analytics_events d WHERE d.kind='dur' AND d.email=v.email AND d.ts>=?) AS tempo_ms,
+             (SELECT u.name FROM users u WHERE u.email=v.email) AS nome,
+             (SELECT u.role FROM users u WHERE u.email=v.email) AS role,
+             (SELECT COALESCE(SUM(c.coins),0) FROM erp_coins c WHERE c.email=v.email) AS coins
+      FROM analytics_events v
+      WHERE v.kind IN ('view','login') AND v.ts>=? AND v.email!='anon'
+      GROUP BY v.email ORDER BY ultimo DESC
+    `).all(since, since);
+    const iso = (ts) => ts ? new Date(ts).toISOString().slice(0, 16).replace('T', ' ') : '';
+    const q = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+    const csv = ['email,nome,area,visitas,sessoes,paginas,tempo_min,coins,primeiro_acesso,ultimo_acesso']
+      .concat(rows.map(r => [r.email, r.nome, r.role, r.visitas, r.sessoes, r.paginas,
+        Math.round((r.tempo_ms || 0) / 60000), r.coins, iso(r.primeiro), iso(r.ultimo)].map(q).join(',')))
+      .join('\n');
+    res.set('Content-Type', 'text/csv; charset=utf-8');
+    res.set('Content-Disposition', `attachment; filename="analytics-usuarios-${days}d.csv"`);
+    res.send('﻿' + csv);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 // Página do report
 router.get('/admin/analytics', requireOwner, (req, res) => {
   res.sendFile(path.join(__dirname, '../public/admin-analytics.html'));

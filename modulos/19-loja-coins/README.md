@@ -6,7 +6,8 @@
 ## Arquivos-chave
 - `routes/loja.js` — tabela `coin_redemptions`; `GET /api/loja/me` (saldo + ledger + resgates + catálogo); `POST /api/loja/resgatar` (débito transacional + pedido pendente); admin `GET /api/admin/loja` + `POST /api/admin/loja/:id` (aprovar|negar|entregue); página `GET /loja`.
 - `public/loja-coins.html` — página do usuário (saldo, catálogo, meus resgates, histórico).
-- `public/api/loja-coins.json` — catálogo CURADO (regra 7). **Vazio até o Rudá passar itens+preços reais.** Estrutura: `{id, nome, emoji, preco_coins, desc, ativa}`.
+- **Catálogo = tabela `coin_shop_items`** (SQLite, persiste no volume). Editável pelo admin em `/admin/coins` (seção "🛒 Catálogo da Loja": add/editar/ativar/remover). CRUD: `GET/POST /api/admin/loja/catalogo` + `DELETE /api/admin/loja/catalogo/:id` (requireAdmin). Migração 1x importa do `public/api/loja-coins.json` antigo se houver itens. Ids são slugs sem acento (`Elefante Pelúcia`→`elefante-pelucia`).
+- **Aviso de pendentes** (v0.78.0): `/api/admin/loja` devolve `pendentes`; o `/admin/coins` mostra badge + número no `<title>`.
 - `public/admin-coins.html` — seção "🎁 Resgates da Loja" (fila com aprovar/negar/entregue).
 - `server.js` — mount + `HUB_LOCK_PAGES += '/loja'`. `office-nav.js` — "🏪 Loja de Coins" (autenticados). `hub.html` — card no Acesso Rápido.
 

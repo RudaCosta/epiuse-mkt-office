@@ -365,6 +365,9 @@ class OfficeNav extends HTMLElement {
       if (grp && !grp.links.some(l => l.href === '/admin/usuarios')) {
         grp.links.push({ label: '👥 Usuários & Perfis', href: '/admin/usuarios' });
       }
+      if (grp && !grp.links.some(l => l.href === '/admin/inscricoes')) {
+        grp.links.push({ label: '🎙️ Inscrições Voices', href: '/admin/inscricoes' });
+      }
     }
     const grpA = col1Items.find(g => g.section === '🤖 Escritório Virtual');
     // Analytics de uso — exclusivo do dono (ruda.costa@epiuse.com.br).
