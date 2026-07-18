@@ -702,9 +702,24 @@
     if (ft) ft.textContent = `${p.icon || '🎯'} Foco · ${p.nome}`;
     if ((p.kpis || []).length) renderFoco(p.kpis);
     else { const f = document.querySelector('[data-sec="foco"]'); if (f) f.style.display = 'none'; }
+    renderQuick(p);
     // Reorder via appendChild conflita com o IntersectionObserver do fade-in
     // (seções movidas ficam presas em opacity:0). Força .visible após aplicar.
     document.querySelectorAll('.home-section').forEach(s => s.classList.add('visible'));
+  }
+
+  // ── Acessos rápidos por persona (v0.81.0) ───────────────────────
+  // Itens vêm de personas.json (persona.quick[] → fallback quick_default[]).
+  // Sem dado (fetch falhou), o HTML hardcoded da home.html fica como está.
+  function renderQuick(p) {
+    const items = (p && p.quick && p.quick.length) ? p.quick : (PERSONAS?.quick_default || []);
+    if (!items.length) return;
+    const box = document.querySelector('.home-quick');
+    if (!box) return;
+    const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    box.innerHTML = items.map(it =>
+      `<a href="${esc(it.href)}"><span class="ico">${esc(it.icon || '🔗')}</span>${esc(it.label)}</a>`
+    ).join('');
   }
 
   // ── KPIs por fonte (todas APIs já existentes) ───────────────────
