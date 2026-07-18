@@ -920,7 +920,7 @@ app.post('/api/game/egg', express.json({ limit: '2kb' }), async (req, res) => {
 });
 
 // Painel do head: ranking + ledger (não linkado em nenhum menu de usuário)
-const { requireAdmin: _coinsAdmin } = require('./routes/users');
+const { requireAdmin: _coinsAdmin, requireExec: _requireExec } = require('./routes/users');
 app.get('/api/admin/coins', _coinsAdmin, (req, res) => {
   try {
     const ranking = db.prepare(`SELECT email, SUM(coins) total, COUNT(*) acoes, MAX(created_at) ultimo
@@ -2206,8 +2206,9 @@ app.get('/api/zoho/pipeline', (req, res) => {
 // GET /api/executivo — agregado CMO View (Roberto / Country Manager)
 // Marketing-sourced pipeline (classificação por campanha) + win rate real
 // (stages Zoho) + DF + metas FY26. Tudo dado REAL (Regra 7).
+// Restrito a head (Rudá) + country-manager (Roberto) — regra do Rudá (18/jul).
 // ════════════════════════════════════════════════════════════════════════════
-app.get('/api/executivo', (req, res) => {
+app.get('/api/executivo', _requireExec, (req, res) => {
   try {
     // 1 — classificação de campanhas (editável sem deploy)
     let classif = { tipos: {}, campanhas: {} };
@@ -2289,7 +2290,7 @@ app.get('/api/executivo', (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.get('/executivo', (req, res) => res.sendFile(path.join(__dirname, 'public/executivo.html')));
+app.get('/executivo', _requireExec, (req, res) => res.sendFile(path.join(__dirname, 'public/executivo.html')));
 app.get('/linkedin', (req, res) => res.sendFile(path.join(__dirname, 'public/linkedin.html')));
 app.get('/raccoon', (req, res) => res.sendFile(path.join(__dirname, 'public/raccoon.html')));
 
