@@ -158,6 +158,7 @@ const OFFICE_NAV_BREADCRUMBS = {
 const OFFICE_NAV_OVERFLOW = [
   { section: '🤖 Escritório Virtual' },
   { label: '🏢 Marketing Hub (portal)',  href: '/hub' },
+  { label: '📣 Campanhas em jogo',       href: '/campanhas' },
   { label: '💡 Mural de Ideias',         href: '/ideias' },
 
   { section: '📞 Biz Dev' },
@@ -367,6 +368,9 @@ class OfficeNav extends HTMLElement {
       }
       if (grp && !grp.links.some(l => l.href === '/admin/inscricoes')) {
         grp.links.push({ label: '🎙️ Inscrições Voices', href: '/admin/inscricoes' });
+      }
+      if (grp && !grp.links.some(l => l.href === '/admin/coins')) {
+        grp.links.push({ label: '🪙 Coins & Resgates', href: '/admin/coins' });
       }
     }
     const grpA = col1Items.find(g => g.section === '🤖 Escritório Virtual');
