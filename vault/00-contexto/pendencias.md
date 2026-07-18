@@ -6,39 +6,7 @@
 
 ## 🔴 BLOQUEADO POR TERCEIROS — Rudá precisa acompanhar
 
-### B1. SSO Microsoft — ✅ CÓDIGO PRONTO (31/mai) + ROLES POR PERFIL & MARKETING HUB (29/jun) · faltam passos humanos no Azure
-
-- **🆕 29/jun — Roles por perfil + Marketing Hub central (Módulo 13):** implementado + verificado local.
-  - Tabela `users` no SQLite (role → persona + landing) + tela admin `/admin/usuarios` (Rudá gerencia quem é o quê). Seed só do Rudá (`head`).
-  - Login resolve role/persona e grava na sessão; `/api/auth/status` expõe `role` + `persona`; home personaliza pela persona do DB.
-  - **Marketing Hub** portado pra `/hub` (do portal estático v0.4.6, gate de senha removido → SSO). Quem é role `hub` (não-núcleo) cai nele como tela central; navegação livre.
-  - `SSO_ENFORCE=true` agora exige login nas páginas (APIs com guard próprio seguem por token). **Seguro:** só morde quando `AZURE_*` estiverem setadas — em prod fica aberto até isso.
-  - **🙋 Falta humano:** cadastrar emails reais do time + **email/role do Alexandre Ormigo** em `/admin/usuarios`. Doc: `modulos/13-sso-roles/`.
-- **Status:** as 3 credenciais chegaram (31/mai) e o SSO foi **implementado + verificado server-side** (Opção A) + **deployado em prod no v0.8.0**. Em prod está `enabled:false` (correto — faltam as env vars no Railway). Local: `enabled:true`. Falta só configurar o app no portal Azure + setar env vars no Railway + testar login real.
-- **Implementado (local, commit `9f3a2c1`, ainda não em prod):**
-  - `@azure/msal-node` ConfidentialClient + `express-session` (store SQLite off-repo)
-  - rotas `/auth/login` · `/auth/callback` · `/auth/logout` · `/api/auth/status`
-  - whitelist por domínio (`epiuse.com.br, epiuselabs.com, groupelephant.com`)
-  - botão **🔐 Entrar** no nav (vira nome real + Logout após login)
-  - `SSO_ENFORCE=false` (migração segura — login disponível mas não obrigatório)
-  - credenciais SÓ no `.env` off-repo (`C:\Users\Ruds\.epiuse-optimizer\.env`), nunca no git
-  - **Verificado:** `/auth/login` → 302 pro `login.microsoftonline.com` com client_id/tenant/scope/redirect corretos; `/api/auth/status` enabled=true; nav mostra "Entrar".
-- **🙋 Passos HUMANOS que faltam (Rudá / IT no portal.azure.com → App registration `09d7c1f2…`):**
-  1. **Authentication → Redirect URIs (Web)** — adicionar AMBAS se não estiverem: `http://localhost:3000/auth/callback` + `https://epiuse-voices-optimizer.up.railway.app/auth/callback`. *(Sem isso o login dá erro AADSTS50011.)*
-  2. **API permissions** — confirmar Graph delegated `openid, profile, email, User.Read, offline_access` + clicar **Grant admin consent**.
-  3. **Testar login real:** abrir o Office → clicar 🔐 Entrar → logar com conta `@epiuse.com.br` → deve voltar logado. (precisa do passo 1 feito)
-  4. **Ao subir pro Railway:** setar nas env vars do Railway `AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET`, `SESSION_SECRET`, `SSO_ALLOWED_DOMAINS` (não vão no git).
-  5. **Quando confiar:** trocar `SSO_ENFORCE=true` pra exigir login em todo mundo.
-- **⚠️ Segurança:** o client secret foi colado em `Desktop\sso claude.txt` + chat. Recomendo **rotacionar** (Azure → Certificates & secrets → novo secret) depois de validar, e apagar o txt. (Rudá disse antes que "não tem nada comprometido aqui" — fica o registro.)
-- **Doc técnico:** `vault/00-contexto/sso-microsoft-plan.md`
-
-### ✅ B2. Planilha Duda — Calendar editorial — RESOLVIDO (08/jun/2026)
-
-- **Arquivo:** `CALENDÁRIO EDITORIAL EPI-USE (1).xlsx` — OneDrive Duda, sincronizado em `C:/Users/Ruds/OneDrive - EPI USE BRASIL SERVIÇOS EM SISTEMAS LTDA/MARKETING/Inbound/Conteúdo/`
-- **Script:** `scripts/sync/sync_calendario_duda.js` — parser de grid visual mensal → 18 itens Junho/2026 sincronizados
-- **Endpoint:** `/api/inbound/calendar` — 18 itens no SQLite `editorial_calendar`
-- **Como re-sync:** `node scripts/sync/sync_calendario_duda.js` (roda de qualquer lugar, resolve modules automaticamente)
-- **Cópia vault:** `vault/00-contexto/conteudo/calendario-editorial-duda.xlsx`
+Nenhuma pendência bloqueada no momento (última resolvida: B1 SSO, ver histórico abaixo).
 
 ---
 
@@ -51,20 +19,6 @@
 - **Botão "📤 Sync RD" no `/inbound/calendar`:** considerar remover/esconder na próxima sprint de UX cleanup.
 
 ---
-
-## ⚠️ ACHADO 26/mai noite — SQLite no Railway NÃO persiste entre deploys
-
-- **Sintoma:** após cada `git push`, Railway rebuilda o container e a tabela `cs_clientes` volta pro seed inicial de 3 mocks (perdem-se os 19 cases reais sincronizados)
-- **Workaround atual:** depois de cada push, rodar manualmente:
-  ```bash
-  curl -X POST https://epiuse-voices-optimizer.up.railway.app/api/cases/sync \
-    -H "X-Editor-Token: eubr-voices-edit-2026" \
-    -H "Content-Type: application/json" \
-    --data @C:/Users/Ruds/AppData/Local/Temp/cases-payload-prod.json
-  ```
-  *(precisa rodar o `sync_cases_roberto.py` antes pra gerar o payload atualizado)*
-- **Fix definitivo (próxima sprint):** verificar se Railway tem volume montado em `/data` ou ajustar `DB_PATH` pra apontar pro volume persistente. Doc Railway: https://docs.railway.com/reference/volumes
-- **Outras tabelas afetadas:** `editorial_calendar`, `posts`, `recruitment_applications`, `users` (futuro SSO) — TUDO reseta no deploy hoje
 
 ## ✅ SPRINTS S29-S31 ENTREGUES (09/jun/2026)
 
@@ -108,6 +62,9 @@ F1 multiplayer game · F2 editor token via cookie · F3 Plausible dashboard · F
 
 ## ✅ ENTREGUE — pra contexto histórico
 
+- **29/jun–18/jul: B1 SSO Microsoft + Roles + Marketing Hub — RESOLVIDO.** `@azure/msal-node` configurado em prod, `SSO_ENFORCE=true`, time todo logando com role real (head/intelligence/growth/field/pipeline/brand/conteudo/country-manager/hub). Módulo 13 (`modulos/13-sso-roles/`). Confirmado pelo uso contínuo em produção: analytics com logins reais, UTM/coins por usuário, homes personalizadas por persona.
+- **08/jun: B2 Calendário editorial Duda — RESOLVIDO.** Sync automático via `scripts/sync/sync_calendario_duda.js` → `/api/inbound/calendar`.
+- **09/jun: Volume persistente Railway (P0/D1) — RESOLVIDO E PROVADO.** `DATA_DIR=/data` montado; SQLite sobrevive a deploy. Base de tudo que foi construído depois (coins, UTM, resgates, usuários).
 - 26/mai noite: v0.4.6 LIVE em prod (Voice Index, 22 cases reais, Studio→Carrossel single, Decorator drag-drop, doc SSO completo)
 - 26/mai noite: 22 cases reais sincronizados em prod
 - 26/mai noite: header `/cases` com branding "EPI-USE Brasil"
