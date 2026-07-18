@@ -110,6 +110,14 @@ function requireAdmin(req, res, next) {
   return requireEditorToken(req, res, next);
 }
 
+// Guard da Visão Executiva (CMO): head (Rudá) OU country-manager (Roberto) na
+// sessão, OU editor token válido (uso local/programático).
+function requireExec(req, res, next) {
+  const role = req.session && req.session.user && req.session.user.role;
+  if (role === 'head' || role === 'country-manager') return next();
+  return requireEditorToken(req, res, next);
+}
+
 // ── Página admin ──────────────────────────────────────────────────────────────
 router.get('/admin/usuarios', requireAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, '../public/admin-usuarios.html'));
@@ -174,3 +182,4 @@ module.exports.landingForView = landingForView;
 module.exports.setUserView = setUserView;
 module.exports.requireRole = requireRole;
 module.exports.requireAdmin = requireAdmin;
+module.exports.requireExec = requireExec;
