@@ -167,6 +167,7 @@ const OFFICE_NAV_OVERFLOW = [
 
   { section: '📊 Reports & Análises' },
   { label: '🔗 LinkedIn Intelligence',   href: '/linkedin' },
+  { label: '🔎 AEO / SEO / GEO (IA)',    href: '/aeo-geo' },
   { label: '📈 Relatório Mensal',        href: '/relatorio' },
   { label: '🗂️ Área de Clientes',        href: '/area-clientes' },
   { label: '📣 Field Marketing',         href: '/field-marketing' },
