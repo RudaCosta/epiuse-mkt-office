@@ -15,8 +15,11 @@ const express = require('express');
 const router = express.Router();
 const path = require('path');
 const fs = require('fs');
-const { db } = require('../server-context');
+const { db, resend } = require('../server-context');
 const { requireAdmin } = require('./users');
+
+const FROM_EMAIL = process.env.FROM_EMAIL || 'voices@resend.dev';
+const NOTIFY_EMAIL = process.env.NOTIFY_EMAIL || 'ruda.costa@epiuse.com.br';
 
 const CATALOGO_PATH = path.join(__dirname, '../public/api/loja-coins.json');
 
@@ -134,8 +137,60 @@ router.post('/api/loja/resgatar', express.json({ limit: '2kb' }), (req, res) => 
       return { id: Number(rid), saldo: saldo - preco };
     })();
     if (out.erro) return res.status(400).json({ error: out.erro, saldo: out.saldo });
+    // ✉️ Aviso pro admin (best-effort — nunca bloqueia a resposta)
+    if (resend) {
+      resend.emails.send({
+        from: FROM_EMAIL, to: NOTIFY_EMAIL,
+        subject: `🎁 Resgate na Loja de Coins — ${u.name || email} pediu "${item.nome}"`,
+        html: `<div style="font-family:system-ui,sans-serif"><h2 style="margin:0 0 8px">🎁 Novo resgate pendente</h2>
+          <p><b>${String(u.name || email)}</b> (${email}) resgatou <b>${String(item.nome)}</b> por <b>${preco} coins</b>.</p>
+          <p><a href="https://office.epiuse.com.br/admin/coins" style="color:#2563EB">→ Aprovar/negar no painel</a></p></div>`,
+      }).then(() => console.log(`[loja] email de resgate enviado (${item.id})`))
+        .catch(e => console.warn('[loja] email de resgate falhou:', e.message));
+    } else console.log('[loja] email de resgate skipped (sem RESEND_API_KEY)');
     res.json({ success: true, id: out.id, saldo: out.saldo, status: 'pendente' });
   } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── Ranking do time (qualquer usuário logado) ─────────────────────────────────
+// Dados 100% reais do ledger erp_coins + utm_clicks. Conquistas = eventos
+// distintos que a pessoa já destravou. Nome/área vêm da tabela users.
+router.get('/api/ranking', (req, res) => {
+  const u = sessionUser(req);
+  if (!u || !u.email) return res.status(401).json({ error: 'auth_required' });
+  try {
+    const rows = db.prepare(`
+      SELECT c.email,
+             SUM(CASE WHEN c.coins > 0 THEN c.coins ELSE 0 END) AS ganhos,
+             SUM(c.coins) AS saldo,
+             COUNT(DISTINCT CASE WHEN c.coins > 0 THEN c.evento END) AS tipos,
+             (SELECT u2.name FROM users u2 WHERE u2.email = c.email) AS nome,
+             (SELECT u2.role FROM users u2 WHERE u2.email = c.email) AS role,
+             (SELECT COUNT(*) FROM utm_clicks k JOIN utm_links l ON l.token = k.token
+                WHERE l.email = c.email AND k.bot = 0) AS cliques
+      FROM erp_coins c
+      GROUP BY c.email
+      HAVING ganhos > 0
+      ORDER BY ganhos DESC
+      LIMIT 100
+    `).all();
+    const conquistasDe = db.prepare(`SELECT DISTINCT evento FROM erp_coins WHERE email=? AND coins>0`);
+    const ranking = rows.map((r, i) => ({
+      pos: i + 1,
+      email: r.email,
+      nome: r.nome || r.email.split('@')[0],
+      role: r.role || null,
+      ganhos: r.ganhos, saldo: r.saldo, cliques: r.cliques,
+      conquistas: conquistasDe.all(r.email).map(x => x.evento),
+      eu: r.email === String(u.email).toLowerCase(),
+    }));
+    res.json({ ranking, gerado_em: new Date().toISOString() });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Página do ranking (qualquer usuário logado; enforcement cuida do login).
+router.get('/ranking', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/ranking.html'));
 });
 
 // ── Admin: fila de resgates + decisão ─────────────────────────────────────────

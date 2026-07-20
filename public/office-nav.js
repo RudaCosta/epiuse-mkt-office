@@ -393,6 +393,9 @@ class OfficeNav extends HTMLElement {
       if (!grpA.links.some(l => l.href === '/loja')) {
         grpA.links.push({ label: '🏪 Loja de Coins', href: '/loja' });
       }
+      if (!grpA.links.some(l => l.href === '/ranking')) {
+        grpA.links.push({ label: '🏆 Ranking do Time', href: '/ranking' });
+      }
     }
 
     const col1Html = renderColumn(col1Items);
@@ -1170,8 +1173,9 @@ class OfficeNav extends HTMLElement {
       badge.style.display = 'inline-flex';
       items.innerHTML = alerts.slice(0, 10).map(a => {
         const tagCls = a.tipo === 'warn' ? 'warn' : 'info';
-        const tagLbl = a.tipo === 'warn' ? '⚠' : 'i';
-        return `<a class="bp-item" href="/area/brand"><span class="bp-tag ${tagCls}">${tagLbl}</span>${(a.msg || '').slice(0, 140)}</a>`;
+        const tagLbl = a.tipo === 'action' ? '🔥' : (a.tipo === 'warn' ? '⚠' : 'i');
+        const href = a.href || '/area/brand';
+        return `<a class="bp-item" href="${href}"><span class="bp-tag ${tagCls}">${tagLbl}</span>${(a.msg || '').slice(0, 140)}</a>`;
       }).join('');
     } catch (e) {
       items.innerHTML = '<div class="bp-item empty">Não foi possível carregar alertas.</div>';

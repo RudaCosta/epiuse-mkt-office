@@ -44,6 +44,9 @@
   .st.entregue{background:rgba(96,165,250,.14);color:#93c5fd;border:1px solid rgba(96,165,250,.35)}
   .pos{color:#4ade80}.neg{color:#f87171}
   .muted{color:var(--text2);font-size:12px}
+  .cta-rank{display:inline-block;margin-top:10px;background:rgba(251,191,36,.14);border:1px solid rgba(251,191,36,.4);color:#fbbf24;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:800;text-decoration:none}
+  .cf{position:fixed;top:-12px;font-size:16px;animation:cair linear forwards;z-index:9999;pointer-events:none}
+  @keyframes cair{to{transform:translateY(105vh) rotate(720deg);opacity:.6}}
 </style>
 </head>
 <body data-route="loja">
@@ -54,6 +57,7 @@
     <div class="eyebrow">🪙 ERP Coins</div>
     <h1>Loja de Coins</h1>
     <p>Suas participações viram ERP Coins — compartilhar conteúdo, marcar Gol de Placa, completar quests do game e cada clique real nos seus links. Aqui você acompanha o saldo e troca por brindes.</p>
+    <a class="cta-rank" href="/ranking">🏆 Ver o Ranking do Time →</a>
   </div>
 </div>
 
@@ -89,9 +93,22 @@
     if (ev==='golplaca') return '⚽ Gol de Placa';
     if (ev==='share') return '📣 Compartilhamento';
     if (ev==='utm_click') return '🔗 Clique em link seu';
+    if (ev==='marco') return '🏅 Marco de cliques (bônus)';
     if (ev==='resgate') return '🛒 Resgate na loja';
     if (ev==='estorno') return '↩️ Estorno de resgate';
     return ev;
+  }
+  function confete(n){
+    var emojis=['🎉','🪙','⭐','🐘','✨'];
+    for(var i=0;i<n;i++){
+      var s=document.createElement('span');
+      s.className='cf'; s.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+      s.style.left=(Math.random()*100)+'vw';
+      s.style.animationDuration=(2.2+Math.random()*2.2)+'s';
+      s.style.animationDelay=(Math.random()*0.9)+'s';
+      document.body.appendChild(s);
+      setTimeout(function(el){ return function(){ el.remove(); }; }(s), 6000);
+    }
   }
   function fmtWhen(s){ return String(s||'').slice(0,16).replace('T',' '); }
 
@@ -153,7 +170,7 @@
       body: JSON.stringify({ item_id: id }) })
       .then(function(r){ return r.json(); })
       .then(function(d){
-        if (d.success) { alert('Pedido enviado! 🎉 Aguarde a aprovação.'); load(); }
+        if (d.success) { confete(90); setTimeout(function(){ alert('Pedido enviado! 🎉 Aguarde a aprovação.'); }, 350); load(); }
         else alert('Não rolou: ' + (d.error==='saldo_insuficiente'?'saldo insuficiente':(d.error||'erro')));
       }).catch(function(){ alert('Erro de rede.'); });
   }

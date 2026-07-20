@@ -788,7 +788,7 @@ const HUB_LOCK_PAGES = new Set([
   '/design', '/erp-impacto', '/seja-voice', '/artigos', '/optimizer',
   '/optimizer-v3', '/voices/optimizer-v3',
   '/campanhas', '/brindes', '/hub/brindes', '/hub/solicitacao-brindes',
-  '/hub/solicitar-brindes', '/meus-links', '/loja'
+  '/hub/solicitar-brindes', '/meus-links', '/loja', '/ranking'
 ]);
 // nota: '/game' passa pelo lock só pra rota fazer o redirect por role → /game-hub.
 app.use((req, res, next) => {
@@ -2817,6 +2817,25 @@ app.get('/api/alerts', (req, res) => {
         }
       }
     } catch (e) { /* sqlite offline ou tabela vazia — segue sem o alerta derivado */ }
+
+    // 🔔 Alertas pessoais por sessão (v0.82.0) — dados reais, direto do SQLite.
+    try {
+      const su = req.session && req.session.user;
+      if (su && su.role === 'head') {
+        const pend = db.prepare(`SELECT COUNT(*) n FROM coin_redemptions WHERE status='pendente'`).get().n;
+        if (pend > 0) alertas.unshift({ tipo: 'action', msg: `🎁 ${pend} resgate(s) da Loja aguardando sua decisão`, href: '/admin/coins' });
+        const novas = db.prepare(`SELECT COUNT(*) n FROM recruitment_applications WHERE COALESCE(status,'novo')='novo'`).get().n;
+        if (novas > 0) alertas.unshift({ tipo: 'action', msg: `🎙️ ${novas} inscrição(ões) de Voice pra triar`, href: '/admin/inscricoes' });
+      }
+      if (su && su.email) {
+        const meus = db.prepare(`SELECT item_nome, status FROM coin_redemptions
+          WHERE email=? AND status IN ('aprovado','negado','entregue')
+          AND decided_at >= datetime('now','-7 days') ORDER BY decided_at DESC LIMIT 3`)
+          .all(String(su.email).toLowerCase());
+        const lbl = { aprovado: '✅ aprovado', negado: '❌ negado (coins devolvidos)', entregue: '📦 entregue' };
+        meus.forEach(r => alertas.unshift({ tipo: 'info', msg: `🛒 Seu resgate "${r.item_nome}": ${lbl[r.status] || r.status}`, href: '/loja' }));
+      }
+    } catch (e) { /* tabelas da loja podem não existir em ambiente isolado */ }
 
     res.json({ alertas, count: alertas.length });
   } catch (e) {
