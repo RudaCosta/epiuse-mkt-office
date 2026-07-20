@@ -1084,15 +1084,16 @@ async function geminiPost(model, body) {
   return r.json();
 }
 
-// Cota do free tier é POR MODELO — no 429, cai pro próximo da cadeia em vez de falhar
-const GEMINI_FALLBACK_CHAIN = ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash'];
+// Cota do free tier é POR MODELO — no 429, cai pro próximo da cadeia em vez de falhar.
+// 404 (modelo descontinuado/inexistente) também pula — permite listar candidatos novos sem risco.
+const GEMINI_FALLBACK_CHAIN = ['gemini-2.5-flash', 'gemini-3-flash', 'gemini-3.1-flash', 'gemini-3-flash-lite', 'gemini-2.0-flash'];
 async function geminiPostComFallback(body, chain = GEMINI_FALLBACK_CHAIN) {
   let ultimoErro = null;
   for (const model of chain) {
     try { return { result: await geminiPost(model, body), model }; }
     catch (e) {
       ultimoErro = e;
-      if (e.status !== 429 && e.status !== 503) throw e; // só cota/indisponível justificam fallback
+      if (e.status !== 429 && e.status !== 503 && e.status !== 404) throw e; // só cota/indisponível/descontinuado justificam fallback
       console.warn(`[GEMINI-FALLBACK] ${model} indisponível (${e.status}) — tentando próximo`);
     }
   }
@@ -1376,15 +1377,31 @@ app.post('/api/stratview/imagem', async (req, res) => {
     const { prompt } = req.body;
     if (!prompt) return res.status(400).json({ error: 'prompt obrigatório' });
 
-    const enhancedPrompt = `${prompt}
+    // Composição sorteada a cada geração — quebra a "mesma imagem sempre" e segue a
+    // direção de arte das referências aprovadas (navy profundo + luz ciano + hologramas)
+    const composicoes = [
+      'Back view of a business executive in a dark suit contemplating a huge curved holographic dashboard full of glowing charts, inside a dark modern data center; a luminous wireframe cloud floats among the server racks.',
+      'Profile silhouette of a digital human head formed by a glowing particle mesh and constellation lines, next to a luminous cloud of particles; floating circular glass icons on one side; blurred city skyline at dusk through panoramic windows in the background.',
+      'Abstract cluster of translucent dark glass cubes with ONE glowing warm amber core cube, streams of light data flowing through it, thin floating line-icons inside glass circles, blurred modern office background with shallow depth of field.',
+      'Two elegant business people silhouettes filled with circuit patterns facing each other, exchanging glowing interlocking gears and network graphics between their open hands; split duotone palette — warm orange gradient on the left, cool corporate blue on the right; small infographic icons floating around.',
+      'A luminous cloud made of glowing particles hovering above a dark reflective surface, orbited by thin holographic rings and floating glass icons; server bokeh lights in the dark background.',
+      'Isometric miniature city built from circuit boards and glowing blue traces, with a bright vertical beam of light rising into a stylized particle cloud; dark navy atmosphere with cyan glow.',
+      'Close-up of professional hands interacting with floating translucent holographic charts and KPI cards above a sleek desk, dark blue ambience with cyan rim light, blurred executive office behind.'
+    ];
+    const composicao = composicoes[Math.floor(Math.random() * composicoes.length)];
 
-STRICT REQUIREMENTS — follow exactly:
-- Setting: modern corporate office, data center, or enterprise technology environment ONLY
-- Style: photorealistic, professional business photography, high quality, 16:9 landscape
-- Color: predominantly blue, white, grey tones — corporate palette
-- NO nature, NO forests, NO mountains, NO trees, NO landscapes, NO outdoor scenes
-- NO text, NO logos, NO watermarks
-- YES: servers, screens, dashboards, executives, conference rooms, technology hardware`;
+    const enhancedPrompt = `Premium enterprise-technology editorial illustration for a business blog article. Theme of the article: ${prompt}
+
+COMPOSITION (follow this scene):
+${composicao}
+
+ART DIRECTION — follow exactly:
+- Style: high-end digital illustration / concept art (NOT stock photography), cinematic lighting, ultra-detailed, subtle film grain, professional editorial quality
+- Palette: deep navy blue background (#0A1230 to #1a237e), glowing cyan and electric-blue light accents, luminous particle networks and thin connection lines; a restrained warm amber/orange accent is allowed only as secondary highlight
+- Mood: sophisticated, futuristic, trustworthy — enterprise cloud & AI consulting
+- Format: 16:9 landscape, generous negative space, strong focal point
+- NO text, NO words, NO letters, NO numbers, NO logos, NO watermarks, NO UI labels
+- NO nature landscapes, NO cartoon style, NO clip-art, NO plastic 3D render look`;
 
     const imageModels = ['gemini-2.5-flash-image', 'gemini-3.1-flash-image', 'gemini-3-pro-image'];
     for (const model of imageModels) {
@@ -1400,7 +1417,7 @@ STRICT REQUIREMENTS — follow exactly:
 
     // Fallback: Imagen 4.0 via predict
     try {
-      const result = await imagenPredict('imagen-4.0-fast-generate-001', { instances: [{ prompt }], parameters: { sampleCount: 1 } });
+      const result = await imagenPredict('imagen-4.0-fast-generate-001', { instances: [{ prompt: enhancedPrompt }], parameters: { sampleCount: 1 } });
       if (result.predictions?.[0]?.bytesBase64Encoded)
         return res.json({ base64: result.predictions[0].bytesBase64Encoded, model: 'imagen-4.0-fast' });
     } catch (e) { console.warn('[ARTIGOS-IMAGEM] Imagen falhou:', e.message.slice(0,80)); }
