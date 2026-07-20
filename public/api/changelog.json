@@ -1,6 +1,6 @@
 {
-  "current": "0.77.9",
-  "atualizado_em": "17/jul/2026",
+  "current": "0.77.10",
+  "atualizado_em": "20/jul/2026",
   "next": [
     {
       "version": "0.53.0",
@@ -54,9 +54,20 @@
   ],
   "releases": [
     {
+      "version": "0.77.10",
+      "date": "20/jul/2026",
+      "status": "current",
+      "path": null,
+      "title": "🔧 Lifecycle v0.77.10 — install-task.ps1 ASCII-only (fix máquina da Bruna)",
+      "highlights": [
+        "install-task.ps1 tinha travessões '—' que quebravam o parse no PowerShell 5.1 (regra ASCII-only violada) — corrigido",
+        "Tarefas agendadas EPI-USE-Office (login) + Health (5min) + syncs instaladas na máquina da Bruna — o Office local caía e nada religava porque o lifecycle só existia na máquina do Rudá"
+      ]
+    },
+    {
       "version": "0.77.9",
       "date": "17/jul/2026",
-      "status": "current",
+      "status": "past",
       "path": null,
       "title": "🎨 Stratview Generator v0.77.9 — capas com direção de arte + composição sorteada",
       "highlights": [
