@@ -2129,6 +2129,8 @@ app.post('/api/metas', requireEditorToken, (req, res) => {
 
 // ── MODULE F · INBOUND ENGINE (Modularizado em routes/inbound.js) ──────────────
 app.get('/field-marketing', (req, res) => res.sendFile(path.join(__dirname, 'public/field-marketing.html')));
+// ── MODULE 20 · AEO/SEO/GEO (visibilidade em IA) ─────────────────────────────
+app.get(['/aeo-geo', '/aeo', '/geo', '/seo'], (req, res) => res.sendFile(path.join(__dirname, 'public/aeo-geo.html')));
 app.get('/content-pipeline', (req, res) => res.redirect(301, '/area/brand'));
 app.get('/area/conteudo', (req, res) => res.redirect(301, '/area/brand'));
 app.get('/development-funds', (req, res) => res.sendFile(path.join(__dirname, 'public/development-funds.html')));

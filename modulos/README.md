@@ -11,6 +11,7 @@
 |---|---|---|
 | `10-painel-duda/` | Painel da Duda (Módulo C) | 🚧 Em construção |
 | `11-jarvis-sdr/` | JARVIS — Copiloto SDR/BDR (biz dev · `/jarvis`) | 🟢 v0.9 (UI clean: auto-detect contexto + auto-save · cérebro vivo) |
+| `20-aeo-geo/` | AEO/SEO/GEO — Visibilidade em IA (`/aeo-geo`) | 🟢 v0.1 (diagnóstico AEO Grader + plano de ação + dashboard) |
 
 ## Módulos sem pasta própria (documentados em `docs/MODULES.md`)
 

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AEO / SEO / GEO · EPI-USE Office</title>
+<link rel="stylesheet" href="/design-tokens.css">
+<link rel="stylesheet" href="/css/office-theme.css">
+<script type="module" src="/office-nav.js"></script>
+<script type="module" src="/office-footer.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0 }
+.wrap { max-width:1160px; margin:0 auto; padding:20px 16px 60px }
+.src-badge { display:inline-flex; align-items:center; gap:6px; font-size:11px; color:var(--yellow);
+  background:rgba(251,191,36,.08); border:1px solid rgba(251,191,36,.25); border-radius:20px; padding:4px 12px; margin-top:8px; font-family:'JetBrains Mono',monospace }
+
+.grid-3 { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin-bottom:22px }
+.score-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px; border-top:3px solid var(--muted) }
+.score-card.good { border-top-color:var(--green) }
+.score-card.mid { border-top-color:var(--yellow) }
+.score-card.low { border-top-color:var(--red) }
+.score-eng { font-size:12px; color:var(--dim); font-weight:600; display:flex; align-items:center; gap:6px }
+.score-num { font-size:44px; font-weight:800; color:var(--text); line-height:1; margin:8px 0 2px; font-family:'JetBrains Mono',monospace }
+.score-num small { font-size:16px; color:var(--muted); font-weight:600 }
+.score-read { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.04em }
+.score-card.good .score-read { color:var(--green) } .score-card.mid .score-read { color:var(--yellow) } .score-card.low .score-read { color:var(--red) }
+.score-sub { margin-top:12px; padding-top:12px; border-top:1px solid var(--border-soft); display:grid; gap:5px }
+.ss-row { display:flex; justify-content:space-between; font-size:11px; color:var(--dim) }
+.ss-row b { color:var(--text); font-family:'JetBrains Mono',monospace }
+
+.panel { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px; margin-bottom:22px }
+.panel > h2 { font-size:12px; color:var(--dim); letter-spacing:.08em; text-transform:uppercase; margin-bottom:6px }
+.panel .lead { font-size:13px; color:var(--dim); margin-bottom:16px; line-height:1.5 }
+
+.callout { border-radius:14px; padding:20px 22px; margin-bottom:22px; border:1px solid; line-height:1.55 }
+.callout.key { background:rgba(96,165,250,.06); border-color:rgba(96,165,250,.3) }
+.callout.win { background:rgba(16,185,129,.06); border-color:rgba(16,185,129,.3) }
+.callout h3 { font-size:14px; color:var(--text); margin-bottom:8px; display:flex; align-items:center; gap:8px }
+.callout p { font-size:13px; color:var(--dim); margin-bottom:8px }
+.callout p:last-child { margin-bottom:0 }
+.callout b { color:var(--text) }
+.callout .em { color:var(--accent); font-weight:700 }
+
+.sov-group { margin-bottom:18px }
+.sov-group h4 { font-size:12px; color:var(--text); font-weight:700; margin-bottom:2px }
+.sov-group .cap { font-size:10px; color:var(--muted); margin-bottom:10px; font-family:'JetBrains Mono',monospace }
+.bar { display:flex; align-items:center; gap:10px; margin-bottom:6px }
+.bar .nm { width:150px; font-size:12px; color:var(--dim); text-align:right; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex-shrink:0 }
+.bar .track { flex:1; height:20px; background:rgba(148,163,184,.06); border-radius:5px; overflow:hidden }
+.bar .fill { height:100%; border-radius:5px; background:var(--dim); display:flex; align-items:center; justify-content:flex-end; padding-right:6px; font-size:10px; font-weight:700; color:#0a1525; min-width:26px; transition:width .6s }
+.bar.us .nm { color:var(--red); font-weight:700 }
+.bar.us .fill { background:var(--red); color:#fff }
+
+table.tbl { width:100%; border-collapse:collapse; font-size:12px }
+table.tbl th { text-align:left; padding:9px 12px; font-size:10px; letter-spacing:.05em; color:var(--muted); text-transform:uppercase; border-bottom:1px solid var(--border) }
+table.tbl td { padding:9px 12px; color:var(--dim); border-bottom:1px solid var(--border-soft); vertical-align:top }
+table.tbl td b { color:var(--text); font-family:'JetBrains Mono',monospace }
+.tbl-wrap { overflow-x:auto }
+.pill { display:inline-block; font-size:9px; font-weight:700; padding:2px 8px; border-radius:10px; text-transform:uppercase; letter-spacing:.03em }
+.p-good { background:rgba(16,185,129,.14); color:var(--green) }
+.p-warn { background:rgba(251,191,36,.14); color:var(--yellow) }
+.p-bad  { background:rgba(239,68,68,.14); color:#fca5a5 }
+
+.fork { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px; margin-top:6px }
+.fork-card { border:1px solid var(--border); border-radius:12px; padding:16px; background:rgba(148,163,184,.03) }
+.fork-card.rec { border-color:var(--green); background:rgba(16,185,129,.05) }
+.fork-card h4 { font-size:12px; color:var(--text); margin-bottom:6px }
+.fork-card .tag { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; padding:2px 8px; border-radius:10px; }
+.fork-card.rec .tag { background:var(--green); color:#052e1f } .fork-card .tag { background:rgba(100,116,139,.18); color:var(--dim) }
+.fork-card p { font-size:12px; color:var(--dim); margin-top:8px; line-height:1.5 }
+
+.blocks { display:grid; gap:14px }
+.block { border:1px solid var(--border); border-radius:12px; overflow:hidden }
+.block-hd { padding:14px 18px; background:rgba(96,165,250,.05); border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px; flex-wrap:wrap }
+.block-hd .n { font-size:14px; font-weight:700; color:var(--text) }
+.block-hd .why { font-size:11px; color:var(--muted); flex-basis:100%; margin-top:4px }
+.act { display:flex; gap:12px; padding:12px 18px; border-bottom:1px solid var(--border-soft); font-size:12.5px; color:var(--dim); align-items:flex-start }
+.act:last-child { border-bottom:none }
+.act .id { font-family:'JetBrains Mono',monospace; color:var(--accent); font-weight:700; flex-shrink:0; width:30px }
+.act .txt { flex:1; line-height:1.45 } .act .txt b { color:var(--text) }
+.act .loc { flex-shrink:0; display:flex; flex-direction:column; gap:4px; align-items:flex-end }
+.tag-off { background:rgba(96,165,250,.12); color:var(--accent) } .tag-out { background:rgba(167,139,250,.12); color:var(--purple) }
+.act .loc .pill { white-space:nowrap }
+
+.legend { display:flex; gap:16px; flex-wrap:wrap; font-size:11px; color:var(--muted); margin-top:10px }
+.legend span { display:inline-flex; align-items:center; gap:6px }
+.dot { width:9px; height:9px; border-radius:3px; display:inline-block }
+
+h1.pg { font-size:22px; color:var(--text); font-weight:800; letter-spacing:-.01em }
+.pg-sub { font-size:13px; color:var(--dim); margin-top:4px }
+.sec-title { font-size:15px; color:var(--text); font-weight:700; margin:26px 0 12px; display:flex; align-items:center; gap:8px }
+@media(max-width:640px){ .bar .nm{width:96px} .act{flex-wrap:wrap} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header style="margin-bottom:22px">
+    <h1 class="pg">🔎 AEO / SEO / GEO — Visibilidade em IA</h1>
+    <p class="pg-sub">Como a EPI-USE Brasil aparece (e é citada) nas respostas de ChatGPT, Perplexity e Google/Gemini — e o plano pra melhorar.</p>
+    <span class="src-badge">📄 Fonte: AEO Grader · 20/jul/2026 · dado real</span>
+  </header>
+
+  <!-- SCORES -->
+  <div class="sec-title">📊 Baseline — Pontuação de pesquisa de IA (/100)</div>
+  <div class="grid-3">
+    <div class="score-card mid">
+      <div class="score-eng">🟢 Potencializa o ChatGPT</div>
+      <div class="score-num">48<small>/100</small></div>
+      <div class="score-read">No caminho certo</div>
+      <div class="score-sub">
+        <div class="ss-row"><span>Reconhecimento marca</span><b>8/20</b></div>
+        <div class="ss-row"><span>Posição de mercado</span><b>3/10</b></div>
+        <div class="ss-row"><span>Qualidade da presença</span><b>9/20</b></div>
+        <div class="ss-row"><span>Sentimento de marca</span><b>27/40</b></div>
+        <div class="ss-row"><span>Participação de voz</span><b>1/10</b></div>
+      </div>
+    </div>
+    <div class="score-card low">
+      <div class="score-eng">🔵 Perplexity <span style="color:var(--muted);font-weight:400">· tempo real</span></div>
+      <div class="score-num">17<small>/100</small></div>
+      <div class="score-read">Margem para crescimento</div>
+      <div class="score-sub">
+        <div class="ss-row"><span>Reconhecimento marca</span><b>5/20</b></div>
+        <div class="ss-row"><span>Posição de mercado</span><b>3/10</b></div>
+        <div class="ss-row"><span>Qualidade da presença</span><b>9/20</b></div>
+        <div class="ss-row"><span>Sentimento de marca</span><b>0/40</b></div>
+        <div class="ss-row"><span>Participação de voz</span><b>0/10</b></div>
+      </div>
+    </div>
+    <div class="score-card good">
+      <div class="score-eng">🔴 Google / Gemini</div>
+      <div class="score-num">60<small>/100</small></div>
+      <div class="score-read">No caminho certo</div>
+      <div class="score-sub">
+        <div class="ss-row"><span>Reconhecimento marca</span><b>11/20</b></div>
+        <div class="ss-row"><span>Posição de mercado</span><b>3/10</b></div>
+        <div class="ss-row"><span>Qualidade da presença</span><b>12/20</b></div>
+        <div class="ss-row"><span>Sentimento de marca</span><b>33/40</b></div>
+        <div class="ss-row"><span>Participação de voz</span><b>1/10</b></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KEY INSIGHT -->
+  <div class="callout key">
+    <h3>🎯 O achado mais importante não é a nota — é a premissa</h3>
+    <p>O AEO Grader avaliou a EPI-USE <b>como se ela fosse uma consultoria HubSpot</b>. Ela não é (ainda) — é especialista <b>SAP</b> (S/4HANA, SuccessFactors HR/Payroll, ~16 anos). Por isso o padrão das notas é coerente:</p>
+    <p>• Onde a IA nos vê <b>como somos</b> (transformação digital / SAP), o <span class="em">sentimento é 82</span> e a marca aparece.<br>
+       • Onde o Grader forçou o rótulo <b>"HubSpot"</b>, o <span class="em">sentimento cai a 0</span> — porque não há prova (sem Partner Directory, sem reviews, sem conteúdo no site).<br>
+       • A <b>Perplexity dá 17</b> porque lê a web <b>em tempo real</b> — e o site atual (WorkControl) não tem lastro de HubSpot. Os outros motores "chutam" pelo institucional; a Perplexity não perdoa.</p>
+    <p><b>Boa notícia:</b> o gap não é de reputação (temos 82 de sentimento) — é de <b>prova estruturada + presença técnica</b>. É exatamente o que a migração pra HubSpot + conteúdo answer-first fecham.</p>
+  </div>
+
+  <!-- SHARE OF VOICE -->
+  <div class="panel">
+    <h2>🗣️ Participação de voz (Share of Voice)</h2>
+    <p class="lead">Quanto a EPI-USE aparece nas conversas do setor vs. concorrentes, em 3 recortes que o Grader analisou.</p>
+
+    <div class="sov-group" id="sovA"></div>
+    <div class="sov-group" id="sovB"></div>
+    <div class="sov-group" id="sovC"></div>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--red)"></i> EPI-USE Brasil</span>
+      <span><i class="dot" style="background:var(--dim)"></i> Concorrentes</span>
+    </div>
+  </div>
+
+  <!-- PROVIDER / SENTIMENT DETAIL -->
+  <div class="panel">
+    <h2>🧠 Reconhecimento & sentimento por motor</h2>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>Dimensão</th><th>ChatGPT</th><th>Perplexity</th><th>Google</th><th>Leitura</th></tr></thead>
+        <tbody>
+          <tr><td>Reconhecimento de marca (/100)</td><td><b>38</b></td><td><b>25</b></td><td><b>55</b></td><td><span class="pill p-warn">menções rasas</span></td></tr>
+          <tr><td>Arquétipo detectado</td><td>Tradicionalista</td><td>Tradicionalista</td><td>Tradicionalista</td><td><span class="pill p-warn">conservador</span></td></tr>
+          <tr><td>Profundidade de menção (/10)</td><td><b>4</b></td><td><b>3</b></td><td><b>5</b></td><td><span class="pill p-bad">citam sem detalhe</span></td></tr>
+          <tr><td>Sentimento — geral (/100)</td><td colspan="3"><b>68</b> &nbsp;(como transf. digital: <b>82</b>)</td><td><span class="pill p-good">positivo</span></td></tr>
+          <tr><td>Sentimento — HubSpot específico</td><td colspan="3"><b>0</b> — "especialista em SAP, não em HubSpot"</td><td><span class="pill p-bad">sem prova</span></td></tr>
+          <tr><td>Polarização</td><td colspan="3">baixa (24 / 0 / 15) — estável, sem controvérsia</td><td><span class="pill p-good">estável</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SOURCES -->
+  <div class="panel">
+    <h2>📚 Fontes que a IA leu pra formar opinião</h2>
+    <p class="lead">O que dá pra corrigir: as fontes de maior nota <b>não nos listam</b> (Partner Directory 88) ou <b>não mencionam HubSpot</b> (site 72).</p>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>Fonte</th><th>Nota</th><th>Situação</th></tr></thead>
+        <tbody>
+          <tr><td>HubSpot Partner Directory</td><td><b>88</b></td><td><span class="pill p-bad">não lista a EPI-USE</span></td></tr>
+          <tr><td>LinkedIn</td><td><b>82</b></td><td><span class="pill p-good">sinal forte e ativo</span></td></tr>
+          <tr><td>Glassdoor</td><td><b>75</b></td><td><span class="pill p-good">ok</span></td></tr>
+          <tr><td>Site institucional EPI-USE</td><td><b>72</b></td><td><span class="pill p-warn">foca só SAP · sem HubSpot</span></td></tr>
+          <tr><td>Ecossistema parceiros HubSpot</td><td><b>69</b></td><td><span class="pill p-warn">presença fraca</span></td></tr>
+          <tr><td>Avaliações públicas (G2/Clutch…)</td><td><b>58</b></td><td><span class="pill p-bad">volume insuficiente</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- POSITIONING FORK -->
+  <div class="sec-title">🍴 Decisão de posicionamento <span style="font-size:11px;color:var(--yellow);font-weight:600">· depende do Rudá/Roberto</span></div>
+  <div class="panel">
+    <p class="lead">O relatório abre 3 caminhos. Ninguém no benchmark ocupa a intersecção — é onde a EPI-USE vence em IA.</p>
+    <div class="fork">
+      <div class="fork-card"><span class="tag">Caminho 1</span><h4 style="margin-top:8px">Consultoria SAP</h4><p>Rerodar o Grader na categoria certa. Sobe a nota no papel, mas desperdiça o movimento HubSpot/RevOps já em curso.</p></div>
+      <div class="fork-card"><span class="tag">Caminho 2</span><h4 style="margin-top:8px">Agência HubSpot</h4><p>Competir com Tropical Hub, Surfe, Hook. Mercado lotado, entraria como challenger sem diferencial e jogaria fora o ativo SAP.</p></div>
+      <div class="fork-card rec"><span class="tag">✓ Recomendado</span><h4 style="margin-top:8px">SAP × HubSpot × RevOps</h4><p>A ponte que ninguém ocupa: "conectamos o dado do SAP ao HubSpot pra fazer RevOps de verdade". LLM adora nicho bem definido — dá pra ser <b>a</b> resposta, não a 12ª.</p></div>
+    </div>
+  </div>
+
+  <!-- ACTION PLAN -->
+  <div class="sec-title">🛠️ Plano de ação</div>
+  <div class="legend" style="margin:0 0 14px">
+    <span><i class="dot" style="background:var(--accent)"></i> [com Office] — o app faz/gera</span>
+    <span><i class="dot" style="background:var(--purple)"></i> [fora do Office] — ação externa</span>
+  </div>
+
+  <div class="blocks">
+    <div class="block">
+      <div class="block-hd"><span class="n">🏗️ Bloco 1 — Fundação técnica</span> <span class="pill p-good">quick-win one-time</span>
+        <span class="why">⭐ Fazer JUNTO com a migração WorkControl → HubSpot. É o que destrava a Perplexity (17). Refazer depois custa 5×.</span></div>
+      <div class="act"><span class="id">1.1</span><span class="txt"><b>Schema.org / JSON-LD</b> em todo template (Organization, Service, FAQPage, Article, Review).</span><span class="loc"><span class="pill tag-out">fora do Office</span></span></div>
+      <div class="act"><span class="id">1.2</span><span class="txt"><b>sameAs</b> costurando LinkedIn, Crunchbase, redes — o LLM une a entidade.</span><span class="loc"><span class="pill tag-out">fora do Office</span></span></div>
+      <div class="act"><span class="id">1.3</span><span class="txt"><b>llms.txt + llms-full.txt</b> na raiz do domínio (padrão que curadores de IA leem).</span><span class="loc"><span class="pill tag-out">fora do Office</span></span></div>
+      <div class="act"><span class="id">1.4</span><span class="txt"><b>robots.txt liberando crawlers de IA</b> (GPTBot, PerplexityBot, Google-Extended, ClaudeBot).</span><span class="loc"><span class="pill tag-out">fora do Office</span></span></div>
+      <div class="act"><span class="id">1.5</span><span class="txt"><b>Conteúdo server-side + Core Web Vitals</b> verdes — HubSpot entrega por padrão (WorkControl não).</span><span class="loc"><span class="pill tag-out">fora do Office</span></span></div>
+      <div class="act"><span class="id">1.8</span><span class="txt"><b>Páginas-âncora de entidade</b> (/quem-somos, /sap-hubspot-revops, glossário) — as URLs que o LLM cita.</span><span class="loc"><span class="pill tag-off">com Office</span><span class="pill tag-out">+ CMS</span></span></div>
+    </div>
+
+    <div class="block">
+      <div class="block-hd"><span class="n">🤝 Bloco 2 — Autoridade & prova social</span> <span class="pill p-warn">fecha o sentimento = 0</span>
+        <span class="why">LLM não inventa reputação: repete o que fontes confiáveis dizem. É o que sobe profundidade de menção (3–5/10).</span></div>
+      <div class="act"><span class="id">2.1</span><span class="txt"><b>Listar no HubSpot Solutions Partner Directory</b> (fonte nota 88 que hoje não nos lista).</span><span class="loc"><span class="pill tag-out">fora do Office</span></span></div>
+      <div class="act"><span class="id">2.2</span><span class="txt"><b>Reviews G2 / Clutch / Google Business</b> — meta 5–10 reais. Office monta o fluxo de pedido.</span><span class="loc"><span class="pill tag-off">com Office</span><span class="pill tag-out">+ externo</span></span></div>
+      <div class="act"><span class="id">2.3</span><span class="txt"><b>Wikidata + Crunchbase</b> completos e consistentes — "verdade base" da entidade pro LLM.</span><span class="loc"><span class="pill tag-out">fora do Office</span></span></div>
+      <div class="act"><span class="id">2.4</span><span class="txt"><b>Cases com métrica citável</b> (número + prazo). Office já tem 22 em /cases — falta estruturar o dado.</span><span class="loc"><span class="pill tag-off">com Office</span></span></div>
+    </div>
+
+    <div class="block">
+      <div class="block-hd"><span class="n">✍️ Bloco 3 — Conteúdo answer-first</span> <span class="pill p-good">Office já está armado</span>
+        <span class="why">/content-pipeline + seo_checker.js (score GEO/AEO) + pipeline de 5 agentes já existem. Falta apontar a mira.</span></div>
+      <div class="act"><span class="id">3.1</span><span class="txt"><b>Topic cluster "SAP + HubSpot + RevOps"</b>: 1 pillar + 8–12 artigos respondendo perguntas de decisor.</span><span class="loc"><span class="pill tag-off">com Office</span></span></div>
+      <div class="act"><span class="id">3.2</span><span class="txt"><b>Estrutura answer-first obrigatória</b>: H2 = pergunta, resposta direta ≤50 palavras, TL;DR, FAQ com schema.</span><span class="loc"><span class="pill tag-off">com Office</span></span></div>
+      <div class="act"><span class="id">3.3</span><span class="txt"><b>Gate de publicação</b>: nada sai do pipeline sem score GEO ≥ 70 no seo_checker.</span><span class="loc"><span class="pill tag-off">com Office</span></span></div>
+      <div class="act"><span class="id">3.6</span><span class="txt"><b>Dado próprio citável</b>: publicar 1–2 números originais — LLM cita fonte primária de dado.</span><span class="loc"><span class="pill tag-off">com Office</span></span></div>
+    </div>
+  </div>
+
+  <!-- TARGET -->
+  <div class="callout win" style="margin-top:22px">
+    <h3>🔮 Meta realista — 90 dias <span style="font-size:10px;color:var(--yellow);font-weight:600">projeção · não realizado</span></h3>
+    <p>Premissa: Bloco 1 entra na migração + 6 artigos answer-first + diretório/reviews.</p>
+    <p style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text)">
+      Perplexity <b style="color:var(--red)">17</b> → <b style="color:var(--green)">40+</b> &nbsp;·&nbsp;
+      ChatGPT <b style="color:var(--yellow)">48</b> → <b style="color:var(--green)">62+</b> &nbsp;·&nbsp;
+      Google <b style="color:var(--green)">60</b> → <b style="color:var(--green)">72+</b></p>
+    <p style="margin-top:8px"><b>Medir, não prometer:</b> re-rodar o AEO Grader mensal e atualizar este baseline pra acompanhar o progresso real.</p>
+  </div>
+
+</div>
+
+<script>
+const SOV = {
+  sovA: { title: 'Conjunto A — Consultoria SAP / TI enterprise', cap: '120 menções · fonte AEO Grader',
+    rows: [['EPI-USE Brasil',8,true],['Accenture',18],['Deloitte',14],['NTT DATA',10],['Capgemini',9],['PwC',8],['Stefanini',7],['Outros',26]] },
+  sovB: { title: 'Conjunto B — Consultoria HubSpot pura', cap: 'baixo volume · fonte AEO Grader',
+    rows: [['EPI-USE Brasil',2.5,true],['Tropical Hub',18],['Kommble',15.5],['Rodrigo Bo…',12],['Conecta Hub',10.5],['Smartnoloji',9],['Hubfy',8.5],['Outros',24]] },
+  sovC: { title: 'Conjunto C — Agências de marketing / HubSpot', cap: '840–1250 menções · fonte AEO Grader',
+    rows: [['EPI-USE Brasil',12.5,true],['Surfe Digital',18.2],['Hook Digital',15.4],['8D Hubify',14.8],['Tropical Hub',11.3],['Mkt4Sales',10.7],['Resultados…',9.6],['Outros',7.5]] }
+};
+const maxPct = 20; // escala visual
+for (const [id, g] of Object.entries(SOV)) {
+  const el = document.getElementById(id);
+  let html = `<h4>${g.title}</h4><div class="cap">${g.cap}</div>`;
+  g.rows.forEach(([nm, pct, us]) => {
+    const w = Math.max(4, Math.min(100, (pct / maxPct) * 100));
+    html += `<div class="bar ${us?'us':''}"><span class="nm">${nm}</span><div class="track"><div class="fill" style="width:${w}%">${pct}%</div></div></div>`;
+  });
+  el.innerHTML = html;
+}
+</script>
+</body>
+</html>
