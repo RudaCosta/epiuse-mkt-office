@@ -1,5 +1,5 @@
 {
-  "current": "0.77.10",
+  "current": "0.77.11",
   "atualizado_em": "20/jul/2026",
   "next": [
     {
@@ -54,9 +54,22 @@
   ],
   "releases": [
     {
-      "version": "0.77.10",
+      "version": "0.77.11",
       "date": "20/jul/2026",
       "status": "current",
+      "path": null,
+      "title": "🖼️ Stratview Generator v0.77.11 — capa fallback variada + etiqueta de cota",
+      "highlights": [
+        "Causa da 'mesma imagem sempre': TODOS os modelos de imagem estão 429 (cota free tier) e o Imagen é 404 — a capa exibida era o fallback canvas local, que tinha layout fixo",
+        "Capa canvas reescrita com variação real por geração: 3 paletas navy × 4 direções de gradiente, 2-4 glows aleatórios (35% com acento âmbar), 0-2 anéis holográficos, 1-2 constelações sorteadas (8-14 nós), 40 partículas — mantém linha vermelha + branding Stratview",
+        "Regra 6: aviso visível na capa quando é fallback local ('Imagem IA indisponível — cota da API'), antes falhava silenciosamente",
+        "Prompt do front passa só o TEMA (título+descrição+keywords) — os termos 'photorealistic' antigos brigavam com a direção de arte do servidor"
+      ]
+    },
+    {
+      "version": "0.77.10",
+      "date": "20/jul/2026",
+      "status": "past",
       "path": null,
       "title": "🔧 Lifecycle v0.77.10 — install-task.ps1 ASCII-only (fix máquina da Bruna)",
       "highlights": [

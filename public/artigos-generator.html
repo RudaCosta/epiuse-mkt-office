@@ -704,10 +704,8 @@ async function generateArticle(idx) {
   openModal();
   saveToHistory(state.article);
 
-  // Prompt de imagem contextual ao artigo (corporate tech, sem florestas)
-  const imgPrompt = `Professional corporate technology illustration for an article about "${idea.title}". `
-    + `Oracle Cloud enterprise software, modern data center, executive leadership, `
-    + `blue and white color scheme, photorealistic, high quality, no text, no nature.`;
+  // Só o TEMA vai pro back — a direção de arte (navy+ciano, composição sorteada) é aplicada no servidor
+  const imgPrompt = `"${idea.title}" — ${idea.description || ''} (keywords: ${(idea.keywords || []).slice(0, 4).join(', ')})`;
   generateImage(imgPrompt);
 }
 
@@ -743,6 +741,9 @@ async function generateImage(prompt) {
     $('cover-loading').classList.add('hidden');
     img.classList.remove('hidden');
     state.image = dataUrl.split(',')[1]; // base64 para publicar no WP
+    // Regra 6: etiquetar — deixa claro que a capa é o fallback local, não a imagem de IA
+    $('cover-error-msg').textContent = 'Imagem IA indisponível (cota da API) — usando capa branded local. Clique em regenerar pra tentar de novo.';
+    $('cover-error').classList.remove('hidden');
   }
   state.generatingImage = false;
 }
@@ -752,52 +753,82 @@ function generateBrandedCover(title, keywords) {
   canvas.width = 1200;
   canvas.height = 400;
   const ctx = canvas.getContext('2d');
+  const R = Math.random; // cada geração sai diferente de verdade
 
-  // Fundo gradiente navy — varia levemente por artigo para diferenciar capas
-  const hue = (title.split('').reduce((a, c) => a + c.charCodeAt(0), 0) % 30);
-  const bg = ctx.createLinearGradient(0, 0, 1200, 400);
-  bg.addColorStop(0,   `hsl(${220 + hue}, 80%, 12%)`);
-  bg.addColorStop(0.5, `hsl(${230 + hue}, 75%, 18%)`);
-  bg.addColorStop(1,   `hsl(${220 + hue}, 80%, 12%)`);
+  // Fundo: 3 paletas navy sorteadas + direção de gradiente aleatória
+  const paletas = [
+    ['hsl(228, 80%, 10%)', 'hsl(235, 72%, 20%)', 'hsl(224, 82%, 11%)'],
+    ['hsl(218, 85%, 9%)',  'hsl(226, 70%, 17%)', 'hsl(240, 65%, 14%)'],
+    ['hsl(232, 75%, 12%)', 'hsl(220, 78%, 16%)', 'hsl(210, 70%, 10%)']
+  ];
+  const pal = paletas[Math.floor(R() * paletas.length)];
+  const dirs = [[0,0,1200,400],[1200,0,0,400],[0,0,1200,0],[0,400,1200,0]];
+  const [gx1,gy1,gx2,gy2] = dirs[Math.floor(R() * dirs.length)];
+  const bg = ctx.createLinearGradient(gx1,gy1,gx2,gy2);
+  bg.addColorStop(0, pal[0]); bg.addColorStop(0.5, pal[1]); bg.addColorStop(1, pal[2]);
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, 1200, 400);
 
-  // Grid tecnológico sutil
-  ctx.strokeStyle = 'rgba(14,165,233,0.07)';
-  ctx.lineWidth = 1;
-  for (let x = 0; x <= 1200; x += 80) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 400); ctx.stroke(); }
-  for (let y = 0; y <= 400; y += 80) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(1200, y); ctx.stroke(); }
+  // Grid tecnológico (nem sempre — 60% das capas)
+  if (R() < 0.6) {
+    ctx.strokeStyle = 'rgba(14,165,233,0.06)';
+    ctx.lineWidth = 1;
+    const passo = 60 + Math.floor(R() * 60);
+    for (let x = 0; x <= 1200; x += passo) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 400); ctx.stroke(); }
+    for (let y = 0; y <= 400; y += passo) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(1200, y); ctx.stroke(); }
+  }
 
-  // Círculos de luz (posições baseadas no título para variar por artigo)
-  const seed = title.length;
-  const drawGlow = (x, y, r, alpha) => {
+  // Glows de luz — 2 a 4, posições aleatórias; 35% de chance de 1 acento âmbar (como nas referências)
+  const drawGlow = (x, y, r, alpha, cor) => {
     const g = ctx.createRadialGradient(x, y, 0, x, y, r);
-    g.addColorStop(0, `rgba(14,165,233,${alpha})`);
-    g.addColorStop(1, 'rgba(14,165,233,0)');
+    g.addColorStop(0, `rgba(${cor},${alpha})`);
+    g.addColorStop(1, `rgba(${cor},0)`);
     ctx.fillStyle = g;
     ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
   };
-  drawGlow(1100, 50,  280, 0.15);
-  drawGlow(100,  380, 200, 0.10);
-  drawGlow(600 + (seed % 100), 200, 350, 0.05);
+  const nGlows = 2 + Math.floor(R() * 3);
+  for (let i = 0; i < nGlows; i++)
+    drawGlow(R() * 1200, R() * 400, 180 + R() * 220, 0.06 + R() * 0.10, '14,165,233');
+  if (R() < 0.35) drawGlow(R() * 1200, R() * 400, 120 + R() * 120, 0.10, '245,158,11');
 
-  // Nós de rede (pontos conectados — visual tech/data)
-  const nodes = [
-    [950,80],[1050,140],[1100,220],[980,290],[1150,310],
-    [1080,60],[870,180],[1020,350]
-  ];
-  ctx.strokeStyle = 'rgba(14,165,233,0.25)';
-  ctx.lineWidth = 1;
-  nodes.forEach(([x1,y1], i) => {
-    nodes.slice(i+1).forEach(([x2,y2]) => {
-      const dist = Math.hypot(x2-x1, y2-y1);
-      if (dist < 200) { ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); }
+  // Anéis holográficos — 0 a 2 arcos grandes (referência: rings circulares)
+  const nAneis = Math.floor(R() * 3);
+  for (let i = 0; i < nAneis; i++) {
+    ctx.strokeStyle = `rgba(56,189,248,${0.08 + R() * 0.10})`;
+    ctx.lineWidth = 1 + R() * 1.5;
+    const cx = R() * 1200, cy = R() * 400, raio = 80 + R() * 180;
+    const ini = R() * Math.PI * 2;
+    ctx.beginPath(); ctx.arc(cx, cy, raio, ini, ini + Math.PI * (0.8 + R() * 1.2)); ctx.stroke();
+  }
+
+  // Constelações — 1 ou 2 clusters em regiões sorteadas, 8-14 nós cada
+  const regioes = [[80, 320], [420, 320], [820, 320]].sort(() => R() - 0.5);
+  const nClusters = 1 + Math.floor(R() * 2);
+  for (let c = 0; c < nClusters; c++) {
+    const [rx, rw] = regioes[c];
+    const nNos = 8 + Math.floor(R() * 7);
+    const nodes = Array.from({ length: nNos }, () => [rx + R() * rw, 30 + R() * 340]);
+    ctx.lineWidth = 1;
+    nodes.forEach(([x1, y1], i) => {
+      nodes.slice(i + 1).forEach(([x2, y2]) => {
+        const dist = Math.hypot(x2 - x1, y2 - y1);
+        if (dist < 160) {
+          ctx.strokeStyle = `rgba(14,165,233,${0.30 - dist / 800})`;
+          ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+        }
+      });
     });
-  });
-  nodes.forEach(([x,y]) => {
-    ctx.fillStyle = 'rgba(14,165,233,0.5)';
-    ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2); ctx.fill();
-  });
+    nodes.forEach(([x, y]) => {
+      ctx.fillStyle = `rgba(56,189,248,${0.35 + R() * 0.35})`;
+      ctx.beginPath(); ctx.arc(x, y, 1.5 + R() * 2.5, 0, Math.PI * 2); ctx.fill();
+    });
+  }
+
+  // Partículas soltas espalhadas (poeira de luz)
+  for (let i = 0; i < 40; i++) {
+    ctx.fillStyle = `rgba(148,199,255,${0.05 + R() * 0.20})`;
+    ctx.beginPath(); ctx.arc(R() * 1200, R() * 400, 0.5 + R() * 1.5, 0, Math.PI * 2); ctx.fill();
+  }
 
   // Linha de acento vermelho sutil (identidade Stratview)
   ctx.fillStyle = 'rgba(220,38,38,0.6)';
