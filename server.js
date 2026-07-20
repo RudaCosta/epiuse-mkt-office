@@ -1422,6 +1422,20 @@ ART DIRECTION — follow exactly:
         return res.json({ base64: result.predictions[0].bytesBase64Encoded, model: 'imagen-4.0-fast' });
     } catch (e) { console.warn('[ARTIGOS-IMAGEM] Imagen falhou:', e.message.slice(0,80)); }
 
+    // Fallback 2: Pollinations (Flux) — gratuito, sem chave. Free tier do Gemini tem limit:0 pra imagem.
+    try {
+      const ac = new AbortController();
+      const timer = setTimeout(() => ac.abort(), 90000);
+      const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(enhancedPrompt.slice(0, 1500))}?width=1200&height=630&nologo=true&model=flux&seed=${Math.floor(Math.random() * 1e9)}`;
+      const r = await fetch(url, { signal: ac.signal });
+      clearTimeout(timer);
+      if (r.ok) {
+        const buf = Buffer.from(await r.arrayBuffer());
+        if (buf.length > 10000) return res.json({ base64: buf.toString('base64'), model: 'pollinations-flux' });
+      }
+      console.warn('[ARTIGOS-IMAGEM] Pollinations respondeu', r.status);
+    } catch (e) { console.warn('[ARTIGOS-IMAGEM] Pollinations falhou:', e.message.slice(0,80)); }
+
     throw new Error('Todos os modelos de imagem indisponíveis');
   } catch (e) { console.error('[ARTIGOS-IMAGEM]', e.message); res.status(500).json({ error: e.message }); }
 });
