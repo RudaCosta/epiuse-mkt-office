@@ -226,6 +226,17 @@ router.get('/go/:token', (req, res) => {
       if (!bot) {
         db.prepare(`INSERT OR IGNORE INTO erp_coins (email, evento, ref, coins) VALUES (?,?,?,?)`)
           .run(link.email, 'utm_click', (token + ':' + iph).slice(0, 60), UTM_CLICK_COINS);
+        // 🏅 Marcos de cliques (v0.82.0): bônus quando o link cruza 50 e 100
+        // cliques HUMANOS acumulados. Idempotente via ref única por token.
+        const humanos = db.prepare(`SELECT COUNT(*) n FROM utm_clicks WHERE token=? AND bot=0`).get(token).n;
+        if (humanos >= 50) {
+          db.prepare(`INSERT OR IGNORE INTO erp_coins (email, evento, ref, coins) VALUES (?,?,?,?)`)
+            .run(link.email, 'marco', ('marco50:' + token).slice(0, 60), 25);
+        }
+        if (humanos >= 100) {
+          db.prepare(`INSERT OR IGNORE INTO erp_coins (email, evento, ref, coins) VALUES (?,?,?,?)`)
+            .run(link.email, 'marco', ('marco100:' + token).slice(0, 60), 50);
+        }
       }
     }
   } catch (e) { console.warn('[utm] click', e.message); }
