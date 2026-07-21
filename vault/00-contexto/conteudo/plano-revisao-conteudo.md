@@ -26,8 +26,8 @@
 | **F3d** | Leitura canônica: filtros `?lob=&funil=&oferta=&metodo=` no `GET /api/artigos` · `/api/jornadas` v2 agrupando por `lob`×`funil` (10 LOBs sempre presentes, `pos` fora do cálculo de gap, fila de não-classificados exposta) + `jornadas.html` no MESMO commit · selects canônicos + badge `🤖 revisar` em `artigos.html` | ✅ 07/jul (lógica validada com dados reais; validação visual pendente no localhost — server não roda no ambiente remoto por falta dos node_modules off-repo) | médio (mitigado: filtros legados `?linha/?etapa` preservados) |
 | **F4** | LinkedIn: `sync_linkedin_posts.py` — **testado contra a planilha real da Bruna**: 214 posts, LOB e funil 100% mapeados, soluções→ofertas via aliases GUIA_LOB adicionados na taxonomia (zero sem mapa). Gera `public/api/linkedin-posts.json` (marcado `criterio_funil: planilha-bruna-v1 pendente re-tag`). Re-tag de funil (evento-cobertura=topo) segue humano com a Bruna | ✅ 07/jul (lado repo) · 🙋 re-tag com Bruna | nulo |
 | **F5** | Travar inputs: dropdown de slugs no `/content-pipeline` (opção "legado" retém valor e não força reclassificação em edições não-relacionadas) · coluna `editorial_calendar.lob` + `content_pipeline.oferta` (ALTER idempotente) · endpoint admin `POST /api/admin/migrate-taxonomia?dry=1` (requireEditorToken; estados slug/bucket/unknown/empty; só `fonte IN ('redatoria','raccoon')` no calendário — RD Station intocado) · escritores atualizados (`editoriaToLob()` no sync Redatoria, `import-redatoria`, espelho agendado, upsert calendar) · validação de `lob` no POST sempre e no PUT só quando o valor MUDA (item legado salva sem migrar) · `suggestCTA` cobre os 10 slugs | ✅ 07/jul (lógica testada; rodar migração no localhost: `curl -X POST "localhost:3000/api/admin/migrate-taxonomia?dry=1" -H "x-editor-token: $EDITOR_TOKEN"` → revisar → sem `dry`) | médio→baixo (`pilar` intocado = rollback trivial) |
-| **F6** | 7 jornadas faltantes (hcm, wfs/qualtrics como ofertas, btm, tech, cloud, ilab, ams, labs) via `pipe-briefing`, template das jornadas S/4HANA e ServiceNow da FY27 + Matriz Personas×Conteúdos preenchida | ⏳ | nulo |
-| **F7** | RAG/NotebookLM + JARVIS: metadados `lob`/`oferta`/`funil` nos documentos indexados; substituir `_postToLob()`/`_LOB_CANON` do `/api/linkedin/intelligence` pela leitura dos slugs canônicos | ⏳ | baixo |
+| **F6** | 7 jornadas faltantes (hcm, btm, tech, cloud, ilab, ams, labs) no template das jornadas S/4HANA e ServiceNow da FY27 + Matriz Personas×Conteúdos preenchida | ✅ 21/jul (`vault/00-contexto/conteudo/jornadas-de-compra.md` — DRAFT 🤖, pendente validação Lisiane+Duda+dono do LOB; cases "a divulgar" em btm/cloud/ilab/labs precisam de referências reais) | nulo |
+| **F7** | RAG/NotebookLM + JARVIS: metadados `lob`/`oferta`/`funil` nos documentos indexados; substituir `_postToLob()`/`_LOB_CANON` do `/api/linkedin/intelligence` pela leitura dos slugs canônicos de `linkedin-posts.json` | ⏳ | baixo |
 
 ## F3d — Mapa de gaps REAL (pós-taxonomia, 07/jul/2026)
 
@@ -55,6 +55,14 @@ Heurística aplicada nos 707 artigos (`--apply`, sem IA ainda). **Dados reais do
 3. **Taxonomia = `public/api/taxonomia-conteudo.json`** — toda tela/script consome dali. Mudou LOB pai de uma oferta? Edita 1 linha no JSON + re-roda o script (idempotente).
 4. **`editorial_calendar.pilar` fica intocado** (UI do calendário + RD Station dependem); canônico entra na coluna nova `lob`.
 5. Server + página mudam **no mesmo commit** quando o shape de API muda (`/api/jornadas` v2 ↔ `jornadas.html`).
+
+## 🔗 Achado 21/jul — Dashboard LinkedIn Intelligence do Gui (PR #38)
+
+O Gui (área Growth) anexou no PR #38 um `index.html` = **Dashboard de LinkedIn Intelligence** (single-file), analisando os MESMOS 214 posts (mai/25–jun/26) da planilha da Bruna, com segmentação por LOB, solução, formato, tema, narrativa e funil + "Post Ideal / Post a Evitar" + rankings. Comentário dele: "Subir no claude".
+
+- **Conexão direta com F4/F7:** é a versão visual da inteligência de LinkedIn que já consolidei no `linkedin-posts.json`. Faz sentido integrar ao Office (tela própria `/linkedin-intel` OU fundir na `/linkedin` existente), consumindo o `linkedin-posts.json` canônico em vez de dados embutidos.
+- **NÃO integrado ainda** — decisão de escopo do Rudá + o dashboard do Gui provavelmente tem taxonomia própria (a 7ª+ taxonomia!) que precisa passar pelo de-para antes de virar tela oficial. Aguarda Rudá decidir.
+- **Regra 3:** "subir no claude" do Gui NÃO autoriza deploy — só o Rudá, literalmente, por push.
 
 ## Checkpoints humanos restantes
 
