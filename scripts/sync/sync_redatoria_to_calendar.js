@@ -51,6 +51,19 @@ function editoriaToPilar(editoria) {
   return 'produto';
 }
 
+// LOB canônico (taxonomia v1.1 — public/api/taxonomia-conteudo.json).
+// Diferente do pilar legado: retorna slug estável; sem sinal claro → '' (reclassificar).
+function editoriaToLob(editoria) {
+  const e = String(editoria || '').toLowerCase();
+  if (e.includes('successfactors') || e.includes('hcm') || e.includes('rh')) return 'hcm';
+  if (e.includes('servicenow'))                            return 'servicenow';
+  if (e.includes('institucional') || e.includes('executiv')) return 'institucional';
+  if (e.includes('processo') || e.includes('signavio') || e.includes('leanix')) return 'btm';
+  if (e.includes('s/4') || e.includes('s4hana') || e.includes('erp') || e.includes('fiscal')) return 'erp';
+  if (e.includes('btp'))                                   return 'tech';
+  return '';
+}
+
 function parseSheet(ws, sheetName) {
   const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
   const items = [];
@@ -95,6 +108,7 @@ function parseSheet(ws, sheetName) {
       titulo: tema,
       resumo: resumo || keyword,
       pilar: editoriaToPilar(editoria),
+      lob: editoriaToLob(editoria),
       status: 'planned',
       url_post: '',
     });

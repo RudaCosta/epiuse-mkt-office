@@ -33,7 +33,8 @@
   }
   .lob-nome { font-size: 16px; font-weight: 600; }
   .lob-total { font-size: 12px; color: var(--muted,#94a3b8); font-family:'JetBrains Mono',monospace; }
-  .funnel { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .funnel { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  @media (max-width: 860px) { .funnel { grid-template-columns: 1fr 1fr; } }
   .funnel-cell {
     background: rgba(15,30,53,.4); border-radius: 8px; padding: 12px;
     border-left: 3px solid transparent;
@@ -41,6 +42,7 @@
   .funnel-cell.topo  { border-left-color: var(--violet,#a78bfa) }
   .funnel-cell.meio  { border-left-color: var(--gold,#fbbf24) }
   .funnel-cell.fundo { border-left-color: var(--teal,#10b981) }
+  .funnel-cell.pos   { border-left-color: var(--blue,#60a5fa) }
   .funnel-cell.gap-critico { background: rgba(239,68,68,.10); border-left-color: var(--red,#ef4444) }
   .funnel-cell.gap-insuficiente { background: rgba(251,191,36,.06); border-left-color: var(--gold,#fbbf24) }
   .fc-hdr { display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px; }
@@ -67,14 +69,17 @@
 
 <div class="container">
   <h1>🗺️ Jornadas de Compra por LOB</h1>
-  <p class="sub">693 artigos mapeados por linha de negócio × etapa do funil. Onde tá vermelho = lacuna de conteúdo (pauta urgente pros Voices).</p>
+  <p class="sub" id="sub">Artigos do blog mapeados pela taxonomia canônica (LOB × funil). Onde tá vermelho = lacuna de conteúdo (pauta urgente pros Voices).</p>
 
-  <div class="insight">
-    💡 <b>Diagnóstico inicial:</b> 91% dos 693 artigos são TOFU (Topo de Funil — Aprendizado). Apenas 30 são MOFU e 28 BOFU. <b>Gap brutal em conteúdo de Meio e Fundo</b> que impede conversão lead → reunião → proposta. Pauta clara pros Voices: escrever artigos consultivos (Cases, Comparativos, Implementação) nas LOBs principais.
-  </div>
+  <div class="insight" id="insight" style="display:none"></div>
 
   <div class="matriz" id="matriz">
     <div style="text-align:center;padding:40px;color:var(--blue,#60a5fa);font-style:italic">carregando matriz...</div>
+  </div>
+
+  <div class="gaps-panel" id="nc-panel" style="display:none;border-color:rgba(251,191,36,.25);background:rgba(251,191,36,.05)">
+    <h2 style="color:var(--gold,#fcd34d)">🤖 Fila de classificação (sem LOB — aguardando IA/revisão humana)</h2>
+    <div id="nc-list"></div>
   </div>
 
   <div class="gaps-panel" id="gaps-panel" style="display:none">
@@ -91,49 +96,73 @@ async function carregar() {
   const d = await r.json();
   if (!d.success) return;
 
-  const matriz = document.getElementById('matriz');
-  const ordem = ['Topo (Aprendizado)', 'Meio (Consideração)', 'Fundo (Decisão)'];
+  const etapas = d.funil || [];
+  const rotuloEtapa = Object.fromEntries(etapas.map(f => [f.slug, f.rotulo_curto || f.slug]));
+  const lobs = d.lobs || [];
 
-  matriz.innerHTML = Object.entries(d.matriz).map(([lob, etapas]) => {
-    const total = ordem.reduce((s, e) => s + (etapas[e]?.length || 0), 0);
-    return `
-      <div class="lob-row">
-        <div class="lob-hdr">
-          <div class="lob-nome">${lob}</div>
-          <div class="lob-total">${total} artigos · TOFU ${etapas['Topo (Aprendizado)']?.length||0} · MOFU ${etapas['Meio (Consideração)']?.length||0} · BOFU ${etapas['Fundo (Decisão)']?.length||0}</div>
-        </div>
-        <div class="funnel">
-          ${ordem.map(et => {
-            const items = etapas[et] || [];
-            const cls = et.startsWith('Topo') ? 'topo' : et.startsWith('Meio') ? 'meio' : 'fundo';
-            const countCls = items.length === 0 ? 'zero' : items.length < 3 && !et.startsWith('Topo') ? 'low' : '';
-            const gapCls = items.length === 0 ? 'gap-critico' : (items.length < 3 && !et.startsWith('Topo')) ? 'gap-insuficiente' : '';
-            return `
-              <div class="funnel-cell ${cls} ${gapCls}">
-                <div class="fc-hdr">
-                  <div class="fc-etapa">${et}</div>
-                  <div class="fc-count ${countCls}">${items.length}</div>
-                </div>
-                <div class="fc-titulos">
-                  ${items.length === 0 ? '<div class="fc-empty">⚠️ Pauta urgente!</div>' :
-                    items.slice(0, 3).map(a => `<a href="${a.url}" target="_blank" title="${a.titulo}">• ${a.titulo.substring(0, 60)}${a.titulo.length>60?'...':''}</a>`).join('') +
-                    (items.length > 3 ? `<a style="color:#60a5fa;font-style:italic">+${items.length - 3} mais...</a>` : '')
-                  }
-                </div>
-              </div>
-            `;
-          }).join('')}
-        </div>
+  // Números reais pro diagnóstico (calculados do payload — nada chumbado)
+  const totClass = lobs.reduce((s, l) => s + l.total, 0);
+  const somaEtapa = slug => lobs.reduce((s, l) => s + (l.etapas[slug]?.count || 0), 0);
+  const topo = somaEtapa('topo'), meio = somaEtapa('meio'), fundo = somaEtapa('fundo'), pos = somaEtapa('pos');
+  const nc = d.nao_classificados?.count || 0;
+  const pend = lobs.reduce((s, l) => s + (l.pendentes || 0), 0);
+
+  document.getElementById('sub').textContent =
+    `${totClass + nc} artigos · taxonomia v${d.taxonomia_versao || '?'} · ${totClass} classificados por LOB + ${nc} na fila IA. Onde tá vermelho = lacuna de conteúdo (pauta urgente pros Voices).`;
+
+  const insight = document.getElementById('insight');
+  insight.style.display = 'block';
+  insight.innerHTML = `💡 <b>Diagnóstico (dados reais):</b> dos ${totClass} artigos já classificados, `
+    + `${Math.round(topo / Math.max(totClass, 1) * 100)}% são Topo · ${meio} Meio · ${fundo} Fundo · ${pos} Pós-venda. `
+    + `<b>Gap em Meio/Fundo trava a conversão lead → reunião → proposta.</b> `
+    + (pend ? `⚠️ ${pend} classificações são heurística/IA <b>pendentes de revisão humana</b> — números finais só depois da revisão (Regra 7).` : '');
+
+  document.getElementById('matriz').innerHTML = lobs.map(l => `
+    <div class="lob-row">
+      <div class="lob-hdr">
+        <div class="lob-nome">${l.rotulo} <span style="font-size:11px;color:var(--muted,#94a3b8);font-family:'JetBrains Mono',monospace">· ${l.slug}</span></div>
+        <div class="lob-total">${l.total} artigos${l.pendentes ? ` · 🤖 ${l.pendentes} a revisar` : ''}</div>
       </div>
-    `;
-  }).join('');
+      <div class="funnel">
+        ${etapas.map(f => {
+          const cell = l.etapas[f.slug] || { count: 0, artigos: [] };
+          const semGap = f.slug === 'pos';
+          const countCls = semGap ? '' : cell.count === 0 ? 'zero' : (cell.count < 3 && f.slug !== 'topo') ? 'low' : '';
+          const gapCls = semGap ? '' : cell.count === 0 ? 'gap-critico' : (cell.count < 3 && f.slug !== 'topo') ? 'gap-insuficiente' : '';
+          return `
+            <div class="funnel-cell ${f.slug} ${gapCls}">
+              <div class="fc-hdr">
+                <div class="fc-etapa">${rotuloEtapa[f.slug]}</div>
+                <div class="fc-count ${countCls}">${cell.count}</div>
+              </div>
+              <div class="fc-titulos">
+                ${cell.count === 0 ? (semGap ? '<div style="color:var(--muted,#64748b);font-size:11px;font-style:italic">— etapa nova (pós-venda)</div>' : '<div class="fc-empty">⚠️ Pauta urgente!</div>') :
+                  cell.artigos.slice(0, 3).map(a => `<a href="${a.url}" target="_blank" title="${a.titulo}">• ${a.titulo.substring(0, 60)}${a.titulo.length>60?'...':''}</a>`).join('') +
+                  (cell.count > 3 ? `<a style="color:var(--blue,#60a5fa);font-style:italic">+${cell.count - 3} mais...</a>` : '')
+                }
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  if (nc > 0) {
+    document.getElementById('nc-panel').style.display = 'block';
+    document.getElementById('nc-list').innerHTML =
+      `<div style="font-size:12px;color:var(--muted,#94a3b8);margin-bottom:8px">${nc} artigos sem sinal de LOB no título — rodar <code>build_artigos_taxonomia.py --apply --ia</code> (F3c) e revisar. Amostra:</div>`
+      + (d.nao_classificados.artigos || []).map(a => `
+        <div class="gap-item"><span><a href="${a.url}" target="_blank" style="color:inherit;text-decoration:none">${a.titulo}</a></span></div>
+      `).join('');
+  }
 
   if (d.gaps && d.gaps.length) {
     document.getElementById('gaps-panel').style.display = 'block';
     document.getElementById('gaps-list').innerHTML = d.gaps.map(g => `
       <div class="gap-item">
-        <span>${g.lob} · ${g.etapa}</span>
-        <span style="font-family:'JetBrains Mono',monospace;color:${g.situacao==='crítico'?'#ef4444':'#fbbf24'}">${g.situacao} ${g.count != null ? `(${g.count})` : ''}</span>
+        <span>${g.rotulo || g.lob} · ${rotuloEtapa[g.etapa] || g.etapa}</span>
+        <span style="font-family:'JetBrains Mono',monospace;color:${g.situacao==='crítico'?'var(--red,#ef4444)':'var(--gold,#fbbf24)'}">${g.situacao} ${g.count != null ? `(${g.count})` : ''}</span>
       </div>
     `).join('');
   }
