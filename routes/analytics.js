@@ -289,6 +289,116 @@ router.get('/api/admin/analytics/export.csv', requireOwner, (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// ── ADOÇÃO: time cadastrado × quem realmente usa ──────────────────────────────
+// Responde "a galera usa o Office?": cruza a tabela `users` (quem está cadastrado)
+// com `analytics_events` (quem de fato aparece). Revela quem sumiu, quem nunca
+// entrou, e quais features ninguém abre. 100% dado real (regra 7).
+const ADOCAO_FEATURES = [
+  { path: '/',                label: '🏠 Home' },
+  { path: '/hub',            label: '🏢 Marketing Hub' },
+  { path: '/campanhas',      label: '📣 Campanhas' },
+  { path: '/meus-links',     label: '🔗 Meus Links & QR' },
+  { path: '/loja',           label: '🏪 Loja de Coins' },
+  { path: '/ranking',        label: '🏆 Ranking' },
+  { path: '/voices',         label: '🎙️ Voices' },
+  { path: '/cases',          label: '🤝 Cases' },
+  { path: '/artigos',        label: '📚 Artigos' },
+  { path: '/design',         label: '🎨 Design System' },
+  { path: '/brand',          label: '🖼️ Brand Assets' },
+  { path: '/optimizer',      label: '🪪 LinkedIn Optimizer' },
+  { path: '/game',           label: '🎮 Game (MKT)' },
+  { path: '/game-hub',       label: '🎮 Game (Colaborador)' },
+  { path: '/jarvis',         label: '🤖 JARVIS' },
+  { path: '/pipeline',       label: '📞 Pipeline' },
+  { path: '/field-marketing',label: '📍 Field Marketing' },
+  { path: '/admin/utm',      label: '🔗 UTM & Links (admin)' },
+  { path: '/relatorio',      label: '📈 Relatório Mensal' },
+];
+
+router.get('/api/admin/analytics/adocao', requireOwner, (req, res) => {
+  try {
+    const now = Date.now();
+    const DAY = 86400000;
+    const win = Math.max(1, Math.min(365, parseInt(req.query.days, 10) || 30));
+    const sinceWin = now - win * DAY;
+
+    // Roster: todo mundo cadastrado e ativo. last_seen = último rastro REAL
+    // (view OU login), lifetime — não filtra por período (queremos "há quantos
+    // dias essa pessoa não aparece"). visitas_janela = navegação no período.
+    let roster = [];
+    try {
+      roster = db.prepare(`
+        SELECT u.email AS email, u.name AS nome, u.role AS role, u.created_at AS cadastro,
+               (SELECT MAX(ts) FROM analytics_events e
+                  WHERE e.email=u.email AND e.kind IN ('view','login')) AS ultimo,
+               (SELECT COUNT(*) FROM analytics_events e
+                  WHERE e.email=u.email AND e.kind='view' AND e.ts>=?) AS visitas,
+               (SELECT COUNT(DISTINCT sid) FROM analytics_events e
+                  WHERE e.email=u.email AND e.kind='view' AND e.ts>=?) AS sessoes,
+               (SELECT COALESCE(SUM(coins),0) FROM erp_coins c WHERE c.email=u.email) AS coins
+        FROM users u
+        WHERE u.active=1
+        ORDER BY u.role, u.name
+      `).all(sinceWin, sinceWin);
+    } catch (e) { /* users pode não existir em ambiente isolado */ }
+
+    const statusOf = (ultimo) => {
+      if (!ultimo) return 'never';                       // nunca apareceu
+      const dias = (now - ultimo) / DAY;
+      if (dias < 7)  return 'ativo';                     // 🟢
+      if (dias <= 30) return 'esfriando';                // 🟡
+      return 'sumido';                                   // 🔴
+    };
+    roster = roster.map(u => {
+      const st = statusOf(u.ultimo);
+      return {
+        email: u.email, nome: u.nome || u.email.split('@')[0], role: u.role,
+        cadastro: u.cadastro || null,
+        ultimo: u.ultimo || null,
+        dias_desde: u.ultimo ? Math.floor((now - u.ultimo) / DAY) : null,
+        visitas: u.visitas || 0, sessoes: u.sessoes || 0, coins: u.coins || 0,
+        status: st,
+      };
+    });
+
+    const total = roster.length;
+    const cont = (s) => roster.filter(u => u.status === s).length;
+    const resumo = {
+      total,
+      ativos:    cont('ativo'),         // <7d
+      esfriando: cont('esfriando'),     // 7-30d
+      sumidos:   cont('sumido'),        // >30d
+      nunca:     cont('never'),         // nunca acessou
+      // % do time que apareceu nos últimos 7 / 30 dias
+      pct_ativos_7d:  total ? Math.round(cont('ativo') / total * 100) : 0,
+      pct_ativos_30d: total ? Math.round((cont('ativo') + cont('esfriando')) / total * 100) : 0,
+    };
+
+    // Adoção por feature: quantas pessoas DISTINTAS (cadastradas, não-anon)
+    // abriram cada página — lifetime + no período. Mostra o que ninguém usa.
+    const rosterEmails = new Set(roster.map(u => u.email));
+    const features = ADOCAO_FEATURES.map(f => {
+      let allTime = 0, janela = 0, ultimo = null;
+      try {
+        allTime = db.prepare(`SELECT COUNT(DISTINCT email) n FROM analytics_events
+                              WHERE kind='view' AND path=? AND email!='anon'`).get(f.path).n;
+        janela = db.prepare(`SELECT COUNT(DISTINCT email) n FROM analytics_events
+                             WHERE kind='view' AND path=? AND email!='anon' AND ts>=?`).get(f.path, sinceWin).n;
+        ultimo = db.prepare(`SELECT MAX(ts) n FROM analytics_events
+                             WHERE kind='view' AND path=?`).get(f.path).n;
+      } catch (e) {}
+      return {
+        path: f.path, label: f.label,
+        usuarios: allTime, usuarios_janela: janela,
+        ultimo: ultimo || null,
+        pct_time: total ? Math.round(allTime / total * 100) : 0,
+      };
+    }).sort((a, b) => b.usuarios - a.usuarios);
+
+    res.json({ days: win, gerado_em: now, resumo, roster, features });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 // Página do report
 router.get('/admin/analytics', requireOwner, (req, res) => {
   res.sendFile(path.join(__dirname, '../public/admin-analytics.html'));
