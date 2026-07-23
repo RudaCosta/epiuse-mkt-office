@@ -8,7 +8,7 @@
 // Fonte ÚNICA da verdade: public/api/changelog.json#current via /api/version
 // Fallback hardcoded usado SÓ se fetch falhar (offline, etc).
 // Sincronização automática — não editar manualmente, basta bumpar changelog.json.
-let OFFICE_NAV_VERSION = '0.77.13';
+let OFFICE_NAV_VERSION = '0.82.1';
 // Promise compartilhada — nav + footer reaproveitam o mesmo fetch
 window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/version')
   .then(r => r.ok ? r.json() : null)
@@ -158,6 +158,7 @@ const OFFICE_NAV_BREADCRUMBS = {
 const OFFICE_NAV_OVERFLOW = [
   { section: '🤖 Escritório Virtual' },
   { label: '🏢 Marketing Hub (portal)',  href: '/hub' },
+  { label: '📣 Campanhas em jogo',       href: '/campanhas' },
   { label: '💡 Mural de Ideias',         href: '/ideias' },
 
   { section: '📞 Biz Dev' },
@@ -365,6 +366,12 @@ class OfficeNav extends HTMLElement {
       if (grp && !grp.links.some(l => l.href === '/admin/usuarios')) {
         grp.links.push({ label: '👥 Usuários & Perfis', href: '/admin/usuarios' });
       }
+      if (grp && !grp.links.some(l => l.href === '/admin/inscricoes')) {
+        grp.links.push({ label: '🎙️ Inscrições Voices', href: '/admin/inscricoes' });
+      }
+      if (grp && !grp.links.some(l => l.href === '/admin/coins')) {
+        grp.links.push({ label: '🪙 Coins & Resgates', href: '/admin/coins' });
+      }
     }
     const grpA = col1Items.find(g => g.section === '🤖 Escritório Virtual');
     // Analytics de uso — exclusivo do dono (ruda.costa@epiuse.com.br).
@@ -385,6 +392,9 @@ class OfficeNav extends HTMLElement {
       }
       if (!grpA.links.some(l => l.href === '/loja')) {
         grpA.links.push({ label: '🏪 Loja de Coins', href: '/loja' });
+      }
+      if (!grpA.links.some(l => l.href === '/ranking')) {
+        grpA.links.push({ label: '🏆 Ranking do Time', href: '/ranking' });
       }
     }
 
@@ -1163,8 +1173,9 @@ class OfficeNav extends HTMLElement {
       badge.style.display = 'inline-flex';
       items.innerHTML = alerts.slice(0, 10).map(a => {
         const tagCls = a.tipo === 'warn' ? 'warn' : 'info';
-        const tagLbl = a.tipo === 'warn' ? '⚠' : 'i';
-        return `<a class="bp-item" href="/area/brand"><span class="bp-tag ${tagCls}">${tagLbl}</span>${(a.msg || '').slice(0, 140)}</a>`;
+        const tagLbl = a.tipo === 'action' ? '🔥' : (a.tipo === 'warn' ? '⚠' : 'i');
+        const href = a.href || '/area/brand';
+        return `<a class="bp-item" href="${href}"><span class="bp-tag ${tagCls}">${tagLbl}</span>${(a.msg || '').slice(0, 140)}</a>`;
       }).join('');
     } catch (e) {
       items.innerHTML = '<div class="bp-item empty">Não foi possível carregar alertas.</div>';

@@ -20,17 +20,44 @@
   .tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:rgba(134,158,195,.14)}
   .tag.share{background:rgba(10,102,194,.25)} .tag.golplaca{background:rgba(22,163,74,.25)} .tag.quest{background:rgba(124,58,237,.25)} .tag.egg{background:rgba(180,83,9,.35)}
   .vazio{color:#9fb2d4;font-size:13px;padding:14px 0}
+  .pend{display:none;align-items:center;gap:10px;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.4);border-radius:12px;padding:12px 16px;margin-bottom:18px;font-weight:700;color:#fbbf24}
+  .pend.on{display:flex}
+  .pend .cnt{background:#fbbf24;color:#0a1426;border-radius:99px;padding:1px 10px;font-family:'JetBrains Mono',monospace}
+  /* editor de catálogo */
+  .cat-form{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;background:#0f1d36;border:1px solid rgba(134,158,195,.18);border-radius:12px;padding:16px;margin-bottom:12px}
+  .cat-form .fld{display:flex;flex-direction:column;gap:4px}
+  .cat-form label{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#9fb2d4}
+  .cat-form input{background:#0a1426;border:1px solid rgba(134,158,195,.25);color:#e8f0ff;padding:8px 10px;border-radius:8px;font-family:inherit;font-size:13px}
+  .cat-form #ci-emoji{width:56px;text-align:center} .cat-form #ci-preco{width:90px} .cat-form #ci-nome{min-width:160px} .cat-form #ci-desc{min-width:200px;flex:1}
+  .cat-form button{background:#cd1543;color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:800;font-family:inherit;cursor:pointer}
+  .cat-actbtn{background:rgba(96,165,250,.15);border:1px solid rgba(96,165,250,.4);color:#bfdbfe;border-radius:7px;padding:4px 9px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;margin-right:4px}
+  .cat-actbtn.del{background:rgba(248,113,113,.14);border-color:rgba(248,113,113,.4);color:#fca5a5}
+  .off{opacity:.5}
 </style>
 </head>
 <body>
 <office-nav></office-nav>
 <div class="container">
   <h1>🪙 ERP Coins</h1>
-  <div class="sub">Acúmulo silencioso de participação (share 10 · Gol de Placa 10 · quest 50 · 🥚 egg 100). Os usuários <b>não veem</b> este painel nem o saldo.</div>
-  <div class="aviso">ℹ️ Dados persistem no volume Railway (<code>/data</code>) — mesmo mecanismo usado por cases/eventos/calendário. Export manual (migração/backup pontual): <code>GET /api/admin/coins/backup</code> (editor token) · restore: <code>POST /api/admin/coins/restore</code>.</div>
+  <div class="sub">Participação (share 10 · Gol de Placa 10 · quest 50 · 🔗 clique UTM 5 · 🥚 egg 100). A Loja (<a href="/loja" style="color:#60a5fa">/loja</a>) já mostra saldo e resgate pros usuários.</div>
 
-  <h2>🎁 Resgates da Loja</h2>
+  <a href="#resgates" style="text-decoration:none"><div class="pend" id="pend-badge">🔔 <span class="cnt" id="pend-cnt">0</span> resgate(s) pendente(s) esperando sua decisão</div></a>
+
+  <h2 id="resgates">🎁 Resgates da Loja</h2>
   <table><thead><tr><th>#</th><th>Quem</th><th>Item</th><th>Coins</th><th>Status</th><th>Quando</th><th>Ações</th></tr></thead><tbody id="rg"><tr><td colspan="7" class="vazio">Carregando…</td></tr></tbody></table>
+
+  <h2>🛒 Catálogo da Loja</h2>
+  <div class="sub" style="margin-bottom:12px">Adicione/edite os brindes que aparecem pra troca. Persiste no banco (volume) e reflete na hora em <a href="/loja" style="color:#60a5fa">/loja</a>.</div>
+  <div class="cat-form">
+    <div class="fld"><label>Emoji</label><input id="ci-emoji" maxlength="4" placeholder="🐘"></div>
+    <div class="fld"><label>Nome</label><input id="ci-nome" placeholder="Elefante de pelúcia"></div>
+    <div class="fld"><label>Preço (coins)</label><input id="ci-preco" type="number" min="1" placeholder="200"></div>
+    <div class="fld"><label>Descrição</label><input id="ci-desc" placeholder="Mascote oficial, 20cm"></div>
+    <input type="hidden" id="ci-id">
+    <button id="ci-save" type="button">Adicionar</button>
+    <button id="ci-cancel" type="button" style="display:none;background:rgba(148,163,184,.2)">Cancelar</button>
+  </div>
+  <table><thead><tr><th>Item</th><th>Preço</th><th>Status</th><th>Ações</th></tr></thead><tbody id="cat"><tr><td colspan="4" class="vazio">Carregando…</td></tr></tbody></table>
 
   <h2>Ranking</h2>
   <table><thead><tr><th>#</th><th>Email</th><th>ERP Coins</th><th>Ações</th><th>Última</th></tr></thead><tbody id="rk"><tr><td colspan="5" class="vazio">Carregando…</td></tr></tbody></table>
@@ -67,6 +94,12 @@
   }
   function loadResgates(){
     fetch('/api/admin/loja', { headers: authHeaders() }).then(r => { if(!r.ok) throw new Error(r.status); return r.json(); }).then(d => {
+      // badge de pendentes + título da aba
+      const pend = d.pendentes || 0;
+      const badge = document.getElementById('pend-badge');
+      document.getElementById('pend-cnt').textContent = pend;
+      badge.classList.toggle('on', pend > 0);
+      document.title = (pend > 0 ? '('+pend+') ' : '') + 'ERP Coins · Admin';
       const rows = d.resgates || [];
       document.getElementById('rg').innerHTML = rows.length ? rows.map(r => {
         let acts = '';
@@ -91,6 +124,58 @@
       .catch(() => alert('Erro de rede.'));
   }
   loadResgates();
+
+  // ── Catálogo (CRUD) ──────────────────────────────────────────────────────────
+  function renderCat(itens){
+    document.getElementById('cat').innerHTML = (itens && itens.length) ? itens.map(function(i){
+      return '<tr class="'+(i.ativa?'':'off')+'"><td>'+esc(i.emoji||'🎁')+' <b>'+esc(i.nome)+'</b>'+(i.desc?'<div style="font-size:11px;color:#9fb2d4">'+esc(i.desc)+'</div>':'')+'</td>'+
+        '<td class="num">'+i.preco_coins+'</td>'+
+        '<td>'+(i.ativa?'<span class="tag" style="color:#4ade80">ativo</span>':'<span class="tag" style="color:#9fb2d4">inativo</span>')+'</td>'+
+        '<td><button class="cat-actbtn" data-edit=\''+esc(JSON.stringify(i))+'\'>✏️</button>'+
+          '<button class="cat-actbtn" data-toggle="'+esc(i.id)+'" data-on="'+(i.ativa?1:0)+'">'+(i.ativa?'⏸️':'▶️')+'</button>'+
+          '<button class="cat-actbtn del" data-del="'+esc(i.id)+'" data-nome="'+esc(i.nome)+'">🗑️</button></td></tr>';
+    }).join('') : '<tr><td colspan="4" class="vazio">Nenhum item ainda. Adicione o primeiro aí em cima 👆</td></tr>';
+    document.querySelectorAll('[data-del]').forEach(function(b){ b.addEventListener('click', function(){ if(confirm('Remover "'+b.dataset.nome+'" do catálogo?')) catSave('DELETE','/api/admin/loja/catalogo/'+encodeURIComponent(b.dataset.del)); }); });
+    document.querySelectorAll('[data-toggle]').forEach(function(b){ b.addEventListener('click', function(){ var it=itens.find(function(x){return x.id===b.dataset.toggle;}); it.ativa=!it.ativa; postItem(it); }); });
+    document.querySelectorAll('[data-edit]').forEach(function(b){ b.addEventListener('click', function(){ editItem(JSON.parse(b.dataset.edit)); }); });
+  }
+  function loadCat(){
+    fetch('/api/admin/loja/catalogo', { headers: authHeaders() }).then(function(r){ return r.json(); })
+      .then(function(d){ renderCat(d.itens); }).catch(function(){});
+  }
+  function editItem(i){
+    document.getElementById('ci-id').value = i.id;
+    document.getElementById('ci-emoji').value = i.emoji||'';
+    document.getElementById('ci-nome').value = i.nome||'';
+    document.getElementById('ci-preco').value = i.preco_coins||'';
+    document.getElementById('ci-desc').value = i.desc||'';
+    document.getElementById('ci-save').textContent = 'Salvar';
+    document.getElementById('ci-cancel').style.display = '';
+    window.scrollTo(0, document.querySelector('.cat-form').offsetTop - 80);
+  }
+  function resetForm(){
+    ['ci-id','ci-emoji','ci-nome','ci-preco','ci-desc'].forEach(function(id){ document.getElementById(id).value=''; });
+    document.getElementById('ci-save').textContent = 'Adicionar';
+    document.getElementById('ci-cancel').style.display = 'none';
+  }
+  function postItem(item){
+    fetch('/api/admin/loja/catalogo', { method:'POST', headers: authHeaders({'Content-Type':'application/json'}), body: JSON.stringify(item) })
+      .then(function(r){ return r.json(); }).then(function(d){ if(d.success){ renderCat(d.itens); resetForm(); } else alert('Erro: '+(d.error||'?')); })
+      .catch(function(){ alert('Erro de rede.'); });
+  }
+  function catSave(method, url){
+    fetch(url, { method: method, headers: authHeaders() }).then(function(r){ return r.json(); })
+      .then(function(d){ if(d.success){ renderCat(d.itens); } else alert('Erro: '+(d.error||'?')); }).catch(function(){});
+  }
+  document.getElementById('ci-save').addEventListener('click', function(){
+    var nome = document.getElementById('ci-nome').value.trim();
+    var preco = parseInt(document.getElementById('ci-preco').value, 10);
+    if (!nome || !preco || preco<=0) { alert('Preencha nome e um preço válido.'); return; }
+    postItem({ id: document.getElementById('ci-id').value || undefined, nome: nome, preco_coins: preco,
+      emoji: document.getElementById('ci-emoji').value.trim() || '🎁', desc: document.getElementById('ci-desc').value.trim(), ativa: true });
+  });
+  document.getElementById('ci-cancel').addEventListener('click', resetForm);
+  loadCat();
 })();
 </script>
 </body>

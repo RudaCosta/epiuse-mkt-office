@@ -1,5 +1,5 @@
 {
-  "current": "0.77.13",
+  "current": "0.82.1",
   "atualizado_em": "20/jul/2026",
   "next": [
     {
@@ -54,9 +54,94 @@
   ],
   "releases": [
     {
-      "version": "0.77.13",
+      "version": "0.82.1",
       "date": "20/jul/2026",
       "status": "current",
+      "path": null,
+      "title": "🔀 Merge — Stratview Generator (pacote 0.77.2→0.77.13 da Bruna) + lote 0.78→0.82 do Rudá",
+      "highlights": [
+        "Trabalho da Bruna no gerador Stratview (SEO Yoast · anti-repetição · pautas com pesquisa · capas art-directed + Pollinations grátis · separação EPI-USE · lifecycle na máquina dela) mesclado com o lote Voices/Loja/Ranking/Home do Rudá — detalhes nas releases individuais abaixo"
+      ]
+    },
+    {
+      "version": "0.82.0",
+      "date": "18/jul/2026",
+      "status": "past",
+      "path": null,
+      "title": "🎉 LOTE RADICAL — Ranking do Time + marcos de cliques + sino vivo + e-mail de resgate + confete",
+      "highlights": [
+        "🏆 /ranking: pódio do time (ouro/prata/bronze) com coins ganhos, cliques humanos gerados e conquistas como troféus (🐘🎯⚽📣🔗🏅) — sua linha destacada; confete se você estiver no pódio",
+        "🏅 Marcos de cliques: link que cruza 50 cliques humanos ganha +25 coins automático; 100 cliques ganha +50 (idempotente, só clique humano)",
+        "🔔 Sino do topo agora avisa de verdade: resgates pendentes + inscrições novas pro head (com link direto), e o status do SEU resgate (aprovado/negado/entregue) pra qualquer um",
+        "✉️ Resgate na Loja dispara e-mail na hora pro admin (Resend) — sem depender de abrir painel",
+        "🎉 Confete na Loja ao resgatar; card 🏆 no Hub, link no menu e na Loja"
+      ]
+    },
+    {
+      "version": "0.81.1",
+      "date": "18/jul/2026",
+      "status": "past",
+      "path": null,
+      "title": "🔒 Visão executiva SÓ pra Rudá + Roberto — home do time focada no dia a dia",
+      "highlights": [
+        "Home de Duda, Bruna, Gui, Fernanda, Marlison e Lisiane perdeu TODAS as seções executivas (North Star, Metas FY, panorama de áreas, time) — agora abre com ⚡ Acessos rápidos no topo + foco próprio, hoje, agenda e alertas. Exceção cirúrgica: Gui mantém o gráfico de growth (é o trabalho diário dele)",
+        "/executivo e /api/executivo (CMO View) agora exigem role head ou country-manager — antes qualquer pessoa logada que soubesse a URL via os números",
+        "Rudá e Roberto seguem com a visão executiva completa; visitante (demo) inalterado"
+      ]
+    },
+    {
+      "version": "0.81.0",
+      "date": "18/jul/2026",
+      "status": "past",
+      "path": null,
+      "title": "⚡ Menu inicial por pessoa — Acessos rápidos da home personalizados por persona",
+      "highlights": [
+        "A seção 'Acessos rápidos' da home deixou de ser 4 links fixos iguais pra todos: agora cada pessoa do MKT tem a sua lista (personas.json quick[]) com as páginas novas — Rudá vê Inscrições/UTM/Analytics/Coins/Usuários; Duda vê Voices/Raccoon/Cases/Design; Fernanda vê QR de eventos/Brindes; Bruna vê fila de Brindes; Gui vê LinkedIn Intelligence/Artigos; Marlison vê JARVIS/Pipeline; Lisiane vê Artigos/Jornadas — todos com UTM, Meus Links, Campanhas e Loja",
+        "Menu overflow: 📣 Campanhas em jogo entrou pra todos e 🪙 Coins & Resgates (/admin/coins) pro head — antes não apareciam em lugar nenhum",
+        "Sem persona definida (visitante), vale o quick_default; Roberto segue sem a seção (visão executiva)"
+      ]
+    },
+    {
+      "version": "0.80.0",
+      "date": "17/jul/2026",
+      "status": "past",
+      "path": null,
+      "title": "🎙️ Publicar candidatura como Voice (inscrição → /voices) + dedupe/time interno",
+      "highlights": [
+        "No /admin/inscricoes, cada candidato ganha o botão '🎙️ Publicar como Voice' — cria a ficha e ela aparece em /voices (persiste numa tabela no banco, via overlay do /api/voices.json, não some no deploy)",
+        "Auto-marcação: 🔁 duplicados (mesmo e-mail/LinkedIn) e 👥 time interno (e-mail que bate com o cadastro) — pra você não publicar por engano",
+        "Triagem: status 🧪 teste e 🗄️ ignorado escondem do painel (filtro 'Ativos'); dedupe impede publicar o mesmo Voice duas vezes"
+      ]
+    },
+    {
+      "version": "0.79.0",
+      "date": "17/jul/2026",
+      "status": "past",
+      "path": null,
+      "title": "🎙️ Painel de Inscrições dos Voices — candidaturas ao vivo com todo o detalhe",
+      "highlights": [
+        "Novo /admin/inscricoes (head): lista as candidaturas do 'Seja um Voice' ao vivo do banco, cada uma expandindo TODO o detalhe preenchido na landing (perfil, domínio técnico, tom, temas, lado humano, origem/UTM)",
+        "Triagem por status (novo · contatado · em análise · aprovado · reprovado) + filtro por texto/status; link 🎙️ Inscrições Voices no menu do head",
+        "Esclarecido: inscrever-se ≠ virar Voice publicado — a candidatura entra aqui; publicar em /voices segue sendo etapa curada"
+      ]
+    },
+    {
+      "version": "0.78.0",
+      "date": "17/jul/2026",
+      "status": "past",
+      "path": null,
+      "title": "🛠️ Loja editável + aviso de resgates + editar link + CSV do Analytics",
+      "highlights": [
+        "🏪 Editor de catálogo da Loja no /admin/coins: adicione/edite/ative/remova brindes (nome, emoji, preço) — agora vive em tabela no banco (persiste no volume) e reflete na hora em /loja",
+        "🔔 Aviso de resgates pendentes: badge com contador no /admin/coins + número no título da aba, pra você não perder pedido",
+        "✏️ Editar link em Meus Links: renomear a campanha de um link (o link e o QR continuam os mesmos)",
+        "📊 Export CSV no Analytics de Uso (por período) + filtro rápido por nome/email/área na tabela de usuários"
+      ]
+    },
+    {
+      "version": "0.77.13",
+      "date": "20/jul/2026",
+      "status": "past",
       "path": null,
       "title": "🖼️ Stratview Generator v0.77.13 — capas de IA grátis via Pollinations (Flux)",
       "highlights": [
@@ -536,6 +621,21 @@
       ]
     },
     {
+      "version": "0.72.4",
+      "date": "02/jul/2026",
+      "status": "past",
+      "path": null,
+      "title": "🎁 Brindes v0.72.4 — logo branco dark mode + rotas + imagens por tier + email PA",
+      "summary": "Preview do brinde passa a exibir foto real do kit EPI-USE com legenda ilustrativa. Admin panel ganha backup JSON automático (restaura SQLite no restart) + exportação CSV. Adicionada variável BRINDES_NOTIFY_EMAIL ao .env.example para configuração do email de notificação via Resend.",
+      "highlights": [
+        "Foto real do kit EPI-USE (kit-epiuse.jpg) na prévia do resultado, com overlay de tier e legenda 'foto ilustrativa'",
+        "Backup JSON automático (data/brindes-backup.json): escrito após cada write, restaura SQLite no restart",
+        "Export CSV: botão no admin panel → /api/brindes/export-csv?token=MKt123 com BOM UTF-8",
+        "BRINDES_NOTIFY_EMAIL adicionado ao .env.example (default: bruna.yamagami@epiuse.com.br)",
+        "Nota: persistência total requer Railway Volume em DATA_DIR=/data"
+      ]
+    },
+    {
       "version": "0.71.0",
       "date": "02/jul/2026",
       "status": "past",
@@ -549,21 +649,6 @@
         "Regra financeira sempre visível: azul passivo fora do horário, âmbar ativo na sexta-feira",
         "Barra de progresso sem contador 'Passo X de Y' — só a barra + '2 minutos'",
         "Prévia do brinde sugerido na tela de resultado (Essential/Premium/Diamond com emoji)"
-      ]
-    },
-    {
-      "version": "0.72.4",
-      "date": "02/jul/2026",
-      "status": "past",
-      "path": null,
-      "title": "🎁 Brindes v0.72.4 — logo branco dark mode + rotas + imagens por tier + email PA",
-      "summary": "Preview do brinde passa a exibir foto real do kit EPI-USE com legenda ilustrativa. Admin panel ganha backup JSON automático (restaura SQLite no restart) + exportação CSV. Adicionada variável BRINDES_NOTIFY_EMAIL ao .env.example para configuração do email de notificação via Resend.",
-      "highlights": [
-        "Foto real do kit EPI-USE (kit-epiuse.jpg) na prévia do resultado, com overlay de tier e legenda 'foto ilustrativa'",
-        "Backup JSON automático (data/brindes-backup.json): escrito após cada write, restaura SQLite no restart",
-        "Export CSV: botão no admin panel → /api/brindes/export-csv?token=MKt123 com BOM UTF-8",
-        "BRINDES_NOTIFY_EMAIL adicionado ao .env.example (default: bruna.yamagami@epiuse.com.br)",
-        "Nota: persistência total requer Railway Volume em DATA_DIR=/data"
       ]
     },
     {

@@ -167,6 +167,24 @@ router.get('/api/utm/mine', (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// ── Renomear a campanha de um link do próprio usuário ─────────────────────────
+// Só muda o rótulo (utm_campaign nos próximos cliques). Token/QR NÃO mudam — o
+// destino e o link continuam os mesmos. Só o dono edita.
+router.patch('/api/utm/link/:token', express.json({ limit: '1kb' }), (req, res) => {
+  const email = sessionEmail(req);
+  if (!email) return res.status(401).json({ error: 'auth_required' });
+  const token = sanitizeSlug(req.params.token, 24);
+  const campaign = sanitizeSlug((req.body || {}).campaign, 60);
+  if (!campaign) return res.status(400).json({ error: 'campaign_invalida' });
+  try {
+    const link = db.prepare(`SELECT email FROM utm_links WHERE token=?`).get(token);
+    if (!link) return res.status(404).json({ error: 'nao_encontrado' });
+    if (String(link.email).toLowerCase() !== email) return res.status(403).json({ error: 'nao_e_seu' });
+    db.prepare(`UPDATE utm_links SET campaign=? WHERE token=?`).run(campaign, token);
+    res.json({ success: true, campaign });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 // ── Excluir um link do próprio usuário ────────────────────────────────────────
 // Só o dono apaga. Remove o link + seus cliques (limpa o report); os ERP Coins
 // já creditados NÃO são estornados (participação real já aconteceu). Depois disto
@@ -208,6 +226,17 @@ router.get('/go/:token', (req, res) => {
       if (!bot) {
         db.prepare(`INSERT OR IGNORE INTO erp_coins (email, evento, ref, coins) VALUES (?,?,?,?)`)
           .run(link.email, 'utm_click', (token + ':' + iph).slice(0, 60), UTM_CLICK_COINS);
+        // 🏅 Marcos de cliques (v0.82.0): bônus quando o link cruza 50 e 100
+        // cliques HUMANOS acumulados. Idempotente via ref única por token.
+        const humanos = db.prepare(`SELECT COUNT(*) n FROM utm_clicks WHERE token=? AND bot=0`).get(token).n;
+        if (humanos >= 50) {
+          db.prepare(`INSERT OR IGNORE INTO erp_coins (email, evento, ref, coins) VALUES (?,?,?,?)`)
+            .run(link.email, 'marco', ('marco50:' + token).slice(0, 60), 25);
+        }
+        if (humanos >= 100) {
+          db.prepare(`INSERT OR IGNORE INTO erp_coins (email, evento, ref, coins) VALUES (?,?,?,?)`)
+            .run(link.email, 'marco', ('marco100:' + token).slice(0, 60), 50);
+        }
       }
     }
   } catch (e) { console.warn('[utm] click', e.message); }

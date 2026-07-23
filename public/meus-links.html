@@ -160,6 +160,7 @@
           '<button class="btn sec mini" data-copy="'+esc(url)+'">Copiar</button>'+
           '<button class="btn sec mini" data-qr="'+esc(url)+'" data-camp="'+esc(l.campaign)+'">QR</button>'+
           '<a class="btn sec mini" href="https://www.linkedin.com/sharing/share-offsite/?url='+encodeURIComponent(url)+'" target="_blank" rel="noopener">in</a>'+
+          '<button class="btn sec mini" data-edit="'+esc(l.token)+'" data-camp="'+esc(l.campaign)+'" title="Renomear campanha">✏️</button>'+
           '<button class="btn danger mini" data-del="'+esc(l.token)+'" data-camp="'+esc(l.campaign)+'" title="Excluir link">🗑️</button>'+
         '</td></tr>';
     }).join('') : '<tr><td colspan="8" class="vazio">Você ainda não criou nenhum link. Gera o primeiro aí em cima 👆</td></tr>';
@@ -176,6 +177,22 @@
     Array.prototype.forEach.call(document.querySelectorAll('[data-del]'), function(b){
       b.addEventListener('click', function(){ excluir(b.dataset.del, b.dataset.camp, b); });
     });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-edit]'), function(b){
+      b.addEventListener('click', function(){ renomear(b.dataset.edit, b.dataset.camp); });
+    });
+  }
+
+  // ── renomear campanha ────────────────────────────────────────────────────────
+  function renomear(token, atual){
+    var nova = prompt('Novo nome da campanha (o link e o QR continuam os mesmos):', atual);
+    if (nova == null) return;
+    nova = nova.trim();
+    if (!nova || nova === atual) return;
+    fetch('/api/utm/link/' + encodeURIComponent(token), { method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ campaign: nova }) })
+      .then(function(r){ return r.json().then(function(d){ return { st: r.status, d: d }; }); })
+      .then(function(o){ if (o.st === 200 && o.d.success) load(); else alert('Não deu: ' + (o.d.error || o.st)); })
+      .catch(function(){ alert('Erro de rede.'); });
   }
 
   // ── excluir link ────────────────────────────────────────────────────────────

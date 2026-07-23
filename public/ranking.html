@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ranking do Time · EPI-USE Office</title>
+<link rel="stylesheet" href="/design-tokens.css">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0a1426; --surface:#0f1d36; --text:#e8f0ff; --text2:#9fb2d4;
+    --line:rgba(134,158,195,.18); --gold:#fbbf24; --silver:#cbd5e1; --bronze:#f59e0b;
+  }
+  body{font-family:'Maven Pro','Poppins',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.55;overflow-x:hidden}
+  .container{max-width:900px;margin:0 auto;padding:0 24px 64px}
+  .hero{padding:44px 24px 26px;background:linear-gradient(160deg,#2a1a04 0%,#001844 70%);border-bottom:1px solid var(--line);margin-bottom:30px;text-align:center}
+  .hero .eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:8px}
+  .hero h1{font-size:30px;font-weight:800;letter-spacing:-.4px;margin-bottom:6px}
+  .hero p{font-size:14px;color:var(--text2);max-width:560px;margin:0 auto}
+  /* pódio */
+  .podium{display:flex;align-items:flex-end;justify-content:center;gap:14px;margin:10px 0 34px;min-height:230px}
+  .step{display:flex;flex-direction:column;align-items:center;gap:8px;flex:0 1 180px}
+  .step .avatar{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:#0a1426}
+  .step .nome{font-weight:800;font-size:14px;text-align:center}
+  .step .pts{font-family:'JetBrains Mono',monospace;font-weight:800;font-size:13px}
+  .step .base{width:100%;border-radius:12px 12px 0 0;display:flex;align-items:flex-start;justify-content:center;padding-top:10px;font-size:26px}
+  .p1 .avatar{background:linear-gradient(135deg,#fde68a,#f59e0b);box-shadow:0 0 30px rgba(251,191,36,.5)}
+  .p1 .base{height:110px;background:linear-gradient(180deg,rgba(251,191,36,.35),rgba(251,191,36,.08))}
+  .p1 .pts{color:var(--gold)}
+  .p2 .avatar{background:linear-gradient(135deg,#f1f5f9,#94a3b8)}
+  .p2 .base{height:80px;background:linear-gradient(180deg,rgba(203,213,225,.3),rgba(203,213,225,.06))}
+  .p2 .pts{color:var(--silver)}
+  .p3 .avatar{background:linear-gradient(135deg,#fdba74,#c2680c)}
+  .p3 .base{height:58px;background:linear-gradient(180deg,rgba(245,158,11,.28),rgba(245,158,11,.06))}
+  .p3 .pts{color:var(--bronze)}
+  h2{font-size:14px;font-weight:800;margin:26px 0 10px;color:var(--text2);text-transform:uppercase;letter-spacing:.06em}
+  .panel{background:#0b1830;border:1px solid var(--line);border-radius:14px;padding:8px 4px;overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid rgba(134,158,195,.12)}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text2)}
+  td.num,th.num{text-align:right;font-family:'JetBrains Mono',monospace}
+  .num-hi{color:var(--gold);font-weight:800}
+  tr.eu td{background:rgba(96,165,250,.10);border-top:1px solid rgba(96,165,250,.35);border-bottom:1px solid rgba(96,165,250,.35)}
+  .pos{font-weight:800;font-family:'JetBrains Mono',monospace}
+  .uname{font-weight:700}.uemail{color:var(--text2);font-size:11px}
+  .trofeus{font-size:15px;letter-spacing:2px}
+  .vazio{color:var(--text2);font-size:14px;padding:40px;text-align:center}
+  .legenda{font-size:12px;color:var(--text2);margin-top:12px;line-height:2}
+  .cta{display:flex;gap:10px;justify-content:center;margin-top:22px;flex-wrap:wrap}
+  .cta a{background:rgba(96,165,250,.16);border:1px solid rgba(96,165,250,.4);color:#bfdbfe;border-radius:10px;padding:10px 16px;font-size:13px;font-weight:700;text-decoration:none}
+  /* confete */
+  .cf{position:fixed;top:-12px;font-size:16px;animation:cair linear forwards;z-index:9999;pointer-events:none}
+  @keyframes cair{to{transform:translateY(105vh) rotate(720deg);opacity:.6}}
+</style>
+</head>
+<body data-route="ranking">
+<office-nav></office-nav>
+
+<div class="hero">
+  <div class="eyebrow">🏆 Advocacy EPI-USE</div>
+  <h1>Ranking do Time</h1>
+  <p>ERP Coins ganhos com participação real: compartilhamentos, cliques nos seus links, quests do game, Gol de Placa e conquistas. Só clique humano vale. 🚀</p>
+</div>
+
+<div class="container">
+  <div class="podium" id="podium"></div>
+
+  <h2>Classificação completa</h2>
+  <div class="panel">
+    <table><thead><tr>
+      <th>#</th><th>Quem</th><th class="num">🪙 Coins ganhos</th><th class="num">🔗 Cliques gerados</th><th>🏅 Conquistas</th>
+    </tr></thead><tbody id="rows"><tr><td colspan="5" class="vazio">Carregando…</td></tr></tbody></table>
+  </div>
+  <div class="legenda" id="legenda"></div>
+
+  <div class="cta">
+    <a href="/meus-links">📂 Gerar meus links</a>
+    <a href="/campanhas">📣 Campanhas em jogo</a>
+    <a href="/loja">🏪 Trocar coins na Loja</a>
+  </div>
+</div>
+
+<script src="/office-nav.js"></script>
+<script>
+(function(){
+  var esc = function(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c];}); };
+  var TROFEU = {
+    egg:      { ico:'🐘', nome:'Guardião dos Elefantes' },
+    quest:    { ico:'🎯', nome:'Quests do game' },
+    golplaca: { ico:'⚽', nome:'Gol de Placa' },
+    share:    { ico:'📣', nome:'Compartilhador' },
+    utm_click:{ ico:'🔗', nome:'Gerador de tráfego' },
+    marco:    { ico:'🏅', nome:'Marco de cliques (50/100)' },
+    estorno:  null, resgate: null
+  };
+  function trofeus(list){
+    return (list||[]).map(function(e){ var t=TROFEU[e]; return t?('<span title="'+esc(t.nome)+'">'+t.ico+'</span>'):''; }).join('');
+  }
+  function inicial(nome){ return esc(String(nome||'?').trim().charAt(0).toUpperCase()); }
+
+  function confete(n){
+    var emojis=['🎉','🪙','⭐','🐘','✨'];
+    for(var i=0;i<n;i++){
+      var s=document.createElement('span');
+      s.className='cf'; s.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+      s.style.left=(Math.random()*100)+'vw';
+      s.style.animationDuration=(2.2+Math.random()*2.2)+'s';
+      s.style.animationDelay=(Math.random()*0.9)+'s';
+      document.body.appendChild(s);
+      setTimeout(function(el){ return function(){ el.remove(); }; }(s), 6000);
+    }
+  }
+
+  function podium(top3){
+    var box=document.getElementById('podium');
+    if(!top3.length){ box.innerHTML='<div class="vazio">Ninguém pontuou ainda — o pódio é de quem participa! 🚀<br>Compartilha um link, marca um Gol de Placa, joga o game.</div>'; return; }
+    var medal=['🥇','🥈','🥉'];
+    var order=[1,0,2]; // prata, ouro, bronze (visual centralizado)
+    box.innerHTML = order.filter(function(i){ return top3[i]; }).map(function(i){
+      var p=top3[i];
+      return '<div class="step p'+(i+1)+'">'+
+        '<div class="avatar">'+inicial(p.nome)+'</div>'+
+        '<div class="nome">'+esc(p.nome)+(p.eu?' <span style="color:#60a5fa">(você)</span>':'')+'</div>'+
+        '<div class="pts">🪙 '+p.ganhos+'</div>'+
+        '<div class="base">'+medal[i]+'</div>'+
+      '</div>';
+    }).join('');
+  }
+
+  fetch('/api/ranking').then(function(r){
+    if(r.status===401){ document.getElementById('rows').innerHTML='<tr><td colspan="5" class="vazio">🔐 Entre com a sua conta pra ver o ranking. <a href="/auth/login?returnTo=%2Franking" style="color:#60a5fa">Entrar →</a></td></tr>'; throw new Error('401'); }
+    if(!r.ok) throw new Error(r.status);
+    return r.json();
+  }).then(function(d){
+    var rk=d.ranking||[];
+    podium(rk.slice(0,3));
+    document.getElementById('rows').innerHTML = rk.length ? rk.map(function(p){
+      var medal=p.pos===1?'🥇':p.pos===2?'🥈':p.pos===3?'🥉':p.pos;
+      return '<tr class="'+(p.eu?'eu':'')+'">'+
+        '<td class="pos">'+medal+'</td>'+
+        '<td><div class="uname">'+esc(p.nome)+(p.eu?' <span style="color:#60a5fa;font-size:11px">(você)</span>':'')+'</div><div class="uemail">'+esc(p.email)+'</div></td>'+
+        '<td class="num num-hi">'+p.ganhos+'</td>'+
+        '<td class="num">'+(p.cliques||0)+'</td>'+
+        '<td class="trofeus">'+(trofeus(p.conquistas)||'—')+'</td></tr>';
+    }).join('') : '<tr><td colspan="5" class="vazio">Ninguém pontuou ainda.</td></tr>';
+    document.getElementById('legenda').innerHTML = rk.length
+      ? '<b>Troféus:</b> 🐘 Guardião dos Elefantes · 🎯 Quests · ⚽ Gol de Placa · 📣 Compartilhador · 🔗 Gerador de tráfego · 🏅 Marco de cliques (50→+25 · 100→+50)'
+      : '';
+    if (rk.some(function(p){ return p.eu && p.pos<=3; })) confete(80); // tá no pódio? festa!
+    else if (rk.length) confete(24); // festinha de boas-vindas
+  }).catch(function(e){ if(e.message!=='401') document.getElementById('rows').innerHTML='<tr><td colspan="5" class="vazio">Erro ('+esc(e.message)+').</td></tr>'; });
+})();
+</script>
+</body>
+</html>
