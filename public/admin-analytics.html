@@ -53,6 +53,26 @@
   .ubox h3{font-size:12px;font-weight:800;color:#9fb2d4;text-transform:uppercase;letter-spacing:.06em;margin:20px 0 8px}
   .ubox .cards{margin-bottom:4px}
   .ubox .card .n{font-size:20px}
+  /* Adoção */
+  .adoc{background:linear-gradient(180deg,#101f3d,#0c1a33);border:1px solid rgba(96,165,250,.22);border-radius:16px;padding:20px 22px;margin-bottom:28px}
+  .adoc-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+  .adoc-head h2{margin:0;color:#e8f0ff;font-size:16px;text-transform:none;letter-spacing:0}
+  .adoc-head .hint{font-size:12px;color:#9fb2d4}
+  .adoc-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:8px}
+  .ac{background:rgba(11,24,48,.7);border:1px solid rgba(134,158,195,.16);border-radius:12px;padding:12px 14px}
+  .ac .n{font-size:24px;font-weight:800;font-family:'JetBrains Mono',monospace}
+  .ac .l{font-size:11px;color:#9fb2d4;text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+  .ac.g .n{color:#4ade80} .ac.y .n{color:#fbbf24} .ac.r .n{color:#f87171} .ac.k .n{color:#94a3b8} .ac.b .n{color:#60a5fa}
+  .st{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap}
+  .st.ativo{background:rgba(34,211,122,.14);color:#4ade80;border:1px solid rgba(34,211,122,.35)}
+  .st.esfriando{background:rgba(251,191,36,.14);color:#fbbf24;border:1px solid rgba(251,191,36,.35)}
+  .st.sumido{background:rgba(248,113,113,.14);color:#f87171;border:1px solid rgba(248,113,113,.38)}
+  .st.never{background:rgba(148,163,184,.14);color:#cbd5e1;border:1px solid rgba(148,163,184,.3)}
+  .subtabs{display:flex;gap:6px;margin:14px 0 8px;flex-wrap:wrap}
+  .subtab{background:rgba(11,24,48,.7);border:1px solid rgba(134,158,195,.2);color:#9fb2d4;padding:6px 12px;border-radius:9px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer}
+  .subtab.on{background:rgba(96,165,250,.16);color:#93c5fd;border-color:rgba(96,165,250,.4)}
+  .bar-mini{display:inline-block;height:7px;border-radius:4px;background:linear-gradient(90deg,#60a5fa,#2563eb);vertical-align:middle;min-width:2px}
+  .bar-wrap{display:inline-block;width:70px;height:7px;background:rgba(134,158,195,.14);border-radius:4px;vertical-align:middle;margin-right:6px;overflow:hidden}
 </style>
 </head>
 <body>
@@ -71,6 +91,31 @@
       <option value="90">90 dias</option>
       <option value="365">1 ano</option>
     </select>
+  </div>
+
+  <!-- ═══════════ ADOÇÃO: o time usa o Office? ═══════════ -->
+  <div class="adoc" id="adoc">
+    <div class="adoc-head">
+      <h2>🧭 Adoção do time</h2>
+      <span class="hint">time cadastrado × quem realmente aparece · quem sumiu, quem nunca entrou, o que ninguém abre</span>
+    </div>
+    <div class="adoc-cards" id="adoc-cards"><div class="vazio">Carregando…</div></div>
+    <div class="subtabs">
+      <button class="subtab on" data-sub="pessoas">👥 Pessoas</button>
+      <button class="subtab" data-sub="features">🧩 Features</button>
+    </div>
+    <div class="panel" id="adoc-pessoas">
+      <table><thead><tr>
+        <th>Pessoa</th><th>Área</th><th>Status</th><th class="num">Sem acessar</th>
+        <th class="num">Visitas</th><th class="num">Coins</th><th>Último acesso</th>
+      </tr></thead><tbody id="tb-adoc-pessoas"><tr><td colspan="7" class="vazio">Carregando…</td></tr></tbody></table>
+    </div>
+    <div class="panel" id="adoc-features" style="display:none">
+      <table><thead><tr>
+        <th>Feature</th><th class="num">Alcance do time</th><th class="num">Pessoas (total)</th>
+        <th class="num">No período</th><th>Último acesso</th>
+      </tr></thead><tbody id="tb-adoc-features"><tr><td colspan="5" class="vazio">Carregando…</td></tr></tbody></table>
+    </div>
   </div>
 
   <div class="cards" id="cards"></div>
@@ -285,7 +330,69 @@
         document.getElementById('tb-users').innerHTML = '<tr><td colspan="6" class="vazio">Acesso negado ou erro ('+esc(e.message)+'). Esta área é exclusiva do dono.</td></tr>';
       });
   }
-  document.getElementById('days').addEventListener('change', load);
+
+  // ── Adoção ──────────────────────────────────────────────────────────────────
+  var ST_LABEL = { ativo:'🟢 Ativo', esfriando:'🟡 Esfriando', sumido:'🔴 Sumiu', never:'⚫ Nunca entrou' };
+  function loadAdocao(){
+    var days = document.getElementById('days').value;
+    fetch('/api/admin/analytics/adocao?days='+days, { headers: authHeaders() })
+      .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+      .then(renderAdocao)
+      .catch(function(e){
+        document.getElementById('adoc-cards').innerHTML = '<div class="vazio">Erro ('+esc(e.message)+').</div>';
+      });
+  }
+  function renderAdocao(d){
+    var r = d.resumo || {};
+    document.getElementById('adoc-cards').innerHTML =
+      '<div class="ac b"><div class="n">'+r.total+'</div><div class="l">cadastrados</div></div>'+
+      '<div class="ac g"><div class="n">'+r.ativos+'</div><div class="l">🟢 ativos (7d)</div></div>'+
+      '<div class="ac y"><div class="n">'+r.esfriando+'</div><div class="l">🟡 esfriando</div></div>'+
+      '<div class="ac r"><div class="n">'+r.sumidos+'</div><div class="l">🔴 sumiram (+30d)</div></div>'+
+      '<div class="ac k"><div class="n">'+r.nunca+'</div><div class="l">⚫ nunca entraram</div></div>'+
+      '<div class="ac b"><div class="n">'+r.pct_ativos_30d+'%</div><div class="l">do time ativo (30d)</div></div>';
+
+    var ppl = d.roster || [];
+    // ordena: quem precisa de atenção primeiro (nunca → sumido → esfriando → ativo)
+    var ord = { never:0, sumido:1, esfriando:2, ativo:3 };
+    ppl.sort(function(a,b){ return (ord[a.status]-ord[b.status]) || ((b.visitas)-(a.visitas)); });
+    document.getElementById('tb-adoc-pessoas').innerHTML = ppl.length ? ppl.map(function(u){
+      var sem = u.status==='never' ? '<span class="muted">nunca</span>'
+              : (u.dias_desde===0 ? 'hoje' : (u.dias_desde===1 ? 'ontem' : (u.dias_desde+' dias')));
+      return '<tr>'+
+        '<td><div class="uname">'+esc(u.nome)+'</div><div class="uemail">'+esc(u.email)+'</div></td>'+
+        '<td>'+roleBadge(u.role)+'</td>'+
+        '<td><span class="st '+u.status+'">'+ST_LABEL[u.status]+'</span></td>'+
+        '<td class="num">'+sem+'</td>'+
+        '<td class="num">'+u.visitas+'</td>'+
+        '<td class="num">'+(u.coins||0)+'</td>'+
+        '<td class="muted">'+(u.ultimo?fmtWhen(u.ultimo):'—')+'</td></tr>';
+    }).join('') : '<tr><td colspan="7" class="vazio">Nenhum usuário cadastrado na tabela <code>users</code>.</td></tr>';
+
+    var ft = d.features || [];
+    document.getElementById('tb-adoc-features').innerHTML = ft.length ? ft.map(function(f){
+      var pct = f.pct_time||0;
+      var bar = '<span class="bar-wrap"><span class="bar-mini" style="width:'+Math.min(100,pct)+'%"></span></span>'+pct+'%';
+      var cls = f.usuarios===0 ? ' class="vazio"' : '';
+      return '<tr>'+
+        '<td class="path"'+(f.usuarios===0?' style="opacity:.6"':'')+'>'+esc(f.label)+' <span class="muted">'+esc(f.path)+'</span></td>'+
+        '<td class="num">'+bar+'</td>'+
+        '<td class="num'+(f.usuarios===0?'':' num-hi')+'">'+f.usuarios+'</td>'+
+        '<td class="num">'+f.usuarios_janela+'</td>'+
+        '<td class="muted">'+(f.ultimo?fmtWhen(f.ultimo):'— ninguém abriu')+'</td></tr>';
+    }).join('') : '<tr><td colspan="5" class="vazio">—</td></tr>';
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('.subtab'), function(btn){
+    btn.addEventListener('click', function(){
+      Array.prototype.forEach.call(document.querySelectorAll('.subtab'), function(b){ b.classList.remove('on'); });
+      btn.classList.add('on');
+      var sub = btn.dataset.sub;
+      document.getElementById('adoc-pessoas').style.display  = sub==='pessoas'  ? '' : 'none';
+      document.getElementById('adoc-features').style.display = sub==='features' ? '' : 'none';
+    });
+  });
+
+  document.getElementById('days').addEventListener('change', function(){ load(); loadAdocao(); });
 
   // filtro rápido da tabela de usuários
   function applyUserFilter(){
@@ -297,6 +404,7 @@
   document.getElementById('f-users').addEventListener('input', applyUserFilter);
 
   load();
+  loadAdocao();
 })();
 </script>
 </body>
