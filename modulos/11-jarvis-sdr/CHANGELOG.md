@@ -1,5 +1,26 @@
 # CHANGELOG — Módulo 11 (JARVIS)
 
+## v0.10.0 — 2026-07-01 · Captura do áudio da call + STT FREE no navegador (beta)
+Motivo: com **fone**, o mic não capta o prospect (a voz sai no fone, não vaza no ar) — o JARVIS só ouvia o
+SDR. O Rudá quer ouvir os **dois lados**, **de graça** e **em tempo real**. Decisão: capturar o áudio da
+call e transcrever **no próprio navegador** (sem STT pago).
+
+**Adicionado (aditivo — `public/jarvis-callstt.js` novo + `public/jarvis.html`):**
+- **Captura do áudio da call** via `getDisplayMedia({audio})` — pega o áudio da aba/sistema (o lado do
+  **cliente**), funciona até de fone. O SDR compartilha a aba da reunião marcando "compartilhar áudio".
+- **STT no navegador (FREE)** via `transformers.js` (Whisper) com **auto-detecção de hardware**: WebGPU →
+  `whisper-base`; sem WebGPU → `whisper-tiny` no WASM (modo leve). Zero custo por minuto — roda na máquina do
+  SDR. Chunks de ~4s (VAD-lite por RMS pula silêncio). Sink com ganho 0 (não ecoa no fone).
+- **Diarização por FONTE (de graça):** com a captura ligada, **mic = SDR (voz1)** e **áudio da call =
+  Cliente (voz2)** — os papéis são marcados sozinhos (`setRole`), sem heurística de pausa e sem clicar.
+- UI: botão **"🎧 Áudio da call (beta)"** + status ao vivo (carregando modelo / ouvindo / erro claro).
+  Degrada com mensagem se faltar getDisplayMedia, faixa de áudio ou o modelo. UI header → v0.10.
+
+**⚠️ BETA — precisa de teste em navegador real** (WebGPU/áudio não rodam no CI; validado só sintaxe/estrutura).
+Ressalvas: reunião no **navegador** (Meet/Teams/Zoom web) funciona liso (Win/Mac); **app nativo no Mac** não
+expõe áudio do sistema via getDisplayMedia (caso de exceção → cabo virtual/bot no futuro). Modelo baixa 1x
+(~75–150MB, cache). Depende de `cdn.jsdelivr.net` + HuggingFace acessíveis na rede do SDR.
+
 ## v0.9.0 — 2026-06-25 · UI clean + auto-detect de contexto + auto-save
 Motivo: o Rudá pediu pra deixar **clean** — sem preencher dropdown na mão e sem botão de salvar. O JARVIS
 é que tem que **identificar cargo/LOB/indústria/estágio da conversa**, e a memória viva tem que salvar sozinha.

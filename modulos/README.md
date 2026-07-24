@@ -10,7 +10,7 @@
 | Pasta | Módulo | Status |
 |---|---|---|
 | `10-painel-duda/` | Painel da Duda (Módulo C) | 🚧 Em construção |
-| `11-jarvis-sdr/` | JARVIS — Copiloto SDR/BDR (biz dev · `/jarvis`) | 🟢 v0.9 (UI clean: auto-detect contexto + auto-save · cérebro vivo) |
+| `11-jarvis-sdr/` | JARVIS — Copiloto SDR/BDR (biz dev · `/jarvis`) | 🟢 v0.10 (captura áudio da call + STT free no navegador · beta) |
 
 ## Módulos sem pasta própria (documentados em `docs/MODULES.md`)
 

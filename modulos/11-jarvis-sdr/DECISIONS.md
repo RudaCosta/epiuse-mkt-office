@@ -55,6 +55,17 @@ acusticamente — então isso é **explicitamente etiquetado como heurística** 
 diarização real). Resolve a dor principal (parar de clicar a cada turno). STT real (Deepgram/AssemblyAI) +
 captura de áudio da aba fica como decisão/fase futura quando o Rudá aprovar a chave + custo.
 
+## D11 — Captura da call + STT FREE no navegador (não STT pago, não bot) — v0.10
+**Decisão:** ouvir o lado do cliente capturando o áudio da call com `getDisplayMedia({audio})` e
+transcrevendo **no próprio navegador** com Whisper (`transformers.js`, WebGPU/WASM auto). Nada de STT pago
+(Deepgram) nem bot de reunião.
+**Por quê:** o Rudá pediu **free + tempo real**. getDisplayMedia (grátis) resolve *capturar* mesmo de fone; o
+gargalo era transcrever a 2ª fonte (o Web Speech só aceita o mic padrão). Whisper no navegador é **custo zero
+por minuto** (roda na máquina do SDR) e ainda **elimina a diarização** (papéis por fonte: mic=SDR,
+call=Cliente). Trade-off aceito: usa CPU/GPU do SDR + download único do modelo + depende de CDN/HF na rede.
+Bot/STT pago ficam como plano B se a precisão do modo leve não bastar. **Isolado e opt-in (beta)** — não
+encosta no fluxo v0.9 que já funciona.
+
 ## D10 — JARVIS = app em runtime + sub-agente destilador (duas faces) — v0.8
 **Decisão:** manter o **app ao vivo** como módulo (não sub-agente) e criar um **sub-agente** `jarvis-sdr`
 (área Pipeline) que **destila as calls offline** em conhecimento curado e pautas.

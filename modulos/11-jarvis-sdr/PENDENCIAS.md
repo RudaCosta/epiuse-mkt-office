@@ -6,13 +6,20 @@
 - **Sem persistência.** ~~A call não era salva.~~ Agora `jarvis_calls` + `jarvis_aprendizados` (SQLite,
   volume `/data`). Pós-call extrai dores reais; "Dores de campo" agrega por LOB pra pautar conteúdo.
 
-## 🟡 Limitações conhecidas (v0.8)
-- **Diarização é heurística, não acústica.** Separa por **pausa** (gap 1,6s) no `Web Speech API` — não
-  distingue vozes de verdade. Voz 1/Voz 2 podem sair trocadas (corrigir com "↔️ trocar voz"). Etiqueta
-  honesta na UI. → Evolução: **STT pago com diarização real** (Deepgram/AssemblyAI) — decisão/custo do Rudá.
-- **Captura de áudio do prospect em call remota.** O `Web Speech API` capta só o microfone local. Em
-  reunião remota (Teams/Meet/Zoom), as falas do prospect entram por viva-voz ou digitando. → Evolução:
-  captura de áudio da aba (`getDisplayMedia` com áudio) ou bot de reunião — anda junto com o STT pago.
+## 🟢 Resolvido na v0.10 (01/jul) — beta a validar em navegador
+- **Captura de áudio do prospect em call de fone.** ~~Web Speech só pegava o mic.~~ Agora **captura o áudio
+  da call** (`getDisplayMedia`) + **STT FREE no navegador** (Whisper via transformers.js, WebGPU/WASM) →
+  ouve o cliente **de graça, em tempo real**. Isso também **resolve a diarização** (mic=SDR, call=Cliente
+  por fonte — sem heurística). **BETA:** validar em navegador real (WebGPU/áudio não rodam no CI).
+
+## 🟡 Limitações conhecidas (v0.10)
+- **Captura beta depende do ambiente.** Reunião no **navegador** (Meet/Teams/Zoom web) funciona (Win/Mac);
+  **app nativo no Mac** não expõe áudio do sistema via `getDisplayMedia` → futuro: cabo virtual ou bot de
+  reunião. Modelo baixa 1x (~75–150MB, cache); depende de `jsdelivr`/HuggingFace acessíveis na rede do SDR.
+- **Diarização heurística (fallback sem captura).** Sem ligar "🎧 Áudio da call", segue a separação por
+  **pausa** (gap 1,6s) no `Web Speech API` — não distingue vozes de verdade (usar "↔️ trocar voz").
+- **STT pago (Deepgram) não usado** — caminho FREE (navegador) foi o escolhido pelo Rudá. Fica como opção
+  futura se a precisão do Whisper-tiny em máquina fraca não bastar.
 - **KB de produto/battle cards vazia.** `kb-produtos-sap.json` + `kb-battle-cards.json` estão
   `⏳ aguarda ingestão` — o Rudá entrega o material (xlsx/pdf/pptx) e o `jarvis-sdr` estrutura (Regra 7).
 - **Memória sem RAG semântico.** Recall por LOB/keyword (sem embeddings). RAG vetorial na nuvem = fase futura.
