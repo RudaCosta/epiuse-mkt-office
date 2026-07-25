@@ -6,11 +6,13 @@
 > **recomenda falas** (próxima pergunta, talk track, contorno de objeção, próximo passo).
 
 ## Status
-🟢 **v0.9 — UI clean (auto-detect de contexto + auto-save)** sobre o cérebro vivo da v0.8 (25/jun/2026).
+🟢 **v0.10 — captura do áudio da call + STT FREE no navegador (beta)** sobre a v0.9 (01/jul/2026).
 
 ## Como funciona
-1. **Escuta** — `Web Speech API` (pt-BR, Chrome) capta o microfone local. **Diarização heurística** separa as
-   falas em **Voz 1 / Voz 2** por pausa (sem clicar a cada turno); o SDR marca **1×** quem é SDR/Cliente.
+1. **Escuta** — o mic (`Web Speech API`, pt-BR/Chrome) capta o **SDR**. Opcional (beta): **"🎧 Áudio da call"**
+   captura o áudio da reunião (`getDisplayMedia`) pra ouvir o **cliente** de fone e transcreve **FREE no
+   navegador** (Whisper via `transformers.js` em `jarvis-callstt.js` — WebGPU/WASM auto). Com a captura,
+   mic=SDR e call=Cliente **por fonte** (papéis automáticos). Sem ela, separa Voz 1/Voz 2 por pausa (heurística).
 2. **Pensa** — `POST /api/jarvis/coach` envia contexto + transcrição ao **Claude (Haiku 4.5)** com persona
    sênior + base real + **memória viva** (dores já ouvidas em campo) injetadas no system prompt.
 3. **Detecta o contexto** — em vez de dropdown manual, o coach **infere LOB/persona/indústria/estágio da
