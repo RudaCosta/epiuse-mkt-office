@@ -1212,6 +1212,7 @@ async function artigosRevisarPortugues(html) {
 Revise o HTML abaixo corrigindo APENAS: erros de ortografia, acentuação, crase, concordância verbal/nominal, regência, pontuação e palavras digitadas errado.
 NÃO reescreva frases corretas. NÃO altere estrutura HTML, tags, classes ou conteúdo técnico. NÃO adicione nem remova seções.
 Se uma frase tiver mais de 25 palavras, divida-a em duas mantendo o sentido.
+EXCEÇÃO OBRIGATÓRIA — Meta description: no bloco seo-meta, se o texto após "<strong>Meta:</strong>" tiver mais de 130 caracteres, REESCREVA-O com no máximo 130 caracteres (conte!), mantendo a frase-chave no início e a chamada pra ação.
 
 Retorne APENAS o HTML corrigido, sem \`\`\`.
 
