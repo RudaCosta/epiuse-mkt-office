@@ -1,6 +1,6 @@
 {
-  "current": "0.82.3",
-  "atualizado_em": "20/jul/2026",
+  "current": "0.82.4",
+  "atualizado_em": "27/jul/2026",
   "next": [
     {
       "version": "0.53.0",
@@ -54,9 +54,22 @@
   ],
   "releases": [
     {
-      "version": "0.82.3",
+      "version": "0.82.4",
       "date": "27/jul/2026",
       "status": "current",
+      "path": null,
+      "title": "🛡️ UTM Anti-Bot v0.82.4 — JS challenge filtra scanners de email + timezone BRT",
+      "highlights": [
+        "Cliques de scanners de segurança de email (SafeLinks, Proofpoint, Barracuda…) agora são filtrados via JS challenge page — bots não executam JS, então só cliques humanos reais são contados",
+        "Regex de detecção de bots expandida com 15+ padrões de email security scanners",
+        "Migração retroativa marca cliques históricos de burst (10+ IPs em 5min) como bot=1 — mantém histórico mas tira da contagem",
+        "Horários no admin UTM agora forçam BRT (UTC-3) em vez de depender do fuso do browser"
+      ]
+    },
+    {
+      "version": "0.82.3",
+      "date": "27/jul/2026",
+      "status": "past",
       "path": null,
       "title": "✂️ Stratview Generator v0.82.3 — trava de metadescrição ≤130 chars",
       "highlights": [

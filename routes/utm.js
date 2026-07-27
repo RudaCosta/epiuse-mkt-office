@@ -46,6 +46,38 @@ db.exec(`
 // clique de máquina não é clique real). Migração idempotente; histórico fica 0.
 try { db.exec(`ALTER TABLE utm_clicks ADD COLUMN bot INTEGER DEFAULT 0`); } catch (_e) { /* já existe */ }
 
+// Migração v0.82.4: marca retroativamente cliques de email-security-scanners como
+// bot=1. Heurística: tokens que receberam 10+ cliques de IPs distintos em janelas
+// de 5 min são burst de scanner (SafeLinks, Proofpoint…). Roda 1x (idempotente).
+try {
+  const migKey = 'utm_bot_backfill_v1';
+  const already = db.prepare(`SELECT 1 FROM erp_coins WHERE evento=? AND ref=? LIMIT 1`).get('_migration', migKey);
+  if (!already) {
+    const bursts = db.prepare(`
+      SELECT c1.token, c1.ts AS window_start,
+             COUNT(DISTINCT c1.ip_hash) AS distinct_ips,
+             COUNT(*) AS total
+      FROM utm_clicks c1
+      JOIN utm_clicks c2 ON c2.token = c1.token
+        AND c2.ts BETWEEN c1.ts AND c1.ts + 300000
+        AND c2.bot = 0
+      WHERE c1.bot = 0
+      GROUP BY c1.token, CAST(c1.ts / 300000 AS INTEGER)
+      HAVING distinct_ips >= 10
+    `).all();
+    if (bursts.length) {
+      const markBot = db.prepare(`UPDATE utm_clicks SET bot = 1 WHERE token = ? AND bot = 0 AND ts BETWEEN ? AND ? + 300000`);
+      const tx = db.transaction(() => {
+        for (const b of bursts) markBot.run(b.token, b.window_start, b.window_start);
+      });
+      tx();
+      const total = bursts.reduce((s, b) => s + b.total, 0);
+      console.log(`[utm] backfill: ${total} cliques de scanner marcados como bot em ${bursts.length} janela(s)`);
+    }
+    db.prepare(`INSERT OR IGNORE INTO erp_coins (email, evento, ref, coins) VALUES (?,?,?,?)`).run('_system', '_migration', migKey, 0);
+  }
+} catch (e) { console.warn('[utm] backfill migration:', e.message); }
+
 function sessionEmail(req) {
   const e = req.session && req.session.user && req.session.user.email;
   return e ? String(e).toLowerCase() : null;
@@ -87,8 +119,13 @@ function sanitizeSlug(s, max) {
 // Bots/crawlers de preview (LinkedInBot, WhatsApp, facebookexternalhit, Telegram,
 // Slack, curl…) — recebem o redirect normal (precisam do 302 pro preview), mas o
 // clique é marcado bot=1 e não credita coins nem entra nas contagens.
-const BOT_UA_RE = /bot|crawl|spider|linkedin|whatsapp|facebookexternalhit|facebot|telegram|slack|twitter|discord|skypeuripreview|preview|pinterest|curl|wget|python|axios|node-fetch|go-http|headless|lighthouse|monitor|uptime/i;
+const BOT_UA_RE = /bot|crawl|spider|linkedin|whatsapp|facebookexternalhit|facebot|telegram|slack|twitter|discord|skypeuripreview|preview|pinterest|curl|wget|python|axios|node-fetch|go-http|headless|lighthouse|monitor|uptime|safelinks|urldefense|barracuda|mimecast|proofpoint|googleimageproxy|ms-office|bing|jakarta|scanner|fetch|phishguard|mailguard|security|clickprotect|antivirus|fortinet|sophos/i;
 function isBotUA(ua) { return BOT_UA_RE.test(String(ua || '')) || !String(ua || '').trim(); }
+
+// HMAC para JS challenge — garante que /go/:token/c só funciona via JS da página
+function clickHmac(token, ts) {
+  return crypto.createHmac('sha256', CLICK_SALT).update(token + '|' + ts).digest('hex').slice(0, 16);
+}
 
 // utm_medium padrão por canal (sobrescritível via body.medium).
 const MEDIUM_BY_SOURCE = {
@@ -205,46 +242,92 @@ router.delete('/api/utm/link/:token', (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// ── Redirect rastreado — loga o clique, credita coins e manda pro destino ──────
+// ── Redirect rastreado — JS challenge filtra bots de segurança de email ────────
+// Bots de UA conhecida (social previews) → 302 direto + bot=1.
+// Demais requests → página HTML com JS redirect. Bots de email (SafeLinks,
+// Proofpoint…) NÃO executam JS, então nunca chegam no /go/:token/c que é onde
+// o clique humano real é contado. Delay imperceptível pra humanos (~50ms).
 router.get('/go/:token', (req, res) => {
   const token = sanitizeSlug(req.params.token, 24);
   let link = null;
   try { link = db.prepare(`SELECT * FROM utm_links WHERE token=?`).get(token); } catch (e) {}
-  if (!link) return res.redirect('/'); // token desconhecido → home
+  if (!link) return res.redirect('/');
+
+  const ua = String(req.headers['user-agent'] || '').slice(0, 200);
+  const bot = isBotUA(ua) ? 1 : 0;
+  const target = appendUtm(link.dest, {
+    source: link.source, medium: link.medium, campaign: link.campaign, content: token,
+  });
+
+  if (bot) {
+    // Bot de UA conhecida: loga como bot, 302 pro destino (link preview precisa)
+    try {
+      db.prepare(`INSERT INTO utm_clicks (token, ts, ref, ua, ip_hash, bot) VALUES (?,?,?,?,?,?)`)
+        .run(token, Date.now(), String(req.headers['referer'] || '').slice(0, 200), ua, ipHash(req), 1);
+    } catch (e) { console.warn('[utm] bot-click', e.message); }
+    res.set('Cache-Control', 'no-store');
+    return res.redirect(302, target);
+  }
+
+  // Potencial humano OU bot de email (UA genérica): servir JS challenge
+  const now = Date.now();
+  const hmac = clickHmac(token, now);
+  const confirmUrl = '/go/' + token + '/c?t=' + now + '&h=' + hmac;
+  const esc = (s) => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  res.set('Cache-Control', 'no-store');
+  res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Redirecionando...</title>
+<style>body{font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#0a1426;color:#e8f0ff}
+.box{text-align:center}.spinner{width:28px;height:28px;border:3px solid rgba(255,255,255,.15);border-top-color:#cd1543;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 14px}
+@keyframes spin{to{transform:rotate(360deg)}}a{color:#60a5fa}</style></head>
+<body><div class="box"><div class="spinner"></div><p>Redirecionando...</p>
+<noscript><p style="margin-top:16px"><a href="${esc(target)}">Clique aqui para continuar</a></p></noscript></div>
+<script>window.location.replace("${esc(confirmUrl)}")</script></body></html>`);
+});
+
+// ── Confirmação JS — aqui o clique humano real é contado ──────────────────────
+// Só chega aqui quem executou o JS da página acima (humano real). O HMAC impede
+// acesso direto sem passar pela challenge page.
+router.get('/go/:token/c', (req, res) => {
+  const token = sanitizeSlug(req.params.token, 24);
+  let link = null;
+  try { link = db.prepare(`SELECT * FROM utm_links WHERE token=?`).get(token); } catch (e) {}
+  if (!link) return res.redirect('/');
+
+  const t = parseInt(req.query.t, 10) || 0;
+  const h = String(req.query.h || '');
+  // Validar HMAC e janela de tempo (5 min)
+  if (h !== clickHmac(token, t) || Math.abs(Date.now() - t) > 300000) {
+    const target = appendUtm(link.dest, {
+      source: link.source, medium: link.medium, campaign: link.campaign, content: token,
+    });
+    return res.redirect(302, target);
+  }
 
   const now = Date.now();
   const iph = ipHash(req);
   const ua = String(req.headers['user-agent'] || '').slice(0, 200);
-  const bot = isBotUA(ua) ? 1 : 0;
   try {
-    // HEAD de scrapers não conta; GET conta (bot marcado, humano credita coins).
-    if (req.method === 'GET') {
-      db.prepare(`INSERT INTO utm_clicks (token, ts, ref, ua, ip_hash, bot) VALUES (?,?,?,?,?,?)`)
-        .run(token, now, String(req.headers['referer'] || '').slice(0, 200), ua, iph, bot);
-      // Coins pro autor (SÓ clique humano): 1 crédito por clicker único / link /
-      // dia (anti-farm via UNIQUE(email,evento,ref,dia); ref = token:hash-do-clicker).
-      if (!bot) {
-        db.prepare(`INSERT OR IGNORE INTO erp_coins (email, evento, ref, coins) VALUES (?,?,?,?)`)
-          .run(link.email, 'utm_click', (token + ':' + iph).slice(0, 60), UTM_CLICK_COINS);
-        // 🏅 Marcos de cliques (v0.82.0): bônus quando o link cruza 50 e 100
-        // cliques HUMANOS acumulados. Idempotente via ref única por token.
-        const humanos = db.prepare(`SELECT COUNT(*) n FROM utm_clicks WHERE token=? AND bot=0`).get(token).n;
-        if (humanos >= 50) {
-          db.prepare(`INSERT OR IGNORE INTO erp_coins (email, evento, ref, coins) VALUES (?,?,?,?)`)
-            .run(link.email, 'marco', ('marco50:' + token).slice(0, 60), 25);
-        }
-        if (humanos >= 100) {
-          db.prepare(`INSERT OR IGNORE INTO erp_coins (email, evento, ref, coins) VALUES (?,?,?,?)`)
-            .run(link.email, 'marco', ('marco100:' + token).slice(0, 60), 50);
-        }
-      }
+    db.prepare(`INSERT INTO utm_clicks (token, ts, ref, ua, ip_hash, bot) VALUES (?,?,?,?,?,?)`)
+      .run(token, now, String(req.headers['referer'] || '').slice(0, 200), ua, iph, 0);
+    // Coins pro autor: 1 crédito por clicker único / link / dia
+    db.prepare(`INSERT OR IGNORE INTO erp_coins (email, evento, ref, coins) VALUES (?,?,?,?)`)
+      .run(link.email, 'utm_click', (token + ':' + iph).slice(0, 60), UTM_CLICK_COINS);
+    // Marcos de cliques (v0.82.0)
+    const humanos = db.prepare(`SELECT COUNT(*) n FROM utm_clicks WHERE token=? AND bot=0`).get(token).n;
+    if (humanos >= 50) {
+      db.prepare(`INSERT OR IGNORE INTO erp_coins (email, evento, ref, coins) VALUES (?,?,?,?)`)
+        .run(link.email, 'marco', ('marco50:' + token).slice(0, 60), 25);
+    }
+    if (humanos >= 100) {
+      db.prepare(`INSERT OR IGNORE INTO erp_coins (email, evento, ref, coins) VALUES (?,?,?,?)`)
+        .run(link.email, 'marco', ('marco100:' + token).slice(0, 60), 50);
     }
   } catch (e) { console.warn('[utm] click', e.message); }
 
   const target = appendUtm(link.dest, {
     source: link.source, medium: link.medium, campaign: link.campaign, content: token,
   });
-  res.set('Cache-Control', 'no-store'); // proxy/CDN não pode "engolir" cliques
+  res.set('Cache-Control', 'no-store');
   res.redirect(302, target);
 });
 

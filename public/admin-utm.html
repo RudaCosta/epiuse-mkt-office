@@ -174,7 +174,12 @@
   try { var _t = new URL(location.href).searchParams.get('token'); if (_t) localStorage.setItem('office.editorToken', _t); } catch(e){}
   function authHeaders(){ var h={}; try { var t=localStorage.getItem('office.editorToken'); if(t) h['X-Editor-Token']=t; } catch(e){} return h; }
   var esc = function(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]; }); };
-  function fmtWhen(ts){ var d=new Date(+ts); var p=function(n){return (n<10?'0':'')+n;}; return p(d.getDate())+'/'+p(d.getMonth()+1)+' '+p(d.getHours())+':'+p(d.getMinutes()); }
+  function fmtWhen(ts){
+    var d=new Date(+ts); var p=function(n){return (n<10?'0':'')+n;};
+    // Força BRT (UTC-3) pra consistência — servidor grava epoch UTC, display sempre em horário de Brasília
+    var brt = new Date(+ts - 3*3600000);
+    return p(brt.getUTCDate())+'/'+p(brt.getUTCMonth()+1)+' '+p(brt.getUTCHours())+':'+p(brt.getUTCMinutes());
+  }
   function card(n,l){ return '<div class="card"><div class="n">'+esc(n)+'</div><div class="l">'+esc(l)+'</div></div>'; }
   var ROLE_LABELS={head:'Head',intelligence:'Intelligence',growth:'Growth',field:'Field Mkt',pipeline:'Pipeline',brand:'Brand',conteudo:'Conteúdo','country-manager':'Country Mgr',diretoria:'Diretoria',hub:'Colaborador'};
   var MKT_ROLES={head:1,intelligence:1,growth:1,field:1,pipeline:1,brand:1,conteudo:1};
