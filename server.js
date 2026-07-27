@@ -1438,11 +1438,25 @@ app.post('/api/stratview/imagem', async (req, res) => {
       'Isometric miniature city built from circuit boards and glowing blue traces, with a bright vertical beam of light rising into a stylized particle cloud; dark navy atmosphere with cyan glow.',
       'Close-up of professional hands interacting with floating translucent holographic charts and KPI cards above a sleek desk, dark blue ambience with cyan rim light, blurred executive office behind.'
     ];
-    const composicao = composicoes[Math.floor(Math.random() * composicoes.length)];
+    // A cena é escrita pelo modelo de texto A PARTIR DO TEMA do artigo — antes a composição
+    // fixa sorteada ditava a imagem inteira e o tema era ignorado (todas as capas saíam iguais)
+    let composicao = null;
+    try {
+      const { result } = await geminiPostComFallback({
+        contents: [{ parts: [{ text: `Write ONE scene description (in English, 40-70 words) for a premium B2B editorial illustration about this article:
+${prompt}
 
-    const enhancedPrompt = `Premium enterprise-technology editorial illustration for a business blog article. Theme of the article: ${prompt}
+Rules: the scene must VISUALLY represent this specific topic through a concrete visual metaphor (objects, environments and elements drawn from the subject itself — not generic office imagery). Corporate technology setting, no identifiable faces, no text, no logos. Answer with ONLY the scene description.` }] }],
+        generationConfig: { temperature: 1.1, maxOutputTokens: 1024 }
+      });
+      const cena = result.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+      if (cena && cena.length > 40) composicao = cena;
+    } catch (e) { console.warn('[ARTIGOS-IMAGEM] cena via texto falhou, usando composição fixa:', e.message.slice(0, 80)); }
+    if (!composicao) composicao = composicoes[Math.floor(Math.random() * composicoes.length)];
 
-COMPOSITION (follow this scene):
+    const enhancedPrompt = `Premium enterprise-technology editorial illustration for a business blog article about: ${prompt}
+
+SCENE (the image must depict this):
 ${composicao}
 
 ART DIRECTION — follow exactly:
