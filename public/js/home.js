@@ -826,9 +826,13 @@
     const box = document.querySelector('.home-quick');
     if (!box) return;
     const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-    box.innerHTML = items.map(it =>
-      `<a href="${esc(it.href)}"><span class="ico">${esc(it.icon || '🔗')}</span>${esc(it.label)}</a>`
-    ).join('');
+    box.innerHTML = items.map(it => {
+      if (it.modal) {
+        return `<a href="#" onclick="event.preventDefault();openReportModal('${esc(it.modal)}')" class="home-quick-modal"><span class="ico">${esc(it.icon || '🔗')}</span>${esc(it.label)}</a>`;
+      }
+      const ext = it.external ? ' target="_blank" rel="noopener"' : '';
+      return `<a href="${esc(it.href)}"${ext}><span class="ico">${esc(it.icon || '🔗')}</span>${esc(it.label)}${it.external ? ' ↗' : ''}</a>`;
+    }).join('');
   }
 
   // ── KPIs por fonte (todas APIs já existentes) ───────────────────
