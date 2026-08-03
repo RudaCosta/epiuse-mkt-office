@@ -1758,7 +1758,7 @@
             <span style="font-size: 28px;">🎪</span>
             <div>
               <h2 style="font-family: var(--font-display); font-size: 18px; font-weight: 700; color: #fff; margin: 0;">Growth Eventos</h2>
-              <p style="font-size: 12px; color: var(--text-muted); margin: 2px 0 0 0;">Reescreva posts de eventos que performaram bem, seguindo as regras do Gui</p>
+              <p style="font-size: 12px; color: var(--text-muted); margin: 2px 0 0 0;">Crie posts do zero para eventos, seguindo as diretrizes do Gui por tipo</p>
             </div>
           </div>
 
@@ -1817,21 +1817,51 @@
             </div>
           </div>
 
-          <!-- Post Original -->
+          <!-- Sobre o Evento -->
           <div style="margin-bottom: 16px;">
-            <label style="font-family: var(--font-display); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 6px;">Post Original (que performou bem)</label>
-            <textarea id="ge-post-original" class="form-control" placeholder="Cole aqui o post do LinkedIn que deu certo. O Rax vai reescrever seguindo as regras do tipo selecionado..." style="min-height: 160px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; color: var(--input-text); padding: 12px; font-size: 13px; line-height: 1.5; width: 100%; box-sizing: border-box; resize: vertical;"></textarea>
+            <label style="font-family: var(--font-display); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 6px;">Sobre o Evento</label>
+            <textarea id="ge-sobre-evento" class="form-control" placeholder="Descreva o evento: o que é, quem organiza, público esperado, qual a relevância para a EPI-USE..." style="min-height: 100px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; color: var(--input-text); padding: 12px; font-size: 13px; line-height: 1.5; width: 100%; box-sizing: border-box; resize: vertical;"></textarea>
+          </div>
+
+          <!-- Programação / Temas -->
+          <div style="margin-bottom: 16px;">
+            <label style="font-family: var(--font-display); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 6px;">Programação / Temas Principais <span style="font-weight: 400; opacity: 0.6;">(quanto mais detalhe, melhor o post)</span></label>
+            <textarea id="ge-programacao" class="form-control" placeholder="Painéis, palestras, workshops, temas que serão debatidos, trilhas..." style="min-height: 80px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; color: var(--input-text); padding: 12px; font-size: 13px; line-height: 1.5; width: 100%; box-sizing: border-box; resize: vertical;"></textarea>
+          </div>
+
+          <!-- Palestrantes / Representantes EPI-USE -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+            <div>
+              <label style="font-family: var(--font-display); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 6px;">Palestrantes <span style="font-weight: 400; opacity: 0.6;">(opcional)</span></label>
+              <textarea id="ge-palestrantes" class="form-control" placeholder="Nomes, cargos, temas..." style="min-height: 60px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; color: var(--input-text); padding: 10px 12px; font-size: 13px; line-height: 1.4; width: 100%; box-sizing: border-box; resize: vertical;"></textarea>
+            </div>
+            <div>
+              <label style="font-family: var(--font-display); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 6px;">Representantes EPI-USE <span style="font-weight: 400; opacity: 0.6;">(opcional)</span></label>
+              <textarea id="ge-representantes" class="form-control" placeholder="Quem da EPI-USE vai/foi, cargo..." style="min-height: 60px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; color: var(--input-text); padding: 10px 12px; font-size: 13px; line-height: 1.4; width: 100%; box-sizing: border-box; resize: vertical;"></textarea>
+            </div>
+          </div>
+
+          <!-- Link de inscrição (Tipo 2) -->
+          <div style="margin-bottom: 16px;" id="ge-inscricao-wrap">
+            <label style="font-family: var(--font-display); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 6px;">Link de Inscrição / CTA <span style="font-weight: 400; opacity: 0.6;">(obrigatório p/ Tipo 2)</span></label>
+            <input type="text" id="ge-link-inscricao" class="form-control" placeholder="https://evento.com.br/inscricao" style="height: 40px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; color: var(--input-text); padding: 0 12px; font-size: 13px; width: 100%; box-sizing: border-box;">
+          </div>
+
+          <!-- Pós-evento: aprendizados e fotos -->
+          <div id="ge-pos-extras" style="display: none; margin-bottom: 16px;">
+            <label style="font-family: var(--font-display); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 6px;">Aprendizados & Destaques do Evento <span style="font-weight: 400; opacity: 0.6;">(pós-evento)</span></label>
+            <textarea id="ge-aprendizados" class="form-control" placeholder="O que aconteceu? Insights, conexões feitas, números (participantes, empresas), temas que mais chamaram atenção, fotos disponíveis..." style="min-height: 120px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; color: var(--input-text); padding: 12px; font-size: 13px; line-height: 1.5; width: 100%; box-sizing: border-box; resize: vertical;"></textarea>
           </div>
 
           <!-- Contexto adicional -->
           <div style="margin-bottom: 20px;">
             <label style="font-family: var(--font-display); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 6px;">Contexto Adicional <span style="font-weight: 400; opacity: 0.6;">(opcional)</span></label>
-            <textarea id="ge-contexto" class="form-control" placeholder="Palestrantes, temas, aprendizados, fotos disponíveis, hashtags do evento..." style="min-height: 80px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; color: var(--input-text); padding: 12px; font-size: 13px; line-height: 1.5; width: 100%; box-sizing: border-box; resize: vertical;"></textarea>
+            <textarea id="ge-contexto" class="form-control" placeholder="Hashtags oficiais do evento, patrocinadores, algo especial que queira mencionar..." style="min-height: 60px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; color: var(--input-text); padding: 12px; font-size: 13px; line-height: 1.5; width: 100%; box-sizing: border-box; resize: vertical;"></textarea>
           </div>
 
           <!-- Botão Gerar -->
           <button type="button" id="ge-btn-gerar" style="width: 100%; height: 48px; background: linear-gradient(135deg, #cd1543 0%, #a01035 100%); border: none; border-radius: 10px; color: #fff; font-family: var(--font-display); font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 16px rgba(205,21,67,0.35); transition: all 0.2s;">
-            <span>🎪</span> Reescrever Post de Evento
+            <span>🎪</span> Gerar Posts do Evento
           </button>
         </div>
 
@@ -1846,7 +1876,7 @@
         <!-- Resultado -->
         <div id="ge-result-container" style="display: none;">
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
-            <h3 style="font-family: var(--font-display); font-size: 16px; font-weight: 700; color: #fff; margin: 0;">Posts Reescritos pelo Rax 🦝</h3>
+            <h3 style="font-family: var(--font-display); font-size: 16px; font-weight: 700; color: #fff; margin: 0;">Posts Gerados pelo Rax 🦝</h3>
             <span style="font-size: 11px; background: rgba(16, 185, 129, 0.15); color: #10b981; padding: 4px 10px; border-radius: 6px; font-weight: 600;">🤖 Gerado por IA — revisar</span>
           </div>
           <div id="ge-results-list" style="display: flex; flex-direction: column; gap: 16px;"></div>
@@ -1860,80 +1890,138 @@
             <span style="font-size: 28px;">🔄</span>
             <div>
               <h2 style="font-family: var(--font-display); font-size: 18px; font-weight: 700; color: #fff; margin: 0;">Growth Artigos</h2>
-              <p style="font-size: 12px; color: var(--text-muted); margin: 2px 0 0 0;">Reescreva artigos do blog com estrutura anti-duplicação, HTML rico e SEO/GEO otimizado</p>
+              <p style="font-size: 12px; color: var(--text-muted); margin: 2px 0 0 0;">Reescreva artigos ou gere posts LinkedIn a partir de conteúdo que performou bem</p>
             </div>
           </div>
 
-          <!-- Estratégia anti-duplicação info -->
-          <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 10px; padding: 12px 14px; margin-bottom: 20px; font-size: 12px; color: var(--gold, #f59e0b); display: flex; align-items: flex-start; gap: 10px;">
-            <span style="font-size: 18px; flex-shrink: 0;">🛡️</span>
-            <div>
-              <strong style="display: block; margin-bottom: 2px;">Estratégia Anti-Duplicação Ativa</strong>
-              <span style="opacity: 0.85; line-height: 1.4;">O Rax vai reestruturar completamente: nova ordem de seções, ângulo editorial diferente, elementos HTML ricos (callouts, citações, listas visuais, boxes de destaque), novo título e meta description. O conteúdo final não será detectado como duplicação por algoritmos de busca.</span>
-            </div>
-          </div>
-
-          <!-- Artigo Original -->
-          <div style="margin-bottom: 16px;">
-            <label style="font-family: var(--font-display); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 6px;">Artigo Original do Blog</label>
-            <textarea id="ga-artigo-original" class="form-control" placeholder="Cole aqui o artigo completo do blog que performou bem. O Rax vai reescrever com estrutura completamente diferente, mantendo o valor do conteúdo..." style="min-height: 220px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; color: var(--input-text); padding: 12px; font-size: 13px; line-height: 1.6; width: 100%; box-sizing: border-box; resize: vertical; font-family: var(--font-body);"></textarea>
-          </div>
-
-          <!-- URL original -->
-          <div style="margin-bottom: 16px;">
-            <label style="font-family: var(--font-display); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 6px;">URL Original <span style="font-weight: 400; opacity: 0.6;">(para link juice interno)</span></label>
-            <input type="text" id="ga-url-original" class="form-control" placeholder="https://epiuse.com.br/blog/artigo-original" style="height: 40px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; color: var(--input-text); padding: 0 12px; font-size: 13px; width: 100%; box-sizing: border-box;">
-          </div>
-
-          <!-- Keyword alvo -->
-          <div style="margin-bottom: 16px;">
-            <label style="font-family: var(--font-display); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 6px;">Keyword Principal Alvo <span style="font-weight: 400; opacity: 0.6;">(opcional — auto-detecta se vazio)</span></label>
-            <input type="text" id="ga-keyword" class="form-control" placeholder="Ex: migração SAP S/4HANA, reforma tributária ERP..." style="height: 40px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; color: var(--input-text); padding: 0 12px; font-size: 13px; width: 100%; box-sizing: border-box;">
-          </div>
-
-          <!-- Opções de reestruturação -->
+          <!-- Modo selector -->
           <div style="margin-bottom: 20px;">
-            <label style="font-family: var(--font-display); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 10px;">Elementos HTML Ricos</label>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-              <label style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: rgba(0,0,0,0.15); border: 1px solid var(--card-border-glass); border-radius: 8px; cursor: pointer; font-size: 12px; color: var(--text-dim);">
-                <input type="checkbox" id="ga-opt-callouts" checked style="accent-color: var(--red, #cd1543);"> 📦 Caixas de Destaque
-              </label>
-              <label style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: rgba(0,0,0,0.15); border: 1px solid var(--card-border-glass); border-radius: 8px; cursor: pointer; font-size: 12px; color: var(--text-dim);">
-                <input type="checkbox" id="ga-opt-quotes" checked style="accent-color: var(--red, #cd1543);"> 💬 Citações & Blockquotes
-              </label>
-              <label style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: rgba(0,0,0,0.15); border: 1px solid var(--card-border-glass); border-radius: 8px; cursor: pointer; font-size: 12px; color: var(--text-dim);">
-                <input type="checkbox" id="ga-opt-lists" checked style="accent-color: var(--red, #cd1543);"> 📋 Listas Visuais & Steps
-              </label>
-              <label style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: rgba(0,0,0,0.15); border: 1px solid var(--card-border-glass); border-radius: 8px; cursor: pointer; font-size: 12px; color: var(--text-dim);">
-                <input type="checkbox" id="ga-opt-faq" checked style="accent-color: var(--red, #cd1543);"> ❓ FAQ Schema (GEO)
-              </label>
-              <label style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: rgba(0,0,0,0.15); border: 1px solid var(--card-border-glass); border-radius: 8px; cursor: pointer; font-size: 12px; color: var(--text-dim);">
-                <input type="checkbox" id="ga-opt-stats" checked style="accent-color: var(--red, #cd1543);"> 📊 Dados & Estatísticas
-              </label>
-              <label style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: rgba(0,0,0,0.15); border: 1px solid var(--card-border-glass); border-radius: 8px; cursor: pointer; font-size: 12px; color: var(--text-dim);">
-                <input type="checkbox" id="ga-opt-toc" checked style="accent-color: var(--red, #cd1543);"> 🗂️ Sumário Navegável (TOC)
-              </label>
+            <label style="font-family: var(--font-display); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 10px;">O que você quer fazer?</label>
+            <div style="display: flex; gap: 8px;" id="ga-modo-pills">
+              <button class="pill active" data-modo="artigo" style="padding: 10px 18px; border-radius: 8px; font-size: 12.5px; font-weight: 600; cursor: pointer; border: 1px solid var(--pill-border-active, var(--red, #cd1543)); background: var(--pill-bg-active, rgba(205,21,67,0.15)); color: var(--pill-text-active, #fff); flex: 1; text-align: center;">✍️ Reescrever Artigo do Blog</button>
+              <button class="pill" data-modo="linkedin" style="padding: 10px 18px; border-radius: 8px; font-size: 12.5px; font-weight: 600; cursor: pointer; border: 1px solid var(--pill-border, rgba(255,255,255,0.08)); background: var(--pill-bg, rgba(0,0,0,0.2)); color: var(--pill-text, var(--text-muted)); flex: 1; text-align: center;">🔗 Gerar Post LinkedIn</button>
             </div>
           </div>
 
-          <!-- Persona alvo -->
-          <div style="margin-bottom: 20px;">
-            <label style="font-family: var(--font-display); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 8px;">Persona-Alvo</label>
-            <div style="display: flex; gap: 8px; flex-wrap: wrap;" id="ga-persona-pills">
-              <button class="pill active" data-persona="auto" style="padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--pill-border-active, var(--red, #cd1543)); background: var(--pill-bg-active, rgba(205,21,67,0.15)); color: var(--pill-text-active, #fff);">Auto-detectar</button>
-              <button class="pill" data-persona="cfo" style="padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--pill-border, rgba(255,255,255,0.08)); background: var(--pill-bg, rgba(0,0,0,0.2)); color: var(--pill-text, var(--text-muted));">CFO</button>
-              <button class="pill" data-persona="chro" style="padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--pill-border, rgba(255,255,255,0.08)); background: var(--pill-bg, rgba(0,0,0,0.2)); color: var(--pill-text, var(--text-muted));">CHRO</button>
-              <button class="pill" data-persona="cio" style="padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--pill-border, rgba(255,255,255,0.08)); background: var(--pill-bg, rgba(0,0,0,0.2)); color: var(--pill-text, var(--text-muted));">CIO</button>
+          <!-- ===== MODO 1: REESCREVER ARTIGO ===== -->
+          <div id="ga-modo-artigo">
+            <!-- Estratégia anti-duplicação info -->
+            <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 10px; padding: 12px 14px; margin-bottom: 20px; font-size: 12px; color: var(--gold, #f59e0b); display: flex; align-items: flex-start; gap: 10px;">
+              <span style="font-size: 18px; flex-shrink: 0;">🛡️</span>
+              <div>
+                <strong style="display: block; margin-bottom: 2px;">Estratégia Anti-Duplicação Ativa</strong>
+                <span style="opacity: 0.85; line-height: 1.4;">O Rax vai reestruturar completamente: nova ordem de seções, ângulo editorial diferente, elementos HTML ricos (callouts, citações, listas visuais, boxes de destaque), novo título e meta description. O conteúdo final não será detectado como duplicação por algoritmos de busca.</span>
+              </div>
             </div>
+
+            <!-- Artigo Original -->
+            <div style="margin-bottom: 16px;">
+              <label style="font-family: var(--font-display); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 6px;">Artigo Original do Blog</label>
+              <textarea id="ga-artigo-original" class="form-control" placeholder="Cole aqui o artigo completo do blog que performou bem. O Rax vai reescrever com estrutura completamente diferente, mantendo o valor do conteúdo..." style="min-height: 220px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; color: var(--input-text); padding: 12px; font-size: 13px; line-height: 1.6; width: 100%; box-sizing: border-box; resize: vertical; font-family: var(--font-body);"></textarea>
+            </div>
+
+            <!-- URL original -->
+            <div style="margin-bottom: 16px;">
+              <label style="font-family: var(--font-display); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 6px;">URL Original <span style="font-weight: 400; opacity: 0.6;">(para link juice interno)</span></label>
+              <input type="text" id="ga-url-original" class="form-control" placeholder="https://epiuse.com.br/blog/artigo-original" style="height: 40px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; color: var(--input-text); padding: 0 12px; font-size: 13px; width: 100%; box-sizing: border-box;">
+            </div>
+
+            <!-- Keyword alvo -->
+            <div style="margin-bottom: 16px;">
+              <label style="font-family: var(--font-display); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 6px;">Keyword Principal Alvo <span style="font-weight: 400; opacity: 0.6;">(opcional — auto-detecta se vazio)</span></label>
+              <input type="text" id="ga-keyword" class="form-control" placeholder="Ex: migração SAP S/4HANA, reforma tributária ERP..." style="height: 40px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; color: var(--input-text); padding: 0 12px; font-size: 13px; width: 100%; box-sizing: border-box;">
+            </div>
+
+            <!-- Opções de reestruturação -->
+            <div style="margin-bottom: 20px;">
+              <label style="font-family: var(--font-display); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 10px;">Elementos HTML Ricos</label>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <label style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: rgba(0,0,0,0.15); border: 1px solid var(--card-border-glass); border-radius: 8px; cursor: pointer; font-size: 12px; color: var(--text-dim);">
+                  <input type="checkbox" id="ga-opt-callouts" checked style="accent-color: var(--red, #cd1543);"> 📦 Caixas de Destaque
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: rgba(0,0,0,0.15); border: 1px solid var(--card-border-glass); border-radius: 8px; cursor: pointer; font-size: 12px; color: var(--text-dim);">
+                  <input type="checkbox" id="ga-opt-quotes" checked style="accent-color: var(--red, #cd1543);"> 💬 Citações & Blockquotes
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: rgba(0,0,0,0.15); border: 1px solid var(--card-border-glass); border-radius: 8px; cursor: pointer; font-size: 12px; color: var(--text-dim);">
+                  <input type="checkbox" id="ga-opt-lists" checked style="accent-color: var(--red, #cd1543);"> 📋 Listas Visuais & Steps
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: rgba(0,0,0,0.15); border: 1px solid var(--card-border-glass); border-radius: 8px; cursor: pointer; font-size: 12px; color: var(--text-dim);">
+                  <input type="checkbox" id="ga-opt-faq" checked style="accent-color: var(--red, #cd1543);"> ❓ FAQ Schema (GEO)
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: rgba(0,0,0,0.15); border: 1px solid var(--card-border-glass); border-radius: 8px; cursor: pointer; font-size: 12px; color: var(--text-dim);">
+                  <input type="checkbox" id="ga-opt-stats" checked style="accent-color: var(--red, #cd1543);"> 📊 Dados & Estatísticas
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: rgba(0,0,0,0.15); border: 1px solid var(--card-border-glass); border-radius: 8px; cursor: pointer; font-size: 12px; color: var(--text-dim);">
+                  <input type="checkbox" id="ga-opt-toc" checked style="accent-color: var(--red, #cd1543);"> 🗂️ Sumário Navegável (TOC)
+                </label>
+              </div>
+            </div>
+
+            <!-- Persona alvo -->
+            <div style="margin-bottom: 20px;">
+              <label style="font-family: var(--font-display); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 8px;">Persona-Alvo</label>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;" id="ga-persona-pills">
+                <button class="pill active" data-persona="auto" style="padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--pill-border-active, var(--red, #cd1543)); background: var(--pill-bg-active, rgba(205,21,67,0.15)); color: var(--pill-text-active, #fff);">Auto-detectar</button>
+                <button class="pill" data-persona="cfo" style="padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--pill-border, rgba(255,255,255,0.08)); background: var(--pill-bg, rgba(0,0,0,0.2)); color: var(--pill-text, var(--text-muted));">CFO</button>
+                <button class="pill" data-persona="chro" style="padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--pill-border, rgba(255,255,255,0.08)); background: var(--pill-bg, rgba(0,0,0,0.2)); color: var(--pill-text, var(--text-muted));">CHRO</button>
+                <button class="pill" data-persona="cio" style="padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--pill-border, rgba(255,255,255,0.08)); background: var(--pill-bg, rgba(0,0,0,0.2)); color: var(--pill-text, var(--text-muted));">CIO</button>
+              </div>
+            </div>
+
+            <!-- Botão Gerar Artigo -->
+            <button type="button" id="ga-btn-gerar" style="width: 100%; height: 48px; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); border: none; border-radius: 10px; color: #fff; font-family: var(--font-display); font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 16px rgba(37,99,235,0.35); transition: all 0.2s;">
+              <span>🔄</span> Reescrever Artigo (Anti-Duplicação)
+            </button>
           </div>
 
-          <!-- Botão Gerar -->
-          <button type="button" id="ga-btn-gerar" style="width: 100%; height: 48px; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); border: none; border-radius: 10px; color: #fff; font-family: var(--font-display); font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 16px rgba(37,99,235,0.35); transition: all 0.2s;">
-            <span>🔄</span> Reescrever Artigo (Anti-Duplicação)
-          </button>
+          <!-- ===== MODO 2: GERAR POST LINKEDIN ===== -->
+          <div id="ga-modo-linkedin" style="display: none;">
+            <!-- Fonte do conteúdo -->
+            <div style="margin-bottom: 20px;">
+              <label style="font-family: var(--font-display); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 10px;">Fonte do Conteúdo</label>
+              <div style="display: flex; gap: 8px;" id="ga-li-fonte-pills">
+                <button class="pill active" data-fonte="artigo" style="padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--pill-border-active, var(--red, #cd1543)); background: var(--pill-bg-active, rgba(205,21,67,0.15)); color: var(--pill-text-active, #fff);">A partir de um Artigo</button>
+                <button class="pill" data-fonte="post" style="padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--pill-border, rgba(255,255,255,0.08)); background: var(--pill-bg, rgba(0,0,0,0.2)); color: var(--pill-text, var(--text-muted));">A partir de um Post que deu certo</button>
+              </div>
+            </div>
+
+            <!-- Input: Artigo ou Post de referência -->
+            <div style="margin-bottom: 16px;">
+              <label style="font-family: var(--font-display); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 6px;" id="ga-li-input-label">Artigo Base</label>
+              <textarea id="ga-li-conteudo" class="form-control" placeholder="Cole aqui o artigo reescrito ou o artigo original do blog. O Rax vai criar um post LinkedIn otimizado a partir dele..." style="min-height: 180px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; color: var(--input-text); padding: 12px; font-size: 13px; line-height: 1.5; width: 100%; box-sizing: border-box; resize: vertical;"></textarea>
+            </div>
+
+            <!-- URL do artigo (para CTA) -->
+            <div style="margin-bottom: 16px;">
+              <label style="font-family: var(--font-display); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 6px;">URL do Artigo no Blog <span style="font-weight: 400; opacity: 0.6;">(para CTA do post)</span></label>
+              <input type="text" id="ga-li-url" class="form-control" placeholder="https://epiuse.com.br/blog/..." style="height: 40px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; color: var(--input-text); padding: 0 12px; font-size: 13px; width: 100%; box-sizing: border-box;">
+            </div>
+
+            <!-- Tom / Estilo -->
+            <div style="margin-bottom: 20px;">
+              <label style="font-family: var(--font-display); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 8px;">Tom do Post</label>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;" id="ga-li-tom-pills">
+                <button class="pill active" data-tom="thought-leadership" style="padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--pill-border-active, var(--red, #cd1543)); background: var(--pill-bg-active, rgba(205,21,67,0.15)); color: var(--pill-text-active, #fff);">🧠 Thought Leadership</button>
+                <button class="pill" data-tom="educativo" style="padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--pill-border, rgba(255,255,255,0.08)); background: var(--pill-bg, rgba(0,0,0,0.2)); color: var(--pill-text, var(--text-muted));">📚 Educativo</button>
+                <button class="pill" data-tom="provocativo" style="padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--pill-border, rgba(255,255,255,0.08)); background: var(--pill-bg, rgba(0,0,0,0.2)); color: var(--pill-text, var(--text-muted));">🔥 Provocativo</button>
+                <button class="pill" data-tom="storytelling" style="padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--pill-border, rgba(255,255,255,0.08)); background: var(--pill-bg, rgba(0,0,0,0.2)); color: var(--pill-text, var(--text-muted));">📖 Storytelling</button>
+              </div>
+            </div>
+
+            <!-- Quem vai postar -->
+            <div style="margin-bottom: 20px;">
+              <label style="font-family: var(--font-display); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 6px;">Quem vai postar <span style="font-weight: 400; opacity: 0.6;">(opcional — ajusta o tom)</span></label>
+              <input type="text" id="ga-li-autor" class="form-control" placeholder="Ex: Roberto (Country Manager), Duda (Brand), página EPI-USE..." style="height: 40px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; color: var(--input-text); padding: 0 12px; font-size: 13px; width: 100%; box-sizing: border-box;">
+            </div>
+
+            <!-- Botão Gerar Post LinkedIn -->
+            <button type="button" id="ga-btn-linkedin" style="width: 100%; height: 48px; background: linear-gradient(135deg, #0077b5 0%, #005f8d 100%); border: none; border-radius: 10px; color: #fff; font-family: var(--font-display); font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 16px rgba(0,119,181,0.35); transition: all 0.2s;">
+              <span>🔗</span> Gerar Post LinkedIn
+            </button>
+          </div>
         </div>
 
-        <!-- Resultado -->
+        <!-- Resultado Artigo -->
         <div id="ga-result-container" style="display: none;">
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
             <h3 style="font-family: var(--font-display); font-size: 16px; font-weight: 700; color: #fff; margin: 0;">Artigo Reestruturado pelo Rax 🦝</h3>
@@ -1947,14 +2035,9 @@
             <button class="tab-btn" data-target="ga-pane-html" style="padding: 8px 16px; border-radius: 8px 8px 0 0; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--tab-btn-border, rgba(255,255,255,0.05)); background: var(--tab-btn-bg, rgba(255,255,255,0.02)); color: var(--text-muted);">📝 HTML (WorkControl)</button>
           </nav>
 
-          <!-- Pane: Artigo Preview -->
           <div id="ga-pane-artigo" class="ga-tab-pane" style="display: block;">
-            <div id="ga-artigo-preview" class="article-preview" style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border-glass); border-radius: 12px; padding: 24px; line-height: 1.7; font-size: 14px; color: var(--text-dim);">
-              Aguardando geração...
-            </div>
+            <div id="ga-artigo-preview" class="article-preview" style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border-glass); border-radius: 12px; padding: 24px; line-height: 1.7; font-size: 14px; color: var(--text-dim);">Aguardando geração...</div>
           </div>
-
-          <!-- Pane: SEO/GEO Meta -->
           <div id="ga-pane-seo" class="ga-tab-pane" style="display: none;">
             <div style="display: flex; flex-direction: column; gap: 12px;">
               <div style="background: rgba(0,0,0,0.15); border: 1px solid var(--card-border-glass); border-radius: 10px; padding: 14px;">
@@ -1979,8 +2062,6 @@
               </div>
             </div>
           </div>
-
-          <!-- Pane: HTML Bruto -->
           <div id="ga-pane-html" class="ga-tab-pane" style="display: none;">
             <div style="position: relative;">
               <pre id="ga-html-raw" style="background: rgba(0,0,0,0.3); border: 1px solid var(--card-border-glass); border-radius: 10px; padding: 16px; font-family: 'Fira Code', monospace; font-size: 11.5px; color: var(--text-dim); line-height: 1.5; overflow-x: auto; white-space: pre-wrap; word-break: break-all; max-height: 500px; overflow-y: auto;">Aguardando geração...</pre>
@@ -1991,6 +2072,15 @@
               <span><strong>CMS WorkControl:</strong> Cole na aba <strong>Código-Fonte / HTML</strong> do editor para preservar a formatação rica.</span>
             </div>
           </div>
+        </div>
+
+        <!-- Resultado LinkedIn Post -->
+        <div id="ga-li-result-container" style="display: none;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+            <h3 style="font-family: var(--font-display); font-size: 16px; font-weight: 700; color: #fff; margin: 0;">Post LinkedIn pelo Rax 🦝</h3>
+            <span style="font-size: 11px; background: rgba(16, 185, 129, 0.15); color: #10b981; padding: 4px 10px; border-radius: 6px; font-weight: 600;">🤖 Gerado por IA — revisar</span>
+          </div>
+          <div id="ga-li-results-list" style="display: flex; flex-direction: column; gap: 16px;"></div>
         </div>
       </div>
 
@@ -3495,21 +3585,34 @@
       });
     });
 
+    // Show/hide pós-evento extras
+    fasePills.forEach(p => {
+      p.addEventListener('click', () => {
+        const posExtras = $('ge-pos-extras');
+        if (posExtras) posExtras.style.display = p.dataset.fase === 'pos' ? 'block' : 'none';
+      });
+    });
+
     const geBtn = $('ge-btn-gerar');
     if (geBtn) {
       geBtn.addEventListener('click', async () => {
         const tipo = document.querySelector('input[name="ge-tipo"]:checked')?.value || '1';
         const nome = $('ge-nome-evento')?.value.trim();
-        const data = $('ge-data-evento')?.value.trim();
+        const dataEvt = $('ge-data-evento')?.value.trim();
         const local = $('ge-local-evento')?.value.trim();
-        const original = $('ge-post-original')?.value.trim();
+        const sobre = $('ge-sobre-evento')?.value.trim();
+        const programacao = $('ge-programacao')?.value.trim();
+        const palestrantes = $('ge-palestrantes')?.value.trim();
+        const representantes = $('ge-representantes')?.value.trim();
+        const linkInscricao = $('ge-link-inscricao')?.value.trim();
+        const aprendizados = $('ge-aprendizados')?.value.trim();
         const contexto = $('ge-contexto')?.value.trim();
 
-        if (!original) { alert('Cole o post original antes de gerar.'); return; }
         if (!nome) { alert('Informe o nome do evento.'); return; }
+        if (!sobre) { alert('Descreva sobre o evento.'); return; }
 
         geBtn.disabled = true;
-        geBtn.innerHTML = '<span>⏳</span> Rax está reescrevendo...';
+        geBtn.innerHTML = '<span>⏳</span> Rax está criando os posts...';
 
         try {
           const res = await fetch('/api/raccoon/generate', {
@@ -3520,9 +3623,14 @@
               tipo: tipo,
               fase: currentFase,
               nome_evento: nome,
-              data_evento: data,
+              data_evento: dataEvt,
               local_evento: local,
-              post_original: original,
+              sobre_evento: sobre,
+              programacao: programacao,
+              palestrantes: palestrantes,
+              representantes: representantes,
+              link_inscricao: linkInscricao,
+              aprendizados: aprendizados,
               contexto: contexto,
               regras: regras[tipo]
             })
@@ -3533,17 +3641,17 @@
             if (data.success && data.posts) {
               renderEventPosts(data.posts);
             } else {
-              renderEventPostsMock(tipo, currentFase, nome, original);
+              renderEventPostsMock(tipo, currentFase, nome, sobre);
             }
           } else {
-            renderEventPostsMock(tipo, currentFase, nome, original);
+            renderEventPostsMock(tipo, currentFase, nome, sobre);
           }
         } catch (e) {
-          renderEventPostsMock(tipo, currentFase, nome, original);
+          renderEventPostsMock(tipo, currentFase, nome, sobre);
         }
 
         geBtn.disabled = false;
-        geBtn.innerHTML = '<span>🎪</span> Reescrever Post de Evento';
+        geBtn.innerHTML = '<span>🎪</span> Gerar Posts do Evento';
       });
     }
 
@@ -3564,7 +3672,7 @@
       $('ge-result-container').style.display = 'block';
     }
 
-    function renderEventPostsMock(tipo, fase, nome, original) {
+    function renderEventPostsMock(tipo, fase, nome, sobre) {
       const mockPosts = [];
       if (tipo === '1') {
         if (fase === 'pre') {
@@ -3639,24 +3747,59 @@
   // =============================================
   (function initGrowthArtigos() {
     var gaPersona = 'auto';
-    var gaPersonaPills = document.querySelectorAll('#ga-persona-pills .pill');
-    gaPersonaPills.forEach(function(p) {
-      p.addEventListener('click', function() {
-        gaPersonaPills.forEach(function(x) {
-          x.style.border = '1px solid var(--pill-border, rgba(255,255,255,0.08))';
-          x.style.background = 'var(--pill-bg, rgba(0,0,0,0.2))';
-          x.style.color = 'var(--pill-text, var(--text-muted))';
-          x.classList.remove('active');
+    var currentModo = 'artigo';
+    var liFonte = 'artigo';
+    var liTom = 'thought-leadership';
+
+    function setupPillGroup(containerId, callback) {
+      var pills = document.querySelectorAll('#' + containerId + ' .pill');
+      pills.forEach(function(p) {
+        p.addEventListener('click', function() {
+          pills.forEach(function(x) {
+            x.style.border = '1px solid var(--pill-border, rgba(255,255,255,0.08))';
+            x.style.background = 'var(--pill-bg, rgba(0,0,0,0.2))';
+            x.style.color = 'var(--pill-text, var(--text-muted))';
+            x.classList.remove('active');
+          });
+          p.classList.add('active');
+          p.style.border = '1px solid var(--pill-border-active, var(--red, #cd1543))';
+          p.style.background = 'var(--pill-bg-active, rgba(205,21,67,0.15))';
+          p.style.color = 'var(--pill-text-active, #fff)';
+          if (callback) callback(p);
         });
-        p.classList.add('active');
-        p.style.border = '1px solid var(--pill-border-active, var(--red, #cd1543))';
-        p.style.background = 'var(--pill-bg-active, rgba(205,21,67,0.15))';
-        p.style.color = 'var(--pill-text-active, #fff)';
-        gaPersona = p.dataset.persona;
       });
+    }
+
+    // Mode switcher (artigo vs linkedin)
+    setupPillGroup('ga-modo-pills', function(p) {
+      currentModo = p.dataset.modo;
+      $('ga-modo-artigo').style.display = currentModo === 'artigo' ? 'block' : 'none';
+      $('ga-modo-linkedin').style.display = currentModo === 'linkedin' ? 'block' : 'none';
+      $('ga-result-container').style.display = 'none';
+      $('ga-li-result-container').style.display = 'none';
     });
 
-    // Tabs
+    // Persona pills
+    setupPillGroup('ga-persona-pills', function(p) { gaPersona = p.dataset.persona; });
+
+    // LinkedIn fonte pills
+    setupPillGroup('ga-li-fonte-pills', function(p) {
+      liFonte = p.dataset.fonte;
+      var label = $('ga-li-input-label');
+      var textarea = $('ga-li-conteudo');
+      if (liFonte === 'artigo') {
+        label.textContent = 'Artigo Base';
+        textarea.placeholder = 'Cole aqui o artigo reescrito ou o artigo original do blog. O Rax vai criar um post LinkedIn otimizado a partir dele...';
+      } else {
+        label.textContent = 'Post de Referência';
+        textarea.placeholder = 'Cole aqui o post LinkedIn que performou bem. O Rax vai criar uma nova versão mantendo o que funcionou, com ângulo e estrutura diferentes...';
+      }
+    });
+
+    // LinkedIn tom pills
+    setupPillGroup('ga-li-tom-pills', function(p) { liTom = p.dataset.tom; });
+
+    // Tabs (article result)
     var gaTabs = document.querySelectorAll('#ga-tabs-nav .tab-btn');
     gaTabs.forEach(function(btn) {
       btn.addEventListener('click', function() {
@@ -3670,7 +3813,6 @@
         btn.style.border = '1px solid var(--tab-btn-border-active, rgba(205,21,67,0.3))';
         btn.style.background = 'var(--tab-btn-bg-active, rgba(205,21,67,0.08))';
         btn.style.color = 'var(--tab-btn-text-active, #fff)';
-
         document.querySelectorAll('.ga-tab-pane').forEach(function(pane) { pane.style.display = 'none'; });
         var target = $(btn.dataset.target);
         if (target) target.style.display = 'block';
@@ -3690,6 +3832,7 @@
       });
     }
 
+    // === MODO 1: Reescrever Artigo ===
     var gaBtn = $('ga-btn-gerar');
     if (gaBtn) {
       gaBtn.addEventListener('click', async function() {
@@ -3741,6 +3884,111 @@
         gaBtn.disabled = false;
         gaBtn.innerHTML = '<span>🔄</span> Reescrever Artigo (Anti-Duplicação)';
       });
+    }
+
+    // === MODO 2: Gerar Post LinkedIn ===
+    var liBtn = $('ga-btn-linkedin');
+    if (liBtn) {
+      liBtn.addEventListener('click', async function() {
+        var conteudo = $('ga-li-conteudo')?.value.trim();
+        if (!conteudo) { alert('Cole o conteúdo base antes de gerar.'); return; }
+
+        var url = $('ga-li-url')?.value.trim();
+        var autor = $('ga-li-autor')?.value.trim();
+
+        liBtn.disabled = true;
+        liBtn.innerHTML = '<span>⏳</span> Rax está criando o post...';
+
+        try {
+          var res = await fetch('/api/raccoon/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              growth_module: 'linkedin-post',
+              fonte: liFonte,
+              conteudo: conteudo,
+              url_artigo: url,
+              tom: liTom,
+              autor: autor
+            })
+          });
+
+          if (res.ok) {
+            var data = await res.json();
+            if (data.success && data.posts) {
+              renderLinkedInPosts(data.posts);
+            } else {
+              renderLinkedInPostsMock(conteudo, url, liTom, autor, liFonte);
+            }
+          } else {
+            renderLinkedInPostsMock(conteudo, url, liTom, autor, liFonte);
+          }
+        } catch (e) {
+          renderLinkedInPostsMock(conteudo, url, liTom, autor, liFonte);
+        }
+
+        liBtn.disabled = false;
+        liBtn.innerHTML = '<span>🔗</span> Gerar Post LinkedIn';
+      });
+    }
+
+    function renderLinkedInPosts(posts) {
+      var container = $('ga-li-results-list');
+      container.innerHTML = posts.map(function(post, i) {
+        return '<div style="background: var(--card-bg-glass); border: 1px solid var(--card-border-glass); border-radius: 12px; padding: 20px; position: relative;">' +
+          '<div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">' +
+            '<span style="font-size: 10px; background: rgba(0,119,181,0.15); color: #0077b5; padding: 3px 8px; border-radius: 4px; font-weight: 700; text-transform: uppercase;">' + (post.label || ('Versão ' + (i+1))) + '</span>' +
+            (post.tom ? '<span style="font-size:10px; background:rgba(37,99,235,0.15); color:#60a5fa; padding:3px 8px; border-radius:4px;">' + post.tom + '</span>' : '') +
+            (post.chars ? '<span style="font-size:10px; color:var(--text-muted);">' + post.chars + ' chars</span>' : '') +
+          '</div>' +
+          '<div style="font-size: 14px; color: var(--text-dim); line-height: 1.7; white-space: pre-wrap;">' + post.texto + '</div>' +
+          (post.hashtags ? '<div style="margin-top:12px; font-size:12px; color:#0077b5;">' + post.hashtags + '</div>' : '') +
+          '<button onclick="navigator.clipboard.writeText(this.parentElement.querySelector(\'[style*=pre-wrap]\').textContent).then(()=>{this.textContent=\'Copiado! ✓\'; setTimeout(()=>this.textContent=\'Copiar Texto\',2000)})" style="margin-top:12px; padding:6px 14px; background:transparent; border:1px solid var(--card-border-glass); border-radius:6px; color:var(--text-muted); font-size:11px; cursor:pointer;">Copiar Texto</button>' +
+        '</div>';
+      }).join('');
+      $('ga-li-result-container').style.display = 'block';
+    }
+
+    function renderLinkedInPostsMock(conteudo, url, tom, autor, fonte) {
+      var firstLine = conteudo.split('\n').find(function(l) { return l.trim(); }) || 'Conteúdo';
+      var topic = firstLine.substring(0, 60).replace(/[#*_]/g, '');
+      var autorName = autor || 'EPI-USE Brasil';
+      var cta = url ? '\n\n🔗 Leia o artigo completo: ' + url : '\n\n🔗 Link na bio';
+
+      var posts = [];
+
+      if (tom === 'thought-leadership') {
+        posts.push({
+          label: 'Thought Leadership',
+          tom: '🧠 Autoridade',
+          texto: 'Nos últimos meses, tenho acompanhado de perto como ' + topic + ' está redefinindo a forma como empresas operam.\n\nE uma coisa ficou clara: quem ainda trata isso como "projeto de TI" está perdendo o ponto.\n\nO que muda de verdade é a mentalidade.\n\n3 lições que tirei de projetos recentes:\n\n→ A tecnologia é 30% do desafio. Os outros 70% são pessoas e processos\n→ Quick wins nos primeiros 90 dias garantem o buy-in pro longo prazo\n→ Dados sem governança são apenas ruído caro\n\nA transformação digital não é sobre ferramentas. É sobre decisões melhores, mais rápidas.\n\nQuem concorda? 👇' + cta,
+          hashtags: '#TransformacaoDigital #SAP #Lideranca #EPIUSE'
+        });
+      } else if (tom === 'educativo') {
+        posts.push({
+          label: 'Educativo',
+          tom: '📚 Didático',
+          texto: '📌 ' + topic + ' — o que você precisa saber\n\nSe você trabalha com gestão empresarial, esse tema já chegou (ou está chegando) na sua mesa.\n\nVou simplificar:\n\n✅ O QUE É:\nUma abordagem que integra tecnologia, processos e pessoas para gerar eficiência real — não só automação.\n\n✅ POR QUE IMPORTA AGORA:\n→ Regulações mais rígidas exigem governança de dados\n→ IA está mudando o que "produtividade" significa\n→ Talentos escolhem empresas que investem em ferramentas modernas\n\n✅ POR ONDE COMEÇAR:\n1️⃣ Mapeie seus processos mais custosos\n2️⃣ Identifique quick wins (ROI em < 90 dias)\n3️⃣ Monte um piloto com KPIs claros\n\nSalva esse post pra consultar depois 🔖' + cta,
+          hashtags: '#Educativo #SAP #GestaoEmpresarial #EPIUSE'
+        });
+      } else if (tom === 'provocativo') {
+        posts.push({
+          label: 'Provocativo',
+          tom: '🔥 Desafiador',
+          texto: '90% das empresas dizem que estão "em transformação digital".\n\nMas quantas realmente mudaram a forma como tomam decisões?\n\nA verdade incômoda sobre ' + topic + ':\n\n❌ Comprar tecnologia não é transformar\n❌ Fazer um piloto e engavetar não é inovar\n❌ Delegar pra TI e esperar mágica não funciona\n\nO que funciona?\n\n→ Liderança que entende que dados são ativos estratégicos\n→ Times que medem resultado, não esforço\n→ Projetos que começam pequenos e escalam com evidência\n\nA pergunta não é "se" sua empresa precisa evoluir.\nÉ "quanto está custando não ter evoluído ainda".\n\nConcorda? Discorda? Comenta 👇' + cta,
+          hashtags: '#Provocacao #TransformacaoDigital #Lideranca #EPIUSE'
+        });
+      } else {
+        posts.push({
+          label: 'Storytelling',
+          tom: '📖 Narrativa',
+          texto: 'Era uma reunião de board comum. CFO apresentando o fechamento trimestral.\n\nSó que dessa vez, algo era diferente.\n\nOs números estavam prontos em 3 dias — não em 3 semanas.\n\nO que mudou?\n\nNão foi magia. Foi uma decisão que o time de Finanças tomou 8 meses antes: modernizar o processo de consolidação com dados integrados.\n\nParecia "só" um projeto de tecnologia. Mas na prática, liberou o time pra fazer o que importa: analisar, não compilar.\n\nEssa história se repete em dezenas de empresas que acompanho.\n\nO padrão é sempre o mesmo:\n→ Um processo que "funciona" mas drena horas\n→ Uma decisão de investir em eficiência\n→ Resultados que surpreendem até os céticos\n\n' + topic + ' não é sobre sistema. É sobre liberar o potencial das pessoas.' + cta,
+          hashtags: '#Storytelling #TransformacaoDigital #SAP #EPIUSE'
+        });
+      }
+
+      posts.forEach(function(p) { p.chars = p.texto.length; });
+      renderLinkedInPosts(posts);
     }
 
     function renderArticleResult(data) {
