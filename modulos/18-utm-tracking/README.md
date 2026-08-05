@@ -81,3 +81,11 @@ Provado em navegador real (Chromium com UA de browser comum), antes e depois:
 - depois → `…/c?t=…&h=…` · 1 clique, 5 coins
 
 _(Cuidado ao testar: o UA do Chromium headless contém `HeadlessChrome`, que a regex de bot pega — de propósito. Testes precisam forçar um UA de navegador comum, senão o challenge nem é servido.)_
+
+### Aviso de janela cega (v0.84.1)
+Como os cliques de 27/jul→05/ago não existem e não dá pra recuperá-los, quem olha esses números é avisado na própria tela (regra 7 — número incompleto não pode se passar por número real):
+
+- **`/admin/utm`** — o back devolve `aviso_gap` só quando o período selecionado **cruza** a janela (`gapOverlap`); períodos totalmente antes ou depois vêm `null` e a tela fica limpa.
+- **`/meus-links`** — aviso sempre presente, porque os totais dessa página são vitalícios e portanto sempre carregam a janela.
+
+A janela está definida em `CLICK_GAP` (`routes/utm.js`): início = deploy do challenge com o bug (commit `fc32239`, 27/jul 18:41 BRT), fim = deploy do fix (merge do #55, 05/ago 12:22 BRT).

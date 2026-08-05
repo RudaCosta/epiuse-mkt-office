@@ -1,5 +1,5 @@
 {
-  "current": "0.84.0",
+  "current": "0.84.1",
   "atualizado_em": "05/ago/2026",
   "next": [
     {
@@ -54,9 +54,21 @@
   ],
   "releases": [
     {
-      "version": "0.84.0",
+      "version": "0.84.1",
       "date": "05/ago/2026",
       "status": "current",
+      "path": "/admin/utm",
+      "title": "⚠️ Aviso de dado incompleto no UTM + package.json alinhado com o lock",
+      "highlights": [
+        "⚠️ /admin/utm e /meus-links avisam quando os números olhados cruzam a janela de 27/jul→05/ago, em que os cliques humanos não foram registrados (bug corrigido na 0.84.0). No admin o aviso só aparece se o período selecionado cruzar a janela; em Meus Links aparece sempre, porque os totais de lá são vitalícios.",
+        "🧾 Regra 7 aplicada: número incompleto não pode se passar por número real — quem olha vê a ressalva na própria tela, com a explicação de que os cliques do intervalo não são recuperáveis e que os ERP Coins deles não foram creditados.",
+        "📦 package.json voltou a pedir better-sqlite3 ^12.11.1, alinhado com o package-lock (que já instalava 12.11.1) e com a regra 10 do CLAUDE.md — o 11.x quebra o boot por incompatibilidade de ABI com o Node 24. O package.json tinha regredido pra ^11.10.0 num merge de 02/jul; o lock nunca regrediu."
+      ]
+    },
+    {
+      "version": "0.84.0",
+      "date": "05/ago/2026",
+      "status": "released",
       "path": "/admin/utm",
       "title": "🔗 UTM reformulado — data, hora, filtros e detalhe de cada clique",
       "highlights": [
