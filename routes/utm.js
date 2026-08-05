@@ -127,6 +127,25 @@ function clickHmac(token, ts) {
   return crypto.createHmac('sha256', CLICK_SALT).update(token + '|' + ts).digest('hex').slice(0, 16);
 }
 
+// ── Janela cega de cliques (v0.82.4 → v0.84.0) ────────────────────────────────
+// O JS challenge anti-scanner entrou com a URL de confirmação HTML-escapada
+// dentro do <script>: o navegador pedia "?t=…&amp;h=…", o Express lia o
+// parâmetro como "amp;h", o HMAC nunca batia e o clique humano era descartado
+// em silêncio (o usuário chegava no destino normalmente, então nada parecia
+// quebrado). Resultado: NENHUM clique humano foi registrado nesse intervalo.
+// Esses cliques não são recuperáveis — nunca chegaram a ser gravados.
+// Regra 7: número incompleto não pode se passar por número real, então quem
+// olhar um período que cruza essa janela é avisado na tela.
+const CLICK_GAP = {
+  inicio: Date.parse('2026-07-27T21:41:29Z'), // deploy do challenge com o bug
+  fim:    Date.parse('2026-08-05T15:22:13Z'), // deploy do fix (v0.84.0)
+  de_label: '27/jul', ate_label: '05/ago',
+  texto: 'Entre 27/jul e 05/ago os cliques humanos não foram registrados — um bug no redirect anti-bot descartava o clique em silêncio (o link funcionava normalmente pra quem clicava). Os números desse intervalo estão SUBESTIMADOS e não são recuperáveis. Corrigido na v0.84.0.',
+};
+function gapOverlap(inicio, fim) {
+  return (inicio <= CLICK_GAP.fim && fim >= CLICK_GAP.inicio) ? CLICK_GAP : null;
+}
+
 // utm_medium padrão por canal (sobrescritível via body.medium).
 const MEDIUM_BY_SOURCE = {
   linkedin: 'employee_advocacy', whatsapp: 'employee_advocacy',
@@ -200,7 +219,9 @@ router.get('/api/utm/mine', (req, res) => {
       cliques: links.reduce((a, l) => a + l.cliques, 0),
       coins: links.reduce((a, l) => a + l.coins, 0),
     };
-    res.json({ email, base: baseUrl(req) + '/go/', click_coins: UTM_CLICK_COINS, totais, links });
+    // Os totais aqui são vitalícios, então sempre carregam a janela cega.
+    res.json({ email, base: baseUrl(req) + '/go/', click_coins: UTM_CLICK_COINS,
+               aviso_gap: CLICK_GAP, totais, links });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -572,6 +593,7 @@ router.get('/api/admin/utm', requireMkt, (req, res) => {
       periodo: { inicio: P.inicio, fim: P.fim, dias: P.dias, custom: P.custom,
                  de: P.de || null, ate: P.ate || null, days: P.days || null, tzoff_min: P.off / 60000 },
       filtros_ativos: F.ativos, inclui_bots: incluiBots,
+      aviso_gap: gapOverlap(P.inicio, P.fim), // null quando o período não cruza a janela cega
       summary, porDia, porHora, porDiaSemana,
       por_usuario, por_campanha, por_origem, links,
       recente, recente_total: recenteTotal, recente_limit: limit, recente_offset: offset,

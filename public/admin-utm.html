@@ -64,6 +64,12 @@
   .chip span{cursor:pointer;opacity:.7}
   .chip span:hover{opacity:1;color:#fca5a5}
   .stamp{font-size:11px;color:#6b83ad;margin-left:auto;text-align:right}
+  /* aviso de dado incompleto (regra 7) */
+  .gapbox{display:flex;gap:12px;align-items:flex-start;background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.32);border-radius:12px;padding:13px 16px;margin-bottom:16px}
+  .gapbox .ic{font-size:18px;line-height:1.2;flex-shrink:0}
+  .gapbox .tx{font-size:12.5px;color:#fcd34d;line-height:1.55}
+  .gapbox .tx b{color:#fde68a}
+  .gapbox .tx span{color:#d5b775}
 
   /* ── gráficos ── */
   .charts{display:grid;grid-template-columns:1.6fr 1fr;gap:12px;margin-bottom:8px}
@@ -213,6 +219,8 @@
     </div>
     <div class="chips" id="chips"></div>
   </div>
+
+  <div id="gap-aviso"></div>
 
   <div class="cards" id="cards"></div>
 
@@ -461,6 +469,15 @@
         '<td class="num '+(o.cliques?'num-hi':'num-zero')+'">'+o.cliques+'</td>'+
         '<td class="num">'+(o.pessoas||0)+'</td><td class="muted">'+dtCell(o.ultimo)+'</td></tr>';
     }).join('') : '<tr><td colspan="5" class="vazio">—</td></tr>';
+
+    // Aviso de janela cega — só aparece quando o período olhado a cruza.
+    var g = d.aviso_gap;
+    document.getElementById('gap-aviso').innerHTML = g
+      ? '<div class="gapbox"><div class="ic">⚠️</div><div class="tx">'+
+        '<b>Números subestimados neste período.</b> '+esc(g.texto)+
+        '<br><span>Quem compartilhou link entre '+esc(g.de_label)+' e '+esc(g.ate_label)+
+        ' também não recebeu os ERP Coins desses cliques.</span></div></div>'
+      : '';
 
     renderLinks();
     renderRecent();
