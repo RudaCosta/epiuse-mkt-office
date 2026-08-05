@@ -248,79 +248,335 @@ router.get('/go/:token', (req, res) => {
   res.redirect(302, target);
 });
 
-// ── Report (dono) ─────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════════════
+// REPORT — período (preset ou intervalo), filtros e agregação por data/hora
+// ══════════════════════════════════════════════════════════════════════════════
+const DAY_MS = 86400000;
+
+// Fuso do CLIENTE (getTimezoneOffset em minutos; BRT = 180). Todas as agregações
+// de dia/hora usam o fuso local de quem olha — senão o pico real das 9h da manhã
+// apareceria às 12h (UTC) no histograma. Default 180 (time é do Brasil).
+function tzOffMs(q) {
+  const n = parseInt(q.tzoff, 10);
+  return (isNaN(n) ? 180 : Math.max(-840, Math.min(840, n))) * 60000;
+}
+function parseDay(s) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s || '').trim());
+  if (!m) return null;
+  const ts = Date.UTC(+m[1], +m[2] - 1, +m[3]);
+  return isNaN(ts) ? null : ts;
+}
+// Período: intervalo custom (de/ate, YYYY-MM-DD no fuso do cliente) tem
+// precedência; senão cai no preset de dias (compatível com a versão anterior).
+function resolvePeriodo(q) {
+  const off = tzOffMs(q);
+  const de = parseDay(q.de), ate = parseDay(q.ate);
+  if (de != null && ate != null && ate >= de) {
+    return {
+      inicio: de + off, fim: ate + DAY_MS - 1 + off, off,
+      custom: true, dias: Math.round((ate - de) / DAY_MS) + 1,
+      de: q.de, ate: q.ate,
+    };
+  }
+  const days = Math.max(1, Math.min(365, parseInt(q.days, 10) || 30));
+  const fim = Date.now();
+  return { inicio: fim - days * DAY_MS, fim, off, custom: false, dias: days, days };
+}
+
+// Filtros de link (autor · campanha · origem · busca livre). Devolve o pedaço de
+// SQL + params na ordem, pra compor com qualquer query que faça JOIN em utm_links.
+function linkFilters(q) {
+  const w = [], p = [];
+  const email = String(q.email || '').toLowerCase().trim().slice(0, 120);
+  if (email) { w.push('LOWER(l.email)=?'); p.push(email); }
+  const campaign = sanitizeSlug(q.campaign, 60);
+  if (campaign) { w.push('l.campaign=?'); p.push(campaign); }
+  const source = sanitizeSlug(q.source, 30);
+  if (source) { w.push('l.source=?'); p.push(source); }
+  const txt = String(q.q || '').toLowerCase().trim().slice(0, 80);
+  if (txt) {
+    w.push('(LOWER(l.email) LIKE ? OR LOWER(l.campaign) LIKE ? OR LOWER(l.dest) LIKE ? OR l.token LIKE ?)');
+    const t = '%' + txt + '%'; p.push(t, t, t, t);
+  }
+  return { sql: w.length ? ' AND ' + w.join(' AND ') : '', params: p,
+           ativos: { email, campaign, source, q: txt } };
+}
+
+// Rótulo curto do dispositivo a partir do user-agent (dado real do clique).
+function deviceOf(ua, bot) {
+  const s = String(ua || '');
+  if (bot) return 'bot';
+  if (!s.trim()) return 'desconhecido';
+  if (/ipad|tablet/i.test(s)) return 'tablet';
+  if (/android|iphone|ipod|mobile/i.test(s)) return 'mobile';
+  return 'desktop';
+}
+
 router.get('/api/admin/utm', requireMkt, (req, res) => {
   try {
-    const days = Math.max(1, Math.min(365, parseInt(req.query.days, 10) || 30));
-    const since = Date.now() - days * 86400000;
-    const one = (sql, ...a) => db.prepare(sql).get(...a).n;
+    const P = resolvePeriodo(req.query);
+    const F = linkFilters(req.query);
+    const incluiBots = String(req.query.bots || '') === '1';
+    const all = (sql, ...a) => db.prepare(sql).all(...a);
+    const one = (sql, ...a) => db.prepare(sql).get(...a);
+
+    // Base de cliques do período, sempre atrelada a um link existente (clique
+    // órfão não é atribuível a ninguém).
+    const CLICKS = `FROM utm_clicks c JOIN utm_links l ON l.token=c.token
+                    WHERE c.ts>=? AND c.ts<=?`;
+    const cp = [P.inicio, P.fim, ...F.params];
+
+    // ── Cards ────────────────────────────────────────────────────────────────
+    const hum = one(`SELECT COUNT(*) n, COUNT(DISTINCT c.ip_hash) p, MIN(c.ts) pri, MAX(c.ts) ult
+                     ${CLICKS} AND c.bot=0 ${F.sql}`, ...cp);
+    const bots = one(`SELECT COUNT(*) n ${CLICKS} AND c.bot=1 ${F.sql}`, ...cp).n;
+    const linksTotal = one(`SELECT COUNT(*) n FROM utm_links l WHERE 1=1 ${F.sql}`, ...F.params).n;
+    const linksNovos = one(`SELECT COUNT(*) n FROM utm_links l
+                            WHERE l.created_at >= datetime(?/1000,'unixepoch')
+                              AND l.created_at <= datetime(?/1000,'unixepoch') ${F.sql}`,
+                           P.inicio, P.fim, ...F.params).n;
+
+    // Tokens que o filtro alcança → base pra somar os coins do ledger. Os coins
+    // seguem o filtro (ao olhar uma campanha, o número é o daquela campanha —
+    // não o acumulado da pessoa, que seria enganoso).
+    const tokens = new Set(all(`SELECT l.token FROM utm_links l WHERE 1=1 ${F.sql}`, ...F.params).map(r => r.token));
+    const coinsPorEmail = new Map();
+    let coinsCliques = 0, coinsMarcos = 0;
+    try {
+      for (const r of all(`SELECT email, evento, ref, coins FROM erp_coins WHERE evento IN ('utm_click','marco')`)) {
+        const ref = String(r.ref || '');
+        // utm_click → "<token>:<hash>" · marco → "marco50:<token>"
+        const tok = r.evento === 'utm_click' ? ref.split(':')[0] : ref.split(':')[1];
+        if (!tokens.has(tok)) continue;
+        if (r.evento === 'utm_click') coinsCliques += (r.coins || 0); else coinsMarcos += (r.coins || 0);
+        coinsPorEmail.set(r.email, (coinsPorEmail.get(r.email) || 0) + (r.coins || 0));
+      }
+    } catch (e) { /* ledger pode não existir em ambiente isolado */ }
 
     const summary = {
-      links:    one(`SELECT COUNT(*) n FROM utm_links`),
-      cliques:  one(`SELECT COUNT(*) n FROM utm_clicks WHERE ts>=? AND bot=0`, since),
-      clickers: one(`SELECT COUNT(DISTINCT ip_hash) n FROM utm_clicks WHERE ts>=? AND bot=0`, since),
-      bots:     one(`SELECT COUNT(*) n FROM utm_clicks WHERE ts>=? AND bot=1`, since),
-      coins:    one(`SELECT COALESCE(SUM(coins),0) n FROM erp_coins WHERE evento='utm_click'`),
+      links: linksTotal,               // links que batem no filtro (histórico)
+      links_novos: linksNovos,         // criados dentro do período
+      cliques: hum.n,                  // cliques humanos no período
+      clickers: hum.p,                 // pessoas distintas (hash de IP)
+      bots,                            // cliques de bot filtrados
+      taxa_bot: (hum.n + bots) ? Math.round(bots / (hum.n + bots) * 100) : 0,
+      coins: coinsCliques,
+      coins_marcos: coinsMarcos,
+      primeiro: hum.pri || null,
+      ultimo: hum.ult || null,
     };
 
-    const por_usuario = db.prepare(`
-      SELECT l.email AS email,
-             COUNT(DISTINCT l.token) AS links,
-             (SELECT COUNT(*) FROM utm_clicks c WHERE c.token IN
-                (SELECT token FROM utm_links WHERE email=l.email) AND c.ts>=? AND c.bot=0) AS cliques,
-             (SELECT COALESCE(SUM(coins),0) FROM erp_coins e WHERE e.email=l.email AND e.evento='utm_click') AS coins,
+    // ── Séries temporais (no fuso do cliente) ────────────────────────────────
+    const porDia = all(`SELECT CAST(((c.ts - ?)/86400000) AS INTEGER) AS dia, COUNT(*) AS n
+                        ${CLICKS} AND c.bot=0 ${F.sql} GROUP BY dia ORDER BY dia ASC`,
+                       P.off, ...cp)
+                   .map(r => ({ dia: r.dia * DAY_MS + P.off, n: r.n }));
+
+    const horaRaw = all(`SELECT CAST((((c.ts - ?)/3600000) % 24) AS INTEGER) AS hora, COUNT(*) AS n
+                         ${CLICKS} AND c.bot=0 ${F.sql} GROUP BY hora`, P.off, ...cp);
+    const porHora = Array.from({ length: 24 }, (_, h) => ({ hora: h, n: 0 }));
+    horaRaw.forEach(r => { if (r.hora >= 0 && r.hora < 24) porHora[r.hora].n = r.n; });
+
+    // Dia da semana (0=domingo, como o getDay do JS). +4 porque a época
+    // (01/01/1970) caiu numa quinta-feira.
+    const dowRaw = all(`SELECT CAST(((((c.ts - ?)/86400000) + 4) % 7) AS INTEGER) AS dow, COUNT(*) AS n
+                        ${CLICKS} AND c.bot=0 ${F.sql} GROUP BY dow`, P.off, ...cp);
+    const porDiaSemana = Array.from({ length: 7 }, (_, d) => ({ dow: d, n: 0 }));
+    dowRaw.forEach(r => { if (r.dow >= 0 && r.dow < 7) porDiaSemana[r.dow].n = r.n; });
+
+    // ── Agregações (2 queries por dimensão + merge em JS: sem N+1) ───────────
+    const mergeBy = (base, stats, key) => {
+      const m = new Map(stats.map(s => [s[key], s]));
+      return base.map(b => Object.assign({ cliques: 0, pessoas: 0, ultimo: null, primeiro: null },
+                                          m.get(b[key]) || {}, b));
+    };
+
+    const usuariosBase = all(`
+      SELECT l.email AS email, COUNT(DISTINCT l.token) AS links,
+             MAX(l.created_at) AS ultimo_link,
              (SELECT u.name FROM users u WHERE u.email=l.email) AS nome,
              (SELECT u.role FROM users u WHERE u.email=l.email) AS role
-      FROM utm_links l GROUP BY l.email ORDER BY cliques DESC LIMIT 500
-    `).all(since);
+      FROM utm_links l WHERE 1=1 ${F.sql} GROUP BY l.email`, ...F.params);
+    const usuariosStats = all(`
+      SELECT l.email AS email, COUNT(*) AS cliques, COUNT(DISTINCT c.ip_hash) AS pessoas,
+             MAX(c.ts) AS ultimo, MIN(c.ts) AS primeiro
+      ${CLICKS} AND c.bot=0 ${F.sql} GROUP BY l.email`, ...cp);
+    const por_usuario = mergeBy(usuariosBase, usuariosStats, 'email')
+      .map(u => Object.assign(u, { coins: coinsPorEmail.get(u.email) || 0 }))
+      .sort((a, b) => b.cliques - a.cliques || b.links - a.links)
+      .slice(0, 500);
 
-    const por_campanha = db.prepare(`
-      SELECT l.campaign AS campaign,
-             COUNT(DISTINCT l.token) AS links,
-             (SELECT COUNT(*) FROM utm_clicks c WHERE c.token IN
-                (SELECT token FROM utm_links WHERE campaign=l.campaign) AND c.ts>=? AND c.bot=0) AS cliques
-      FROM utm_links l GROUP BY l.campaign ORDER BY cliques DESC LIMIT 100
-    `).all(since);
+    const campBase = all(`
+      SELECT l.campaign AS campaign, COUNT(DISTINCT l.token) AS links,
+             MIN(l.created_at) AS criada_em
+      FROM utm_links l WHERE 1=1 ${F.sql} GROUP BY l.campaign`, ...F.params);
+    const campStats = all(`
+      SELECT l.campaign AS campaign, COUNT(*) AS cliques, COUNT(DISTINCT c.ip_hash) AS pessoas,
+             MAX(c.ts) AS ultimo, MIN(c.ts) AS primeiro
+      ${CLICKS} AND c.bot=0 ${F.sql} GROUP BY l.campaign`, ...cp);
+    const por_campanha = mergeBy(campBase, campStats, 'campaign')
+      .sort((a, b) => b.cliques - a.cliques || b.links - a.links).slice(0, 200);
 
-    const links = db.prepare(`
-      SELECT l.token, l.email, l.campaign, l.source, l.dest, l.created_at,
-             (SELECT COUNT(*) FROM utm_clicks c WHERE c.token=l.token AND c.ts>=? AND c.bot=0) AS cliques,
-             (SELECT COUNT(*) FROM utm_clicks c WHERE c.token=l.token AND c.ts>=? AND c.bot=1) AS bots
-      FROM utm_links l ORDER BY cliques DESC LIMIT 200
-    `).all(since, since);
+    const origemBase = all(`
+      SELECT l.source AS source, COUNT(DISTINCT l.token) AS links
+      FROM utm_links l WHERE 1=1 ${F.sql} GROUP BY l.source`, ...F.params);
+    const origemStats = all(`
+      SELECT l.source AS source, COUNT(*) AS cliques, COUNT(DISTINCT c.ip_hash) AS pessoas,
+             MAX(c.ts) AS ultimo
+      ${CLICKS} AND c.bot=0 ${F.sql} GROUP BY l.source`, ...cp);
+    const por_origem = mergeBy(origemBase, origemStats, 'source')
+      .sort((a, b) => b.cliques - a.cliques);
 
-    const recente = db.prepare(`
-      SELECT c.ts, c.token, c.ref, c.bot, l.email, l.campaign
-      FROM utm_clicks c LEFT JOIN utm_links l ON l.token=c.token
-      WHERE c.ts>=? ORDER BY c.ts DESC LIMIT 200
-    `).all(since);
+    // ── Links (com data de criação e último clique) ──────────────────────────
+    const linksBase = all(`
+      SELECT l.token, l.email, l.campaign, l.source, l.medium, l.dest, l.created_at
+      FROM utm_links l WHERE 1=1 ${F.sql} ORDER BY l.created_at DESC LIMIT 500`, ...F.params);
+    const perTokenPeriodo = new Map(all(`
+      SELECT c.token,
+             SUM(CASE WHEN c.bot=0 THEN 1 ELSE 0 END) AS cliques,
+             SUM(CASE WHEN c.bot=1 THEN 1 ELSE 0 END) AS bots,
+             MAX(CASE WHEN c.bot=0 THEN c.ts END) AS ultimo
+      FROM utm_clicks c WHERE c.ts>=? AND c.ts<=? GROUP BY c.token`, P.inicio, P.fim)
+      .map(r => [r.token, r]));
+    const perTokenTotal = new Map(all(`
+      SELECT token, SUM(CASE WHEN bot=0 THEN 1 ELSE 0 END) AS total, MAX(ts) AS ultimo_geral
+      FROM utm_clicks GROUP BY token`).map(r => [r.token, r]));
+    const links = linksBase.map(l => {
+      const p = perTokenPeriodo.get(l.token) || {}, t = perTokenTotal.get(l.token) || {};
+      return Object.assign({}, l, {
+        cliques: p.cliques || 0, bots: p.bots || 0,
+        ultimo: p.ultimo || null,
+        cliques_total: t.total || 0, ultimo_geral: t.ultimo_geral || null,
+      });
+    }).sort((a, b) => b.cliques - a.cliques || (b.ultimo || 0) - (a.ultimo || 0));
 
-    // Série diária de cliques humanos (p/ sparkline — mesmo formato do analytics).
-    const porDia = db.prepare(`
-      SELECT CAST((ts/86400000) AS INTEGER) AS dia, COUNT(*) AS n
-      FROM utm_clicks WHERE ts>=? AND bot=0 GROUP BY dia ORDER BY dia ASC
-    `).all(since).map(r => ({ dia: r.dia * 86400000, n: r.n }));
+    // ── Cliques recentes (paginado, com data/hora completa e dispositivo) ────
+    const limit = Math.max(10, Math.min(500, parseInt(req.query.limit, 10) || 100));
+    const offset = Math.max(0, parseInt(req.query.offset, 10) || 0);
+    const botSql = incluiBots ? '' : ' AND c.bot=0';
+    const recenteTotal = one(`SELECT COUNT(*) n ${CLICKS} ${botSql} ${F.sql}`, ...cp).n;
+    const recente = all(`
+      SELECT c.ts, c.token, c.ref, c.bot, c.ua, l.email, l.campaign, l.source, l.dest
+      ${CLICKS} ${botSql} ${F.sql} ORDER BY c.ts DESC LIMIT ? OFFSET ?`,
+      ...cp, limit, offset)
+      .map(r => ({
+        ts: r.ts, token: r.token, ref: r.ref, bot: r.bot,
+        email: r.email, campaign: r.campaign, source: r.source, dest: r.dest,
+        device: deviceOf(r.ua, r.bot),
+      }));
 
-    res.json({ days, escopo: 'time-marketing', click_coins: UTM_CLICK_COINS, summary, por_usuario, por_campanha, links, recente, porDia });
+    // ── Opções dos filtros (sempre o universo completo, não o filtrado) ──────
+    const filtros = {
+      usuarios:  all(`SELECT l.email AS email, COUNT(*) AS links,
+                             (SELECT u.name FROM users u WHERE u.email=l.email) AS nome
+                      FROM utm_links l GROUP BY l.email ORDER BY links DESC`),
+      campanhas: all(`SELECT campaign, COUNT(*) AS links FROM utm_links
+                      GROUP BY campaign ORDER BY links DESC LIMIT 200`),
+      origens:   all(`SELECT source, COUNT(*) AS links FROM utm_links
+                      GROUP BY source ORDER BY links DESC`),
+    };
+
+    res.json({
+      escopo: 'time-marketing', click_coins: UTM_CLICK_COINS,
+      gerado_em: Date.now(),
+      periodo: { inicio: P.inicio, fim: P.fim, dias: P.dias, custom: P.custom,
+                 de: P.de || null, ate: P.ate || null, days: P.days || null, tzoff_min: P.off / 60000 },
+      filtros_ativos: F.ativos, inclui_bots: incluiBots,
+      summary, porDia, porHora, porDiaSemana,
+      por_usuario, por_campanha, por_origem, links,
+      recente, recente_total: recenteTotal, recente_limit: limit, recente_offset: offset,
+      filtros,
+      // compat: o campo antigo `days` seguia sendo lido por integrações externas
+      days: P.dias,
+    });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// ── Export CSV (time de Marketing) ────────────────────────────────────────────
+// ── Detalhe de UM link (drill-down: todos os cliques com data/hora) ───────────
+router.get('/api/admin/utm/link/:token', requireMkt, (req, res) => {
+  try {
+    const token = sanitizeSlug(req.params.token, 24);
+    const link = db.prepare(`SELECT * FROM utm_links WHERE token=?`).get(token);
+    if (!link) return res.status(404).json({ error: 'nao_encontrado' });
+    const off = tzOffMs(req.query);
+    const one = (sql, ...a) => db.prepare(sql).get(...a);
+    const all = (sql, ...a) => db.prepare(sql).all(...a);
+
+    const r = one(`SELECT
+        SUM(CASE WHEN bot=0 THEN 1 ELSE 0 END) AS humanos,
+        SUM(CASE WHEN bot=1 THEN 1 ELSE 0 END) AS bots,
+        COUNT(DISTINCT CASE WHEN bot=0 THEN ip_hash END) AS pessoas,
+        MIN(CASE WHEN bot=0 THEN ts END) AS primeiro,
+        MAX(CASE WHEN bot=0 THEN ts END) AS ultimo
+      FROM utm_clicks WHERE token=?`, token);
+
+    const porDia = all(`SELECT CAST(((ts - ?)/86400000) AS INTEGER) AS dia, COUNT(*) AS n
+                        FROM utm_clicks WHERE token=? AND bot=0 GROUP BY dia ORDER BY dia ASC`, off, token)
+                   .map(x => ({ dia: x.dia * DAY_MS + off, n: x.n }));
+
+    const cliques = all(`SELECT ts, ref, ua, bot FROM utm_clicks WHERE token=?
+                         ORDER BY ts DESC LIMIT 500`, token)
+      .map(c => ({ ts: c.ts, ref: c.ref, bot: c.bot, device: deviceOf(c.ua, c.bot) }));
+
+    let coins = 0;
+    try {
+      coins = all(`SELECT ref, coins, evento FROM erp_coins WHERE evento IN ('utm_click','marco')`)
+        .filter(x => (x.evento === 'utm_click' ? String(x.ref).split(':')[0] : String(x.ref).split(':')[1]) === token)
+        .reduce((a, x) => a + (x.coins || 0), 0);
+    } catch (e) {}
+
+    res.json({
+      link: {
+        token: link.token, email: link.email, campaign: link.campaign, source: link.source,
+        medium: link.medium, dest: link.dest, created_at: link.created_at,
+        destino_final: appendUtm(link.dest, { source: link.source, medium: link.medium, campaign: link.campaign, content: token }),
+      },
+      resumo: {
+        humanos: r.humanos || 0, bots: r.bots || 0, pessoas: r.pessoas || 0,
+        primeiro: r.primeiro || null, ultimo: r.ultimo || null, coins,
+      },
+      porDia, cliques,
+    });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── Export CSV (time de Marketing) — respeita período e filtros ──────────────
 router.get('/api/admin/utm/export.csv', requireMkt, (req, res) => {
   try {
-    const rows = db.prepare(`
-      SELECT l.token, l.email, l.campaign, l.source, l.medium, l.dest, l.created_at,
-             (SELECT COUNT(*) FROM utm_clicks c WHERE c.token=l.token AND c.bot=0) AS cliques,
-             (SELECT COUNT(*) FROM utm_clicks c WHERE c.token=l.token AND c.bot=1) AS bots
-      FROM utm_links l ORDER BY cliques DESC
-    `).all();
+    const P = resolvePeriodo(req.query);
+    const F = linkFilters(req.query);
+    const modo = String(req.query.modo || 'links') === 'cliques' ? 'cliques' : 'links';
     const q = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
-    const csv = ['token,autor,campanha,origem,medium,destino,criado_em,cliques,bots']
-      .concat(rows.map(r => [r.token, r.email, r.campaign, r.source, r.medium, r.dest, r.created_at, r.cliques, r.bots].map(q).join(',')))
-      .join('\n');
+    // Data/hora legível no fuso de quem exportou (não em UTC cru).
+    const dt = (ts) => ts ? new Date(+ts - P.off).toISOString().slice(0, 19).replace('T', ' ') : '';
+    let head, rows;
+
+    if (modo === 'cliques') {
+      head = 'quando,token,autor,campanha,origem,dispositivo,bot,referer,destino';
+      rows = db.prepare(`
+        SELECT c.ts, c.token, c.ref, c.ua, c.bot, l.email, l.campaign, l.source, l.dest
+        FROM utm_clicks c JOIN utm_links l ON l.token=c.token
+        WHERE c.ts>=? AND c.ts<=? ${F.sql} ORDER BY c.ts DESC LIMIT 20000`)
+        .all(P.inicio, P.fim, ...F.params)
+        .map(r => [dt(r.ts), r.token, r.email, r.campaign, r.source,
+                   deviceOf(r.ua, r.bot), r.bot ? 'sim' : 'nao', r.ref, r.dest].map(q).join(','));
+    } else {
+      head = 'token,autor,campanha,origem,medium,destino,criado_em,cliques_periodo,bots_periodo,cliques_total,ultimo_clique';
+      rows = db.prepare(`
+        SELECT l.token, l.email, l.campaign, l.source, l.medium, l.dest, l.created_at,
+               (SELECT COUNT(*) FROM utm_clicks c WHERE c.token=l.token AND c.bot=0 AND c.ts>=? AND c.ts<=?) AS cliques,
+               (SELECT COUNT(*) FROM utm_clicks c WHERE c.token=l.token AND c.bot=1 AND c.ts>=? AND c.ts<=?) AS bots,
+               (SELECT COUNT(*) FROM utm_clicks c WHERE c.token=l.token AND c.bot=0) AS total,
+               (SELECT MAX(ts) FROM utm_clicks c WHERE c.token=l.token AND c.bot=0) AS ultimo
+        FROM utm_links l WHERE 1=1 ${F.sql} ORDER BY cliques DESC`)
+        .all(P.inicio, P.fim, P.inicio, P.fim, ...F.params)
+        .map(r => [r.token, r.email, r.campaign, r.source, r.medium, r.dest, r.created_at,
+                   r.cliques, r.bots, r.total, dt(r.ultimo)].map(q).join(','));
+    }
+
     res.set('Content-Type', 'text/csv; charset=utf-8');
-    res.set('Content-Disposition', 'attachment; filename="utm-links.csv"');
-    res.send('﻿' + csv); // BOM p/ Excel abrir acentos certo
+    res.set('Content-Disposition', `attachment; filename="utm-${modo}-${P.dias}d.csv"`);
+    res.send('﻿' + [head].concat(rows).join('\n')); // BOM p/ Excel abrir acentos certo
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

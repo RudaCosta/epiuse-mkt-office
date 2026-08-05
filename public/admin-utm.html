@@ -9,38 +9,84 @@
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Maven Pro',system-ui,sans-serif;background:#0a1426;color:#e8f0ff;line-height:1.5}
-  .container{max-width:1080px;margin:0 auto;padding:32px 24px 80px}
+  .container{max-width:1180px;margin:0 auto;padding:32px 24px 80px}
   h1{font-size:24px;font-weight:800;margin-bottom:4px}
   .sub{font-size:13px;color:#9fb2d4;margin-bottom:16px}
   .owner{font-size:12px;color:#fbbf24;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.3);border-radius:10px;padding:8px 12px;margin-bottom:8px;display:inline-block}
-  .xlink{font-size:12px;margin:10px 0 20px}
-  .xlink a{color:#60a5fa;text-decoration:none}
-  .controls{display:flex;gap:8px;align-items:center;margin-bottom:24px;flex-wrap:wrap}
-  .controls label{font-size:12px;color:#9fb2d4}
-  select{background:#0f1d36;border:1px solid rgba(134,158,195,.25);color:#e8f0ff;padding:7px 10px;border-radius:8px;font-family:inherit;font-size:13px}
-  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:28px}
-  .card{background:#0f1d36;border:1px solid rgba(134,158,195,.18);border-radius:12px;padding:16px 18px}
-  .card .n{font-size:26px;font-weight:800;font-family:'JetBrains Mono',monospace;color:#60a5fa}
-  .card .l{font-size:12px;color:#9fb2d4;text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
-  h2{font-size:14px;font-weight:800;margin:28px 0 10px;color:#9fb2d4;text-transform:uppercase;letter-spacing:.06em}
+  h2{font-size:14px;font-weight:800;margin:28px 0 10px;color:#9fb2d4;text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  h2 .h2sub{font-size:11px;font-weight:600;text-transform:none;letter-spacing:0;color:#6b83ad}
   table{width:100%;border-collapse:collapse;font-size:13px}
-  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid rgba(134,158,195,.14)}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid rgba(134,158,195,.14);white-space:nowrap}
   th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#9fb2d4}
+  th.sortable{cursor:pointer;user-select:none}
+  th.sortable:hover{color:#e8f0ff}
+  th.sorted::after{content:' ▾';color:#60a5fa}
+  th.sorted.asc::after{content:' ▴'}
   td.num,th.num{text-align:right;font-family:'JetBrains Mono',monospace}
   .num-hi{color:#fbbf24;font-weight:700}
+  .num-zero{color:#5b6f92}
   tr:hover td{background:rgba(134,158,195,.05)}
   .panel{background:#0b1830;border:1px solid rgba(134,158,195,.16);border-radius:14px;padding:8px 4px;overflow-x:auto;margin-bottom:8px}
-  .vazio{color:#9fb2d4;font-size:13px;padding:16px}
-  .path,.mono{font-family:'JetBrains Mono',monospace;font-size:12px;color:#a7c0e8;word-break:break-all}
+  .vazio{color:#9fb2d4;font-size:13px;padding:16px;white-space:normal}
+  .path,.mono{font-family:'JetBrains Mono',monospace;font-size:12px;color:#a7c0e8}
   .uname{font-weight:700}.uemail{color:#9fb2d4;font-size:12px}
   .muted{color:#9fb2d4;font-size:12px}
+  .dim{color:#6b83ad;font-size:11px}
   .role-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(96,165,250,.14);color:#93c5fd;border:1px solid rgba(96,165,250,.3);text-transform:uppercase;letter-spacing:.04em}
   .role-badge.mkt{background:rgba(34,211,122,.14);color:#4ade80;border-color:rgba(34,211,122,.35)}
   .role-badge.head{background:rgba(205,21,67,.16);color:#fda4af;border-color:rgba(205,21,67,.4)}
   .role-badge.none{background:rgba(148,163,184,.12);color:#cbd5e1;border-color:rgba(148,163,184,.28)}
-  /* gerador de link */
-  .gen{background:#0f1d36;border:1px solid rgba(205,21,67,.28);border-radius:14px;padding:20px;margin:6px 0 26px}
-  .gen h2{margin:0 0 4px;color:#e8f0ff}
+
+  /* ── cards ── */
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:8px}
+  .card{background:#0f1d36;border:1px solid rgba(134,158,195,.18);border-radius:12px;padding:14px 16px}
+  .card .n{font-size:24px;font-weight:800;font-family:'JetBrains Mono',monospace;color:#60a5fa}
+  .card .l{font-size:11px;color:#9fb2d4;text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+  .card .x{font-size:11px;color:#6b83ad;margin-top:3px}
+  .card.g .n{color:#4ade80} .card.y .n{color:#fbbf24} .card.k .n{color:#94a3b8}
+
+  /* ── barra de filtros ── */
+  .filters{background:#0f1d36;border:1px solid rgba(134,158,195,.2);border-radius:14px;padding:16px 18px;margin-bottom:16px}
+  .frow{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+  .fld{display:flex;flex-direction:column;gap:4px}
+  .fld label{font-size:10px;color:#9fb2d4;text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+  .fld select,.fld input{background:#0a1426;border:1px solid rgba(134,158,195,.25);color:#e8f0ff;padding:8px 11px;border-radius:9px;font-family:inherit;font-size:13px;min-width:130px}
+  .fld input[type=date]{color-scheme:dark;min-width:145px}
+  .fld.grow{flex:1;min-width:200px} .fld.grow input{width:100%;min-width:0}
+  .fbtn{background:rgba(96,165,250,.16);border:1px solid rgba(96,165,250,.4);color:#bfdbfe;border-radius:9px;padding:9px 15px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer}
+  .fbtn:hover{filter:brightness(1.2)}
+  .fbtn.clear{background:rgba(248,113,113,.12);border-color:rgba(248,113,113,.35);color:#fca5a5}
+  .fchecks{display:flex;gap:16px;align-items:center;margin-top:12px;flex-wrap:wrap;font-size:12px;color:#9fb2d4}
+  .fchecks label{display:flex;gap:6px;align-items:center;cursor:pointer}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+  .chip{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(96,165,250,.14);color:#93c5fd;border:1px solid rgba(96,165,250,.32);display:inline-flex;gap:6px;align-items:center}
+  .chip b{color:#e8f0ff}
+  .chip span{cursor:pointer;opacity:.7}
+  .chip span:hover{opacity:1;color:#fca5a5}
+  .stamp{font-size:11px;color:#6b83ad;margin-left:auto;text-align:right}
+
+  /* ── gráficos ── */
+  .charts{display:grid;grid-template-columns:1.6fr 1fr;gap:12px;margin-bottom:8px}
+  @media(max-width:820px){.charts{grid-template-columns:1fr}}
+  .chart{background:#0b1830;border:1px solid rgba(134,158,195,.16);border-radius:12px;padding:12px 14px}
+  .chart .ct{font-size:11px;color:#9fb2d4;text-transform:uppercase;letter-spacing:.05em;font-weight:700;margin-bottom:10px;display:flex;justify-content:space-between;gap:8px}
+  .chart .ct em{font-style:normal;color:#6b83ad;text-transform:none;letter-spacing:0;font-weight:600}
+  .bars{display:flex;align-items:flex-end;gap:3px;height:78px;overflow-x:auto}
+  .bars .b{flex:1 0 8px;min-width:6px;display:flex;flex-direction:column;justify-content:flex-end;height:100%}
+  .bars .fill{background:linear-gradient(180deg,#60a5fa,#2563eb);border-radius:2px 2px 0 0;min-height:2px}
+  .bars .b:hover .fill{background:#fbbf24}
+  .bars .b.peak .fill{background:linear-gradient(180deg,#fbbf24,#d97706)}
+  .axis{display:flex;gap:3px;margin-top:5px;font-size:9px;color:#5b6f92;font-family:'JetBrains Mono',monospace}
+  .axis .a{flex:1 0 8px;min-width:6px;text-align:center;overflow:hidden}
+  .dow{display:flex;gap:5px;margin-top:2px}
+  .dow .d{flex:1;text-align:center;background:#0f1d36;border:1px solid rgba(134,158,195,.14);border-radius:8px;padding:7px 2px}
+  .dow .d .dn{font-size:14px;font-weight:800;font-family:'JetBrains Mono',monospace;color:#60a5fa}
+  .dow .d .dl{font-size:9px;color:#6b83ad;text-transform:uppercase}
+  .dow .d.peak{border-color:rgba(251,191,36,.45)} .dow .d.peak .dn{color:#fbbf24}
+
+  /* ── gerador ── */
+  .gen{background:#0f1d36;border:1px solid rgba(205,21,67,.28);border-radius:14px;padding:20px;margin:6px 0 22px}
+  .gen h2{margin:0 0 4px;color:#e8f0ff;text-transform:none;letter-spacing:0;font-size:15px}
   .gen p{font-size:13px;color:#9fb2d4;margin-bottom:14px}
   .gen-row{display:flex;gap:10px;flex-wrap:wrap}
   .gen-row input,.gen-row select{background:#0a1426;border:1px solid rgba(134,158,195,.25);color:#e8f0ff;padding:11px 13px;border-radius:9px;font-family:inherit;font-size:14px}
@@ -58,21 +104,30 @@
   .g-badge.reusado{background:rgba(96,165,250,.16);color:#93c5fd;border:1px solid rgba(96,165,250,.4)}
   .g-preview{margin-top:8px;font-size:11px;color:#9fb2d4;font-family:'JetBrains Mono',monospace;word-break:break-all}
   .g-preview b{color:#a7c0e8}
-  /* sparkline (mesmo padrão do admin-analytics) */
-  .spark{display:flex;align-items:flex-end;gap:3px;height:64px;padding:8px 12px;background:#0b1830;border:1px solid rgba(134,158,195,.16);border-radius:12px;margin-bottom:8px;overflow-x:auto}
-  .spark .bar{flex:0 0 auto;width:10px;min-height:2px;background:linear-gradient(180deg,#60a5fa,#2563eb);border-radius:2px 2px 0 0}
-  .spark .bar:hover{background:#fbbf24}
-  /* filtro + ações da tabela de links */
-  .filter-row{display:flex;gap:8px;align-items:center;margin:0 0 8px}
-  .filter-row input{flex:1;max-width:340px;background:#0f1d36;border:1px solid rgba(134,158,195,.25);color:#e8f0ff;padding:8px 12px;border-radius:9px;font-family:inherit;font-size:13px}
-  .filter-row a{font-size:12px;color:#60a5fa;text-decoration:none;font-weight:700}
+
+  /* ── ações / chips de tabela ── */
   .mini{background:rgba(96,165,250,.15);border:1px solid rgba(96,165,250,.4);color:#bfdbfe;border-radius:7px;padding:4px 9px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;margin-right:4px}
   .mini:hover{filter:brightness(1.2)}
   .bot-chip{font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;background:rgba(148,163,184,.14);color:#cbd5e1;border:1px solid rgba(148,163,184,.3)}
-  /* modal QR */
-  #qrmodal{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;background:rgba(3,10,22,.85);padding:20px}
-  #qrmodal.open{display:flex}
-  .qrbox{background:#fff;border-radius:18px;padding:26px;text-align:center;max-width:340px;width:100%;color:#0a1426}
+  .dev{font-size:10px;font-weight:700;padding:1px 8px;border-radius:20px;background:rgba(134,158,195,.12);color:#a7c0e8;border:1px solid rgba(134,158,195,.24)}
+  .src{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(168,85,247,.14);color:#d8b4fe;border:1px solid rgba(168,85,247,.3)}
+  .pager{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin:8px 2px 0;font-size:12px;color:#9fb2d4}
+  .pager button{background:rgba(96,165,250,.14);border:1px solid rgba(96,165,250,.35);color:#bfdbfe;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer}
+  .pager button:disabled{opacity:.35;cursor:default}
+  tr.clickable{cursor:pointer}
+  tr.clickable:hover td{background:rgba(96,165,250,.08)}
+
+  /* ── modais ── */
+  .modal{position:fixed;inset:0;z-index:9999;display:none;align-items:flex-start;justify-content:center;background:rgba(3,10,22,.85);padding:40px 16px;overflow-y:auto}
+  .modal.open{display:flex}
+  .dbox{background:#0b1830;border:1px solid rgba(134,158,195,.2);border-radius:16px;max-width:880px;width:100%;padding:24px;box-shadow:0 24px 80px rgba(0,0,0,.6)}
+  .dbox-hdr{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid rgba(134,158,195,.16)}
+  .dbox-hdr h3{font-size:17px;font-weight:800}
+  .dclose{background:rgba(255,255,255,.05);border:1px solid rgba(134,158,195,.25);color:#9fb2d4;border-radius:8px;width:32px;height:32px;font-size:15px;cursor:pointer;flex-shrink:0}
+  .dbox h4{font-size:11px;font-weight:800;color:#9fb2d4;text-transform:uppercase;letter-spacing:.06em;margin:18px 0 8px}
+  .dmeta{font-size:12px;color:#9fb2d4;word-break:break-all;line-height:1.8}
+  .dmeta b{color:#e8f0ff}
+  .qrbox{background:#fff;border-radius:18px;padding:26px;text-align:center;max-width:340px;width:100%;color:#0a1426;margin:auto}
   .qrbox h3{font-size:15px;font-weight:800;margin-bottom:4px}
   .qrbox .qsub{font-size:11px;color:#64748b;margin-bottom:14px;word-break:break-all}
   #qrcanvas{display:flex;justify-content:center;margin-bottom:14px}
@@ -88,12 +143,13 @@
 <office-nav></office-nav>
 <div class="container">
   <h1>🔗 UTM &amp; Links Rastreados</h1>
-  <div class="sub">O que cada um do time compartilhou pra fora, de onde saiu cada link, quantos cliques gerou e os ERP Coins ganhos.</div>
+  <div class="sub">O que cada um do time compartilhou pra fora, de onde saiu cada link, quando geraram cliques e os ERP Coins ganhos.</div>
   <div class="owner" id="owner-tag">👥 Time de Marketing</div>
 
+  <!-- GERADOR -->
   <div class="gen">
     <h2>➕ Gerar link rastreado</h2>
-    <p>Cole o link do conteúdo (artigo, LP, post), dê um nome de campanha e escolha o canal. O link fica atribuído a você e cada clique vira ERP Coins.</p>
+    <p>Cole o link do conteúdo (artigo, LP, post), dê um nome de campanha e escolha o canal. O link fica atribuído a você e cada clique humano vira ERP Coins.</p>
     <div class="gen-row">
       <input id="g-dest" type="url" placeholder="https://... (link de destino)">
       <input id="g-camp" type="text" placeholder="campanha (ex: sap-now-2026)">
@@ -110,54 +166,142 @@
     <div id="g-out"></div>
   </div>
 
-  <div class="controls">
-    <label for="days">Período dos cliques:</label>
-    <select id="days">
-      <option value="1">Últimas 24h</option>
-      <option value="7">7 dias</option>
-      <option value="30" selected>30 dias</option>
-      <option value="90">90 dias</option>
-      <option value="365">1 ano</option>
-    </select>
+  <!-- FILTROS -->
+  <div class="filters">
+    <div class="frow">
+      <div class="fld">
+        <label for="f-periodo">Período</label>
+        <select id="f-periodo">
+          <option value="1">Últimas 24h</option>
+          <option value="7">7 dias</option>
+          <option value="30" selected>30 dias</option>
+          <option value="90">90 dias</option>
+          <option value="180">6 meses</option>
+          <option value="365">1 ano</option>
+          <option value="custom">📅 Intervalo…</option>
+        </select>
+      </div>
+      <div class="fld" id="fld-de" style="display:none">
+        <label for="f-de">De</label><input id="f-de" type="date">
+      </div>
+      <div class="fld" id="fld-ate" style="display:none">
+        <label for="f-ate">Até</label><input id="f-ate" type="date">
+      </div>
+      <div class="fld">
+        <label for="f-user">Autor</label>
+        <select id="f-user"><option value="">Todos</option></select>
+      </div>
+      <div class="fld">
+        <label for="f-camp">Campanha</label>
+        <select id="f-camp"><option value="">Todas</option></select>
+      </div>
+      <div class="fld">
+        <label for="f-src">Origem</label>
+        <select id="f-src"><option value="">Todas</option></select>
+      </div>
+      <div class="fld grow">
+        <label for="f-q">Busca (campanha, destino, autor, token)</label>
+        <input id="f-q" type="text" placeholder="🔎 ex: sap-now, linkedin.com, bruna…">
+      </div>
+      <button class="fbtn clear" id="f-clear" type="button">Limpar</button>
+    </div>
+    <div class="fchecks">
+      <label><input type="checkbox" id="f-bots"> Incluir cliques de bot na lista</label>
+      <a id="exp-links" class="fbtn" style="text-decoration:none" download>⬇️ CSV dos links</a>
+      <a id="exp-clicks" class="fbtn" style="text-decoration:none" download>⬇️ CSV dos cliques</a>
+      <span class="stamp" id="stamp">—</span>
+    </div>
+    <div class="chips" id="chips"></div>
   </div>
 
   <div class="cards" id="cards"></div>
 
-  <h2>Cliques por dia</h2>
-  <div class="spark" id="spark"></div>
+  <!-- GRÁFICOS -->
+  <div class="charts">
+    <div class="chart">
+      <div class="ct"><span>Cliques por dia</span><em id="ct-dia">—</em></div>
+      <div class="bars" id="ch-dia"></div>
+      <div class="axis" id="ax-dia"></div>
+    </div>
+    <div class="chart">
+      <div class="ct"><span>Por hora do dia</span><em id="ct-hora">—</em></div>
+      <div class="bars" id="ch-hora"></div>
+      <div class="axis" id="ax-hora"></div>
+    </div>
+  </div>
+  <div class="chart" style="margin-bottom:8px">
+    <div class="ct"><span>Por dia da semana</span><em id="ct-dow">—</em></div>
+    <div class="dow" id="ch-dow"></div>
+  </div>
 
-  <h2>Por usuário</h2>
+  <h2>Por autor <span class="h2sub">quem compartilha e quanto retorno traz</span></h2>
   <div class="panel">
     <table><thead><tr>
-      <th>Usuário</th><th>Área</th><th class="num">Links</th><th class="num">Cliques</th><th class="num">Coins (cliques)</th>
-    </tr></thead><tbody id="tb-users"><tr><td colspan="5" class="vazio">Carregando…</td></tr></tbody></table>
+      <th>Autor</th><th>Área</th><th class="num">Links</th><th class="num">Cliques</th>
+      <th class="num">Pessoas</th><th class="num">Coins</th><th>Último clique</th><th>Último link criado</th>
+    </tr></thead><tbody id="tb-users"><tr><td colspan="8" class="vazio">Carregando…</td></tr></tbody></table>
   </div>
 
   <h2>Por campanha</h2>
   <div class="panel">
-    <table><thead><tr><th>Campanha</th><th class="num">Links</th><th class="num">Cliques</th></tr></thead>
-    <tbody id="tb-camp"></tbody></table>
+    <table><thead><tr>
+      <th>Campanha</th><th class="num">Links</th><th class="num">Cliques</th><th class="num">Pessoas</th>
+      <th>Primeiro clique</th><th>Último clique</th>
+    </tr></thead><tbody id="tb-camp"></tbody></table>
   </div>
 
-  <h2>Links (mais clicados)</h2>
-  <div class="filter-row">
-    <input id="f-links" type="text" placeholder="🔎 Filtrar por autor, campanha ou destino…">
-    <a href="/api/admin/utm/export.csv" download>⬇️ Exportar CSV</a>
-  </div>
+  <h2>Por origem <span class="h2sub">qual canal realmente traz clique</span></h2>
   <div class="panel">
-    <table><thead><tr><th>Link</th><th>Usuário</th><th>Campanha</th><th>Origem</th><th>Destino</th><th class="num">Cliques</th><th class="num">🤖</th><th>Ações</th></tr></thead>
-    <tbody id="tb-links"></tbody></table>
+    <table><thead><tr>
+      <th>Origem</th><th class="num">Links</th><th class="num">Cliques</th><th class="num">Pessoas</th><th>Último clique</th>
+    </tr></thead><tbody id="tb-src"></tbody></table>
   </div>
 
-  <h2>Cliques recentes</h2>
+  <h2>Links <span class="h2sub">👆 clique numa linha pra ver todos os cliques com data e hora</span></h2>
   <div class="panel">
-    <table><thead><tr><th>Quando</th><th>Usuário</th><th>Campanha</th><th>Origem</th></tr></thead>
-    <tbody id="tb-recent"></tbody></table>
+    <table><thead><tr>
+      <th class="sortable" data-sort="campaign">Campanha</th>
+      <th class="sortable" data-sort="email">Autor</th>
+      <th class="sortable" data-sort="source">Origem</th>
+      <th>Destino</th>
+      <th class="num sortable" data-sort="cliques">Cliques</th>
+      <th class="num sortable" data-sort="cliques_total">Total</th>
+      <th class="num sortable" data-sort="bots">🤖</th>
+      <th class="sortable" data-sort="ultimo">Último clique</th>
+      <th class="sortable" data-sort="created_at">Criado em</th>
+      <th>Ações</th>
+    </tr></thead><tbody id="tb-links"></tbody></table>
+  </div>
+
+  <h2>Cliques recentes <span class="h2sub" id="rec-sub"></span></h2>
+  <div class="panel">
+    <table><thead><tr>
+      <th>Data e hora</th><th>Campanha</th><th>Autor</th><th>Origem</th><th>Dispositivo</th><th>Veio de</th>
+    </tr></thead><tbody id="tb-recent"></tbody></table>
+  </div>
+  <div class="pager">
+    <button id="pg-prev" type="button">← Anteriores</button>
+    <span id="pg-info">—</span>
+    <button id="pg-next" type="button">Próximos →</button>
   </div>
 </div>
 
-<!-- QR MODAL -->
-<div id="qrmodal"><div class="qrbox">
+<!-- MODAL: detalhe do link -->
+<div class="modal" id="dmodal"><div class="dbox">
+  <div class="dbox-hdr"><h3 id="d-title">—</h3><button class="dclose" id="d-close" type="button">✕</button></div>
+  <div class="dmeta" id="d-meta"></div>
+  <div class="cards" id="d-cards" style="margin-top:14px"></div>
+  <h4>Cliques por dia</h4>
+  <div class="chart"><div class="bars" id="d-bars"></div><div class="axis" id="d-axis"></div></div>
+  <h4>Todos os cliques</h4>
+  <div class="panel" style="max-height:340px;overflow-y:auto">
+    <table><thead><tr><th>Data e hora</th><th>Dispositivo</th><th>Veio de</th></tr></thead>
+    <tbody id="d-clicks"></tbody></table>
+  </div>
+</div></div>
+
+<!-- MODAL: QR -->
+<div class="modal" id="qrmodal" style="align-items:center"><div class="qrbox">
   <h3 id="qr-title">QR Code</h3>
   <div class="qsub" id="qr-url"></div>
   <div id="qr-warn"></div>
@@ -171,89 +315,327 @@
 <script src="/office-nav.js"></script>
 <script>
 (function(){
+  // ── auth (token de editor como fallback fora da sessão SSO) ─────────────────
   try { var _t = new URL(location.href).searchParams.get('token'); if (_t) localStorage.setItem('office.editorToken', _t); } catch(e){}
-  function authHeaders(){ var h={}; try { var t=localStorage.getItem('office.editorToken'); if(t) h['X-Editor-Token']=t; } catch(e){} return h; }
+  function editorToken(){ try { return localStorage.getItem('office.editorToken')||''; } catch(e){ return ''; } }
+  function authHeaders(){ var h={}, t=editorToken(); if(t) h['X-Editor-Token']=t; return h; }
+
   var esc = function(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]; }); };
-  function fmtWhen(ts){ var d=new Date(+ts); var p=function(n){return (n<10?'0':'')+n;}; return p(d.getDate())+'/'+p(d.getMonth()+1)+' '+p(d.getHours())+':'+p(d.getMinutes()); }
-  function card(n,l){ return '<div class="card"><div class="n">'+esc(n)+'</div><div class="l">'+esc(l)+'</div></div>'; }
+  var TZOFF = new Date().getTimezoneOffset(); // min; enviado ao back p/ agregar no fuso local
+
+  // ── formatação de data/hora ────────────────────────────────────────────────
+  function p2(n){ return (n<10?'0':'')+n; }
+  function fmtDT(ts){ if(!ts) return '—'; var d=new Date(+ts);
+    return p2(d.getDate())+'/'+p2(d.getMonth()+1)+'/'+d.getFullYear()+' '+p2(d.getHours())+':'+p2(d.getMinutes()); }
+  function fmtDTs(ts){ if(!ts) return '—'; var d=new Date(+ts);
+    return p2(d.getDate())+'/'+p2(d.getMonth()+1)+' '+p2(d.getHours())+':'+p2(d.getMinutes())+':'+p2(d.getSeconds()); }
+  function fmtDay(ts){ var d=new Date(+ts); return p2(d.getDate())+'/'+p2(d.getMonth()+1); }
+  function fmtRel(ts){
+    if(!ts) return '';
+    var s=Math.round((Date.now()-(+ts))/1000);
+    if(s<60) return 'agora';
+    if(s<3600) return 'há '+Math.floor(s/60)+'min';
+    if(s<86400) return 'há '+Math.floor(s/3600)+'h';
+    var d=Math.floor(s/86400);
+    return 'há '+d+(d===1?' dia':' dias');
+  }
+  // "created_at" vem do SQLite como 'YYYY-MM-DD HH:MM:SS' em UTC
+  function sqlToTs(s){ if(!s) return null; var t=Date.parse(String(s).replace(' ','T')+'Z'); return isNaN(t)?null:t; }
+  function dtCell(ts){ return ts ? ('<div>'+fmtDT(ts)+'</div><div class="dim">'+fmtRel(ts)+'</div>') : '<span class="dim">—</span>'; }
+
+  // ── estado dos filtros ─────────────────────────────────────────────────────
+  var ST = { periodo:'30', de:'', ate:'', email:'', campaign:'', source:'', q:'', bots:false, offset:0 };
+  var SORT = { key:'cliques', dir:-1 };
+  var DATA = null;
+
+  function qs(extra){
+    var p = new URLSearchParams();
+    if (ST.periodo==='custom'){ if(ST.de) p.set('de',ST.de); if(ST.ate) p.set('ate',ST.ate); }
+    else p.set('days', ST.periodo);
+    if (ST.email) p.set('email', ST.email);
+    if (ST.campaign) p.set('campaign', ST.campaign);
+    if (ST.source) p.set('source', ST.source);
+    if (ST.q) p.set('q', ST.q);
+    if (ST.bots) p.set('bots','1');
+    p.set('tzoff', TZOFF);
+    var t = editorToken(); if (t) p.set('token', t);
+    if (extra) Object.keys(extra).forEach(function(k){ p.set(k, extra[k]); });
+    return p.toString();
+  }
+
+  // ── cards ──────────────────────────────────────────────────────────────────
+  function card(n,l,x,cls){ return '<div class="card '+(cls||'')+'"><div class="n">'+esc(n)+'</div><div class="l">'+esc(l)+'</div>'+
+    (x?'<div class="x">'+esc(x)+'</div>':'')+'</div>'; }
+
   var ROLE_LABELS={head:'Head',intelligence:'Intelligence',growth:'Growth',field:'Field Mkt',pipeline:'Pipeline',brand:'Brand',conteudo:'Conteúdo','country-manager':'Country Mgr',diretoria:'Diretoria',hub:'Colaborador'};
   var MKT_ROLES={head:1,intelligence:1,growth:1,field:1,pipeline:1,brand:1,conteudo:1};
   function roleBadge(role){ if(!role) return '<span class="role-badge none">não cadastrado</span>'; var cls=role==='head'?'head':(MKT_ROLES[role]?'mkt':''); return '<span class="role-badge '+cls+'">'+esc(ROLE_LABELS[role]||role)+'</span>'; }
-  function shorten(u){ return String(u||'').replace(/^https?:\/\//,'').slice(0,44); }
+  function shorten(u,n){ return String(u||'').replace(/^https?:\/\//,'').slice(0,n||40); }
+  var DEV_ICON={mobile:'📱 mobile',desktop:'💻 desktop',tablet:'📲 tablet',bot:'🤖 bot',desconhecido:'· n/d'};
 
-  function fmtDay(ts){ var d=new Date(+ts); return d.getDate()+'/'+(d.getMonth()+1); }
+  // ── gráfico de barras genérico ─────────────────────────────────────────────
+  function drawBars(barsEl, axisEl, pts, labelFn, titleFn){
+    if (!pts.length){ barsEl.innerHTML='<div class="vazio">Sem cliques no período.</div>'; axisEl.innerHTML=''; return; }
+    var max = pts.reduce(function(m,x){ return Math.max(m,x.n); },0) || 1;
+    var peak = pts.reduce(function(a,b){ return b.n>a.n?b:a; }, pts[0]);
+    barsEl.innerHTML = pts.map(function(x){
+      var h = x.n ? Math.max(3, Math.round(x.n/max*72)) : 2;
+      return '<div class="b'+(x.n===peak.n&&x.n>0?' peak':'')+'" title="'+esc(titleFn(x))+'"><div class="fill" style="height:'+h+'px"></div></div>';
+    }).join('');
+    // rótulos: no máximo ~12 pra não virar sopa
+    var step = Math.ceil(pts.length/12);
+    axisEl.innerHTML = pts.map(function(x,i){ return '<div class="a">'+(i%step===0?esc(labelFn(x)):'')+'</div>'; }).join('');
+  }
 
+  // ── render principal ───────────────────────────────────────────────────────
   function render(d){
-    document.getElementById('owner-tag').textContent = '👥 Time de Marketing · cada clique humano vale ' + (d.click_coins||5) + ' coins · bots de preview não contam';
-    var s = d.summary||{};
+    DATA = d;
+    document.getElementById('owner-tag').textContent =
+      '👥 Time de Marketing · cada clique humano vale ' + (d.click_coins||5) + ' coins · bots de preview não contam';
+
+    var per = d.periodo||{}, s = d.summary||{};
+    document.getElementById('stamp').innerHTML =
+      'Período: <b style="color:#a7c0e8">'+fmtDT(per.inicio)+'</b> → <b style="color:#a7c0e8">'+fmtDT(per.fim)+'</b>'+
+      ' · atualizado '+fmtDTs(d.gerado_em);
+
     document.getElementById('cards').innerHTML =
-      card(s.links,'Links criados') + card(s.cliques,'Cliques (humanos)') + card(s.clickers,'Pessoas distintas') +
-      card(s.coins,'ERP Coins (cliques)') + card(s.bots||0,'🤖 Bots filtrados');
+      card(s.cliques, 'Cliques humanos', s.ultimo ? ('último '+fmtRel(s.ultimo)) : 'nenhum no período') +
+      card(s.clickers, 'Pessoas distintas', 'por hash de IP') +
+      card(s.links, 'Links no filtro', s.links_novos + ' criados no período') +
+      card(s.coins, 'ERP Coins (cliques)', s.coins_marcos ? ('+'+s.coins_marcos+' de marcos') : '', 'g') +
+      card(s.bots, '🤖 Bots filtrados', s.taxa_bot + '% do tráfego', 'k');
 
-    // sparkline de cliques humanos por dia
+    // gráficos
     var dias = d.porDia||[];
-    var max = dias.reduce(function(m,x){ return Math.max(m,x.n); }, 1);
-    document.getElementById('spark').innerHTML = dias.length
-      ? dias.map(function(x){ var h=Math.max(2,Math.round(x.n/max*56)); return '<div class="bar" style="height:'+h+'px" title="'+fmtDay(x.dia)+': '+x.n+' cliques"></div>'; }).join('')
-      : '<div class="vazio">Sem cliques no período.</div>';
+    drawBars(document.getElementById('ch-dia'), document.getElementById('ax-dia'), dias,
+      function(x){ return fmtDay(x.dia); },
+      function(x){ return fmtDay(x.dia)+': '+x.n+' clique(s)'; });
+    var totDia = dias.reduce(function(a,x){return a+x.n;},0);
+    document.getElementById('ct-dia').textContent = dias.length
+      ? (totDia+' cliques · média '+(totDia/Math.max(1,per.dias)).toFixed(1)+'/dia') : '—';
 
+    var horas = d.porHora||[];
+    drawBars(document.getElementById('ch-hora'), document.getElementById('ax-hora'), horas,
+      function(x){ return p2(x.hora)+'h'; },
+      function(x){ return p2(x.hora)+'h–'+p2((x.hora+1)%24)+'h: '+x.n+' clique(s)'; });
+    var pkH = horas.reduce(function(a,b){ return b.n>a.n?b:a; }, {hora:0,n:0});
+    document.getElementById('ct-hora').textContent = pkH.n ? ('pico às '+p2(pkH.hora)+'h ('+pkH.n+')') : '—';
+
+    var DOW=['dom','seg','ter','qua','qui','sex','sáb'];
+    var dow = d.porDiaSemana||[];
+    var pkD = dow.reduce(function(a,b){ return b.n>a.n?b:a; }, {dow:0,n:0});
+    document.getElementById('ch-dow').innerHTML = dow.map(function(x){
+      return '<div class="d'+(x.n===pkD.n&&x.n>0?' peak':'')+'"><div class="dn">'+x.n+'</div><div class="dl">'+DOW[x.dow]+'</div></div>';
+    }).join('');
+    document.getElementById('ct-dow').textContent = pkD.n ? ('melhor dia: '+DOW[pkD.dow]) : '—';
+
+    // por autor
     var us=d.por_usuario||[];
     document.getElementById('tb-users').innerHTML = us.length ? us.map(function(u){
-      var nome=u.nome||u.email.split('@')[0];
+      var nome=u.nome||String(u.email||'').split('@')[0];
       return '<tr><td><div class="uname">'+esc(nome)+'</div><div class="uemail">'+esc(u.email)+'</div></td>'+
         '<td>'+roleBadge(u.role)+'</td><td class="num">'+u.links+'</td>'+
-        '<td class="num num-hi">'+u.cliques+'</td><td class="num">'+(u.coins||0)+'</td></tr>';
-    }).join('') : '<tr><td colspan="5" class="vazio">Ninguém gerou link ainda.</td></tr>';
+        '<td class="num '+(u.cliques?'num-hi':'num-zero')+'">'+u.cliques+'</td>'+
+        '<td class="num">'+(u.pessoas||0)+'</td><td class="num">'+(u.coins||0)+'</td>'+
+        '<td class="muted">'+dtCell(u.ultimo)+'</td>'+
+        '<td class="muted">'+dtCell(sqlToTs(u.ultimo_link))+'</td></tr>';
+    }).join('') : '<tr><td colspan="8" class="vazio">Ninguém gerou link com esses filtros.</td></tr>';
 
+    // por campanha
     var cp=d.por_campanha||[];
     document.getElementById('tb-camp').innerHTML = cp.length ? cp.map(function(c){
-      return '<tr><td>'+esc(c.campaign)+'</td><td class="num">'+c.links+'</td><td class="num num-hi">'+c.cliques+'</td></tr>';
-    }).join('') : '<tr><td colspan="3" class="vazio">—</td></tr>';
+      return '<tr><td><b>'+esc(c.campaign)+'</b></td><td class="num">'+c.links+'</td>'+
+        '<td class="num '+(c.cliques?'num-hi':'num-zero')+'">'+c.cliques+'</td>'+
+        '<td class="num">'+(c.pessoas||0)+'</td>'+
+        '<td class="muted">'+dtCell(c.primeiro)+'</td><td class="muted">'+dtCell(c.ultimo)+'</td></tr>';
+    }).join('') : '<tr><td colspan="6" class="vazio">—</td></tr>';
 
-    var lk=d.links||[];
+    // por origem
+    var so=d.por_origem||[];
+    document.getElementById('tb-src').innerHTML = so.length ? so.map(function(o){
+      return '<tr><td><span class="src">'+esc(o.source||'—')+'</span></td><td class="num">'+o.links+'</td>'+
+        '<td class="num '+(o.cliques?'num-hi':'num-zero')+'">'+o.cliques+'</td>'+
+        '<td class="num">'+(o.pessoas||0)+'</td><td class="muted">'+dtCell(o.ultimo)+'</td></tr>';
+    }).join('') : '<tr><td colspan="5" class="vazio">—</td></tr>';
+
+    renderLinks();
+    renderRecent();
+    renderChips();
+    updateExports();
+  }
+
+  // ── tabela de links (ordenável) ────────────────────────────────────────────
+  function renderLinks(){
+    var lk=(DATA&&DATA.links||[]).slice();
+    lk.sort(function(a,b){
+      var k=SORT.key, va=a[k], vb=b[k];
+      if (k==='created_at'){ va=sqlToTs(va)||0; vb=sqlToTs(vb)||0; }
+      if (typeof va==='string'||typeof vb==='string'){
+        return String(va||'').localeCompare(String(vb||'')) * SORT.dir;
+      }
+      return ((va||0)-(vb||0)) * SORT.dir;
+    });
     var base = location.origin + '/go/';
     document.getElementById('tb-links').innerHTML = lk.length ? lk.map(function(l){
       var full = base + l.token;
-      return '<tr data-filter="'+esc((l.email+' '+l.campaign+' '+l.source+' '+l.dest).toLowerCase())+'">'+
-        '<td class="mono">/go/'+esc(l.token)+'</td><td class="uemail">'+esc(l.email)+'</td>'+
-        '<td>'+esc(l.campaign)+'</td><td>'+esc(l.source||'—')+'</td><td class="path">'+esc(shorten(l.dest))+'</td>'+
-        '<td class="num num-hi">'+l.cliques+'</td><td class="num muted">'+(l.bots||0)+'</td>'+
+      return '<tr class="clickable" data-token="'+esc(l.token)+'">'+
+        '<td><b>'+esc(l.campaign)+'</b><div class="mono dim">/go/'+esc(l.token)+'</div></td>'+
+        '<td class="uemail">'+esc(String(l.email||'').split('@')[0])+'</td>'+
+        '<td><span class="src">'+esc(l.source||'—')+'</span></td>'+
+        '<td class="path" title="'+esc(l.dest)+'">'+esc(shorten(l.dest,38))+'</td>'+
+        '<td class="num '+(l.cliques?'num-hi':'num-zero')+'">'+l.cliques+'</td>'+
+        '<td class="num muted">'+(l.cliques_total||0)+'</td>'+
+        '<td class="num muted">'+(l.bots||0)+'</td>'+
+        '<td class="muted">'+dtCell(l.ultimo||l.ultimo_geral)+'</td>'+
+        '<td class="muted">'+dtCell(sqlToTs(l.created_at))+'</td>'+
         '<td><button class="mini" data-copy="'+esc(full)+'">Copiar</button>'+
         '<button class="mini" data-qr="'+esc(full)+'" data-camp="'+esc(l.campaign)+'">QR</button></td></tr>';
-    }).join('') : '<tr><td colspan="8" class="vazio">—</td></tr>';
-    hookLinkActions();
-    applyFilter();
+    }).join('') : '<tr><td colspan="10" class="vazio">Nenhum link com esses filtros.</td></tr>';
 
-    var rc=d.recente||[];
-    document.getElementById('tb-recent').innerHTML = rc.length ? rc.map(function(r){
-      return '<tr'+(r.bot?' style="opacity:.45"':'')+'><td class="muted">'+fmtWhen(r.ts)+(r.bot?' <span class="bot-chip">🤖 bot</span>':'')+'</td><td class="uemail">'+esc(r.email||'—')+'</td>'+
-        '<td>'+esc(r.campaign||'—')+'</td><td class="path">'+esc(shorten(r.ref)||'direto')+'</td></tr>';
-    }).join('') : '<tr><td colspan="4" class="vazio">—</td></tr>';
+    // marca a coluna ordenada
+    Array.prototype.forEach.call(document.querySelectorAll('th.sortable'), function(th){
+      th.classList.toggle('sorted', th.dataset.sort===SORT.key);
+      th.classList.toggle('asc', th.dataset.sort===SORT.key && SORT.dir===1);
+    });
+    hookLinkActions();
   }
 
-  // ── ações da tabela: copiar + QR ─────────────────────────────────────────────
   function hookLinkActions(){
     Array.prototype.forEach.call(document.querySelectorAll('#tb-links [data-copy]'), function(b){
-      b.addEventListener('click', function(){
+      b.addEventListener('click', function(ev){
+        ev.stopPropagation();
         try { navigator.clipboard.writeText(b.dataset.copy); } catch(e){}
         b.textContent='Copiado ✓'; setTimeout(function(){ b.textContent='Copiar'; },1600);
       });
     });
     Array.prototype.forEach.call(document.querySelectorAll('#tb-links [data-qr]'), function(b){
-      b.addEventListener('click', function(){ openQr(b.dataset.qr, b.dataset.camp); });
+      b.addEventListener('click', function(ev){ ev.stopPropagation(); openQr(b.dataset.qr, b.dataset.camp); });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('#tb-links tr[data-token]'), function(tr){
+      tr.addEventListener('click', function(){ openLink(tr.dataset.token); });
+    });
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('th.sortable'), function(th){
+    th.addEventListener('click', function(){
+      var k=th.dataset.sort;
+      if (SORT.key===k) SORT.dir = -SORT.dir; else { SORT.key=k; SORT.dir=-1; }
+      renderLinks();
+    });
+  });
+
+  // ── cliques recentes + paginação ───────────────────────────────────────────
+  function renderRecent(){
+    var rc=(DATA&&DATA.recente)||[];
+    document.getElementById('tb-recent').innerHTML = rc.length ? rc.map(function(r){
+      return '<tr'+(r.bot?' style="opacity:.5"':'')+'>'+
+        '<td><div>'+fmtDTs(r.ts)+'</div><div class="dim">'+fmtRel(r.ts)+'</div></td>'+
+        '<td>'+esc(r.campaign||'—')+(r.bot?' <span class="bot-chip">🤖 bot</span>':'')+'</td>'+
+        '<td class="uemail">'+esc(String(r.email||'—').split('@')[0])+'</td>'+
+        '<td><span class="src">'+esc(r.source||'—')+'</span></td>'+
+        '<td><span class="dev">'+esc(DEV_ICON[r.device]||r.device)+'</span></td>'+
+        '<td class="path">'+esc(shorten(r.ref,32)||'direto')+'</td></tr>';
+    }).join('') : '<tr><td colspan="6" class="vazio">Nenhum clique no período com esses filtros.</td></tr>';
+
+    var tot=(DATA&&DATA.recente_total)||0, off=(DATA&&DATA.recente_offset)||0, lim=(DATA&&DATA.recente_limit)||100;
+    document.getElementById('rec-sub').textContent = tot ? ('data e hora exata de cada clique · '+tot+' no período') : '';
+    document.getElementById('pg-info').textContent = tot ? ((off+1)+'–'+Math.min(off+lim,tot)+' de '+tot) : '—';
+    document.getElementById('pg-prev').disabled = off<=0;
+    document.getElementById('pg-next').disabled = (off+lim)>=tot;
+  }
+  document.getElementById('pg-prev').addEventListener('click', function(){
+    ST.offset=Math.max(0, ST.offset-100); load();
+  });
+  document.getElementById('pg-next').addEventListener('click', function(){
+    ST.offset=ST.offset+100; load();
+  });
+
+  // ── chips dos filtros ativos ───────────────────────────────────────────────
+  function renderChips(){
+    var out=[];
+    function chip(label, val, key){ return '<span class="chip">'+label+': <b>'+esc(val)+'</b><span data-clear="'+key+'">✕</span></span>'; }
+    if (ST.email) out.push(chip('autor', ST.email, 'email'));
+    if (ST.campaign) out.push(chip('campanha', ST.campaign, 'campaign'));
+    if (ST.source) out.push(chip('origem', ST.source, 'source'));
+    if (ST.q) out.push(chip('busca', ST.q, 'q'));
+    if (ST.bots) out.push('<span class="chip">incluindo bots<span data-clear="bots">✕</span></span>');
+    document.getElementById('chips').innerHTML = out.join('');
+    Array.prototype.forEach.call(document.querySelectorAll('#chips [data-clear]'), function(x){
+      x.addEventListener('click', function(){
+        var k=x.dataset.clear;
+        if (k==='bots'){ ST.bots=false; document.getElementById('f-bots').checked=false; }
+        else { ST[k]=''; var el=({email:'f-user',campaign:'f-camp',source:'f-src',q:'f-q'})[k]; if(el) document.getElementById(el).value=''; }
+        ST.offset=0; load();
+      });
     });
   }
 
-  // ── filtro rápido da tabela de links ─────────────────────────────────────────
-  function applyFilter(){
-    var q=(document.getElementById('f-links').value||'').toLowerCase().trim();
-    Array.prototype.forEach.call(document.querySelectorAll('#tb-links tr[data-filter]'), function(tr){
-      tr.style.display = (!q || tr.dataset.filter.indexOf(q)>=0) ? '' : 'none';
-    });
+  function updateExports(){
+    document.getElementById('exp-links').href  = '/api/admin/utm/export.csv?'+qs({modo:'links'});
+    document.getElementById('exp-clicks').href = '/api/admin/utm/export.csv?'+qs({modo:'cliques'});
   }
-  document.getElementById('f-links').addEventListener('input', applyFilter);
 
-  // ── QR modal ─────────────────────────────────────────────────────────────────
+  // ── popular selects de filtro (universo completo; reconstrói sempre pra
+  //    refletir campanha/link novo sem duplicar opção) ───────────────────────
+  function fillSelects(f){
+    if (!f) return;
+    function rebuild(id, items, valKey, labelFn, allLabel){
+      var el=document.getElementById(id), keep=el.value;
+      el.innerHTML='<option value="">'+allLabel+'</option>';
+      items.forEach(function(x){
+        var o=document.createElement('option');
+        o.value=x[valKey]||''; o.textContent=labelFn(x); el.appendChild(o);
+      });
+      el.value=keep; // mantém o filtro escolhido entre recargas
+    }
+    rebuild('f-user', f.usuarios||[], 'email',
+      function(x){ return (x.nome||String(x.email||'').split('@')[0])+' ('+x.links+')'; }, 'Todos');
+    rebuild('f-camp', f.campanhas||[], 'campaign',
+      function(x){ return x.campaign+' ('+x.links+')'; }, 'Todas');
+    rebuild('f-src', f.origens||[], 'source',
+      function(x){ return (x.source||'—')+' ('+x.links+')'; }, 'Todas');
+  }
+
+  // ── modal: detalhe do link ─────────────────────────────────────────────────
+  var dmodal=document.getElementById('dmodal');
+  function closeD(){ dmodal.classList.remove('open'); }
+  document.getElementById('d-close').addEventListener('click', closeD);
+  dmodal.addEventListener('click', function(e){ if(e.target===dmodal) closeD(); });
+
+  function openLink(token){
+    document.getElementById('d-title').textContent='Carregando…';
+    ['d-meta','d-cards','d-bars','d-axis','d-clicks'].forEach(function(id){ document.getElementById(id).innerHTML=''; });
+    dmodal.classList.add('open');
+    fetch('/api/admin/utm/link/'+encodeURIComponent(token)+'?tzoff='+TZOFF, { headers: authHeaders() })
+      .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function(d){
+        var l=d.link, r=d.resumo;
+        document.getElementById('d-title').textContent='🔗 '+l.campaign;
+        document.getElementById('d-meta').innerHTML =
+          '<div><b>Link:</b> <span class="mono">'+esc(location.origin+'/go/'+l.token)+'</span></div>'+
+          '<div><b>Autor:</b> '+esc(l.email)+' · <b>origem:</b> '+esc(l.source)+' · <b>medium:</b> '+esc(l.medium)+'</div>'+
+          '<div><b>Destino:</b> '+esc(l.dest)+'</div>'+
+          '<div><b>Destino final (com UTM):</b> <span class="dim">'+esc(l.destino_final)+'</span></div>'+
+          '<div><b>Criado em:</b> '+fmtDT(sqlToTs(l.created_at))+' <span class="dim">('+fmtRel(sqlToTs(l.created_at))+')</span></div>';
+        document.getElementById('d-cards').innerHTML =
+          card(r.humanos,'Cliques humanos') + card(r.pessoas,'Pessoas distintas') +
+          card(r.coins,'ERP Coins','','g') + card(r.bots,'🤖 Bots','','k') +
+          card(r.primeiro?fmtDay(r.primeiro):'—','Primeiro clique') +
+          card(r.ultimo?fmtDay(r.ultimo):'—','Último clique', r.ultimo?fmtRel(r.ultimo):'');
+        drawBars(document.getElementById('d-bars'), document.getElementById('d-axis'), d.porDia||[],
+          function(x){ return fmtDay(x.dia); },
+          function(x){ return fmtDay(x.dia)+': '+x.n+' clique(s)'; });
+        var cl=d.cliques||[];
+        document.getElementById('d-clicks').innerHTML = cl.length ? cl.map(function(c){
+          return '<tr'+(c.bot?' style="opacity:.5"':'')+'><td>'+fmtDTs(c.ts)+
+            (c.bot?' <span class="bot-chip">🤖</span>':'')+'</td>'+
+            '<td><span class="dev">'+esc(DEV_ICON[c.device]||c.device)+'</span></td>'+
+            '<td class="path">'+esc(shorten(c.ref,40)||'direto')+'</td></tr>';
+        }).join('') : '<tr><td colspan="3" class="vazio">Esse link ainda não recebeu nenhum clique.</td></tr>';
+      })
+      .catch(function(e){ document.getElementById('d-title').textContent='Erro ('+esc(e.message)+')'; });
+  }
+
+  // ── modal QR ───────────────────────────────────────────────────────────────
   var qrmodal=document.getElementById('qrmodal'); var currentCamp='link';
   function openQr(url, camp){
     currentCamp=camp||'link';
@@ -267,7 +649,7 @@
   }
   document.getElementById('qr-close').addEventListener('click', function(){ qrmodal.classList.remove('open'); });
   qrmodal.addEventListener('click', function(e){ if(e.target===qrmodal) qrmodal.classList.remove('open'); });
-  document.addEventListener('keydown', function(e){ if(e.key==='Escape') qrmodal.classList.remove('open'); });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape'){ qrmodal.classList.remove('open'); closeD(); } });
   document.getElementById('qr-dl').addEventListener('click', function(){
     var box=document.getElementById('qrcanvas');
     var img=box.querySelector('img'); var cv=box.querySelector('canvas');
@@ -277,16 +659,56 @@
     document.body.appendChild(a); a.click(); a.remove();
   });
 
+  // ── carregamento ───────────────────────────────────────────────────────────
   function load(){
-    var days=document.getElementById('days').value;
-    fetch('/api/admin/utm?days='+days,{headers:authHeaders()})
+    fetch('/api/admin/utm?'+qs({ limit:100, offset:ST.offset }), { headers: authHeaders() })
       .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
-      .then(render)
-      .catch(function(e){ document.getElementById('tb-users').innerHTML='<tr><td colspan="5" class="vazio">Acesso negado ou erro ('+esc(e.message)+'). Área exclusiva do dono.</td></tr>'; });
+      .then(function(d){ fillSelects(d.filtros); render(d); })
+      .catch(function(e){
+        document.getElementById('tb-users').innerHTML='<tr><td colspan="8" class="vazio">Acesso negado ou erro ('+esc(e.message)+'). Esta área é do time de Marketing.</td></tr>';
+      });
   }
-  document.getElementById('days').addEventListener('change', load);
 
-  // ── Gerar link rastreado ─────────────────────────────────────────────────────
+  // ── binds dos filtros ──────────────────────────────────────────────────────
+  document.getElementById('f-periodo').addEventListener('change', function(){
+    ST.periodo=this.value;
+    var custom = ST.periodo==='custom';
+    document.getElementById('fld-de').style.display = custom?'':'none';
+    document.getElementById('fld-ate').style.display = custom?'':'none';
+    if (custom){
+      // default do intervalo: últimos 30 dias, editável
+      if (!ST.de || !ST.ate){
+        var hoje=new Date(), antes=new Date(Date.now()-30*86400000);
+        var iso=function(d){ return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate()); };
+        ST.ate=iso(hoje); ST.de=iso(antes);
+        document.getElementById('f-de').value=ST.de;
+        document.getElementById('f-ate').value=ST.ate;
+      }
+    }
+    ST.offset=0; load();
+  });
+  document.getElementById('f-de').addEventListener('change', function(){ ST.de=this.value; ST.offset=0; if(ST.ate) load(); });
+  document.getElementById('f-ate').addEventListener('change', function(){ ST.ate=this.value; ST.offset=0; if(ST.de) load(); });
+  document.getElementById('f-user').addEventListener('change', function(){ ST.email=this.value; ST.offset=0; load(); });
+  document.getElementById('f-camp').addEventListener('change', function(){ ST.campaign=this.value; ST.offset=0; load(); });
+  document.getElementById('f-src').addEventListener('change', function(){ ST.source=this.value; ST.offset=0; load(); });
+  document.getElementById('f-bots').addEventListener('change', function(){ ST.bots=this.checked; ST.offset=0; load(); });
+  var qtimer=null;
+  document.getElementById('f-q').addEventListener('input', function(){
+    var v=this.value; clearTimeout(qtimer);
+    qtimer=setTimeout(function(){ ST.q=v; ST.offset=0; load(); }, 350);
+  });
+  document.getElementById('f-clear').addEventListener('click', function(){
+    ST={ periodo:'30', de:'', ate:'', email:'', campaign:'', source:'', q:'', bots:false, offset:0 };
+    ['f-user','f-camp','f-src','f-q'].forEach(function(id){ document.getElementById(id).value=''; });
+    document.getElementById('f-periodo').value='30';
+    document.getElementById('f-bots').checked=false;
+    document.getElementById('fld-de').style.display='none';
+    document.getElementById('fld-ate').style.display='none';
+    load();
+  });
+
+  // ── gerar link rastreado ───────────────────────────────────────────────────
   function gerar(){
     var out = document.getElementById('g-out');
     var btn = document.getElementById('g-btn');
@@ -319,7 +741,7 @@
         });
         document.getElementById('g-qr').addEventListener('click', function(){ openQr(d.url, d.campaign); });
         document.getElementById('g-dest').value='';
-        load(); // atualiza as tabelas do report com o novo link
+        load(); // recarrega report + selects (campanha nova entra na lista)
       })
       .catch(function(e){ if (e.message!=='401'){ out.className='err'; out.textContent='Não foi possível gerar ('+esc(e.message)+').'; } })
       .finally(function(){ btn.disabled=false; btn.textContent='Gerar'; });
