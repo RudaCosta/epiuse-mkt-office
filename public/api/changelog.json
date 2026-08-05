@@ -1,6 +1,6 @@
 {
-  "current": "0.82.4",
-  "atualizado_em": "27/jul/2026",
+  "current": "0.84.0",
+  "atualizado_em": "05/ago/2026",
   "next": [
     {
       "version": "0.53.0",
@@ -54,9 +54,41 @@
   ],
   "releases": [
     {
+      "version": "0.84.0",
+      "date": "05/ago/2026",
+      "status": "current",
+      "path": "/admin/utm",
+      "title": "🔗 UTM reformulado — data, hora, filtros e detalhe de cada clique",
+      "highlights": [
+        "🚨 FIX CRÍTICO: nenhum clique humano estava sendo contado desde 27/jul (v0.82.4) — a URL do JS challenge ia HTML-escapada dentro do <script>, o HMAC nunca batia e o clique era descartado em silêncio. Corrigido e provado em navegador real. Os cliques desse período não são recuperáveis.",
+        "📅 Período com intervalo personalizado (de/até) além dos presets, e todas as datas agregadas no SEU fuso — o pico das 9h aparece às 9h, não às 12h (UTC)",
+        "🔎 Filtros combináveis por autor · campanha · origem · busca livre, com chips do que está ativo e opção de incluir cliques de bot",
+        "🕐 Gráficos novos: cliques por hora do dia e por dia da semana (com destaque no pico), além da série diária",
+        "📊 Mais informação nas tabelas: pessoas distintas, primeiro/último clique, último link criado, cliques no período vs total histórico, colunas ordenáveis e nova visão 'por origem'",
+        "🔬 Clique num link e veja o detalhe: metadados, cliques por dia e a lista completa de cliques com data, hora, dispositivo e de onde vieram",
+        "🖱️ Cliques recentes com data/hora ao segundo, dispositivo (mobile/desktop/tablet) e paginação",
+        "⬇️ CSV agora respeita período e filtros, em 2 modos: por link ou 1 linha por clique"
+      ]
+    },
+    {
+      "version": "0.83.0",
+      "date": "23/jul/2026",
+      "status": "released",
+      "path": "/admin/analytics",
+      "title": "🧭 Adoção do time — o Office está sendo usado? (painel só do Rudá)",
+      "highlights": [
+        "🧭 Nova seção 'Adoção do time' no topo de /admin/analytics: cruza o time cadastrado (users) com quem realmente aparece (analytics_events) — dado 100% real",
+        "👥 Roster por pessoa com status 🟢 ativo (<7d) · 🟡 esfriando (7–30d) · 🔴 sumiu (+30d) · ⚫ nunca entrou, ordenado por quem precisa de atenção primeiro; dias sem acessar, visitas, coins",
+        "🧩 Adoção por feature: quantas pessoas distintas abriram cada página-chave (barra de alcance do time) — expõe o que ninguém usa ('ninguém abriu')",
+        "📊 Cards de resumo: cadastrados, ativos 7d, esfriando, sumidos, nunca entraram, % do time ativo em 30d",
+        "🔒 Restrito ao dono (ruda.costa@epiuse.com.br) como o resto do Analytics",
+        "🎨 Memes: novo 'Cantinho da Duda' no /memes (a escova de cabelo e a coleção de ursinhos de pelúcia) — arte original, filtro próprio no menu"
+      ]
+    },
+    {
       "version": "0.82.4",
       "date": "27/jul/2026",
-      "status": "current",
+      "status": "past",
       "path": null,
       "title": "🛡️ UTM Anti-Bot v0.82.4 — JS challenge filtra scanners de email + timezone BRT",
       "highlights": [

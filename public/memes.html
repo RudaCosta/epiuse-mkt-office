@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Memes do Office · EPI-USE Brasil</title>
-<meta name="description" content="A parede de memes do EPI-USE Office — folclore interno REAL do time de RevOps & Marketing: Mega Brain, Marco Véio, ERROUUU, REAL DATA ONLY, ERP.ngo, eventos e a Argentina que aqui não pode torcer.">
+<meta name="description" content="A parede de memes do EPI-USE Office — folclore interno REAL do time de RevOps & Marketing: Mega Brain, Marco Véio, ERROUUU, REAL DATA ONLY, ERP.ngo, eventos, o cantinho da Duda (a escova e os ursinhos) e a Argentina que aqui não pode torcer.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700;800;900&family=Bangers&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/design-tokens.css">
@@ -213,6 +213,7 @@ body::after {
       <button class="nav-item" data-filter="galaxy">🌌 Galaxy Brain</button>
       <button class="nav-item" data-filter="classicos">📼 Clássicos</button>
       <button class="nav-item" data-filter="era-nova">⚡ Era Nova</button>
+      <button class="nav-item" data-filter="duda">🎨 Cantinho da Duda</button>
     </div>
   </div>
 
@@ -384,6 +385,49 @@ body::after {
   </div>
   </section>
 
+  <!-- CANTINHO DA DUDA — folclore do brand desk -->
+  <section data-category="duda">
+    <h2 class="section-title">🎨 Cantinho da Duda (Brand) <span class="l"></span></h2>
+    <div class="wall" id="wall3">
+
+    <div class="meme">
+      <div class="scene s-pink">
+        <span style="font-size:74px">🪮✨</span>
+        <span class="impact top">A ESCOVA DE CABELO DA DUDA</span>
+        <span class="impact bottom" style="font-size:15px">MORA NA MESA · ITEM OFICIAL DO BRAND DESK</span>
+      </div>
+      <div class="lbl">// Duda · a escova que nunca sai da mesa 💁‍♀️</div>
+    </div>
+
+    <div class="meme wide">
+      <div class="scene" style="background: linear-gradient(135deg, #5a2a1a, #2a1408);">
+        <span style="font-size:54px">🧸🧸🧸🧸</span>
+        <span class="impact top">A COLEÇÃO DE URSINHOS DE PELÚCIA</span>
+        <span class="impact bottom">O EXÉRCITO FOFO DA DUDA SÓ CRESCE 🧸📈</span>
+      </div>
+      <div class="lbl">// Duda · brand experience começa pela mesa mais fofa do Office</div>
+    </div>
+
+    <div class="meme">
+      <div class="drake">
+        <div class="no"><span class="emo">🙅</span><span class="txt">Mexer na escova ou nos ursinhos da Duda</span></div>
+        <div class="yes"><span class="emo">🧸</span><span class="txt">Deixar o cantinho da Duda em paz</span></div>
+      </div>
+      <div class="lbl">// Duda · regra não escrita do Office 🚨</div>
+    </div>
+
+    <div class="meme">
+      <div class="scene s-gold">
+        <span style="font-size:70px">🧸👑</span>
+        <span class="impact top">POV: VOCÊ É UM URSINHO</span>
+        <span class="impact bottom" style="font-size:15px">E FOI PROMOVIDO A GUARDIÃO DO BRAND</span>
+      </div>
+      <div class="lbl">// Duda · vaga concorrida na mesa da Brand</div>
+    </div>
+
+  </div>
+  </section>
+
   <div class="footnote">
     ◢◤ 🤖 Página de humor interno · homenagem ao meme do Mega Brain (cérebro gigante) ◢◤<br>
     Toda arte é original (SVG/CSS/emoji) — nenhum hotlink de imagem de terceiro · EPI-USE Office
@@ -520,7 +564,7 @@ body::after {
     }
   }
   document.getElementById('shuffle')?.addEventListener('click', () => {
-    shuffleWall('wall'); shuffleWall('wall2');
+    shuffleWall('wall'); shuffleWall('wall2'); shuffleWall('wall3');
     burst(window.innerWidth/2, 160);
   });
   document.getElementById('toMega')?.addEventListener('click', () => {

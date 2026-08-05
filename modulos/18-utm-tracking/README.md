@@ -35,3 +35,49 @@ Não guarda IP cru — só um hash (`sha256(ip+salt)`) pra dedupe. Guarda refere
 - **Clique real vira coin, não só a intenção de compartilhar** — mede impacto de fato (employee advocacy). A intenção (`share`) segue existindo em paralelo.
 - **UTM anexado ao destino** pra que o analytics do destino (GA etc.) também veja a origem; o `/go` é o que nos dá a atribuição por usuário.
 - Persiste no SQLite do volume Railway (`/data`).
+
+## v0.84.0 (05/ago) — report reformulado: data/hora, filtros e drill-down
+Pedido do Rudá: "reformular toda a área pra ter mais informações de data, hora, filtros etc".
+
+**Período** — além dos presets (24h/7d/30d/90d/6m/1a), aceita **intervalo custom** (`de`/`ate` em `YYYY-MM-DD`). O período efetivo aparece no cabeçalho com data/hora de início e fim + carimbo de "atualizado às".
+
+**Fuso do usuário** — o cliente manda `tzoff` (`getTimezoneOffset()`); **todas** as agregações de dia/hora usam o fuso local de quem olha. Sem isso o pico real das 9h da manhã apareceria às 12h (UTC) no histograma. Default 180 (BRT).
+
+**Filtros** (server-side, combináveis): `email` (autor) · `campaign` · `source` (origem) · `q` (busca livre em campanha/destino/autor/token) · `bots=1` (incluir cliques de bot na lista). Chips mostram o que está ativo, com ✕ pra remover. Os selects são populados com o universo completo + contagem de links.
+
+**Novas informações**
+- Cards: cliques humanos (+ "último há X"), pessoas distintas, links no filtro (+ criados no período), coins (+ marcos), bots (+ % do tráfego).
+- Gráficos: cliques/dia · **histograma por hora do dia** · **por dia da semana** (com destaque no pico).
+- Por autor: + pessoas distintas, **último clique** e **último link criado**.
+- Por campanha: + pessoas distintas, **primeiro e último clique**.
+- **Por origem** (novo): qual canal realmente traz clique.
+- Links: + medium, **criado em**, **último clique**, cliques no período vs **total histórico**, colunas **ordenáveis**.
+- Cliques recentes: **data/hora com segundos** + tempo relativo, **dispositivo** (mobile/desktop/tablet/bot, derivado do UA), origem e referer, com **paginação**.
+
+**Drill-down** — `GET /api/admin/utm/link/:token` (requireMkt) + modal ao clicar numa linha da tabela de links: metadados (inclusive o destino final com os `utm_*`), resumo, cliques/dia e a **lista completa de cliques com data e hora**.
+
+**CSV** — passa a respeitar período e filtros, com 2 modos: `modo=links` (por link, com criado_em/último clique/total) e `modo=cliques` (1 linha por clique, com data/hora no fuso de quem exportou).
+
+**Coins seguem o filtro** — ao olhar uma campanha, o número de coins é o daquela campanha, não o acumulado da pessoa (que seria enganoso).
+
+**Nota de consistência:** as contagens passaram a exigir `JOIN utm_links` (clique órfão, sem link correspondente, não é atribuível a ninguém). Na prática não muda nada — a exclusão de link já apaga os cliques dele.
+
+### 🚨 Fix crítico junto (v0.84.0) — o JS challenge estava descartando TODO clique humano
+O challenge anti-scanner da v0.82.4 montava a URL de confirmação assim:
+
+```js
+const confirmUrl = '/go/' + token + '/c?t=' + now + '&h=' + hmac;
+res.send(`… <script>window.location.replace("${esc(confirmUrl)}")</script> …`);  // ❌
+```
+
+`esc()` é HTML-escape, então o `&` virava `&amp;`. Só que **o conteúdo de `<script>` é raw text: o parser HTML não decodifica entidades**. O navegador pedia literalmente `?t=…&amp;h=…`, o Express lia o parâmetro como `amp;h` (e não `h`), o HMAC nunca batia, e o handler caía no ramo "inválido" — que redireciona pro destino **sem registrar o clique nem creditar coins**.
+
+Efeito: da v0.82.4 (27/jul) até este fix, **nenhum clique humano foi contado**. O usuário sempre chegou no destino (nada quebrado da perspectiva dele), mas as métricas e os ERP Coins de clique ficaram zerados. Esses cliques **não são recuperáveis** — nunca chegaram a ser gravados.
+
+Correção: URL dentro de `<script>` é contexto **JS**, então o escape certo é `JSON.stringify` (+ `<` por segurança). O `esc()` de HTML continua correto no `href` do `<noscript>`, que é contexto de atributo HTML.
+
+Provado em navegador real (Chromium com UA de browser comum), antes e depois:
+- antes → `…/c?t=…&amp;h=…` · 0 cliques, 0 coins
+- depois → `…/c?t=…&h=…` · 1 clique, 5 coins
+
+_(Cuidado ao testar: o UA do Chromium headless contém `HeadlessChrome`, que a regex de bot pega — de propósito. Testes precisam forçar um UA de navegador comum, senão o challenge nem é servido.)_
