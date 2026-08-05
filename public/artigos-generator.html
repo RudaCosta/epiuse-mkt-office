@@ -22,6 +22,32 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Inter', sans-serif; background: var(--slate-50); color: var(--slate-900); min-height: 100vh; }
+
+    /* ── FIX TEMAS ESCUROS: o modal de preview é sempre "papel branco", então os tokens
+       de texto/fundo dele são REDEFINIDOS localmente com valores fixos. Temas do Office
+       (dark, atlas, aurora, liquid-glass) sobrescrevem --slate-*/--white no :root e
+       deixavam texto claro sobre fundo branco (ilegível). Escopo local vence o :root. ── */
+    .modal, .refine-overlay, .gen-overlay {
+      --white: #ffffff;
+      --sky: #0ea5e9; --sky-dark: #0284c7; --sky-light: #e0f2fe; --sky-50: #f0f9ff;
+      --slate-50: #f8fafc; --slate-100: #f1f5f9; --slate-200: #e2e8f0;
+      --slate-300: #cbd5e1; --slate-400: #94a3b8; --slate-500: #64748b;
+      --slate-600: #475569; --slate-700: #334155; --slate-800: #1e293b; --slate-900: #0f172a;
+      --green: #059669; --green-light: #d1fae5; --green-dark: #065f46;
+      --amber: #d97706; --amber-light: #fef3c7; --red: #dc2626; --red-light: #fee2e2;
+      color: #0f172a;
+    }
+    .modal .article-content, .modal .article-content p, .modal .article-content li { color: #334155; }
+    /* Títulos: temas do Office usam :root[data-theme] h2 {!important} (especificidade 0,2,1) —
+       seletores abaixo têm 0,3,1+ pra vencer em QUALQUER ordem de cascata */
+    :root .modal.modal h1, :root .modal.modal h2, :root .modal.modal h3, :root .modal.modal h4,
+    :root .modal.modal summary, :root .modal.modal strong,
+    :root .refine-overlay.refine-overlay h1, :root .refine-overlay.refine-overlay h2, :root .refine-overlay.refine-overlay h3,
+    :root .gen-overlay.gen-overlay h1, :root .gen-overlay.gen-overlay h2, :root .gen-overlay.gen-overlay h3 { color: #0f172a !important; }
+    :root .modal.modal .article-content h2, :root .modal.modal .article-content h3 { color: #1e293b !important; }
+    :root .modal.modal .modal-header-sub { color: #0284c7 !important; }
+    :root .modal.modal .article-content p, :root .modal.modal .article-content li,
+    :root .modal.modal .article-content .faq-answer { color: #334155 !important; }
     a { color: inherit; text-decoration: none; }
 
     /* ── HEADER ── */
@@ -678,10 +704,8 @@ async function generateArticle(idx) {
   openModal();
   saveToHistory(state.article);
 
-  // Prompt de imagem contextual ao artigo (corporate tech, sem florestas)
-  const imgPrompt = `Professional corporate technology illustration for an article about "${idea.title}". `
-    + `Oracle Cloud enterprise software, modern data center, executive leadership, `
-    + `blue and white color scheme, photorealistic, high quality, no text, no nature.`;
+  // Só o TEMA vai pro back — a direção de arte (navy+ciano, composição sorteada) é aplicada no servidor
+  const imgPrompt = `"${idea.title}" — ${idea.description || ''} (keywords: ${(idea.keywords || []).slice(0, 4).join(', ')})`;
   generateImage(imgPrompt);
 }
 
@@ -717,6 +741,9 @@ async function generateImage(prompt) {
     $('cover-loading').classList.add('hidden');
     img.classList.remove('hidden');
     state.image = dataUrl.split(',')[1]; // base64 para publicar no WP
+    // Regra 6: etiquetar — deixa claro que a capa é o fallback local, não a imagem de IA
+    $('cover-error-msg').textContent = 'Imagem IA indisponível (cota da API) — usando capa branded local. Clique em regenerar pra tentar de novo.';
+    $('cover-error').classList.remove('hidden');
   }
   state.generatingImage = false;
 }
@@ -726,52 +753,85 @@ function generateBrandedCover(title, keywords) {
   canvas.width = 1200;
   canvas.height = 400;
   const ctx = canvas.getContext('2d');
+  const R = Math.random; // cada geração sai diferente de verdade
 
-  // Fundo gradiente navy — varia levemente por artigo para diferenciar capas
-  const hue = (title.split('').reduce((a, c) => a + c.charCodeAt(0), 0) % 30);
-  const bg = ctx.createLinearGradient(0, 0, 1200, 400);
-  bg.addColorStop(0,   `hsl(${220 + hue}, 80%, 12%)`);
-  bg.addColorStop(0.5, `hsl(${230 + hue}, 75%, 18%)`);
-  bg.addColorStop(1,   `hsl(${220 + hue}, 80%, 12%)`);
+  // Fundo: 3 paletas navy sorteadas + direção de gradiente aleatória
+  const paletas = [
+    ['hsl(228, 80%, 10%)', 'hsl(235, 72%, 20%)', 'hsl(224, 82%, 11%)'],
+    ['hsl(218, 85%, 9%)',  'hsl(226, 70%, 17%)', 'hsl(240, 65%, 14%)'],
+    ['hsl(232, 75%, 12%)', 'hsl(220, 78%, 16%)', 'hsl(210, 70%, 10%)']
+  ];
+  const pal = paletas[Math.floor(R() * paletas.length)];
+  const dirs = [[0,0,1200,400],[1200,0,0,400],[0,0,1200,0],[0,400,1200,0]];
+  const [gx1,gy1,gx2,gy2] = dirs[Math.floor(R() * dirs.length)];
+  const bg = ctx.createLinearGradient(gx1,gy1,gx2,gy2);
+  bg.addColorStop(0, pal[0]); bg.addColorStop(0.5, pal[1]); bg.addColorStop(1, pal[2]);
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, 1200, 400);
 
-  // Grid tecnológico sutil
-  ctx.strokeStyle = 'rgba(14,165,233,0.07)';
-  ctx.lineWidth = 1;
-  for (let x = 0; x <= 1200; x += 80) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 400); ctx.stroke(); }
-  for (let y = 0; y <= 400; y += 80) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(1200, y); ctx.stroke(); }
+  // Grid tecnológico (nem sempre — 60% das capas)
+  if (R() < 0.6) {
+    ctx.strokeStyle = 'rgba(14,165,233,0.06)';
+    ctx.lineWidth = 1;
+    const passo = 60 + Math.floor(R() * 60);
+    for (let x = 0; x <= 1200; x += passo) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 400); ctx.stroke(); }
+    for (let y = 0; y <= 400; y += passo) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(1200, y); ctx.stroke(); }
+  }
 
-  // Círculos de luz (posições baseadas no título para variar por artigo)
-  const seed = title.length;
-  const drawGlow = (x, y, r, alpha) => {
+  // Glows de luz — 2 a 4, posições aleatórias; 35% de chance de 1 acento âmbar (como nas referências)
+  const drawGlow = (x, y, r, alpha, cor) => {
     const g = ctx.createRadialGradient(x, y, 0, x, y, r);
-    g.addColorStop(0, `rgba(14,165,233,${alpha})`);
-    g.addColorStop(1, 'rgba(14,165,233,0)');
+    g.addColorStop(0, `rgba(${cor},${alpha})`);
+    g.addColorStop(1, `rgba(${cor},0)`);
     ctx.fillStyle = g;
     ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
   };
-  drawGlow(1100, 50,  280, 0.15);
-  drawGlow(100,  380, 200, 0.10);
-  drawGlow(600 + (seed % 100), 200, 350, 0.05);
+  const nGlows = 2 + Math.floor(R() * 3);
+  for (let i = 0; i < nGlows; i++)
+    drawGlow(R() * 1200, R() * 400, 180 + R() * 220, 0.06 + R() * 0.10, '14,165,233');
+  if (R() < 0.35) drawGlow(R() * 1200, R() * 400, 120 + R() * 120, 0.10, '245,158,11');
 
-  // Nós de rede (pontos conectados — visual tech/data)
-  const nodes = [
-    [950,80],[1050,140],[1100,220],[980,290],[1150,310],
-    [1080,60],[870,180],[1020,350]
-  ];
-  ctx.strokeStyle = 'rgba(14,165,233,0.25)';
-  ctx.lineWidth = 1;
-  nodes.forEach(([x1,y1], i) => {
-    nodes.slice(i+1).forEach(([x2,y2]) => {
-      const dist = Math.hypot(x2-x1, y2-y1);
-      if (dist < 200) { ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); }
+  // Anéis holográficos — 0 a 2 arcos grandes (referência: rings circulares)
+  const nAneis = Math.floor(R() * 3);
+  for (let i = 0; i < nAneis; i++) {
+    ctx.strokeStyle = `rgba(56,189,248,${0.08 + R() * 0.10})`;
+    ctx.lineWidth = 1 + R() * 1.5;
+    const cx = R() * 1200, cy = R() * 400, raio = 80 + R() * 180;
+    const ini = R() * Math.PI * 2;
+    ctx.beginPath(); ctx.arc(cx, cy, raio, ini, ini + Math.PI * (0.8 + R() * 1.2)); ctx.stroke();
+  }
+
+  // Constelações — 1 ou 2 clusters em regiões sorteadas, 8-14 nós cada
+  const regioes = [[80, 320], [420, 320], [820, 320]].sort(() => R() - 0.5);
+  const nClusters = 1 + Math.floor(R() * 2);
+  for (let c = 0; c < nClusters; c++) {
+    const [rx, rw] = regioes[c];
+    const nNos = 8 + Math.floor(R() * 7);
+    const nodes = Array.from({ length: nNos }, () => [rx + R() * rw, 30 + R() * 340]);
+    ctx.lineWidth = 1;
+    nodes.forEach(([x1, y1], i) => {
+      nodes.slice(i + 1).forEach(([x2, y2]) => {
+        const dist = Math.hypot(x2 - x1, y2 - y1);
+        if (dist < 160) {
+          ctx.strokeStyle = `rgba(14,165,233,${0.30 - dist / 800})`;
+          ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+        }
+      });
     });
-  });
-  nodes.forEach(([x,y]) => {
-    ctx.fillStyle = 'rgba(14,165,233,0.5)';
-    ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2); ctx.fill();
-  });
+    nodes.forEach(([x, y]) => {
+      ctx.fillStyle = `rgba(56,189,248,${0.35 + R() * 0.35})`;
+      ctx.beginPath(); ctx.arc(x, y, 1.5 + R() * 2.5, 0, Math.PI * 2); ctx.fill();
+    });
+  }
+
+  // Partículas soltas espalhadas (poeira de luz)
+  for (let i = 0; i < 40; i++) {
+    ctx.fillStyle = `rgba(148,199,255,${0.05 + R() * 0.20})`;
+    ctx.beginPath(); ctx.arc(R() * 1200, R() * 400, 0.5 + R() * 1.5, 0, Math.PI * 2); ctx.fill();
+  }
+
+  // Cena temática sorteada (estilo das referências aprovadas) — o que dá identidade à capa
+  drawCoverScene(ctx, R);
 
   // Linha de acento vermelho sutil (identidade Stratview)
   ctx.fillStyle = 'rgba(220,38,38,0.6)';
@@ -784,6 +844,192 @@ function generateBrandedCover(title, keywords) {
   ctx.fillText('STRATVIEW CONSULTING', 24, 380);
 
   return canvas.toDataURL('image/png');
+}
+
+// ── Cenas temáticas da capa (desenhadas em código — zero API, zero cota) ──────
+const CYAN = '56,189,248', BLUE = '14,165,233', AMBER = '245,158,11';
+
+function roundRectPath(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+function gearPath(ctx, x, y, r, teeth) {
+  const inner = r * 0.72, dentes = teeth * 2;
+  ctx.beginPath();
+  for (let i = 0; i <= dentes; i++) {
+    const raio = i % 2 === 0 ? r : inner;
+    const a = (i / dentes) * Math.PI * 2;
+    const px = x + Math.cos(a) * raio, py = y + Math.sin(a) * raio;
+    i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+  }
+  ctx.closePath();
+  ctx.moveTo(x + r * 0.35, y);
+  ctx.arc(x, y, r * 0.35, 0, Math.PI * 2);
+}
+
+function isoCube(ctx, x, y, s, corTopo, corEsq, corDir) {
+  const h = s * 0.5;
+  ctx.fillStyle = corTopo;
+  ctx.beginPath(); ctx.moveTo(x, y - h); ctx.lineTo(x + s, y - h * 0.5 - h); ctx.lineTo(x, y - h * 2); ctx.lineTo(x - s, y - h * 0.5 - h); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = corEsq;
+  ctx.beginPath(); ctx.moveTo(x - s, y - h * 0.5 - h); ctx.lineTo(x, y - h); ctx.lineTo(x, y); ctx.lineTo(x - s, y - h * 0.5); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = corDir;
+  ctx.beginPath(); ctx.moveTo(x + s, y - h * 0.5 - h); ctx.lineTo(x, y - h); ctx.lineTo(x, y); ctx.lineTo(x + s, y - h * 0.5); ctx.closePath(); ctx.fill();
+}
+
+function iconCircle(ctx, x, y, r, tipo, cor, alpha) {
+  ctx.save();
+  ctx.strokeStyle = `rgba(${cor},${alpha})`;
+  ctx.fillStyle = `rgba(${cor},${alpha})`;
+  ctx.lineWidth = 1.8;
+  ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
+  ctx.fillStyle = `rgba(13,20,52,0.55)`;
+  ctx.beginPath(); ctx.arc(x, y, r - 1, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = `rgba(${cor},${alpha})`;
+  ctx.fillStyle = `rgba(${cor},${alpha})`;
+  if (tipo === 'pessoa') {
+    ctx.beginPath(); ctx.arc(x, y - r * 0.22, r * 0.22, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x, y + r * 0.55, r * 0.42, Math.PI * 1.15, Math.PI * 1.85); ctx.lineWidth = r * 0.28; ctx.stroke();
+  } else if (tipo === 'grafico') {
+    ctx.lineWidth = 1.8;
+    const bw = r * 0.22;
+    [0.45, 0.75, 0.6].forEach((hFrac, i) => {
+      const bh = r * hFrac * 1.2;
+      ctx.fillRect(x - r * 0.5 + i * (bw + r * 0.14), y + r * 0.45 - bh, bw, bh);
+    });
+  } else if (tipo === 'engrenagem') {
+    ctx.lineWidth = 1.6;
+    gearPath(ctx, x, y, r * 0.5, 7); ctx.stroke();
+  } else if (tipo === 'nuvem') {
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.arc(x - r * 0.28, y + r * 0.1, r * 0.22, Math.PI * 0.5, Math.PI * 1.5);
+    ctx.arc(x - r * 0.05, y - r * 0.18, r * 0.26, Math.PI * 0.95, Math.PI * 1.95);
+    ctx.arc(x + r * 0.28, y + r * 0.02, r * 0.2, Math.PI * 1.3, Math.PI * 0.5);
+    ctx.closePath(); ctx.stroke();
+  } else { // alvo
+    ctx.lineWidth = 1.6;
+    ctx.beginPath(); ctx.arc(x, y, r * 0.5, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(x, y, r * 0.16, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawCoverScene(ctx, R) {
+  const cena = Math.floor(R() * 5);
+  const icones = ['pessoa', 'grafico', 'engrenagem', 'nuvem', 'alvo'].sort(() => R() - 0.5);
+
+  if (cena === 0) {
+    // Nuvem de partículas com anéis orbitais + ícones flutuando
+    const cx = 300 + R() * 250, cy = 170 + R() * 60;
+    for (let i = 0; i < 260; i++) {
+      const a = R() * Math.PI * 2, d = Math.pow(R(), 0.5) * 130;
+      const px = cx + Math.cos(a) * d * 1.35, py = cy + Math.sin(a) * d * 0.75;
+      ctx.fillStyle = `rgba(${R() < 0.7 ? CYAN : '148,199,255'},${0.15 + R() * 0.5})`;
+      ctx.beginPath(); ctx.arc(px, py, 0.6 + R() * 1.8, 0, Math.PI * 2); ctx.fill();
+    }
+    for (let i = 0; i < 3; i++) {
+      ctx.strokeStyle = `rgba(${CYAN},${0.12 + i * 0.04})`;
+      ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.ellipse(cx, cy + 60 + i * 16, 190 - i * 30, 32 - i * 6, 0, 0, Math.PI * 2); ctx.stroke();
+    }
+    icones.slice(0, 4).forEach((t, i) => {
+      const ang = -0.9 + i * 0.62;
+      iconCircle(ctx, cx + Math.cos(ang) * 320 + R() * 30, cy + Math.sin(ang) * 130, 24 + R() * 6, t, CYAN, 0.75);
+    });
+  } else if (cena === 1) {
+    // Cluster de cubos isométricos com núcleo âmbar
+    const bx = 750 + R() * 150, by = 260 + R() * 40, s = 34;
+    const offs = [[-2,0],[-1,-0.5],[0,-1],[-1,0.5],[0,0],[1,-0.5],[0,1],[1,0.5],[2,0],[1,1.5],[-1,1.5],[2,-1]];
+    offs.sort((a, b) => (a[1] - b[1]) || (a[0] - b[0]));
+    const nucleo = Math.floor(R() * offs.length);
+    offs.forEach(([ox, oy], i) => {
+      const x = bx + ox * s, y = by + oy * s;
+      if (i === nucleo) {
+        const g = ctx.createRadialGradient(x, y - s * 0.7, 0, x, y - s * 0.7, s * 2.4);
+        g.addColorStop(0, `rgba(${AMBER},0.5)`); g.addColorStop(1, `rgba(${AMBER},0)`);
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y - s * 0.7, s * 2.4, 0, Math.PI * 2); ctx.fill();
+        isoCube(ctx, x, y, s, `rgba(${AMBER},0.95)`, `rgba(217,119,6,0.9)`, `rgba(180,83,9,0.9)`);
+      } else {
+        const a = 0.25 + R() * 0.3;
+        isoCube(ctx, x, y, s, `rgba(56,90,190,${a + 0.15})`, `rgba(20,32,90,${a + 0.3})`, `rgba(30,48,120,${a + 0.25})`);
+        ctx.strokeStyle = `rgba(${CYAN},0.25)`; ctx.lineWidth = 0.8;
+        ctx.strokeRect(x - s, y - s, 0, 0);
+      }
+    });
+    icones.slice(0, 3).forEach((t, i) => iconCircle(ctx, 120 + i * 130 + R() * 40, 90 + R() * 180, 24, t, CYAN, 0.7));
+  } else if (cena === 2) {
+    // Cidade-circuito com feixe de luz subindo pra nuvem
+    const baseY = 400;
+    for (let x = 0; x < 1200; x += 8) {
+      if (R() < 0.55) {
+        const h = 20 + R() * 130, w = 6 + R() * 26;
+        ctx.fillStyle = `rgba(10,18,48,0.9)`;
+        ctx.fillRect(x, baseY - h, w, h);
+        ctx.strokeStyle = `rgba(${CYAN},${0.15 + R() * 0.2})`; ctx.lineWidth = 0.8;
+        ctx.strokeRect(x, baseY - h, w, h);
+        for (let j = 0; j < 3; j++) if (R() < 0.4) {
+          ctx.fillStyle = `rgba(${CYAN},${0.4 + R() * 0.4})`;
+          ctx.fillRect(x + 2 + R() * (w - 4), baseY - h + 4 + R() * (h - 8), 2, 2);
+        }
+        x += w;
+      }
+    }
+    const fx = 350 + R() * 500;
+    const beam = ctx.createLinearGradient(fx, 60, fx, 400);
+    beam.addColorStop(0, `rgba(${CYAN},0.35)`); beam.addColorStop(1, `rgba(${CYAN},0)`);
+    ctx.fillStyle = beam; ctx.fillRect(fx - 18, 60, 36, 340);
+    for (let i = 0; i < 90; i++) {
+      const a = R() * Math.PI * 2, d = Math.pow(R(), 0.6) * 80;
+      ctx.fillStyle = `rgba(${CYAN},${0.2 + R() * 0.4})`;
+      ctx.beginPath(); ctx.arc(fx + Math.cos(a) * d * 1.4, 80 + Math.sin(a) * d * 0.55, 0.8 + R() * 1.6, 0, Math.PI * 2); ctx.fill();
+    }
+  } else if (cena === 3) {
+    // Engrenagens acopladas em duotone (laranja × azul) — colaboração
+    const grad = ctx.createLinearGradient(0, 0, 1200, 0);
+    grad.addColorStop(0, `rgba(${AMBER},0.10)`); grad.addColorStop(0.5, 'rgba(0,0,0,0)'); grad.addColorStop(1, `rgba(${BLUE},0.12)`);
+    ctx.fillStyle = grad; ctx.fillRect(0, 0, 1200, 400);
+    const cx = 520 + R() * 160, cy = 180 + R() * 60;
+    ctx.lineWidth = 2.4;
+    ctx.strokeStyle = `rgba(${AMBER},0.85)`; gearPath(ctx, cx, cy, 62, 9); ctx.stroke();
+    ctx.strokeStyle = `rgba(${CYAN},0.85)`; gearPath(ctx, cx + 98, cy + 42, 42, 7); ctx.stroke();
+    ctx.strokeStyle = `rgba(${AMBER},0.55)`; gearPath(ctx, cx - 82, cy + 55, 32, 6); ctx.stroke();
+    icones.slice(0, 2).forEach((t, i) => iconCircle(ctx, 150 + R() * 60, 100 + i * 140, 26, t, AMBER, 0.7));
+    icones.slice(2, 4).forEach((t, i) => iconCircle(ctx, 980 + R() * 80, 100 + i * 140, 26, t, CYAN, 0.7));
+  } else {
+    // Dashboard holográfico flutuante (cards com mini-gráficos)
+    const bx = 620 + R() * 160, by = 70 + R() * 40;
+    for (let c = 0; c < 4; c++) {
+      const x = bx + (c % 2) * 240 + R() * 20, y = by + Math.floor(c / 2) * 130 + R() * 16, w = 210, h = 106;
+      ctx.fillStyle = 'rgba(13,22,58,0.55)';
+      roundRectPath(ctx, x, y, w, h, 10); ctx.fill();
+      ctx.strokeStyle = `rgba(${CYAN},0.5)`; ctx.lineWidth = 1.2; roundRectPath(ctx, x, y, w, h, 10); ctx.stroke();
+      if (c % 3 === 0) {
+        for (let b = 0; b < 6; b++) {
+          const bh = 12 + R() * 52;
+          ctx.fillStyle = `rgba(${b === 4 ? AMBER : CYAN},0.8)`;
+          ctx.fillRect(x + 18 + b * 30, y + h - 16 - bh, 16, bh);
+        }
+      } else if (c % 3 === 1) {
+        ctx.strokeStyle = `rgba(${CYAN},0.9)`; ctx.lineWidth = 2; ctx.beginPath();
+        for (let p = 0; p <= 8; p++) {
+          const px = x + 16 + p * ((w - 32) / 8), py = y + h - 20 - R() * (h - 45);
+          p === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+      } else {
+        const dcx = x + w / 2, dcy = y + h / 2, dr = 34, frac = 0.55 + R() * 0.35;
+        ctx.lineWidth = 9;
+        ctx.strokeStyle = `rgba(${CYAN},0.25)`; ctx.beginPath(); ctx.arc(dcx, dcy, dr, 0, Math.PI * 2); ctx.stroke();
+        ctx.strokeStyle = `rgba(${CYAN},0.9)`; ctx.beginPath(); ctx.arc(dcx, dcy, dr, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * frac); ctx.stroke();
+      }
+    }
+    icones.slice(0, 3).forEach((t, i) => iconCircle(ctx, 120 + R() * 60, 80 + i * 110, 25, t, CYAN, 0.7));
+  }
 }
 
 // ── MODAL ─────────────────────────────────────────────────────────────────────

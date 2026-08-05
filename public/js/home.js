@@ -559,6 +559,25 @@
         .sort((a, b) => a._days - b._days);
       const MESES = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
 
+      // ── confete/lembrete de aniversário ──
+      const bdayToday = sorted.filter(p => p._days === 0);
+      if (bdayToday.length) {
+        const me = await getNome();
+        const meLower = (me || '').toLowerCase();
+        const isMeBday = bdayToday.some(p => p.nome.toLowerCase().startsWith(meLower));
+        const todayKey = 'bday-seen-' + today.toISOString().slice(0, 10);
+
+        if (isMeBday && !localStorage.getItem(todayKey)) {
+          localStorage.setItem(todayKey, '1');
+          const outros = all.filter(p => !p.nome.toLowerCase().startsWith(meLower)).map(p => p.nome.split(' ')[0]);
+          showBdayConfetti(me, outros);
+        } else if (!isMeBday && !localStorage.getItem(todayKey + '-toast')) {
+          localStorage.setItem(todayKey + '-toast', '1');
+          const nomes = bdayToday.map(p => p.nome.split(' ')[0]);
+          showBdayToast(nomes);
+        }
+      }
+
       target.innerHTML = sorted.map(p => {
         const isToday = p._days === 0;
         const isSoon = p._days > 0 && p._days <= 30;
@@ -583,6 +602,96 @@
     } catch {
       target.innerHTML = '<div class="home-empty">Erro ao carregar aniversários.</div>';
     }
+  }
+
+  // ── CONFETE (só pro aniversariante, 1x/dia) ────────────────────
+  function showBdayConfetti(nome, outrosNomes) {
+    var ov = document.createElement('div');
+    ov.id = 'bday-overlay';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:99999;pointer-events:none;overflow:hidden';
+    var cv = document.createElement('canvas');
+    cv.style.cssText = 'position:absolute;inset:0;width:100%;height:100%';
+    ov.appendChild(cv);
+    var assinatura = outrosNomes.length ? outrosNomes.join(', ') : 'Todo o time';
+    var banner = document.createElement('div');
+    banner.id = 'bday-banner';
+    banner.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);'
+      + 'background:linear-gradient(135deg,#001844 0%,#1a3a6e 100%);border:3px solid #cd1543;border-radius:24px;'
+      + 'padding:40px 56px;text-align:center;font-family:Poppins,sans-serif;'
+      + 'box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 80px rgba(205,21,67,.3);'
+      + 'pointer-events:auto;cursor:pointer;opacity:0;'
+      + 'transition:transform .6s cubic-bezier(.34,1.56,.64,1),opacity .4s ease';
+    banner.innerHTML = '<div style="font-size:52px;margin-bottom:12px">🎂🎉🥳</div>'
+      + '<div style="font-size:28px;font-weight:700;color:#fff;line-height:1.3;margin-bottom:8px">'
+      + 'Feliz Aniversário, ' + esc(nome) + '!</div>'
+      + '<div style="font-size:15px;color:#869ec3;line-height:1.5;max-width:340px;margin:0 auto 16px">'
+      + 'O escritório inteiro celebra você hoje.<br>Obrigado por liderar essa manada! 🐘</div>'
+      + '<div style="font-size:13px;color:#f472b6;margin-top:12px">' + esc(assinatura) + ' ❤️</div>'
+      + '<div style="font-size:11px;color:rgba(134,158,195,.5);margin-top:8px">clique pra fechar</div>';
+    ov.appendChild(banner);
+    document.body.appendChild(ov);
+
+    var ctx = cv.getContext('2d'), W, H, pieces = [];
+    var colors = ['#cd1543','#001844','#869ec3','#fbbf24','#34d399','#f472b6','#60a5fa','#fff'];
+    function resize() { W = cv.width = window.innerWidth; H = cv.height = window.innerHeight; }
+    resize(); window.addEventListener('resize', resize);
+    function Piece() {
+      this.x = Math.random() * W; this.y = Math.random() * H - H;
+      this.w = 6 + Math.random() * 8; this.h = 4 + Math.random() * 6;
+      this.color = colors[Math.floor(Math.random() * colors.length)];
+      this.vy = 1.5 + Math.random() * 3; this.vx = (Math.random() - .5) * 2;
+      this.rot = Math.random() * 360; this.rv = (Math.random() - .5) * 8;
+    }
+    for (var i = 0; i < 200; i++) pieces.push(new Piece());
+    var duration = 8000, started = Date.now();
+    function draw() {
+      var elapsed = Date.now() - started;
+      ctx.clearRect(0, 0, W, H);
+      var ga = elapsed > duration - 2000 ? Math.max(0, 1 - (elapsed - (duration - 2000)) / 2000) : 1;
+      pieces.forEach(function(p) {
+        p.x += p.vx; p.y += p.vy; p.rot += p.rv;
+        if (p.y > H + 20) { p.y = -20; p.x = Math.random() * W; }
+        ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot * Math.PI / 180);
+        ctx.globalAlpha = ga; ctx.fillStyle = p.color;
+        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); ctx.restore();
+      });
+      if (elapsed < duration) requestAnimationFrame(draw);
+      else cv.style.display = 'none';
+    }
+    draw();
+    setTimeout(function() {
+      banner.style.transform = 'translate(-50%,-50%) scale(1)'; banner.style.opacity = '1';
+    }, 300);
+    banner.addEventListener('click', function() {
+      ov.style.transition = 'opacity .5s'; ov.style.opacity = '0';
+      setTimeout(function() { ov.remove(); }, 600);
+    });
+  }
+
+  // ── TOAST LEMBRETE (pros demais, 1x/dia) ───────────────────────
+  function showBdayToast(nomes) {
+    var txt = nomes.length === 1
+      ? 'Hoje é aniversário do(a) ' + nomes[0] + '! 🎂🎉'
+      : 'Hoje é aniversário de ' + nomes.join(' e ') + '! 🎂🎉';
+    var toast = document.createElement('div');
+    toast.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-20px);'
+      + 'z-index:99998;background:linear-gradient(135deg,#001844,#1a3a6e);border:2px solid #cd1543;'
+      + 'border-radius:16px;padding:16px 28px;font-family:Poppins,sans-serif;font-size:15px;color:#fff;'
+      + 'box-shadow:0 8px 32px rgba(0,0,0,.4);opacity:0;transition:opacity .4s,transform .4s;cursor:pointer;'
+      + 'text-align:center;max-width:400px';
+    toast.textContent = txt;
+    document.body.appendChild(toast);
+    requestAnimationFrame(function() {
+      toast.style.opacity = '1'; toast.style.transform = 'translateX(-50%) translateY(0)';
+    });
+    toast.addEventListener('click', function() {
+      toast.style.opacity = '0';
+      setTimeout(function() { toast.remove(); }, 400);
+    });
+    setTimeout(function() {
+      toast.style.opacity = '0';
+      setTimeout(function() { toast.remove(); }, 400);
+    }, 8000);
   }
 
   // ── TIME · 6 ÁREAS (responsáveis) ───────────────────────────────
@@ -717,9 +826,13 @@
     const box = document.querySelector('.home-quick');
     if (!box) return;
     const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-    box.innerHTML = items.map(it =>
-      `<a href="${esc(it.href)}"><span class="ico">${esc(it.icon || '🔗')}</span>${esc(it.label)}</a>`
-    ).join('');
+    box.innerHTML = items.map(it => {
+      if (it.modal) {
+        return `<a href="#" onclick="event.preventDefault();openReportModal('${esc(it.modal)}')" class="home-quick-modal"><span class="ico">${esc(it.icon || '🔗')}</span>${esc(it.label)}</a>`;
+      }
+      const ext = it.external ? ' target="_blank" rel="noopener"' : '';
+      return `<a href="${esc(it.href)}"${ext}><span class="ico">${esc(it.icon || '🔗')}</span>${esc(it.label)}${it.external ? ' ↗' : ''}</a>`;
+    }).join('');
   }
 
   // ── KPIs por fonte (todas APIs já existentes) ───────────────────

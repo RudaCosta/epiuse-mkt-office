@@ -321,15 +321,19 @@
   function authHeaders(){ var h={}, t=editorToken(); if(t) h['X-Editor-Token']=t; return h; }
 
   var esc = function(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]; }); };
-  var TZOFF = new Date().getTimezoneOffset(); // min; enviado ao back p/ agregar no fuso local
 
-  // ── formatação de data/hora ────────────────────────────────────────────────
+  // ── data/hora SEMPRE em BRT (UTC-3), qualquer que seja o fuso da máquina ────
+  // Decisão v0.82.4: o time inteiro discute "o pico das 9h" no mesmo relógio.
+  // O mesmo offset vai pro back (tzoff) pra que a agregação de dia/hora bata
+  // exatamente com o que a tela mostra.
+  var TZOFF = 180; // minutos no formato getTimezoneOffset() → UTC-3
+  function brt(ts){ return new Date(+ts - TZOFF*60000); } // ler sempre com getUTC*
   function p2(n){ return (n<10?'0':'')+n; }
-  function fmtDT(ts){ if(!ts) return '—'; var d=new Date(+ts);
-    return p2(d.getDate())+'/'+p2(d.getMonth()+1)+'/'+d.getFullYear()+' '+p2(d.getHours())+':'+p2(d.getMinutes()); }
-  function fmtDTs(ts){ if(!ts) return '—'; var d=new Date(+ts);
-    return p2(d.getDate())+'/'+p2(d.getMonth()+1)+' '+p2(d.getHours())+':'+p2(d.getMinutes())+':'+p2(d.getSeconds()); }
-  function fmtDay(ts){ var d=new Date(+ts); return p2(d.getDate())+'/'+p2(d.getMonth()+1); }
+  function fmtDT(ts){ if(!ts) return '—'; var d=brt(ts);
+    return p2(d.getUTCDate())+'/'+p2(d.getUTCMonth()+1)+'/'+d.getUTCFullYear()+' '+p2(d.getUTCHours())+':'+p2(d.getUTCMinutes()); }
+  function fmtDTs(ts){ if(!ts) return '—'; var d=brt(ts);
+    return p2(d.getUTCDate())+'/'+p2(d.getUTCMonth()+1)+' '+p2(d.getUTCHours())+':'+p2(d.getUTCMinutes())+':'+p2(d.getUTCSeconds()); }
+  function fmtDay(ts){ var d=brt(ts); return p2(d.getUTCDate())+'/'+p2(d.getUTCMonth()+1); }
   function fmtRel(ts){
     if(!ts) return '';
     var s=Math.round((Date.now()-(+ts))/1000);
@@ -396,7 +400,7 @@
     var per = d.periodo||{}, s = d.summary||{};
     document.getElementById('stamp').innerHTML =
       'Período: <b style="color:#a7c0e8">'+fmtDT(per.inicio)+'</b> → <b style="color:#a7c0e8">'+fmtDT(per.fim)+'</b>'+
-      ' · atualizado '+fmtDTs(d.gerado_em);
+      ' · atualizado '+fmtDTs(d.gerado_em)+' <b style="color:#6b83ad">(BRT)</b>';
 
     document.getElementById('cards').innerHTML =
       card(s.cliques, 'Cliques humanos', s.ultimo ? ('último '+fmtRel(s.ultimo)) : 'nenhum no período') +
@@ -678,9 +682,8 @@
     if (custom){
       // default do intervalo: últimos 30 dias, editável
       if (!ST.de || !ST.ate){
-        var hoje=new Date(), antes=new Date(Date.now()-30*86400000);
-        var iso=function(d){ return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate()); };
-        ST.ate=iso(hoje); ST.de=iso(antes);
+        var iso=function(ts){ var d=brt(ts); return d.getUTCFullYear()+'-'+p2(d.getUTCMonth()+1)+'-'+p2(d.getUTCDate()); };
+        ST.ate=iso(Date.now()); ST.de=iso(Date.now()-30*86400000);
         document.getElementById('f-de').value=ST.de;
         document.getElementById('f-ate').value=ST.ate;
       }

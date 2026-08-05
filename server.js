@@ -1130,8 +1130,26 @@ async function geminiPost(model, body) {
   if (!key) throw new Error('GEMINI_API_KEY não configurada. Adicione ao .env local.');
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
   const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-  if (!r.ok) { const err = await r.text(); throw new Error(`Gemini ${r.status}: ${err.slice(0, 300)}`); }
+  if (!r.ok) { const err = await r.text(); const e = new Error(`Gemini ${r.status}: ${err.slice(0, 300)}`); e.status = r.status; throw e; }
   return r.json();
+}
+
+// Cota do free tier é POR MODELO — no 429, cai pro próximo da cadeia em vez de falhar.
+// 404 (modelo descontinuado/inexistente) também pula — permite listar candidatos novos sem risco.
+const GEMINI_FALLBACK_CHAIN = ['gemini-2.5-flash', 'gemini-3-flash', 'gemini-3.1-flash', 'gemini-3-flash-lite', 'gemini-2.0-flash'];
+async function geminiPostComFallback(body, chain = GEMINI_FALLBACK_CHAIN) {
+  let ultimoErro = null;
+  for (const model of chain) {
+    try { return { result: await geminiPost(model, body), model }; }
+    catch (e) {
+      ultimoErro = e;
+      if (e.status !== 429 && e.status !== 503 && e.status !== 404) throw e; // só cota/indisponível/descontinuado justificam fallback
+      console.warn(`[GEMINI-FALLBACK] ${model} indisponível (${e.status}) — tentando próximo`);
+    }
+  }
+  if (ultimoErro && ultimoErro.status === 429)
+    throw new Error('Cota da API Gemini esgotada em todos os modelos (plano gratuito). Aguarde 1-2 minutos e tente de novo; se persistir, é o limite DIÁRIO (reseta ~4h da manhã BRT) — ou ative billing no Google AI Studio.');
+  throw ultimoErro;
 }
 
 async function imagenPredict(model, body) {
@@ -1157,48 +1175,120 @@ REGRAS DE LEGIBILIDADE (calibradas pro Yoast SEO — cumprir TODAS):
 5. VOZ ATIVA: prefira voz ativa; use voz passiva em menos de 10% das frases.
 6. Não comece 3 frases seguidas com a mesma palavra.`;
 
+// Anti-repetição entre artigos: clichês de IA proibidos + formatos/aberturas sorteados a cada geração
+const ARTIGOS_CLICHES_PROIBIDOS = `VOCABULÁRIO PROIBIDO (clichês de IA que aparecem em todo artigo — NÃO use nenhum):
+"no cenário atual", "em um mundo cada vez mais", "no dinâmico mundo de", "na era digital", "não é apenas X, é Y", "mais do que nunca", "desvendar", "revolucionar", "robusto(a)", "alavancar", "impulsionar" (mais de 1x), "seamless", "game-changer", "divisor de águas", "verdadeiro diferencial", "é fundamental" (mais de 1x), "papel crucial", "abordagem holística", "sinergia" (fora do título), "jornada" (mais de 2x), "transformação digital" (mais de 1x).
+Frases de fechamento proibidas: "Em resumo/Em suma/Concluindo, ..." iniciando a última seção.`;
+
+const ARTIGOS_FORMATOS = [
+  'GUIA PRÁTICO: seções numeradas com passos acionáveis; cada seção termina com uma recomendação concreta.',
+  'MITOS vs REALIDADE: cada seção H2 confronta uma crença comum do mercado com o que a prática mostra.',
+  'CENÁRIO NARRATIVO: abra cada seção com uma situação real de empresa (anonimizada) e extraia a lição.',
+  'DADOS E DECISÃO: cada seção parte de um número/tendência de mercado e mostra a decisão executiva que ele pede.',
+  'PERGUNTAS DO BOARD: cada H2 é uma pergunta que um conselho/CEO faria; o texto responde com posição firme.',
+  'ERROS COMUNS: cada seção disseca um erro recorrente do mercado e mostra como evitá-lo.'
+];
+const ARTIGOS_ABERTURAS = [
+  'termine a 1ª frase com um dado ou consequência concreta de negócio (a frase ainda COMEÇA com a frase-chave)',
+  'siga a frase-chave com uma tensão/paradoxo do mercado que o artigo vai resolver',
+  'siga a frase-chave com um mini-cenário de empresa (2ª frase: "Imagine..." ou situação real)',
+  'siga a frase-chave com uma afirmação contrária ao senso comum, que o artigo defende'
+];
+
+// Artigo completo = 3 FAQs fechados + HTML terminando em tag fechada (detecta resposta cortada por limite de tokens)
+function artigosHtmlCompleto(html) {
+  if (!html) return false;
+  const fechados = (html.match(/<\/details>/g) || []).length;
+  const abertos = (html.match(/<details/g) || []).length;
+  return fechados >= 3 && fechados === abertos && html.trim().endsWith('>');
+}
+
 // Passo de revisão: segunda chamada só pra caçar erro de português (barato no Flash, elimina typo/concordância)
 async function artigosRevisarPortugues(html) {
   try {
-    const result = await geminiPost('gemini-2.5-flash', {
+    const { result } = await geminiPostComFallback({
       contents: [{ parts: [{ text: `Você é um revisor profissional de português do Brasil (norma culta, Acordo Ortográfico vigente).
 
 Revise o HTML abaixo corrigindo APENAS: erros de ortografia, acentuação, crase, concordância verbal/nominal, regência, pontuação e palavras digitadas errado.
 NÃO reescreva frases corretas. NÃO altere estrutura HTML, tags, classes ou conteúdo técnico. NÃO adicione nem remova seções.
 Se uma frase tiver mais de 25 palavras, divida-a em duas mantendo o sentido.
+EXCEÇÃO OBRIGATÓRIA — Meta description: no bloco seo-meta, se o texto após "<strong>Meta:</strong>" tiver mais de 130 caracteres, REESCREVA-O com no máximo 130 caracteres (conte!), mantendo a frase-chave no início e a chamada pra ação.
 
 Retorne APENAS o HTML corrigido, sem \`\`\`.
 
 ${html}` }] }],
-      generationConfig: { temperature: 0.1 }
+      generationConfig: { temperature: 0.1, maxOutputTokens: 16384 }
     });
     const revised = result.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!revised) return html;
     const clean = revised.replace(/^```(?:html)?\n?|\n?```$/g, '').trim();
-    // Sanidade: se a revisão encolheu demais (>30%), algo deu errado — mantém o original
-    return clean.length > html.length * 0.7 ? clean : html;
+    // Sanidade: se a revisão encolheu demais (>30%) ou saiu truncada (FAQ cortado), mantém o original
+    if (clean.length <= html.length * 0.7) return html;
+    if (artigosHtmlCompleto(html) && !artigosHtmlCompleto(clean)) return html;
+    return clean;
   } catch (e) {
     console.warn('[ARTIGOS-REVISAO] falhou, mantendo original:', e.message.slice(0, 100));
     return html;
   }
 }
 
+// Pool de ângulos temáticos — 4 são sorteados por rodada, quebrando os 4 baldes fixos que repetiam pauta
+const STRATVIEW_ANGULOS = [
+  'FinOps na prática: fatura OCI, custos ocultos, rightsizing e chargeback por área',
+  'Migração pra OCI: lift-and-shift vs re-arquitetura, janelas de corte, riscos reais',
+  'Segurança e compliance na nuvem Oracle: LGPD, soberania de dados, Zero Trust',
+  'Alta disponibilidade e disaster recovery: RTO/RPO que o board entende',
+  'Multicloud e lock-in: quando OCI convive com AWS/Azure e quando não vale',
+  'Licenciamento Oracle e TCO: o que ninguém explica antes do contrato',
+  'Observabilidade e performance: latência, sizing e gargalos em workloads Oracle',
+  'Oracle HCM Redwood: o que muda de verdade na experiência do usuário',
+  'People Analytics com Oracle HCM: métricas de RH que viram decisão de negócio',
+  'Folha de pagamento e compliance trabalhista Brasil no Oracle HCM',
+  'Agentic Apps no RH: casos concretos de agentes de IA em recrutamento e onboarding',
+  'IA generativa com governança: vieses, auditoria e supervisão humana',
+  'Gestão da mudança em projetos Oracle: por que projetos tecnicamente perfeitos falham',
+  'Talent marketplace e skills-based organization com Oracle HCM',
+  'Integrações Oracle: HCM + ERP + sistemas legados sem gambiarras',
+  'Upgrade e releases trimestrais Oracle (25A/25B...): como absorver sem caos',
+  'RH e TI dividindo o mesmo roadmap: orçamento, prioridades e atritos',
+  'Employee experience além do app: o que os dados de uso do HCM revelam',
+  'Automação de processos de RH: do formulário ao fluxo inteligente',
+  'Shadow IT no RH: planilhas paralelas como sintoma de implementação ruim',
+  'Sustentação pós-go-live: por que o go-live é o começo (AMS / Serviços Gerenciados)',
+  'Benchmarks de mercado Brasil: cloud, RH tech e o que o C-Level está priorizando'
+];
+
 app.post('/api/stratview/ideias', async (req, res) => {
   try {
+    // Memória anti-repetição: últimos títulos gerados entram no prompt como proibidos
+    let jaGerados = '';
+    try {
+      const rows = db.prepare('SELECT title, keywords FROM stratview_articles ORDER BY generated_at DESC LIMIT 40').all();
+      if (rows.length) jaGerados = `\nARTIGOS JÁ GERADOS (PROIBIDO repetir tema, ângulo ou título parecido — traga assuntos NOVOS):\n${rows.map(r => '- ' + r.title).join('\n')}\n`;
+    } catch (e) { console.warn('[STRATVIEW-IDEIAS] histórico indisponível:', e.message.slice(0, 80)); }
+
+    // Sorteia 6 ângulos candidatos da rodada (o modelo escolhe 4 conforme o que a pesquisa render)
+    const angulos = [...STRATVIEW_ANGULOS].sort(() => Math.random() - 0.5).slice(0, 6);
+
     const prompt = `Você é o Diretor de Marketing de Conteúdo da Stratview (uma consultoria boutique líder em Oracle Cloud no Brasil, especializada em HCM, Inteligência Artificial e OCI).
-A Stratview se diferencia por seu modelo "Client Side Services (CSS)".
 
-Gere 4 ideias de artigos para o blog corporativo focados na "Tríade de Valor" da Stratview.
+Gere 4 ideias de artigos para o blog corporativo.
 
-DIRETRIZ ANTI-REPETIÇÃO: Seja extremamente criativo e diversificado! Não crie temas repetitivos. Traga ângulos diferentes: técnico, cultura, finanças/riscos.
+PESQUISA PROFUNDA OBRIGATÓRIA (use a busca do Google ANTES de propor qualquer ideia):
+1. Novidades Oracle dos últimos 60 dias: releases (25A/25B/26A...), anúncios de OCI, Redwood, agentes de IA, eventos (Oracle CloudWorld, etc).
+2. Notícias do mercado brasileiro: custos de nuvem, RH tech, IA nas empresas, regulação (LGPD, reforma trabalhista/tributária quando tocar TI/RH).
+3. O que executivos estão buscando agora (tendências de busca reais).
+CADA ideia deve nascer de um ACHADO REAL dessa pesquisa — nada de tema genérico atemporal. Registre o achado no campo "trendsInfo" (fato + por que agora).
 
-Distribuição obrigatória:
-- 1 artigo focado em Infraestrutura em Nuvem (OCI), Migração, Segurança ou Alta Disponibilidade técnica
-- 1 artigo focado em HCM e Inteligência Artificial (Agentic Apps)
-- 1 artigo sobre o serviço "Client Side Services (CSS)"
-- 1 artigo sobre Sinergia de C-Levels (CHRO e CIO) proporcionada pela tecnologia
+ÂNGULOS SORTEADOS DESTA RODADA — escolha 4 dos 6, um por ideia (é PROIBIDO propor ideia fora destes ângulos):
+${angulos.map((a, i) => `${i + 1}. ${a}`).join('\n')}
 
-OBRIGATÓRIO: Use a ferramenta de busca do Google para cruzar com Google Trends sobre tendências reais e atuais do mercado.
+Equilíbrio mínimo: pelo menos 1 ideia de infraestrutura/OCI e pelo menos 1 de HCM/pessoas.
+
+DIRETRIZ ANTI-REPETIÇÃO: Não crie temas repetitivos entre si nem parecidos com os já gerados.
+PROIBIDO o padrão "Substantivo X: N Estratégias/Dicas para Y" em mais de 1 dos 4 títulos — varie o formato (pergunta, afirmação contrária, causa-efeito, comparação).
+${jaGerados}
+
 OBRIGATÓRIO: Títulos e descrições em português do Brasil impecável — gramática, acentuação e concordância perfeitas.
 
 REGRAS DE TÍTULO (SEO — cumprir TODAS):
@@ -1217,9 +1307,10 @@ Retorne APENAS JSON válido neste formato:
 {"ideas":[{"id":"string_unica","title":"título","keyphrase":"frase-chave 2-4 palavras","description":"resumo 1-2 frases","keywords":["5","palavras","chave","seo","aqui"],"score":9.5,"volume":"Alto","competition":"Média","trendsInfo":"insight trends max 20 palavras","imagePrompt":"prompt em inglês sem texto"}]}`;
 
     // google_search é incompatível com responseMimeType:json — deixar a IA retornar JSON como texto
-    const result = await geminiPost('gemini-2.5-flash', {
+    const { result } = await geminiPostComFallback({
       contents: [{ parts: [{ text: prompt }] }],
-      tools: [{ google_search: {} }]
+      tools: [{ google_search: {} }],
+      generationConfig: { temperature: 0.9 }
     });
     const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!text) throw new Error('Sem resposta da IA');
@@ -1235,23 +1326,39 @@ app.post('/api/stratview/gerar', async (req, res) => {
     const { idea } = req.body;
     if (!idea || !idea.title) return res.status(400).json({ error: 'idea.title obrigatório' });
     const keyphrase = (idea.keyphrase || (idea.keywords || [])[0] || '').trim();
+    // Sorteio de formato/abertura a cada geração — quebra o molde único entre artigos
+    const formato = ARTIGOS_FORMATOS[Math.floor(Math.random() * ARTIGOS_FORMATOS.length)];
+    const abertura = ARTIGOS_ABERTURAS[Math.floor(Math.random() * ARTIGOS_ABERTURAS.length)];
 
     const systemPrompt = `Você é um Consultor Estratégico Sênior da Stratview focado na tríade: Oracle HCM, IA (Agentic Apps) e OCI.
-Defenda metodologias ágeis e parceiras (Client Side Services - CSS).`;
+
+PORTFÓLIO DE SERVIÇOS STRATVIEW — posicione o serviço CERTO pro tema do artigo (feedback do Country Manager, INEGOCIÁVEL):
+- Gestão, otimização, operação e monitoramento de OCI · FinOps · CloudOps · infraestrutura → **Serviços Gerenciados de TECH** (equivalente ao AMS, porém com foco em OCI — é o serviço correto pra gestão eficiente de nuvem). NUNCA posicione CSS pra esses temas.
+- Implementação, projetos e advocacia do cliente em Oracle HCM → **Client Side Services (CSS)**, o modelo "guardião do cliente".
+- Sustentação e evolução de aplicações Oracle → **AMS (Application Maintenance & Support)**.
+Mencione APENAS o serviço adequado ao tema — não liste o portfólio inteiro no artigo.`;
 
     const userPrompt = `Escreva um artigo premium (~1000-1200 palavras) para o blog da Stratview sobre: "${idea.title}".
 
 FRASE-CHAVE DE FOCO: "${keyphrase}"
 Esta é a frase que o Yoast SEO vai auditar. Regras OBRIGATÓRIAS sobre ela (correspondência EXATA, não só sinônimos):
-- Na PRIMEIRA frase do primeiro parágrafo.
+- O primeiro parágrafo COMEÇA LITERALMENTE com a frase-chave: as primeiras palavras do texto são "${keyphrase ? keyphrase.charAt(0).toUpperCase() + keyphrase.slice(1) : '[frase-chave]'}..." (ex: "Otimizar custos OCI é fundamental para..."). Não vale no meio da frase.
 - De 4 a 6 vezes no corpo do texto, distribuídas naturalmente (nunca 2x no mesmo parágrafo).
-- Em pelo menos 2 subtítulos <h2> ou <h3> (pode ser variação próxima).
-- No Título SEO (no início), na Meta description, no Alt text e no Slug.
+- SUBTÍTULOS (siga à risca): dos <h2> do corpo, PELO MENOS 3 contêm a frase-chave exata (ex: "Estratégia 1 para ${keyphrase || '[frase-chave]'}: automação"). Das 3 perguntas do FAQ, PELO MENOS 1 contém a frase-chave exata. Os demais subtítulos ficam SEM (over-optimization penaliza se for em todos).
+- No Título SEO (no início), na Meta description (no início), no Alt text e no Slug.
+
+FORMATO EDITORIAL DESTE ARTIGO (sorteado — siga-o, é o que diferencia este artigo dos demais do blog):
+${formato}
+
+ABERTURA: ${abertura}.
 
 DIRETRIZ DE QUALIDADE E ESTILO (ANTI-REPETIÇÃO):
 - Seja criativo, dinâmico e agradável de ler. Pareça um ser humano experiente.
 - NÃO seja repetitivo. Evite usar os mesmos jargões em todos os parágrafos.
 - Traga exemplos práticos, analogias de mercado e varie o vocabulário.
+- Cada seção deve ter conteúdo DIFERENTE de verdade — se duas seções dizem o mesmo com palavras trocadas, corte uma e aprofunde a outra (números, trade-offs, exemplos).
+
+${ARTIGOS_CLICHES_PROIBIDOS}
 
 ${ARTIGOS_REGRAS_ESTILO}
 
@@ -1268,9 +1375,12 @@ REGRAS DE TÍTULO (SEO):
 
 LINKS (obrigatório — Yoast exige internos E externos; use SOMENTE as URLs desta lista, não invente outras):
 - 2 links internos no corpo, escolhidos pelo tema:
-  · CSS → https://stratview.com.br/project/client-side-services-css/
+  · CSS (projetos HCM) → https://stratview.com.br/project/client-side-services-css/
   · Oracle HCM → https://stratview.com.br/oracle-fusion-cloud-hcm/
   · OCI → https://stratview.com.br/oracle-cloud-infrastructure-oci/
+  · Gestão de nuvem / Serviços Gerenciados TECH → https://stratview.com.br/cloudops/
+  · Sustentação AMS → https://stratview.com.br/project/application-maintenance-support-ams/
+  · FinOps → https://stratview.com.br/finops/
   · IA/ML → https://stratview.com.br/artificial-intelligence-e-machine-learning/
 - CTA final SEMPRE pra <a href="https://stratview.com.br/contato/">fale com a Stratview</a>.
 - 1 link externo de autoridade com target="_blank" rel="noopener": https://www.oracle.com/br/cloud/ (OCI) ou https://www.oracle.com/br/human-capital-management/ (HCM).
@@ -1278,25 +1388,36 @@ LINKS (obrigatório — Yoast exige internos E externos; use SOMENTE as URLs des
 
 ESTRUTURA HTML OBRIGATÓRIA (siga o padrão editorial do blog da Stratview):
 1. Bloco de meta tags:
-<div class="seo-meta"><p><strong>Frase-chave de foco:</strong> ${keyphrase || '[frase-chave 2-4 palavras]'}</p><p><strong>Título SEO:</strong> [máx 60 chars, frase-chave no início]</p><p><strong>Slug:</strong> [slug curto com a frase-chave, sem stopwords]</p><p><strong>Meta:</strong> [MÁXIMO 150 caracteres — conte! — com a frase-chave e chamada pra ação]</p><p><strong>Alt text:</strong> [descrição da imagem contendo a frase-chave]</p></div>
+<div class="seo-meta"><p><strong>Frase-chave de foco:</strong> ${keyphrase || '[frase-chave 2-4 palavras]'}</p><p><strong>Título SEO:</strong> [máx 60 chars, frase-chave no início]</p><p><strong>Slug:</strong> [slug curto com a frase-chave, sem stopwords]</p><p><strong>Meta:</strong> [de 100 a 130 caracteres — escreva CURTO, 2 frases no máximo — COMEÇANDO com a frase-chave + chamada pra ação]</p><p><strong>Alt text:</strong> [descrição da imagem contendo a frase-chave]</p></div>
 
 2. Título em <h1>. Introdução: NO MÁXIMO 3 parágrafos antes do primeiro <h2> (o Yoast conta a introdução como seção — se passar de 250 palavras, quebra com <h2>). Primeiro parágrafo em <p class="lead"> abrindo com a frase-chave.
 3. 1 <blockquote> de tese/citação de marca logo na introdução ou primeira seção (1-2 frases fortes).
 4. Corpo: 4 a 5 seções <h2> (use <h3> pra subdividir quando natural). NENHUMA seção com mais de 200 palavras sem novo <h2>/<h3>.
-5. Penúltima seção: o diferencial Stratview (CSS, neutralidade, expertise) conectado ao tema.
+5. Penúltima seção: o diferencial Stratview conectado ao tema, usando o serviço CORRETO do portfólio (ver PORTFÓLIO DE SERVIÇOS no seu papel — TECH pra gestão de OCI/FinOps/CloudOps, CSS pra projetos HCM, AMS pra sustentação).
 6. Parágrafo de CTA convidando o leitor a falar com a Stratview (link de contato acima).
 7. FAQ ao final, em <h2>Perguntas Frequentes (FAQ)</h2>, com EXATAMENTE 3 perguntas (pelo menos 1 contendo a frase-chave):
 <details class="faq-item"><summary>[PERGUNTA]</summary><div class="faq-answer">[RESPOSTA COM EXPERTISE]</div></details>
 
+⚠️ FAQ — RESPOSTAS COMPLETAS (CRÍTICO): cada resposta do FAQ tem de 2 a 4 frases COMPLETAS, terminadas com ponto final. É PROIBIDO cortar uma resposta no meio. Feche TODAS as tags HTML (</div></details>) — o HTML precisa terminar completo e válido.
+
 Retorne APENAS HTML puro. Sem \`\`\`html.`;
 
-    const result = await geminiPost('gemini-2.5-flash', {
-      contents: [{ parts: [{ text: userPrompt }] }],
-      systemInstruction: { parts: [{ text: systemPrompt }] }
-    });
-    let html = result.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!html) throw new Error('A IA não retornou conteúdo.');
-    html = html.replace(/^```(?:html)?\n?|\n?```$/g,'').trim();
+    // Até 2 tentativas — se o FAQ vier cortado (limite de tokens/thinking do Flash), regenera
+    let html = null;
+    for (let tentativa = 1; tentativa <= 2; tentativa++) {
+      const { result } = await geminiPostComFallback({
+        contents: [{ parts: [{ text: userPrompt }] }],
+        systemInstruction: { parts: [{ text: systemPrompt }] },
+        generationConfig: { maxOutputTokens: 16384, temperature: 0.95, topP: 0.95 }
+      });
+      const cand = result.candidates?.[0];
+      let out = cand?.content?.parts?.[0]?.text;
+      if (!out) continue;
+      out = out.replace(/^```(?:html)?\n?|\n?```$/g,'').trim();
+      if (artigosHtmlCompleto(out) && cand.finishReason !== 'MAX_TOKENS') { html = out; break; }
+      console.warn(`[ARTIGOS-GERAR] tentativa ${tentativa} truncada (finishReason=${cand.finishReason}) — ${tentativa < 2 ? 'regenerando' : 'desistindo'}`);
+    }
+    if (!html) throw new Error('A IA retornou o artigo incompleto (FAQ cortado) 2 vezes. Tente gerar de novo.');
     html = await artigosRevisarPortugues(html);
     res.json({ html });
   } catch (e) { console.error('[ARTIGOS-GERAR]', e.message); res.status(500).json({ error: e.message }); }
@@ -1307,15 +1428,45 @@ app.post('/api/stratview/imagem', async (req, res) => {
     const { prompt } = req.body;
     if (!prompt) return res.status(400).json({ error: 'prompt obrigatório' });
 
-    const enhancedPrompt = `${prompt}
+    // Composição sorteada a cada geração — quebra a "mesma imagem sempre" e segue a
+    // direção de arte das referências aprovadas (navy profundo + luz ciano + hologramas)
+    const composicoes = [
+      'Back view of a business executive in a dark suit contemplating a huge curved holographic dashboard full of glowing charts, inside a dark modern data center; a luminous wireframe cloud floats among the server racks.',
+      'Profile silhouette of a digital human head formed by a glowing particle mesh and constellation lines, next to a luminous cloud of particles; floating circular glass icons on one side; blurred city skyline at dusk through panoramic windows in the background.',
+      'Abstract cluster of translucent dark glass cubes with ONE glowing warm amber core cube, streams of light data flowing through it, thin floating line-icons inside glass circles, blurred modern office background with shallow depth of field.',
+      'Two elegant business people silhouettes filled with circuit patterns facing each other, exchanging glowing interlocking gears and network graphics between their open hands; split duotone palette — warm orange gradient on the left, cool corporate blue on the right; small infographic icons floating around.',
+      'A luminous cloud made of glowing particles hovering above a dark reflective surface, orbited by thin holographic rings and floating glass icons; server bokeh lights in the dark background.',
+      'Isometric miniature city built from circuit boards and glowing blue traces, with a bright vertical beam of light rising into a stylized particle cloud; dark navy atmosphere with cyan glow.',
+      'Close-up of professional hands interacting with floating translucent holographic charts and KPI cards above a sleek desk, dark blue ambience with cyan rim light, blurred executive office behind.'
+    ];
+    // A cena é escrita pelo modelo de texto A PARTIR DO TEMA do artigo — antes a composição
+    // fixa sorteada ditava a imagem inteira e o tema era ignorado (todas as capas saíam iguais)
+    let composicao = null;
+    try {
+      const { result } = await geminiPostComFallback({
+        contents: [{ parts: [{ text: `Write ONE scene description (in English, 40-70 words) for a premium B2B editorial illustration about this article:
+${prompt}
 
-STRICT REQUIREMENTS — follow exactly:
-- Setting: modern corporate office, data center, or enterprise technology environment ONLY
-- Style: photorealistic, professional business photography, high quality, 16:9 landscape
-- Color: predominantly blue, white, grey tones — corporate palette
-- NO nature, NO forests, NO mountains, NO trees, NO landscapes, NO outdoor scenes
-- NO text, NO logos, NO watermarks
-- YES: servers, screens, dashboards, executives, conference rooms, technology hardware`;
+Rules: the scene must VISUALLY represent this specific topic through a concrete visual metaphor (objects, environments and elements drawn from the subject itself — not generic office imagery). Corporate technology setting, no identifiable faces, no text, no logos. Answer with ONLY the scene description.` }] }],
+        generationConfig: { temperature: 1.1, maxOutputTokens: 1024 }
+      });
+      const cena = result.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+      if (cena && cena.length > 40) composicao = cena;
+    } catch (e) { console.warn('[ARTIGOS-IMAGEM] cena via texto falhou, usando composição fixa:', e.message.slice(0, 80)); }
+    if (!composicao) composicao = composicoes[Math.floor(Math.random() * composicoes.length)];
+
+    const enhancedPrompt = `Premium enterprise-technology editorial illustration for a business blog article about: ${prompt}
+
+SCENE (the image must depict this):
+${composicao}
+
+ART DIRECTION — follow exactly:
+- Style: high-end digital illustration / concept art (NOT stock photography), cinematic lighting, ultra-detailed, subtle film grain, professional editorial quality
+- Palette: deep navy blue background (#0A1230 to #1a237e), glowing cyan and electric-blue light accents, luminous particle networks and thin connection lines; a restrained warm amber/orange accent is allowed only as secondary highlight
+- Mood: sophisticated, futuristic, trustworthy — enterprise cloud & AI consulting
+- Format: 16:9 landscape, generous negative space, strong focal point
+- NO text, NO words, NO letters, NO numbers, NO logos, NO watermarks, NO UI labels
+- NO nature landscapes, NO cartoon style, NO clip-art, NO plastic 3D render look`;
 
     const imageModels = ['gemini-2.5-flash-image', 'gemini-3.1-flash-image', 'gemini-3-pro-image'];
     for (const model of imageModels) {
@@ -1331,10 +1482,24 @@ STRICT REQUIREMENTS — follow exactly:
 
     // Fallback: Imagen 4.0 via predict
     try {
-      const result = await imagenPredict('imagen-4.0-fast-generate-001', { instances: [{ prompt }], parameters: { sampleCount: 1 } });
+      const result = await imagenPredict('imagen-4.0-fast-generate-001', { instances: [{ prompt: enhancedPrompt }], parameters: { sampleCount: 1 } });
       if (result.predictions?.[0]?.bytesBase64Encoded)
         return res.json({ base64: result.predictions[0].bytesBase64Encoded, model: 'imagen-4.0-fast' });
     } catch (e) { console.warn('[ARTIGOS-IMAGEM] Imagen falhou:', e.message.slice(0,80)); }
+
+    // Fallback 2: Pollinations (Flux) — gratuito, sem chave. Free tier do Gemini tem limit:0 pra imagem.
+    try {
+      const ac = new AbortController();
+      const timer = setTimeout(() => ac.abort(), 90000);
+      const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(enhancedPrompt.slice(0, 1500))}?width=1200&height=630&nologo=true&model=flux&seed=${Math.floor(Math.random() * 1e9)}`;
+      const r = await fetch(url, { signal: ac.signal });
+      clearTimeout(timer);
+      if (r.ok) {
+        const buf = Buffer.from(await r.arrayBuffer());
+        if (buf.length > 10000) return res.json({ base64: buf.toString('base64'), model: 'pollinations-flux' });
+      }
+      console.warn('[ARTIGOS-IMAGEM] Pollinations respondeu', r.status);
+    } catch (e) { console.warn('[ARTIGOS-IMAGEM] Pollinations falhou:', e.message.slice(0,80)); }
 
     throw new Error('Todos os modelos de imagem indisponíveis');
   } catch (e) { console.error('[ARTIGOS-IMAGEM]', e.message); res.status(500).json({ error: e.message }); }
@@ -1395,7 +1560,9 @@ app.post('/api/stratview/refinar', async (req, res) => {
     const prompt = `Reescreva o artigo para a perspectiva de um ${persona}.
 ${ctx}
 
-QUALIDADE: Não seja repetitivo. Exemplos concretos SAP Brasil. Tom de consultor experiente.
+QUALIDADE: Não seja repetitivo. Exemplos concretos do mercado brasileiro e do ecossistema Oracle. Tom de consultor experiente. Mantenha o formato editorial do artigo original (não reescreva pro molde genérico).
+
+${ARTIGOS_CLICHES_PROIBIDOS}
 
 ${ARTIGOS_REGRAS_ESTILO}
 
@@ -1405,10 +1572,14 @@ SEO (NÃO REGREDIR): preserve a frase-chave de foco do seo-meta com a MESMA dens
 
 Artigo original:
 ${content}`;
-    const result = await geminiPost('gemini-2.5-flash', { contents: [{ parts: [{ text: prompt }] }] });
+    const { result } = await geminiPostComFallback({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: { maxOutputTokens: 16384 }
+    });
     let html = result.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!html) throw new Error('Sem resposta');
     html = html.replace(/^```(?:html)?\n?|\n?```$/g,'').trim();
+    if (!artigosHtmlCompleto(html)) throw new Error('O refino retornou o artigo incompleto (FAQ cortado). Tente refinar de novo.');
     html = await artigosRevisarPortugues(html);
     res.json({ html });
   } catch (e) { console.error('[ARTIGOS-REFINAR]', e.message); res.status(500).json({ error: e.message }); }

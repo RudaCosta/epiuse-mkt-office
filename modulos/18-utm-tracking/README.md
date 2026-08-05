@@ -61,3 +61,23 @@ Pedido do Rudá: "reformular toda a área pra ter mais informações de data, ho
 **Coins seguem o filtro** — ao olhar uma campanha, o número de coins é o daquela campanha, não o acumulado da pessoa (que seria enganoso).
 
 **Nota de consistência:** as contagens passaram a exigir `JOIN utm_links` (clique órfão, sem link correspondente, não é atribuível a ninguém). Na prática não muda nada — a exclusão de link já apaga os cliques dele.
+
+### 🚨 Fix crítico junto (v0.84.0) — o JS challenge estava descartando TODO clique humano
+O challenge anti-scanner da v0.82.4 montava a URL de confirmação assim:
+
+```js
+const confirmUrl = '/go/' + token + '/c?t=' + now + '&h=' + hmac;
+res.send(`… <script>window.location.replace("${esc(confirmUrl)}")</script> …`);  // ❌
+```
+
+`esc()` é HTML-escape, então o `&` virava `&amp;`. Só que **o conteúdo de `<script>` é raw text: o parser HTML não decodifica entidades**. O navegador pedia literalmente `?t=…&amp;h=…`, o Express lia o parâmetro como `amp;h` (e não `h`), o HMAC nunca batia, e o handler caía no ramo "inválido" — que redireciona pro destino **sem registrar o clique nem creditar coins**.
+
+Efeito: da v0.82.4 (27/jul) até este fix, **nenhum clique humano foi contado**. O usuário sempre chegou no destino (nada quebrado da perspectiva dele), mas as métricas e os ERP Coins de clique ficaram zerados. Esses cliques **não são recuperáveis** — nunca chegaram a ser gravados.
+
+Correção: URL dentro de `<script>` é contexto **JS**, então o escape certo é `JSON.stringify` (+ `<` por segurança). O `esc()` de HTML continua correto no `href` do `<noscript>`, que é contexto de atributo HTML.
+
+Provado em navegador real (Chromium com UA de browser comum), antes e depois:
+- antes → `…/c?t=…&amp;h=…` · 0 cliques, 0 coins
+- depois → `…/c?t=…&h=…` · 1 clique, 5 coins
+
+_(Cuidado ao testar: o UA do Chromium headless contém `HeadlessChrome`, que a regex de bot pega — de propósito. Testes precisam forçar um UA de navegador comum, senão o challenge nem é servido.)_

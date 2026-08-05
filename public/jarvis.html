@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="/design-tokens.css">
 <script type="module" src="/office-nav.js"></script>
 <script type="module" src="/office-footer.js"></script>
+<script src="/jarvis-callstt.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   /* ── Paleta local mapeada nos design-tokens EPI-USE (Regra 8 — sem hex de marca solto) ── */
@@ -97,6 +98,15 @@
   .rm-seg button{background:transparent;border:0;color:var(--j-muted);padding:5px 9px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:600;border-radius:7px}
   .rm-seg button.on{background:var(--j-surface2);color:var(--j-glow)}
   .rm-hint{font-size:10.5px;color:var(--j-muted)}
+  /* captura de áudio da call (beta) */
+  .callcap-row{display:flex;align-items:center;gap:10px;margin:-2px 0 12px;flex-wrap:wrap}
+  #btn-callcap{font-size:12px}
+  #btn-callcap.on{background:linear-gradient(135deg,var(--j-red),#7a0c25);border-color:transparent;color:#fff}
+  .callcap-status{font-size:11px;color:var(--j-muted);line-height:1.4}
+  .callcap-status[data-kind="ok"]{color:var(--j-green)}
+  .callcap-status[data-kind="err"]{color:var(--j-red)}
+  .callcap-status[data-kind="warn"]{color:var(--j-gold)}
+  .callcap-status[data-kind="load"]{color:var(--j-glow)}
   .transcript{height:330px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding-right:6px}
   .utt{padding:9px 11px;border-radius:9px;font-size:13.5px;line-height:1.45;max-width:92%}
   .utt.sdr{background:rgba(124,196,222,.08);border:1px solid rgba(124,196,222,.18);align-self:flex-end}
@@ -145,7 +155,7 @@
   <div class="head">
     <div class="orb" title="JARVIS — mega brain 🧠"><img src="/img/jarvis/logo-megamind-v1.svg" alt="JARVIS — mega brain"></div>
     <div>
-      <h1>JARVIS <span class="v">· COPILOTO SDR/BDR &nbsp;v0.9</span></h1>
+      <h1>JARVIS <span class="v">· COPILOTO SDR/BDR &nbsp;v0.10</span></h1>
     </div>
   </div>
   <p class="sub">Biz Dev · prospecção B2B SAP & ServiceNow — escuta a conversa e recomenda suas falas em tempo real.</p>
@@ -177,6 +187,10 @@
           <button class="btn ghost" id="btn-flip" title="Corrigir: jogar a próxima fala pra outra voz">↔️ trocar voz</button>
         </div>
       </div>
+      <div class="callcap-row">
+        <button class="btn ghost" id="btn-callcap" title="Captura o áudio da reunião (aba/sistema) pra ouvir o CLIENTE — funciona até de fone. Compartilhe a aba da call marcando 'compartilhar áudio'.">🎧 Áudio da call (beta)</button>
+        <span id="callcap-status" class="callcap-status">só mic hoje · ative pra ouvir o cliente na call de fone (grátis, roda no navegador)</span>
+      </div>
       <div class="rolemap" id="rolemap">
         <span class="rm-lbl">Quem é cada voz?</span>
         <div class="rm-seg" data-voz="voz1"><span>Voz 1</span><button data-role="sdr">🧑‍💼 SDR</button><button data-role="prospect">👤 Cliente</button></div>
@@ -195,7 +209,8 @@
         <span id="save-status" style="font-size:11px;color:var(--j-muted)">💾 salva sozinho ao pausar o mic</span>
       </div>
       <div class="footnote">
-        🔀 <strong>Separação automática de vozes (heurística):</strong> o <code>Web Speech API</code> capta o <strong>microfone local</strong> e o JARVIS quebra as falas por pausa em <strong>Voz 1 / Voz 2</strong>. Não é diarização acústica de verdade — <strong>se a voz sair trocada, use “↔️ trocar voz”</strong>. Marque 1× quem é SDR/Cliente. Em call remota, ponha em viva-voz ou digite as falas do cliente. Melhor no <strong>Chrome</strong>.
+        🎧 <strong>Áudio da call (beta):</strong> pra ouvir o <strong>cliente numa call de fone</strong>, clique em “Áudio da call” e <strong>compartilhe a aba/tela da reunião marcando “compartilhar áudio”</strong>. O JARVIS capta o áudio da call (lado do cliente) e transcreve <strong>de graça, no seu navegador</strong> (Whisper — WebGPU quando dá, senão modo leve). Aí mic = <strong>você (SDR)</strong> e a call = <strong>Cliente</strong>, sem marcar nada.<br>
+        🔀 <strong>Sem a captura</strong>, o <code>Web Speech API</code> só pega o <strong>microfone local</strong> e o JARVIS quebra as falas por pausa em <strong>Voz 1 / Voz 2</strong> (heurística — se sair trocado, use “↔️ trocar voz”). Melhor no <strong>Chrome</strong>.
       </div>
     </div>
 
@@ -245,7 +260,7 @@
 const ST = { transcript: [], activeVoz: 'voz1', lastUtt: 0, gapMs: 1600,
              roleMap: { voz1: null, voz2: null }, startedAt: 0,
              detected: { lob: '', persona: '', industria: '', estagio: '' },
-             callId: null, lastSavedLen: 0,
+             callId: null, lastSavedLen: 0, callCapOn: false,
              recog: null, micOn: false,
              audioCtx: null, analyser: null, rafWave: null, coachTimer: null, asking: false };
 const TAU = 2 * Math.PI * 36; // circunferência do anel (r=36) ≈ 226
@@ -512,7 +527,7 @@ function initMic(){
     let interim='';
     for(let i=ev.resultIndex;i<ev.results.length;i++){
       const res=ev.results[i];
-      if(res.isFinal) addUtterance(res[0].transcript);
+      if(res.isFinal) addUtterance(res[0].transcript, ST.callCapOn ? 'voz1' : undefined); // com captura da call, mic = SDR (voz1)
       else interim += res[0].transcript;
     }
     if(interim) renderTranscript(interim);
@@ -578,6 +593,26 @@ function renderRoleMap(){
 document.querySelectorAll('.rm-seg button').forEach(btn=> btn.addEventListener('click', ()=> setRole(btn.closest('.rm-seg').dataset.voz, btn.dataset.role)));
 
 $('btn-dores').addEventListener('click', mostrarDores);
+
+// ── Captura do áudio da call (beta): mic = SDR (voz1) · áudio da call = Cliente (voz2) ──
+function setCallStatus(msg, kind){ const el=$('callcap-status'); if(!el) return; el.textContent=msg; el.dataset.kind=kind||'info'; }
+async function toggleCallCap(){
+  const api = window.JarvisCallSTT;
+  if(!api){ setCallStatus('módulo não carregou — recarregue a página','err'); return; }
+  if(api.isOn()){ api.stop(); ST.callCapOn=false; $('btn-callcap').classList.remove('on'); $('btn-callcap').textContent='🎧 Áudio da call (beta)'; return; }
+  if(!api.supported()){ setCallStatus('navegador sem getDisplayMedia — use o Chrome','err'); return; }
+  // 2 fontes: mic=SDR (voz1), áudio da call=Cliente (voz2). Marca os papéis sozinho.
+  ST.callCapOn = true;
+  setRole('voz1','sdr');            // define voz1=SDR e voz2=Cliente automaticamente
+  if(!ST.micOn) startMic();          // garante o lado do SDR
+  $('btn-callcap').classList.add('on'); $('btn-callcap').textContent='🎧 Parar captura';
+  const ok = await api.start(
+    function(txt){ addUtterance(txt, 'voz2'); },       // fala do cliente
+    function(msg,kind){ setCallStatus(msg, kind); }
+  );
+  if(!ok){ ST.callCapOn=false; $('btn-callcap').classList.remove('on'); $('btn-callcap').textContent='🎧 Áudio da call (beta)'; }
+}
+$('btn-callcap').addEventListener('click', toggleCallCap);
 $('btn-ask').addEventListener('click', ()=>{ const last=[...ST.transcript].reverse().find(u=>roleOf(u.voz)==='prospect') || [...ST.transcript].reverse()[0]; requestCoach(last?last.text:''); });
 $('btn-brief').addEventListener('click', preCallBrief);
 $('btn-pesquisar').addEventListener('click', pesquisarProduto);

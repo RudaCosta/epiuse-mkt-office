@@ -14,6 +14,7 @@
 </head>
 <body class="home-root atlas" data-route="home">
 <office-nav></office-nav>
+
 <div class="home-wrap">
 
   <!-- HERO / SAUDAÇÃO -->
@@ -241,6 +242,114 @@
   </section>
 
 </div>
+
+<!-- Report Modal -->
+<div id="report-modal-overlay" class="rpt-overlay" onclick="closeReportModal(event)">
+  <div class="rpt-modal">
+    <button class="rpt-close" onclick="closeReportModal(event,true)">&times;</button>
+    <div class="rpt-modal-icon">📊</div>
+    <h3 id="rpt-modal-title"></h3>
+    <div class="rpt-links" id="rpt-modal-links"></div>
+  </div>
+</div>
+
+<style>
+  .home-quick-modal { cursor:pointer; }
+
+  .rpt-overlay {
+    display:none; position:fixed; inset:0; z-index:9999;
+    background:rgba(0,0,0,.6); backdrop-filter:blur(6px);
+    justify-content:center; align-items:center;
+  }
+  .rpt-overlay.open { display:flex; animation:rptFadeIn .2s ease; }
+  @keyframes rptFadeIn { from{opacity:0} to{opacity:1} }
+
+  .rpt-modal {
+    background:var(--home-bg,#0f1d36); border:1px solid rgba(96,165,250,.2);
+    border-radius:18px; padding:32px 28px 28px; max-width:420px; width:92%;
+    position:relative; box-shadow:0 20px 60px rgba(0,0,0,.5);
+    animation:rptSlideUp .25s ease;
+  }
+  @keyframes rptSlideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+  .rpt-close {
+    position:absolute; top:14px; right:16px; background:none; border:none;
+    color:var(--home-text-muted,#64748b); font-size:22px; cursor:pointer;
+    width:32px; height:32px; display:flex; align-items:center; justify-content:center;
+    border-radius:8px; transition:all .15s;
+  }
+  .rpt-close:hover { background:rgba(255,255,255,.08); color:var(--home-text,#e6ebf2); }
+
+  .rpt-modal-icon { font-size:36px; margin-bottom:8px; }
+  .rpt-modal h3 { font-size:18px; font-weight:700; margin:0 0 20px; color:var(--home-text,#e6ebf2); }
+
+  .rpt-links { display:flex; flex-direction:column; gap:10px; }
+  .rpt-link {
+    display:flex; align-items:center; gap:12px;
+    padding:14px 16px; border-radius:12px; text-decoration:none;
+    background:rgba(96,165,250,.06); border:1px solid rgba(96,165,250,.12);
+    transition:all .18s ease; color:var(--home-text,#e6ebf2);
+  }
+  .rpt-link:hover {
+    background:rgba(96,165,250,.14); border-color:rgba(96,165,250,.35);
+    transform:translateX(4px); box-shadow:0 2px 12px rgba(96,165,250,.12);
+  }
+  .rpt-link .rl-ico { font-size:22px; flex-shrink:0; }
+  .rpt-link .rl-text { flex:1; }
+  .rpt-link .rl-title { font-size:14px; font-weight:600; }
+  .rpt-link .rl-sub { font-size:11px; color:var(--home-text-muted,#64748b); margin-top:2px; }
+  .rpt-link .rl-go { font-size:13px; color:#60a5fa; opacity:.5; transition:all .15s; }
+  .rpt-link:hover .rl-go { opacity:1; transform:translateX(2px); }
+</style>
+
+<script>
+var REPORT_DATA = {
+  epiuse: {
+    title: 'Report Mensal · EPI-USE',
+    links: [
+      { icon: '📊', title: 'Report PPT', sub: 'SharePoint · pasta 2026', href: 'https://epiusebr-my.sharepoint.com/shared?id=%2Fpersonal%2Fti%5Fbrasil%5Fepiuse%5Fcom%5Fbr%2FDocuments%2FEPI%2DUSE%20BRASIL%2FMARKETING%2FReports%2FRelatorio%20MKT%2F2026&listurl=%2Fpersonal%2Fti%5Fbrasil%5Fepiuse%5Fcom%5Fbr%2FDocuments&viewid=0e8042f9%2D73f5%2D484d%2Da921%2Db87b9c27b21c&sharingv2=true&fromShare=true&at=9&CT=1777492954427&OR=OWA%2DNT%2DMail&FolderCTID=0x0120003700CB66B76D7C49A88C95D3B5B153BF' },
+      { icon: '📈', title: 'Google Analytics', sub: 'GA4 · epiuse.com.br', href: 'https://analytics.google.com/analytics/web/?authuser=2#/a115827794p261974760/reports/explorer?ruid=all-pages-and-screens,life-cycle,engagement&restoreUserState=true&r=11198002926' }
+    ]
+  },
+  stratview: {
+    title: 'Report Mensal · Stratview',
+    links: [
+      { icon: '📊', title: 'Report PPT', sub: 'SharePoint · pasta 2026', href: 'https://stratviewbr-my.sharepoint.com/personal/ti_brasil_stratview_com_br/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fti%5Fbrasil%5Fstratview%5Fcom%5Fbr%2FDocuments%2FSTRATVIEW%2FTI%2FBackup%2Falda%2Esilva%40stratview%2Ecom%2Ebr%2FStratview%2FMarketing%20Stratview%2FReport%2F2026&viewid=ddd415bc%2Dce64%2D4b43%2D99e3%2Db67ea0569531&at=9&FolderCTID=0x0120003DEE5B9631D069489395443B8A426B6A&view=0' },
+      { icon: '📈', title: 'Google Analytics', sub: 'GA4 · stratview.com.br', href: 'https://analytics.google.com/analytics/web/?authuser=2#/a105333058p351350583/reports/explorer?ruid=e8e0400b-af45-46c9-95c9-61614dc6456b&restoreUserState=true&r=all-pages-and-screens' }
+    ]
+  }
+};
+
+function openReportModal(key) {
+  var d = REPORT_DATA[key]; if (!d) return;
+  var ov = document.getElementById('report-modal-overlay'); if (!ov) return;
+  document.getElementById('rpt-modal-title').textContent = d.title;
+  document.getElementById('rpt-modal-links').innerHTML = d.links.map(function(l) {
+    return '<a class="rpt-link" href="' + l.href + '" target="_blank" rel="noopener">'
+      + '<span class="rl-ico">' + l.icon + '</span>'
+      + '<span class="rl-text"><div class="rl-title">' + l.title + '</div><div class="rl-sub">' + l.sub + '</div></span>'
+      + '<span class="rl-go">↗</span></a>';
+  }).join('');
+  ov.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeReportModal(e, force) {
+  var ov = document.getElementById('report-modal-overlay');
+  if (force || e.target === ov) {
+    ov.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    var ov = document.getElementById('report-modal-overlay');
+    if (ov && ov.classList.contains('open')) closeReportModal(null, true);
+  }
+});
+</script>
+
 <office-footer></office-footer>
 <script src="/i18n.js"></script>
 <script src="/office-nav.js"></script>

@@ -60,6 +60,7 @@
       "path": "/admin/utm",
       "title": "🔗 UTM reformulado — data, hora, filtros e detalhe de cada clique",
       "highlights": [
+        "🚨 FIX CRÍTICO: nenhum clique humano estava sendo contado desde 27/jul (v0.82.4) — a URL do JS challenge ia HTML-escapada dentro do <script>, o HMAC nunca batia e o clique era descartado em silêncio. Corrigido e provado em navegador real. Os cliques desse período não são recuperáveis.",
         "📅 Período com intervalo personalizado (de/até) além dos presets, e todas as datas agregadas no SEU fuso — o pico das 9h aparece às 9h, não às 12h (UTC)",
         "🔎 Filtros combináveis por autor · campanha · origem · busca livre, com chips do que está ativo e opção de incluir cliques de bot",
         "🕐 Gráficos novos: cliques por hora do dia e por dia da semana (com destaque no pico), além da série diária",
@@ -85,9 +86,54 @@
       ]
     },
     {
+      "version": "0.82.4",
+      "date": "27/jul/2026",
+      "status": "past",
+      "path": null,
+      "title": "🛡️ UTM Anti-Bot v0.82.4 — JS challenge filtra scanners de email + timezone BRT",
+      "highlights": [
+        "Cliques de scanners de segurança de email (SafeLinks, Proofpoint, Barracuda…) agora são filtrados via JS challenge page — bots não executam JS, então só cliques humanos reais são contados",
+        "Regex de detecção de bots expandida com 15+ padrões de email security scanners",
+        "Migração retroativa marca cliques históricos de burst (10+ IPs em 5min) como bot=1 — mantém histórico mas tira da contagem",
+        "Horários no admin UTM agora forçam BRT (UTC-3) em vez de depender do fuso do browser"
+      ]
+    },
+    {
+      "version": "0.82.3",
+      "date": "27/jul/2026",
+      "status": "past",
+      "path": null,
+      "title": "✂️ Stratview Generator v0.82.3 — trava de metadescrição ≤130 chars",
+      "highlights": [
+        "Feedback da Duda: uma geração saiu com metadescrição longa demais — a revisão automática agora CONTA e reescreve qualquer Meta acima de 130 caracteres, mantendo frase-chave no início + CTA"
+      ]
+    },
+    {
+      "version": "0.82.2",
+      "date": "27/jul/2026",
+      "status": "past",
+      "path": null,
+      "title": "🖼️ Stratview Generator v0.82.2 — capa amarrada ao TEMA do artigo",
+      "highlights": [
+        "Fix 'todas as capas iguais': a composição fixa sorteada ditava a cena inteira e o tema do artigo era ignorado — agora o modelo de texto escreve a cena a partir do título/descrição (metáfora visual concreta do assunto) e o Pollinations renderiza",
+        "As 7 composições fixas viraram fallback (só quando o modelo de texto estiver indisponível)",
+        "Validado com 2 temas distintos: payroll/compliance → malha de dados com documentos; disaster recovery → nuvem resiliente sobre a infraestrutura — capas diferentes e aderentes ao assunto"
+      ]
+    },
+    {
+      "version": "0.82.1",
+      "date": "20/jul/2026",
+      "status": "past",
+      "path": null,
+      "title": "🔀 Merge — Stratview Generator (pacote 0.77.2→0.77.13 da Bruna) + lote 0.78→0.82 do Rudá",
+      "highlights": [
+        "Trabalho da Bruna no gerador Stratview (SEO Yoast · anti-repetição · pautas com pesquisa · capas art-directed + Pollinations grátis · separação EPI-USE · lifecycle na máquina dela) mesclado com o lote Voices/Loja/Ranking/Home do Rudá — detalhes nas releases individuais abaixo"
+      ]
+    },
+    {
       "version": "0.82.0",
       "date": "18/jul/2026",
-      "status": "released",
+      "status": "past",
       "path": null,
       "title": "🎉 LOTE RADICAL — Ranking do Time + marcos de cliques + sino vivo + e-mail de resgate + confete",
       "highlights": [
@@ -157,6 +203,145 @@
         "🔔 Aviso de resgates pendentes: badge com contador no /admin/coins + número no título da aba, pra você não perder pedido",
         "✏️ Editar link em Meus Links: renomear a campanha de um link (o link e o QR continuam os mesmos)",
         "📊 Export CSV no Analytics de Uso (por período) + filtro rápido por nome/email/área na tabela de usuários"
+      ]
+    },
+    {
+      "version": "0.77.13",
+      "date": "20/jul/2026",
+      "status": "past",
+      "path": null,
+      "title": "🖼️ Stratview Generator v0.77.13 — capas de IA grátis via Pollinations (Flux)",
+      "highlights": [
+        "Diagnóstico definitivo: free tier do Gemini tem limit:0 pra modelos de imagem (não inclui geração de imagem em NENHUMA chave) — trocar chave não resolve, só billing",
+        "Novo fallback: Pollinations.ai (Flux) — geração de imagem por IA gratuita e sem chave, recebendo o mesmo prompt art-directed (navy+ciano, composição sorteada)",
+        "Ordem da cadeia: Gemini image (se um dia houver cota/billing) → Imagen → Pollinations → template canvas local (5 cenas)"
+      ]
+    },
+    {
+      "version": "0.77.12",
+      "date": "20/jul/2026",
+      "status": "past",
+      "path": null,
+      "title": "🎨 Stratview Generator v0.77.12 — capas por template de cena (zero API, estilo flow de carrossel)",
+      "highlights": [
+        "5 cenas temáticas desenhadas em código no estilo das referências: nuvem de partículas com anéis + ícones · cubos isométricos com núcleo âmbar · cidade-circuito com feixe de luz · engrenagens duotone laranja/azul · dashboard holográfico com mini-gráficos",
+        "Sorteio de cena + variações internas a cada geração — capa local nunca repete, custo zero, instantânea (mesma filosofia do flow de carrosséis: template em código, sem API de imagem)",
+        "Biblioteca de desenho própria: ícones de linha (pessoa/gráfico/engrenagem/nuvem/alvo), engrenagens, cubos isométricos, cards com barras/linha/donut",
+        "IA de imagem continua sendo tentada primeiro quando houver cota — o template é o plano B permanente e de qualidade"
+      ]
+    },
+    {
+      "version": "0.77.11",
+      "date": "20/jul/2026",
+      "status": "past",
+      "path": null,
+      "title": "🖼️ Stratview Generator v0.77.11 — capa fallback variada + etiqueta de cota",
+      "highlights": [
+        "Causa da 'mesma imagem sempre': TODOS os modelos de imagem estão 429 (cota free tier) e o Imagen é 404 — a capa exibida era o fallback canvas local, que tinha layout fixo",
+        "Capa canvas reescrita com variação real por geração: 3 paletas navy × 4 direções de gradiente, 2-4 glows aleatórios (35% com acento âmbar), 0-2 anéis holográficos, 1-2 constelações sorteadas (8-14 nós), 40 partículas — mantém linha vermelha + branding Stratview",
+        "Regra 6: aviso visível na capa quando é fallback local ('Imagem IA indisponível — cota da API'), antes falhava silenciosamente",
+        "Prompt do front passa só o TEMA (título+descrição+keywords) — os termos 'photorealistic' antigos brigavam com a direção de arte do servidor"
+      ]
+    },
+    {
+      "version": "0.77.10",
+      "date": "20/jul/2026",
+      "status": "past",
+      "path": null,
+      "title": "🔧 Lifecycle v0.77.10 — install-task.ps1 ASCII-only (fix máquina da Bruna)",
+      "highlights": [
+        "install-task.ps1 tinha travessões '—' que quebravam o parse no PowerShell 5.1 (regra ASCII-only violada) — corrigido",
+        "Tarefas agendadas EPI-USE-Office (login) + Health (5min) + syncs instaladas na máquina da Bruna — o Office local caía e nada religava porque o lifecycle só existia na máquina do Rudá"
+      ]
+    },
+    {
+      "version": "0.77.9",
+      "date": "17/jul/2026",
+      "status": "past",
+      "path": null,
+      "title": "🎨 Stratview Generator v0.77.9 — capas com direção de arte + composição sorteada",
+      "highlights": [
+        "Prompt de imagem reescrito com a direção de arte das referências aprovadas: ilustração editorial premium (não stock photo), navy profundo + luz ciano, redes de partículas, hologramas, acento âmbar contido",
+        "7 composições sorteadas por geração (executivo diante do dashboard holográfico · cabeça digital em partículas · cubos de vidro com núcleo âmbar · duas silhuetas em duotone laranja/azul · nuvem de partículas · cidade-circuito isométrica · mãos com gráficos holográficos) — fim da 'mesma imagem sempre'",
+        "Fallback Imagen agora usa o mesmo prompt art-directed (antes recebia o prompt cru)",
+        "Cadeia de fallback de texto: 404 (modelo descontinuado) agora pula pro próximo em vez de abortar — 2.5-flash-lite saiu do ar pra contas novas e derrubava a cadeia"
+      ]
+    },
+    {
+      "version": "0.77.8",
+      "date": "17/jul/2026",
+      "status": "past",
+      "path": null,
+      "title": "🧯 Stratview Generator v0.77.8 — resiliência a cota Gemini (429)",
+      "highlights": [
+        "Cota do free tier do Gemini é POR MODELO: no 429/503 o gerador agora cai automaticamente pra cadeia 2.5-flash → 2.5-flash-lite → 2.0-flash (ideias, artigo, refino e revisão)",
+        "Mensagem de erro em português quando TODOS esgotam: orienta esperar 1-2 min (limite por minuto) ou aguardar o reset diário / ativar billing no Google AI Studio"
+      ]
+    },
+    {
+      "version": "0.77.7",
+      "date": "17/jul/2026",
+      "status": "past",
+      "path": null,
+      "title": "🔎 Stratview Generator v0.77.7 — pautas com pesquisa profunda + pool de 22 ângulos",
+      "highlights": [
+        "Fim dos 4 baldes fixos (OCI/HCM+IA/CSS/C-Level) que faziam toda rodada orbitar os mesmos temas — agora um pool de 22 ângulos temáticos com 6 sorteados por rodada (modelo escolhe 4)",
+        "Pesquisa Google obrigatória ANTES das ideias: releases Oracle dos últimos 60 dias, notícias do mercado BR (custos de nuvem, RH tech, regulação) — cada pauta nasce de um achado real, registrado no trendsInfo",
+        "Histórico anti-repetição ampliado de 20 pra 40 títulos + temperatura 0.9 nas ideias",
+        "Equilíbrio mínimo mantido: ≥1 pauta de infra/OCI e ≥1 de HCM/pessoas por rodada"
+      ]
+    },
+    {
+      "version": "0.77.6",
+      "date": "17/jul/2026",
+      "status": "past",
+      "path": null,
+      "title": "🔀 Stratview Generator v0.77.6 — artigos menos repetitivos",
+      "highlights": [
+        "Memória anti-repetição nas ideias: os últimos 20 títulos do histórico entram no prompt como proibidos (tema/ângulo/título parecido) — antes cada clique partia do zero e vinham sempre os mesmos temas",
+        "Padrão de título 'X: 5 Estratégias pra Y' limitado a 1 por leva de ideias",
+        "Formato editorial sorteado por artigo (guia prático · mitos vs realidade · cenário narrativo · dados e decisão · perguntas do board · erros comuns) + 4 estilos de abertura — quebra o molde único",
+        "Lista negra de clichês de IA em pt-BR ('no cenário atual', 'não é apenas X, é Y', 'robusto', 'alavancar'…) na geração E no refino por persona",
+        "Temperatura 0.95 na geração (mais variedade lexical); legibilidade e regras SEO intactas",
+        "Fix de mistura: refino citava 'exemplos SAP Brasil' (herança EPI-USE) → ecossistema Oracle"
+      ]
+    },
+    {
+      "version": "0.77.5",
+      "date": "17/jul/2026",
+      "status": "past",
+      "path": null,
+      "title": "🌗 Stratview Generator v0.77.5 — preview legível em qualquer tema (títulos incluídos)",
+      "highlights": [
+        "Modal de preview do artigo (e overlays de geração/refino) com paleta local fixa: papel branco + texto escuro SEMPRE, independente do tema do Office",
+        "Títulos h1-h4/summary do modal: o atlas-theme força color:var(--text) com :root[data-theme] + !important — overrides do modal subiram de especificidade (0,3,1+) pra vencer em qualquer ordem de cascata"
+      ]
+    },
+    {
+      "version": "0.77.3",
+      "date": "17/jul/2026",
+      "status": "past",
+      "path": null,
+      "title": "🎛️ Stratview Generator v0.77.3 — calibração pós-teste E2E + atalho na área Brand",
+      "highlights": [
+        "Teste E2E no localhost validou: lead abre com keyphrase, FAQ 3 respostas completas, links ok, tema OCI → Serviços Gerenciados de TECH (sem CSS)",
+        "Calibrado após teste: ≥3 H2 do corpo + ≥1 pergunta do FAQ com a keyphrase exata (antes o modelo entregava 1 de 10) e meta description alvo 100-130 chars (modelo estourava o teto de 140)",
+        "Atalho do Stratview Generator adicionado na área Brand (Duda) — segue também na Intelligence (Bruna)"
+      ]
+    },
+    {
+      "version": "0.77.2",
+      "date": "17/jul/2026",
+      "status": "past",
+      "path": null,
+      "title": "🛠️ Stratview Generator v0.77.2 — portfólio de serviços correto + FAQ nunca cortado + SEO fino",
+      "highlights": [
+        "Posicionamento de serviço por tema (feedback Alexandre Ormigo): gestão OCI/FinOps/CloudOps → Serviços Gerenciados de TECH (equivalente AMS, foco OCI) — CSS só pra projetos/advocacia HCM, AMS pra sustentação",
+        "FAQ cortado (fix urgente): maxOutputTokens 16384 + validação server-side (3 details fechados + HTML completo) com retry automático — se persistir, erro claro em vez de artigo mutilado; revisão de português também rejeita versão truncada",
+        "Keyphrase agora ABRE o texto literalmente (primeiras palavras do 1º parágrafo) — fix 'frase-chave na introdução'",
+        "~Metade dos subtítulos/FAQ com a keyphrase (5-6 de 11), sem over-optimization — fix 'frase-chave nos subtítulos'",
+        "Meta description ≤140 chars começando com a keyphrase — fix 'metadescrição excede 156'",
+        "Links internos novos verificados: /cloudops/ (TECH), /finops/, AMS"
       ]
     },
     {
@@ -503,6 +688,21 @@
       ]
     },
     {
+      "version": "0.72.4",
+      "date": "02/jul/2026",
+      "status": "past",
+      "path": null,
+      "title": "🎁 Brindes v0.72.4 — logo branco dark mode + rotas + imagens por tier + email PA",
+      "summary": "Preview do brinde passa a exibir foto real do kit EPI-USE com legenda ilustrativa. Admin panel ganha backup JSON automático (restaura SQLite no restart) + exportação CSV. Adicionada variável BRINDES_NOTIFY_EMAIL ao .env.example para configuração do email de notificação via Resend.",
+      "highlights": [
+        "Foto real do kit EPI-USE (kit-epiuse.jpg) na prévia do resultado, com overlay de tier e legenda 'foto ilustrativa'",
+        "Backup JSON automático (data/brindes-backup.json): escrito após cada write, restaura SQLite no restart",
+        "Export CSV: botão no admin panel → /api/brindes/export-csv?token=MKt123 com BOM UTF-8",
+        "BRINDES_NOTIFY_EMAIL adicionado ao .env.example (default: bruna.yamagami@epiuse.com.br)",
+        "Nota: persistência total requer Railway Volume em DATA_DIR=/data"
+      ]
+    },
+    {
       "version": "0.71.0",
       "date": "02/jul/2026",
       "status": "past",
@@ -516,21 +716,6 @@
         "Regra financeira sempre visível: azul passivo fora do horário, âmbar ativo na sexta-feira",
         "Barra de progresso sem contador 'Passo X de Y' — só a barra + '2 minutos'",
         "Prévia do brinde sugerido na tela de resultado (Essential/Premium/Diamond com emoji)"
-      ]
-    },
-    {
-      "version": "0.72.4",
-      "date": "02/jul/2026",
-      "status": "past",
-      "path": null,
-      "title": "🎁 Brindes v0.72.4 — logo branco dark mode + rotas + imagens por tier + email PA",
-      "summary": "Preview do brinde passa a exibir foto real do kit EPI-USE com legenda ilustrativa. Admin panel ganha backup JSON automático (restaura SQLite no restart) + exportação CSV. Adicionada variável BRINDES_NOTIFY_EMAIL ao .env.example para configuração do email de notificação via Resend.",
-      "highlights": [
-        "Foto real do kit EPI-USE (kit-epiuse.jpg) na prévia do resultado, com overlay de tier e legenda 'foto ilustrativa'",
-        "Backup JSON automático (data/brindes-backup.json): escrito após cada write, restaura SQLite no restart",
-        "Export CSV: botão no admin panel → /api/brindes/export-csv?token=MKt123 com BOM UTF-8",
-        "BRINDES_NOTIFY_EMAIL adicionado ao .env.example (default: bruna.yamagami@epiuse.com.br)",
-        "Nota: persistência total requer Railway Volume em DATA_DIR=/data"
       ]
     },
     {
