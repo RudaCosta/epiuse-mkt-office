@@ -119,6 +119,108 @@
   })();
   </script>
 
+  <!-- ════ LEADS · ZOHO CRM (kanban SDR + saúde da base · dado real) ════ -->
+  <section class="home-section" data-sec="leads" id="sec-leads">
+    <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:4px">
+      <h2 class="home-section-title" style="margin:0">🧲 Leads · Zoho CRM</h2>
+      <span class="mono" id="lead-meta" style="font-size:11px;color:var(--home-text-muted,#869ec3)">—</span>
+    </div>
+
+    <div class="lead-bento">
+      <!-- KANBAN DO SDR -->
+      <div class="card lead-card">
+        <div class="mono eyebrow" id="lead-kanban-title">Pipeline SDR</div>
+        <div class="lead-kanban" id="lead-kanban"></div>
+        <div class="lead-foot mono" id="lead-kanban-foot">—</div>
+      </div>
+
+      <!-- SAÚDE DA BASE -->
+      <div class="card lead-card">
+        <div class="mono eyebrow">Saúde da base · <span id="lead-total">—</span> leads</div>
+        <div class="lead-health" id="lead-health"></div>
+      </div>
+    </div>
+
+    <!-- ORIGENS -->
+    <div class="card lead-card" style="margin-top:14px">
+      <div class="mono eyebrow">De onde vêm os leads</div>
+      <div class="lead-src" id="lead-origens"></div>
+    </div>
+  </section>
+
+  <style>
+    .lead-bento{display:grid;grid-template-columns:1.25fr .75fr;gap:14px;align-items:start}
+    @media(max-width:900px){.lead-bento{grid-template-columns:1fr}}
+    .lead-card{padding:16px 18px}
+    .lead-kanban{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:12px}
+    .lead-col{background:rgba(134,158,195,.06);border:1px solid rgba(134,158,195,.14);border-radius:11px;padding:11px 12px;
+      border-top:3px solid var(--c,#60a5fa)}
+    .lead-col .n{font-size:26px;font-weight:800;font-family:'Fira Code',monospace;line-height:1.1;color:var(--c,#60a5fa)}
+    .lead-col .l{font-size:10.5px;color:var(--home-text-muted,#869ec3);margin-top:3px;line-height:1.35}
+    .lead-foot{font-size:11px;color:var(--home-text-muted,#869ec3);margin-top:12px;line-height:1.5}
+    .lead-health{display:flex;flex-direction:column;gap:9px;margin-top:12px}
+    .lead-h{border-left:3px solid var(--s,#f59e0b);background:rgba(134,158,195,.05);border-radius:8px;padding:9px 11px}
+    .lead-h .t{font-size:12px;color:var(--home-text,#e6ebf2);line-height:1.45}
+    .lead-h .a{font-size:10.5px;color:var(--home-text-muted,#869ec3);margin-top:3px}
+    .lead-src{display:flex;flex-direction:column;gap:7px;margin-top:12px}
+    .lead-s{display:grid;grid-template-columns:150px 1fr 54px;align-items:center;gap:10px;font-size:11.5px}
+    .lead-s .nm{color:var(--home-text-dim,#c0ccd9);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .lead-s .bar{height:7px;background:rgba(134,158,195,.12);border-radius:99px;overflow:hidden}
+    .lead-s .bar i{display:block;height:100%;border-radius:99px;background:var(--home-accent-blue,#60a5fa)}
+    .lead-s .vl{text-align:right;font-family:'Fira Code',monospace;color:var(--home-text,#e6ebf2);font-weight:600}
+    .lead-s.dim .nm,.lead-s.dim .vl{color:var(--home-text-muted,#869ec3)}
+    .lead-s.dim .bar i{background:rgba(134,158,195,.35)}
+  </style>
+
+  <script>
+  (function(){
+    var nf=function(n){return n==null?'—':Number(n).toLocaleString('pt-BR');};
+    var CORES={ativo:'#60a5fa',ganho:'#10b981',saida:'#f87171'};
+    fetch('/api/zoho-leads-snapshot.json?t='+Date.now()).then(function(r){return r.json();}).then(function(d){
+      // meta
+      var m=document.getElementById('lead-meta');
+      if(m) m.textContent='fonte: Zoho CRM · foto de '+(d._meta&&d._meta.gerado_em||'—');
+      var tot=document.getElementById('lead-total'); if(tot) tot.textContent=nf(d.base_total);
+
+      // kanban do SDR
+      var k=d.kanban_sdr||{};
+      var kt=document.getElementById('lead-kanban-title');
+      if(kt) kt.textContent=(k.titulo||'Pipeline SDR')+' · '+nf(k.total)+' leads';
+      var box=document.getElementById('lead-kanban');
+      if(box) box.innerHTML=(k.etapas||[]).map(function(e){
+        return '<div class="lead-col" style="--c:'+(CORES[e.tipo]||CORES.ativo)+'">'
+             + '<div class="n">'+nf(e.valor)+'</div><div class="l">'+e.etapa+'</div></div>';
+      }).join('');
+      // rodapé honesto: é foto do estado atual, não fluxo (Regra 7)
+      var reun=(k.etapas||[]).filter(function(e){return e.tipo==='ganho';}).reduce(function(a,e){return a+e.valor;},0);
+      var f=document.getElementById('lead-kanban-foot');
+      if(f) f.textContent='📸 Foto do estado atual (onde cada lead está parado agora), não fluxo acumulado. '
+           + reun+' em reunião/handover sobre '+nf(k.total)+' da carteira.';
+
+      // saúde da base
+      var h=document.getElementById('lead-health');
+      var SEV={alta:'#f87171',media:'#f59e0b',baixa:'#60a5fa'};
+      if(h) h.innerHTML=((d.higiene&&d.higiene.achados)||[]).map(function(a){
+        return '<div class="lead-h" style="--s:'+(SEV[a.severidade]||SEV.baixa)+'">'
+             + '<div class="t">'+a.texto+'</div><div class="a">→ '+a.acao+'</div></div>';
+      }).join('');
+
+      // origens
+      var o=(d.origens||[]);
+      var max=o.reduce(function(a,x){return Math.max(a,x.valor);},0)||1;
+      var s=document.getElementById('lead-origens');
+      if(s) s.innerHTML=o.map(function(x){
+        var vazio=/sem origem/i.test(x.origem);
+        return '<div class="lead-s'+(vazio?' dim':'')+'"><div class="nm">'+x.origem+'</div>'
+             + '<div class="bar"><i style="width:'+Math.round(100*x.valor/max)+'%"></i></div>'
+             + '<div class="vl">'+nf(x.valor)+'</div></div>';
+      }).join('');
+    }).catch(function(){
+      var m=document.getElementById('lead-meta'); if(m) m.textContent='não consegui carregar o snapshot de leads';
+    });
+  })();
+  </script>
+
   <!-- NORTH-STAR STRIP (3 números que importam) -->
   <section class="home-section" data-sec="northstar" style="display:none">
     <div id="northstar-strip" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px"></div>
