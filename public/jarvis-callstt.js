@@ -10,7 +10,8 @@
 // ⚠️ BETA — precisa de teste em navegador real (WebGPU/áudio não rodam no CI).
 (function () {
   'use strict';
-  var CDN = 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.5.1';
+  // @3 = última 3.x estável (jsdelivr resolve sempre; evita 404 de um pin exato).
+  var CDN = 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3';
 
   var S = {
     on: false, stream: null, actx: null, node: null, src: null, sink: null,

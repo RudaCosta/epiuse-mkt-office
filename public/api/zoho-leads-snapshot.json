@@ -1,0 +1,98 @@
+{
+  "_meta": {
+    "fonte": "Zoho CRM · módulo Leads (org 657705661)",
+    "metodo": "COQL agregado via MCP Zoho (contagem server-side sobre a base inteira)",
+    "gerado_em": "2026-08-07",
+    "regra": "REAL DATA ONLY (Regra 7) — todos os números vêm de contagem real do CRM. Nenhum valor estimado.",
+    "regenerar": "node scripts/sync/sync_zoho_leads.js (dentro de sessão Claude com MCP Zoho)",
+    "nota_kanban": "A visão kanban do SDR é o custom-view 2907496000000087501 (pipeline do Marlison Estrela). Os números por etapa são FOTOGRAFIA do estado atual (onde cada lead está parado), NÃO fluxo acumulado — por isso não é lido como taxa de conversão entre etapas."
+  },
+
+  "base_total": 2017,
+
+  "kanban_sdr": {
+    "titulo": "Pipeline SDR · Marlison Estrela",
+    "custom_view_id": "2907496000000087501",
+    "owner_id": "2907496000042527001",
+    "total": 100,
+    "etapas": [
+      { "etapa": "Tentando Contato",             "valor": 55, "tipo": "ativo" },
+      { "etapa": "Em Contato",                   "valor": 13, "tipo": "ativo" },
+      { "etapa": "Pré-Qualificação",             "valor": 17, "tipo": "ativo" },
+      { "etapa": "Reunião Agendada | Handover",  "valor": 6,  "tipo": "ganho" },
+      { "etapa": "Desqualificado / Encerramento","valor": 9,  "tipo": "saida" }
+    ]
+  },
+
+  "status_base_completa": [
+    { "status": "(sem status)",                  "valor": 1292 },
+    { "status": "Não Contatado",                 "valor": 303 },
+    { "status": "Possivel",                      "valor": 161 },
+    { "status": "Pré-qualificado",               "valor": 96 },
+    { "status": "Tentando Contato",              "valor": 55 },
+    { "status": "Desqualificado",                "valor": 46 },
+    { "status": "Pré-Qualificação",              "valor": 17 },
+    { "status": "Em Contato",                    "valor": 13 },
+    { "status": "Qualificado",                   "valor": 11 },
+    { "status": "Desqualificado / Encerramento", "valor": 9 },
+    { "status": "possivel cliente",              "valor": 8 },
+    { "status": "Reunião Agendada | Handover",   "valor": 6 }
+  ],
+
+  "origens": [
+    { "origem": "(sem origem)",              "valor": 825 },
+    { "origem": "WebSite Visit",             "valor": 464 },
+    { "origem": "Marketing",                 "valor": 435 },
+    { "origem": "Social Selling",            "valor": 140 },
+    { "origem": "Apollo",                    "valor": 68 },
+    { "origem": "SDR",                       "valor": 51 },
+    { "origem": "Prospecção Outbound - NNN", "valor": 28 },
+    { "origem": "Comercial",                 "valor": 3 },
+    { "origem": "RD Station",                "valor": 2 },
+    { "origem": "Chat",                      "valor": 1 }
+  ],
+
+  "higiene": {
+    "titulo": "Saúde da base de Leads",
+    "achados": [
+      {
+        "id": "sem-status",
+        "severidade": "alta",
+        "valor": 1292,
+        "pct": 64,
+        "texto": "1.292 leads (64% da base) estão SEM status — não dá pra saber em que pé estão.",
+        "acao": "Definir status ou arquivar em massa."
+      },
+      {
+        "id": "sem-origem",
+        "severidade": "alta",
+        "valor": 825,
+        "pct": 41,
+        "texto": "825 leads (41%) sem origem preenchida — quebra a atribuição de marketing.",
+        "acao": "Backfill de Lead_Source; tornar obrigatório na entrada."
+      },
+      {
+        "id": "taxonomia-duplicada",
+        "severidade": "media",
+        "valor": 337,
+        "texto": "Status duplicados convivendo: 'Pré-qualificado' (96) vs 'Pré-Qualificação' (17) · 'Desqualificado' (46) vs 'Desqualificado / Encerramento' (9) · 'Possivel' (161) vs 'possivel cliente' (8).",
+        "acao": "Consolidar numa taxonomia única (a nova do SDR) e migrar os antigos."
+      },
+      {
+        "id": "adocao-taxonomia-nova",
+        "severidade": "media",
+        "valor": 100,
+        "pct": 5,
+        "texto": "Só 100 leads (5% da base) usam a taxonomia nova do SDR — o resto é legado.",
+        "acao": "Migrar a base ativa pro fluxo novo."
+      }
+    ]
+  },
+
+  "carteiras": [
+    { "owner": "Marlison Estrela (SDR)", "valor": 100, "taxonomia": "nova" },
+    { "owner": "Murilo Souza Melo",      "valor": 431, "taxonomia": "legado" },
+    { "owner": "Admin",                  "valor": 477, "taxonomia": "legado" },
+    { "owner": "Outros / não atribuído", "valor": 1009, "taxonomia": "legado" }
+  ]
+}

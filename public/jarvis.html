@@ -143,6 +143,24 @@
   .dotpulse::after{content:'';animation:dots 1.2s steps(4,end) infinite}
   @keyframes dots{0%{content:''}25%{content:'.'}50%{content:'..'}75%{content:'...'}}
 
+  /* ── Tutorial retrátil (Como usar) ── */
+  .howto{background:var(--j-surface);border:1px solid var(--j-border);border-radius:12px;margin-bottom:16px;overflow:hidden}
+  .howto>summary{cursor:pointer;padding:11px 14px;font-size:12.5px;font-weight:700;color:var(--j-glow);
+    letter-spacing:.03em;list-style:none;display:flex;align-items:center;gap:8px}
+  .howto>summary::-webkit-details-marker{display:none}
+  .howto>summary::after{content:'▾';margin-left:auto;color:var(--j-muted);font-size:11px;transition:transform .2s}
+  .howto[open]>summary::after{transform:rotate(180deg)}
+  .howto>summary:hover{background:rgba(124,196,222,.06)}
+  .howto-body{padding:2px 16px 16px;border-top:1px solid var(--j-border)}
+  .howto-body h4{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--j-glow);margin:14px 0 7px}
+  .howto-body ol,.howto-body ul{margin:0;padding-left:19px}
+  .howto-body li{font-size:12.5px;line-height:1.65;color:var(--j-dim);margin-bottom:5px}
+  .howto-body b{color:var(--j-text)}
+  .howto-body code{background:rgba(124,196,222,.1);padding:1px 5px;border-radius:3px;color:var(--j-glow);font-size:11.5px}
+  .howto-body .warn{color:var(--j-gold)}
+  .howto-tip{background:var(--j-bg2);border-left:3px solid var(--j-green);border-radius:8px;padding:9px 12px;margin-top:12px;font-size:12px;color:var(--j-dim);line-height:1.6}
+  .howto-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin-top:4px}
+
   .footnote{font-size:11px;color:var(--j-muted);margin-top:14px;line-height:1.6;background:rgba(15,30,53,.4);border-radius:10px;padding:12px}
   .footnote code{background:rgba(124,196,222,.08);padding:1px 5px;border-radius:3px;color:var(--j-glow)}
   ::-webkit-scrollbar{width:8px}::-webkit-scrollbar-thumb{background:rgba(134,158,195,.2);border-radius:8px}
@@ -164,6 +182,74 @@
     <span style="font-size:16px">🤖</span>
     <span><strong>Sugestões geradas pela IA da EPI-USE — use seu julgamento.</strong> Base de conhecimento REAL EPI-USE (LOBs, personas, gatilhos 2026, objeções). A IA da EPI-USE orienta, quem fecha é você.</span>
   </div>
+
+  <!-- TUTORIAL RETRÁTIL — como o SDR usa (fecha por padrão pra não poluir) -->
+  <details class="howto">
+    <summary>❓ Como usar o JARVIS na sua call — passo a passo (1 min de leitura)</summary>
+    <div class="howto-body">
+
+      <h4>1 · Antes da call (2 min)</h4>
+      <ol>
+        <li>Abre o JARVIS <b>no Chrome</b> (a escuta só funciona bem nele).</li>
+        <li>Preenche só <b>Prospect</b> e <b>Empresa</b>. LOB, cargo, indústria e estágio o JARVIS <b>descobre da conversa</b> — vão aparecer como etiquetas no topo.</li>
+        <li>Clica <b>🧭 Pré-call brief</b> → ele te dá a <b>abertura</b>, as dores prováveis, o gatilho de urgência, perguntas-chave e prova social.</li>
+        <li>Dúvida técnica de produto? <b>🔬 Pesquisar produto</b> (ex: "SAP DRC Reforma Tributária").</li>
+      </ol>
+
+      <h4>2 · Ligando a escuta (escolha o seu caso)</h4>
+      <div class="howto-grid">
+        <div>
+          <b>🎧 Você está de FONE (ou call remota)</b>
+          <ol>
+            <li>Clica <b>🎙️ Ativar mic</b> e permite o microfone.</li>
+            <li>Clica <b>🎧 Áudio da call</b>.</li>
+            <li>Escolhe a <b>aba da reunião</b> (Meet/Teams/Zoom no navegador) e <b class="warn">MARQUE a caixinha "compartilhar áudio"</b> — sem ela não funciona.</li>
+            <li>Na 1ª vez ele <b>baixa o modelo</b> (~100MB). Espera o status ficar <b>verde</b> ("ouvindo o áudio da call").</li>
+          </ol>
+          <div class="howto-tip">✅ Assim ele já sabe quem é quem: <b>seu mic = você (SDR)</b> e o <b>áudio da call = o cliente</b>. Não precisa marcar nada.</div>
+        </div>
+        <div>
+          <b>🔊 Reunião no viva-voz / presencial</b>
+          <ol>
+            <li>Clica só <b>🎙️ Ativar mic</b> (não precisa do "Áudio da call").</li>
+            <li>Ele separa as falas em <b>Voz 1</b> e <b>Voz 2</b> pelas pausas.</li>
+            <li>Em <b>"Quem é cada voz?"</b>, marca <b>1 vez</b> quem é SDR e quem é Cliente.</li>
+            <li>Se ele trocar as vozes no meio, clica <b>↔️ trocar voz</b>.</li>
+          </ol>
+          <div class="howto-tip">💡 Não dá pra usar o viva-voz? Digita a fala do cliente no campo de texto — funciona igual.</div>
+        </div>
+      </div>
+
+      <h4>3 · Durante a call</h4>
+      <ul>
+        <li><b>Fala normal.</b> As sugestões aparecem sozinhas do lado direito quando o cliente fala.</li>
+        <li>Use os cards: <b>❓ Próxima pergunta</b> · <b>💬 Fala sugerida</b> · <b>🛡️ Contorno de objeção</b> · <b>✅ Próximo passo</b> · <b>📎 Conteúdos pra enviar</b> (links reais, pode mandar).</li>
+        <li>Olha os medidores: <b>Você fala %</b> — se passar de ~50%, <b>cala a boca e pergunta</b>. <b>Temperatura</b> = quão quente está a oportunidade.</li>
+        <li>Travou? <b>⚡ Pedir sugestão agora</b>.</li>
+      </ul>
+
+      <h4>4 · Acabou a call</h4>
+      <ul>
+        <li>Só clica <b>⏸️ Pausar mic</b>. <b>Não existe botão de salvar</b> — ele salva sozinho e ainda extrai as dores que o cliente falou (vai aparecer "💾 call salva").</li>
+        <li>Essas dores viram inteligência: o JARVIS fica melhor na próxima call e o Marketing usa pra pautar conteúdo (<b>📊 Dores de campo</b>).</li>
+      </ul>
+
+      <h4>⚠️ Regras que não se quebram</h4>
+      <ul>
+        <li>A fala sugerida é <b>roteiro, não script</b> — adapta pra tua voz, não lê robotizado.</li>
+        <li><b>Nunca</b> cite concorrente pelo nome. <b>Nunca</b> cite cliente nosso sem aprovação (fale "um grande grupo do agro").</li>
+        <li>É IA: <b>confere antes de prometer</b> qualquer coisa (prazo, número, escopo).</li>
+      </ul>
+
+      <h4>🔧 Se der problema</h4>
+      <ul>
+        <li><b>"Sem faixa de áudio"</b> → você esqueceu de marcar "compartilhar áudio". Clica de novo e marca.</li>
+        <li><b>"use o Chrome"</b> → abriu no Safari/Firefox. Troca pro Chrome.</li>
+        <li><b>Reunião no app instalado (Teams/Zoom) no Mac</b> → o Mac não deixa capturar o áudio do app. Entra na reunião pelo <b>navegador</b>.</li>
+        <li><b>Modelo não carrega</b> → rede bloqueando. Chama o Rudá.</li>
+      </ul>
+    </div>
+  </details>
 
   <!-- SETUP DA CALL -->
   <div class="setup">

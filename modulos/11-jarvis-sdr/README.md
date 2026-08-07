@@ -26,6 +26,11 @@
 6. **Guia conteúdo** — "📊 Dores de campo" (`GET /api/jarvis/dores-de-campo`) agrega por LOB → pauta os
    próximos conteúdos (loop campo→conteúdo). O sub-agente `jarvis-sdr` destila isso offline.
 
+## 📖 Guia do SDR (quem vai usar)
+`TUTORIAL-SDR.md` — passo a passo pro vendedor (antes/durante/depois da call, os 2 casos de escuta:
+fone vs viva-voz, regras e troubleshooting). O **mesmo conteúdo está dentro da tela** em
+**"❓ Como usar o JARVIS"** (retrátil, fechado por padrão) — é onde o SDR realmente vai ler.
+
 ## Arquivos-chave
 | Arquivo | Papel |
 |---|---|
