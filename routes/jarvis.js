@@ -67,6 +67,9 @@ try {
     CREATE INDEX IF NOT EXISTS idx_jap_lob  ON jarvis_aprendizados(lob);
     CREATE INDEX IF NOT EXISTS idx_jap_tipo ON jarvis_aprendizados(tipo);
   `);
+  try { db.exec(`ALTER TABLE jarvis_calls ADD COLUMN zoho_call_id TEXT`); } catch (_) {}
+  try { db.exec(`ALTER TABLE jarvis_calls ADD COLUMN fonte_audio TEXT`); } catch (_) {}
+  try { db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_jc_zoho ON jarvis_calls(zoho_call_id) WHERE zoho_call_id IS NOT NULL`); } catch (_) {}
   console.log('[jarvis] memória viva pronta (jarvis_calls + jarvis_aprendizados)');
 } catch (e) {
   console.warn('[jarvis] falha ao preparar memória viva:', e.message);
@@ -716,6 +719,232 @@ router.get('/api/jarvis/dores-de-campo', requireAuth, (req, res) => {
     });
   } catch (e) {
     console.error('[jarvis/dores-de-campo] erro:', e.message);
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+// ── API: ingest Zoho Call (webhook) ──────────────────────────────────────────
+// Recebe webhook do Zoho CRM (módulo Calls) quando nova call é registrada.
+// Baixa a gravação do 3CX, transcreve via Groq Whisper, salva no JARVIS e
+// extrai aprendizados — mesmo pipeline do /api/jarvis/encerrar.
+const GROQ_KEY = () => (process.env.JARVIS_LLM_API_KEY || process.env.GROQ_API_KEY || '').trim();
+const ZOHO_WEBHOOK_SECRET = () => (process.env.ZOHO_JARVIS_WEBHOOK_SECRET || '').trim();
+
+router.post('/api/jarvis/ingest-zoho-call', async (req, res) => {
+  const tag = '[jarvis/ingest-zoho-call]';
+  try {
+    // 1) Validação do webhook secret (se configurado)
+    const secret = ZOHO_WEBHOOK_SECRET();
+    if (secret) {
+      const incoming = req.headers['x-jarvis-secret'] || req.query.secret || '';
+      if (incoming !== secret) {
+        console.warn(tag, 'webhook rejeitado: secret inválido');
+        return res.status(401).json({ success: false, error: 'Unauthorized' });
+      }
+    }
+
+    // 2) Extrair dados da call do payload Zoho
+    const payload = req.body || {};
+    const callData = payload.data ? (Array.isArray(payload.data) ? payload.data[0] : payload.data) : payload;
+    const zohoCallId = String(callData.id || callData.Id || callData.call_id || '');
+    if (!zohoCallId) {
+      return res.status(400).json({ success: false, error: 'Payload sem ID de call.' });
+    }
+
+    // Evita duplicata
+    const existing = db.prepare('SELECT id FROM jarvis_calls WHERE zoho_call_id = ?').get(zohoCallId);
+    if (existing) {
+      console.log(tag, `call ${zohoCallId} já ingerida (jarvis_calls.id=${existing.id}), ignorando.`);
+      return res.json({ success: true, skipped: true, call_id: existing.id, message: 'Call já processada.' });
+    }
+
+    const subject = callData.Subject || callData.subject || '';
+    const description = callData.Description || callData.description || '';
+    const callType = callData.Call_Type || callData.call_type || '';
+    const duration = callData.Call_Duration || callData.call_duration || '';
+    const startTime = callData.Call_Start_Time || callData.call_start_time || '';
+    const whatId = callData.What_Id || callData.what_id || {};
+    const whoId = callData.Who_Id || callData.who_id || {};
+    const seModule = callData['$se_module'] || callData.se_module || '';
+
+    const prospectName = (whatId && whatId.name) || (whoId && whoId.name) || '';
+
+    // Extrai URL de gravação do Description
+    const recMatch = description.match(/https?:\/\/[^\s)]+recording[^\s)]*/i);
+    const recordingUrl = recMatch ? recMatch[0] : null;
+
+    // Extrai empresa do Description (padrão: "Nome (Empresa)")
+    const empMatch = description.match(/\(([^)]+)\)\s*\(/);
+    const empresa = empMatch ? empMatch[1] : '';
+
+    // Parseia duração "MM:SS" → segundos
+    const durParts = String(duration).match(/(\d+):(\d+)/);
+    const duracaoSeg = durParts ? parseInt(durParts[1]) * 60 + parseInt(durParts[2]) : null;
+
+    console.log(tag, `nova call: ${zohoCallId} · ${prospectName} · ${empresa} · ${duration} · gravação: ${recordingUrl ? 'sim' : 'não'}`);
+
+    // 3) Se não tem gravação, salva metadados mas sem transcrição
+    if (!recordingUrl) {
+      const row = db.prepare(`INSERT INTO jarvis_calls
+        (prospect, empresa, transcript_json, role_map_json, duracao_seg, criado_por, zoho_call_id, fonte_audio, resumo)
+        VALUES (?,?,?,?,?,?,?,?,?)`).run(
+        prospectName, empresa, '[]', '{}', duracaoSeg, 'zoho-webhook', zohoCallId, 'zoho-3cx',
+        `Call ${callType} registrada no Zoho (${startTime}) — sem gravação disponível.`
+      );
+      console.log(tag, `salva sem áudio (id=${row.lastInsertRowid})`);
+      return res.json({ success: true, call_id: row.lastInsertRowid, transcribed: false, message: 'Call salva sem gravação.' });
+    }
+
+    // 4) Baixar áudio da gravação 3CX
+    let audioBuffer;
+    try {
+      const audioResp = await fetch(recordingUrl, { signal: AbortSignal.timeout(30000) });
+      if (!audioResp.ok) throw new Error(`HTTP ${audioResp.status}`);
+      audioBuffer = Buffer.from(await audioResp.arrayBuffer());
+      console.log(tag, `áudio baixado: ${(audioBuffer.length / 1024).toFixed(0)} KB`);
+    } catch (e) {
+      console.error(tag, 'falha ao baixar gravação:', e.message);
+      const row = db.prepare(`INSERT INTO jarvis_calls
+        (prospect, empresa, transcript_json, role_map_json, duracao_seg, criado_por, zoho_call_id, fonte_audio, resumo)
+        VALUES (?,?,?,?,?,?,?,?,?)`).run(
+        prospectName, empresa, '[]', '{}', duracaoSeg, 'zoho-webhook', zohoCallId, 'zoho-3cx',
+        `Call registrada mas falha ao baixar gravação: ${e.message}`
+      );
+      return res.json({ success: true, call_id: row.lastInsertRowid, transcribed: false, error_download: e.message });
+    }
+
+    // 5) Transcrever via Groq Whisper API
+    const groqKey = GROQ_KEY();
+    let transcriptText = '';
+    if (!groqKey) {
+      console.warn(tag, 'sem GROQ/JARVIS API key — salvando call sem transcrição');
+    } else {
+      try {
+        const formData = new FormData();
+        formData.append('file', new Blob([audioBuffer], { type: 'audio/wav' }), 'call.wav');
+        formData.append('model', 'whisper-large-v3');
+        formData.append('language', 'pt');
+        formData.append('response_format', 'text');
+
+        const whisperResp = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${groqKey}` },
+          body: formData,
+          signal: AbortSignal.timeout(120000)
+        });
+        if (!whisperResp.ok) {
+          const errTxt = await whisperResp.text().catch(() => '');
+          throw new Error(`Groq Whisper HTTP ${whisperResp.status}: ${errTxt.slice(0, 200)}`);
+        }
+        transcriptText = await whisperResp.text();
+        console.log(tag, `transcrito: ${transcriptText.length} chars`);
+      } catch (e) {
+        console.error(tag, 'falha na transcrição Groq:', e.message);
+      }
+    }
+
+    // 6) Montar transcript no formato JARVIS (sem diarização — áudio mono do 3CX)
+    const turns = transcriptText
+      ? [{ speaker: 'call', text: transcriptText.trim(), ts: startTime }]
+      : [];
+
+    // 7) Salvar na tabela jarvis_calls
+    const callRow = db.prepare(`INSERT INTO jarvis_calls
+      (prospect, empresa, transcript_json, role_map_json, duracao_seg, criado_por, zoho_call_id, fonte_audio)
+      VALUES (?,?,?,?,?,?,?,?)`).run(
+      prospectName, empresa, JSON.stringify(turns), '{}', duracaoSeg, 'zoho-webhook', zohoCallId, 'zoho-3cx'
+    );
+    const callId = callRow.lastInsertRowid;
+
+    // 8) Extrair aprendizados via IA (mesmo pipeline do /encerrar)
+    let resumo = null;
+    let aprendizados = { dor: [], objecao: [], gatilho: [], pergunta_vencedora: [], sinal: [] };
+
+    if (transcriptText && aiReady()) {
+      try {
+        const ext = [
+          `Você é um analista de pré-vendas. Abaixo está a transcrição de uma call de prospecção B2B (SAP/ServiceNow).`,
+          `Extraia SOMENTE o que apareceu DE FATO na conversa (não invente). Foque no que o CLIENTE disse.`,
+          ``,
+          `CONTEXTO: prospect=${prospectName} · empresa=${empresa}`,
+          ``,
+          `TRANSCRIÇÃO:`,
+          transcriptText.slice(0, 8000),
+          ``,
+          `Responda APENAS com JSON válido:`,
+          `{`,
+          `  "resumo": "2-3 frases do que rolou e onde parou",`,
+          `  "dores": ["dor de negócio concreta dita pelo cliente", "..."],`,
+          `  "objecoes": ["objeção levantada pelo cliente", "..."],`,
+          `  "gatilhos": ["gatilho de urgência/contexto real", "..."],`,
+          `  "perguntas_vencedoras": ["pergunta do SDR que abriu a conversa", "..."],`,
+          `  "sinais": ["sinal de compra ou de risco observado", "..."]`,
+          `}`,
+          `Listas vazias se não houver. Sem texto fora do JSON.`
+        ].join('\n');
+
+        const raw = await callLLM({ system: 'Extrator factual de calls de venda. Responde só JSON. PT-BR.', user: ext, maxTokens: 700 });
+        const parsed = safeParseJson(raw);
+        if (parsed) {
+          resumo = parsed.resumo || null;
+          const mapTipo = { dores: 'dor', objecoes: 'objecao', gatilhos: 'gatilho', perguntas_vencedoras: 'pergunta_vencedora', sinais: 'sinal' };
+          const ins = db.prepare(`INSERT INTO jarvis_aprendizados (call_id, tipo, texto, lob, industria, persona, fonte)
+                                  VALUES (?,?,?,?,?,?, 'zoho-call')`);
+          const tx = db.transaction(() => {
+            for (const [campo, tipo] of Object.entries(mapTipo)) {
+              const arr = Array.isArray(parsed[campo]) ? parsed[campo] : [];
+              for (const txt of arr) {
+                const clean = String(txt || '').trim();
+                if (!clean) continue;
+                ins.run(callId, tipo, clean.slice(0, 400), null, null, null);
+                if (aprendizados[tipo]) aprendizados[tipo].push(clean);
+              }
+            }
+          });
+          tx();
+          if (resumo) db.prepare('UPDATE jarvis_calls SET resumo = ? WHERE id = ?').run(resumo, callId);
+        }
+      } catch (e) {
+        console.warn(tag, 'extração de aprendizados falhou (call salva):', e.message);
+      }
+    }
+
+    const totalApr = Object.values(aprendizados).reduce((a, x) => a + x.length, 0);
+    console.log(tag, `✓ call ${zohoCallId} → jarvis_calls.id=${callId} · ${transcriptText.length} chars transcritos · ${totalApr} aprendizados`);
+
+    res.json({
+      success: true,
+      call_id: callId,
+      zoho_call_id: zohoCallId,
+      prospect: prospectName,
+      empresa,
+      transcribed: !!transcriptText,
+      transcript_length: transcriptText.length,
+      resumo,
+      aprendizados,
+      total_aprendizados: totalApr
+    });
+  } catch (e) {
+    console.error(tag, 'erro:', e.message);
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+// ── API: listar calls ingeridas do Zoho ──────────────────────────────────────
+router.get('/api/jarvis/zoho-calls', requireAuth, (req, res) => {
+  try {
+    const limit = Math.min(parseInt(req.query.limit, 10) || 50, 200);
+    const calls = db.prepare(`
+      SELECT id, zoho_call_id, prospect, empresa, resumo, duracao_seg, fonte_audio, criado_em,
+             LENGTH(transcript_json) > 4 AS tem_transcricao
+      FROM jarvis_calls
+      WHERE zoho_call_id IS NOT NULL
+      ORDER BY criado_em DESC
+      LIMIT ?
+    `).all(limit);
+    res.json({ success: true, total: calls.length, calls });
+  } catch (e) {
+    console.error('[jarvis/zoho-calls] erro:', e.message);
     res.status(500).json({ success: false, error: e.message });
   }
 });
