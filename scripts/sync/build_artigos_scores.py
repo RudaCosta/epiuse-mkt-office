@@ -79,9 +79,9 @@ def main():
             a["geo_score"] = geo
             a["score_metodo"] = "heuristica-v1"
             for k in ("score_antes","score_depois","ganho"): a.pop(k, None)
-            if sug != a.get("etapa_funil"):
-                a["etapa_funil_original"] = a.get("etapa_funil")
-                a["etapa_funil"] = sug
+            # etapa_funil (legado Manus) é read-only desde jul/2026 — o funil
+            # canônico vive no campo `funil` (build_artigos_taxonomia.py).
+            # As sugestões continuam no report (funil_reclassificacoes).
     media_seo = round(sum(s["seo"] for s in scores)/total, 1)
     media_geo = round(sum(s["geo"] for s in scores)/total, 1)
     def dist(vals):

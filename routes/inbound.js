@@ -59,14 +59,14 @@ router.post('/api/inbound/calendar', requireEditorToken, (req, res) => {
   if (!items.length) return res.status(400).json({ success: false, error: 'items[] vazio.' });
   
   const upsert = db.prepare(`
-    INSERT INTO editorial_calendar (external_id, fonte, data, canal, autor, titulo, resumo, pilar, status, url_post, synced_at)
-    VALUES (@external_id, @fonte, @data, @canal, @autor, @titulo, @resumo, @pilar, @status, @url_post, datetime('now'))
+    INSERT INTO editorial_calendar (external_id, fonte, data, canal, autor, titulo, resumo, pilar, lob, status, url_post, synced_at)
+    VALUES (@external_id, @fonte, @data, @canal, @autor, @titulo, @resumo, @pilar, @lob, @status, @url_post, datetime('now'))
     ON CONFLICT(external_id) DO UPDATE SET
       fonte=excluded.fonte, data=excluded.data, canal=excluded.canal, autor=excluded.autor,
-      titulo=excluded.titulo, resumo=excluded.resumo, pilar=excluded.pilar, status=excluded.status,
+      titulo=excluded.titulo, resumo=excluded.resumo, pilar=excluded.pilar, lob=excluded.lob, status=excluded.status,
       url_post=excluded.url_post, synced_at=datetime('now'), updated_at=datetime('now')
   `);
-  
+
   let n = 0;
   db.transaction((arr) => {
     for (const it of arr) {
@@ -80,6 +80,7 @@ router.post('/api/inbound/calendar', requireEditorToken, (req, res) => {
           titulo: String(it.titulo || '').slice(0, 300),
           resumo: String(it.resumo || '').slice(0, 2000),
           pilar:  String(it.pilar || '').slice(0, 50),
+          lob:    String(it.lob || '').slice(0, 30),
           status: String(it.status || 'planned').slice(0, 30),
           url_post: String(it.url_post || '').slice(0, 500)
         });
