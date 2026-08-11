@@ -20,6 +20,7 @@ const ROLE_CONFIG = {
   'conteudo':        { persona: 'conteudo',  landing: '/' },
   'country-manager': { persona: 'roberto',   landing: '/area/diretoria' }, // Roberto Medeiros (EPI-USE BR)
   'diretoria':       { persona: 'roberto',   landing: '/area/diretoria' }, // Alexandre Ormigo (Stratview) + big bosses
+  'voice':           { persona: 'visitante', landing: '/voices/pautas' }, // EPI-USE Voice: revisa e publica as próprias pautas
   'hub':             { persona: 'visitante', landing: '/hub' },
 };
 const ROLES = Object.keys(ROLE_CONFIG);
