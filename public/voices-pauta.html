@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Revisão da pauta · EPI-USE Voices</title>
+<link rel="stylesheet" href="/design-tokens.css">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0a1426; --surface:#0f1d36; --panel:#0b1830; --text:#e8f0ff; --text2:#9fb2d4; --dim:#6b83ad;
+    --line:rgba(134,158,195,.18); --accent:#cd1543; --blue:#60a5fa; --green:#4ade80; --yellow:#fbbf24;
+  }
+  body{font-family:'Maven Pro','Poppins',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.55}
+  .container{max-width:1180px;margin:0 auto;padding:26px 24px 80px}
+  a.voltar{font-size:12.5px;color:var(--blue);text-decoration:none;font-weight:700}
+  .cab{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap;margin:10px 0 6px}
+  h1{font-size:24px;font-weight:800;letter-spacing:-.3px;line-height:1.25}
+  .meta{font-size:12.5px;color:var(--text2);display:flex;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+  .meta b{color:#a7c0e8;font-weight:600}
+  .badge{font-size:10.5px;font-weight:800;padding:4px 12px;border-radius:20px;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap}
+  .b-enviada{background:rgba(96,165,250,.16);color:#93c5fd;border:1px solid rgba(96,165,250,.4)}
+  .b-em_revisao{background:rgba(168,85,247,.16);color:#d8b4fe;border:1px solid rgba(168,85,247,.4)}
+  .b-ajustes_pedidos{background:rgba(251,191,36,.14);color:#fcd34d;border:1px solid rgba(251,191,36,.4)}
+  .b-aprovada_voice{background:rgba(56,189,248,.14);color:#7dd3fc;border:1px solid rgba(56,189,248,.4)}
+  .b-liberada{background:rgba(34,211,122,.16);color:#4ade80;border:1px solid rgba(34,211,122,.4)}
+  .b-publicada{background:rgba(148,163,184,.14);color:#cbd5e1;border:1px solid rgba(148,163,184,.32)}
+
+  .cols{display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start}
+  @media(max-width:900px){.cols{grid-template-columns:1fr}}
+
+  /* texto em parágrafos comentáveis */
+  .texto{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:10px 8px}
+  .par{position:relative;padding:12px 52px 12px 16px;border-radius:10px;font-size:15px;line-height:1.72;transition:background .15s}
+  .par:hover{background:rgba(96,165,250,.05)}
+  .par.temcom{background:rgba(251,191,36,.05);box-shadow:inset 3px 0 0 rgba(251,191,36,.55)}
+  .par.sel{background:rgba(96,165,250,.11);box-shadow:inset 3px 0 0 var(--blue)}
+  .par .cbtn{position:absolute;right:10px;top:9px;background:rgba(96,165,250,.14);border:1px solid rgba(96,165,250,.34);color:#bfdbfe;border-radius:8px;width:32px;height:28px;font-size:12px;cursor:pointer;opacity:0;transition:opacity .15s;font-family:inherit}
+  .par:hover .cbtn,.par.temcom .cbtn,.par.sel .cbtn{opacity:1}
+  .par .cbtn b{color:var(--yellow)}
+  .par .num{position:absolute;left:-2px;top:14px;font-size:9.5px;color:#3d4f70;font-family:'JetBrains Mono',monospace}
+
+  /* coluna lateral */
+  .side{position:sticky;top:16px;display:flex;flex-direction:column;gap:14px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .card h3{font-size:11px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:11px}
+  .btn{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:11px 16px;font-size:13px;font-weight:800;font-family:inherit;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;width:100%}
+  .btn+.btn{margin-top:8px}
+  .btn:hover{filter:brightness(1.12)}
+  .btn:disabled{opacity:.45;cursor:default}
+  .btn.ok{background:#16a34a}
+  .btn.sec{background:rgba(96,165,250,.16);border:1px solid rgba(96,165,250,.4);color:#bfdbfe}
+  .btn.warn{background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.4);color:#fcd34d}
+  .expl{font-size:11.5px;color:var(--dim);margin-top:9px;line-height:1.5}
+
+  /* comentários */
+  .com{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:11px 13px;margin-bottom:9px}
+  .com.resolvido{opacity:.5}
+  .com.orfao{border-color:rgba(251,191,36,.4)}
+  .com .ch{display:flex;justify-content:space-between;gap:8px;align-items:baseline;margin-bottom:5px}
+  .com .who{font-size:12px;font-weight:700}
+  .com .papel{font-size:9.5px;font-weight:700;padding:1px 7px;border-radius:20px;text-transform:uppercase;background:rgba(134,158,195,.14);color:#a7c0e8}
+  .com .papel.voice{background:rgba(168,85,247,.16);color:#d8b4fe}
+  .com .tx{font-size:13px;line-height:1.5}
+  .com .ref{font-size:10.5px;color:var(--dim);margin-top:6px;font-style:italic;border-left:2px solid var(--line);padding-left:7px}
+  .com .aviso{font-size:10.5px;color:#fcd34d;margin-top:6px}
+  .com .acts{margin-top:8px;display:flex;gap:7px}
+  .com .acts button{background:transparent;border:1px solid var(--line);color:var(--text2);border-radius:7px;padding:3px 9px;font-size:11px;cursor:pointer;font-family:inherit}
+  .com .acts button:hover{color:var(--text);border-color:var(--blue)}
+
+  /* caixa de novo comentário */
+  #cbox{display:none;background:var(--panel);border:1px solid rgba(96,165,250,.4);border-radius:12px;padding:13px;margin-bottom:11px}
+  #cbox.open{display:block}
+  #cbox .alvo{font-size:11px;color:var(--dim);font-style:italic;margin-bottom:8px;border-left:2px solid var(--blue);padding-left:8px;line-height:1.4}
+  #cbox textarea{width:100%;min-height:80px;background:#0a1426;border:1px solid var(--line);border-radius:9px;padding:9px 11px;color:var(--text);font-family:inherit;font-size:13px;resize:vertical}
+  #cbox .cacts{display:flex;gap:8px;margin-top:8px}
+  #cbox .cacts button{flex:1;border-radius:8px;padding:7px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;border:none}
+  #cbox .cacts .env{background:var(--blue);color:#04142e}
+  #cbox .cacts .can{background:transparent;border:1px solid var(--line);color:var(--text2)}
+
+  .link-box{background:rgba(34,211,122,.07);border:1px solid rgba(34,211,122,.35);border-radius:12px;padding:14px}
+  .link-box .u{font-family:'JetBrains Mono',monospace;font-size:12px;color:#a7ffcf;word-break:break-all;background:rgba(0,0,0,.25);border-radius:8px;padding:8px 10px;margin:8px 0}
+  .msg{font-size:12.5px;min-height:17px;margin-top:8px}
+  .msg.err{color:#f87171}.msg.ok{color:var(--green)}
+  .vazio{color:var(--text2);font-size:12.5px;padding:8px 2px}
+  .hist{font-size:11.5px;color:var(--text2);line-height:1.7}
+  .hist b{color:#a7c0e8;font-weight:600}
+  textarea.edit{width:100%;min-height:340px;background:#0a1426;border:1px solid var(--line);border-radius:11px;padding:14px;color:var(--text);font-family:inherit;font-size:14px;line-height:1.7;resize:vertical}
+</style>
+</head>
+<body data-route="voices-pauta">
+<office-nav></office-nav>
+
+<div class="container">
+  <a class="voltar" href="/voices/pautas">← Todas as pautas</a>
+  <div class="cab">
+    <h1 id="titulo">Carregando…</h1>
+    <span class="badge" id="estado"></span>
+  </div>
+  <div class="meta" id="meta"></div>
+
+  <div class="cols">
+    <div>
+      <div id="modo-leitura">
+        <div class="texto" id="texto"></div>
+      </div>
+      <div id="modo-edicao" style="display:none">
+        <textarea class="edit" id="ed-corpo"></textarea>
+        <div style="display:flex;gap:9px;margin-top:10px">
+          <button class="btn" id="ed-salvar" type="button" style="width:auto">Salvar texto</button>
+          <button class="btn sec" id="ed-cancelar" type="button" style="width:auto">Cancelar</button>
+        </div>
+        <div class="expl">Separe os parágrafos com uma linha em branco. Comentários ficam presos ao parágrafo — se você reescrever um, o comentário dele é marcado como "trecho reescrito" em vez de sumir.</div>
+      </div>
+    </div>
+
+    <div class="side">
+      <div class="card" id="c-acoes"><h3>Ações</h3><div id="acoes"></div><div class="msg" id="msg"></div></div>
+      <div class="card">
+        <h3>Comentários <span id="c-cont" style="color:var(--yellow)"></span></h3>
+        <div id="cbox">
+          <div class="alvo" id="cbox-alvo"></div>
+          <textarea id="cbox-tx" placeholder="O que precisa mudar nesse parágrafo?"></textarea>
+          <div class="cacts"><button class="can" id="cbox-cancel" type="button">Cancelar</button><button class="env" id="cbox-env" type="button">Comentar</button></div>
+        </div>
+        <div id="coments"></div>
+      </div>
+      <div class="card"><h3>Histórico</h3><div class="hist" id="hist"></div></div>
+    </div>
+  </div>
+</div>
+
+<script src="/office-nav.js"></script>
+<script>
+(function(){
+  var esc=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c];});};
+  var ID=new URLSearchParams(location.search).get('id');
+  var D=null, PAR=-1;
+
+  function fmt(s){
+    if(!s) return '';
+    var d=new Date(String(s).replace(' ','T')+(String(s).length<=10?'':'Z'));
+    if(isNaN(d)) return String(s);
+    var p=function(n){return (n<10?'0':'')+n;};
+    return p(d.getDate())+'/'+p(d.getMonth()+1)+' '+p(d.getHours())+':'+p(d.getMinutes());
+  }
+  function msg(t,cls){ var m=document.getElementById('msg'); m.className='msg '+(cls||''); m.textContent=t||''; }
+
+  function render(d){
+    D=d;
+    var p=d.pauta, L=d.estado_label||{}, perm=d.permissoes||{};
+    document.getElementById('titulo').textContent=p.titulo;
+    var b=document.getElementById('estado');
+    b.className='badge b-'+p.estado; b.textContent=L[p.estado]||p.estado;
+    document.getElementById('meta').innerHTML=
+      '<span>🎙️ <b>'+esc(p.voice_nome||p.voice_email||'—')+'</b></span>'+
+      (p.prazo?'<span>📅 até <b>'+esc(p.prazo)+'</b></span>':'')+
+      (p.destino_url?'<span>🔗 divulga <b>'+esc(p.destino_url.replace(/^https?:\/\//,'').slice(0,44))+'</b></span>':'<span style="color:#fcd34d">⚠️ sem link de destino definido</span>')+
+      '<span>atualizada '+esc(fmt(p.updated_at))+'</span>';
+
+    // texto em parágrafos
+    var pars=d.paragrafos||[], coms=d.comentarios||[];
+    var porPar={}; coms.forEach(function(c){ if(!c.resolvido&&!c.orfao) (porPar[c.par_idx]=porPar[c.par_idx]||[]).push(c); });
+    document.getElementById('texto').innerHTML = pars.length ? pars.map(function(t,i){
+      var n=(porPar[i]||[]).length;
+      return '<div class="par'+(n?' temcom':'')+'" data-i="'+i+'"><span class="num">'+(i+1)+'</span>'+esc(t)+
+        '<button class="cbtn" data-c="'+i+'" title="Comentar neste parágrafo">'+(n?'<b>'+n+'</b>':'💬')+'</button></div>';
+    }).join('') : '<div class="vazio" style="padding:22px">Esta pauta ainda não tem texto. '+(perm.editar?'Use "Editar texto" pra escrever.':'A Redatoria ainda vai preencher.')+'</div>';
+    Array.prototype.forEach.call(document.querySelectorAll('.par .cbtn'),function(bt){
+      bt.addEventListener('click',function(){ abrirCom(parseInt(bt.dataset.c,10)); });
+    });
+
+    // comentários
+    var abertos=coms.filter(function(c){return !c.resolvido;}).length;
+    document.getElementById('c-cont').textContent=abertos?('· '+abertos+' aberto(s)'):'';
+    document.getElementById('coments').innerHTML = coms.length ? coms.map(function(c){
+      return '<div class="com'+(c.resolvido?' resolvido':'')+(c.orfao?' orfao':'')+'">'+
+        '<div class="ch"><span class="who">'+esc(c.autor_nome||c.autor)+'</span>'+
+        '<span class="papel '+esc(c.papel)+'">'+esc(c.papel==='voice'?'Voice':(c.papel==='brand'?'Brand':'Redatoria'))+'</span></div>'+
+        '<div class="tx">'+esc(c.texto)+'</div>'+
+        '<div class="ref">¶'+(c.par_idx+1)+' — "'+esc((c.par_trecho||'').slice(0,70))+'…"</div>'+
+        (c.orfao?'<div class="aviso">⚠️ trecho reescrito depois deste comentário</div>':'')+
+        '<div class="acts"><button data-r="'+c.id+'" data-v="'+(c.resolvido?0:1)+'">'+
+          (c.resolvido?'Reabrir':'Marcar resolvido')+'</button></div></div>';
+    }).join('') : '<div class="vazio">Nenhum comentário ainda. Passe o mouse num parágrafo e clique no 💬 pra pedir um ajuste.</div>';
+    Array.prototype.forEach.call(document.querySelectorAll('#coments [data-r]'),function(bt){
+      bt.addEventListener('click',function(){
+        fetch('/api/voices/pautas/'+ID+'/comentario/'+bt.dataset.r,{method:'PATCH',
+          headers:{'Content-Type':'application/json'},body:JSON.stringify({resolvido:bt.dataset.v==='1'})})
+          .then(function(){ load(); });
+      });
+    });
+
+    // histórico
+    document.getElementById('hist').innerHTML=(d.eventos||[]).map(function(e){
+      return '<div>· <b>'+esc(e.autor_nome||e.autor||'—')+'</b> '+esc(e.evento.replace(/_/g,' '))+
+        (e.detalhe?(' <span style="color:var(--dim)">('+esc(e.detalhe)+')</span>'):'')+
+        ' <span style="color:var(--dim)">'+esc(fmt(new Date(e.ts).toISOString()))+'</span></div>';
+    }).join('')||'<div class="vazio">—</div>';
+
+    renderAcoes(p,perm);
+  }
+
+  function renderAcoes(p,perm){
+    var h='';
+    if(p.estado==='liberada'||p.estado==='publicada'){
+      if(p.link_rastreado){
+        h+='<div class="link-box"><div style="font-size:12px;font-weight:700;color:var(--green)">🔗 Seu link rastreado</div>'+
+           '<div class="u" id="lk">'+esc(p.link_rastreado)+'</div>'+
+           '<button class="btn sec" id="b-copiar" type="button">Copiar link</button>'+
+           '<div class="expl">Use este link no post do LinkedIn. Cada clique humano é atribuído a você e vira ERP Coins. Bots de preview não contam.</div></div>';
+      }
+    }
+    if(perm.editar && p.estado!=='publicada')
+      h+='<button class="btn sec" id="b-editar" type="button">✏️ Editar texto</button>';
+    if(perm.aprovar_voice && ['enviada','em_revisao','ajustes_pedidos'].indexOf(p.estado)>=0){
+      h+='<button class="btn warn" id="b-ajustes" type="button">✋ Pedir ajustes</button>'+
+         '<button class="btn ok" id="b-aprovar" type="button">✓ Aprovar o texto</button>'+
+         '<div class="expl">Aprovar manda pra Duda dar o OK final. O link só é gerado depois disso.</div>';
+    }
+    if(perm.aprovar_duda && p.estado==='aprovada_voice'){
+      h+='<button class="btn ok" id="b-duda" type="button">✅ Dar OK final e gerar o link</button>'+
+         '<div class="expl">O Voice já aprovou. O OK final gera o link rastreado no nome dele.</div>';
+    }
+    if(perm.publicar && p.estado==='liberada'){
+      h+='<div style="margin-top:10px"><input id="b-url" type="url" placeholder="Cole a URL do post publicado" '+
+         'style="width:100%;background:#0a1426;border:1px solid var(--line);border-radius:9px;padding:9px 11px;color:var(--text);font-family:inherit;font-size:13px"></div>'+
+         '<button class="btn" id="b-publicar" type="button">🚀 Marcar como publicada</button>';
+    }
+    if(perm.editar && p.estado==='publicada')
+      h+='<button class="btn sec" id="b-reabrir" type="button">↩︎ Reabrir</button>';
+    if(!h) h='<div class="vazio">Nada pra fazer aqui agora.</div>';
+    document.getElementById('acoes').innerHTML=h;
+
+    var on=function(id,fn){ var el=document.getElementById(id); if(el) el.addEventListener('click',fn); };
+    on('b-copiar',function(){ try{navigator.clipboard.writeText(D.pauta.link_rastreado);}catch(e){}
+      this.textContent='Copiado ✓'; });
+    on('b-editar',function(){
+      document.getElementById('modo-leitura').style.display='none';
+      document.getElementById('modo-edicao').style.display='';
+      document.getElementById('ed-corpo').value=D.pauta.corpo||'';
+    });
+    on('b-ajustes',function(){ acao('pedir_ajustes'); });
+    on('b-aprovar',function(){ acao('aprovar_voice'); });
+    on('b-duda',function(){ acao('aprovar_duda'); });
+    on('b-reabrir',function(){ acao('reabrir'); });
+    on('b-publicar',function(){
+      var u=(document.getElementById('b-url')||{}).value||'';
+      acao('publicar',{post_url:u});
+    });
+  }
+
+  function acao(a,extra){
+    msg('');
+    fetch('/api/voices/pautas/'+ID+'/acao',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(Object.assign({acao:a},extra||{}))})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(!d.success) throw new Error(d.motivo||d.error||'falhou');
+        load();
+      })
+      .catch(function(e){ msg(e.message,'err'); });
+  }
+
+  // ── caixa de comentário ────────────────────────────────────────────────────
+  function abrirCom(i){
+    PAR=i;
+    Array.prototype.forEach.call(document.querySelectorAll('.par'),function(el){
+      el.classList.toggle('sel', parseInt(el.dataset.i,10)===i);
+    });
+    var box=document.getElementById('cbox');
+    document.getElementById('cbox-alvo').textContent='¶'+(i+1)+' — "'+(D.paragrafos[i]||'').slice(0,90)+'…"';
+    box.classList.add('open');
+    document.getElementById('cbox-tx').value='';
+    document.getElementById('cbox-tx').focus();
+  }
+  document.getElementById('cbox-cancel').addEventListener('click',function(){
+    document.getElementById('cbox').classList.remove('open');
+    Array.prototype.forEach.call(document.querySelectorAll('.par'),function(el){el.classList.remove('sel');});
+  });
+  document.getElementById('cbox-env').addEventListener('click',function(){
+    var tx=document.getElementById('cbox-tx').value.trim();
+    if(!tx||PAR<0) return;
+    fetch('/api/voices/pautas/'+ID+'/comentario',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({par_idx:PAR,texto:tx})})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(!d.success) throw new Error(d.error||'falhou');
+        document.getElementById('cbox').classList.remove('open');
+        load();
+      }).catch(function(e){ msg('Não deu pra comentar ('+e.message+')','err'); });
+  });
+
+  // ── edição do texto ────────────────────────────────────────────────────────
+  document.getElementById('ed-cancelar').addEventListener('click',function(){
+    document.getElementById('modo-edicao').style.display='none';
+    document.getElementById('modo-leitura').style.display='';
+  });
+  document.getElementById('ed-salvar').addEventListener('click',function(){
+    fetch('/api/voices/pautas/'+ID,{method:'PATCH',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({corpo:document.getElementById('ed-corpo').value})})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(!d.success) throw new Error(d.error||'falhou');
+        document.getElementById('modo-edicao').style.display='none';
+        document.getElementById('modo-leitura').style.display='';
+        load();
+      }).catch(function(e){ msg('Não deu pra salvar ('+e.message+')','err'); });
+  });
+
+  function load(){
+    if(!ID){ document.getElementById('titulo').textContent='Pauta não informada'; return; }
+    fetch('/api/voices/pautas/'+ID).then(function(r){
+      if(r.status===401){ location.href='/login'; throw new Error('401'); }
+      if(!r.ok) return r.json().then(function(d){ throw new Error(d.error||r.status); });
+      return r.json();
+    }).then(render).catch(function(e){
+      if(e.message!=='401') document.getElementById('titulo').textContent='Não deu pra abrir ('+e.message+')';
+    });
+  }
+  load();
+})();
+</script>
+</body>
+</html>

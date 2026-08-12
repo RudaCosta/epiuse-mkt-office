@@ -788,7 +788,8 @@ const HUB_LOCK_PAGES = new Set([
   '/design', '/erp-impacto', '/seja-voice', '/artigos', '/optimizer',
   '/optimizer-v3', '/voices/optimizer-v3',
   '/campanhas', '/brindes', '/hub/brindes', '/hub/solicitacao-brindes',
-  '/hub/solicitar-brindes', '/meus-links', '/loja', '/ranking'
+  '/hub/solicitar-brindes', '/meus-links', '/loja', '/ranking',
+  '/voices/pautas', '/voices/pauta'
 ]);
 // nota: '/game' passa pelo lock só pra rota fazer o redirect por role → /game-hub.
 app.use((req, res, next) => {
@@ -3079,6 +3080,15 @@ app.get('/api/alerts', (req, res) => {
         meus.forEach(r => alertas.unshift({ tipo: 'info', msg: `🛒 Seu resgate "${r.item_nome}": ${lbl[r.status] || r.status}`, href: '/loja' }));
       }
     } catch (e) { /* tabelas da loja podem não existir em ambiente isolado */ }
+
+    // Módulo 20 — pautas dos Voices (revisão pendente, link liberado, OK da Duda)
+    try {
+      const su2 = req.session && req.session.user;
+      if (su2 && su2.email) {
+        require('./routes/voices-pipeline').alertasDoUsuario(su2.email, su2.role)
+          .forEach(a => alertas.unshift(a));
+      }
+    } catch (e) { /* pipeline pode não estar carregado em ambiente isolado */ }
 
     res.json({ alertas, count: alertas.length });
   } catch (e) {
@@ -6018,6 +6028,7 @@ app.use('/', curvaAbcRouter);
 app.use('/', analyticsRouter); // Módulo 15 — Analytics de uso (report /admin/analytics)
 app.use('/', require('./routes/utm')); // Módulo 18 — UTM / links rastreados (report /admin/utm)
 app.use('/', require('./routes/loja')); // Módulo 19 — Loja de ERP Coins (/loja + resgates no /admin/coins)
+app.use('/', require('./routes/voices-pipeline')); // Módulo 20 — pipeline de validação/publicação dos Voices
 
 app.listen(PORT, () => {
   console.log(`\n🎙️  EPI-USE Voices — Profile Optimizer`);

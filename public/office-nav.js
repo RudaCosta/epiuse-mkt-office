@@ -8,7 +8,7 @@
 // Fonte ÚNICA da verdade: public/api/changelog.json#current via /api/version
 // Fallback hardcoded usado SÓ se fetch falhar (offline, etc).
 // Sincronização automática — não editar manualmente, basta bumpar changelog.json.
-let OFFICE_NAV_VERSION = '0.84.2';
+let OFFICE_NAV_VERSION = '0.85.1';
 // Promise compartilhada — nav + footer reaproveitam o mesmo fetch
 window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/version')
   .then(r => r.ok ? r.json() : null)
@@ -384,6 +384,14 @@ class OfficeNav extends HTMLElement {
     const MKT_ROLES = ['head', 'intelligence', 'growth', 'field', 'pipeline', 'brand', 'conteudo'];
     if (grpA && MKT_ROLES.includes(this._role) && !grpA.links.some(l => l.href === '/admin/utm')) {
       grpA.links.push({ label: '🔗 UTM & Links Rastreados', href: '/admin/utm' });
+    }
+    // Pautas dos Voices (módulo 20): o Voice vê as suas; o time editorial vê todas.
+    if (grpA && (this._role === 'voice' || ['conteudo','brand','head'].includes(this._role))
+        && !grpA.links.some(l => l.href === '/voices/pautas')) {
+      grpA.links.push({
+        label: this._role === 'voice' ? '📝 Minhas Pautas' : '📝 Pautas dos Voices',
+        href: '/voices/pautas'
+      });
     }
     // Meus Links (self-service) + Loja de Coins — qualquer usuário autenticado.
     if (grpA && this._authed) {

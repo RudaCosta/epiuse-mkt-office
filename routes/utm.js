@@ -164,39 +164,53 @@ function appendUtm(dest, { source, medium, campaign, content }) {
   } catch (e) { return dest; }
 }
 
+// ── Criação de link rastreado (núcleo reutilizável) ───────────────────────────
+// Separado da rota pra que outros módulos gerem link EM NOME de alguém — o
+// pipeline dos Voices (módulo 20) precisa emitir o link já atribuído ao Voice
+// na hora em que a Duda aprova, sem que ele esteja logado naquele momento.
+// Reusa o token quando (email, campaign, source, dest) baterem TODOS. Destino
+// diferente → token NOVO: nunca sobrescreve link já compartilhado/impresso.
+// `host` é o host atual (pra travar o anti-loop); opcional.
+function criarLink({ email, dest, campaign, source, medium, host }) {
+  const em = String(email || '').toLowerCase().trim();
+  if (!em) return { erro: 'auth_required' };
+  const d = String(dest || '').trim().slice(0, 500);
+  if (!isHttpUrl(d)) return { erro: 'dest_invalido' };
+  try {
+    const du = new URL(d);
+    if (du.pathname.startsWith('/go/') || (host && du.host === host)) {
+      return { erro: 'dest_invalido', motivo: 'destino não pode ser o próprio Office' };
+    }
+  } catch (e) { return { erro: 'dest_invalido' }; }
+
+  const camp = sanitizeSlug(campaign, 60) || 'geral';
+  const src = sanitizeSlug(source, 30) || 'linkedin';
+  const med = sanitizeSlug(medium, 30) || MEDIUM_BY_SOURCE[src] || 'employee_advocacy';
+  const row = db.prepare(`SELECT token FROM utm_links WHERE email=? AND campaign=? AND source=? AND dest=?`)
+                .get(em, camp, src, d);
+  let token, reused = false;
+  if (row) { token = row.token; reused = true; }
+  else {
+    token = newToken();
+    db.prepare(`INSERT INTO utm_links (token, email, campaign, source, medium, dest) VALUES (?,?,?,?,?,?)`)
+      .run(token, em, camp, src, med, d);
+  }
+  return { token, reused, campaign: camp, source: src, medium: med,
+           destino_final: appendUtm(d, { source: src, medium: med, campaign: camp, content: token }) };
+}
+
 // ── Gera (ou reusa) um link rastreado pro usuário logado ──────────────────────
-// Reusa o token quando (email, campaign, source, dest) baterem TODOS. Se o
-// destino for diferente, cria token NOVO — nunca sobrescreve o destino de um
-// link já compartilhado/impresso (QR em material físico não pode quebrar).
 router.post('/api/utm/link', express.json({ limit: '2kb' }), (req, res) => {
   const email = sessionEmail(req);
   if (!email) return res.status(401).json({ error: 'auth_required' });
   const b = req.body || {};
-  const dest = String(b.dest || '').trim().slice(0, 500);
-  if (!isHttpUrl(dest)) return res.status(400).json({ error: 'dest_invalido' });
-  // Anti-loop: destino não pode ser o próprio Office /go/ (nem o host atual).
   try {
-    const du = new URL(dest);
-    if (du.pathname.startsWith('/go/') || du.host === req.get('host')) {
-      return res.status(400).json({ error: 'dest_invalido', motivo: 'destino não pode ser o próprio Office' });
-    }
-  } catch (e) { return res.status(400).json({ error: 'dest_invalido' }); }
-  const campaign = sanitizeSlug(b.campaign, 60) || 'geral';
-  const source = sanitizeSlug(b.source, 30) || 'linkedin';
-  const medium = sanitizeSlug(b.medium, 30) || MEDIUM_BY_SOURCE[source] || 'employee_advocacy';
-  try {
-    const row = db.prepare(`SELECT token FROM utm_links WHERE email=? AND campaign=? AND source=? AND dest=?`)
-                  .get(email, campaign, source, dest);
-    let token, reused = false;
-    if (row) { token = row.token; reused = true; }
-    else {
-      token = newToken();
-      db.prepare(`INSERT INTO utm_links (token, email, campaign, source, medium, dest) VALUES (?,?,?,?,?,?)`)
-        .run(token, email, campaign, source, medium, dest);
-    }
-    const url = baseUrl(req) + '/go/' + token;
-    res.json({ token, url, reused, campaign, source, medium,
-               dest: appendUtm(dest, { source, medium, campaign, content: token }) });
+    const r = criarLink({ email, dest: b.dest, campaign: b.campaign,
+                          source: b.source, medium: b.medium, host: req.get('host') });
+    if (r.erro) return res.status(r.erro === 'auth_required' ? 401 : 400)
+                          .json({ error: r.erro, motivo: r.motivo });
+    res.json({ token: r.token, url: baseUrl(req) + '/go/' + r.token, reused: r.reused,
+               campaign: r.campaign, source: r.source, medium: r.medium, dest: r.destino_final });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -703,3 +717,7 @@ router.get('/meus-links', (req, res) => {
 
 module.exports = router;
 module.exports.OWNER_EMAIL = OWNER_EMAIL;
+// Núcleo de criação de link, pra outros módulos emitirem em nome de alguém
+// (ex.: módulo 20 gera o link do Voice quando a Duda aprova a pauta).
+module.exports.criarLink = criarLink;
+module.exports.UTM_CLICK_COINS = UTM_CLICK_COINS;
