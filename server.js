@@ -1232,6 +1232,34 @@ ${html}` }] }],
   }
 }
 
+// Pós-processamento: trunca meta description pra <=130 chars (feedback Duda — LLM não conta chars direito)
+function artigosForcarMetaDescription(html) {
+  return html.replace(
+    /(<strong>Meta:<\/strong>\s*)([^<]+)/i,
+    (match, tag, meta) => {
+      meta = meta.trim();
+      if (meta.length <= 130) return tag + meta;
+      let truncated = meta.slice(0, 127);
+      const lastSpace = truncated.lastIndexOf(' ');
+      if (lastSpace > 80) truncated = truncated.slice(0, lastSpace);
+      truncated = truncated.replace(/[,;:\s]+$/, '') + '...';
+      console.log(`[META-DESC] truncada: ${meta.length} → ${truncated.length} chars`);
+      return tag + truncated;
+    }
+  );
+}
+
+// Pós-processamento: injeta inline styles no FAQ pra sobreviver ao WordPress (sem CSS externo)
+function artigosInjectFaqStyles(html) {
+  const ds = 'background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,0.05);overflow:hidden;width:100%;box-sizing:border-box;';
+  const ss = 'padding:18px 20px;font-weight:700;color:#1e293b;cursor:pointer;display:flex;justify-content:space-between;align-items:center;list-style:none;font-size:15px;outline:none;';
+  const as = 'padding:16px 20px 18px;color:#475569;line-height:1.7;font-size:14px;border-top:1px solid #f1f5f9;font-weight:normal;';
+  return html
+    .replace(/<details\s+class="faq-item">/gi, `<details class="faq-item" style="${ds}">`)
+    .replace(/(<details[^>]*faq-item[^>]*>)\s*<summary>/gi, `$1<summary style="${ss}">`)
+    .replace(/<div\s+class="faq-answer">/gi, `<div class="faq-answer" style="${as}">`);
+}
+
 // Pool de ângulos temáticos — 4 são sorteados por rodada, quebrando os 4 baldes fixos que repetiam pauta
 const STRATVIEW_ANGULOS = [
   'FinOps na prática: fatura OCI, custos ocultos, rightsizing e chargeback por área',
@@ -1330,13 +1358,33 @@ app.post('/api/stratview/gerar', async (req, res) => {
     const formato = ARTIGOS_FORMATOS[Math.floor(Math.random() * ARTIGOS_FORMATOS.length)];
     const abertura = ARTIGOS_ABERTURAS[Math.floor(Math.random() * ARTIGOS_ABERTURAS.length)];
 
+    // Detecta o serviço correto baseado no tema (feedback Alexandre — CSS NÃO é pra tudo)
+    const temaLower = (idea.title + ' ' + (idea.description || '') + ' ' + (idea.keywords || []).join(' ')).toLowerCase();
+    const isHCM = /\b(hcm|human capital|recrutamento|onboarding|folha|payroll|talent|rh\b|recursos humanos|people analytics|redwood|employee experience|gestão de pessoas|workforce)/i.test(temaLower);
+    const isAMS = /\b(sustentação|sustentacao|pós-go-live|pos-go-live|maintenance|support|ams\b|evolução contínua|evoluç)/i.test(temaLower);
+    const servicoCorreto = isHCM ? 'CSS' : isAMS ? 'AMS' : 'TECH';
+    const servicoLabel = isHCM
+      ? 'Client Side Services (CSS) — o modelo "guardião do cliente" em projetos Oracle HCM'
+      : isAMS
+      ? 'AMS (Application Maintenance & Support) — sustentação e evolução contínua de aplicações Oracle'
+      : 'Serviços Gerenciados de TECH — gestão, otimização, operação e monitoramento de OCI, FinOps e CloudOps';
+    const servicoAntiRegra = isHCM
+      ? 'NÃO mencione TECH nem AMS — este artigo é sobre projetos HCM, o serviço é CSS.'
+      : isAMS
+      ? 'NÃO mencione CSS nem TECH — este artigo é sobre sustentação, o serviço é AMS.'
+      : 'NÃO mencione CSS (Client Side Services) — CSS é EXCLUSIVO pra projetos de implementação HCM. Este artigo é sobre infraestrutura/OCI/FinOps/IA, o serviço correto é TECH.';
+
     const systemPrompt = `Você é um Consultor Estratégico Sênior da Stratview focado na tríade: Oracle HCM, IA (Agentic Apps) e OCI.
 
-PORTFÓLIO DE SERVIÇOS STRATVIEW — posicione o serviço CERTO pro tema do artigo (feedback do Country Manager, INEGOCIÁVEL):
-- Gestão, otimização, operação e monitoramento de OCI · FinOps · CloudOps · infraestrutura → **Serviços Gerenciados de TECH** (equivalente ao AMS, porém com foco em OCI — é o serviço correto pra gestão eficiente de nuvem). NUNCA posicione CSS pra esses temas.
-- Implementação, projetos e advocacia do cliente em Oracle HCM → **Client Side Services (CSS)**, o modelo "guardião do cliente".
-- Sustentação e evolução de aplicações Oracle → **AMS (Application Maintenance & Support)**.
-Mencione APENAS o serviço adequado ao tema — não liste o portfólio inteiro no artigo.`;
+⚠️ SERVIÇO DESTE ARTIGO: **${servicoLabel}** (determinado pelo tema)
+${servicoAntiRegra}
+
+REGRA ABSOLUTA (feedback direto do Country Manager Alexandre Ormigo — INEGOCIÁVEL, violação = artigo reprovado):
+A Stratview tem 3 serviços distintos. Cada artigo posiciona APENAS UM, conforme o tema:
+1. Tema de OCI / FinOps / CloudOps / infraestrutura / IA / nuvem → **Serviços Gerenciados de TECH**
+2. Tema de implementação / projetos Oracle HCM / advocacia do cliente → **Client Side Services (CSS)**
+3. Tema de sustentação / pós-go-live / evolução de aplicações Oracle → **AMS**
+O serviço deste artigo é **${servicoCorreto}**. Mencione SOMENTE ele. Se você mencionar CSS em um artigo que não é sobre HCM, o artigo será REPROVADO.`;
 
     const userPrompt = `Escreva um artigo premium (~1000-1200 palavras) para o blog da Stratview sobre: "${idea.title}".
 
@@ -1393,7 +1441,7 @@ ESTRUTURA HTML OBRIGATÓRIA (siga o padrão editorial do blog da Stratview):
 2. Título em <h1>. Introdução: NO MÁXIMO 3 parágrafos antes do primeiro <h2> (o Yoast conta a introdução como seção — se passar de 250 palavras, quebra com <h2>). Primeiro parágrafo em <p class="lead"> abrindo com a frase-chave.
 3. 1 <blockquote> de tese/citação de marca logo na introdução ou primeira seção (1-2 frases fortes).
 4. Corpo: 4 a 5 seções <h2> (use <h3> pra subdividir quando natural). NENHUMA seção com mais de 200 palavras sem novo <h2>/<h3>.
-5. Penúltima seção: o diferencial Stratview conectado ao tema, usando o serviço CORRETO do portfólio (ver PORTFÓLIO DE SERVIÇOS no seu papel — TECH pra gestão de OCI/FinOps/CloudOps, CSS pra projetos HCM, AMS pra sustentação).
+5. Penúltima seção: o diferencial Stratview conectado ao tema, posicionando EXCLUSIVAMENTE o serviço **${servicoCorreto}** (${servicoLabel}). ${servicoAntiRegra}
 6. Parágrafo de CTA convidando o leitor a falar com a Stratview (link de contato acima).
 7. FAQ ao final, em <h2>Perguntas Frequentes (FAQ)</h2>, com EXATAMENTE 3 perguntas (pelo menos 1 contendo a frase-chave):
 <details class="faq-item"><summary>[PERGUNTA]</summary><div class="faq-answer">[RESPOSTA COM EXPERTISE]</div></details>
@@ -1419,6 +1467,8 @@ Retorne APENAS HTML puro. Sem \`\`\`html.`;
     }
     if (!html) throw new Error('A IA retornou o artigo incompleto (FAQ cortado) 2 vezes. Tente gerar de novo.');
     html = await artigosRevisarPortugues(html);
+    html = artigosForcarMetaDescription(html);
+    html = artigosInjectFaqStyles(html);
     res.json({ html });
   } catch (e) { console.error('[ARTIGOS-GERAR]', e.message); res.status(500).json({ error: e.message }); }
 });
@@ -1430,15 +1480,34 @@ app.post('/api/stratview/imagem', async (req, res) => {
 
     // Composição sorteada a cada geração — quebra a "mesma imagem sempre" e segue a
     // direção de arte das referências aprovadas (navy profundo + luz ciano + hologramas)
-    const composicoes = [
-      'Back view of a business executive in a dark suit contemplating a huge curved holographic dashboard full of glowing charts, inside a dark modern data center; a luminous wireframe cloud floats among the server racks.',
-      'Profile silhouette of a digital human head formed by a glowing particle mesh and constellation lines, next to a luminous cloud of particles; floating circular glass icons on one side; blurred city skyline at dusk through panoramic windows in the background.',
-      'Abstract cluster of translucent dark glass cubes with ONE glowing warm amber core cube, streams of light data flowing through it, thin floating line-icons inside glass circles, blurred modern office background with shallow depth of field.',
-      'Two elegant business people silhouettes filled with circuit patterns facing each other, exchanging glowing interlocking gears and network graphics between their open hands; split duotone palette — warm orange gradient on the left, cool corporate blue on the right; small infographic icons floating around.',
-      'A luminous cloud made of glowing particles hovering above a dark reflective surface, orbited by thin holographic rings and floating glass icons; server bokeh lights in the dark background.',
-      'Isometric miniature city built from circuit boards and glowing blue traces, with a bright vertical beam of light rising into a stylized particle cloud; dark navy atmosphere with cyan glow.',
-      'Close-up of professional hands interacting with floating translucent holographic charts and KPI cards above a sleek desk, dark blue ambience with cyan rim light, blurred executive office behind.'
-    ];
+    const composicoesPorTema = {
+      oci: [
+        'A vast dark server room with rows of glowing blue racks, a transparent holographic cloud structure hovering in the center emitting cyan light beams upward, cinematic perspective.',
+        'Aerial view of a futuristic cloud data center with interconnected translucent spheres glowing in blue and cyan, thin golden network lines linking them, deep navy background.',
+        'A luminous digital globe made of circuit traces floating above a dark reflective floor, orbited by glowing infrastructure icons — server, shield, cost meter — deep blue palette with cyan accents.'
+      ],
+      hcm: [
+        'A stylized team of professional silhouettes connected by glowing talent-network lines, warm amber highlights on each person, a large holographic org chart floating behind them, dark navy background.',
+        'An elegant holographic employee dashboard showing people metrics and engagement graphs, floating above a modern executive desk, warm amber and cool blue dual-tone lighting.',
+        'Abstract visualization of a talent pipeline — luminous human silhouettes flowing through transparent glass stages, each stage glowing warmer, dark corporate blue background.'
+      ],
+      ia: [
+        'A glowing neural network structure with pulsing nodes and synaptic connections, a professional hand reaching toward it, deep navy background with electric blue and subtle amber sparks.',
+        'An autonomous AI agent represented as a luminous geometric brain, surrounded by orbiting task icons — document, chart, gear, calendar — dark premium tech environment.',
+        'Split scene: on the left a traditional office with warm amber light, on the right a digital twin made of glowing blue particles — a bridge of light connecting both halves.'
+      ],
+      geral: [
+        'Close-up of professional hands interacting with floating translucent holographic charts and KPI cards above a sleek desk, dark blue ambience with cyan rim light, blurred executive office behind.',
+        'A luminous cloud made of glowing particles hovering above a dark reflective surface, orbited by thin holographic rings and floating glass icons, server bokeh lights in the dark background.',
+        'Isometric miniature smart city built from circuit boards and glowing blue traces, with a bright vertical beam of light rising into a stylized particle cloud, dark navy atmosphere.'
+      ]
+    };
+    const promptLower = prompt.toLowerCase();
+    const temaImg = /\b(oci|cloud|infra|nuvem|finops|cloudops|servidor|migra)/i.test(promptLower) ? 'oci'
+      : /\b(hcm|rh\b|talent|recrutamento|folha|payroll|pessoas|employee|workforce|onboarding)/i.test(promptLower) ? 'hcm'
+      : /\b(ia\b|intelig[eê]ncia artificial|agentic|machine learning|ml\b|automa[çc])/i.test(promptLower) ? 'ia'
+      : 'geral';
+    const composicoes = composicoesPorTema[temaImg];
     // A cena é escrita pelo modelo de texto A PARTIR DO TEMA do artigo — antes a composição
     // fixa sorteada ditava a imagem inteira e o tema era ignorado (todas as capas saíam iguais)
     let composicao = null;
@@ -1487,11 +1556,12 @@ ART DIRECTION — follow exactly:
         return res.json({ base64: result.predictions[0].bytesBase64Encoded, model: 'imagen-4.0-fast' });
     } catch (e) { console.warn('[ARTIGOS-IMAGEM] Imagen falhou:', e.message.slice(0,80)); }
 
-    // Fallback 2: Pollinations (Flux) — gratuito, sem chave. Free tier do Gemini tem limit:0 pra imagem.
+    // Fallback 2: Pollinations (Flux) — gratuito, sem chave. Prompt CURTO (Flux ignora prompts longos)
     try {
+      const pollinationsPrompt = `${composicao}. Style: premium digital illustration, deep navy blue background, glowing cyan accents, cinematic lighting, 16:9, no text, no logos, no watermarks, ultra detailed`;
       const ac = new AbortController();
       const timer = setTimeout(() => ac.abort(), 90000);
-      const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(enhancedPrompt.slice(0, 1500))}?width=1200&height=630&nologo=true&model=flux&seed=${Math.floor(Math.random() * 1e9)}`;
+      const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(pollinationsPrompt.slice(0, 800))}?width=1200&height=630&nologo=true&model=flux&seed=${Math.floor(Math.random() * 1e9)}`;
       const r = await fetch(url, { signal: ac.signal });
       clearTimeout(timer);
       if (r.ok) {
@@ -1581,6 +1651,8 @@ ${content}`;
     html = html.replace(/^```(?:html)?\n?|\n?```$/g,'').trim();
     if (!artigosHtmlCompleto(html)) throw new Error('O refino retornou o artigo incompleto (FAQ cortado). Tente refinar de novo.');
     html = await artigosRevisarPortugues(html);
+    html = artigosForcarMetaDescription(html);
+    html = artigosInjectFaqStyles(html);
     res.json({ html });
   } catch (e) { console.error('[ARTIGOS-REFINAR]', e.message); res.status(500).json({ error: e.message }); }
 });
