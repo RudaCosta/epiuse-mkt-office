@@ -55,6 +55,16 @@ function ehErroDeRemetente(err) {
 }
 const DOMINIOS_OK = String(process.env.COMUNICADOS_DOMINIOS || 'epiuse.com.br')
   .split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+// Endereços liberados individualmente, fora dos domínios acima. Serve pro caso
+// real de hoje: enquanto o domínio não está verificado, a Resend só entrega no
+// e-mail DONO DA CONTA — que pode ser pessoal. Sem isto, não dá nem pra provar
+// que o envio funciona. Lista explícita, não um domínio inteiro aberto.
+const EMAILS_EXTRA = String(process.env.COMUNICADOS_EMAILS_EXTRA || '')
+  .split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+function enderecoPermitido(e) {
+  const em = String(e).toLowerCase().trim();
+  return DOMINIOS_OK.some(d => em.endsWith('@' + d)) || EMAILS_EXTRA.includes(em);
+}
 const HABILITADO = String(process.env.COMUNICADOS_ENABLED || 'true') !== 'false';
 const MAX_POR_RODADA = parseInt(process.env.COMUNICADOS_MAX_RODADA, 10) || 5;
 // Cópia fixa: entra em TODO comunicado, sempre. Pedido do Rudá — ele quer ver
@@ -109,8 +119,8 @@ function lerCorpo(c) {
 function destinatariosOk(lista) {
   const arr = (Array.isArray(lista) ? lista : [lista]).filter(Boolean).map(s => String(s).toLowerCase().trim());
   if (!arr.length) return { ok: false, motivo: 'sem destinatário' };
-  const fora = arr.filter(e => !DOMINIOS_OK.some(d => e.endsWith('@' + d)));
-  if (fora.length) return { ok: false, motivo: 'domínio não permitido: ' + fora.join(', ') };
+  const fora = arr.filter(e => !enderecoPermitido(e));
+  if (fora.length) return { ok: false, motivo: 'destinatário não permitido: ' + fora.join(', ') };
   return { ok: true, lista: arr };
 }
 function registro(id) {
@@ -121,7 +131,7 @@ function registro(id) {
 // respeitando a mesma allowlist de domínio dos demais destinatários.
 function ccFinal(ccDeclarado, para) {
   const jaTem = new Set([...(para || []), ...(ccDeclarado || [])].map(s => String(s).toLowerCase()));
-  const extra = COPIA_SEMPRE.filter(e => !jaTem.has(e) && DOMINIOS_OK.some(d => e.endsWith('@' + d)));
+  const extra = COPIA_SEMPRE.filter(e => !jaTem.has(e) && enderecoPermitido(e));
   return [...(ccDeclarado || []), ...extra];
 }
 
@@ -255,6 +265,7 @@ router.get('/api/admin/comunicados', requireAdmin, (req, res) => {
       envio_habilitado: HABILITADO,
       resend_configurado: !!resend,
       from: FROM_EMAIL, remetentes: REMETENTES, dominios_permitidos: DOMINIOS_OK,
+      emails_extra: EMAILS_EXTRA,
       copia_sempre: COPIA_SEMPRE,
       comunicados: fila,
     });
