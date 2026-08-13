@@ -369,6 +369,9 @@ class OfficeNav extends HTMLElement {
       if (grp && !grp.links.some(l => l.href === '/admin/inscricoes')) {
         grp.links.push({ label: '🎙️ Inscrições Voices', href: '/admin/inscricoes' });
       }
+      if (grp && !grp.links.some(l => l.href === '/admin/comunicados')) {
+        grp.links.push({ label: '✉️ Comunicados', href: '/admin/comunicados' });
+      }
       if (grp && !grp.links.some(l => l.href === '/admin/coins')) {
         grp.links.push({ label: '🪙 Coins & Resgates', href: '/admin/coins' });
       }

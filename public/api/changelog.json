@@ -1,6 +1,6 @@
 {
-  "current": "0.85.1",
-  "atualizado_em": "12/ago/2026",
+  "current": "0.86.0",
+  "atualizado_em": "13/ago/2026",
   "next": [
     {
       "version": "0.53.0",
@@ -54,10 +54,23 @@
   ],
   "releases": [
     {
-<<<<<<< HEAD
+      "version": "0.86.0",
+      "date": "11/ago/2026",
+      "status": "current",
+      "path": "/admin/comunicados",
+      "title": "✉️ Comunicados — o Office manda o e-mail sozinho",
+      "highlights": [
+        "✉️ Fila de comunicados: o e-mail é escrito e commitado, e o Office dispara sozinho ~90s depois do deploy (e de hora em hora pro que ficar pendente)",
+        "🛡️ Travas de um sistema que manda e-mail pra gente de verdade: só domínio da casa (vale pro cc), envio único por id, teto de 5 por rodada, kill switch e nenhuma falha silenciosa",
+        "👁️ Painel /admin/comunicados: prévia real do e-mail, status de cada envio com o motivo do erro, disparar na hora, reenviar ou cancelar antes que saia",
+        "📬 Primeiro da fila: o guia do pipeline de Voices pra Duda, com cópia pra Bruna",
+        "⚠️ Depende da RESEND_API_KEY no Railway — sem ela o painel mostra a ausência e cada tentativa fica registrada como falha"
+      ]
+    },
+    {
       "version": "0.85.1",
       "date": "12/ago/2026",
-      "status": "current",
+      "status": "released",
       "path": "/stratview",
       "title": "🔧 Stratview Generator: posicionamento de serviço + meta description + FAQ layout",
       "highlights": [
@@ -67,12 +80,9 @@
       ]
     },
     {
-      "version": "0.84.1",
-      "date": "05/ago/2026",
-=======
       "version": "0.85.0",
       "date": "05/ago/2026",
-      "status": "current",
+      "status": "released",
       "path": "/voices/pautas",
       "title": "🎙️ Voices — pipeline de validação e publicação ponta a ponta",
       "highlights": [
@@ -86,9 +96,20 @@
       ]
     },
     {
+      "version": "0.84.2",
+      "date": "12/ago/2026",
+      "status": "released",
+      "path": "/stratview",
+      "title": "🔧 Stratview Generator: posicionamento de serviço + meta description + FAQ layout",
+      "highlights": [
+        "⚠️ Posicionamento de serviço corrigido (feedback Alexandre): o gerador agora detecta o tema do artigo e posiciona EXCLUSIVAMENTE o serviço correto (TECH pra OCI/FinOps, CSS só pra HCM, AMS pra sustentação). CSS não aparece mais em artigos que não são sobre projetos HCM.",
+        "📏 Meta description travada em ≤130 chars por truncamento programático server-side (feedback Duda). O LLM não conta caracteres direito — agora o servidor corta na última palavra antes de 127 chars e adiciona reticências.",
+        "🎨 FAQ com inline styles: as caixas do FAQ (border, background, padding) agora viajam junto com o HTML pro WordPress. Antes o CSS só existia no preview do Office e sumia ao publicar."
+      ]
+    },
+    {
       "version": "0.84.1",
       "date": "05/ago/2026",
->>>>>>> 224c9a9b63799b340f35c0901276a2b07056d837
       "status": "released",
       "path": "/admin/utm",
       "title": "⚠️ Aviso de dado incompleto no UTM + package.json alinhado com o lock",
