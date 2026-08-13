@@ -35,6 +35,15 @@
   .msg{font-size:12.5px;margin-top:10px;min-height:17px}
   .msg.ok{color:#4ade80}.msg.err{color:#f87171}
   .vazio{color:#9fb2d4;font-size:13.5px;background:#0b1830;border:1px dashed rgba(134,158,195,.22);border-radius:13px;padding:30px 20px;text-align:center}
+  .teste{background:#0f1d36;border:1px solid rgba(205,21,67,.3);border-radius:14px;padding:17px 19px;margin-bottom:22px}
+  .teste .tt{font-size:15px;font-weight:800;margin-bottom:4px}
+  .teste .td{font-size:12.5px;color:#9fb2d4;margin-bottom:13px;max-width:72ch;line-height:1.6}
+  .teste .tr{display:flex;gap:9px;flex-wrap:wrap}
+  .teste input{flex:1;min-width:220px;background:#0a1426;border:1px solid rgba(134,158,195,.25);color:#e8f0ff;padding:9px 12px;border-radius:9px;font-family:inherit;font-size:13.5px}
+  .res{margin-top:12px;border-radius:10px;padding:11px 13px;font-size:13px;line-height:1.6}
+  .res.ok{background:rgba(34,211,122,.09);border:1px solid rgba(34,211,122,.35);color:#86efac}
+  .res.no{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.3);color:#fca5a5}
+  .res pre{font-family:'JetBrains Mono',monospace;font-size:11.5px;background:rgba(0,0,0,.3);border-radius:8px;padding:9px 11px;margin-top:9px;overflow-x:auto;white-space:pre-wrap;word-break:break-word;color:#e8f0ff}
   .nota{font-size:12.5px;color:#6b83ad;line-height:1.65;margin-top:20px;border-left:2px solid rgba(134,158,195,.3);padding-left:13px;max-width:72ch}
   .nota code{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#a7c0e8}
 </style>
@@ -49,6 +58,16 @@
   </div>
 
   <div class="estado" id="estado"></div>
+
+  <div class="teste">
+    <div class="tt">🧪 Testar envio</div>
+    <div class="td">Manda um e-mail mínimo agora e mostra a resposta crua da Resend. Use quando algo não chegar — é aqui que aparece o motivo real.</div>
+    <div class="tr">
+      <input id="t-para" type="email" placeholder="deixe em branco pra mandar pra você">
+      <button class="btn go" id="t-btn" type="button">Enviar teste</button>
+    </div>
+    <div id="t-out"></div>
+  </div>
 
   <h2>Fila</h2>
   <div id="lista"><div class="vazio">Carregando…</div></div>
@@ -75,7 +94,7 @@
     document.getElementById('estado').innerHTML =
       '<div class="e '+(d.resend_configurado?'ok':'no')+'">Chave de e-mail<b>'+(d.resend_configurado?'configurada':'AUSENTE — nada sai')+'</b></div>'+
       '<div class="e '+(d.envio_habilitado?'ok':'no')+'">Envio automático<b>'+(d.envio_habilitado?'ligado':'desligado')+'</b></div>'+
-      '<div class="e info">Remetente<b>'+esc(d.from)+'</b></div>'+
+      '<div class="e info">Remetente<b>'+esc((d.remetentes||[d.from]).join(' → '))+'</b></div>'+
       '<div class="e info">Domínios permitidos<b>'+esc((d.dominios_permitidos||[]).join(', '))+'</b></div>'+
       '<div class="e info">Sempre em cópia<b>'+esc((d.copia_sempre||[]).join(', ')||'—')+'</b></div>';
 
@@ -126,6 +145,27 @@
       });
     });
   }
+
+  document.getElementById('t-btn').addEventListener('click', function(){
+    var b=this, out=document.getElementById('t-out');
+    var para=document.getElementById('t-para').value.trim();
+    b.disabled=true; b.textContent='Enviando…'; out.innerHTML='';
+    fetch('/api/admin/comunicados/teste',{method:'POST',headers:H(),body:JSON.stringify({para:para})})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(d.ok){
+          out.innerHTML='<div class="res ok">✅ <b>Enviado pra '+esc(d.para)+'</b><br>'+
+            'Remetente: '+esc(d.from)+(d.resend_id?(' &nbsp;·&nbsp; id Resend: <code>'+esc(d.resend_id)+'</code>'):'')+
+            '<br><span style="color:#9fb2d4">Se não cair na caixa em 1-2 min, olhe o spam. Se nem no spam, o problema é entrega (domínio/DNS).</span></div>';
+        } else {
+          out.innerHTML='<div class="res no">❌ <b>Não saiu</b> — etapa: '+esc(d.etapa||'?')+'<br>'+esc(d.erro||'')+
+            (d.from?('<br><span style="color:#9fb2d4">Remetente tentado: '+esc(d.from)+'</span>'):'')+
+            (d.detalhe?('<pre>'+esc(JSON.stringify(d.detalhe,null,2))+'</pre>'):'')+'</div>';
+        }
+      })
+      .catch(function(e){ out.innerHTML='<div class="res no">Falhou ('+esc(e.message)+')</div>'; })
+      .finally(function(){ b.disabled=false; b.textContent='Enviar teste'; });
+  });
 
   function load(){
     fetch('/api/admin/comunicados',{headers:H()})
