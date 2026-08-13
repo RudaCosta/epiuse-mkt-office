@@ -57,3 +57,8 @@ Mostra se a chave está configurada, se o envio automático está ligado, o reme
 
 ## Pendência humana
 `RESEND_API_KEY` precisa estar setada no Railway. Sem ela o painel mostra *"Chave de e-mail: AUSENTE — nada sai"* e cada tentativa fica registrada como `falhou: sem RESEND_API_KEY no ambiente`. É a mesma pendência que já bloqueia o digest semanal.
+
+## Cópia fixa (v0.86.1)
+Todo comunicado copia automaticamente `ruda.costa@epiuse.com.br` — pedido do Rudá, pra ele ver tudo que sai em nome do time sem depender de alguém lembrar de incluí-lo. Configurável em `COMUNICADOS_COPIA_SEMPRE` (lista separada por vírgula).
+
+A cópia fixa **não duplica** quem já é destinatário ou já está no `cc`, e passa pela mesma allowlist de domínio. O painel mostra a cópia fixa configurada e, por comunicado, o **cc efetivo** — quem realmente vai receber. O log de envio grava o cc efetivo, não o declarado.

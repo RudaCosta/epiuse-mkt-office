@@ -29,6 +29,10 @@ const DOMINIOS_OK = String(process.env.COMUNICADOS_DOMINIOS || 'epiuse.com.br')
   .split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
 const HABILITADO = String(process.env.COMUNICADOS_ENABLED || 'true') !== 'false';
 const MAX_POR_RODADA = parseInt(process.env.COMUNICADOS_MAX_RODADA, 10) || 5;
+// Cópia fixa: entra em TODO comunicado, sempre. Pedido do Rudá — ele quer ver
+// tudo que sai em nome do time sem depender de lembrarem de incluí-lo.
+const COPIA_SEMPRE = String(process.env.COMUNICADOS_COPIA_SEMPRE || 'ruda.costa@epiuse.com.br')
+  .split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
 
 const JSON_PATH = path.join(__dirname, '../public/api/comunicados.json');
 const EMAILS_DIR = path.join(__dirname, '../public/emails');
@@ -73,6 +77,14 @@ function registro(id) {
   try { return db.prepare(`SELECT * FROM comunicados_envios WHERE id=?`).get(id); } catch (e) { return null; }
 }
 
+// Junta a cópia fixa ao cc do comunicado, sem duplicar quem já vai receber e
+// respeitando a mesma allowlist de domínio dos demais destinatários.
+function ccFinal(ccDeclarado, para) {
+  const jaTem = new Set([...(para || []), ...(ccDeclarado || [])].map(s => String(s).toLowerCase()));
+  const extra = COPIA_SEMPRE.filter(e => !jaTem.has(e) && DOMINIOS_OK.some(d => e.endsWith('@' + d)));
+  return [...(ccDeclarado || []), ...extra];
+}
+
 // Estado de um comunicado do JSON cruzado com o log de envio.
 function estadoDe(c) {
   const r = registro(c.id);
@@ -88,6 +100,9 @@ async function enviarUm(c, { forcar = false, por = 'auto' } = {}) {
   if (r && r.status === 'cancelado' && !forcar) return { id: c.id, pulou: 'cancelado' };
   if (c.ativo === false && !forcar) return { id: c.id, pulou: 'inativo' };
 
+  // O log tem que registrar quem REALMENTE recebeu, não o que estava declarado.
+  // Começa com o cc do JSON e é substituído pelo efetivo assim que calculado.
+  let ccLog = (c.cc || []).map(x => String(x).toLowerCase());
   const grava = (status, erro) => {
     try {
       db.prepare(`INSERT INTO comunicados_envios (id, assunto, para, cc, status, erro, tentativas, enviado_em)
@@ -95,7 +110,7 @@ async function enviarUm(c, { forcar = false, por = 'auto' } = {}) {
                   ON CONFLICT(id) DO UPDATE SET status=excluded.status, erro=excluded.erro,
                     tentativas=comunicados_envios.tentativas+1, enviado_em=excluded.enviado_em,
                     assunto=excluded.assunto, para=excluded.para, cc=excluded.cc`)
-        .run(c.id, c.assunto || '', (c.para || []).join(', '), (c.cc || []).join(', '),
+        .run(c.id, c.assunto || '', (c.para || []).join(', '), ccLog.join(', '),
              status, erro || '', status === 'enviado' ? new Date().toISOString() : null);
     } catch (e) { console.warn('[comunicados] log:', e.message); }
   };
@@ -111,6 +126,9 @@ async function enviarUm(c, { forcar = false, por = 'auto' } = {}) {
     if (!dCc.ok) { grava('falhou', 'cc — ' + dCc.motivo); return { id: c.id, erro: 'cc — ' + dCc.motivo }; }
     cc = dCc.lista;
   }
+  // Cópia fixa entra aqui (nunca duplicando quem já é destinatário ou cópia).
+  cc = ccFinal(cc, dPara.lista);
+  ccLog = cc;
   const html = lerCorpo(c);
   if (!html) { grava('falhou', 'corpo não encontrado (' + (c.html_file || 'inline') + ')'); return { id: c.id, erro: 'sem_corpo' }; }
   if (!c.assunto) { grava('falhou', 'sem assunto'); return { id: c.id, erro: 'sem_assunto' }; }
@@ -161,6 +179,9 @@ router.get('/api/admin/comunicados', requireAdmin, (req, res) => {
         id: c.id, assunto: c.assunto, para: c.para || [], cc: c.cc || [],
         auto: c.auto !== false, ativo: c.ativo !== false,
         tem_corpo: !!lerCorpo(c), html_file: c.html_file || null,
+        // quem REALMENTE vai receber em cópia (declarado + cópia fixa)
+        cc_efetivo: ccFinal((c.cc || []).map(x => String(x).toLowerCase()),
+                            (c.para || []).map(x => String(x).toLowerCase())),
         resumo: c.resumo || '', ...st,
       };
     });
@@ -168,6 +189,7 @@ router.get('/api/admin/comunicados', requireAdmin, (req, res) => {
       envio_habilitado: HABILITADO,
       resend_configurado: !!resend,
       from: FROM_EMAIL, dominios_permitidos: DOMINIOS_OK,
+      copia_sempre: COPIA_SEMPRE,
       comunicados: fila,
     });
   } catch (e) { res.status(500).json({ error: e.message }); }
