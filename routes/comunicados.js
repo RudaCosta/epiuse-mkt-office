@@ -24,7 +24,35 @@ const fs = require('fs');
 const { db, resend } = require('../server-context');
 const { requireAdmin } = require('./users');
 
-const FROM_EMAIL = process.env.FROM_EMAIL || 'voices@resend.dev';
+// A Resend devolve o erro como objeto ({name, message, statusCode}); string
+// crua vira "[object Object]" e não ajuda ninguém a diagnosticar.
+function erroLegivel(err) {
+  if (!err) return 'erro desconhecido';
+  if (typeof err === 'string') return err;
+  const partes = [err.name, err.message].filter(Boolean);
+  const txt = partes.join(': ');
+  return txt || JSON.stringify(err);
+}
+
+// ── Remetente ────────────────────────────────────────────────────────────────
+// A Resend só aceita como remetente: (a) onboarding@resend.dev — o único
+// endereço de teste válido — ou (b) algo@<domínio que VOCÊ verificou>.
+// O padrão histórico do projeto era 'voices@resend.dev', que não é nenhum dos
+// dois (o resend.dev não é nosso), então todo envio era recusado na origem.
+// Aqui o remetente se resolve sozinho: tenta o configurado e, se a recusa for
+// por domínio/remetente, refaz com o de teste. Some quando o domínio for
+// verificado e o FROM_EMAIL apontar pra ele.
+const FALLBACK_FROM = 'onboarding@resend.dev';
+const FROM_EMAIL = process.env.FROM_EMAIL || FALLBACK_FROM;
+// Ordem de tentativa, sem repetir e sem insistir num @resend.dev inválido.
+const REMETENTES = [...new Set(
+  [FROM_EMAIL, FALLBACK_FROM].filter(f => f && (f === FALLBACK_FROM || !/@resend\.dev$/i.test(f)))
+)];
+// A recusa é do remetente/domínio? (só então vale a pena tentar o próximo)
+function ehErroDeRemetente(err) {
+  const t = (erroLegivel(err) || '').toLowerCase();
+  return /domain|from|sender|verif|not allowed|403/.test(t);
+}
 const DOMINIOS_OK = String(process.env.COMUNICADOS_DOMINIOS || 'epiuse.com.br')
   .split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
 const HABILITADO = String(process.env.COMUNICADOS_ENABLED || 'true') !== 'false';
@@ -53,6 +81,15 @@ db.exec(`
 `);
 // migração idempotente pra bases criadas antes da coluna existir
 try { db.exec(`ALTER TABLE comunicados_envios ADD COLUMN resend_id TEXT DEFAULT ''`); } catch (_e) { /* já existe */ }
+// Limpeza v0.86.3: enquanto o retorno da Resend não era checado, envios
+// RECUSADOS eram gravados como "enviado". Esses registros não são confiáveis —
+// e se distinguem por não terem resend_id. Apagá-los devolve o comunicado pra
+// fila, agora com a checagem correta. Quem enviou de verdade tem id e fica.
+try {
+  const n = db.prepare(`DELETE FROM comunicados_envios
+                        WHERE status='enviado' AND COALESCE(resend_id,'')=''`).run().changes;
+  if (n) console.log(`[comunicados] ${n} registro(s) de "enviado" sem confirmação da Resend removido(s) — voltam pra fila`);
+} catch (e) { console.warn('[comunicados] limpeza:', e.message); }
 
 function lerFila() {
   try {
@@ -76,16 +113,6 @@ function destinatariosOk(lista) {
   if (fora.length) return { ok: false, motivo: 'domínio não permitido: ' + fora.join(', ') };
   return { ok: true, lista: arr };
 }
-// A Resend devolve o erro como objeto ({name, message, statusCode}); string
-// crua vira "[object Object]" e não ajuda ninguém a diagnosticar.
-function erroLegivel(err) {
-  if (!err) return 'erro desconhecido';
-  if (typeof err === 'string') return err;
-  const partes = [err.name, err.message].filter(Boolean);
-  const txt = partes.join(': ');
-  return txt || JSON.stringify(err);
-}
-
 function registro(id) {
   try { return db.prepare(`SELECT * FROM comunicados_envios WHERE id=?`).get(id); } catch (e) { return null; }
 }
@@ -105,6 +132,20 @@ function estadoDe(c) {
                   tentativas: r.tentativas, resend_id: r.resend_id || '' };
   if (c.ativo === false) return { status: 'inativo' };
   return { status: 'pendente' };
+}
+
+// Tenta cada remetente da lista; só troca quando a recusa é de remetente ou
+// domínio. Devolve { data, error, remetente } — 'remetente' é o que funcionou.
+async function enviarComFallback(payload) {
+  let ultimo = null;
+  for (const from of REMETENTES) {
+    const r = await resend.emails.send({ from, ...payload });
+    if (!r || !r.error) return { ...r, remetente: from };
+    ultimo = { ...r, remetente: from };
+    if (!ehErroDeRemetente(r.error)) break;   // recusa por outro motivo: insistir não adianta
+    console.warn(`[comunicados] remetente "${from}" recusado (${erroLegivel(r.error)}) — tentando o próximo`);
+  }
+  return ultimo;
 }
 
 // ── Envio ────────────────────────────────────────────────────────────────────
@@ -152,9 +193,8 @@ async function enviarUm(c, { forcar = false, por = 'auto' } = {}) {
   if (!resend) { grava('falhou', 'sem RESEND_API_KEY no ambiente'); return { id: c.id, erro: 'sem_resend' }; }
 
   try {
-    const r = await resend.emails.send({
-      from: FROM_EMAIL, to: dPara.lista, cc: cc.length ? cc : undefined,
-      subject: c.assunto, html,
+    const r = await enviarComFallback({
+      to: dPara.lista, cc: cc.length ? cc : undefined, subject: c.assunto, html,
     });
     // ⚠️ O SDK da Resend (v4) NÃO lança exceção quando a API recusa: devolve
     // { data, error }. Sem checar isso, um envio recusado era gravado como
@@ -167,8 +207,8 @@ async function enviarUm(c, { forcar = false, por = 'auto' } = {}) {
     }
     const rid = (r && r.data && r.data.id) || '';
     grava('enviado', '', rid);
-    console.log(`[comunicados] enviado "${c.id}" id=${rid || '?'} → ${dPara.lista.join(', ')}${cc.length ? ' (cc ' + cc.join(', ') + ')' : ''} [${por}]`);
-    return { id: c.id, enviado: true, resend_id: rid };
+    console.log(`[comunicados] enviado "${c.id}" id=${rid || '?'} de=${r.remetente} → ${dPara.lista.join(', ')}${cc.length ? ' (cc ' + cc.join(', ') + ')' : ''} [${por}]`);
+    return { id: c.id, enviado: true, resend_id: rid, remetente: r.remetente };
   } catch (e) {
     const msg = String(e && e.message || e);
     grava('falhou', msg.slice(0, 300));
@@ -214,7 +254,7 @@ router.get('/api/admin/comunicados', requireAdmin, (req, res) => {
     res.json({
       envio_habilitado: HABILITADO,
       resend_configurado: !!resend,
-      from: FROM_EMAIL, dominios_permitidos: DOMINIOS_OK,
+      from: FROM_EMAIL, remetentes: REMETENTES, dominios_permitidos: DOMINIOS_OK,
       copia_sempre: COPIA_SEMPRE,
       comunicados: fila,
     });
@@ -266,8 +306,8 @@ router.post('/api/admin/comunicados/teste', requireAdmin, express.json({ limit: 
 
   const quando = new Date().toISOString();
   try {
-    const r = await resend.emails.send({
-      from: FROM_EMAIL, to: [alvo],
+    const r = await enviarComFallback({
+      to: [alvo],
       subject: '🧪 Teste de envio — EPI-USE Office',
       html: `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#001844;line-height:1.6">
         <p><strong>Funcionou.</strong> Se você está lendo isto, o Office consegue enviar e-mail.</p>
@@ -277,10 +317,11 @@ router.post('/api/admin/comunicados/teste', requireAdmin, express.json({ limit: 
     });
     if (r && r.error) {
       // O detalhe cru é o que permite diagnosticar de fora.
-      return res.json({ ok: false, etapa: 'resend', para: alvo, from: FROM_EMAIL,
-                        erro: erroLegivel(r.error), detalhe: r.error });
+      return res.json({ ok: false, etapa: 'resend', para: alvo, from: r.remetente,
+                        tentou: REMETENTES, erro: erroLegivel(r.error), detalhe: r.error });
     }
-    return res.json({ ok: true, para: alvo, from: FROM_EMAIL, resend_id: (r && r.data && r.data.id) || '' });
+    return res.json({ ok: true, para: alvo, from: r.remetente,
+                      resend_id: (r && r.data && r.data.id) || '' });
   } catch (e) {
     return res.json({ ok: false, etapa: 'excecao', para: alvo, from: FROM_EMAIL,
                       erro: String(e && e.message || e) });

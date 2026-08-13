@@ -94,7 +94,7 @@
     document.getElementById('estado').innerHTML =
       '<div class="e '+(d.resend_configurado?'ok':'no')+'">Chave de e-mail<b>'+(d.resend_configurado?'configurada':'AUSENTE — nada sai')+'</b></div>'+
       '<div class="e '+(d.envio_habilitado?'ok':'no')+'">Envio automático<b>'+(d.envio_habilitado?'ligado':'desligado')+'</b></div>'+
-      '<div class="e info">Remetente<b>'+esc(d.from)+'</b></div>'+
+      '<div class="e info">Remetente<b>'+esc((d.remetentes||[d.from]).join(' → '))+'</b></div>'+
       '<div class="e info">Domínios permitidos<b>'+esc((d.dominios_permitidos||[]).join(', '))+'</b></div>'+
       '<div class="e info">Sempre em cópia<b>'+esc((d.copia_sempre||[]).join(', ')||'—')+'</b></div>';
 

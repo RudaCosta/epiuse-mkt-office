@@ -72,3 +72,10 @@ Agora o `error` é verificado explicitamente e vira `falhou` com o motivo real. 
 
 ## 🧪 Testar envio
 Botão no topo de `/admin/comunicados`: manda um e-mail mínimo na hora e devolve a resposta **crua** da Resend, incluindo o objeto de erro completo. Não passa pela fila nem grava no log — é sonda, não comunicado. É o caminho rápido pra descobrir por que nada chega (domínio não verificado, chave inválida, destinatário recusado) sem precisar de deploy a cada tentativa.
+
+## 📮 Causa raiz: o remetente era inválido (v0.86.3)
+O padrão histórico do projeto era `FROM_EMAIL = voices@resend.dev`. **O `resend.dev` não é nosso domínio** — a Resend só aceita como remetente `onboarding@resend.dev` (o único endereço de teste) ou `algo@<domínio que verificamos>`. Ou seja: todo envio era recusado na origem, e com o bug do `{data,error}` isso ainda era registrado como "enviado".
+
+Agora há uma **cadeia de remetentes**: tenta o configurado e, se a recusa for de domínio/remetente, refaz com `onboarding@resend.dev`. Se a recusa for por outro motivo (rate limit, chave inválida), não insiste — trocar o remetente não resolveria. O painel mostra a cadeia e o log registra qual funcionou.
+
+**Limitação que continua valendo:** com domínio não verificado, a Resend entrega **apenas para o e-mail dono da conta**. Para alcançar a Duda, a Bruna e o resto do time é preciso verificar `epiuse.com.br` na Resend (SPF/DKIM no DNS) e apontar `FROM_EMAIL=voices@epiuse.com.br`. Nenhum código contorna isso — é regra da Resend.
