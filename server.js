@@ -6029,6 +6029,7 @@ app.use('/', analyticsRouter); // Módulo 15 — Analytics de uso (report /admin
 app.use('/', require('./routes/utm')); // Módulo 18 — UTM / links rastreados (report /admin/utm)
 app.use('/', require('./routes/loja')); // Módulo 19 — Loja de ERP Coins (/loja + resgates no /admin/coins)
 app.use('/', require('./routes/voices-pipeline')); // Módulo 20 — pipeline de validação/publicação dos Voices
+app.use('/', require('./routes/comunicados')); // Modulo 21 -- fila de comunicados por e-mail
 
 app.listen(PORT, () => {
   console.log(`\n🎙️  EPI-USE Voices — Profile Optimizer`);
