@@ -79,3 +79,10 @@ O padrão histórico do projeto era `FROM_EMAIL = voices@resend.dev`. **O `resen
 Agora há uma **cadeia de remetentes**: tenta o configurado e, se a recusa for de domínio/remetente, refaz com `onboarding@resend.dev`. Se a recusa for por outro motivo (rate limit, chave inválida), não insiste — trocar o remetente não resolveria. O painel mostra a cadeia e o log registra qual funcionou.
 
 **Limitação que continua valendo:** com domínio não verificado, a Resend entrega **apenas para o e-mail dono da conta**. Para alcançar a Duda, a Bruna e o resto do time é preciso verificar `epiuse.com.br` na Resend (SPF/DKIM no DNS) e apontar `FROM_EMAIL=voices@epiuse.com.br`. Nenhum código contorna isso — é regra da Resend.
+
+## Endereços avulsos (v0.86.4)
+`COMUNICADOS_EMAILS_EXTRA` libera endereços específicos além dos domínios de `COMUNICADOS_DOMINIOS`. Lista explícita, um a um — **não** abre um domínio inteiro, e sem a variável nada muda.
+
+Existe por um caso real: enquanto o domínio não está verificado na Resend, ela entrega **apenas no e-mail dono da conta** — que pode ser pessoal (no nosso caso, um Gmail). Sem essa exceção não havia como sequer provar que o envio funciona, porque a allowlist de domínio bloqueava justamente o único endereço alcançável.
+
+É uma ponte, não o destino: quando `epiuse.com.br` estiver verificado, a variável pode ser esvaziada.

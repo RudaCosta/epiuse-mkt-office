@@ -1,5 +1,5 @@
 {
-  "current": "0.86.3",
+  "current": "0.86.4",
   "atualizado_em": "13/ago/2026",
   "next": [
     {
@@ -54,9 +54,22 @@
   ],
   "releases": [
     {
-      "version": "0.86.3",
+      "version": "0.86.4",
       "date": "13/ago/2026",
       "status": "current",
+      "path": "/admin/comunicados",
+      "title": "📧 Comunicados: liberar endereços avulsos (destrava o teste)",
+      "highlights": [
+        "Enquanto o domínio não está verificado, a Resend só entrega no e-mail DONO DA CONTA — que pode ser pessoal, fora do @epiuse.com.br. Sem uma exceção, não dava nem pra provar que o envio funciona.",
+        "COMUNICADOS_EMAILS_EXTRA libera endereços específicos, um a um, além dos domínios permitidos. Lista explícita — não abre um domínio inteiro.",
+        "Sem a variável, o comportamento é exatamente o de antes: só @epiuse.com.br.",
+        "O painel mostra os endereços extras ao lado dos domínios permitidos."
+      ]
+    },
+    {
+      "version": "0.86.3",
+      "date": "13/ago/2026",
+      "status": "released",
       "path": "/admin/comunicados",
       "title": "📮 E-mail funcionando: o remetente era inválido desde sempre",
       "highlights": [
