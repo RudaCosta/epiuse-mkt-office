@@ -76,7 +76,8 @@
       '<div class="e '+(d.resend_configurado?'ok':'no')+'">Chave de e-mail<b>'+(d.resend_configurado?'configurada':'AUSENTE — nada sai')+'</b></div>'+
       '<div class="e '+(d.envio_habilitado?'ok':'no')+'">Envio automático<b>'+(d.envio_habilitado?'ligado':'desligado')+'</b></div>'+
       '<div class="e info">Remetente<b>'+esc(d.from)+'</b></div>'+
-      '<div class="e info">Domínios permitidos<b>'+esc((d.dominios_permitidos||[]).join(', '))+'</b></div>';
+      '<div class="e info">Domínios permitidos<b>'+esc((d.dominios_permitidos||[]).join(', '))+'</b></div>'+
+      '<div class="e info">Sempre em cópia<b>'+esc((d.copia_sempre||[]).join(', ')||'—')+'</b></div>';
 
     var cs=d.comunicados||[];
     document.getElementById('lista').innerHTML = cs.length ? cs.map(function(c){
@@ -85,7 +86,7 @@
         '<div class="ch"><div class="ct">'+esc(c.assunto||'(sem assunto)')+'</div>'+
         '<span class="badge b-'+esc(c.status)+'">'+esc(c.status)+'</span></div>'+
         '<div class="cm"><b>Para:</b> '+esc((c.para||[]).join(', '))+
-          ((c.cc||[]).length?' &nbsp;·&nbsp; <b>Cópia:</b> '+esc(c.cc.join(', ')):'')+'<br>'+
+          (((c.cc_efetivo||c.cc||[]).length)?' &nbsp;·&nbsp; <b>Cópia:</b> '+esc((c.cc_efetivo||c.cc).join(', ')):'')+'<br>'+
           '<b>Envio:</b> '+(c.auto?'automático':'só manual')+
           (c.enviado_em?(' &nbsp;·&nbsp; <b>Enviado:</b> '+esc(fmt(c.enviado_em))):'')+
           (c.tentativas?(' &nbsp;·&nbsp; tentativas: '+c.tentativas):'')+

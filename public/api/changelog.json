@@ -1,5 +1,5 @@
 {
-  "current": "0.86.0",
+  "current": "0.86.1",
   "atualizado_em": "13/ago/2026",
   "next": [
     {
@@ -54,9 +54,22 @@
   ],
   "releases": [
     {
+      "version": "0.86.1",
+      "date": "13/ago/2026",
+      "status": "current",
+      "path": "/admin/comunicados",
+      "title": "✉️ Comunicados: Rudá sempre em cópia",
+      "highlights": [
+        "📩 Todo comunicado passa a copiar ruda.costa@epiuse.com.br automaticamente, sem depender de lembrarem de incluí-lo (ajustável em COMUNICADOS_COPIA_SEMPRE).",
+        "🚫 A cópia fixa nunca duplica quem já é destinatário ou já está em cópia, e respeita a mesma allowlist de domínio.",
+        "👀 O painel mostra a cópia fixa configurada e, por comunicado, quem REALMENTE vai receber em cópia — dá pra conferir antes de disparar.",
+        "🧾 O log de envio passou a gravar o cc efetivo (quem recebeu de fato) em vez do declarado no JSON."
+      ]
+    },
+    {
       "version": "0.86.0",
       "date": "11/ago/2026",
-      "status": "current",
+      "status": "released",
       "path": "/admin/comunicados",
       "title": "✉️ Comunicados — o Office manda o e-mail sozinho",
       "highlights": [
