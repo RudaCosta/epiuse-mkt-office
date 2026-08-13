@@ -1,5 +1,5 @@
 {
-  "current": "0.86.1",
+  "current": "0.86.2",
   "atualizado_em": "13/ago/2026",
   "next": [
     {
@@ -54,9 +54,22 @@
   ],
   "releases": [
     {
-      "version": "0.86.1",
+      "version": "0.86.2",
       "date": "13/ago/2026",
       "status": "current",
+      "path": "/admin/comunicados",
+      "title": "🐞 Comunicados: envio recusado se passava por enviado",
+      "highlights": [
+        "🚨 FIX: o SDK da Resend não lança exceção quando a API recusa — devolve { data, error }. O código tratava \"não lançou\" como sucesso, então um envio recusado era gravado como ENVIADO e ninguém recebia nada. Falha invisível, o pior tipo. Agora o error é checado e vira falha com o motivo real.",
+        "🧪 Botão \"Testar envio\" no painel: dispara um e-mail mínimo na hora e mostra a resposta CRUA da Resend (inclusive o objeto de erro) — é o que permite diagnosticar domínio não verificado, chave inválida ou destinatário recusado sem precisar de deploy.",
+        "🔎 O id da mensagem na Resend passa a ser gravado, pra rastrear o envio do lado deles.",
+        "📩 Um comunicado de teste entra na fila e dispara sozinho no deploy, só pro Rudá — confirma o caminho ponta a ponta."
+      ]
+    },
+    {
+      "version": "0.86.1",
+      "date": "13/ago/2026",
+      "status": "released",
       "path": "/admin/comunicados",
       "title": "✉️ Comunicados: Rudá sempre em cópia",
       "highlights": [

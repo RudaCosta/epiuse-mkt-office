@@ -46,10 +46,13 @@ db.exec(`
     status      TEXT,                    -- enviado | falhou | cancelado
     erro        TEXT DEFAULT '',
     tentativas  INTEGER DEFAULT 0,
+    resend_id   TEXT DEFAULT '',         -- id da mensagem na Resend (rastreio)
     enviado_em  TEXT,
     criado_em   TEXT DEFAULT (datetime('now'))
   );
 `);
+// migração idempotente pra bases criadas antes da coluna existir
+try { db.exec(`ALTER TABLE comunicados_envios ADD COLUMN resend_id TEXT DEFAULT ''`); } catch (_e) { /* já existe */ }
 
 function lerFila() {
   try {
@@ -73,6 +76,16 @@ function destinatariosOk(lista) {
   if (fora.length) return { ok: false, motivo: 'domínio não permitido: ' + fora.join(', ') };
   return { ok: true, lista: arr };
 }
+// A Resend devolve o erro como objeto ({name, message, statusCode}); string
+// crua vira "[object Object]" e não ajuda ninguém a diagnosticar.
+function erroLegivel(err) {
+  if (!err) return 'erro desconhecido';
+  if (typeof err === 'string') return err;
+  const partes = [err.name, err.message].filter(Boolean);
+  const txt = partes.join(': ');
+  return txt || JSON.stringify(err);
+}
+
 function registro(id) {
   try { return db.prepare(`SELECT * FROM comunicados_envios WHERE id=?`).get(id); } catch (e) { return null; }
 }
@@ -88,7 +101,8 @@ function ccFinal(ccDeclarado, para) {
 // Estado de um comunicado do JSON cruzado com o log de envio.
 function estadoDe(c) {
   const r = registro(c.id);
-  if (r) return { status: r.status, erro: r.erro, enviado_em: r.enviado_em, tentativas: r.tentativas };
+  if (r) return { status: r.status, erro: r.erro, enviado_em: r.enviado_em,
+                  tentativas: r.tentativas, resend_id: r.resend_id || '' };
   if (c.ativo === false) return { status: 'inativo' };
   return { status: 'pendente' };
 }
@@ -103,15 +117,16 @@ async function enviarUm(c, { forcar = false, por = 'auto' } = {}) {
   // O log tem que registrar quem REALMENTE recebeu, não o que estava declarado.
   // Começa com o cc do JSON e é substituído pelo efetivo assim que calculado.
   let ccLog = (c.cc || []).map(x => String(x).toLowerCase());
-  const grava = (status, erro) => {
+  const grava = (status, erro, rid) => {
     try {
-      db.prepare(`INSERT INTO comunicados_envios (id, assunto, para, cc, status, erro, tentativas, enviado_em)
-                  VALUES (?,?,?,?,?,?,1,?)
+      db.prepare(`INSERT INTO comunicados_envios (id, assunto, para, cc, status, erro, tentativas, enviado_em, resend_id)
+                  VALUES (?,?,?,?,?,?,1,?,?)
                   ON CONFLICT(id) DO UPDATE SET status=excluded.status, erro=excluded.erro,
                     tentativas=comunicados_envios.tentativas+1, enviado_em=excluded.enviado_em,
-                    assunto=excluded.assunto, para=excluded.para, cc=excluded.cc`)
+                    assunto=excluded.assunto, para=excluded.para, cc=excluded.cc,
+                    resend_id=excluded.resend_id`)
         .run(c.id, c.assunto || '', (c.para || []).join(', '), ccLog.join(', '),
-             status, erro || '', status === 'enviado' ? new Date().toISOString() : null);
+             status, erro || '', status === 'enviado' ? new Date().toISOString() : null, rid || '');
     } catch (e) { console.warn('[comunicados] log:', e.message); }
   };
 
@@ -137,17 +152,28 @@ async function enviarUm(c, { forcar = false, por = 'auto' } = {}) {
   if (!resend) { grava('falhou', 'sem RESEND_API_KEY no ambiente'); return { id: c.id, erro: 'sem_resend' }; }
 
   try {
-    await resend.emails.send({
+    const r = await resend.emails.send({
       from: FROM_EMAIL, to: dPara.lista, cc: cc.length ? cc : undefined,
       subject: c.assunto, html,
     });
-    grava('enviado', '');
-    console.log(`[comunicados] enviado "${c.id}" → ${dPara.lista.join(', ')}${cc.length ? ' (cc ' + cc.join(', ') + ')' : ''} [${por}]`);
-    return { id: c.id, enviado: true };
+    // ⚠️ O SDK da Resend (v4) NÃO lança exceção quando a API recusa: devolve
+    // { data, error }. Sem checar isso, um envio recusado era gravado como
+    // "enviado" e ninguém recebia nada — falha invisível, que é o pior tipo.
+    if (r && r.error) {
+      const msg = erroLegivel(r.error);
+      grava('falhou', msg.slice(0, 300));
+      console.warn(`[comunicados] recusado "${c.id}":`, msg);
+      return { id: c.id, erro: msg, erro_completo: msg };
+    }
+    const rid = (r && r.data && r.data.id) || '';
+    grava('enviado', '', rid);
+    console.log(`[comunicados] enviado "${c.id}" id=${rid || '?'} → ${dPara.lista.join(', ')}${cc.length ? ' (cc ' + cc.join(', ') + ')' : ''} [${por}]`);
+    return { id: c.id, enviado: true, resend_id: rid };
   } catch (e) {
-    grava('falhou', String(e.message || e).slice(0, 300));
-    console.warn(`[comunicados] falhou "${c.id}":`, e.message);
-    return { id: c.id, erro: e.message };
+    const msg = String(e && e.message || e);
+    grava('falhou', msg.slice(0, 300));
+    console.warn(`[comunicados] falhou "${c.id}":`, msg);
+    return { id: c.id, erro: msg, erro_completo: msg };
   }
 }
 
@@ -222,6 +248,43 @@ router.post('/api/admin/comunicados/:id/cancelar', requireAdmin, (req, res) => {
       .run(c.id, c.assunto || '', (c.para || []).join(', '), (c.cc || []).join(', '));
     res.json({ success: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── Teste de envio ───────────────────────────────────────────────────────────
+// Manda um e-mail mínimo e devolve o resultado CRU da Resend. Existe pra
+// diagnóstico: quando nada chega, é aqui que se descobre o porquê (domínio não
+// verificado, chave inválida, destinatário recusado…) sem precisar de deploy.
+// Não passa pela fila nem grava no log — é sonda, não comunicado.
+router.post('/api/admin/comunicados/teste', requireAdmin, express.json({ limit: '2kb' }), async (req, res) => {
+  const alvo = String((req.body || {}).para || '').toLowerCase().trim()
+    || (req.session && req.session.user && String(req.session.user.email).toLowerCase())
+    || COPIA_SEMPRE[0] || '';
+  const d = destinatariosOk([alvo]);
+  if (!d.ok) return res.json({ ok: false, etapa: 'destinatario', erro: d.motivo, para: alvo });
+  if (!HABILITADO) return res.json({ ok: false, etapa: 'kill_switch', erro: 'COMUNICADOS_ENABLED=false', para: alvo });
+  if (!resend) return res.json({ ok: false, etapa: 'chave', erro: 'sem RESEND_API_KEY no ambiente', para: alvo });
+
+  const quando = new Date().toISOString();
+  try {
+    const r = await resend.emails.send({
+      from: FROM_EMAIL, to: [alvo],
+      subject: '🧪 Teste de envio — EPI-USE Office',
+      html: `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#001844;line-height:1.6">
+        <p><strong>Funcionou.</strong> Se você está lendo isto, o Office consegue enviar e-mail.</p>
+        <p style="color:#3d5170">Remetente: <code>${FROM_EMAIL}</code><br>Enviado em: ${quando}</p>
+        <p style="color:#6b7f9c;font-size:13px">Mensagem de teste disparada pelo painel de Comunicados.</p>
+      </div>`,
+    });
+    if (r && r.error) {
+      // O detalhe cru é o que permite diagnosticar de fora.
+      return res.json({ ok: false, etapa: 'resend', para: alvo, from: FROM_EMAIL,
+                        erro: erroLegivel(r.error), detalhe: r.error });
+    }
+    return res.json({ ok: true, para: alvo, from: FROM_EMAIL, resend_id: (r && r.data && r.data.id) || '' });
+  } catch (e) {
+    return res.json({ ok: false, etapa: 'excecao', para: alvo, from: FROM_EMAIL,
+                      erro: String(e && e.message || e) });
+  }
 });
 
 router.get('/admin/comunicados', requireAdmin, (req, res) => {

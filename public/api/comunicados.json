@@ -1,12 +1,27 @@
 {
   "_obs": "Fila de comunicados por e-mail (Módulo 21). O Office envia sozinho os que estão com auto=true, ~90s após o deploy e depois de hora em hora. O corpo fica em public/emails/<arquivo>. O 'id' é a trava de envio único: NUNCA reaproveite um id — para reenviar, use o painel /admin/comunicados.",
-  "atualizado_em": "2026-08-11",
+  "atualizado_em": "2026-08-13",
   "comunicados": [
+    {
+      "id": "teste-envio-2026-08-13",
+      "assunto": "🧪 Teste de envio — EPI-USE Office",
+      "para": [
+        "ruda.costa@epiuse.com.br"
+      ],
+      "html": "<div style=\"font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#001844;line-height:1.65;max-width:560px\"><p style=\"font-size:17px;font-weight:bold;margin:0 0 12px\">Funcionou.</p><p style=\"margin:0 0 12px\">Se você está lendo isto, o Office consegue enviar e-mail sozinho — a fila de comunicados está operacional.</p><p style=\"margin:0 0 12px;color:#3d5170\">Este disparo saiu automaticamente ~90s depois do deploy, sem ninguém clicar em nada.</p><p style=\"margin:0;color:#6b7f9c;font-size:13px\">Comunicado de teste · módulo 21 · pode ignorar.</p></div>",
+      "resumo": "Sonda: confirma que a fila envia sozinha depois do deploy. Só pro Rudá.",
+      "auto": true,
+      "ativo": true
+    },
     {
       "id": "voices-pipeline-2026-08-11",
       "assunto": "Pipeline de pautas dos Voices — já está no ar no Office",
-      "para": ["eduarda.hirose@epiuse.com.br"],
-      "cc": ["bruna.yamagami@epiuse.com.br"],
+      "para": [
+        "eduarda.hirose@epiuse.com.br"
+      ],
+      "cc": [
+        "bruna.yamagami@epiuse.com.br"
+      ],
       "html_file": "voices-pipeline.html",
       "resumo": "Explica pra Duda o fluxo novo (Redatoria → Voice → OK dela → link rastreado) e o que ela precisa fazer.",
       "auto": true,

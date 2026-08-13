@@ -62,3 +62,13 @@ Mostra se a chave está configurada, se o envio automático está ligado, o reme
 Todo comunicado copia automaticamente `ruda.costa@epiuse.com.br` — pedido do Rudá, pra ele ver tudo que sai em nome do time sem depender de alguém lembrar de incluí-lo. Configurável em `COMUNICADOS_COPIA_SEMPRE` (lista separada por vírgula).
 
 A cópia fixa **não duplica** quem já é destinatário ou já está no `cc`, e passa pela mesma allowlist de domínio. O painel mostra a cópia fixa configurada e, por comunicado, o **cc efetivo** — quem realmente vai receber. O log de envio grava o cc efetivo, não o declarado.
+
+## 🐞 Envio recusado se passava por enviado (corrigido em v0.86.2)
+O SDK da Resend (v4) **não lança exceção** quando a API recusa o envio — ele devolve `{ data, error }`. O código original fazia `await resend.emails.send(...)` dentro de `try/catch` e tratava "não lançou" como sucesso. Resultado: um envio recusado (domínio não verificado, destinatário não permitido, chave inválida) era gravado como **enviado**, e ninguém recebia nada. Falha invisível — o pior tipo, porque não há o que investigar.
+
+Agora o `error` é verificado explicitamente e vira `falhou` com o motivo real. O `id` da mensagem na Resend é gravado nos envios bem-sucedidos, pra rastreio do lado deles.
+
+**Nota:** o mesmo padrão existe em outros pontos do `server.js` (ex.: `sendRecruitmentEmail`, que loga `[EMAIL-SENT]` independente do resultado). Não foram alterados aqui pra manter o escopo, mas têm a mesma falha latente.
+
+## 🧪 Testar envio
+Botão no topo de `/admin/comunicados`: manda um e-mail mínimo na hora e devolve a resposta **crua** da Resend, incluindo o objeto de erro completo. Não passa pela fila nem grava no log — é sonda, não comunicado. É o caminho rápido pra descobrir por que nada chega (domínio não verificado, chave inválida, destinatário recusado) sem precisar de deploy a cada tentativa.
