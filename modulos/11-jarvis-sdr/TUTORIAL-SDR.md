@@ -18,14 +18,17 @@
 
 ## 2 · Ligando a escuta — ache o seu caso
 
-### 🎧 Caso A — você está de FONE (ou call remota) ← mais comum
-1. **🎙️ Ativar mic** → permite o microfone.
-2. **🎧 Áudio da call**.
-3. Escolhe a **aba da reunião** (Meet / Teams / Zoom **no navegador**) e **marque a caixinha "compartilhar áudio"**.
-   > ⚠️ **Sem marcar o áudio, não funciona.** É o erro mais comum.
-4. Na primeira vez ele **baixa o modelo** (~100 MB, uma vez só). Espera o status ficar **verde**.
+### 🎧 Caso A — ligação no 3CX (ou qualquer softphone, de fone) ← mais comum
+1. **🎙️ Ativar mic** → permite o microfone. Isso capta **você**.
+2. No **seletor ao lado do botão**, escolhe de onde vem a **voz do cliente**:
+   - **🎚️ Mixagem estéreo / Stereo Mix** (ou cabo virtual **VB-Cable**) — **recomendado no 3CX**. O JARVIS tenta achar sozinho e já deixa selecionado.
+   - Ou **🔊 Áudio do sistema** → escolhe **"Tela inteira"** e **marca "Compartilhar áudio do sistema"**.
+     > ⚠️ **Sem marcar o áudio, não vem som.** É o erro mais comum.
+3. Clica **🎧 Áudio da call**. Na primeira vez ele **baixa o modelo** (~100 MB, uma vez só). Espera o status ficar **verde**.
 
 ✅ Pronto: **seu mic = você (SDR)** e o **áudio da call = o cliente**. Você não marca nada.
+
+> 💡 **Não aparece "Mixagem estéreo"?** Windows: botão direito no ícone de som → *Configurações de som* → *Mais opções* → aba **Gravação** → botão direito no vazio → **Mostrar dispositivos desativados** → habilita **Mixagem estéreo**. Se a placa não tiver, instala o **VB-Cable** (grátis).
 
 ### 🔊 Caso B — viva-voz / reunião presencial
 1. Só **🎙️ Ativar mic**.
@@ -80,11 +83,13 @@ Só clica **⏸️ Pausar mic**.
 
 | O que aparece | O que fazer |
 |---|---|
-| *"Sem faixa de áudio"* | Esqueceu de marcar **"compartilhar áudio"**. Clica de novo e marca. |
+| *"Sem faixa de áudio"* | Escolhe **"Tela inteira"** e marca **"Compartilhar áudio do sistema"**. Ou troca pro modo **🎚️ dispositivo** (Mixagem estéreo), que não usa compartilhamento. |
+| **Ouve você, mas não o cliente** | A fonte está errada. No 3CX use **Mixagem estéreo / VB-Cable**, não o microfone. |
+| **Não aparece "Mixagem estéreo"** | Habilita em *Configurações de som → Gravação → Mostrar dispositivos desativados*, ou instala o **VB-Cable**. |
 | *"use o Chrome"* | Abriu no Safari/Firefox. Troca pro Chrome. |
-| Reunião no **app instalado** (Teams/Zoom) **no Mac** | O Mac não deixa capturar o áudio do app. Entra na reunião pelo **navegador**. |
+| **No Mac** | O Chrome não captura áudio do sistema; só o modo **dispositivo** com cabo virtual (BlackHole). |
 | *"Falha ao carregar o modelo"* | Rede bloqueando o download. Chama o Rudá. |
-| Não ouve o cliente | Confirma que o **🎧 Áudio da call** está ligado (botão fica vermelho: "Parar captura"). |
+| Não ouve nada | Confirma que o **🎧 Áudio da call** está ligado (botão fica vermelho: "Parar captura"). |
 
 ---
 

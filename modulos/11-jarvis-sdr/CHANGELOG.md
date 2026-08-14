@@ -1,5 +1,23 @@
 # CHANGELOG — Módulo 11 (JARVIS)
 
+## v0.10.1 — 2026-08-07 · Captura pra 3CX (softphone) — device loopback + fix
+Motivo: o Rudá testou e **não funcionou** — o time atende no **3CX desktop (Windows)**, não em aba de
+navegador. Sem aba, o `getDisplayMedia` não tinha o que compartilhar (ou vinha sem faixa de áudio).
+
+**Corrigido / adicionado (`public/jarvis-callstt.js`, `public/jarvis.html`):**
+- **Novo caminho A — captura por DISPOSITIVO** (`startDevice`): `getUserMedia` num device de entrada que
+  carrega o áudio de saída ("Mixagem estéreo/Stereo Mix", VB-Cable). **Recomendado pra softphone** — não
+  depende de screen-share. `listDevices()` popula um seletor e `guessLoopback()` pré-seleciona o provável.
+- **Caminho B — áudio do sistema** (`startDisplay`): mantido, com instrução certa (Windows: "Tela inteira"
+  + marcar "Compartilhar áudio do sistema").
+- 🐞 **Bug real corrigido:** o código parava a faixa de VÍDEO logo após pegar o stream — em várias versões
+  do Chrome isso **encerra a sessão inteira e derruba o áudio junto**. Agora a faixa é mantida (vídeo mínimo
+  320x180@1fps) e só para no `stop()`.
+- 🐞 **Processamento de voz desligado** (`echoCancellation/noiseSuppression/autoGainControl: false`) — com
+  eles ligados o Chrome trata o loopback como eco e **corta o áudio do cliente**.
+- Instruções reescritas (tutorial na tela + `TUTORIAL-SDR.md`) pro fluxo 3CX/Windows, incluindo como
+  habilitar a Mixagem estéreo e o troubleshooting "ouve você mas não o cliente".
+
 ## v0.10.0 — 2026-07-01 · Captura do áudio da call + STT FREE no navegador (beta)
 Motivo: com **fone**, o mic não capta o prospect (a voz sai no fone, não vaza no ar) — o JARVIS só ouvia o
 SDR. O Rudá quer ouvir os **dois lados**, **de graça** e **em tempo real**. Decisão: capturar o áudio da
