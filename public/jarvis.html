@@ -539,9 +539,12 @@ async function preCallBrief(){
     const r = await fetch('/api/jarvis/brief',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({context:ctx()})});
     const d = await r.json();
     if(!r.ok||d.success===false){ renderCoachError(d.error||('HTTP '+r.status)); return; }
-    let html = card('talk','🚀','Abertura', d.abertura);
+    let html='';
+    if (d.etiqueta) html += `<div class="ai-banner" style="margin:0 0 10px;${d._contexto_conhecido?'':'background:rgba(252,211,77,.12)'}">${escapeHtml(d.etiqueta)}</div>`;
+    (d._avisos||[]).forEach(a=>{ html += `<div class="cc obj"><div class="cct">⚠️ Saneado</div><div class="ccb">${escapeHtml(a)}</div></div>`; });
+    html += card('talk','🚀','Abertura', d.abertura);
     if (d.gatilho_2026) html += card('obj','⏰','Gatilho 2026', d.gatilho_2026);
-    if (Array.isArray(d.dores_provaveis)&&d.dores_provaveis.length) html += `<div class="cc q"><div class="cct">🔎 Dores prováveis</div><div class="chips">${d.dores_provaveis.map(x=>`<span class="chip">${escapeHtml(x)}</span>`).join('')}</div></div>`;
+    if (Array.isArray(d.dores_provaveis)&&d.dores_provaveis.length) html += `<div class="cc q"><div class="cct">🔎 Dores ${d._contexto_conhecido?'prováveis':'— HIPÓTESES a confirmar'}</div><div class="chips">${d.dores_provaveis.map(x=>`<span class="chip">${escapeHtml(x)}</span>`).join('')}</div></div>`;
     if (Array.isArray(d.perguntas_chave)&&d.perguntas_chave.length) html += `<div class="cc"><div class="cct">❓ Perguntas-chave</div><div class="ccb">${d.perguntas_chave.map(q=>'• '+escapeHtml(q)).join('<br>')}</div></div>`;
     if (d.prova_social) html += card('next','🏅','Prova social', d.prova_social);
     html += contentCard(d.conteudos_sugeridos);
@@ -558,11 +561,17 @@ async function pesquisarProduto(){
     const r = await fetch('/api/jarvis/pesquisar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({produto:produto.trim(), lob:ctx().lob})});
     const d = await r.json();
     if(!r.ok||d.success===false){ renderCoachError(d.error||('HTTP '+r.status)); return; }
-    let html = `<div class="ai-banner" style="margin:0 0 10px">🌐 <strong>Pesquisa web — verificar.</strong> Conteúdo técnico de fontes externas.</div>`;
+    const semFonte=!Array.isArray(d.fontes)||!d.fontes.length;
+    const corBanner=semFonte?'rgba(205,21,67,.14)':(d._fontes_oficiais?'rgba(110,231,183,.10)':'rgba(252,211,77,.12)');
+    let html = `<div class="ai-banner" style="margin:0 0 10px;background:${corBanner}">${escapeHtml(d.etiqueta||'🌐 Pesquisa web — verificar')}</div>`;
     const resumo = Array.isArray(d.resumo)? d.resumo : (d.resumo? [d.resumo]: []);
     if (resumo.length) html += `<div class="cc q"><div class="cct">🔬 Resumo técnico — ${escapeHtml(produto)}</div><div class="ccb">${resumo.map(b=>'• '+escapeHtml(b)).join('<br>')}</div></div>`;
     if (d.como_explicar) html += card('talk','💬','Como explicar ao prospect', d.como_explicar);
-    if (Array.isArray(d.fontes)&&d.fontes.length) html += contentCard(d.fontes.map(f=>({titulo:f.titulo,url:f.url})));
+    // fontes com selo: oficial (SAP/ServiceNow) vs não verificada
+    if (!semFonte) html += contentCard(d.fontes.map(f=>({
+      titulo:(f.oficial?'✅ ':'⚠️ ')+(f.titulo||f.host||f.url), url:f.url,
+      porque:(f.oficial?'fonte oficial · '+f.host:'NÃO oficial ('+(f.host||'?')+') — confirme antes de usar')
+    })));
     $('coach').innerHTML = html;
   }catch(e){ renderCoachError(e.message); }
 }
