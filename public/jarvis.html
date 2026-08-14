@@ -101,6 +101,9 @@
   /* captura de áudio da call (beta) */
   .callcap-row{display:flex;align-items:center;gap:10px;margin:-2px 0 12px;flex-wrap:wrap}
   #btn-callcap{font-size:12px}
+  #callcap-src{background:var(--j-bg2);border:1px solid var(--j-border);color:var(--j-dim);border-radius:8px;
+    padding:6px 8px;font-size:11px;font-family:inherit;outline:none;max-width:270px}
+  #callcap-src:focus{border-color:var(--j-glow)}
   #btn-callcap.on{background:linear-gradient(135deg,var(--j-red),#7a0c25);border-color:transparent;color:#fff}
   .callcap-status{font-size:11px;color:var(--j-muted);line-height:1.4}
   .callcap-status[data-kind="ok"]{color:var(--j-green)}
@@ -199,14 +202,19 @@
       <h4>2 · Ligando a escuta (escolha o seu caso)</h4>
       <div class="howto-grid">
         <div>
-          <b>🎧 Você está de FONE (ou call remota)</b>
+          <b>🎧 Ligação no 3CX (ou qualquer softphone, de fone)</b>
           <ol>
-            <li>Clica <b>🎙️ Ativar mic</b> e permite o microfone.</li>
-            <li>Clica <b>🎧 Áudio da call</b>.</li>
-            <li>Escolhe a <b>aba da reunião</b> (Meet/Teams/Zoom no navegador) e <b class="warn">MARQUE a caixinha "compartilhar áudio"</b> — sem ela não funciona.</li>
-            <li>Na 1ª vez ele <b>baixa o modelo</b> (~100MB). Espera o status ficar <b>verde</b> ("ouvindo o áudio da call").</li>
+            <li>Clica <b>🎙️ Ativar mic</b> e permite o microfone (isso capta <b>você</b>).</li>
+            <li>No seletor ao lado do botão, escolhe de onde vem a <b>voz do cliente</b>:
+              <ul>
+                <li><b>🎚️ Mixagem estéreo / Stereo Mix</b> (ou um cabo virtual, tipo VB-Cable) — <b>é o recomendado no 3CX</b>. O JARVIS já tenta achar sozinho e deixa pré-selecionado.</li>
+                <li>Ou <b>🔊 Áudio do sistema</b> → escolhe <b>"Tela inteira"</b> e <b class="warn">MARCA "Compartilhar áudio do sistema"</b>. Sem marcar, não vem áudio.</li>
+              </ul>
+            </li>
+            <li>Clica <b>🎧 Áudio da call</b>. Na 1ª vez ele <b>baixa o modelo</b> (~100MB). Espera o status ficar <b>verde</b>.</li>
           </ol>
-          <div class="howto-tip">✅ Assim ele já sabe quem é quem: <b>seu mic = você (SDR)</b> e o <b>áudio da call = o cliente</b>. Não precisa marcar nada.</div>
+          <div class="howto-tip">✅ Assim ele já sabe quem é quem: <b>seu mic = você (SDR)</b> e o <b>áudio da call = o cliente</b>. Não precisa marcar nada.<br>
+          💡 <b>Não aparece "Mixagem estéreo"?</b> No Windows: botão direito no ícone de som → <i>Configurações de som</i> → <i>Mais opções</i> → aba <i>Gravação</i> → clique com o direito no vazio → <i>Mostrar dispositivos desativados</i> → habilite <b>Mixagem estéreo</b>. Se a placa não tiver, instale o <b>VB-Cable</b> (grátis).</div>
         </div>
         <div>
           <b>🔊 Reunião no viva-voz / presencial</b>
@@ -243,9 +251,11 @@
 
       <h4>🔧 Se der problema</h4>
       <ul>
-        <li><b>"Sem faixa de áudio"</b> → você esqueceu de marcar "compartilhar áudio". Clica de novo e marca.</li>
+        <li><b>"Sem faixa de áudio"</b> → no compartilhamento, escolha <b>"Tela inteira"</b> e marque <b>"Compartilhar áudio do sistema"</b>. Ou troque pro modo <b>🎚️ dispositivo</b> (Mixagem estéreo), que não usa compartilhamento.</li>
+        <li><b>Não ouve o cliente (mas ouve você)</b> → a fonte escolhida está errada. No 3CX, use <b>Mixagem estéreo / VB-Cable</b>, não o microfone.</li>
+        <li><b>Não aparece "Mixagem estéreo" na lista</b> → habilite em <i>Configurações de som → Gravação → Mostrar dispositivos desativados</i>, ou instale o <b>VB-Cable</b>.</li>
         <li><b>"use o Chrome"</b> → abriu no Safari/Firefox. Troca pro Chrome.</li>
-        <li><b>Reunião no app instalado (Teams/Zoom) no Mac</b> → o Mac não deixa capturar o áudio do app. Entra na reunião pelo <b>navegador</b>.</li>
+        <li><b>No Mac</b> → o Chrome não captura áudio do sistema; só o modo <b>dispositivo</b> com cabo virtual (BlackHole) funciona.</li>
         <li><b>Modelo não carrega</b> → rede bloqueando. Chama o Rudá.</li>
       </ul>
     </div>
@@ -274,8 +284,11 @@
         </div>
       </div>
       <div class="callcap-row">
-        <button class="btn ghost" id="btn-callcap" title="Captura o áudio da reunião (aba/sistema) pra ouvir o CLIENTE — funciona até de fone. Compartilhe a aba da call marcando 'compartilhar áudio'.">🎧 Áudio da call (beta)</button>
-        <span id="callcap-status" class="callcap-status">só mic hoje · ative pra ouvir o cliente na call de fone (grátis, roda no navegador)</span>
+        <button class="btn ghost" id="btn-callcap" title="Captura a voz do CLIENTE (a que sai no seu fone) — funciona com 3CX e qualquer softphone.">🎧 Áudio da call (beta)</button>
+        <select id="callcap-src" title="De onde capturar a voz do cliente">
+          <option value="__display__">🔊 Áudio do sistema (compartilhar tela)</option>
+        </select>
+        <span id="callcap-status" class="callcap-status">só mic hoje · ative pra ouvir o cliente (grátis, roda no navegador)</span>
       </div>
       <div class="rolemap" id="rolemap">
         <span class="rm-lbl">Quem é cada voz?</span>
@@ -295,7 +308,10 @@
         <span id="save-status" style="font-size:11px;color:var(--j-muted)">💾 salva sozinho ao pausar o mic</span>
       </div>
       <div class="footnote">
-        🎧 <strong>Áudio da call (beta):</strong> pra ouvir o <strong>cliente numa call de fone</strong>, clique em “Áudio da call” e <strong>compartilhe a aba/tela da reunião marcando “compartilhar áudio”</strong>. O JARVIS capta o áudio da call (lado do cliente) e transcreve <strong>de graça, no seu navegador</strong> (Whisper — WebGPU quando dá, senão modo leve). Aí mic = <strong>você (SDR)</strong> e a call = <strong>Cliente</strong>, sem marcar nada.<br>
+        🎧 <strong>Áudio da call (beta) — para 3CX e qualquer softphone:</strong> seu mic já pega <strong>você</strong>; isto pega a <strong>voz do cliente</strong> (a que sai no seu fone). Escolha a fonte no seletor ao lado:<br>
+        &nbsp;&nbsp;• <strong>🎚️ Um dispositivo</strong> (recomendado no 3CX): “Mixagem estéreo/Stereo Mix” ou um cabo virtual (VB-Cable). Não depende de compartilhar tela — mais estável.<br>
+        &nbsp;&nbsp;• <strong>🔊 Áudio do sistema</strong>: escolha <strong>“Tela inteira”</strong> e <strong>marque “Compartilhar áudio do sistema”</strong> (Windows). Sem marcar, não vem áudio.<br>
+        Transcreve <strong>de graça no seu navegador</strong> (Whisper — WebGPU quando dá, senão modo leve). Com a captura ligada, mic = <strong>você (SDR)</strong> e a call = <strong>Cliente</strong>, sem marcar nada.<br>
         🔀 <strong>Sem a captura</strong>, o <code>Web Speech API</code> só pega o <strong>microfone local</strong> e o JARVIS quebra as falas por pausa em <strong>Voz 1 / Voz 2</strong> (heurística — se sair trocado, use “↔️ trocar voz”). Melhor no <strong>Chrome</strong>.
       </div>
     </div>
@@ -682,23 +698,39 @@ $('btn-dores').addEventListener('click', mostrarDores);
 
 // ── Captura do áudio da call (beta): mic = SDR (voz1) · áudio da call = Cliente (voz2) ──
 function setCallStatus(msg, kind){ const el=$('callcap-status'); if(!el) return; el.textContent=msg; el.dataset.kind=kind||'info'; }
+// Popula o seletor com os dispositivos de entrada (Stereo Mix / cabo virtual /
+// mic). Pra softphone (3CX desktop) o caminho estável é um device de loopback.
+async function loadCallSources(){
+  const api = window.JarvisCallSTT, sel = $('callcap-src');
+  if(!api || !sel) return;
+  try{
+    const devs = await api.listDevices();
+    const guess = api.guessLoopback(devs);
+    sel.innerHTML = '<option value="__display__">🔊 Áudio do sistema (compartilhar tela)</option>'
+      + devs.map(d=>`<option value="${escapeHtml(d.id)}">🎚️ ${escapeHtml(d.label)}</option>`).join('');
+    if(guess){ sel.value = guess.id; setCallStatus('achei "'+guess.label+'" — provável saída da call. Pode ativar.','ok'); }
+  }catch(e){}
+}
 async function toggleCallCap(){
   const api = window.JarvisCallSTT;
   if(!api){ setCallStatus('módulo não carregou — recarregue a página','err'); return; }
-  if(api.isOn()){ api.stop(); ST.callCapOn=false; $('btn-callcap').classList.remove('on'); $('btn-callcap').textContent='🎧 Áudio da call (beta)'; return; }
-  if(!api.supported()){ setCallStatus('navegador sem getDisplayMedia — use o Chrome','err'); return; }
+  const reset=()=>{ ST.callCapOn=false; $('btn-callcap').classList.remove('on'); $('btn-callcap').textContent='🎧 Áudio da call (beta)'; };
+  if(api.isOn()){ api.stop(); reset(); return; }
   // 2 fontes: mic=SDR (voz1), áudio da call=Cliente (voz2). Marca os papéis sozinho.
   ST.callCapOn = true;
   setRole('voz1','sdr');            // define voz1=SDR e voz2=Cliente automaticamente
   if(!ST.micOn) startMic();          // garante o lado do SDR
   $('btn-callcap').classList.add('on'); $('btn-callcap').textContent='🎧 Parar captura';
-  const ok = await api.start(
-    function(txt){ addUtterance(txt, 'voz2'); },       // fala do cliente
-    function(msg,kind){ setCallStatus(msg, kind); }
-  );
-  if(!ok){ ST.callCapOn=false; $('btn-callcap').classList.remove('on'); $('btn-callcap').textContent='🎧 Áudio da call (beta)'; }
+  const onText=(txt)=>addUtterance(txt,'voz2');       // fala do cliente
+  const onStat=(msg,kind)=>setCallStatus(msg,kind);
+  const src = $('callcap-src') ? $('callcap-src').value : '__display__';
+  const ok = (src==='__display__')
+    ? await api.startDisplay(onText, onStat)
+    : await api.startDevice(src, onText, onStat);
+  if(!ok) reset();
 }
 $('btn-callcap').addEventListener('click', toggleCallCap);
+loadCallSources();
 $('btn-ask').addEventListener('click', ()=>{ const last=[...ST.transcript].reverse().find(u=>roleOf(u.voz)==='prospect') || [...ST.transcript].reverse()[0]; requestCoach(last?last.text:''); });
 $('btn-brief').addEventListener('click', preCallBrief);
 $('btn-pesquisar').addEventListener('click', pesquisarProduto);
