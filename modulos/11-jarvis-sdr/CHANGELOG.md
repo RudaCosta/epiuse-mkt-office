@@ -1,5 +1,25 @@
 # CHANGELOG — Módulo 11 (JARVIS)
 
+## v0.12 — 2026-08-14 · 🐞 Fix do "NNNNNN": áudio ia pro Whisper na taxa errada
+Sintoma do Rudá: *"pega o áudio e aparece só uma letra, tipo NNNNNNN"*. Isso é a assinatura clássica do
+Whisper recebendo áudio **fora de 16 kHz**.
+
+**Causa raiz:** eu criava `new AudioContext({sampleRate:16000})` mas **nunca verificava se o navegador
+obedeceu** — com fonte de aba/tela o Chrome roda a **48 kHz** assim mesmo. Aí: (a) o cálculo do chunk usava
+16000 fixo, então 64.000 amostras eram tratadas como 4s quando eram 1,33s; (b) o PCM ia cru pro Whisper,
+que **assume 16 kHz** → áudio **esticado 3×** → ruído → o modelo entra em loop de repetição.
+
+**Corrigido (`public/jarvis-callstt.js`):**
+- `S.actxRate` guarda a taxa **REAL** do contexto; o cálculo do chunk passa a usar ela.
+- `resampleTo16k()` — reamostragem de verdade por decimação **com média na janela** (passa-baixa cru,
+  evita aliasing). Verificado: tom de 440 Hz a 48 kHz continua **439 Hz** e 1s continua 1s.
+- `normalize()` — áudio de aba costuma vir baixo; sobe o ganho pra faixa que o Whisper gosta.
+- Parâmetros de geração: `temperature:0`, `no_repeat_ngram_size:3`, `condition_on_previous_text:false`,
+  `chunk_length_s:30` (janela nativa) — travam o loop de repetição.
+- `ehRepeticao()` — rede de segurança: descarta saída degenerada ("NNNNN", "ha ha ha ha") em vez de jogar
+  na transcrição.
+- UI → **v0.12** (+ cache-bust `?v=0.12`) pra dar pra confirmar o deploy.
+
 ## v0.10.3 — 2026-08-14 · Pivot pro 3CX Web Client + medidor de sinal + fix dos botões
 Motivo: a captura seguia sem funcionar. **Meu diagnóstico anterior estava errado**: recomendei "Mixagem
 estéreo", mas o Stereo Mix é loopback da **placa onboard** — com **headset USB** o áudio do 3CX **nunca
