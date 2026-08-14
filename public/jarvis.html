@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="/design-tokens.css">
 <script type="module" src="/office-nav.js"></script>
 <script type="module" src="/office-footer.js"></script>
-<script src="/jarvis-callstt.js"></script>
+<script src="/jarvis-callstt.js?v=0.11"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   /* ── Paleta local mapeada nos design-tokens EPI-USE (Regra 8 — sem hex de marca solto) ── */
@@ -183,7 +183,7 @@
   <div class="head">
     <div class="orb" title="JARVIS — mega brain 🧠"><img src="/img/jarvis/logo-megamind-v1.svg" alt="JARVIS — mega brain"></div>
     <div>
-      <h1>JARVIS <span class="v">· COPILOTO SDR/BDR &nbsp;v0.10</span></h1>
+      <h1>JARVIS <span class="v">· COPILOTO SDR/BDR &nbsp;v0.11</span></h1>
     </div>
   </div>
   <p class="sub">🤖 Sugestões de IA — confira antes de falar.</p>
@@ -716,6 +716,8 @@ async function loadCallSources(){
 async function toggleCallCap(){
   const api = window.JarvisCallSTT;
   if(!api){ setCallStatus('módulo não carregou — recarregue a página','err'); return; }
+  if(typeof api.startDisplay!=='function' || typeof api.startDevice!=='function'){
+    setCallStatus('⚠️ Versão antiga em cache. Aperte Ctrl+Shift+R (ou Cmd+Shift+R) pra recarregar.','err'); return; }
   const reset=()=>{ ST.callCapOn=false; $('btn-callcap').classList.remove('on'); $('btn-callcap').textContent='🎧 Áudio da call'; const l=$('callcap-lvl'); if(l) l.classList.remove('on'); };
   if(api.isOn()){ api.stop(); reset(); return; }
   // 2 fontes: mic=SDR (voz1), áudio da call=Cliente (voz2). Marca os papéis sozinho.
