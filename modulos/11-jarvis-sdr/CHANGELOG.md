@@ -1,5 +1,29 @@
 # CHANGELOG — Módulo 11 (JARVIS)
 
+## v0.10.2 — 2026-08-14 · Revisão de acurácia do pré-call brief e do pesquisar produto
+Motivo: o Rudá apontou que **pré-call e pesquisa de produto não estavam acurados**. A auditoria achou uma
+**regressão que eu mesmo introduzi na v0.9** + falta de saneamento na pesquisa web.
+
+**🐞 Causa raiz (regressão v0.9):** ao remover os dropdowns, o pré-call passou a rodar com contexto VAZIO.
+`selectFY27({})` devolvia `{}` → **nenhum case, ICP, persona ou jornada era injetado** — mas o prompt
+continuava pedindo `prova_social`. Sem dado real, o modelo **inventava** (inclusive número).
+
+**Corrigido (`routes/jarvis.js`, `public/jarvis.html`):**
+- `casesReais(lob)` — cases REAIS (anonimizados) agora são **sempre** injetados no brief; sem LOB devolve
+  todos (6) em vez de nenhum.
+- **Regra anti-invenção** no system prompt: proibido citar número/percentual/prazo/ROI/cliente que não esteja
+  na base. Prova social só dos cases; sem case aderente → vazio, nunca inventado.
+- `temMetricaInventada()` — **guarda server-side**: se a `prova_social` traz "40%", "R$ 2,5 mi", "3x",
+  "3 semanas" que **não existem** na fonte, o campo é **descartado** e o SDR vê o aviso. (Os cases da base
+  não têm métrica nenhuma — então qualquer número ali era alucinação.)
+- **Honestidade de contexto:** quando LOB/persona/indústria ainda são desconhecidos (pré-call), a resposta
+  vem etiquetada e as dores aparecem como **"HIPÓTESES a confirmar"**, não como fato.
+- **Pesquisar produto:** as `fontes` **não passavam por validação nenhuma** — o modelo podia devolver URL
+  construída. Agora cada fonte é parseada, classificada em **oficial** (sap.com, help.sap.com, servicenow.com,
+  docs.servicenow.com, successfactors.com, qualtrics.com) vs **não verificada**, URL inválida é descartada, e
+  a etiqueta muda conforme o resultado (`sem fonte verificável` / `N oficiais` / `nenhuma oficial`).
+  Prompt reforçado: só afirmar o que achou, nunca construir URL, omitir em vez de arriscar.
+
 ## v0.10.1 — 2026-08-07 · Captura pra 3CX (softphone) — device loopback + fix
 Motivo: o Rudá testou e **não funcionou** — o time atende no **3CX desktop (Windows)**, não em aba de
 navegador. Sem aba, o `getDisplayMedia` não tinha o que compartilhar (ou vinha sem faixa de áudio).
