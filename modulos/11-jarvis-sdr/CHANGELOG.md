@@ -1,5 +1,27 @@
 # CHANGELOG — Módulo 11 (JARVIS)
 
+## v0.10.3 — 2026-08-14 · Pivot pro 3CX Web Client + medidor de sinal + fix dos botões
+Motivo: a captura seguia sem funcionar. **Meu diagnóstico anterior estava errado**: recomendei "Mixagem
+estéreo", mas o Stereo Mix é loopback da **placa onboard** — com **headset USB** o áudio do 3CX **nunca
+passa por lá**, então capturava silêncio. O mesmo vale pro "áudio do sistema" do Chrome, que segue o
+**dispositivo padrão do Windows**: se o 3CX toca num device específico, não vem nada.
+
+**Decisão do Rudá:** usar o **3CX Web Client** (3CX no navegador). A call vira uma **aba** → captura de aba
+funciona sem driver nenhum, sem cabo virtual, sem configurar máquina.
+
+**Mudado (`public/jarvis-callstt.js`, `public/jarvis.html`):**
+- **Padrão agora é a aba do 3CX Web Client**; os devices viram `(fallback)`. **Removido o auto-select do
+  Stereo Mix** — era justamente a recomendação errada.
+- **📊 Medidor de sinal ao vivo** (`onLevel`): barrinha ao lado do botão mostra se está **entrando áudio**
+  (verde mexendo) ou **mudo** (vermelho parado). Antes, "não funciona" era indistinguível de "fonte errada" —
+  o SDR não tinha como ver. Agora vê na hora.
+- **Alerta automático:** se em **8s** não entrar áudio nenhum, avisa que a fonte provavelmente está errada.
+- Mensagens e tutorial reescritos pro fluxo do Web Client (marcar "compartilhar áudio da **aba**"), com o
+  aviso explícito de que **no app instalado não funciona** e o porquê.
+- 🐞 **Fix visual:** os botões "Pré-call brief"/"Pesquisar produto" **vazavam pra fora do card** — caíam numa
+  coluna de 150px do grid e somam ~310px. Agora ocupam a linha inteira, alinhados à direita. Verificado em
+  1400/1000/700/420px.
+
 ## v0.10.2 — 2026-08-14 · Revisão de acurácia do pré-call brief e do pesquisar produto
 Motivo: o Rudá apontou que **pré-call e pesquisa de produto não estavam acurados**. A auditoria achou uma
 **regressão que eu mesmo introduzi na v0.9** + falta de saneamento na pesquisa web.

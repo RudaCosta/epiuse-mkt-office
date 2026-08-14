@@ -62,7 +62,10 @@
   .fld input,.fld select{background:var(--j-bg2);border:1px solid var(--j-border);color:var(--j-text);
     border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;outline:none}
   .fld input:focus,.fld select:focus{border-color:var(--j-glow);box-shadow:0 0 0 2px rgba(124,196,222,.15)}
-  .setup-actions{display:flex;align-items:flex-end;gap:8px}
+  /* botões ocupam a linha inteira e alinham à direita — antes caíam numa coluna
+     de 150px e vazavam pra fora do card (os 2 botões somam ~310px). */
+  .setup-actions{grid-column:1/-1;display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+  @media(max-width:520px){.setup-actions{justify-content:stretch}.setup-actions .btn{flex:1}}
   /* contexto detectado pela IA (substitui os dropdowns manuais) */
   .detected-fld{grid-column:span 2;min-width:240px}
   .detected{display:flex;flex-wrap:wrap;gap:5px;align-items:center;min-height:34px;padding:4px 0}
@@ -105,6 +108,10 @@
     padding:6px 8px;font-size:11px;font-family:inherit;outline:none;max-width:270px}
   #callcap-src:focus{border-color:var(--j-glow)}
   #btn-callcap.on{background:linear-gradient(135deg,var(--j-red),#7a0c25);border-color:transparent;color:#fff}
+  #callcap-lvl{display:none;width:64px;height:8px;background:rgba(134,158,195,.16);border-radius:99px;overflow:hidden;flex:none}
+  #callcap-lvl.on{display:block}
+  #callcap-lvl i{display:block;height:100%;width:0%;border-radius:99px;background:var(--j-green);transition:width .1s linear}
+  #callcap-lvl.mudo i{background:var(--j-red)}
   .callcap-status{font-size:11px;color:var(--j-muted);line-height:1.4}
   .callcap-status[data-kind="ok"]{color:var(--j-green)}
   .callcap-status[data-kind="err"]{color:var(--j-red)}
@@ -197,19 +204,15 @@
       <h4>2 · Ligando a escuta (escolha o seu caso)</h4>
       <div class="howto-grid">
         <div>
-          <b>🎧 Ligação no 3CX (ou qualquer softphone, de fone)</b>
+          <b>🎧 Ligação no 3CX</b>
           <ol>
-            <li>Clica <b>🎙️ Ativar mic</b> e permite o microfone (isso capta <b>você</b>).</li>
-            <li>No seletor ao lado do botão, escolhe de onde vem a <b>voz do cliente</b>:
-              <ul>
-                <li><b>🎚️ Mixagem estéreo / Stereo Mix</b> (ou um cabo virtual, tipo VB-Cable) — <b>é o recomendado no 3CX</b>. O JARVIS já tenta achar sozinho e deixa pré-selecionado.</li>
-                <li>Ou <b>🔊 Áudio do sistema</b> → escolhe <b>"Tela inteira"</b> e <b class="warn">MARCA "Compartilhar áudio do sistema"</b>. Sem marcar, não vem áudio.</li>
-              </ul>
-            </li>
-            <li>Clica <b>🎧 Áudio da call</b>. Na 1ª vez ele <b>baixa o modelo</b> (~100MB). Espera o status ficar <b>verde</b>.</li>
+            <li>Atenda pelo <b>3CX Web Client</b> (o 3CX no navegador), não pelo app instalado.</li>
+            <li>Clica <b>🎙️ Ativar mic</b> — isso capta <b>você</b>.</li>
+            <li>Clica <b>🎧 Áudio da call</b> → escolhe a <b>aba do 3CX</b> e <b class="warn">MARCA "compartilhar áudio da aba"</b>.</li>
+            <li>Olha a <b>barrinha de sinal</b> ao lado: <b>verde mexendo</b> = áudio entrando. <b>Vermelha parada</b> = fonte errada.</li>
           </ol>
-          <div class="howto-tip">✅ Assim ele já sabe quem é quem: <b>seu mic = você (SDR)</b> e o <b>áudio da call = o cliente</b>. Não precisa marcar nada.<br>
-          💡 <b>Não aparece "Mixagem estéreo"?</b> No Windows: botão direito no ícone de som → <i>Configurações de som</i> → <i>Mais opções</i> → aba <i>Gravação</i> → clique com o direito no vazio → <i>Mostrar dispositivos desativados</i> → habilite <b>Mixagem estéreo</b>. Se a placa não tiver, instale o <b>VB-Cable</b> (grátis).</div>
+          <div class="howto-tip">✅ Assim ele sabe quem é quem sozinho: <b>mic = você (SDR)</b>, <b>aba = o cliente</b>.<br>
+          ⚠️ <b>No app instalado do 3CX não funciona</b> — não existe aba pra capturar, e com headset USB o "Mixagem estéreo" capta silêncio (o áudio nem passa pela placa da máquina).</div>
         </div>
         <div>
           <b>🔊 Reunião no viva-voz / presencial</b>
@@ -281,8 +284,9 @@
       <div class="callcap-row">
         <button class="btn ghost" id="btn-callcap" title="Captura a voz do CLIENTE (a que sai no seu fone) — funciona com 3CX e qualquer softphone.">🎧 Áudio da call</button>
         <select id="callcap-src" title="De onde capturar a voz do cliente">
-          <option value="__display__">🔊 Áudio do sistema (compartilhar tela)</option>
+          <option value="__display__">🌐 Aba do 3CX Web Client (recomendado)</option>
         </select>
+        <span id="callcap-lvl" title="Sinal de áudio entrando"><i></i></span>
         <span id="callcap-status" class="callcap-status">ative pra ouvir o cliente</span>
       </div>
       <div class="rolemap" id="rolemap">
@@ -703,15 +707,16 @@ async function loadCallSources(){
   try{
     const devs = await api.listDevices();
     const guess = api.guessLoopback(devs);
-    sel.innerHTML = '<option value="__display__">🔊 Áudio do sistema (compartilhar tela)</option>'
-      + devs.map(d=>`<option value="${escapeHtml(d.id)}">🎚️ ${escapeHtml(d.label)}</option>`).join('');
-    if(guess){ sel.value = guess.id; setCallStatus('achei "'+guess.label+'" — provável saída da call. Pode ativar.','ok'); }
+    sel.innerHTML = '<option value="__display__">🌐 Aba do 3CX Web Client (recomendado)</option>'
+      + devs.map(d=>`<option value="${escapeHtml(d.id)}">🎚️ ${escapeHtml(d.label)} (fallback)</option>`).join('');
+    // NÃO auto-seleciona device: com headset USB o Stereo Mix capta silêncio.
+    // O padrão é a ABA do 3CX Web Client, que funciona sem driver nenhum.
   }catch(e){}
 }
 async function toggleCallCap(){
   const api = window.JarvisCallSTT;
   if(!api){ setCallStatus('módulo não carregou — recarregue a página','err'); return; }
-  const reset=()=>{ ST.callCapOn=false; $('btn-callcap').classList.remove('on'); $('btn-callcap').textContent='🎧 Áudio da call'; };
+  const reset=()=>{ ST.callCapOn=false; $('btn-callcap').classList.remove('on'); $('btn-callcap').textContent='🎧 Áudio da call'; const l=$('callcap-lvl'); if(l) l.classList.remove('on'); };
   if(api.isOn()){ api.stop(); reset(); return; }
   // 2 fontes: mic=SDR (voz1), áudio da call=Cliente (voz2). Marca os papéis sozinho.
   ST.callCapOn = true;
@@ -720,11 +725,24 @@ async function toggleCallCap(){
   $('btn-callcap').classList.add('on'); $('btn-callcap').textContent='🎧 Parar captura';
   const onText=(txt)=>addUtterance(txt,'voz2');       // fala do cliente
   const onStat=(msg,kind)=>setCallStatus(msg,kind);
+  const onLvl=(lvl,jaOuviu)=>{                        // medidor: mostra se ENTRA áudio
+    const el=$('callcap-lvl'); if(!el) return;
+    el.classList.add('on');
+    el.querySelector('i').style.width=Math.min(100,Math.round(lvl*400))+'%';
+    el.classList.toggle('mudo',!jaOuviu);
+    el.title=jaOuviu?'Áudio entrando ✓':'Sem sinal — fonte errada?';
+  };
   const src = $('callcap-src') ? $('callcap-src').value : '__display__';
   const ok = (src==='__display__')
-    ? await api.startDisplay(onText, onStat)
-    : await api.startDevice(src, onText, onStat);
-  if(!ok) reset();
+    ? await api.startDisplay(onText, onStat, onLvl)
+    : await api.startDevice(src, onText, onStat, onLvl);
+  if(!ok){ reset(); const el=$('callcap-lvl'); if(el) el.classList.remove('on'); }
+  else {
+    // se em 8s não entrou NADA, avisa que a fonte provavelmente está errada
+    setTimeout(()=>{ if(api.isOn() && !api.heardAudio())
+      setCallStatus('⚠️ Nenhum áudio em 8s — a fonte está errada? No 3CX Web Client, compartilhe a ABA da ligação marcando "compartilhar áudio da aba".','warn');
+    },8000);
+  }
 }
 $('btn-callcap').addEventListener('click', toggleCallCap);
 loadCallSources();

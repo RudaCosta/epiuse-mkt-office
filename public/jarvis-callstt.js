@@ -26,7 +26,7 @@
     on: false, stream: null, videoTrack: null, actx: null, node: null, src: null, sink: null,
     asr: null, engine: null, loading: false, busy: false,
     buf: [], sr: 16000, chunkSec: 4, minRms: 0.006,
-    onText: null, onStatus: null
+    onText: null, onStatus: null, onLevel: null, lastLvl: 0, heard: false
   };
 
   function status(msg, kind) { if (S.onStatus) { try { S.onStatus(msg, kind || 'info'); } catch (e) {} } }
@@ -89,7 +89,17 @@
     var node = S.actx.createScriptProcessor(4096, 1, 1);
     node.onaudioprocess = function (ev) {
       if (!S.on) return;
-      S.buf.push(new Float32Array(ev.inputBuffer.getChannelData(0)));
+      var data = new Float32Array(ev.inputBuffer.getChannelData(0));
+      // medidor de sinal (~10fps): deixa o SDR VER se está entrando áudio.
+      // Sem isto, "não funciona" era indistinguível de "fonte errada".
+      var now = Date.now();
+      if (S.onLevel && now - S.lastLvl > 100) {
+        S.lastLvl = now;
+        var lvl = rms(data);
+        if (lvl > 0.01) S.heard = true;
+        try { S.onLevel(lvl, S.heard); } catch (e) {}
+      }
+      S.buf.push(data);
       processBuffer();
     };
     // sink com ganho 0: ScriptProcessor precisa de destino, mas NÃO tocamos o
@@ -103,8 +113,8 @@
   }
 
   // ── A) captura por DISPOSITIVO (Stereo Mix / cabo virtual) — recomendado ───
-  async function startDevice(deviceId, onText, onStatus) {
-    S.onText = onText || S.onText; S.onStatus = onStatus || S.onStatus;
+  async function startDevice(deviceId, onText, onStatus, onLevel) {
+    S.onText = onText || S.onText; S.onStatus = onStatus || S.onStatus; S.onLevel = onLevel || S.onLevel; S.heard = false;
     if (S.on) return true;
     try {
       // desliga o processamento de voz: cancelamento de eco/ruído DESTRÓI áudio
@@ -134,8 +144,8 @@
   }
 
   // ── B) captura do ÁUDIO DO SISTEMA (getDisplayMedia) ───────────────────────
-  async function startDisplay(onText, onStatus) {
-    S.onText = onText || S.onText; S.onStatus = onStatus || S.onStatus;
+  async function startDisplay(onText, onStatus, onLevel) {
+    S.onText = onText || S.onText; S.onStatus = onStatus || S.onStatus; S.onLevel = onLevel || S.onLevel; S.heard = false;
     if (S.on) return true;
     if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
       status('Navegador sem getDisplayMedia — use o Chrome.', 'err');
@@ -153,7 +163,7 @@
       return false;
     }
     if (!stream.getAudioTracks().length) {
-      status('Sem faixa de áudio. Escolha "Tela inteira" e MARQUE "Compartilhar áudio do sistema".', 'err');
+      status('Sem faixa de áudio. Ao escolher a aba do 3CX, MARQUE "Compartilhar áudio da aba".', 'err');
       try { stream.getTracks().forEach(function (t) { t.stop(); }); } catch (e) {}
       return false;
     }
@@ -163,7 +173,7 @@
     if (S.videoTrack) S.videoTrack.addEventListener('ended', function () { stop(); });
     if (!attachStream(stream)) { status('Falha ao ligar o áudio capturado.', 'err'); stop(); return false; }
     S.on = true;
-    status('Ouvindo o áudio do sistema', 'ok');
+    status('Capturando o áudio da aba/tela', 'ok');
     ensureModel();
     return true;
   }
@@ -205,6 +215,7 @@
     stop: stop,
     isOn: function () { return S.on; },
     engine: function () { return S.engine; },
+    heardAudio: function () { return S.heard; },
     supported: function () { return !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia); }
   };
 })();
