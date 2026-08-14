@@ -805,7 +805,7 @@
     // Seções fora de ordem+esconde ficam visíveis no fim (default)
     const conhecidas = new Set([...(p.ordem||[]), ...(p.esconde||[])]);
     document.querySelectorAll('[data-sec]').forEach(el => {
-      if (!conhecidas.has(el.dataset.sec) && !['northstar','hoje','foco'].includes(el.dataset.sec)) el.style.display = '';
+      if (!conhecidas.has(el.dataset.sec) && !['hoje','foco'].includes(el.dataset.sec)) el.style.display = '';
     });
     const ft = $('foco-title');
     if (ft) ft.textContent = `${p.icon || '🎯'} Foco · ${p.nome}`;
@@ -910,26 +910,6 @@
     });
   }
 
-  // ── NORTH-STAR (3 números que importam) ─────────────────────────
-  async function renderNorthstar() {
-    const strip = $('northstar-strip');
-    const sec = document.querySelector('[data-sec="northstar"]');
-    if (!strip || !sec) return;
-    const NS = ['pipeline_fy', 'linkedin_total', 'ddf_aprovado'];
-    strip.innerHTML = NS.map(id => {
-      const def = KPI_DEFS[id];
-      return `<div class="dk-glass" style="padding:20px 24px;text-align:center;border-top:3px solid ${def.cor}">
-        <div id="ns-${id}" style="font-size:34px;font-weight:800;font-family:'JetBrains Mono',monospace;line-height:1">…</div>
-        <div style="font-size:11px;color:var(--dk-text-muted,#94a3b8);text-transform:uppercase;letter-spacing:.08em;margin-top:8px">${esc(def.label)}</div>
-        <div style="font-size:9px;color:var(--dk-text-muted,#64748b);margin-top:3px">🟢 ${esc(def.fonte)}</div>
-      </div>`;
-    }).join('');
-    NS.forEach(async id => {
-      try { const v = await KPI_DEFS[id].get(); const el = $('ns-' + id); if (el) el.textContent = v; }
-      catch (e) {}
-    });
-  }
-
   // ── HOJE (o que acontece hoje) ──────────────────────────────────
   async function renderHoje() {
     const list = $('hoje-list');
@@ -990,7 +970,6 @@
         });
       }
       applyPersona(pid);
-      renderNorthstar();
       renderHoje();
       renderFreshness();
     } catch (e) { console.warn('personas:', e); }
