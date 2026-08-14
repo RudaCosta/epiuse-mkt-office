@@ -1,5 +1,24 @@
 # CHANGELOG — Módulo 11 (JARVIS)
 
+## v0.14 — 2026-08-14 · ✅ Transcrição FUNCIONANDO — corte por pausa (precisão + tempo real)
+A v0.13 destravou: o Rudá confirmou fala real dos dois lados ("Oi?", "Acho que não tinha...", "entendeu")
+e os gauges vivos (61% de fala do SDR). Restou **qualidade** ("pegando coisas nada a ver") e **latência**.
+
+**Causa da imprecisão:** eu cortava o áudio a cada 6s **no relógio**, sem olhar se a pessoa estava falando.
+A frase partia no meio e o modelo chutava a emenda — é o que produzia *"da casa da casa do Dr. Greta"*.
+
+**Corrigido (`public/jarvis-callstt.js`):**
+- **Corte por SILÊNCIO (VAD-lite), não por relógio:** acumula o silêncio no callback de áudio e fecha o
+  trecho quando o falante **faz uma pausa** (0,35s). Frase inteira → sem emenda errada.
+- **Tempo real:** `minSec 1,5s` · `silSec 0,35s` · `maxSec 8s` (teto de segurança pra quem fala sem parar).
+  Latência agora = **pausa do falante + inferência**, em vez dos 6s fixos de antes.
+- **Cauda de 0,4s** no corte forçado: a palavra partida na emenda entra no começo do próximo trecho.
+- **Decoder `q4` → `q8`**: q4 é quantização agressiva e comia precisão em PT-BR. Mantido o `whisper-base`
+  (rápido) de propósito — subir pro `small` daria mais precisão mas mataria o tempo real.
+
+**⚠️ Pendente (separado, visto no print):** `LLM 429` — Groq atingiu o limite **diário** de tokens
+(TPD 100.000, usados 99.897). É o backend do coach, não o STT. Precisa de backoff + fallback de modelo/chave.
+
 ## v0.13 — 2026-08-14 · 🐞 dtype errado quebrava o Whisper no WebGPU (saída "A", "O")
 Sintoma: com a v0.12 o "NNNNNN" virou **letra solta** ("A", "A.", "O"). Print do Rudá confirmou:
 modelo carregado, WebGPU ativo, medidor modulando (áudio CHEGANDO) — mas transcrição degenerada.

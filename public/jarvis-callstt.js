@@ -25,7 +25,11 @@
   var S = {
     on: false, stream: null, videoTrack: null, actx: null, node: null, src: null, sink: null,
     asr: null, engine: null, loading: false, busy: false,
-    buf: [], sr: 16000, chunkSec: 6, minRms: 0.006, ruins: 0, forceWasm: false,
+    // Corte por SILÊNCIO (não por relógio): espera a pessoa fazer uma pausa pra
+    // fechar o trecho. Cortar no meio da palavra era o que gerava emenda errada
+    // ("da casa da casa do..."). minSec/maxSec limitam a espera.
+    buf: [], sr: 16000, minSec: 1.5, maxSec: 8, silSec: 0.35, silRms: 0.010, silAcc: 0,
+    minRms: 0.006, ruins: 0, forceWasm: false, cauda: null,
     onText: null, onStatus: null, onLevel: null, lastLvl: 0, heard: false, actxRate: 0
   };
 
@@ -83,7 +87,7 @@
       // pode ser quantizado. É a config do exemplo oficial do transformers.js.
       S.asr = await pipeline('automatic-speech-recognition', model, {
         device: device,
-        dtype: hasGPU ? { encoder_model: 'fp32', decoder_model_merged: 'q4' } : 'q8'
+        dtype: hasGPU ? { encoder_model: 'fp32', decoder_model_merged: 'q8' } : 'q8'
       });
       status(S.engine + ' pronto — ouvindo a call', 'ok');
       return S.asr;
@@ -113,10 +117,20 @@
     for (i = 0; i < S.buf.length; i++) total += S.buf[i].length;
     // usa a taxa REAL do contexto (não a que pedimos) pra medir o tempo certo
     var rate = S.actxRate || S.sr;
-    if (total < rate * S.chunkSec) return;
+    if (total < rate * S.minSec) return;                 // curto demais: espera
+    var pausa = S.silAcc >= rate * S.silSec;             // achou pausa natural?
+    var estourou = total >= rate * S.maxSec;             // ou já esperou demais
+    if (!pausa && !estourou) return;                     // segura até fechar a frase
     var chunk = new Float32Array(total), o = 0;
     for (i = 0; i < S.buf.length; i++) { chunk.set(S.buf[i], o); o += S.buf[i].length; }
     S.buf = [];
+    // corte forçado (sem pausa) => guarda 0,4s de cauda pra não perder a palavra
+    // que ficou partida na emenda; ela entra no começo do próximo trecho.
+    if (!pausa) {
+      var nCauda = Math.min(chunk.length, Math.floor(rate * 0.4));
+      S.buf.push(chunk.slice(chunk.length - nCauda));
+    }
+    S.silAcc = 0;
     if (rms(chunk) < S.minRms) return; // silêncio: pula (economiza CPU/GPU)
     var pcm = normalize(resampleTo16k(chunk, rate));  // -> 16 kHz, que é o que o Whisper espera
     var asr = await ensureModel();
@@ -175,6 +189,9 @@
         if (lvl > 0.01) S.heard = true;
         try { S.onLevel(lvl, S.heard); } catch (e) {}
       }
+      // acumula silêncio pra detectar a PAUSA (fim de frase) — é o que permite
+      // cortar no lugar certo em vez de no relógio.
+      if (rms(data) < S.silRms) S.silAcc += data.length; else S.silAcc = 0;
       S.buf.push(data);
       processBuffer();
     };
@@ -279,7 +296,7 @@
     try { S.actx && S.actx.close(); } catch (e) {}
     try { S.videoTrack && S.videoTrack.stop(); } catch (e) {}
     try { S.stream && S.stream.getTracks().forEach(function (t) { t.stop(); }); } catch (e) {}
-    S.node = S.sink = S.src = S.actx = S.stream = S.videoTrack = null; S.buf = []; S.actxRate = 0;
+    S.node = S.sink = S.src = S.actx = S.stream = S.videoTrack = null; S.buf = []; S.actxRate = 0; S.silAcc = 0;
     status('Captura da call parada.', 'info');
   }
 
