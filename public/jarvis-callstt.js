@@ -25,7 +25,7 @@
   var S = {
     on: false, stream: null, videoTrack: null, actx: null, node: null, src: null, sink: null,
     asr: null, engine: null, loading: false, busy: false,
-    buf: [], sr: 16000, chunkSec: 4, minRms: 0.006,
+    buf: [], sr: 16000, chunkSec: 6, minRms: 0.006, ruins: 0, forceWasm: false,
     onText: null, onStatus: null, onLevel: null, lastLvl: 0, heard: false, actxRate: 0
   };
 
@@ -57,7 +57,7 @@
     var peak = 0;
     for (var i = 0; i < f32.length; i++) { var a = Math.abs(f32[i]); if (a > peak) peak = a; }
     if (peak < 0.001 || peak > 0.95) return f32;      // mudo ou já alto: não mexe
-    var g = Math.min(8, 0.85 / peak);
+    var g = Math.min(4, 0.85 / peak);
     var out = new Float32Array(f32.length);
     for (var k = 0; k < f32.length; k++) out[k] = f32[k] * g;
     return out;
@@ -72,13 +72,18 @@
       var mod = await import(/* @vite-ignore */ CDN);
       var pipeline = mod.pipeline, env = mod.env;
       if (env) { env.allowLocalModels = false; }
-      var hasGPU = !!(navigator.gpu);
+      // S.forceWasm = já detectamos saída degenerada no WebGPU e caímos pro modo seguro.
+      var hasGPU = !!(navigator.gpu) && !S.forceWasm;
       var device = hasGPU ? 'webgpu' : 'wasm';
       var model = hasGPU ? 'onnx-community/whisper-base' : 'Xenova/whisper-tiny';
-      S.engine = hasGPU ? 'Whisper base · WebGPU' : 'Whisper tiny · WASM (modo leve)';
+      S.engine = hasGPU ? 'Whisper base · WebGPU' : 'Whisper tiny · WASM (modo seguro)';
       status('Carregando ' + S.engine + '… (1x, fica em cache)', 'load');
+      // ⚠️ dtype 'fp16' UNIFORME quebra o Whisper no WebGPU (saída degenerada:
+      // letra solta / repetição). O encoder precisa rodar em fp32; só o decoder
+      // pode ser quantizado. É a config do exemplo oficial do transformers.js.
       S.asr = await pipeline('automatic-speech-recognition', model, {
-        device: device, dtype: hasGPU ? 'fp16' : 'q8'
+        device: device,
+        dtype: hasGPU ? { encoder_model: 'fp32', decoder_model_merged: 'q4' } : 'q8'
       });
       status(S.engine + ' pronto — ouvindo a call', 'ok');
       return S.asr;
@@ -126,7 +131,21 @@
         condition_on_previous_text: false // não arrasta alucinação do chunk anterior
       });
       var txt = (out && out.text || '').trim();
-      if (txt && !ehRepeticao(txt) && S.onText) S.onText(txt);
+      // diagnóstico: sem isso a gente fica adivinhando por que "não transcreve"
+      console.log('[jarvis-stt]', S.engine, '| ctx', rate + 'Hz', '| pcm', pcm.length,
+                  '(' + (pcm.length / 16000).toFixed(1) + 's)', '| saída:', JSON.stringify(txt));
+      var ruim = ehRepeticao(txt) || txt.replace(/[^a-zà-ú0-9]/gi, '').length < 2;
+      if (ruim) {
+        S.ruins = (S.ruins || 0) + 1;
+        // 3 saídas degeneradas seguidas no WebGPU => cai pro WASM sozinho.
+        if (S.ruins >= 3 && !S.forceWasm && navigator.gpu) {
+          S.forceWasm = true; S.asr = null; S.ruins = 0;
+          status('Saída ruim no WebGPU — trocando pro modo seguro (WASM)…', 'warn');
+        }
+      } else {
+        S.ruins = 0;
+        if (S.onText) S.onText(txt);
+      }
     } catch (e) {
       status('Erro na transcrição: ' + (e && e.message || e), 'err');
     } finally { S.busy = false; }

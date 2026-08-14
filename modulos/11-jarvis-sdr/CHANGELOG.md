@@ -1,5 +1,27 @@
 # CHANGELOG — Módulo 11 (JARVIS)
 
+## v0.13 — 2026-08-14 · 🐞 dtype errado quebrava o Whisper no WebGPU (saída "A", "O")
+Sintoma: com a v0.12 o "NNNNNN" virou **letra solta** ("A", "A.", "O"). Print do Rudá confirmou:
+modelo carregado, WebGPU ativo, medidor modulando (áudio CHEGANDO) — mas transcrição degenerada.
+
+**Causa raiz:** eu passava `dtype: 'fp16'` **uniforme** no WebGPU. Essa config **quebra o Whisper** no
+transformers.js — o encoder precisa de `fp32`; só o decoder pode ser quantizado (é o que o exemplo oficial
+faz). fp16 no encoder produz exatamente saída degenerada.
+
+**Corrigido (`public/jarvis-callstt.js`):**
+- `dtype: { encoder_model: 'fp32', decoder_model_merged: 'q4' }` no WebGPU (era `'fp16'`).
+- **Auto-recuperação:** 3 saídas degeneradas seguidas no WebGPU → cai sozinho pro **WASM (modo seguro)** e
+  avisa. Não depende mais de eu adivinhar o hardware de cada máquina.
+- **Chunk 4s → 6s** — 4s era curto demais e favorecia saída degenerada.
+- `normalize()` mais suave (ganho máx 8× → 4×): 8× amplificava o piso de ruído e o modelo transcrevia ruído.
+- Filtro agora também barra **letra solta** (`< 2 caracteres alfanuméricos`), não só repetição.
+- **Log de diagnóstico** no console: engine, taxa do contexto, tamanho/duração do PCM e a saída crua —
+  pra parar de adivinhar quando falhar.
+- UI → **v0.13** (+ cache-bust).
+
+**⚠️ Separado, apareceu no print:** `LLM 429` no painel do coach = **Groq rate-limitando**. Não é o STT;
+é o backend de IA do coach. Tratar à parte (backoff/troca de modelo/chave).
+
 ## v0.12 — 2026-08-14 · 🐞 Fix do "NNNNNN": áudio ia pro Whisper na taxa errada
 Sintoma do Rudá: *"pega o áudio e aparece só uma letra, tipo NNNNNNN"*. Isso é a assinatura clássica do
 Whisper recebendo áudio **fora de 16 kHz**.
