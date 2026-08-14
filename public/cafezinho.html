@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Cafezinho · EPI-USE Office</title>
+<link rel="stylesheet" href="/design-tokens.css">
+<style>
+  /* Regra 8: zero hex local — tudo sai dos tokens do design-tokens.css. */
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Maven Pro','Poppins',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.55}
+  .container{max-width:1080px;margin:0 auto;padding:0 var(--space-lg) var(--space-4xl)}
+  a{color:inherit}
+
+  .hero{padding:44px var(--space-lg) 26px;background:linear-gradient(160deg,
+        color-mix(in srgb, var(--yellow) 16%, var(--color-primary-navy)) 0%,
+        var(--color-primary-navy) 72%);
+        border-bottom:1px solid var(--border);margin-bottom:26px}
+  .hero .eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--yellow);font-weight:700;margin-bottom:8px}
+  .hero h1{font-size:30px;font-weight:800;letter-spacing:-.4px;margin-bottom:6px}
+  .hero p{font-size:14px;color:var(--text-dim);max-width:660px}
+  .hero-links{margin-top:12px;display:flex;gap:10px;flex-wrap:wrap}
+  .cta{display:inline-block;background:color-mix(in srgb, var(--yellow) 14%, transparent);
+       border:1px solid color-mix(in srgb, var(--yellow) 40%, transparent);color:var(--yellow);
+       border-radius:var(--rounded-md);padding:8px 14px;font-size:13px;font-weight:800;text-decoration:none}
+  .cta:hover{filter:brightness(1.15)}
+
+  h2{font-size:14px;font-weight:800;margin:30px 0 12px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em}
+
+  /* ── cartões do time ── */
+  .team{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:var(--space-md)}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--rounded-xl);padding:18px;position:relative;overflow:hidden}
+  .card.eu{border-color:color-mix(in srgb, var(--yellow) 45%, transparent);
+           box-shadow:0 0 0 1px color-mix(in srgb, var(--yellow) 18%, transparent) inset}
+  .card .top{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+  .av{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-size:22px;flex:0 0 auto}
+  .nm{font-size:15px;font-weight:800;line-height:1.2}
+  .cg{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em}
+  .signo{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:800;
+         background:color-mix(in srgb, var(--purple) 16%, transparent);
+         border:1px solid color-mix(in srgb, var(--purple) 38%, transparent);
+         color:var(--purple);border-radius:999px;padding:3px 10px}
+  .tag{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;
+       background:color-mix(in srgb, var(--yellow) 12%, transparent);
+       border:1px solid color-mix(in srgb, var(--yellow) 32%, transparent);
+       color:var(--yellow);border-radius:999px;padding:3px 10px}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+  .frase{font-size:13px;color:var(--text);font-style:italic;margin-bottom:8px;min-height:20px}
+  .linha{font-size:12px;color:var(--text-dim);display:flex;gap:6px;margin-bottom:3px}
+  .linha b{color:var(--text);font-weight:700}
+  .mesa{margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:12px;color:var(--text-muted)}
+  .mesa .itens{font-size:19px;letter-spacing:3px}
+  .edit-btn{position:absolute;top:14px;right:14px;background:transparent;border:1px solid var(--border);
+            color:var(--text-dim);border-radius:var(--rounded-sm);padding:4px 9px;font-size:11px;
+            font-weight:700;font-family:inherit;cursor:pointer}
+  .edit-btn:hover{color:var(--text);border-color:var(--yellow)}
+
+  /* ── em comum ── */
+  .comum{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:var(--space-sm)}
+  .cbox{background:var(--card);border:1px solid var(--border);border-radius:var(--rounded-lg);padding:14px}
+  .cbox .em{font-size:26px;margin-bottom:6px}
+  .cbox .ti{font-size:13px;font-weight:800;margin-bottom:3px}
+  .cbox .de{font-size:12px;color:var(--text-dim)}
+
+  /* ── mural ── */
+  .form{background:var(--card);border:1px solid var(--border);border-radius:var(--rounded-xl);padding:16px;margin-bottom:16px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+  input,textarea,select{background:var(--bg-2);border:1px solid var(--border);color:var(--text);
+        border-radius:var(--rounded-md);padding:10px 12px;font-size:13px;font-family:inherit;width:100%}
+  textarea{resize:vertical;min-height:70px}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--yellow)}
+  .f-emoji{max-width:74px;text-align:center;font-size:19px}
+  .f-tipo{max-width:150px}
+  label.chk{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--text-dim);cursor:pointer;user-select:none}
+  label.chk input{width:auto}
+  .btn{background:var(--color-primary-red);color:var(--color-neutral-dark-text);border:none;
+       border-radius:var(--rounded-md);padding:10px 18px;font-size:13px;font-weight:800;font-family:inherit;cursor:pointer}
+  .btn:hover{filter:brightness(1.12)} .btn:disabled{opacity:.4;cursor:not-allowed}
+  .btn.ghost{background:transparent;border:1px solid var(--border);color:var(--text-dim)}
+
+  .post{background:var(--card);border:1px solid var(--border);border-radius:var(--rounded-lg);padding:15px;margin-bottom:10px}
+  .post .cab{display:flex;gap:9px;align-items:center;margin-bottom:8px;font-size:12px;color:var(--text-muted);flex-wrap:wrap}
+  .post .cab .who{font-weight:800;color:var(--text)}
+  .post .txt{font-size:14px;margin-bottom:10px;white-space:pre-wrap;word-break:break-word}
+  .post .big{font-size:26px;margin-right:8px;vertical-align:-3px}
+  .tp{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:2px 8px;border-radius:999px;
+      border:1px solid var(--border);color:var(--text-dim)}
+  .tp.meme{color:var(--yellow);border-color:color-mix(in srgb, var(--yellow) 35%, transparent)}
+  .tp.ideia{color:var(--green);border-color:color-mix(in srgb, var(--green) 35%, transparent)}
+  .tp.causo{color:var(--purple);border-color:color-mix(in srgb, var(--purple) 35%, transparent)}
+  .tp.serie{color:var(--accent);border-color:color-mix(in srgb, var(--accent) 35%, transparent)}
+  .pin{font-size:11px;color:var(--yellow)}
+
+  .spoiler{position:relative;cursor:pointer;border-radius:var(--rounded-md);
+           border:1px dashed color-mix(in srgb, var(--red) 45%, transparent);padding:12px;margin-bottom:10px}
+  .spoiler .conteudo{filter:blur(7px);user-select:none;transition:filter .18s ease}
+  .spoiler .aviso{position:absolute;inset:0;display:grid;place-items:center;font-size:12px;font-weight:800;color:var(--red)}
+  .spoiler.aberto .conteudo{filter:none}
+  .spoiler.aberto .aviso{display:none}
+
+  .reacts{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .rx{background:transparent;border:1px solid var(--border);color:var(--text-dim);border-radius:999px;
+      padding:3px 10px;font-size:13px;font-family:inherit;cursor:pointer;line-height:1.6}
+  .rx:hover{border-color:var(--yellow)}
+  .rx.on{border-color:var(--yellow);color:var(--yellow);background:color-mix(in srgb, var(--yellow) 12%, transparent)}
+  .rx .n{font-size:11px;font-weight:800;margin-left:4px}
+  .del{margin-left:auto;background:none;border:none;color:var(--dim);font-size:12px;cursor:pointer;font-family:inherit}
+  .del:hover{color:var(--red)}
+
+  .fonte{font-size:12px;color:var(--text-muted);border-left:2px solid var(--border);padding:6px 0 6px 12px;margin:14px 0 0}
+  .vazio{color:var(--text-muted);font-size:13px;padding:18px;text-align:center}
+  .gate{max-width:460px;margin:70px auto;text-align:center;background:var(--card);
+        border:1px solid var(--border);border-radius:var(--rounded-xl);padding:34px}
+  .gate h3{font-size:18px;margin-bottom:8px}
+  .gate p{font-size:13px;color:var(--text-dim);margin-bottom:16px}
+  .rodape{text-align:center;color:var(--text-muted);font-size:13px;margin-top:40px}
+  .rodape .xoxo{font-weight:800;color:var(--color-primary-red);letter-spacing:.04em}
+  @media(max-width:640px){ .hero h1{font-size:24px} .container{padding:0 var(--space-md) var(--space-3xl)} }
+</style>
+</head>
+<body data-route="cafezinho">
+<office-nav></office-nav>
+
+<div class="hero">
+  <div class="container" style="padding:0">
+    <div class="eyebrow">☕ Papo quinzenal</div>
+    <h1>Cafezinho</h1>
+    <p>O canto pessoal do time de Marketing. Aqui não tem KPI, não tem funil e não tem meta — tem quem a gente é quando o café tá na mão. Cada um manda no próprio cartão, e o mural é de todo mundo.</p>
+    <div class="hero-links">
+      <a class="cta" href="/memes">🧠 Museu de memes →</a>
+      <a class="cta" href="/game">🎮 Minha baia no game →</a>
+    </div>
+  </div>
+</div>
+
+<div class="container" id="app">
+  <div class="vazio">Coando o café…</div>
+</div>
+
+<script src="/office-nav.js"></script>
+<script>
+(function(){
+  var esc = function(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){
+    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]; }); };
+
+  // ── Signos: DERIVADOS do aniversário real que já está no team.json.
+  // [mês, dia de virada, nome, glifo] — antes do dia de virada, cai no signo anterior.
+  var SIGNOS = [
+    [1,20,'Aquário','♒'],   [2,19,'Peixes','♓'],    [3,21,'Áries','♈'],
+    [4,20,'Touro','♉'],     [5,21,'Gêmeos','♊'],    [6,21,'Câncer','♋'],
+    [7,23,'Leão','♌'],      [8,23,'Virgem','♍'],    [9,23,'Libra','♎'],
+    [10,23,'Escorpião','♏'],[11,22,'Sagitário','♐'],[12,22,'Capricórnio','♑']
+  ];
+  function signoDe(aniv){                       // aniv no formato "DD/MM"
+    var p = String(aniv||'').split('/');
+    var dd = parseInt(p[0],10), mm = parseInt(p[1],10);
+    if (!dd || !mm || mm<1 || mm>12) return null;
+    var s = SIGNOS[mm-1];
+    return dd >= s[1] ? s : SIGNOS[(mm+10)%12];
+  }
+
+  // Catálogo de itens de mesa do game (office-desks.json) → emoji.
+  var ITEM_EMOJI = {
+    caneca:'☕', caneca_vermelha:'🍵', caneca_office:'☕', planta:'🪴', livros:'📚',
+    fones:'🎧', foto:'🖼️', trofeu:'🏆', violao:'🎸', mate:'🧉', notebook:'💻',
+    monitor_duplo:'🖥️', pc_gamer:'🖥️', gato:'🐈', bola:'⚽', cafe:'☕',
+    funko_tini:'🧸', funko_deadpool:'🦸', caderno_erpngo:'📓', tarot:'🔮',
+    switch:'🎮', ae86:'🚗', ps5:'🎮', luminaria:'💡', ganesha:'🐘',
+    garrafa_agua:'🍶', gloss:'💄', oculos:'🕶️'
+  };
+
+  // team.json usa id de ÁREA; a tabela users usa role. Só 'sales-dev' não bate.
+  var AREA_ROLE = { intelligence:'intelligence', growth:'growth', field:'field',
+                    'sales-dev':'pipeline', brand:'brand' };
+
+  function slugify(s){
+    return String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'')
+      .toLowerCase().split(' ')[0].replace(/[^a-z0-9]/g,'');
+  }
+  function quando(ts){
+    if (!ts) return '';
+    var d = new Date(String(ts).replace(' ','T') + 'Z');
+    if (isNaN(d.getTime())) return String(ts);
+    return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}) + ' · ' +
+           d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  }
+
+  var ST = { feed:null, team:null, desks:null, seed:null, editando:false, ligado:false };
+
+  function json(u){ return fetch(u,{credentials:'same-origin'}).then(function(r){
+    if (r.status===401) { var e=new Error('auth'); e.auth=true; throw e; }
+    return r.json(); }); }
+
+  function boot(){
+    Promise.all([
+      json('/api/cafezinho/feed'),
+      json('/api/team.json'),
+      json('/api/office-desks.json'),
+      json('/api/cafezinho-seed.json')
+    ]).then(function(r){
+      ST.feed=r[0]; ST.team=r[1]; ST.desks=r[2]; ST.seed=r[3];
+      render();
+    }).catch(function(e){
+      if (e && e.auth) return gate();
+      document.getElementById('app').innerHTML =
+        '<div class="vazio">Deu ruim carregando o café: ' + esc(e.message) + '</div>';
+    });
+  }
+  function gate(){
+    document.getElementById('app').innerHTML =
+      '<div class="gate"><div style="font-size:38px;margin-bottom:10px">🔐</div>' +
+      '<h3>Entre com a sua conta</h3>' +
+      '<p>O Cafezinho é do time — precisa estar logado pra ver os cartões e postar no mural.</p>' +
+      '<a class="btn" style="text-decoration:none" href="/login?returnTo=/cafezinho">Entrar</a></div>';
+  }
+
+  // Cruza team.json (nome/cargo/aniversário) + office-desks.json (itens da mesa)
+  // + perfis do banco (o que cada um escreveu) + seed (folclore do café).
+  function pessoas(){
+    var t = ST.team || {}, out = [];
+    (t.lideranca||[]).forEach(function(p){
+      out.push({ slug:slugify(p.apelido||p.nome), nome:p.nome, cargo:p.cargo,
+                 icon:p.icon, aniversario:p.aniversario, grad:null, role:'head' });
+    });
+    (t.areas||[]).forEach(function(a){
+      var r = a.responsavel||{};
+      out.push({ slug:slugify(r.apelido||r.nome), nome:r.nome, cargo:a.nome, icon:a.icon,
+                 aniversario:r.aniversario, grad:r.avatar_grad, role:AREA_ROLE[a.id]||a.id });
+    });
+
+    // perfis vêm com o role do usuário (JOIN em users no backend) — é assim que
+    // o cartão salvo por cada pessoa encontra a pessoa certa aqui na tela.
+    var porRole = {}, porEmail = {};
+    (ST.feed.perfis||[]).forEach(function(p){
+      porEmail[String(p.email||'').toLowerCase()] = p;
+      if (p.role) porRole[p.role] = p;
+    });
+    // Uma pessoa pode ter várias tags de folclore (a Bruna já tem garrafa + vôlei).
+    var lore = {};
+    ((ST.seed||{}).lore||[]).forEach(function(l){ (lore[l.quem]=lore[l.quem]||[]).push(l); });
+    var mesas = (ST.desks||{}).mesas||{};
+    var me = ST.feed.me||{}, meuEmail = String(me.email||'').toLowerCase();
+
+    out.forEach(function(p){
+      p.eu     = !!me.role && p.role === me.role;
+      p.perfil = p.eu ? (porEmail[meuEmail]||null) : (porRole[p.role]||null);
+      p.lore   = lore[p.slug]||[];
+      p.mesa   = mesas[p.slug]||null;
+    });
+    return out;
+  }
+
+  function cardHTML(p){
+    var sg = p.perfil && p.perfil.signo_manual
+      ? [null,null,p.perfil.signo_manual,'✨'] : signoDe(p.aniversario);
+    var grad = p.grad && p.grad.length===2
+      ? 'linear-gradient(135deg,'+esc(p.grad[0])+','+esc(p.grad[1])+')'
+      : 'var(--card-2)';
+    var pf = p.perfil||{};
+    var itens = (p.mesa && p.mesa.itens || []).map(function(i){
+      return ITEM_EMOJI[i]||'▫️'; }).join(' ');
+
+    var h = '<div class="card'+(p.eu?' eu':'')+'">';
+    if (p.eu) h += '<button class="edit-btn" data-edit="1">✏️ Editar</button>';
+    h += '<div class="top"><div class="av" style="background:'+grad+'">'+
+         esc(pf.emoji||p.icon||'🙂')+'</div><div><div class="nm">'+esc(pf.apelido||p.nome)+
+         '</div><div class="cg">'+esc(p.cargo||'')+'</div></div></div>';
+
+    h += '<div class="chips">';
+    if (sg) h += '<span class="signo">'+esc(sg[3])+' '+esc(sg[2])+'</span>';
+    (p.lore||[]).forEach(function(l){
+      h += '<span class="tag">'+esc(l.emoji)+' '+esc(l.tag)+'</span>';
+    });
+    h += '</div>';
+
+    if (pf.frase) h += '<div class="frase">"'+esc(pf.frase)+'"</div>';
+    else if ((p.lore||[]).length) h += '<div class="frase">'+esc(p.lore[0].desc)+'</div>';
+
+    if (p.aniversario) h += '<div class="linha">🎂 <b>'+esc(p.aniversario)+'</b></div>';
+    if (pf.serie) h += '<div class="linha">📺 <b>'+esc(pf.serie)+'</b></div>';
+    if (pf.item_assinatura) h += '<div class="linha">🎒 <b>'+esc(pf.item_assinatura)+'</b></div>';
+
+    if (itens) h += '<div class="mesa">Na mesa dele(a) no game<div class="itens">'+itens+'</div></div>';
+    h += '</div>';
+    return h;
+  }
+
+  function formPerfil(){
+    var me = ST.feed.me||{}, pf = null;
+    (ST.feed.perfis||[]).forEach(function(p){
+      if (String(p.email||'').toLowerCase() === String(me.email||'').toLowerCase()) pf = p;
+    });
+    pf = pf||{};
+    return '<div class="form" id="form-perfil">' +
+      '<h2 style="margin-top:0">✏️ Meu cartão</h2>' +
+      '<div class="row">' +
+        '<input class="f-emoji" id="pf-emoji" maxlength="4" placeholder="🙂" value="'+esc(pf.emoji||'')+'">' +
+        '<input id="pf-apelido" style="flex:1;min-width:160px" maxlength="40" placeholder="Como te chamam" value="'+esc(pf.apelido||'')+'">' +
+      '</div>' +
+      '<div class="row"><input id="pf-frase" maxlength="160" placeholder="A frase que você repete no café" value="'+esc(pf.frase||'')+'"></div>' +
+      '<div class="row">' +
+        '<input id="pf-serie" style="flex:1;min-width:150px" maxlength="80" placeholder="Vendo agora (série/filme)" value="'+esc(pf.serie||'')+'">' +
+        '<input id="pf-item" style="flex:1;min-width:150px" maxlength="60" placeholder="Seu item-assinatura" value="'+esc(pf.item_assinatura||'')+'">' +
+      '</div>' +
+      '<div class="row">' +
+        '<input id="pf-signo" style="max-width:210px" maxlength="20" placeholder="Signo (só se quiser corrigir)" value="'+esc(pf.signo_manual||'')+'">' +
+        '<button class="btn" id="pf-salvar">Salvar</button>' +
+        '<button class="btn ghost" id="pf-cancelar">Cancelar</button>' +
+      '</div>' +
+      '<div style="font-size:12px;color:var(--text-muted)">O signo já vem calculado do seu aniversário — só preencha se estiver errado.</div>' +
+    '</div>';
+  }
+
+  function postHTML(p){
+    var corpo = '<div class="txt"><span class="big">'+esc(p.emoji||'☕')+'</span>'+esc(p.texto)+'</div>';
+    if (p.link) corpo += '<div style="margin-bottom:10px"><a href="'+esc(p.link)+
+      '" target="_blank" rel="noopener noreferrer" style="font-size:12px;color:var(--accent)">🔗 abrir link</a></div>';
+
+    var h = '<div class="post" data-post="'+p.id+'">';
+    h += '<div class="cab"><span class="who">'+esc(p.autor||p.email)+'</span>' +
+         '<span class="tp '+esc(p.tipo)+'">'+esc(p.tipo)+'</span>' +
+         (p.pinned?'<span class="pin">📌 fixado</span>':'') +
+         '<span>'+esc(quando(p.created_at))+'</span>';
+    if (p.meu || (ST.feed.me||{}).role==='head')
+      h += '<button class="del" data-del="'+p.id+'">apagar</button>';
+    h += '</div>';
+
+    if (p.spoiler) {
+      h += '<div class="spoiler" data-spoiler="1"><div class="conteudo">'+corpo+'</div>' +
+           '<div class="aviso">🙈 SPOILER — clique pra revelar</div></div>';
+    } else { h += corpo; }
+
+    h += '<div class="reacts">';
+    (ST.feed.reacoes_disponiveis||[]).forEach(function(em){
+      var achou = null;
+      (p.reacoes||[]).forEach(function(r){ if (r.emoji===em) achou=r; });
+      h += '<button class="rx'+(achou&&achou.meu?' on':'')+'" data-rx="'+p.id+'" data-em="'+esc(em)+'">'+
+           em + (achou&&achou.n?'<span class="n">'+achou.n+'</span>':'') + '</button>';
+    });
+    h += '</div></div>';
+    return h;
+  }
+
+  function render(){
+    var seed = ST.seed||{}, f = ST.feed;
+    var h = '';
+
+    h += '<h2>👥 O time</h2><div class="team">' +
+         pessoas().map(cardHTML).join('') + '</div>';
+    if (ST.editando) h += formPerfil();
+
+    if ((seed.em_comum||[]).length) {
+      h += '<h2>🤝 O que é de todo mundo</h2><div class="comum">' +
+        seed.em_comum.map(function(c){
+          return '<div class="cbox"><div class="em">'+esc(c.emoji)+'</div>' +
+                 '<div class="ti">'+esc(c.titulo)+'</div><div class="de">'+esc(c.desc)+'</div></div>';
+        }).join('') + '</div>';
+      h += '<div class="fonte">📌 Folclore capturado no ' + esc(seed._fonte||'papo do café') + '.</div>';
+    }
+
+    h += '<h2>📌 Mural</h2>';
+    h += '<div class="form">' +
+      '<div class="row">' +
+        '<input class="f-emoji" id="m-emoji" maxlength="4" placeholder="☕">' +
+        '<select class="f-tipo" id="m-tipo">' +
+          '<option value="meme">🖼️ Meme</option>' +
+          '<option value="ideia">💡 Ideia</option>' +
+          '<option value="causo">🗣️ Causo</option>' +
+          '<option value="serie">📺 Série</option>' +
+        '</select>' +
+      '</div>' +
+      '<div class="row"><textarea id="m-texto" maxlength="600" placeholder="Manda o que rolou…"></textarea></div>' +
+      '<div class="row"><input id="m-link" maxlength="400" placeholder="Link (opcional) — https://…"></div>' +
+      '<div class="row" style="align-items:center">' +
+        '<label class="chk"><input type="checkbox" id="m-spoiler"> 🙈 Tem spoiler (vai borrado)</label>' +
+        '<button class="btn" id="m-postar" style="margin-left:auto">Postar</button>' +
+      '</div></div>';
+
+    h += (f.posts||[]).length
+      ? f.posts.map(postHTML).join('')
+      : '<div class="vazio">Mural vazio. Alguém começa — regra é só não dar spoiler de Suits.</div>';
+
+    h += '<div class="rodape"><span class="xoxo">XOXO, Gossip Girl 💋</span></div>';
+
+    document.getElementById('app').innerHTML = h;
+    ligar();
+  }
+
+  // Um único listener delegado, preso ao #app (que nunca é recriado).
+  function ligar(){
+    if (ST.ligado) return;
+    ST.ligado = true;
+    document.getElementById('app').addEventListener('click', function(ev){
+      var t = ev.target;
+
+      var sp = t.closest && t.closest('.spoiler');
+      if (sp) { sp.classList.add('aberto'); return; }
+
+      if (t.getAttribute && t.getAttribute('data-edit')) {
+        ST.editando = true; render();
+        var el = document.getElementById('form-perfil');
+        if (el) el.scrollIntoView({behavior:'smooth',block:'center'});
+        return;
+      }
+
+      var rx = t.closest && t.closest('.rx');
+      if (rx) { reagir(rx.getAttribute('data-rx'), rx.getAttribute('data-em')); return; }
+
+      var del = t.getAttribute && t.getAttribute('data-del');
+      if (del) { apagar(del); return; }
+
+      if (t.id === 'pf-cancelar') { ST.editando = false; render(); return; }
+      if (t.id === 'pf-salvar')   { salvarPerfil(t); return; }
+      if (t.id === 'm-postar')    { postar(t); return; }
+    }, false);
+  }
+
+  function val(id){ var e=document.getElementById(id); return e ? e.value : ''; }
+  function recarregar(){
+    return json('/api/cafezinho/feed').then(function(f){ ST.feed=f; render(); });
+  }
+
+  function salvarPerfil(btn){
+    btn.disabled = true;
+    fetch('/api/cafezinho/perfil', {
+      method:'PUT', credentials:'same-origin',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        emoji: val('pf-emoji'), apelido: val('pf-apelido'), frase: val('pf-frase'),
+        serie: val('pf-serie'), item_assinatura: val('pf-item'), signo_manual: val('pf-signo')
+      })
+    }).then(function(r){ return r.json(); }).then(function(j){
+      btn.disabled = false;
+      if (j.error) return alert('Não salvou: ' + j.error);
+      ST.editando = false;
+      return recarregar();
+    }).catch(function(e){ btn.disabled=false; alert('Não salvou: '+e.message); });
+  }
+
+  function postar(btn){
+    var texto = val('m-texto').trim();
+    if (!texto) return alert('Escreve alguma coisa primeiro.');
+    var sp = document.getElementById('m-spoiler');
+    btn.disabled = true;
+    fetch('/api/cafezinho/post', {
+      method:'POST', credentials:'same-origin',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ texto:texto, tipo:val('m-tipo'), emoji:val('m-emoji'),
+                             link:val('m-link'), spoiler: !!(sp && sp.checked) })
+    }).then(function(r){ return r.json(); }).then(function(j){
+      btn.disabled = false;
+      if (j.error) return alert('Não postou: ' + j.error);
+      return recarregar();
+    }).catch(function(e){ btn.disabled=false; alert('Não postou: '+e.message); });
+  }
+
+  function reagir(id, emoji){
+    fetch('/api/cafezinho/reagir', {
+      method:'POST', credentials:'same-origin',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ post_id: parseInt(id,10), emoji: emoji })
+    }).then(function(r){ return r.json(); }).then(function(j){
+      if (j.error) return;
+      return recarregar();
+    });
+  }
+
+  function apagar(id){
+    if (!confirm('Apagar esse post?')) return;
+    fetch('/api/cafezinho/post/'+id, { method:'DELETE', credentials:'same-origin' })
+      .then(function(r){ return r.json(); }).then(function(j){
+        if (j.error) return alert('Não apagou: ' + j.error);
+        return recarregar();
+      });
+  }
+
+  boot();
+})();
+</script>
+</body>
+</html>

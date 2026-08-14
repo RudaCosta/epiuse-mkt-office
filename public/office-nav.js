@@ -189,6 +189,7 @@ const OFFICE_NAV_OVERFLOW = [
   { section: '🎮 Extras' },
   { label: '🎮 Modo Game (time MKT)',    href: '/game' },
   { label: '🏢 Game do Colaborador',     href: '/game-hub' },
+  { label: '☕ Cafezinho',                href: '/cafezinho' },
   { label: '🧠 Memes do Office',         href: '/memes' },
   { label: '🐘 ERP.ngo',                 href: 'https://erp.ngo', external: true }
 ];
