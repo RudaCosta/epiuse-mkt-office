@@ -26,11 +26,42 @@
     on: false, stream: null, videoTrack: null, actx: null, node: null, src: null, sink: null,
     asr: null, engine: null, loading: false, busy: false,
     buf: [], sr: 16000, chunkSec: 4, minRms: 0.006,
-    onText: null, onStatus: null, onLevel: null, lastLvl: 0, heard: false
+    onText: null, onStatus: null, onLevel: null, lastLvl: 0, heard: false, actxRate: 0
   };
 
   function status(msg, kind) { if (S.onStatus) { try { S.onStatus(msg, kind || 'info'); } catch (e) {} } }
   function rms(f32) { var s = 0; for (var i = 0; i < f32.length; i++) s += f32[i] * f32[i]; return Math.sqrt(s / (f32.length || 1)); }
+
+  // ⚠️ O Whisper EXIGE 16 kHz. Pedir sampleRate:16000 no AudioContext NÃO garante
+  // nada — com fonte de aba/tela o Chrome costuma rodar a 48 kHz assim mesmo.
+  // Mandar 48 kHz como se fosse 16 kHz "estica" o áudio 3x -> vira ruído e o
+  // modelo entra em loop de repetição ("NNNNNN..."). Então reamostramos de fato.
+  // Decimação com MÉDIA na janela = filtro passa-baixa cru (evita aliasing).
+  function resampleTo16k(input, inRate) {
+    if (!inRate || inRate === 16000) return input;
+    var ratio = inRate / 16000;
+    var outLen = Math.floor(input.length / ratio);
+    var out = new Float32Array(outLen);
+    for (var i = 0; i < outLen; i++) {
+      var start = Math.floor(i * ratio), end = Math.min(Math.floor((i + 1) * ratio), input.length);
+      if (end <= start) { out[i] = input[Math.min(start, input.length - 1)] || 0; continue; }
+      var s = 0;
+      for (var j = start; j < end; j++) s += input[j];
+      out[i] = s / (end - start);
+    }
+    return out;
+  }
+
+  // Áudio de aba costuma vir baixo; normaliza pra faixa que o Whisper gosta.
+  function normalize(f32) {
+    var peak = 0;
+    for (var i = 0; i < f32.length; i++) { var a = Math.abs(f32[i]); if (a > peak) peak = a; }
+    if (peak < 0.001 || peak > 0.95) return f32;      // mudo ou já alto: não mexe
+    var g = Math.min(8, 0.85 / peak);
+    var out = new Float32Array(f32.length);
+    for (var k = 0; k < f32.length; k++) out[k] = f32[k] * g;
+    return out;
+  }
 
   // ── modelo (1x, com auto-detecção de hardware) ─────────────────────────────
   async function ensureModel() {
@@ -58,22 +89,44 @@
     } finally { S.loading = false; }
   }
 
+  // Corta repetição degenerada ("NNNN", "ha ha ha ha") — sinal de áudio ruim.
+  function ehRepeticao(t) {
+    var s = String(t || '').trim();
+    if (!s) return true;
+    if (/^(.)\1{4,}$/i.test(s.replace(/\s/g, ''))) return true;          // "NNNNN"
+    var w = s.toLowerCase().split(/\s+/);
+    if (w.length >= 6) {
+      var uniq = new Set(w);
+      if (uniq.size <= Math.max(1, Math.floor(w.length * 0.25))) return true; // 75%+ repetido
+    }
+    return false;
+  }
+
   async function processBuffer() {
     if (S.busy || !S.buf.length) return;
     var total = 0, i;
     for (i = 0; i < S.buf.length; i++) total += S.buf[i].length;
-    if (total < S.sr * S.chunkSec) return;
+    // usa a taxa REAL do contexto (não a que pedimos) pra medir o tempo certo
+    var rate = S.actxRate || S.sr;
+    if (total < rate * S.chunkSec) return;
     var chunk = new Float32Array(total), o = 0;
     for (i = 0; i < S.buf.length; i++) { chunk.set(S.buf[i], o); o += S.buf[i].length; }
     S.buf = [];
     if (rms(chunk) < S.minRms) return; // silêncio: pula (economiza CPU/GPU)
+    var pcm = normalize(resampleTo16k(chunk, rate));  // -> 16 kHz, que é o que o Whisper espera
     var asr = await ensureModel();
     if (!asr) return;
     S.busy = true;
     try {
-      var out = await asr(chunk, { language: 'portuguese', task: 'transcribe', chunk_length_s: S.chunkSec + 2 });
+      var out = await asr(pcm, {
+        language: 'portuguese', task: 'transcribe',
+        chunk_length_s: 30,               // janela nativa do Whisper
+        temperature: 0,
+        no_repeat_ngram_size: 3,          // trava o loop de repetição
+        condition_on_previous_text: false // não arrasta alucinação do chunk anterior
+      });
       var txt = (out && out.text || '').trim();
-      if (txt && !/^[\s.\-—]*$/.test(txt) && S.onText) S.onText(txt);
+      if (txt && !ehRepeticao(txt) && S.onText) S.onText(txt);
     } catch (e) {
       status('Erro na transcrição: ' + (e && e.message || e), 'err');
     } finally { S.busy = false; }
@@ -84,7 +137,11 @@
     var atrk = stream.getAudioTracks();
     if (!atrk.length) return false;
     var AC = window.AudioContext || window.webkitAudioContext;
-    S.actx = new AC({ sampleRate: S.sr });
+    // pedimos 16k, mas o navegador pode ignorar (fonte de aba costuma forçar 48k).
+    // Guardamos a taxa REAL e reamostramos depois — sem isso o áudio ia "esticado".
+    try { S.actx = new AC({ sampleRate: S.sr }); } catch (e) { S.actx = new AC(); }
+    S.actxRate = S.actx.sampleRate || S.sr;
+    if (S.actxRate !== S.sr) console.log('[jarvis-stt] contexto a', S.actxRate, 'Hz -> reamostrando pra 16000');
     S.src = S.actx.createMediaStreamSource(new MediaStream([atrk[0]]));
     var node = S.actx.createScriptProcessor(4096, 1, 1);
     node.onaudioprocess = function (ev) {
@@ -203,7 +260,7 @@
     try { S.actx && S.actx.close(); } catch (e) {}
     try { S.videoTrack && S.videoTrack.stop(); } catch (e) {}
     try { S.stream && S.stream.getTracks().forEach(function (t) { t.stop(); }); } catch (e) {}
-    S.node = S.sink = S.src = S.actx = S.stream = S.videoTrack = null; S.buf = [];
+    S.node = S.sink = S.src = S.actx = S.stream = S.videoTrack = null; S.buf = []; S.actxRate = 0;
     status('Captura da call parada.', 'info');
   }
 
@@ -216,6 +273,7 @@
     isOn: function () { return S.on; },
     engine: function () { return S.engine; },
     heardAudio: function () { return S.heard; },
+    sampleRate: function () { return S.actxRate; },
     supported: function () { return !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia); }
   };
 })();
