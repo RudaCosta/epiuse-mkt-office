@@ -179,16 +179,11 @@
       <h1>JARVIS <span class="v">· COPILOTO SDR/BDR &nbsp;v0.10</span></h1>
     </div>
   </div>
-  <p class="sub">Biz Dev · prospecção B2B SAP & ServiceNow — escuta a conversa e recomenda suas falas em tempo real.</p>
+  <p class="sub">🤖 Sugestões de IA — confira antes de falar.</p>
 
-  <div class="ai-banner">
-    <span style="font-size:16px">🤖</span>
-    <span><strong>Sugestões geradas pela IA da EPI-USE — use seu julgamento.</strong> Base de conhecimento REAL EPI-USE (LOBs, personas, gatilhos 2026, objeções). A IA da EPI-USE orienta, quem fecha é você.</span>
-  </div>
-
-  <!-- TUTORIAL RETRÁTIL — como o SDR usa (fecha por padrão pra não poluir) -->
+  <!-- TUTORIAL RETRÁTIL — toda a instrução longa mora aqui (fechado por padrão) -->
   <details class="howto">
-    <summary>❓ Como usar o JARVIS na sua call — passo a passo (1 min de leitura)</summary>
+    <summary>❓ Como usar</summary>
     <div class="howto-body">
 
       <h4>1 · Antes da call (2 min)</h4>
@@ -265,7 +260,7 @@
   <div class="setup">
     <div class="fld"><label>Prospect</label><input id="f-prospect" placeholder="Nome do contato"></div>
     <div class="fld"><label>Empresa</label><input id="f-empresa" placeholder="Empresa"></div>
-    <div class="fld detected-fld"><label>🤖 JARVIS detecta da conversa</label>
+    <div class="fld detected-fld"><label>🤖 Detectado</label>
       <div class="detected" id="detected-ctx"><span class="dchip muted">aguardando a conversa…</span></div>
     </div>
     <div class="setup-actions"><button class="btn ghost" id="btn-brief">🧭 Pré-call brief</button><button class="btn ghost" id="btn-pesquisar" title="Pesquisar produto/tema técnico na web (sap.com)">🔬 Pesquisar produto</button></div>
@@ -284,35 +279,28 @@
         </div>
       </div>
       <div class="callcap-row">
-        <button class="btn ghost" id="btn-callcap" title="Captura a voz do CLIENTE (a que sai no seu fone) — funciona com 3CX e qualquer softphone.">🎧 Áudio da call (beta)</button>
+        <button class="btn ghost" id="btn-callcap" title="Captura a voz do CLIENTE (a que sai no seu fone) — funciona com 3CX e qualquer softphone.">🎧 Áudio da call</button>
         <select id="callcap-src" title="De onde capturar a voz do cliente">
           <option value="__display__">🔊 Áudio do sistema (compartilhar tela)</option>
         </select>
-        <span id="callcap-status" class="callcap-status">só mic hoje · ative pra ouvir o cliente (grátis, roda no navegador)</span>
+        <span id="callcap-status" class="callcap-status">ative pra ouvir o cliente</span>
       </div>
       <div class="rolemap" id="rolemap">
-        <span class="rm-lbl">Quem é cada voz?</span>
+        <span class="rm-lbl">Quem é quem</span>
         <div class="rm-seg" data-voz="voz1"><span>Voz 1</span><button data-role="sdr">🧑‍💼 SDR</button><button data-role="prospect">👤 Cliente</button></div>
         <div class="rm-seg" data-voz="voz2"><span>Voz 2</span><button data-role="sdr">🧑‍💼 SDR</button><button data-role="prospect">👤 Cliente</button></div>
-        <span class="rm-hint" id="rm-hint">marque 1x — só pra calcular % de fala e disparar o coach</span>
+        <span class="rm-hint" id="rm-hint">marque 1x</span>
       </div>
       <div class="transcript" id="transcript">
-        <div class="empty-note">Ative o microfone ou digite abaixo o que foi dito.<br>O JARVIS separa as vozes sozinho (Voz 1 / Voz 2) — marque uma vez quem é quem.</div>
+        <div class="empty-note">Ative o microfone pra começar.</div>
       </div>
       <div class="manual">
-        <input id="manual-in" placeholder='Digitar fala (vai pra voz ativa)… Enter pra enviar'>
+        <input id="manual-in" placeholder='Digitar fala…'>
         <button class="btn" id="btn-manual">Enviar</button>
       </div>
       <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
         <button class="btn" id="btn-dores" title="Dores reais já ouvidas em campo, por LOB — insumo pra pautar conteúdo">📊 Dores de campo</button>
-        <span id="save-status" style="font-size:11px;color:var(--j-muted)">💾 salva sozinho ao pausar o mic</span>
-      </div>
-      <div class="footnote">
-        🎧 <strong>Áudio da call (beta) — para 3CX e qualquer softphone:</strong> seu mic já pega <strong>você</strong>; isto pega a <strong>voz do cliente</strong> (a que sai no seu fone). Escolha a fonte no seletor ao lado:<br>
-        &nbsp;&nbsp;• <strong>🎚️ Um dispositivo</strong> (recomendado no 3CX): “Mixagem estéreo/Stereo Mix” ou um cabo virtual (VB-Cable). Não depende de compartilhar tela — mais estável.<br>
-        &nbsp;&nbsp;• <strong>🔊 Áudio do sistema</strong>: escolha <strong>“Tela inteira”</strong> e <strong>marque “Compartilhar áudio do sistema”</strong> (Windows). Sem marcar, não vem áudio.<br>
-        Transcreve <strong>de graça no seu navegador</strong> (Whisper — WebGPU quando dá, senão modo leve). Com a captura ligada, mic = <strong>você (SDR)</strong> e a call = <strong>Cliente</strong>, sem marcar nada.<br>
-        🔀 <strong>Sem a captura</strong>, o <code>Web Speech API</code> só pega o <strong>microfone local</strong> e o JARVIS quebra as falas por pausa em <strong>Voz 1 / Voz 2</strong> (heurística — se sair trocado, use “↔️ trocar voz”). Melhor no <strong>Chrome</strong>.
+        <span id="save-status" style="font-size:11px;color:var(--j-muted)">💾 salva sozinho</span>
       </div>
     </div>
 
@@ -348,7 +336,7 @@
       </div>
 
       <div class="coach-cards" id="coach">
-        <div class="coach-idle">🛰️ Aguardando a conversa…<br>Preencha o contexto e ative a escuta. As recomendações aparecem aqui.</div>
+        <div class="coach-idle">🛰️ Aguardando a conversa…</div>
       </div>
       <button class="btn primary" id="btn-ask" style="width:100%;margin-top:12px">⚡ Pedir sugestão agora</button>
     </div>
@@ -699,7 +687,7 @@ function renderRoleMap(){
     seg.querySelectorAll('button').forEach(btn=> btn.classList.toggle('on', ST.roleMap[voz]===btn.dataset.role));
   });
   const hint = $('rm-hint');
-  if (hint) hint.textContent = rolesReady() ? '✓ vozes marcadas — coach e % de fala ativos' : 'marque 1x — só pra calcular % de fala e disparar o coach';
+  if (hint) hint.textContent = rolesReady() ? '✓ pronto' : 'marque 1x';
 }
 document.querySelectorAll('.rm-seg button').forEach(btn=> btn.addEventListener('click', ()=> setRole(btn.closest('.rm-seg').dataset.voz, btn.dataset.role)));
 
@@ -723,7 +711,7 @@ async function loadCallSources(){
 async function toggleCallCap(){
   const api = window.JarvisCallSTT;
   if(!api){ setCallStatus('módulo não carregou — recarregue a página','err'); return; }
-  const reset=()=>{ ST.callCapOn=false; $('btn-callcap').classList.remove('on'); $('btn-callcap').textContent='🎧 Áudio da call (beta)'; };
+  const reset=()=>{ ST.callCapOn=false; $('btn-callcap').classList.remove('on'); $('btn-callcap').textContent='🎧 Áudio da call'; };
   if(api.isOn()){ api.stop(); reset(); return; }
   // 2 fontes: mic=SDR (voz1), áudio da call=Cliente (voz2). Marca os papéis sozinho.
   ST.callCapOn = true;
