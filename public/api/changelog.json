@@ -1,6 +1,6 @@
 {
-  "current": "0.87.0",
-  "atualizado_em": "14/ago/2026",
+  "current": "0.88.0",
+  "atualizado_em": "17/ago/2026",
   "next": [
     {
       "version": "0.53.0",
@@ -54,9 +54,22 @@
   ],
   "releases": [
     {
+      "version": "0.88.0",
+      "date": "17/ago/2026",
+      "status": "current",
+      "path": "/jarvis",
+      "title": "📞 JARVIS × Zoho: ingestão automática de calls 3CX com transcrição e inteligência",
+      "highlights": [
+        "Webhook Zoho → JARVIS: toda call registrada no Zoho CRM (via 3CX PhoneSystem) é automaticamente baixada, transcrita (Groq Whisper) e analisada — extrai dores, objeções, gatilhos e sinais de compra.",
+        "Painel 📞 Calls Zoho no JARVIS: botão abre histórico de todas as calls ingeridas, com resumo, transcrição e aprendizados categorizados por tipo (dor, objeção, gatilho, sinal, pergunta vencedora).",
+        "Busca por prospect: ao digitar o nome no campo Prospect, as calls daquele contato aparecem automaticamente (debounce 800ms).",
+        "Proteção contra duplicatas: reenviar a mesma call do Zoho não cria registro duplicado (controle por zoho_call_id)."
+      ]
+    },
+    {
       "version": "0.87.0",
       "date": "14/ago/2026",
-      "status": "current",
+      "status": "previous",
       "path": "/cafezinho",
       "title": "☕ Cafezinho: a área pessoal do time",
       "highlights": [
