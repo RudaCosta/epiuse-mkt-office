@@ -116,39 +116,50 @@ function openaiModelsUrl(base) {
   return /\/v1$/.test(b) ? `${b}/models` : `${b}/v1/models`;
 }
 
+// Modelos fallback (Groq remove modelos com frequência — cadeia de segurança).
+const AI_FALLBACK_MODELS = [AI_MODEL, 'qwen/qwen3.6-27b', 'openai/gpt-oss-120b', 'openai/gpt-oss-20b', 'groq/compound-mini'];
+
 // Chamada unificada ao LLM — devolve só o TEXTO da resposta.
-// Ramo 'openai' usa fetch (Ollama/LM Studio/odysseus); padrão usa o SDK Anthropic (inalterado).
+// Ramo 'openai' usa fetch com fallback automático de modelo se o primário falhar.
 async function callLLM({ system, user, maxTokens }) {
   if (AI_FORMAT === 'openai') {
-    const models = [AI_MODEL, ...AI_FALLBACK_MODELS.filter(m => m !== AI_MODEL)];
+    const models = [...new Set(AI_FALLBACK_MODELS)];
+    let lastErr;
     for (const model of models) {
-      const resp = await fetch(openaiChatUrl(ODY_BASE), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(ODY_KEY ? { Authorization: `Bearer ${ODY_KEY}` } : {})
-        },
-        body: JSON.stringify({
-          model,
-          max_tokens: maxTokens,
-          messages: [
-            { role: 'system', content: system },
-            { role: 'user', content: user }
-          ]
-        })
-      });
-      if (resp.status === 404 || (resp.status === 400 && await resp.clone().text().then(t => t.includes('decommissioned')).catch(() => false))) {
-        console.warn(`[jarvis] modelo ${model} indisponível (${resp.status}), tentando próximo fallback...`);
-        continue;
+      try {
+        const resp = await fetch(openaiChatUrl(ODY_BASE), {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(ODY_KEY ? { Authorization: `Bearer ${ODY_KEY}` } : {})
+          },
+          body: JSON.stringify({
+            model,
+            max_tokens: maxTokens,
+            messages: [
+              { role: 'system', content: system },
+              { role: 'user', content: user }
+            ]
+          })
+        });
+        if (!resp.ok) {
+          const t = await resp.text().catch(() => '');
+          if (resp.status === 404 || (resp.status === 400 && /decommissioned/i.test(t))) {
+            console.warn(`[jarvis] modelo ${model} indisponível (${resp.status}), tentando próximo…`);
+            lastErr = new Error(`LLM ${resp.status}: ${t.slice(0, 200)}`);
+            continue;
+          }
+          throw new Error(`LLM ${resp.status}: ${t.slice(0, 200)}`);
+        }
+        const data = await resp.json();
+        if (model !== AI_MODEL) console.log(`[jarvis] LLM fallback: usando ${model} (${AI_MODEL} indisponível)`);
+        return data?.choices?.[0]?.message?.content || '';
+      } catch (e) {
+        if (e.message?.includes('LLM 4')) { lastErr = e; continue; }
+        throw e;
       }
-      if (!resp.ok) {
-        const t = await resp.text().catch(() => '');
-        throw new Error(`LLM ${resp.status}: ${t.slice(0, 200)}`);
-      }
-      const data = await resp.json();
-      return data?.choices?.[0]?.message?.content || '';
     }
-    throw new Error(`Nenhum modelo disponível. Tentados: ${models.join(', ')}`);
+    throw lastErr || new Error('Nenhum modelo LLM disponível');
   }
   const completion = await aiClient.messages.create({
     model: AI_MODEL,
@@ -369,8 +380,8 @@ function retrieveArtigos({ lob, query, k = 6 } = {}) {
 function safeParseJson(raw) {
   if (!raw) return null;
   let t = String(raw).trim();
+  t = t.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
   t = t.replace(/^```(?:json)?/i, '').replace(/```$/i, '').trim();
-  // pega o primeiro objeto {...} se vier texto em volta
   const first = t.indexOf('{');
   const last = t.lastIndexOf('}');
   if (first >= 0 && last > first) t = t.slice(first, last + 1);
@@ -1019,9 +1030,8 @@ router.post('/api/jarvis/ingest-zoho-call', async (req, res) => {
           `Listas vazias se não houver. Sem texto fora do JSON.`
         ].join('\n');
 
-        console.log(tag, 'chamando LLM pra extrair aprendizados...');
         const raw = await callLLM({ system: 'Extrator factual de calls de venda. Responde APENAS JSON puro, sem markdown, sem tags, sem explicação. PT-BR.', user: ext, maxTokens: 1200 });
-        console.log(tag, 'LLM raw (300ch):', String(raw).slice(0, 300));
+        console.log(tag, 'LLM raw (primeiros 300 chars):', String(raw).slice(0, 300));
         const parsed = safeParseJson(raw);
         console.log(tag, 'parsed:', parsed ? 'OK — resumo=' + String(parsed.resumo || '').slice(0, 80) : 'FALHOU — raw tail:' + String(raw).slice(-150));
         if (parsed) {
@@ -1042,6 +1052,8 @@ router.post('/api/jarvis/ingest-zoho-call', async (req, res) => {
           });
           tx();
           if (resumo) db.prepare('UPDATE jarvis_calls SET resumo = ? WHERE id = ?').run(resumo, callId);
+        } else {
+          console.warn(tag, 'safeParseJson retornou null — raw:', String(raw).slice(0, 500));
         }
       } catch (e) {
         console.warn(tag, 'extração de aprendizados falhou (call salva):', e.message);
