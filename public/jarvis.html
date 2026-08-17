@@ -318,8 +318,8 @@
         <span id="save-status" style="font-size:11px;color:var(--j-muted)">💾 salva sozinho ao pausar o mic</span>
       </div>
       <div class="footnote">
-        🎧 <strong>Áudio da call (beta):</strong> pra ouvir o <strong>cliente numa call de fone</strong>, clique em “Áudio da call” e <strong>compartilhe a aba/tela da reunião marcando “compartilhar áudio”</strong>. O JARVIS capta o áudio da call (lado do cliente) e transcreve <strong>de graça, no seu navegador</strong> (Whisper — WebGPU quando dá, senão modo leve). Aí mic = <strong>você (SDR)</strong> e a call = <strong>Cliente</strong>, sem marcar nada.<br>
-        🔀 <strong>Sem a captura</strong>, o <code>Web Speech API</code> só pega o <strong>microfone local</strong> e o JARVIS quebra as falas por pausa em <strong>Voz 1 / Voz 2</strong> (heurística — se sair trocado, use “↔️ trocar voz”). Melhor no <strong>Chrome</strong>.
+        🎧 <strong>Áudio da call (beta):</strong> pra ouvir o <strong>cliente numa call de fone</strong>, clique em “Áudio da call" e <strong>compartilhe a aba/tela da reunião marcando “compartilhar áudio"</strong>. O JARVIS capta o áudio da call (lado do cliente) e transcreve <strong>de graça, no seu navegador</strong> (Whisper — WebGPU quando dá, senão modo leve). Aí mic = <strong>você (SDR)</strong> e a call = <strong>Cliente</strong>, sem marcar nada.<br>
+        🔀 <strong>Sem a captura</strong>, o <code>Web Speech API</code> só pega o <strong>microfone local</strong> e o JARVIS quebra as falas por pausa em <strong>Voz 1 / Voz 2</strong> (heurística — se sair trocado, use “↔️ trocar voz"). Melhor no <strong>Chrome</strong>.
       </div>
     </div>
 
@@ -728,7 +728,7 @@ async function buscarCallsZoho(query){
     if(!r.ok || d.success===false){ body.innerHTML='<div class="calls-empty">⚠️ '+(d.error||'Erro ao buscar')+'</div>'; return; }
     $('calls-count').textContent = d.total;
     if(!d.calls || !d.calls.length){
-      body.innerHTML='<div class="calls-empty">Nenhuma call encontrada pra "'+escapeHtml(q)+'".</div>';
+      body.innerHTML='<div class="calls-empty">'+(hasQuery ? 'Nenhuma call encontrada pra "'+escapeHtml(q)+'".' : 'Nenhuma call registrada ainda.')+'</div>';
       return;
     }
     body.innerHTML = d.calls.map(c => {
