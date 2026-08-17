@@ -1025,6 +1025,7 @@ router.get('/api/jarvis/zoho-calls', requireAuth, (req, res) => {
              transcript_json,
              LENGTH(transcript_json) > 4 AS tem_transcricao
       FROM jarvis_calls
+      WHERE zoho_call_id IS NOT NULL
       ORDER BY criado_em DESC
       LIMIT ?
     `).all(limit);
@@ -1114,6 +1115,44 @@ router.get('/api/jarvis/calls-by-prospect', requireAuth, (req, res) => {
     res.json({ success: true, query: q, total: result.length, calls: result });
   } catch (e) {
     console.error('[jarvis/calls-by-prospect] erro:', e.message);
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+// ── API: detalhe completo de uma call (para modal) ──────────────────────────
+router.get('/api/jarvis/call/:id', requireAuth, (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (!id) return res.status(400).json({ success: false, error: 'ID inválido.' });
+    const c = db.prepare(`
+      SELECT id, zoho_call_id, prospect, empresa, resumo, duracao_seg, fonte_audio, criado_em, transcript_json
+      FROM jarvis_calls WHERE id = ?
+    `).get(id);
+    if (!c) return res.status(404).json({ success: false, error: 'Call não encontrada.' });
+
+    let transcricao = '';
+    try {
+      const turns = JSON.parse(c.transcript_json || '[]');
+      transcricao = turns.map(t => {
+        const speaker = t.speaker === 'sdr' ? '🧑‍💼 SDR' : t.speaker === 'prospect' ? '👤 Cliente' : (t.speaker || '');
+        return speaker + ': ' + t.text;
+      }).join('\n\n');
+    } catch (_) { transcricao = c.transcript_json || ''; }
+
+    const aprendizados = db.prepare(`
+      SELECT tipo, texto FROM jarvis_aprendizados WHERE call_id = ? ORDER BY tipo
+    `).all(id);
+
+    res.json({
+      success: true,
+      call: {
+        id: c.id, zoho_call_id: c.zoho_call_id, prospect: c.prospect,
+        empresa: c.empresa, resumo: c.resumo, duracao_seg: c.duracao_seg,
+        fonte: c.fonte_audio, data: c.criado_em, transcricao, aprendizados
+      }
+    });
+  } catch (e) {
+    console.error('[jarvis/call/:id] erro:', e.message);
     res.status(500).json({ success: false, error: e.message });
   }
 });
