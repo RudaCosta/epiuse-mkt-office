@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Comunicados · Admin</title>
+<link rel="stylesheet" href="/design-tokens.css">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Maven Pro',system-ui,sans-serif;background:#0a1426;color:#e8f0ff;line-height:1.55}
+  .container{max-width:940px;margin:0 auto;padding:32px 24px 80px}
+  h1{font-size:24px;font-weight:800;margin-bottom:4px}
+  .sub{font-size:13px;color:#9fb2d4;margin-bottom:18px;max-width:70ch}
+  h2{font-size:13px;font-weight:800;margin:26px 0 12px;color:#9fb2d4;text-transform:uppercase;letter-spacing:.06em}
+  .estado{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px}
+  .e{background:#0f1d36;border:1px solid rgba(134,158,195,.18);border-radius:11px;padding:11px 15px;font-size:12.5px;color:#9fb2d4}
+  .e b{display:block;font-size:13px;margin-top:2px}
+  .e.ok b{color:#4ade80} .e.no b{color:#f87171} .e.info b{color:#a7c0e8}
+  .c{background:#0f1d36;border:1px solid rgba(134,158,195,.18);border-radius:14px;padding:18px 20px;margin-bottom:12px}
+  .ch{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap;margin-bottom:9px}
+  .ct{font-size:16px;font-weight:700;line-height:1.3}
+  .cm{font-size:12.5px;color:#9fb2d4;line-height:1.7}
+  .cm b{color:#a7c0e8;font-weight:600}
+  .cr{font-size:13px;color:#9fb2d4;margin:8px 0 12px;max-width:70ch}
+  .badge{font-size:10px;font-weight:800;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;border:1px solid currentColor}
+  .b-pendente{color:#fbbf24} .b-enviado{color:#4ade80} .b-falhou{color:#f87171}
+  .b-cancelado{color:#94a3b8} .b-inativo{color:#94a3b8}
+  .erro{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#fca5a5;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.28);border-radius:8px;padding:8px 11px;margin-bottom:12px;word-break:break-word}
+  .acts{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{background:rgba(96,165,250,.16);border:1px solid rgba(96,165,250,.4);color:#bfdbfe;border-radius:9px;padding:8px 14px;font-size:12.5px;font-weight:700;font-family:inherit;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+  .btn:hover{filter:brightness(1.2)}
+  .btn.go{background:#cd1543;border-color:#cd1543;color:#fff}
+  .btn.dan{background:rgba(248,113,113,.12);border-color:rgba(248,113,113,.35);color:#fca5a5}
+  .btn:disabled{opacity:.4;cursor:default}
+  .msg{font-size:12.5px;margin-top:10px;min-height:17px}
+  .msg.ok{color:#4ade80}.msg.err{color:#f87171}
+  .vazio{color:#9fb2d4;font-size:13.5px;background:#0b1830;border:1px dashed rgba(134,158,195,.22);border-radius:13px;padding:30px 20px;text-align:center}
+  .teste{background:#0f1d36;border:1px solid rgba(205,21,67,.3);border-radius:14px;padding:17px 19px;margin-bottom:22px}
+  .teste .tt{font-size:15px;font-weight:800;margin-bottom:4px}
+  .teste .td{font-size:12.5px;color:#9fb2d4;margin-bottom:13px;max-width:72ch;line-height:1.6}
+  .teste .tr{display:flex;gap:9px;flex-wrap:wrap}
+  .teste input{flex:1;min-width:220px;background:#0a1426;border:1px solid rgba(134,158,195,.25);color:#e8f0ff;padding:9px 12px;border-radius:9px;font-family:inherit;font-size:13.5px}
+  .res{margin-top:12px;border-radius:10px;padding:11px 13px;font-size:13px;line-height:1.6}
+  .res.ok{background:rgba(34,211,122,.09);border:1px solid rgba(34,211,122,.35);color:#86efac}
+  .res.no{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.3);color:#fca5a5}
+  .res pre{font-family:'JetBrains Mono',monospace;font-size:11.5px;background:rgba(0,0,0,.3);border-radius:8px;padding:9px 11px;margin-top:9px;overflow-x:auto;white-space:pre-wrap;word-break:break-word;color:#e8f0ff}
+  .nota{font-size:12.5px;color:#6b83ad;line-height:1.65;margin-top:20px;border-left:2px solid rgba(134,158,195,.3);padding-left:13px;max-width:72ch}
+  .nota code{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#a7c0e8}
+</style>
+</head>
+<body>
+<office-nav></office-nav>
+<div class="container">
+  <h1>✉️ Comunicados</h1>
+  <div class="sub">
+    E-mails que o Office dispara sozinho. O texto é escrito e commitado no repo; depois do deploy
+    o envio sai automaticamente. Aqui você acompanha, dispara na hora ou cancela antes que saia.
+  </div>
+
+  <div class="estado" id="estado"></div>
+
+  <div class="teste">
+    <div class="tt">🧪 Testar envio</div>
+    <div class="td">Manda um e-mail mínimo agora e mostra a resposta crua da Resend. Use quando algo não chegar — é aqui que aparece o motivo real.</div>
+    <div class="tr">
+      <input id="t-para" type="email" placeholder="deixe em branco pra mandar pra você">
+      <button class="btn go" id="t-btn" type="button">Enviar teste</button>
+    </div>
+    <div id="t-out"></div>
+  </div>
+
+  <h2>Fila</h2>
+  <div id="lista"><div class="vazio">Carregando…</div></div>
+
+  <div class="nota">
+    O <code>id</code> de cada comunicado é a trava de envio único — um id já enviado nunca sai de novo
+    sozinho. Para reenviar de propósito, use <b>Reenviar</b> aqui. Destinatários fora dos domínios
+    permitidos são recusados antes do envio.
+  </div>
+</div>
+
+<script src="/office-nav.js"></script>
+<script>
+(function(){
+  try { var t=new URL(location.href).searchParams.get('token'); if(t) localStorage.setItem('office.editorToken',t); } catch(e){}
+  function tok(){ try{ return localStorage.getItem('office.editorToken')||''; }catch(e){ return ''; } }
+  function H(){ var h={'Content-Type':'application/json'}, t=tok(); if(t) h['X-Editor-Token']=t; return h; }
+  var esc=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c];});};
+  function fmt(s){ if(!s) return ''; var d=new Date(s); if(isNaN(d)) return String(s);
+    var p=function(n){return (n<10?'0':'')+n;};
+    return p(d.getDate())+'/'+p(d.getMonth()+1)+' '+p(d.getHours())+':'+p(d.getMinutes()); }
+
+  function render(d){
+    document.getElementById('estado').innerHTML =
+      '<div class="e '+(d.resend_configurado?'ok':'no')+'">Chave de e-mail<b>'+(d.resend_configurado?'configurada':'AUSENTE — nada sai')+'</b></div>'+
+      '<div class="e '+(d.envio_habilitado?'ok':'no')+'">Envio automático<b>'+(d.envio_habilitado?'ligado':'desligado')+'</b></div>'+
+      '<div class="e info">Remetente<b>'+esc((d.remetentes||[d.from]).join(' → '))+'</b></div>'+
+      '<div class="e info">Domínios permitidos<b>'+esc((d.dominios_permitidos||[]).join(', '))+
+        ((d.emails_extra||[]).length?(' + '+esc(d.emails_extra.join(', '))):'')+'</b></div>'+
+      '<div class="e info">Sempre em cópia<b>'+esc((d.copia_sempre||[]).join(', ')||'—')+'</b></div>';
+
+    var cs=d.comunicados||[];
+    document.getElementById('lista').innerHTML = cs.length ? cs.map(function(c){
+      var podeEnviar = c.status!=='enviado';
+      return '<div class="c" data-id="'+esc(c.id)+'">'+
+        '<div class="ch"><div class="ct">'+esc(c.assunto||'(sem assunto)')+'</div>'+
+        '<span class="badge b-'+esc(c.status)+'">'+esc(c.status)+'</span></div>'+
+        '<div class="cm"><b>Para:</b> '+esc((c.para||[]).join(', '))+
+          (((c.cc_efetivo||c.cc||[]).length)?' &nbsp;·&nbsp; <b>Cópia:</b> '+esc((c.cc_efetivo||c.cc).join(', ')):'')+'<br>'+
+          '<b>Envio:</b> '+(c.auto?'automático':'só manual')+
+          (c.enviado_em?(' &nbsp;·&nbsp; <b>Enviado:</b> '+esc(fmt(c.enviado_em))):'')+
+          (c.tentativas?(' &nbsp;·&nbsp; tentativas: '+c.tentativas):'')+
+          (c.tem_corpo?'':' &nbsp;·&nbsp; <b style="color:#fca5a5">corpo não encontrado</b>')+
+        '</div>'+
+        (c.resumo?'<div class="cr">'+esc(c.resumo)+'</div>':'')+
+        (c.erro?'<div class="erro">'+esc(c.erro)+'</div>':'')+
+        '<div class="acts">'+
+          '<a class="btn" href="/api/admin/comunicados/'+encodeURIComponent(c.id)+'/preview'+(tok()?('?token='+encodeURIComponent(tok())):'')+'" target="_blank" rel="noopener">👁️ Ver o e-mail</a>'+
+          (podeEnviar?'<button class="btn go" data-env="'+esc(c.id)+'">📤 Enviar agora</button>':
+                      '<button class="btn" data-env="'+esc(c.id)+'" data-forcar="1">↻ Reenviar</button>')+
+          (c.status==='pendente'?'<button class="btn dan" data-can="'+esc(c.id)+'">Cancelar</button>':'')+
+        '</div><div class="msg"></div></div>';
+    }).join('') : '<div class="vazio">Nenhum comunicado na fila.</div>';
+
+    Array.prototype.forEach.call(document.querySelectorAll('[data-env]'), function(b){
+      b.addEventListener('click', function(){
+        var card=b.closest('.c'), m=card.querySelector('.msg');
+        var forcar=b.dataset.forcar==='1';
+        if(forcar && !confirm('Reenviar este comunicado? Ele já foi enviado uma vez.')) return;
+        b.disabled=true; var txt=b.textContent; b.textContent='Enviando…'; m.className='msg'; m.textContent='';
+        fetch('/api/admin/comunicados/'+encodeURIComponent(b.dataset.env)+'/enviar',
+          {method:'POST',headers:H(),body:JSON.stringify({forcar:forcar})})
+          .then(function(r){return r.json();})
+          .then(function(d){
+            if(d.success){ m.className='msg ok'; m.textContent='Enviado ✓'; setTimeout(load,900); }
+            else { m.className='msg err'; m.textContent='Não saiu: '+(d.erro||d.pulou||d.error||'erro'); b.disabled=false; b.textContent=txt; }
+          })
+          .catch(function(e){ m.className='msg err'; m.textContent='Falhou ('+e.message+')'; b.disabled=false; b.textContent=txt; });
+      });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-can]'), function(b){
+      b.addEventListener('click', function(){
+        if(!confirm('Cancelar este comunicado? Ele não será enviado automaticamente.')) return;
+        fetch('/api/admin/comunicados/'+encodeURIComponent(b.dataset.can)+'/cancelar',{method:'POST',headers:H()})
+          .then(function(){ load(); });
+      });
+    });
+  }
+
+  document.getElementById('t-btn').addEventListener('click', function(){
+    var b=this, out=document.getElementById('t-out');
+    var para=document.getElementById('t-para').value.trim();
+    b.disabled=true; b.textContent='Enviando…'; out.innerHTML='';
+    fetch('/api/admin/comunicados/teste',{method:'POST',headers:H(),body:JSON.stringify({para:para})})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(d.ok){
+          out.innerHTML='<div class="res ok">✅ <b>Enviado pra '+esc(d.para)+'</b><br>'+
+            'Remetente: '+esc(d.from)+(d.resend_id?(' &nbsp;·&nbsp; id Resend: <code>'+esc(d.resend_id)+'</code>'):'')+
+            '<br><span style="color:#9fb2d4">Se não cair na caixa em 1-2 min, olhe o spam. Se nem no spam, o problema é entrega (domínio/DNS).</span></div>';
+        } else {
+          out.innerHTML='<div class="res no">❌ <b>Não saiu</b> — etapa: '+esc(d.etapa||'?')+'<br>'+esc(d.erro||'')+
+            (d.from?('<br><span style="color:#9fb2d4">Remetente tentado: '+esc(d.from)+'</span>'):'')+
+            (d.detalhe?('<pre>'+esc(JSON.stringify(d.detalhe,null,2))+'</pre>'):'')+'</div>';
+        }
+      })
+      .catch(function(e){ out.innerHTML='<div class="res no">Falhou ('+esc(e.message)+')</div>'; })
+      .finally(function(){ b.disabled=false; b.textContent='Enviar teste'; });
+  });
+
+  function load(){
+    fetch('/api/admin/comunicados',{headers:H()})
+      .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+      .then(render)
+      .catch(function(e){ document.getElementById('lista').innerHTML='<div class="vazio">Acesso negado ou erro ('+esc(e.message)+').</div>'; });
+  }
+  load();
+})();
+</script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 {
-  "current": "0.85.1",
-  "atualizado_em": "12/ago/2026",
+  "current": "0.87.0",
+  "atualizado_em": "14/ago/2026",
   "next": [
     {
       "version": "0.53.0",
@@ -54,10 +54,90 @@
   ],
   "releases": [
     {
-<<<<<<< HEAD
+      "version": "0.87.0",
+      "date": "14/ago/2026",
+      "status": "current",
+      "path": "/cafezinho",
+      "title": "☕ Cafezinho: a área pessoal do time",
+      "highlights": [
+        "Tela nova em /cafezinho — o primeiro canto do Office que não é sobre trabalho. Sem KPI, sem funil, sem meta.",
+        "Cada pessoa tem um cartão que ela mesma edita: apelido, emoji, a frase que repete no café, a série que está vendo e o item-assinatura dela.",
+        "O signo aparece calculado a partir do aniversário que já estava cadastrado — ninguém precisa digitar, e dá pra corrigir à mão se sair errado.",
+        "Mural do time com meme, ideia, causo e série. Post marcado como spoiler entra borrado e só abre no clique — a regra do café virou regra da tela.",
+        "As mesas do game ganharam a garrafa da Bruna e o tarot da Fernanda, que até então estavam com itens genéricos.",
+        "Folclore do papo quinzenal de 14/ago/2026 entrou com a fonte à vista: Suits, eclipse em Leão, proibido spoiler e a unanimidade de que todo mundo acredita em ET."
+      ]
+    },
+    {
+      "version": "0.86.4",
+      "date": "13/ago/2026",
+      "status": "released",
+      "path": "/admin/comunicados",
+      "title": "📧 Comunicados: liberar endereços avulsos (destrava o teste)",
+      "highlights": [
+        "Enquanto o domínio não está verificado, a Resend só entrega no e-mail DONO DA CONTA — que pode ser pessoal, fora do @epiuse.com.br. Sem uma exceção, não dava nem pra provar que o envio funciona.",
+        "COMUNICADOS_EMAILS_EXTRA libera endereços específicos, um a um, além dos domínios permitidos. Lista explícita — não abre um domínio inteiro.",
+        "Sem a variável, o comportamento é exatamente o de antes: só @epiuse.com.br.",
+        "O painel mostra os endereços extras ao lado dos domínios permitidos."
+      ]
+    },
+    {
+      "version": "0.86.3",
+      "date": "13/ago/2026",
+      "status": "released",
+      "path": "/admin/comunicados",
+      "title": "📮 E-mail funcionando: o remetente era inválido desde sempre",
+      "highlights": [
+        "🚨 CAUSA RAIZ: o remetente padrão do projeto era voices@resend.dev — e o resend.dev não é nosso. A Resend só aceita onboarding@resend.dev ou um domínio verificado por nós, então TODO envio vinha sendo recusado na origem.",
+        "🔁 O remetente agora se resolve sozinho: tenta o configurado e, se a recusa for por domínio/remetente, refaz com o de teste. Funciona hoje, sem depender de DNS.",
+        "🧹 Registros de \"enviado\" gravados durante o bug (sem confirmação da Resend) foram removidos — os comunicados voltam pra fila e são reenviados de verdade.",
+        "👀 O painel mostra a cadeia de remetentes e qual deles funcionou."
+      ]
+    },
+    {
+      "version": "0.86.2",
+      "date": "13/ago/2026",
+      "status": "released",
+      "path": "/admin/comunicados",
+      "title": "🐞 Comunicados: envio recusado se passava por enviado",
+      "highlights": [
+        "🚨 FIX: o SDK da Resend não lança exceção quando a API recusa — devolve { data, error }. O código tratava \"não lançou\" como sucesso, então um envio recusado era gravado como ENVIADO e ninguém recebia nada. Falha invisível, o pior tipo. Agora o error é checado e vira falha com o motivo real.",
+        "🧪 Botão \"Testar envio\" no painel: dispara um e-mail mínimo na hora e mostra a resposta CRUA da Resend (inclusive o objeto de erro) — é o que permite diagnosticar domínio não verificado, chave inválida ou destinatário recusado sem precisar de deploy.",
+        "🔎 O id da mensagem na Resend passa a ser gravado, pra rastrear o envio do lado deles.",
+        "📩 Um comunicado de teste entra na fila e dispara sozinho no deploy, só pro Rudá — confirma o caminho ponta a ponta."
+      ]
+    },
+    {
+      "version": "0.86.1",
+      "date": "13/ago/2026",
+      "status": "released",
+      "path": "/admin/comunicados",
+      "title": "✉️ Comunicados: Rudá sempre em cópia",
+      "highlights": [
+        "📩 Todo comunicado passa a copiar ruda.costa@epiuse.com.br automaticamente, sem depender de lembrarem de incluí-lo (ajustável em COMUNICADOS_COPIA_SEMPRE).",
+        "🚫 A cópia fixa nunca duplica quem já é destinatário ou já está em cópia, e respeita a mesma allowlist de domínio.",
+        "👀 O painel mostra a cópia fixa configurada e, por comunicado, quem REALMENTE vai receber em cópia — dá pra conferir antes de disparar.",
+        "🧾 O log de envio passou a gravar o cc efetivo (quem recebeu de fato) em vez do declarado no JSON."
+      ]
+    },
+    {
+      "version": "0.86.0",
+      "date": "11/ago/2026",
+      "status": "released",
+      "path": "/admin/comunicados",
+      "title": "✉️ Comunicados — o Office manda o e-mail sozinho",
+      "highlights": [
+        "✉️ Fila de comunicados: o e-mail é escrito e commitado, e o Office dispara sozinho ~90s depois do deploy (e de hora em hora pro que ficar pendente)",
+        "🛡️ Travas de um sistema que manda e-mail pra gente de verdade: só domínio da casa (vale pro cc), envio único por id, teto de 5 por rodada, kill switch e nenhuma falha silenciosa",
+        "👁️ Painel /admin/comunicados: prévia real do e-mail, status de cada envio com o motivo do erro, disparar na hora, reenviar ou cancelar antes que saia",
+        "📬 Primeiro da fila: o guia do pipeline de Voices pra Duda, com cópia pra Bruna",
+        "⚠️ Depende da RESEND_API_KEY no Railway — sem ela o painel mostra a ausência e cada tentativa fica registrada como falha"
+      ]
+    },
+    {
       "version": "0.85.1",
       "date": "12/ago/2026",
-      "status": "current",
+      "status": "released",
       "path": "/stratview",
       "title": "🔧 Stratview Generator: posicionamento de serviço + meta description + FAQ layout",
       "highlights": [
@@ -67,12 +147,9 @@
       ]
     },
     {
-      "version": "0.84.1",
-      "date": "05/ago/2026",
-=======
       "version": "0.85.0",
       "date": "05/ago/2026",
-      "status": "current",
+      "status": "released",
       "path": "/voices/pautas",
       "title": "🎙️ Voices — pipeline de validação e publicação ponta a ponta",
       "highlights": [
@@ -86,9 +163,20 @@
       ]
     },
     {
+      "version": "0.84.2",
+      "date": "12/ago/2026",
+      "status": "released",
+      "path": "/stratview",
+      "title": "🔧 Stratview Generator: posicionamento de serviço + meta description + FAQ layout",
+      "highlights": [
+        "⚠️ Posicionamento de serviço corrigido (feedback Alexandre): o gerador agora detecta o tema do artigo e posiciona EXCLUSIVAMENTE o serviço correto (TECH pra OCI/FinOps, CSS só pra HCM, AMS pra sustentação). CSS não aparece mais em artigos que não são sobre projetos HCM.",
+        "📏 Meta description travada em ≤130 chars por truncamento programático server-side (feedback Duda). O LLM não conta caracteres direito — agora o servidor corta na última palavra antes de 127 chars e adiciona reticências.",
+        "🎨 FAQ com inline styles: as caixas do FAQ (border, background, padding) agora viajam junto com o HTML pro WordPress. Antes o CSS só existia no preview do Office e sumia ao publicar."
+      ]
+    },
+    {
       "version": "0.84.1",
       "date": "05/ago/2026",
->>>>>>> 224c9a9b63799b340f35c0901276a2b07056d837
       "status": "released",
       "path": "/admin/utm",
       "title": "⚠️ Aviso de dado incompleto no UTM + package.json alinhado com o lock",

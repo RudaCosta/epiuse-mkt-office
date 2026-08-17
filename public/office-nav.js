@@ -189,6 +189,7 @@ const OFFICE_NAV_OVERFLOW = [
   { section: '🎮 Extras' },
   { label: '🎮 Modo Game (time MKT)',    href: '/game' },
   { label: '🏢 Game do Colaborador',     href: '/game-hub' },
+  { label: '☕ Cafezinho',                href: '/cafezinho' },
   { label: '🧠 Memes do Office',         href: '/memes' },
   { label: '🐘 ERP.ngo',                 href: 'https://erp.ngo', external: true }
 ];
@@ -368,6 +369,9 @@ class OfficeNav extends HTMLElement {
       }
       if (grp && !grp.links.some(l => l.href === '/admin/inscricoes')) {
         grp.links.push({ label: '🎙️ Inscrições Voices', href: '/admin/inscricoes' });
+      }
+      if (grp && !grp.links.some(l => l.href === '/admin/comunicados')) {
+        grp.links.push({ label: '✉️ Comunicados', href: '/admin/comunicados' });
       }
       if (grp && !grp.links.some(l => l.href === '/admin/coins')) {
         grp.links.push({ label: '🪙 Coins & Resgates', href: '/admin/coins' });

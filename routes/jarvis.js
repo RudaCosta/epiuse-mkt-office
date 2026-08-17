@@ -231,6 +231,27 @@ function recallDores(ctx = {}, k = 8) {
   } catch (e) { return []; }
 }
 
+// Cases REAIS (anonimizados) — filtra por LOB quando houver; senão devolve todos.
+// No PRÉ-CALL o LOB ainda não foi detectado, então sem isto o modelo ficava sem
+// nenhuma prova social real e INVENTAVA (regressão da v0.9, ao tirar os dropdowns).
+function casesReais(lobStr) {
+  const cr = (PLAYBOOK.cases_reais || {});
+  const lista = cr.lista || [];
+  const lobKey = normalizeLobKey(lobStr);
+  const sel = lobKey ? lista.filter(c => c.lob === lobKey) : lista;
+  return (sel.length ? sel : lista).map(c => ({ anonimo: c.anonimo, lob: c.lob, resultado: c.resultado }));
+}
+
+// Guarda anti-invenção: a base de cases NÃO tem métrica (nenhum "%", "R$", "3x").
+// Se o modelo devolver número que não existe na fonte, é alucinação — corta.
+function temMetricaInventada(texto, fonteTxt) {
+  const s = String(texto || '');
+  const nums = s.match(/\d+([.,]\d+)?\s*(%|x\b)|R\$\s*[\d.,]+|\b\d+\s*(dias|semanas|meses|horas)\b/gi) || [];
+  if (!nums.length) return false;
+  const fonte = String(fonteTxt || '');
+  return nums.some(n => !fonte.includes(n.trim()));
+}
+
 // ── SYSTEM PROMPT (persona sênior + playbook real + estratégia FY27 + humanização) ──
 function buildSystemPrompt(ctx = {}) {
   const p = PLAYBOOK || {};
@@ -281,6 +302,11 @@ function buildSystemPrompt(ctx = {}) {
     `  ✅ "Faz sentido a gente sentar 30 min e eu te mostrar onde dá pra cortar esse retrabalho?"`,
     ``,
     `=== REGRAS ===`,
+    `- 🚫 NUNCA INVENTE DADO. Proibido citar número, percentual, prazo, economia, ROI ou nome de cliente que`,
+    `  NÃO esteja escrito na base acima. Sem "reduzimos 40%", "3x mais rápido", "em 2 semanas" — nada disso`,
+    `  existe na nossa base. Se não tiver o dado, fale do TIPO de resultado sem número, ou não fale.`,
+    `- Prova social: use SOMENTE os cases da base (já anonimizados). Se não houver case aderente, devolva vazio`,
+    `  em vez de inventar um.`,
     `- PT-BR sempre. Vender a DOR, nunca a tecnologia pela tecnologia.`,
     `- NUNCA citar concorrentes nominalmente na fala — use o argumento sem nome (veja diferenciacao_competitiva).`,
     `- NUNCA citar clientes nominalmente sem aprovação — anonimize os cases (ex: "um grande grupo do agro").`,
@@ -483,18 +509,30 @@ router.post('/api/jarvis/brief', jarvisLimiter, async (req, res) => {
       ? [`=== CONTEÚDOS REAIS EPI-USE DISPONÍVEIS (use SÓ estes; NUNCA invente URL) ===`,
          JSON.stringify(artigos.map(a => ({ titulo: a.titulo, url: a.url })), null, 0)].join('\n')
       : '';
+    // Cases REAIS sempre injetados (no pré-call o LOB ainda não foi detectado).
+    const cases = casesReais(context.lob);
+    const casesTxt = JSON.stringify(cases, null, 0);
+    const semContexto = !context.lob && !context.persona && !context.industria;
+
     const userPrompt = [
       `Monte um PRÉ-CALL BRIEF curto pra eu (SDR) abrir esta conversa com confiança.`,
       `Prospect: ${context.prospect || '—'} | Empresa: ${context.empresa || '—'} | Indústria: ${context.industria || '—'} | LOB: ${context.lob || '—'} | Persona: ${context.persona || '—'} | Estágio: ${context.estagio || '—'}`,
+      semContexto
+        ? `⚠️ ATENÇÃO: LOB, persona e indústria AINDA NÃO são conhecidos (o brief roda antes da conversa). NÃO finja que sabe. Trate as dores como HIPÓTESES a confirmar e escreva perguntas que DESCUBRAM o cenário. A abertura não pode afirmar dor específica como se fosse fato.`
+        : '',
+      ``,
+      `=== CASES REAIS EPI-USE (única prova social permitida — já anonimizados) ===`,
+      casesTxt,
+      `Repare: estes cases NÃO têm métrica. Então é PROIBIDO citar percentual, prazo ou economia.`,
       artigosBloco ? `\n${artigosBloco}` : '',
       ``,
       `Responda APENAS com JSON válido:`,
       `{`,
-      `  "abertura": "frase de abertura consultiva, HUMANIZADA (ver regras), ancorada na dor da persona/indústria",`,
-      `  "dores_provaveis": ["dor 1", "dor 2", "dor 3"],`,
-      `  "gatilho_2026": "o gatilho de urgência mais relevante pra usar",`,
+      `  "abertura": "frase de abertura consultiva, HUMANIZADA (ver regras). Sem afirmar dor como fato se o cenário é desconhecido.",`,
+      `  "dores_provaveis": ["hipótese de dor 1 (a confirmar)", "2", "3"],`,
+      `  "gatilho_2026": "o gatilho de urgência mais relevante da base (texto da base, sem inventar)",`,
       `  "perguntas_chave": ["pergunta de descoberta 1", "2", "3"],`,
-      `  "prova_social": "1 prova social objetiva da EPI-USE Brasil relevante (case anonimizado se preciso)",`,
+      `  "prova_social": "1 case da lista acima, com a descrição ANÔNIMA e o resultado como está escrito. Sem número inventado. Se nenhum for aderente, devolva string vazia.",`,
       `  "conteudos_sugeridos": [{"titulo": "título exato da lista", "url": "url exata da lista", "porque": "quando usar"}]`,
       `}`,
       `Em conteudos_sugeridos use NO MÁXIMO 3 itens, SOMENTE da lista acima (se não houver, devolva []).`
@@ -507,7 +545,27 @@ router.post('/api/jarvis/brief', jarvisLimiter, async (req, res) => {
       const urlsOk = new Set(artigos.map(a => a.url));
       parsed.conteudos_sugeridos = parsed.conteudos_sugeridos.filter(c => c && urlsOk.has(c.url)).slice(0, 3);
     }
-    res.json({ success: true, gerado_por_ia: true, ...parsed });
+    // ── SANEAMENTO (Regra 7): corta prova social com métrica que não existe na base ──
+    const avisos = [];
+    if (parsed.prova_social && temMetricaInventada(parsed.prova_social, casesTxt)) {
+      console.warn('[jarvis/brief] prova_social com número inventado, descartada:', parsed.prova_social);
+      parsed.prova_social = '';
+      avisos.push('Descartei uma prova social que citava número inexistente na nossa base.');
+    }
+    // gatilho fora da base também é invenção
+    const gatilhosTxt = JSON.stringify(PLAYBOOK.gatilhos_urgencia_2026 || []);
+    if (parsed.gatilho_2026 && temMetricaInventada(parsed.gatilho_2026, gatilhosTxt)) {
+      parsed.gatilho_2026 = String(parsed.gatilho_2026).replace(/\d+([.,]\d+)?\s*%/g, '').trim();
+    }
+    res.json({
+      success: true, gerado_por_ia: true, ...parsed,
+      _contexto_conhecido: !semContexto,
+      _cases_disponiveis: cases.length,
+      _avisos: avisos,
+      etiqueta: semContexto
+        ? '🤖 Gerado por IA · dores são HIPÓTESES (LOB/persona ainda não detectados) — confirme na call'
+        : '🤖 Gerado por IA — use seu julgamento'
+    });
   } catch (e) {
     console.error('[jarvis/brief] erro:', e.message);
     res.status(500).json({ success: false, error: e.message });
@@ -533,6 +591,11 @@ router.post('/api/jarvis/pesquisar', jarvisLimiter, async (req, res) => {
       `Pesquise informação TÉCNICA e ATUAL sobre: ${termo || duvida}.`,
       duvida ? `Dúvida específica a responder: "${duvida}".` : '',
       `Priorize fontes oficiais (site:sap.com, site:help.sap.com, site:servicenow.com). Responda em PT-BR.`,
+      `🚫 REGRAS DE PRECISÃO (o SDR vai repetir isso pro cliente):`,
+      `- Só afirme o que você REALMENTE encontrou na busca. Se não achou, diga que não achou.`,
+      `- Em "fontes", coloque APENAS URLs que vieram do resultado da busca. NUNCA construa/adivinhe URL.`,
+      `- Nada de número, preço, SLA ou data sem fonte. Prefira omitir a arriscar.`,
+      `- Se a informação for incerta ou variar por contrato/edição, diga isso explicitamente.`,
       `Responda APENAS com JSON válido:`,
       `{`,
       `  "resumo": ["bullet técnico 1", "bullet 2", "bullet 3"],`,
@@ -561,7 +624,30 @@ router.post('/api/jarvis/pesquisar', jarvisLimiter, async (req, res) => {
     if (!parsed) {
       return res.json({ success: true, gerado_por_ia: true, etiqueta: '🌐 Pesquisa web — verificar', resumo: [rawTxt.slice(0, 600)], fontes: [] });
     }
-    res.json({ success: true, gerado_por_ia: true, etiqueta: '🌐 Pesquisa web — verificar', ...parsed });
+    // ── SANEAMENTO das fontes (Regra 7): antes NADA era validado aqui ──
+    // O modelo às vezes "constrói" URL plausível (sap.com/products/xyz) que não existe.
+    // Separa em oficiais (confiáveis) vs demais (marcadas como não verificadas).
+    const OFICIAIS = /(^|\.)(sap\.com|help\.sap\.com|servicenow\.com|docs\.servicenow\.com|successfactors\.com|qualtrics\.com)$/i;
+    let oficiais = 0, outras = 0;
+    if (Array.isArray(parsed.fontes)) {
+      parsed.fontes = parsed.fontes.filter(f => f && f.url).map(f => {
+        let host = '';
+        try { host = new URL(f.url).hostname.replace(/^www\./, ''); } catch (e) { return null; }
+        const ok = OFICIAIS.test(host);
+        ok ? oficiais++ : outras++;
+        return { titulo: f.titulo || host, url: f.url, host, oficial: ok };
+      }).filter(Boolean).slice(0, 6);
+    } else parsed.fontes = [];
+
+    const semFonte = parsed.fontes.length === 0;
+    res.json({
+      success: true, gerado_por_ia: true, ...parsed,
+      _fontes_oficiais: oficiais, _fontes_outras: outras,
+      etiqueta: semFonte
+        ? '⚠️ Sem fonte verificável — NÃO repita isso pro cliente sem conferir'
+        : (oficiais ? '🌐 Pesquisa web · ' + oficiais + ' fonte(s) oficial(is) — confira antes de afirmar'
+                    : '⚠️ Nenhuma fonte oficial (SAP/ServiceNow) — trate como indício, não como fato')
+    });
   } catch (e) {
     console.error('[jarvis/pesquisar] erro:', e.message);
     res.status(500).json({ success: false, error: e.message });

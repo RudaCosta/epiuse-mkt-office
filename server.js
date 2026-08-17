@@ -789,7 +789,7 @@ const HUB_LOCK_PAGES = new Set([
   '/optimizer-v3', '/voices/optimizer-v3',
   '/campanhas', '/brindes', '/hub/brindes', '/hub/solicitacao-brindes',
   '/hub/solicitar-brindes', '/meus-links', '/loja', '/ranking',
-  '/voices/pautas', '/voices/pauta'
+  '/voices/pautas', '/voices/pauta', '/cafezinho'
 ]);
 // nota: '/game' passa pelo lock só pra rota fazer o redirect por role → /game-hub.
 app.use((req, res, next) => {
@@ -6029,6 +6029,8 @@ app.use('/', analyticsRouter); // Módulo 15 — Analytics de uso (report /admin
 app.use('/', require('./routes/utm')); // Módulo 18 — UTM / links rastreados (report /admin/utm)
 app.use('/', require('./routes/loja')); // Módulo 19 — Loja de ERP Coins (/loja + resgates no /admin/coins)
 app.use('/', require('./routes/voices-pipeline')); // Módulo 20 — pipeline de validação/publicação dos Voices
+app.use('/', require('./routes/comunicados')); // Modulo 21 -- fila de comunicados por e-mail
+app.use('/', require('./routes/cafezinho')); // Módulo 22 — Cafezinho (área pessoal do time)
 
 app.listen(PORT, () => {
   console.log(`\n🎙️  EPI-USE Voices — Profile Optimizer`);
