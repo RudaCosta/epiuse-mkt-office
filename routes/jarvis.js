@@ -949,4 +949,60 @@ router.get('/api/jarvis/zoho-calls', requireAuth, (req, res) => {
   }
 });
 
+// ── API: buscar calls por prospect (pré-call context) ────────────────────────
+router.get('/api/jarvis/calls-by-prospect', requireAuth, (req, res) => {
+  try {
+    const q = String(req.query.q || '').trim();
+    if (!q || q.length < 2) return res.status(400).json({ success: false, error: 'Query mínima: 2 caracteres.' });
+    const limit = Math.min(parseInt(req.query.limit, 10) || 20, 50);
+    const calls = db.prepare(`
+      SELECT id, zoho_call_id, prospect, empresa, resumo, duracao_seg, fonte_audio, criado_em,
+             transcript_json,
+             LENGTH(transcript_json) > 4 AS tem_transcricao
+      FROM jarvis_calls
+      WHERE prospect LIKE ? OR empresa LIKE ?
+      ORDER BY criado_em DESC
+      LIMIT ?
+    `).all(`%${q}%`, `%${q}%`, limit);
+
+    const aprendizados = calls.length ? db.prepare(`
+      SELECT call_id, tipo, texto FROM jarvis_aprendizados
+      WHERE call_id IN (${calls.map(() => '?').join(',')})
+      ORDER BY call_id, tipo
+    `).all(...calls.map(c => c.id)) : [];
+
+    const aprByCall = {};
+    for (const a of aprendizados) {
+      if (!aprByCall[a.call_id]) aprByCall[a.call_id] = [];
+      aprByCall[a.call_id].push({ tipo: a.tipo, texto: a.texto });
+    }
+
+    const result = calls.map(c => {
+      let transcriptPreview = '';
+      try {
+        const turns = JSON.parse(c.transcript_json || '[]');
+        transcriptPreview = turns.map(t => t.text).join(' ').slice(0, 500);
+      } catch (_) {}
+      return {
+        id: c.id,
+        zoho_call_id: c.zoho_call_id,
+        prospect: c.prospect,
+        empresa: c.empresa,
+        resumo: c.resumo,
+        duracao_seg: c.duracao_seg,
+        fonte: c.fonte_audio,
+        data: c.criado_em,
+        tem_transcricao: !!c.tem_transcricao,
+        transcricao_preview: transcriptPreview,
+        aprendizados: aprByCall[c.id] || []
+      };
+    });
+
+    res.json({ success: true, query: q, total: result.length, calls: result });
+  } catch (e) {
+    console.error('[jarvis/calls-by-prospect] erro:', e.message);
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
 module.exports = router;
