@@ -837,11 +837,17 @@ router.post('/api/jarvis/ingest-zoho-call', async (req, res) => {
       return res.status(400).json({ success: false, error: 'Payload sem ID de call.' });
     }
 
-    // Evita duplicata
+    // Evita duplicata (force=true permite re-processar)
+    const forceReprocess = req.query.force === 'true';
     const existing = db.prepare('SELECT id FROM jarvis_calls WHERE zoho_call_id = ?').get(zohoCallId);
-    if (existing) {
+    if (existing && !forceReprocess) {
       console.log(tag, `call ${zohoCallId} já ingerida (jarvis_calls.id=${existing.id}), ignorando.`);
       return res.json({ success: true, skipped: true, call_id: existing.id, message: 'Call já processada.' });
+    }
+    if (existing && forceReprocess) {
+      db.prepare('DELETE FROM jarvis_aprendizados WHERE call_id = ?').run(existing.id);
+      db.prepare('DELETE FROM jarvis_calls WHERE id = ?').run(existing.id);
+      console.log(tag, `force reprocess: deletou call ${existing.id} (zoho ${zohoCallId})`);
     }
 
     const subject = callData.Subject || callData.subject || '';
@@ -948,6 +954,7 @@ router.post('/api/jarvis/ingest-zoho-call', async (req, res) => {
     let resumo = null;
     let aprendizados = { dor: [], objecao: [], gatilho: [], pergunta_vencedora: [], sinal: [] };
 
+    console.log(tag, `aiReady=${aiReady()}, transcriptLen=${transcriptText.length}`);
     if (transcriptText && aiReady()) {
       try {
         const ext = [
