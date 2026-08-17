@@ -978,8 +978,11 @@ router.post('/api/jarvis/ingest-zoho-call', async (req, res) => {
           `Listas vazias se não houver. Sem texto fora do JSON.`
         ].join('\n');
 
+        console.log(tag, 'chamando LLM pra extrair aprendizados...');
         const raw = await callLLM({ system: 'Extrator factual de calls de venda. Responde só JSON. PT-BR.', user: ext, maxTokens: 700 });
+        console.log(tag, 'LLM raw (200ch):', String(raw).slice(0, 200));
         const parsed = safeParseJson(raw);
+        console.log(tag, 'parsed:', parsed ? 'OK' : 'FALHOU');
         if (parsed) {
           resumo = parsed.resumo || null;
           const mapTipo = { dores: 'dor', objecoes: 'objecao', gatilhos: 'gatilho', perguntas_vencedoras: 'pergunta_vencedora', sinais: 'sinal' };
