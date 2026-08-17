@@ -164,6 +164,28 @@
   .footnote{font-size:11px;color:var(--j-muted);margin-top:14px;line-height:1.6;background:rgba(15,30,53,.4);border-radius:10px;padding:12px}
   .footnote code{background:rgba(124,196,222,.08);padding:1px 5px;border-radius:3px;color:var(--j-glow)}
   ::-webkit-scrollbar{width:8px}::-webkit-scrollbar-thumb{background:rgba(134,158,195,.2);border-radius:8px}
+
+  /* ── Histórico de calls Zoho ── */
+  .calls-panel{background:var(--j-surface);border:1px solid var(--j-border);border-radius:14px;padding:16px;margin-top:16px}
+  .calls-panel h3{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--j-muted);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .calls-panel h3 .count{font-size:11px;background:var(--j-surface2);border:1px solid var(--j-border);border-radius:12px;padding:2px 8px;color:var(--j-glow)}
+  .call-card{background:var(--j-bg2);border:1px solid var(--j-border);border-radius:11px;padding:12px;margin-bottom:10px;border-left:3px solid var(--j-cyan)}
+  .call-card:last-child{margin-bottom:0}
+  .call-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px}
+  .call-who{font-size:13px;font-weight:600;color:var(--j-text)}
+  .call-meta{display:flex;gap:8px;align-items:center}
+  .call-meta span{font-size:10.5px;color:var(--j-muted)}
+  .call-resumo{font-size:12.5px;color:var(--j-dim);line-height:1.5;margin-bottom:8px}
+  .call-transcript{font-size:12px;color:var(--j-muted);line-height:1.5;background:var(--j-surface);border-radius:8px;padding:10px;max-height:120px;overflow-y:auto;margin-bottom:8px}
+  .call-apr{display:flex;flex-wrap:wrap;gap:5px}
+  .call-apr .apr-tag{font-size:10px;border-radius:14px;padding:3px 8px;font-weight:600}
+  .apr-tag.dor{background:rgba(205,21,67,.12);border:1px solid rgba(205,21,67,.25);color:#f87171}
+  .apr-tag.objecao{background:rgba(252,211,77,.1);border:1px solid rgba(252,211,77,.22);color:var(--j-gold)}
+  .apr-tag.gatilho{background:rgba(110,231,183,.1);border:1px solid rgba(110,231,183,.22);color:var(--j-green)}
+  .apr-tag.sinal{background:rgba(124,196,222,.1);border:1px solid rgba(124,196,222,.22);color:var(--j-glow)}
+  .apr-tag.pergunta_vencedora{background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.22);color:#a78bfa}
+  .calls-empty{font-size:12.5px;color:var(--j-muted);text-align:center;padding:20px 10px}
+  .calls-loading{font-size:12px;color:var(--j-glow);text-align:center;padding:16px}
 </style>
 </head>
 <body data-route="jarvis">
@@ -292,6 +314,7 @@
       </div>
       <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
         <button class="btn" id="btn-dores" title="Dores reais já ouvidas em campo, por LOB — insumo pra pautar conteúdo">📊 Dores de campo</button>
+        <button class="btn" id="btn-calls-zoho" title="Ver histórico de calls do Zoho/3CX para este prospect">📞 Calls Zoho</button>
         <span id="save-status" style="font-size:11px;color:var(--j-muted)">💾 salva sozinho ao pausar o mic</span>
       </div>
       <div class="footnote">
@@ -337,6 +360,13 @@
       <button class="btn primary" id="btn-ask" style="width:100%;margin-top:12px">⚡ Pedir sugestão agora</button>
     </div>
   </div>
+
+  <!-- HISTÓRICO DE CALLS ZOHO -->
+  <div id="calls-zoho-panel" class="calls-panel" style="display:none">
+    <h3>📞 Calls Zoho / 3CX <span class="count" id="calls-count">0</span></h3>
+    <div id="calls-zoho-body"></div>
+  </div>
+
 </div>
 
 <office-footer></office-footer>
@@ -679,6 +709,66 @@ function renderRoleMap(){
 document.querySelectorAll('.rm-seg button').forEach(btn=> btn.addEventListener('click', ()=> setRole(btn.closest('.rm-seg').dataset.voz, btn.dataset.role)));
 
 $('btn-dores').addEventListener('click', mostrarDores);
+
+// ── Histórico de calls Zoho/3CX ────────────────────────────────────────────
+let _callsDebounce = null;
+async function buscarCallsZoho(query){
+  const panel = $('calls-zoho-panel');
+  const body = $('calls-zoho-body');
+  const q = (query || $('f-prospect').value || '').trim();
+  if(!q || q.length < 2){ panel.style.display='none'; return; }
+  panel.style.display='block';
+  body.innerHTML='<div class="calls-loading">🔄 Buscando calls de "'+escapeHtml(q)+'"…</div>';
+  try{
+    const r = await fetch('/api/jarvis/calls-by-prospect?q='+encodeURIComponent(q));
+    const d = await r.json();
+    if(!r.ok || d.success===false){ body.innerHTML='<div class="calls-empty">⚠️ '+(d.error||'Erro ao buscar')+'</div>'; return; }
+    $('calls-count').textContent = d.total;
+    if(!d.calls || !d.calls.length){
+      body.innerHTML='<div class="calls-empty">Nenhuma call encontrada pra "'+escapeHtml(q)+'".</div>';
+      return;
+    }
+    body.innerHTML = d.calls.map(c => {
+      const durMin = c.duracao_seg ? Math.floor(c.duracao_seg/60)+'min'+String(c.duracao_seg%60).padStart(2,'0')+'s' : '—';
+      const data = c.data ? new Date(c.data).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
+      const fonte = c.fonte === 'zoho-3cx' ? '📱 3CX/Zoho' : '🎙️ JARVIS ao vivo';
+
+      let aprHtml = '';
+      if(c.aprendizados && c.aprendizados.length){
+        aprHtml = '<div class="call-apr">'+c.aprendizados.map(a =>
+          '<span class="apr-tag '+a.tipo+'">'+escapeHtml(a.tipo)+': '+escapeHtml(a.texto.slice(0,80))+'</span>'
+        ).join('')+'</div>';
+      }
+
+      let transHtml = '';
+      if(c.transcricao_preview){
+        transHtml = '<div class="call-transcript">'+escapeHtml(c.transcricao_preview)+'</div>';
+      }
+
+      return '<div class="call-card">'+
+        '<div class="call-header">'+
+          '<span class="call-who">'+escapeHtml(c.prospect||'—')+' · '+escapeHtml(c.empresa||'—')+'</span>'+
+          '<div class="call-meta"><span>'+fonte+'</span><span>⏱️ '+durMin+'</span><span>'+data+'</span></div>'+
+        '</div>'+
+        (c.resumo ? '<div class="call-resumo">'+escapeHtml(c.resumo)+'</div>' : '')+
+        transHtml+
+        aprHtml+
+      '</div>';
+    }).join('');
+  }catch(e){ body.innerHTML='<div class="calls-empty">⚠️ '+escapeHtml(e.message)+'</div>'; }
+}
+
+$('btn-calls-zoho').addEventListener('click', ()=> buscarCallsZoho());
+
+// Auto-busca quando o SDR preenche o prospect (debounce 800ms)
+$('f-prospect').addEventListener('input', ()=>{
+  clearTimeout(_callsDebounce);
+  _callsDebounce = setTimeout(()=>{
+    const v = $('f-prospect').value.trim();
+    if(v.length >= 3) buscarCallsZoho(v);
+    else $('calls-zoho-panel').style.display='none';
+  }, 800);
+});
 
 // ── Captura do áudio da call (beta): mic = SDR (voz1) · áudio da call = Cliente (voz2) ──
 function setCallStatus(msg, kind){ const el=$('callcap-status'); if(!el) return; el.textContent=msg; el.dataset.kind=kind||'info'; }
