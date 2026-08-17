@@ -431,6 +431,16 @@ router.get('/api/jarvis/diag-llm', async (req, res) => {
   const diag = { aiReady: aiReady(), format: AI_FORMAT, model: AI_MODEL, base: ODY_BASE ? ODY_BASE.slice(0, 40) : null };
   if (!aiReady()) return res.json({ ...diag, error: 'aiReady=false' });
   try {
+    const modelsResp = await fetch(openaiModelsUrl(ODY_BASE), {
+      headers: ODY_KEY ? { Authorization: `Bearer ${ODY_KEY}` } : {},
+      signal: AbortSignal.timeout(6000)
+    });
+    if (modelsResp.ok) {
+      const md = await modelsResp.json();
+      diag.available_models = (md.data || []).map(m => m.id).sort();
+    }
+  } catch (_) {}
+  try {
     const raw = await callLLM({ system: 'Responde só JSON.', user: 'Responda: {"ok":true,"msg":"teste"}', maxTokens: 50 });
     diag.rawResponse = String(raw).slice(0, 300);
     const parsed = safeParseJson(raw);
