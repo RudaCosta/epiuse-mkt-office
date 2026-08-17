@@ -435,11 +435,16 @@ router.get('/api/jarvis/diag-llm', async (req, res) => {
       headers: ODY_KEY ? { Authorization: `Bearer ${ODY_KEY}` } : {},
       signal: AbortSignal.timeout(6000)
     });
+    const modelsText = await modelsResp.text();
     if (modelsResp.ok) {
-      const md = await modelsResp.json();
-      diag.available_models = (md.data || []).map(m => m.id).sort();
+      try {
+        const md = JSON.parse(modelsText);
+        diag.available_models = (md.data || []).map(m => m.id).sort();
+      } catch (_) { diag.models_raw = modelsText.slice(0, 300); }
+    } else {
+      diag.models_error = `HTTP ${modelsResp.status}: ${modelsText.slice(0, 200)}`;
     }
-  } catch (_) {}
+  } catch (e) { diag.models_exception = e.message; }
   try {
     const raw = await callLLM({ system: 'Responde só JSON.', user: 'Responda: {"ok":true,"msg":"teste"}', maxTokens: 50 });
     diag.rawResponse = String(raw).slice(0, 300);
