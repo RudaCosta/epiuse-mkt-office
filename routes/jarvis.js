@@ -853,15 +853,17 @@ router.post('/api/jarvis/ingest-zoho-call', async (req, res) => {
     const whoId = callData.Who_Id || callData.who_id || {};
     const seModule = callData['$se_module'] || callData.se_module || '';
 
-    const prospectName = (whatId && whatId.name) || (whoId && whoId.name) || '';
-
     // Extrai URL de gravação do Description
     const recMatch = description.match(/https?:\/\/[^\s)]+recording[^\s)]*/i);
     const recordingUrl = recMatch ? recMatch[0] : null;
 
-    // Extrai empresa do Description (padrão: "Nome (Empresa)")
-    const empMatch = description.match(/\(([^)]+)\)\s*\(/);
-    const empresa = empMatch ? empMatch[1] : '';
+    // Extrai prospect e empresa do Description (padrão: "para o NNN Nome (Empresa) (MM:SS)")
+    const descMatch = description.match(/para o \d+ (.+?) \(([^)]+)\)\s*\(/);
+    const prospectFromDesc = descMatch ? descMatch[1].trim() : '';
+    const empresaFromDesc = descMatch ? descMatch[2].trim() : '';
+
+    const prospectName = (whoId && typeof whoId === 'object' && whoId.name) || prospectFromDesc || (whatId && typeof whatId === 'object' && whatId.name) || '';
+    const empresa = empresaFromDesc || (whatId && typeof whatId === 'object' && whatId.name) || '';
 
     // Parseia duração "MM:SS" → segundos
     const durParts = String(duration).match(/(\d+):(\d+)/);
