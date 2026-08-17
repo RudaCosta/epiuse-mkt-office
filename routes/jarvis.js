@@ -936,13 +936,40 @@ router.get('/api/jarvis/zoho-calls', requireAuth, (req, res) => {
     const limit = Math.min(parseInt(req.query.limit, 10) || 50, 200);
     const calls = db.prepare(`
       SELECT id, zoho_call_id, prospect, empresa, resumo, duracao_seg, fonte_audio, criado_em,
+             transcript_json,
              LENGTH(transcript_json) > 4 AS tem_transcricao
       FROM jarvis_calls
-      WHERE zoho_call_id IS NOT NULL
       ORDER BY criado_em DESC
       LIMIT ?
     `).all(limit);
-    res.json({ success: true, total: calls.length, calls });
+
+    const aprendizados = calls.length ? db.prepare(`
+      SELECT call_id, tipo, texto FROM jarvis_aprendizados
+      WHERE call_id IN (${calls.map(() => '?').join(',')})
+      ORDER BY call_id, tipo
+    `).all(...calls.map(c => c.id)) : [];
+
+    const aprByCall = {};
+    for (const a of aprendizados) {
+      if (!aprByCall[a.call_id]) aprByCall[a.call_id] = [];
+      aprByCall[a.call_id].push({ tipo: a.tipo, texto: a.texto });
+    }
+
+    const result = calls.map(c => {
+      let transcricao_preview = '';
+      try {
+        const turns = JSON.parse(c.transcript_json || '[]');
+        transcricao_preview = turns.map(t => t.text).join(' ').slice(0, 500);
+      } catch (_) {}
+      return {
+        id: c.id, zoho_call_id: c.zoho_call_id, prospect: c.prospect,
+        empresa: c.empresa, resumo: c.resumo, duracao_seg: c.duracao_seg,
+        fonte: c.fonte_audio, data: c.criado_em, tem_transcricao: !!c.tem_transcricao,
+        transcricao_preview, aprendizados: aprByCall[c.id] || []
+      };
+    });
+
+    res.json({ success: true, total: result.length, calls: result });
   } catch (e) {
     console.error('[jarvis/zoho-calls] erro:', e.message);
     res.status(500).json({ success: false, error: e.message });

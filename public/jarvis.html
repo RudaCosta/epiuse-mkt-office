@@ -716,11 +716,14 @@ async function buscarCallsZoho(query){
   const panel = $('calls-zoho-panel');
   const body = $('calls-zoho-body');
   const q = (query || $('f-prospect').value || '').trim();
-  if(!q || q.length < 2){ panel.style.display='none'; return; }
   panel.style.display='block';
-  body.innerHTML='<div class="calls-loading">🔄 Buscando calls de "'+escapeHtml(q)+'"…</div>';
+  const hasQuery = q.length >= 2;
+  body.innerHTML='<div class="calls-loading">🔄 '+(hasQuery ? 'Buscando calls de "'+escapeHtml(q)+'"' : 'Carregando calls recentes')+'…</div>';
   try{
-    const r = await fetch('/api/jarvis/calls-by-prospect?q='+encodeURIComponent(q));
+    const url = hasQuery
+      ? '/api/jarvis/calls-by-prospect?q='+encodeURIComponent(q)
+      : '/api/jarvis/zoho-calls?limit=20';
+    const r = await fetch(url);
     const d = await r.json();
     if(!r.ok || d.success===false){ body.innerHTML='<div class="calls-empty">⚠️ '+(d.error||'Erro ao buscar')+'</div>'; return; }
     $('calls-count').textContent = d.total;
