@@ -1,5 +1,130 @@
 # CHANGELOG — Módulo 11 (JARVIS)
 
+## v0.14 — 2026-08-14 · ✅ Transcrição FUNCIONANDO — corte por pausa (precisão + tempo real)
+A v0.13 destravou: o Rudá confirmou fala real dos dois lados ("Oi?", "Acho que não tinha...", "entendeu")
+e os gauges vivos (61% de fala do SDR). Restou **qualidade** ("pegando coisas nada a ver") e **latência**.
+
+**Causa da imprecisão:** eu cortava o áudio a cada 6s **no relógio**, sem olhar se a pessoa estava falando.
+A frase partia no meio e o modelo chutava a emenda — é o que produzia *"da casa da casa do Dr. Greta"*.
+
+**Corrigido (`public/jarvis-callstt.js`):**
+- **Corte por SILÊNCIO (VAD-lite), não por relógio:** acumula o silêncio no callback de áudio e fecha o
+  trecho quando o falante **faz uma pausa** (0,35s). Frase inteira → sem emenda errada.
+- **Tempo real:** `minSec 1,5s` · `silSec 0,35s` · `maxSec 8s` (teto de segurança pra quem fala sem parar).
+  Latência agora = **pausa do falante + inferência**, em vez dos 6s fixos de antes.
+- **Cauda de 0,4s** no corte forçado: a palavra partida na emenda entra no começo do próximo trecho.
+- **Decoder `q4` → `q8`**: q4 é quantização agressiva e comia precisão em PT-BR. Mantido o `whisper-base`
+  (rápido) de propósito — subir pro `small` daria mais precisão mas mataria o tempo real.
+
+**⚠️ Pendente (separado, visto no print):** `LLM 429` — Groq atingiu o limite **diário** de tokens
+(TPD 100.000, usados 99.897). É o backend do coach, não o STT. Precisa de backoff + fallback de modelo/chave.
+
+## v0.13 — 2026-08-14 · 🐞 dtype errado quebrava o Whisper no WebGPU (saída "A", "O")
+Sintoma: com a v0.12 o "NNNNNN" virou **letra solta** ("A", "A.", "O"). Print do Rudá confirmou:
+modelo carregado, WebGPU ativo, medidor modulando (áudio CHEGANDO) — mas transcrição degenerada.
+
+**Causa raiz:** eu passava `dtype: 'fp16'` **uniforme** no WebGPU. Essa config **quebra o Whisper** no
+transformers.js — o encoder precisa de `fp32`; só o decoder pode ser quantizado (é o que o exemplo oficial
+faz). fp16 no encoder produz exatamente saída degenerada.
+
+**Corrigido (`public/jarvis-callstt.js`):**
+- `dtype: { encoder_model: 'fp32', decoder_model_merged: 'q4' }` no WebGPU (era `'fp16'`).
+- **Auto-recuperação:** 3 saídas degeneradas seguidas no WebGPU → cai sozinho pro **WASM (modo seguro)** e
+  avisa. Não depende mais de eu adivinhar o hardware de cada máquina.
+- **Chunk 4s → 6s** — 4s era curto demais e favorecia saída degenerada.
+- `normalize()` mais suave (ganho máx 8× → 4×): 8× amplificava o piso de ruído e o modelo transcrevia ruído.
+- Filtro agora também barra **letra solta** (`< 2 caracteres alfanuméricos`), não só repetição.
+- **Log de diagnóstico** no console: engine, taxa do contexto, tamanho/duração do PCM e a saída crua —
+  pra parar de adivinhar quando falhar.
+- UI → **v0.13** (+ cache-bust).
+
+**⚠️ Separado, apareceu no print:** `LLM 429` no painel do coach = **Groq rate-limitando**. Não é o STT;
+é o backend de IA do coach. Tratar à parte (backoff/troca de modelo/chave).
+
+## v0.12 — 2026-08-14 · 🐞 Fix do "NNNNNN": áudio ia pro Whisper na taxa errada
+Sintoma do Rudá: *"pega o áudio e aparece só uma letra, tipo NNNNNNN"*. Isso é a assinatura clássica do
+Whisper recebendo áudio **fora de 16 kHz**.
+
+**Causa raiz:** eu criava `new AudioContext({sampleRate:16000})` mas **nunca verificava se o navegador
+obedeceu** — com fonte de aba/tela o Chrome roda a **48 kHz** assim mesmo. Aí: (a) o cálculo do chunk usava
+16000 fixo, então 64.000 amostras eram tratadas como 4s quando eram 1,33s; (b) o PCM ia cru pro Whisper,
+que **assume 16 kHz** → áudio **esticado 3×** → ruído → o modelo entra em loop de repetição.
+
+**Corrigido (`public/jarvis-callstt.js`):**
+- `S.actxRate` guarda a taxa **REAL** do contexto; o cálculo do chunk passa a usar ela.
+- `resampleTo16k()` — reamostragem de verdade por decimação **com média na janela** (passa-baixa cru,
+  evita aliasing). Verificado: tom de 440 Hz a 48 kHz continua **439 Hz** e 1s continua 1s.
+- `normalize()` — áudio de aba costuma vir baixo; sobe o ganho pra faixa que o Whisper gosta.
+- Parâmetros de geração: `temperature:0`, `no_repeat_ngram_size:3`, `condition_on_previous_text:false`,
+  `chunk_length_s:30` (janela nativa) — travam o loop de repetição.
+- `ehRepeticao()` — rede de segurança: descarta saída degenerada ("NNNNN", "ha ha ha ha") em vez de jogar
+  na transcrição.
+- UI → **v0.12** (+ cache-bust `?v=0.12`) pra dar pra confirmar o deploy.
+
+## v0.10.3 — 2026-08-14 · Pivot pro 3CX Web Client + medidor de sinal + fix dos botões
+Motivo: a captura seguia sem funcionar. **Meu diagnóstico anterior estava errado**: recomendei "Mixagem
+estéreo", mas o Stereo Mix é loopback da **placa onboard** — com **headset USB** o áudio do 3CX **nunca
+passa por lá**, então capturava silêncio. O mesmo vale pro "áudio do sistema" do Chrome, que segue o
+**dispositivo padrão do Windows**: se o 3CX toca num device específico, não vem nada.
+
+**Decisão do Rudá:** usar o **3CX Web Client** (3CX no navegador). A call vira uma **aba** → captura de aba
+funciona sem driver nenhum, sem cabo virtual, sem configurar máquina.
+
+**Mudado (`public/jarvis-callstt.js`, `public/jarvis.html`):**
+- **Padrão agora é a aba do 3CX Web Client**; os devices viram `(fallback)`. **Removido o auto-select do
+  Stereo Mix** — era justamente a recomendação errada.
+- **📊 Medidor de sinal ao vivo** (`onLevel`): barrinha ao lado do botão mostra se está **entrando áudio**
+  (verde mexendo) ou **mudo** (vermelho parado). Antes, "não funciona" era indistinguível de "fonte errada" —
+  o SDR não tinha como ver. Agora vê na hora.
+- **Alerta automático:** se em **8s** não entrar áudio nenhum, avisa que a fonte provavelmente está errada.
+- Mensagens e tutorial reescritos pro fluxo do Web Client (marcar "compartilhar áudio da **aba**"), com o
+  aviso explícito de que **no app instalado não funciona** e o porquê.
+- 🐞 **Fix visual:** os botões "Pré-call brief"/"Pesquisar produto" **vazavam pra fora do card** — caíam numa
+  coluna de 150px do grid e somam ~310px. Agora ocupam a linha inteira, alinhados à direita. Verificado em
+  1400/1000/700/420px.
+
+## v0.10.2 — 2026-08-14 · Revisão de acurácia do pré-call brief e do pesquisar produto
+Motivo: o Rudá apontou que **pré-call e pesquisa de produto não estavam acurados**. A auditoria achou uma
+**regressão que eu mesmo introduzi na v0.9** + falta de saneamento na pesquisa web.
+
+**🐞 Causa raiz (regressão v0.9):** ao remover os dropdowns, o pré-call passou a rodar com contexto VAZIO.
+`selectFY27({})` devolvia `{}` → **nenhum case, ICP, persona ou jornada era injetado** — mas o prompt
+continuava pedindo `prova_social`. Sem dado real, o modelo **inventava** (inclusive número).
+
+**Corrigido (`routes/jarvis.js`, `public/jarvis.html`):**
+- `casesReais(lob)` — cases REAIS (anonimizados) agora são **sempre** injetados no brief; sem LOB devolve
+  todos (6) em vez de nenhum.
+- **Regra anti-invenção** no system prompt: proibido citar número/percentual/prazo/ROI/cliente que não esteja
+  na base. Prova social só dos cases; sem case aderente → vazio, nunca inventado.
+- `temMetricaInventada()` — **guarda server-side**: se a `prova_social` traz "40%", "R$ 2,5 mi", "3x",
+  "3 semanas" que **não existem** na fonte, o campo é **descartado** e o SDR vê o aviso. (Os cases da base
+  não têm métrica nenhuma — então qualquer número ali era alucinação.)
+- **Honestidade de contexto:** quando LOB/persona/indústria ainda são desconhecidos (pré-call), a resposta
+  vem etiquetada e as dores aparecem como **"HIPÓTESES a confirmar"**, não como fato.
+- **Pesquisar produto:** as `fontes` **não passavam por validação nenhuma** — o modelo podia devolver URL
+  construída. Agora cada fonte é parseada, classificada em **oficial** (sap.com, help.sap.com, servicenow.com,
+  docs.servicenow.com, successfactors.com, qualtrics.com) vs **não verificada**, URL inválida é descartada, e
+  a etiqueta muda conforme o resultado (`sem fonte verificável` / `N oficiais` / `nenhuma oficial`).
+  Prompt reforçado: só afirmar o que achou, nunca construir URL, omitir em vez de arriscar.
+
+## v0.10.1 — 2026-08-07 · Captura pra 3CX (softphone) — device loopback + fix
+Motivo: o Rudá testou e **não funcionou** — o time atende no **3CX desktop (Windows)**, não em aba de
+navegador. Sem aba, o `getDisplayMedia` não tinha o que compartilhar (ou vinha sem faixa de áudio).
+
+**Corrigido / adicionado (`public/jarvis-callstt.js`, `public/jarvis.html`):**
+- **Novo caminho A — captura por DISPOSITIVO** (`startDevice`): `getUserMedia` num device de entrada que
+  carrega o áudio de saída ("Mixagem estéreo/Stereo Mix", VB-Cable). **Recomendado pra softphone** — não
+  depende de screen-share. `listDevices()` popula um seletor e `guessLoopback()` pré-seleciona o provável.
+- **Caminho B — áudio do sistema** (`startDisplay`): mantido, com instrução certa (Windows: "Tela inteira"
+  + marcar "Compartilhar áudio do sistema").
+- 🐞 **Bug real corrigido:** o código parava a faixa de VÍDEO logo após pegar o stream — em várias versões
+  do Chrome isso **encerra a sessão inteira e derruba o áudio junto**. Agora a faixa é mantida (vídeo mínimo
+  320x180@1fps) e só para no `stop()`.
+- 🐞 **Processamento de voz desligado** (`echoCancellation/noiseSuppression/autoGainControl: false`) — com
+  eles ligados o Chrome trata o loopback como eco e **corta o áudio do cliente**.
+- Instruções reescritas (tutorial na tela + `TUTORIAL-SDR.md`) pro fluxo 3CX/Windows, incluindo como
+  habilitar a Mixagem estéreo e o troubleshooting "ouve você mas não o cliente".
+
 ## v0.10.0 — 2026-07-01 · Captura do áudio da call + STT FREE no navegador (beta)
 Motivo: com **fone**, o mic não capta o prospect (a voz sai no fone, não vaza no ar) — o JARVIS só ouvia o
 SDR. O Rudá quer ouvir os **dois lados**, **de graça** e **em tempo real**. Decisão: capturar o áudio da

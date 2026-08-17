@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="/design-tokens.css">
 <script type="module" src="/office-nav.js"></script>
 <script type="module" src="/office-footer.js"></script>
-<script src="/jarvis-callstt.js"></script>
+<script src="/jarvis-callstt.js?v=0.14"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   /* ── Paleta local mapeada nos design-tokens EPI-USE (Regra 8 — sem hex de marca solto) ── */
@@ -62,7 +62,10 @@
   .fld input,.fld select{background:var(--j-bg2);border:1px solid var(--j-border);color:var(--j-text);
     border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;outline:none}
   .fld input:focus,.fld select:focus{border-color:var(--j-glow);box-shadow:0 0 0 2px rgba(124,196,222,.15)}
-  .setup-actions{display:flex;align-items:flex-end;gap:8px}
+  /* botões ocupam a linha inteira e alinham à direita — antes caíam numa coluna
+     de 150px e vazavam pra fora do card (os 2 botões somam ~310px). */
+  .setup-actions{grid-column:1/-1;display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+  @media(max-width:520px){.setup-actions{justify-content:stretch}.setup-actions .btn{flex:1}}
   /* contexto detectado pela IA (substitui os dropdowns manuais) */
   .detected-fld{grid-column:span 2;min-width:240px}
   .detected{display:flex;flex-wrap:wrap;gap:5px;align-items:center;min-height:34px;padding:4px 0}
@@ -101,7 +104,14 @@
   /* captura de áudio da call (beta) */
   .callcap-row{display:flex;align-items:center;gap:10px;margin:-2px 0 12px;flex-wrap:wrap}
   #btn-callcap{font-size:12px}
+  #callcap-src{background:var(--j-bg2);border:1px solid var(--j-border);color:var(--j-dim);border-radius:8px;
+    padding:6px 8px;font-size:11px;font-family:inherit;outline:none;max-width:270px}
+  #callcap-src:focus{border-color:var(--j-glow)}
   #btn-callcap.on{background:linear-gradient(135deg,var(--j-red),#7a0c25);border-color:transparent;color:#fff}
+  #callcap-lvl{display:none;width:64px;height:8px;background:rgba(134,158,195,.16);border-radius:99px;overflow:hidden;flex:none}
+  #callcap-lvl.on{display:block}
+  #callcap-lvl i{display:block;height:100%;width:0%;border-radius:99px;background:var(--j-green);transition:width .1s linear}
+  #callcap-lvl.mudo i{background:var(--j-red)}
   .callcap-status{font-size:11px;color:var(--j-muted);line-height:1.4}
   .callcap-status[data-kind="ok"]{color:var(--j-green)}
   .callcap-status[data-kind="err"]{color:var(--j-red)}
@@ -169,15 +179,16 @@
   .calls-panel{background:var(--j-surface);border:1px solid var(--j-border);border-radius:14px;padding:16px;margin-top:16px}
   .calls-panel h3{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--j-muted);margin-bottom:12px;display:flex;align-items:center;gap:8px}
   .calls-panel h3 .count{font-size:11px;background:var(--j-surface2);border:1px solid var(--j-border);border-radius:12px;padding:2px 8px;color:var(--j-glow)}
-  .call-card{background:var(--j-bg2);border:1px solid var(--j-border);border-radius:11px;padding:12px;margin-bottom:10px;border-left:3px solid var(--j-cyan)}
+  .call-card{background:var(--j-bg2);border:1px solid var(--j-border);border-radius:11px;padding:12px;margin-bottom:10px;border-left:3px solid var(--j-cyan);cursor:pointer;transition:border-color .2s,background .2s}
+  .call-card:hover{border-color:var(--j-cyan);background:var(--j-surface)}
   .call-card:last-child{margin-bottom:0}
   .call-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px}
   .call-who{font-size:13px;font-weight:600;color:var(--j-text)}
   .call-meta{display:flex;gap:8px;align-items:center}
   .call-meta span{font-size:10.5px;color:var(--j-muted)}
-  .call-resumo{font-size:12.5px;color:var(--j-dim);line-height:1.5;margin-bottom:8px}
-  .call-transcript{font-size:12px;color:var(--j-muted);line-height:1.5;background:var(--j-surface);border-radius:8px;padding:10px;max-height:120px;overflow-y:auto;margin-bottom:8px}
-  .call-apr{display:flex;flex-wrap:wrap;gap:5px}
+  .call-resumo{font-size:12.5px;color:var(--j-dim);line-height:1.5;margin-bottom:4px}
+  .call-hint{font-size:10.5px;color:var(--j-cyan);opacity:.7}
+  .call-apr{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
   .call-apr .apr-tag{font-size:10px;border-radius:14px;padding:3px 8px;font-weight:600}
   .apr-tag.dor{background:rgba(205,21,67,.12);border:1px solid rgba(205,21,67,.25);color:#f87171}
   .apr-tag.objecao{background:rgba(252,211,77,.1);border:1px solid rgba(252,211,77,.22);color:var(--j-gold)}
@@ -186,6 +197,24 @@
   .apr-tag.pergunta_vencedora{background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.22);color:#a78bfa}
   .calls-empty{font-size:12.5px;color:var(--j-muted);text-align:center;padding:20px 10px}
   .calls-loading{font-size:12px;color:var(--j-glow);text-align:center;padding:16px}
+
+  /* ── Modal de detalhe da call ── */
+  .call-modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;transition:opacity .2s}
+  .call-modal-overlay.show{opacity:1}
+  .call-modal{background:var(--j-bg);border:1px solid var(--j-border);border-radius:16px;max-width:720px;width:100%;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+  .call-modal-header{padding:16px 20px;border-bottom:1px solid var(--j-border);display:flex;justify-content:space-between;align-items:center}
+  .call-modal-header h3{margin:0;font-size:15px;color:var(--j-text);font-weight:700}
+  .call-modal-close{background:none;border:1px solid var(--j-border);border-radius:8px;color:var(--j-muted);cursor:pointer;font-size:18px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;transition:color .15s,border-color .15s}
+  .call-modal-close:hover{color:var(--j-text);border-color:var(--j-text)}
+  .call-modal-body{padding:20px;overflow-y:auto;flex:1}
+  .call-modal-meta{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:16px}
+  .call-modal-meta span{font-size:11.5px;color:var(--j-muted);background:var(--j-surface);border-radius:8px;padding:4px 10px}
+  .call-modal-section{margin-bottom:16px}
+  .call-modal-section h4{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--j-cyan);margin-bottom:8px}
+  .call-modal-resumo{font-size:13px;color:var(--j-dim);line-height:1.6}
+  .call-modal-transcript{font-size:12.5px;color:var(--j-dim);line-height:1.7;background:var(--j-surface);border-radius:10px;padding:14px;max-height:300px;overflow-y:auto;white-space:pre-wrap}
+  .call-modal-apr{display:flex;flex-wrap:wrap;gap:6px}
+  .call-modal-apr .apr-tag{font-size:11px;border-radius:14px;padding:4px 10px;font-weight:600}
 </style>
 </head>
 <body data-route="jarvis">
@@ -195,19 +224,14 @@
   <div class="head">
     <div class="orb" title="JARVIS — mega brain 🧠"><img src="/img/jarvis/logo-megamind-v1.svg" alt="JARVIS — mega brain"></div>
     <div>
-      <h1>JARVIS <span class="v">· COPILOTO SDR/BDR &nbsp;v0.10</span></h1>
+      <h1>JARVIS <span class="v">· COPILOTO SDR/BDR &nbsp;v0.14</span></h1>
     </div>
   </div>
-  <p class="sub">Biz Dev · prospecção B2B SAP & ServiceNow — escuta a conversa e recomenda suas falas em tempo real.</p>
+  <p class="sub">🤖 Sugestões de IA — confira antes de falar.</p>
 
-  <div class="ai-banner">
-    <span style="font-size:16px">🤖</span>
-    <span><strong>Sugestões geradas pela IA da EPI-USE — use seu julgamento.</strong> Base de conhecimento REAL EPI-USE (LOBs, personas, gatilhos 2026, objeções). A IA da EPI-USE orienta, quem fecha é você.</span>
-  </div>
-
-  <!-- TUTORIAL RETRÁTIL — como o SDR usa (fecha por padrão pra não poluir) -->
+  <!-- TUTORIAL RETRÁTIL — toda a instrução longa mora aqui (fechado por padrão) -->
   <details class="howto">
-    <summary>❓ Como usar o JARVIS na sua call — passo a passo (1 min de leitura)</summary>
+    <summary>❓ Como usar</summary>
     <div class="howto-body">
 
       <h4>1 · Antes da call (2 min)</h4>
@@ -221,14 +245,15 @@
       <h4>2 · Ligando a escuta (escolha o seu caso)</h4>
       <div class="howto-grid">
         <div>
-          <b>🎧 Você está de FONE (ou call remota)</b>
+          <b>🎧 Ligação no 3CX</b>
           <ol>
-            <li>Clica <b>🎙️ Ativar mic</b> e permite o microfone.</li>
-            <li>Clica <b>🎧 Áudio da call</b>.</li>
-            <li>Escolhe a <b>aba da reunião</b> (Meet/Teams/Zoom no navegador) e <b class="warn">MARQUE a caixinha "compartilhar áudio"</b> — sem ela não funciona.</li>
-            <li>Na 1ª vez ele <b>baixa o modelo</b> (~100MB). Espera o status ficar <b>verde</b> ("ouvindo o áudio da call").</li>
+            <li>Atenda pelo <b>3CX Web Client</b> (o 3CX no navegador), não pelo app instalado.</li>
+            <li>Clica <b>🎙️ Ativar mic</b> — isso capta <b>você</b>.</li>
+            <li>Clica <b>🎧 Áudio da call</b> → escolhe a <b>aba do 3CX</b> e <b class="warn">MARCA "compartilhar áudio da aba"</b>.</li>
+            <li>Olha a <b>barrinha de sinal</b> ao lado: <b>verde mexendo</b> = áudio entrando. <b>Vermelha parada</b> = fonte errada.</li>
           </ol>
-          <div class="howto-tip">✅ Assim ele já sabe quem é quem: <b>seu mic = você (SDR)</b> e o <b>áudio da call = o cliente</b>. Não precisa marcar nada.</div>
+          <div class="howto-tip">✅ Assim ele sabe quem é quem sozinho: <b>mic = você (SDR)</b>, <b>aba = o cliente</b>.<br>
+          ⚠️ <b>No app instalado do 3CX não funciona</b> — não existe aba pra capturar, e com headset USB o "Mixagem estéreo" capta silêncio (o áudio nem passa pela placa da máquina).</div>
         </div>
         <div>
           <b>🔊 Reunião no viva-voz / presencial</b>
@@ -265,9 +290,11 @@
 
       <h4>🔧 Se der problema</h4>
       <ul>
-        <li><b>"Sem faixa de áudio"</b> → você esqueceu de marcar "compartilhar áudio". Clica de novo e marca.</li>
+        <li><b>"Sem faixa de áudio"</b> → no compartilhamento, escolha <b>"Tela inteira"</b> e marque <b>"Compartilhar áudio do sistema"</b>. Ou troque pro modo <b>🎚️ dispositivo</b> (Mixagem estéreo), que não usa compartilhamento.</li>
+        <li><b>Não ouve o cliente (mas ouve você)</b> → a fonte escolhida está errada. No 3CX, use <b>Mixagem estéreo / VB-Cable</b>, não o microfone.</li>
+        <li><b>Não aparece "Mixagem estéreo" na lista</b> → habilite em <i>Configurações de som → Gravação → Mostrar dispositivos desativados</i>, ou instale o <b>VB-Cable</b>.</li>
         <li><b>"use o Chrome"</b> → abriu no Safari/Firefox. Troca pro Chrome.</li>
-        <li><b>Reunião no app instalado (Teams/Zoom) no Mac</b> → o Mac não deixa capturar o áudio do app. Entra na reunião pelo <b>navegador</b>.</li>
+        <li><b>No Mac</b> → o Chrome não captura áudio do sistema; só o modo <b>dispositivo</b> com cabo virtual (BlackHole) funciona.</li>
         <li><b>Modelo não carrega</b> → rede bloqueando. Chama o Rudá.</li>
       </ul>
     </div>
@@ -277,7 +304,7 @@
   <div class="setup">
     <div class="fld"><label>Prospect</label><input id="f-prospect" placeholder="Nome do contato"></div>
     <div class="fld"><label>Empresa</label><input id="f-empresa" placeholder="Empresa"></div>
-    <div class="fld detected-fld"><label>🤖 JARVIS detecta da conversa</label>
+    <div class="fld detected-fld"><label>🤖 Detectado</label>
       <div class="detected" id="detected-ctx"><span class="dchip muted">aguardando a conversa…</span></div>
     </div>
     <div class="setup-actions"><button class="btn ghost" id="btn-brief">🧭 Pré-call brief</button><button class="btn ghost" id="btn-pesquisar" title="Pesquisar produto/tema técnico na web (sap.com)">🔬 Pesquisar produto</button></div>
@@ -296,30 +323,30 @@
         </div>
       </div>
       <div class="callcap-row">
-        <button class="btn ghost" id="btn-callcap" title="Captura o áudio da reunião (aba/sistema) pra ouvir o CLIENTE — funciona até de fone. Compartilhe a aba da call marcando 'compartilhar áudio'.">🎧 Áudio da call (beta)</button>
-        <span id="callcap-status" class="callcap-status">só mic hoje · ative pra ouvir o cliente na call de fone (grátis, roda no navegador)</span>
+        <button class="btn ghost" id="btn-callcap" title="Captura a voz do CLIENTE (a que sai no seu fone) — funciona com 3CX e qualquer softphone.">🎧 Áudio da call</button>
+        <select id="callcap-src" title="De onde capturar a voz do cliente">
+          <option value="__display__">🌐 Aba do 3CX Web Client (recomendado)</option>
+        </select>
+        <span id="callcap-lvl" title="Sinal de áudio entrando"><i></i></span>
+        <span id="callcap-status" class="callcap-status">ative pra ouvir o cliente</span>
       </div>
       <div class="rolemap" id="rolemap">
-        <span class="rm-lbl">Quem é cada voz?</span>
+        <span class="rm-lbl">Quem é quem</span>
         <div class="rm-seg" data-voz="voz1"><span>Voz 1</span><button data-role="sdr">🧑‍💼 SDR</button><button data-role="prospect">👤 Cliente</button></div>
         <div class="rm-seg" data-voz="voz2"><span>Voz 2</span><button data-role="sdr">🧑‍💼 SDR</button><button data-role="prospect">👤 Cliente</button></div>
-        <span class="rm-hint" id="rm-hint">marque 1x — só pra calcular % de fala e disparar o coach</span>
+        <span class="rm-hint" id="rm-hint">marque 1x</span>
       </div>
       <div class="transcript" id="transcript">
-        <div class="empty-note">Ative o microfone ou digite abaixo o que foi dito.<br>O JARVIS separa as vozes sozinho (Voz 1 / Voz 2) — marque uma vez quem é quem.</div>
+        <div class="empty-note">Ative o microfone pra começar.</div>
       </div>
       <div class="manual">
-        <input id="manual-in" placeholder='Digitar fala (vai pra voz ativa)… Enter pra enviar'>
+        <input id="manual-in" placeholder='Digitar fala…'>
         <button class="btn" id="btn-manual">Enviar</button>
       </div>
       <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
         <button class="btn" id="btn-dores" title="Dores reais já ouvidas em campo, por LOB — insumo pra pautar conteúdo">📊 Dores de campo</button>
         <button class="btn" id="btn-calls-zoho" title="Ver histórico de calls do Zoho/3CX para este prospect">📞 Calls Zoho</button>
-        <span id="save-status" style="font-size:11px;color:var(--j-muted)">💾 salva sozinho ao pausar o mic</span>
-      </div>
-      <div class="footnote">
-        🎧 <strong>Áudio da call (beta):</strong> pra ouvir o <strong>cliente numa call de fone</strong>, clique em “Áudio da call" e <strong>compartilhe a aba/tela da reunião marcando “compartilhar áudio"</strong>. O JARVIS capta o áudio da call (lado do cliente) e transcreve <strong>de graça, no seu navegador</strong> (Whisper — WebGPU quando dá, senão modo leve). Aí mic = <strong>você (SDR)</strong> e a call = <strong>Cliente</strong>, sem marcar nada.<br>
-        🔀 <strong>Sem a captura</strong>, o <code>Web Speech API</code> só pega o <strong>microfone local</strong> e o JARVIS quebra as falas por pausa em <strong>Voz 1 / Voz 2</strong> (heurística — se sair trocado, use “↔️ trocar voz"). Melhor no <strong>Chrome</strong>.
+        <span id=”save-status” style=”font-size:11px;color:var(--j-muted)”>💾 salva sozinho</span>
       </div>
     </div>
 
@@ -355,7 +382,7 @@
       </div>
 
       <div class="coach-cards" id="coach">
-        <div class="coach-idle">🛰️ Aguardando a conversa…<br>Preencha o contexto e ative a escuta. As recomendações aparecem aqui.</div>
+        <div class="coach-idle">🛰️ Aguardando a conversa…</div>
       </div>
       <button class="btn primary" id="btn-ask" style="width:100%;margin-top:12px">⚡ Pedir sugestão agora</button>
     </div>
@@ -367,6 +394,17 @@
     <div id="calls-zoho-body"></div>
   </div>
 
+</div>
+
+<!-- MODAL DETALHE CALL -->
+<div id="call-modal-overlay" class="call-modal-overlay" style="display:none">
+  <div class="call-modal">
+    <div class="call-modal-header">
+      <h3 id="call-modal-title">📞 Detalhe da call</h3>
+      <button class="call-modal-close" id="call-modal-close" title="Fechar">✕</button>
+    </div>
+    <div class="call-modal-body" id="call-modal-body"></div>
+  </div>
 </div>
 
 <office-footer></office-footer>
@@ -553,9 +591,12 @@ async function preCallBrief(){
     const r = await fetch('/api/jarvis/brief',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({context:ctx()})});
     const d = await r.json();
     if(!r.ok||d.success===false){ renderCoachError(d.error||('HTTP '+r.status)); return; }
-    let html = card('talk','🚀','Abertura', d.abertura);
+    let html='';
+    if (d.etiqueta) html += `<div class="ai-banner" style="margin:0 0 10px;${d._contexto_conhecido?'':'background:rgba(252,211,77,.12)'}">${escapeHtml(d.etiqueta)}</div>`;
+    (d._avisos||[]).forEach(a=>{ html += `<div class="cc obj"><div class="cct">⚠️ Saneado</div><div class="ccb">${escapeHtml(a)}</div></div>`; });
+    html += card('talk','🚀','Abertura', d.abertura);
     if (d.gatilho_2026) html += card('obj','⏰','Gatilho 2026', d.gatilho_2026);
-    if (Array.isArray(d.dores_provaveis)&&d.dores_provaveis.length) html += `<div class="cc q"><div class="cct">🔎 Dores prováveis</div><div class="chips">${d.dores_provaveis.map(x=>`<span class="chip">${escapeHtml(x)}</span>`).join('')}</div></div>`;
+    if (Array.isArray(d.dores_provaveis)&&d.dores_provaveis.length) html += `<div class="cc q"><div class="cct">🔎 Dores ${d._contexto_conhecido?'prováveis':'— HIPÓTESES a confirmar'}</div><div class="chips">${d.dores_provaveis.map(x=>`<span class="chip">${escapeHtml(x)}</span>`).join('')}</div></div>`;
     if (Array.isArray(d.perguntas_chave)&&d.perguntas_chave.length) html += `<div class="cc"><div class="cct">❓ Perguntas-chave</div><div class="ccb">${d.perguntas_chave.map(q=>'• '+escapeHtml(q)).join('<br>')}</div></div>`;
     if (d.prova_social) html += card('next','🏅','Prova social', d.prova_social);
     html += contentCard(d.conteudos_sugeridos);
@@ -572,11 +613,17 @@ async function pesquisarProduto(){
     const r = await fetch('/api/jarvis/pesquisar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({produto:produto.trim(), lob:ctx().lob})});
     const d = await r.json();
     if(!r.ok||d.success===false){ renderCoachError(d.error||('HTTP '+r.status)); return; }
-    let html = `<div class="ai-banner" style="margin:0 0 10px">🌐 <strong>Pesquisa web — verificar.</strong> Conteúdo técnico de fontes externas.</div>`;
+    const semFonte=!Array.isArray(d.fontes)||!d.fontes.length;
+    const corBanner=semFonte?'rgba(205,21,67,.14)':(d._fontes_oficiais?'rgba(110,231,183,.10)':'rgba(252,211,77,.12)');
+    let html = `<div class="ai-banner" style="margin:0 0 10px;background:${corBanner}">${escapeHtml(d.etiqueta||'🌐 Pesquisa web — verificar')}</div>`;
     const resumo = Array.isArray(d.resumo)? d.resumo : (d.resumo? [d.resumo]: []);
     if (resumo.length) html += `<div class="cc q"><div class="cct">🔬 Resumo técnico — ${escapeHtml(produto)}</div><div class="ccb">${resumo.map(b=>'• '+escapeHtml(b)).join('<br>')}</div></div>`;
     if (d.como_explicar) html += card('talk','💬','Como explicar ao prospect', d.como_explicar);
-    if (Array.isArray(d.fontes)&&d.fontes.length) html += contentCard(d.fontes.map(f=>({titulo:f.titulo,url:f.url})));
+    // fontes com selo: oficial (SAP/ServiceNow) vs não verificada
+    if (!semFonte) html += contentCard(d.fontes.map(f=>({
+      titulo:(f.oficial?'✅ ':'⚠️ ')+(f.titulo||f.host||f.url), url:f.url,
+      porque:(f.oficial?'fonte oficial · '+f.host:'NÃO oficial ('+(f.host||'?')+') — confirme antes de usar')
+    })));
     $('coach').innerHTML = html;
   }catch(e){ renderCoachError(e.message); }
 }
@@ -704,7 +751,7 @@ function renderRoleMap(){
     seg.querySelectorAll('button').forEach(btn=> btn.classList.toggle('on', ST.roleMap[voz]===btn.dataset.role));
   });
   const hint = $('rm-hint');
-  if (hint) hint.textContent = rolesReady() ? '✓ vozes marcadas — coach e % de fala ativos' : 'marque 1x — só pra calcular % de fala e disparar o coach';
+  if (hint) hint.textContent = rolesReady() ? '✓ pronto' : 'marque 1x';
 }
 document.querySelectorAll('.rm-seg button').forEach(btn=> btn.addEventListener('click', ()=> setRole(btn.closest('.rm-seg').dataset.voz, btn.dataset.role)));
 
@@ -735,31 +782,69 @@ async function buscarCallsZoho(query){
       const durMin = c.duracao_seg ? Math.floor(c.duracao_seg/60)+'min'+String(c.duracao_seg%60).padStart(2,'0')+'s' : '—';
       const data = c.data ? new Date(c.data).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
       const fonte = c.fonte === 'zoho-3cx' ? '📱 3CX/Zoho' : '🎙️ JARVIS ao vivo';
+      const nApr = c.aprendizados ? c.aprendizados.length : 0;
 
-      let aprHtml = '';
-      if(c.aprendizados && c.aprendizados.length){
-        aprHtml = '<div class="call-apr">'+c.aprendizados.map(a =>
-          '<span class="apr-tag '+a.tipo+'">'+escapeHtml(a.tipo)+': '+escapeHtml(a.texto.slice(0,80))+'</span>'
-        ).join('')+'</div>';
-      }
-
-      let transHtml = '';
-      if(c.transcricao_preview){
-        transHtml = '<div class="call-transcript">'+escapeHtml(c.transcricao_preview)+'</div>';
-      }
-
-      return '<div class="call-card">'+
+      return '<div class="call-card" data-call-id="'+c.id+'" onclick="abrirCallModal('+c.id+')">'+
         '<div class="call-header">'+
           '<span class="call-who">'+escapeHtml(c.prospect||'—')+' · '+escapeHtml(c.empresa||'—')+'</span>'+
           '<div class="call-meta"><span>'+fonte+'</span><span>⏱️ '+durMin+'</span><span>'+data+'</span></div>'+
         '</div>'+
         (c.resumo ? '<div class="call-resumo">'+escapeHtml(c.resumo)+'</div>' : '')+
-        transHtml+
-        aprHtml+
+        '<span class="call-hint">🔍 clique pra ver transcrição'+(nApr ? ' · '+nApr+' aprendizado'+(nApr>1?'s':'') : '')+'</span>'+
       '</div>';
     }).join('');
   }catch(e){ body.innerHTML='<div class="calls-empty">⚠️ '+escapeHtml(e.message)+'</div>'; }
 }
+
+async function abrirCallModal(id){
+  const overlay = $('call-modal-overlay');
+  const body = $('call-modal-body');
+  overlay.style.display='flex';
+  requestAnimationFrame(()=> overlay.classList.add('show'));
+  body.innerHTML='<div class="calls-loading">🔄 Carregando detalhes…</div>';
+  try{
+    const r = await fetch('/api/jarvis/call/'+id);
+    const d = await r.json();
+    if(!d.success){ body.innerHTML='<div class="calls-empty">⚠️ '+(d.error||'Erro')+'</div>'; return; }
+    const c = d.call;
+    const durMin = c.duracao_seg ? Math.floor(c.duracao_seg/60)+'min'+String(c.duracao_seg%60).padStart(2,'0')+'s' : '—';
+    const data = c.data ? new Date(c.data).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
+    const fonte = c.fonte === 'zoho-3cx' ? '📱 3CX/Zoho' : '🎙️ JARVIS ao vivo';
+
+    $('call-modal-title').textContent = '📞 ' + (c.prospect||'—') + ' · ' + (c.empresa||'—');
+
+    let html = '<div class="call-modal-meta">'+
+      '<span>'+fonte+'</span><span>⏱️ '+durMin+'</span><span>📅 '+data+'</span>'+
+      (c.zoho_call_id ? '<span>Zoho #'+escapeHtml(c.zoho_call_id)+'</span>' : '')+
+    '</div>';
+
+    if(c.resumo){
+      html += '<div class="call-modal-section"><h4>Resumo</h4><div class="call-modal-resumo">'+escapeHtml(c.resumo)+'</div></div>';
+    }
+
+    if(c.aprendizados && c.aprendizados.length){
+      html += '<div class="call-modal-section"><h4>Aprendizados do JARVIS</h4><div class="call-modal-apr">'+
+        c.aprendizados.map(a =>
+          '<span class="apr-tag '+a.tipo+'">'+escapeHtml(a.tipo)+': '+escapeHtml(a.texto)+'</span>'
+        ).join('')+'</div></div>';
+    }
+
+    if(c.transcricao){
+      html += '<div class="call-modal-section"><h4>Transcrição completa</h4><div class="call-modal-transcript">'+escapeHtml(c.transcricao)+'</div></div>';
+    }
+
+    body.innerHTML = html;
+  }catch(e){ body.innerHTML='<div class="calls-empty">⚠️ '+escapeHtml(e.message)+'</div>'; }
+}
+
+function fecharCallModal(){
+  const overlay = $('call-modal-overlay');
+  overlay.classList.remove('show');
+  setTimeout(()=> overlay.style.display='none', 200);
+}
+$('call-modal-close').addEventListener('click', fecharCallModal);
+$('call-modal-overlay').addEventListener('click', (e)=> { if(e.target === $('call-modal-overlay')) fecharCallModal(); });
+document.addEventListener('keydown', (e)=> { if(e.key==='Escape' && $('call-modal-overlay').style.display==='flex') fecharCallModal(); });
 
 $('btn-calls-zoho').addEventListener('click', ()=> buscarCallsZoho());
 
@@ -775,23 +860,55 @@ $('f-prospect').addEventListener('input', ()=>{
 
 // ── Captura do áudio da call (beta): mic = SDR (voz1) · áudio da call = Cliente (voz2) ──
 function setCallStatus(msg, kind){ const el=$('callcap-status'); if(!el) return; el.textContent=msg; el.dataset.kind=kind||'info'; }
+// Popula o seletor com os dispositivos de entrada (Stereo Mix / cabo virtual /
+// mic). Pra softphone (3CX desktop) o caminho estável é um device de loopback.
+async function loadCallSources(){
+  const api = window.JarvisCallSTT, sel = $('callcap-src');
+  if(!api || !sel) return;
+  try{
+    const devs = await api.listDevices();
+    const guess = api.guessLoopback(devs);
+    sel.innerHTML = '<option value="__display__">🌐 Aba do 3CX Web Client (recomendado)</option>'
+      + devs.map(d=>`<option value="${escapeHtml(d.id)}">🎚️ ${escapeHtml(d.label)} (fallback)</option>`).join('');
+    // NÃO auto-seleciona device: com headset USB o Stereo Mix capta silêncio.
+    // O padrão é a ABA do 3CX Web Client, que funciona sem driver nenhum.
+  }catch(e){}
+}
 async function toggleCallCap(){
   const api = window.JarvisCallSTT;
   if(!api){ setCallStatus('módulo não carregou — recarregue a página','err'); return; }
-  if(api.isOn()){ api.stop(); ST.callCapOn=false; $('btn-callcap').classList.remove('on'); $('btn-callcap').textContent='🎧 Áudio da call (beta)'; return; }
-  if(!api.supported()){ setCallStatus('navegador sem getDisplayMedia — use o Chrome','err'); return; }
+  if(typeof api.startDisplay!=='function' || typeof api.startDevice!=='function'){
+    setCallStatus('⚠️ Versão antiga em cache. Aperte Ctrl+Shift+R (ou Cmd+Shift+R) pra recarregar.','err'); return; }
+  const reset=()=>{ ST.callCapOn=false; $('btn-callcap').classList.remove('on'); $('btn-callcap').textContent='🎧 Áudio da call'; const l=$('callcap-lvl'); if(l) l.classList.remove('on'); };
+  if(api.isOn()){ api.stop(); reset(); return; }
   // 2 fontes: mic=SDR (voz1), áudio da call=Cliente (voz2). Marca os papéis sozinho.
   ST.callCapOn = true;
   setRole('voz1','sdr');            // define voz1=SDR e voz2=Cliente automaticamente
   if(!ST.micOn) startMic();          // garante o lado do SDR
   $('btn-callcap').classList.add('on'); $('btn-callcap').textContent='🎧 Parar captura';
-  const ok = await api.start(
-    function(txt){ addUtterance(txt, 'voz2'); },       // fala do cliente
-    function(msg,kind){ setCallStatus(msg, kind); }
-  );
-  if(!ok){ ST.callCapOn=false; $('btn-callcap').classList.remove('on'); $('btn-callcap').textContent='🎧 Áudio da call (beta)'; }
+  const onText=(txt)=>addUtterance(txt,'voz2');       // fala do cliente
+  const onStat=(msg,kind)=>setCallStatus(msg,kind);
+  const onLvl=(lvl,jaOuviu)=>{                        // medidor: mostra se ENTRA áudio
+    const el=$('callcap-lvl'); if(!el) return;
+    el.classList.add('on');
+    el.querySelector('i').style.width=Math.min(100,Math.round(lvl*400))+'%';
+    el.classList.toggle('mudo',!jaOuviu);
+    el.title=jaOuviu?'Áudio entrando ✓':'Sem sinal — fonte errada?';
+  };
+  const src = $('callcap-src') ? $('callcap-src').value : '__display__';
+  const ok = (src==='__display__')
+    ? await api.startDisplay(onText, onStat, onLvl)
+    : await api.startDevice(src, onText, onStat, onLvl);
+  if(!ok){ reset(); const el=$('callcap-lvl'); if(el) el.classList.remove('on'); }
+  else {
+    // se em 8s não entrou NADA, avisa que a fonte provavelmente está errada
+    setTimeout(()=>{ if(api.isOn() && !api.heardAudio())
+      setCallStatus('⚠️ Nenhum áudio em 8s — a fonte está errada? No 3CX Web Client, compartilhe a ABA da ligação marcando "compartilhar áudio da aba".','warn');
+    },8000);
+  }
 }
 $('btn-callcap').addEventListener('click', toggleCallCap);
+loadCallSources();
 $('btn-ask').addEventListener('click', ()=>{ const last=[...ST.transcript].reverse().find(u=>roleOf(u.voz)==='prospect') || [...ST.transcript].reverse()[0]; requestCoach(last?last.text:''); });
 $('btn-brief').addEventListener('click', preCallBrief);
 $('btn-pesquisar').addEventListener('click', pesquisarProduto);

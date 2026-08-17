@@ -1,30 +1,73 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// JARVIS · Captura de áudio da call + STT no navegador (FREE · tempo real)
+// JARVIS · Captura do áudio da call + STT no navegador (FREE · tempo real)
 // ─────────────────────────────────────────────────────────────────────────────
-// getDisplayMedia (áudio da aba/sistema = lado do CLIENTE) -> Whisper via
-// transformers.js. Auto-detecta hardware: WebGPU -> whisper-base; senão -> tiny
-// no WASM (modo leve). ZERO custo por minuto — roda na máquina do SDR.
+// Captura a voz do CLIENTE (que sai no fone do SDR) por 2 caminhos:
 //
-// Opt-in e isolado: se faltar getDisplayMedia / faixa de áudio / modelo, degrada
-// com mensagem clara e NÃO quebra o resto do JARVIS. Expõe window.JarvisCallSTT.
-// ⚠️ BETA — precisa de teste em navegador real (WebGPU/áudio não rodam no CI).
+//   A) DISPOSITIVO  — getUserMedia num device de entrada que carrega o áudio de
+//      saída: "Mixagem estéreo/Stereo Mix" (Windows) ou cabo virtual (VB-Cable).
+//      ✅ Recomendado pra SOFTPHONE (3CX desktop): não depende de screen-share,
+//         não morre se a janela mudar, e não captura notificação do sistema.
+//
+//   B) ÁUDIO DO SISTEMA — getDisplayMedia; no Windows o SDR escolhe "Tela inteira"
+//      e marca "Compartilhar áudio do sistema". Pega o 3CX junto.
+//      ⚠️ macOS não expõe áudio do sistema ao Chrome (limitação do SO).
+//
+// Transcrição: Whisper via transformers.js NO NAVEGADOR (custo zero por minuto).
+// Auto-detecta hardware: WebGPU -> whisper-base; senão -> tiny no WASM.
+//
+// Opt-in e isolado: qualquer falha vira mensagem clara, nunca quebra o JARVIS.
+// Expõe window.JarvisCallSTT.
 (function () {
   'use strict';
-  // @3 = última 3.x estável (jsdelivr resolve sempre; evita 404 de um pin exato).
+  // @3 = última 3.x estável (jsdelivr resolve sempre; evita 404 de pin exato).
   var CDN = 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3';
 
   var S = {
-    on: false, stream: null, actx: null, node: null, src: null, sink: null,
+    on: false, stream: null, videoTrack: null, actx: null, node: null, src: null, sink: null,
     asr: null, engine: null, loading: false, busy: false,
-    buf: [], sr: 16000, chunkSec: 4, minRms: 0.006,
-    onText: null, onStatus: null
+    // Corte por SILÊNCIO (não por relógio): espera a pessoa fazer uma pausa pra
+    // fechar o trecho. Cortar no meio da palavra era o que gerava emenda errada
+    // ("da casa da casa do..."). minSec/maxSec limitam a espera.
+    buf: [], sr: 16000, minSec: 1.5, maxSec: 8, silSec: 0.35, silRms: 0.010, silAcc: 0,
+    minRms: 0.006, ruins: 0, forceWasm: false, cauda: null,
+    onText: null, onStatus: null, onLevel: null, lastLvl: 0, heard: false, actxRate: 0
   };
 
   function status(msg, kind) { if (S.onStatus) { try { S.onStatus(msg, kind || 'info'); } catch (e) {} } }
-
   function rms(f32) { var s = 0; for (var i = 0; i < f32.length; i++) s += f32[i] * f32[i]; return Math.sqrt(s / (f32.length || 1)); }
 
-  // carrega transformers.js + cria o pipeline (1x). Auto-detecta WebGPU.
+  // ⚠️ O Whisper EXIGE 16 kHz. Pedir sampleRate:16000 no AudioContext NÃO garante
+  // nada — com fonte de aba/tela o Chrome costuma rodar a 48 kHz assim mesmo.
+  // Mandar 48 kHz como se fosse 16 kHz "estica" o áudio 3x -> vira ruído e o
+  // modelo entra em loop de repetição ("NNNNNN..."). Então reamostramos de fato.
+  // Decimação com MÉDIA na janela = filtro passa-baixa cru (evita aliasing).
+  function resampleTo16k(input, inRate) {
+    if (!inRate || inRate === 16000) return input;
+    var ratio = inRate / 16000;
+    var outLen = Math.floor(input.length / ratio);
+    var out = new Float32Array(outLen);
+    for (var i = 0; i < outLen; i++) {
+      var start = Math.floor(i * ratio), end = Math.min(Math.floor((i + 1) * ratio), input.length);
+      if (end <= start) { out[i] = input[Math.min(start, input.length - 1)] || 0; continue; }
+      var s = 0;
+      for (var j = start; j < end; j++) s += input[j];
+      out[i] = s / (end - start);
+    }
+    return out;
+  }
+
+  // Áudio de aba costuma vir baixo; normaliza pra faixa que o Whisper gosta.
+  function normalize(f32) {
+    var peak = 0;
+    for (var i = 0; i < f32.length; i++) { var a = Math.abs(f32[i]); if (a > peak) peak = a; }
+    if (peak < 0.001 || peak > 0.95) return f32;      // mudo ou já alto: não mexe
+    var g = Math.min(4, 0.85 / peak);
+    var out = new Float32Array(f32.length);
+    for (var k = 0; k < f32.length; k++) out[k] = f32[k] * g;
+    return out;
+  }
+
+  // ── modelo (1x, com auto-detecção de hardware) ─────────────────────────────
   async function ensureModel() {
     if (S.asr) return S.asr;
     if (S.loading) return null;
@@ -33,15 +76,20 @@
       var mod = await import(/* @vite-ignore */ CDN);
       var pipeline = mod.pipeline, env = mod.env;
       if (env) { env.allowLocalModels = false; }
-      var hasGPU = !!(navigator.gpu);
+      // S.forceWasm = já detectamos saída degenerada no WebGPU e caímos pro modo seguro.
+      var hasGPU = !!(navigator.gpu) && !S.forceWasm;
       var device = hasGPU ? 'webgpu' : 'wasm';
       var model = hasGPU ? 'onnx-community/whisper-base' : 'Xenova/whisper-tiny';
-      S.engine = hasGPU ? 'Whisper base · WebGPU' : 'Whisper tiny · WASM (modo leve)';
+      S.engine = hasGPU ? 'Whisper base · WebGPU' : 'Whisper tiny · WASM (modo seguro)';
       status('Carregando ' + S.engine + '… (1x, fica em cache)', 'load');
+      // ⚠️ dtype 'fp16' UNIFORME quebra o Whisper no WebGPU (saída degenerada:
+      // letra solta / repetição). O encoder precisa rodar em fp32; só o decoder
+      // pode ser quantizado. É a config do exemplo oficial do transformers.js.
       S.asr = await pipeline('automatic-speech-recognition', model, {
-        device: device, dtype: hasGPU ? 'fp16' : 'q8'
+        device: device,
+        dtype: hasGPU ? { encoder_model: 'fp32', decoder_model_merged: 'q8' } : 'q8'
       });
-      status(S.engine + ' pronto', 'ok');
+      status(S.engine + ' pronto — ouvindo a call', 'ok');
       return S.asr;
     } catch (e) {
       status('Falha ao carregar o modelo de transcrição: ' + (e && e.message || e), 'err');
@@ -50,30 +98,147 @@
     } finally { S.loading = false; }
   }
 
+  // Corta repetição degenerada ("NNNN", "ha ha ha ha") — sinal de áudio ruim.
+  function ehRepeticao(t) {
+    var s = String(t || '').trim();
+    if (!s) return true;
+    if (/^(.)\1{4,}$/i.test(s.replace(/\s/g, ''))) return true;          // "NNNNN"
+    var w = s.toLowerCase().split(/\s+/);
+    if (w.length >= 6) {
+      var uniq = new Set(w);
+      if (uniq.size <= Math.max(1, Math.floor(w.length * 0.25))) return true; // 75%+ repetido
+    }
+    return false;
+  }
+
   async function processBuffer() {
     if (S.busy || !S.buf.length) return;
     var total = 0, i;
     for (i = 0; i < S.buf.length; i++) total += S.buf[i].length;
-    if (total < S.sr * S.chunkSec) return; // ainda não tem ~chunkSec de áudio
+    // usa a taxa REAL do contexto (não a que pedimos) pra medir o tempo certo
+    var rate = S.actxRate || S.sr;
+    if (total < rate * S.minSec) return;                 // curto demais: espera
+    var pausa = S.silAcc >= rate * S.silSec;             // achou pausa natural?
+    var estourou = total >= rate * S.maxSec;             // ou já esperou demais
+    if (!pausa && !estourou) return;                     // segura até fechar a frase
     var chunk = new Float32Array(total), o = 0;
     for (i = 0; i < S.buf.length; i++) { chunk.set(S.buf[i], o); o += S.buf[i].length; }
     S.buf = [];
+    // corte forçado (sem pausa) => guarda 0,4s de cauda pra não perder a palavra
+    // que ficou partida na emenda; ela entra no começo do próximo trecho.
+    if (!pausa) {
+      var nCauda = Math.min(chunk.length, Math.floor(rate * 0.4));
+      S.buf.push(chunk.slice(chunk.length - nCauda));
+    }
+    S.silAcc = 0;
     if (rms(chunk) < S.minRms) return; // silêncio: pula (economiza CPU/GPU)
+    var pcm = normalize(resampleTo16k(chunk, rate));  // -> 16 kHz, que é o que o Whisper espera
     var asr = await ensureModel();
     if (!asr) return;
     S.busy = true;
     try {
-      var out = await asr(chunk, { language: 'portuguese', task: 'transcribe', chunk_length_s: S.chunkSec + 2 });
+      var out = await asr(pcm, {
+        language: 'portuguese', task: 'transcribe',
+        chunk_length_s: 30,               // janela nativa do Whisper
+        temperature: 0,
+        no_repeat_ngram_size: 3,          // trava o loop de repetição
+        condition_on_previous_text: false // não arrasta alucinação do chunk anterior
+      });
       var txt = (out && out.text || '').trim();
-      // descarta ruídos comuns que o Whisper alucina em silêncio
-      if (txt && !/^[\s.\-—]*$/.test(txt) && S.onText) S.onText(txt);
+      // diagnóstico: sem isso a gente fica adivinhando por que "não transcreve"
+      console.log('[jarvis-stt]', S.engine, '| ctx', rate + 'Hz', '| pcm', pcm.length,
+                  '(' + (pcm.length / 16000).toFixed(1) + 's)', '| saída:', JSON.stringify(txt));
+      var ruim = ehRepeticao(txt) || txt.replace(/[^a-zà-ú0-9]/gi, '').length < 2;
+      if (ruim) {
+        S.ruins = (S.ruins || 0) + 1;
+        // 3 saídas degeneradas seguidas no WebGPU => cai pro WASM sozinho.
+        if (S.ruins >= 3 && !S.forceWasm && navigator.gpu) {
+          S.forceWasm = true; S.asr = null; S.ruins = 0;
+          status('Saída ruim no WebGPU — trocando pro modo seguro (WASM)…', 'warn');
+        }
+      } else {
+        S.ruins = 0;
+        if (S.onText) S.onText(txt);
+      }
     } catch (e) {
       status('Erro na transcrição: ' + (e && e.message || e), 'err');
     } finally { S.busy = false; }
   }
 
-  async function start(onText, onStatus) {
-    S.onText = onText; S.onStatus = onStatus;
+  // ── pipeline de áudio (comum aos 2 caminhos) ───────────────────────────────
+  function attachStream(stream) {
+    var atrk = stream.getAudioTracks();
+    if (!atrk.length) return false;
+    var AC = window.AudioContext || window.webkitAudioContext;
+    // pedimos 16k, mas o navegador pode ignorar (fonte de aba costuma forçar 48k).
+    // Guardamos a taxa REAL e reamostramos depois — sem isso o áudio ia "esticado".
+    try { S.actx = new AC({ sampleRate: S.sr }); } catch (e) { S.actx = new AC(); }
+    S.actxRate = S.actx.sampleRate || S.sr;
+    if (S.actxRate !== S.sr) console.log('[jarvis-stt] contexto a', S.actxRate, 'Hz -> reamostrando pra 16000');
+    S.src = S.actx.createMediaStreamSource(new MediaStream([atrk[0]]));
+    var node = S.actx.createScriptProcessor(4096, 1, 1);
+    node.onaudioprocess = function (ev) {
+      if (!S.on) return;
+      var data = new Float32Array(ev.inputBuffer.getChannelData(0));
+      // medidor de sinal (~10fps): deixa o SDR VER se está entrando áudio.
+      // Sem isto, "não funciona" era indistinguível de "fonte errada".
+      var now = Date.now();
+      if (S.onLevel && now - S.lastLvl > 100) {
+        S.lastLvl = now;
+        var lvl = rms(data);
+        if (lvl > 0.01) S.heard = true;
+        try { S.onLevel(lvl, S.heard); } catch (e) {}
+      }
+      // acumula silêncio pra detectar a PAUSA (fim de frase) — é o que permite
+      // cortar no lugar certo em vez de no relógio.
+      if (rms(data) < S.silRms) S.silAcc += data.length; else S.silAcc = 0;
+      S.buf.push(data);
+      processBuffer();
+    };
+    // sink com ganho 0: ScriptProcessor precisa de destino, mas NÃO tocamos o
+    // áudio de volta (evitaria eco/microfonia no fone do SDR).
+    S.sink = S.actx.createGain(); S.sink.gain.value = 0;
+    S.src.connect(node); node.connect(S.sink); S.sink.connect(S.actx.destination);
+    S.node = node;
+    S.stream = stream;
+    atrk[0].addEventListener('ended', function () { stop(); });
+    return true;
+  }
+
+  // ── A) captura por DISPOSITIVO (Stereo Mix / cabo virtual) — recomendado ───
+  async function startDevice(deviceId, onText, onStatus, onLevel) {
+    S.onText = onText || S.onText; S.onStatus = onStatus || S.onStatus; S.onLevel = onLevel || S.onLevel; S.heard = false;
+    if (S.on) return true;
+    try {
+      // desliga o processamento de voz: cancelamento de eco/ruído DESTRÓI áudio
+      // de loopback (o Chrome acha que é eco do alto-falante e corta).
+      var stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          deviceId: deviceId ? { exact: deviceId } : undefined,
+          echoCancellation: false, noiseSuppression: false, autoGainControl: false
+        }
+      });
+      if (!attachStream(stream)) {
+        status('O dispositivo escolhido não entregou áudio.', 'err');
+        try { stream.getTracks().forEach(function (t) { t.stop(); }); } catch (e) {}
+        return false;
+      }
+      S.on = true;
+      status('Ouvindo o dispositivo de áudio da call', 'ok');
+      ensureModel();
+      return true;
+    } catch (e) {
+      var m = (e && e.name === 'NotAllowedError')
+        ? 'Permissão negada pro dispositivo de áudio.'
+        : 'Não consegui abrir o dispositivo: ' + (e && e.message || e);
+      status(m, 'err');
+      return false;
+    }
+  }
+
+  // ── B) captura do ÁUDIO DO SISTEMA (getDisplayMedia) ───────────────────────
+  async function startDisplay(onText, onStatus, onLevel) {
+    S.onText = onText || S.onText; S.onStatus = onStatus || S.onStatus; S.onLevel = onLevel || S.onLevel; S.heard = false;
     if (S.on) return true;
     if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
       status('Navegador sem getDisplayMedia — use o Chrome.', 'err');
@@ -81,44 +246,46 @@
     }
     var stream;
     try {
-      stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+      // vídeo mínimo (a API exige vídeo pra liberar o áudio do sistema).
+      stream = await navigator.mediaDevices.getDisplayMedia({
+        video: { frameRate: 1, width: 320, height: 180 },
+        audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
+      });
     } catch (e) {
       status('Compartilhamento cancelado.', 'warn');
       return false;
     }
-    var atrk = stream.getAudioTracks();
-    if (!atrk.length) {
-      status('Sem faixa de áudio. Na janela de compartilhar, marque "Compartilhar áudio da aba/sistema".', 'err');
-      stream.getTracks().forEach(function (t) { t.stop(); });
+    if (!stream.getAudioTracks().length) {
+      status('Sem faixa de áudio. Ao escolher a aba do 3CX, MARQUE "Compartilhar áudio da aba".', 'err');
+      try { stream.getTracks().forEach(function (t) { t.stop(); }); } catch (e) {}
       return false;
     }
-    stream.getVideoTracks().forEach(function (t) { t.stop(); }); // vídeo não é usado
-    S.stream = stream;
+    // ⚠️ NÃO parar a faixa de vídeo: em várias versões do Chrome isso encerra a
+    // sessão inteira e derruba o áudio junto. Guardamos e paramos só no stop().
+    S.videoTrack = stream.getVideoTracks()[0] || null;
+    if (S.videoTrack) S.videoTrack.addEventListener('ended', function () { stop(); });
+    if (!attachStream(stream)) { status('Falha ao ligar o áudio capturado.', 'err'); stop(); return false; }
+    S.on = true;
+    status('Capturando o áudio da aba/tela', 'ok');
+    ensureModel();
+    return true;
+  }
+
+  // ── lista dispositivos de entrada (pra escolher o do softphone) ────────────
+  async function listDevices() {
     try {
-      var AC = window.AudioContext || window.webkitAudioContext;
-      S.actx = new AC({ sampleRate: S.sr });
-      S.src = S.actx.createMediaStreamSource(new MediaStream([atrk[0]]));
-      var node = S.actx.createScriptProcessor(4096, 1, 1);
-      node.onaudioprocess = function (ev) {
-        if (!S.on) return;
-        S.buf.push(new Float32Array(ev.inputBuffer.getChannelData(0)));
-        processBuffer();
-      };
-      // sink com ganho 0: ScriptProcessor precisa de destino, mas NÃO queremos
-      // tocar o áudio de volta (evita eco/feedback no fone do SDR).
-      S.sink = S.actx.createGain(); S.sink.gain.value = 0;
-      S.src.connect(node); node.connect(S.sink); S.sink.connect(S.actx.destination);
-      S.node = node;
-      S.on = true;
-      atrk[0].addEventListener('ended', function () { stop(); }); // parou pela barra do Chrome
-      status('Ouvindo o áudio da call', 'ok');
-      ensureModel(); // pré-carrega o modelo em paralelo
-      return true;
-    } catch (e) {
-      status('Erro ao iniciar a captura: ' + (e && e.message || e), 'err');
-      stop();
-      return false;
-    }
+      // sem permissão de mic os rótulos vêm vazios — pede uma vez.
+      try { (await navigator.mediaDevices.getUserMedia({ audio: true })).getTracks().forEach(function (t) { t.stop(); }); } catch (e) {}
+      var ds = await navigator.mediaDevices.enumerateDevices();
+      return ds.filter(function (d) { return d.kind === 'audioinput'; })
+               .map(function (d, i) { return { id: d.deviceId, label: d.label || ('Entrada de áudio ' + (i + 1)) }; });
+    } catch (e) { return []; }
+  }
+
+  // sugere o device mais provável de carregar o áudio de saída
+  function guessLoopback(devices) {
+    var re = /(mixagem est|stereo mix|what ?u hear|loopback|vb-?audio|vb-?cable|cable output|voicemeeter|virtual)/i;
+    return (devices || []).filter(function (d) { return re.test(d.label); })[0] || null;
   }
 
   function stop() {
@@ -127,16 +294,22 @@
     try { S.sink && S.sink.disconnect(); } catch (e) {}
     try { S.src && S.src.disconnect(); } catch (e) {}
     try { S.actx && S.actx.close(); } catch (e) {}
+    try { S.videoTrack && S.videoTrack.stop(); } catch (e) {}
     try { S.stream && S.stream.getTracks().forEach(function (t) { t.stop(); }); } catch (e) {}
-    S.node = S.sink = S.src = S.actx = S.stream = null; S.buf = [];
+    S.node = S.sink = S.src = S.actx = S.stream = S.videoTrack = null; S.buf = []; S.actxRate = 0; S.silAcc = 0;
     status('Captura da call parada.', 'info');
   }
 
   window.JarvisCallSTT = {
-    start: start,
+    startDevice: startDevice,
+    startDisplay: startDisplay,
+    listDevices: listDevices,
+    guessLoopback: guessLoopback,
     stop: stop,
     isOn: function () { return S.on; },
     engine: function () { return S.engine; },
+    heardAudio: function () { return S.heard; },
+    sampleRate: function () { return S.actxRate; },
     supported: function () { return !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia); }
   };
 })();

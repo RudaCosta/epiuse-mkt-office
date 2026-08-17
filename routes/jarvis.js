@@ -83,6 +83,7 @@ try {
 const ODY_BASE = (process.env.JARVIS_LLM_BASE_URL || process.env.ODYSSEUS_BASE_URL || '').trim();
 const ODY_KEY  = (process.env.JARVIS_LLM_API_KEY  || process.env.ODYSSEUS_API_KEY  || '').trim();
 const AI_MODEL = (process.env.JARVIS_LLM_MODEL     || 'claude-haiku-4-5').trim();
+const AI_FALLBACK_MODELS = ['qwen/qwen3.6-27b', 'openai/gpt-oss-120b', 'openai/gpt-oss-20b', 'groq/compound-mini'];
 // Formato da API do backend de IA:
 //   'anthropic' (padrão) → /v1/messages (API Anthropic ou gateway Anthropic-compat)
 //   'openai'             → /v1/chat/completions (Ollama, LM Studio, odysseus local etc.)
@@ -119,27 +120,35 @@ function openaiModelsUrl(base) {
 // Ramo 'openai' usa fetch (Ollama/LM Studio/odysseus); padrão usa o SDK Anthropic (inalterado).
 async function callLLM({ system, user, maxTokens }) {
   if (AI_FORMAT === 'openai') {
-    const resp = await fetch(openaiChatUrl(ODY_BASE), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(ODY_KEY ? { Authorization: `Bearer ${ODY_KEY}` } : {})
-      },
-      body: JSON.stringify({
-        model: AI_MODEL,
-        max_tokens: maxTokens,
-        messages: [
-          { role: 'system', content: system },
-          { role: 'user', content: user }
-        ]
-      })
-    });
-    if (!resp.ok) {
-      const t = await resp.text().catch(() => '');
-      throw new Error(`LLM ${resp.status}: ${t.slice(0, 200)}`);
+    const models = [AI_MODEL, ...AI_FALLBACK_MODELS.filter(m => m !== AI_MODEL)];
+    for (const model of models) {
+      const resp = await fetch(openaiChatUrl(ODY_BASE), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(ODY_KEY ? { Authorization: `Bearer ${ODY_KEY}` } : {})
+        },
+        body: JSON.stringify({
+          model,
+          max_tokens: maxTokens,
+          messages: [
+            { role: 'system', content: system },
+            { role: 'user', content: user }
+          ]
+        })
+      });
+      if (resp.status === 404 || (resp.status === 400 && await resp.clone().text().then(t => t.includes('decommissioned')).catch(() => false))) {
+        console.warn(`[jarvis] modelo ${model} indisponível (${resp.status}), tentando próximo fallback...`);
+        continue;
+      }
+      if (!resp.ok) {
+        const t = await resp.text().catch(() => '');
+        throw new Error(`LLM ${resp.status}: ${t.slice(0, 200)}`);
+      }
+      const data = await resp.json();
+      return data?.choices?.[0]?.message?.content || '';
     }
-    const data = await resp.json();
-    return data?.choices?.[0]?.message?.content || '';
+    throw new Error(`Nenhum modelo disponível. Tentados: ${models.join(', ')}`);
   }
   const completion = await aiClient.messages.create({
     model: AI_MODEL,
@@ -231,6 +240,27 @@ function recallDores(ctx = {}, k = 8) {
   } catch (e) { return []; }
 }
 
+// Cases REAIS (anonimizados) — filtra por LOB quando houver; senão devolve todos.
+// No PRÉ-CALL o LOB ainda não foi detectado, então sem isto o modelo ficava sem
+// nenhuma prova social real e INVENTAVA (regressão da v0.9, ao tirar os dropdowns).
+function casesReais(lobStr) {
+  const cr = (PLAYBOOK.cases_reais || {});
+  const lista = cr.lista || [];
+  const lobKey = normalizeLobKey(lobStr);
+  const sel = lobKey ? lista.filter(c => c.lob === lobKey) : lista;
+  return (sel.length ? sel : lista).map(c => ({ anonimo: c.anonimo, lob: c.lob, resultado: c.resultado }));
+}
+
+// Guarda anti-invenção: a base de cases NÃO tem métrica (nenhum "%", "R$", "3x").
+// Se o modelo devolver número que não existe na fonte, é alucinação — corta.
+function temMetricaInventada(texto, fonteTxt) {
+  const s = String(texto || '');
+  const nums = s.match(/\d+([.,]\d+)?\s*(%|x\b)|R\$\s*[\d.,]+|\b\d+\s*(dias|semanas|meses|horas)\b/gi) || [];
+  if (!nums.length) return false;
+  const fonte = String(fonteTxt || '');
+  return nums.some(n => !fonte.includes(n.trim()));
+}
+
 // ── SYSTEM PROMPT (persona sênior + playbook real + estratégia FY27 + humanização) ──
 function buildSystemPrompt(ctx = {}) {
   const p = PLAYBOOK || {};
@@ -281,6 +311,11 @@ function buildSystemPrompt(ctx = {}) {
     `  ✅ "Faz sentido a gente sentar 30 min e eu te mostrar onde dá pra cortar esse retrabalho?"`,
     ``,
     `=== REGRAS ===`,
+    `- 🚫 NUNCA INVENTE DADO. Proibido citar número, percentual, prazo, economia, ROI ou nome de cliente que`,
+    `  NÃO esteja escrito na base acima. Sem "reduzimos 40%", "3x mais rápido", "em 2 semanas" — nada disso`,
+    `  existe na nossa base. Se não tiver o dado, fale do TIPO de resultado sem número, ou não fale.`,
+    `- Prova social: use SOMENTE os cases da base (já anonimizados). Se não houver case aderente, devolva vazio`,
+    `  em vez de inventar um.`,
     `- PT-BR sempre. Vender a DOR, nunca a tecnologia pela tecnologia.`,
     `- NUNCA citar concorrentes nominalmente na fala — use o argumento sem nome (veja diferenciacao_competitiva).`,
     `- NUNCA citar clientes nominalmente sem aprovação — anonimize os cases (ex: "um grande grupo do agro").`,
@@ -391,6 +426,38 @@ router.get('/api/jarvis/ping', async (req, res) => {
   return res.json({ ...base, ok: true, message: 'Anthropic client configurado.' });
 });
 
+// ── Diagnóstico temporário do pipeline de IA ────────────────────────────────
+router.get('/api/jarvis/diag-llm', async (req, res) => {
+  const diag = { aiReady: aiReady(), format: AI_FORMAT, model: AI_MODEL, base: ODY_BASE ? ODY_BASE.slice(0, 40) : null };
+  if (!aiReady()) return res.json({ ...diag, error: 'aiReady=false' });
+  try {
+    const modelsResp = await fetch(openaiModelsUrl(ODY_BASE), {
+      headers: ODY_KEY ? { Authorization: `Bearer ${ODY_KEY}` } : {},
+      signal: AbortSignal.timeout(6000)
+    });
+    const modelsText = await modelsResp.text();
+    if (modelsResp.ok) {
+      try {
+        const md = JSON.parse(modelsText);
+        diag.available_models = (md.data || []).map(m => m.id).sort();
+      } catch (_) { diag.models_raw = modelsText.slice(0, 300); }
+    } else {
+      diag.models_error = `HTTP ${modelsResp.status}: ${modelsText.slice(0, 200)}`;
+    }
+  } catch (e) { diag.models_exception = e.message; }
+  try {
+    const raw = await callLLM({ system: 'Responde só JSON.', user: 'Responda: {"ok":true,"msg":"teste"}', maxTokens: 50 });
+    diag.rawResponse = String(raw).slice(0, 300);
+    const parsed = safeParseJson(raw);
+    diag.parsed = parsed;
+    diag.success = !!parsed;
+  } catch (e) {
+    diag.error = e.message;
+    diag.stack = e.stack ? e.stack.split('\n').slice(0, 3) : [];
+  }
+  res.json(diag);
+});
+
 // ── API: coach ao vivo ────────────────────────────────────────────────────────
 // Recebe contexto da call + transcrição recente + última fala do prospect.
 // Devolve JSON com próxima pergunta, talk track, contorno de objeção, sinais e temperatura.
@@ -483,18 +550,30 @@ router.post('/api/jarvis/brief', jarvisLimiter, async (req, res) => {
       ? [`=== CONTEÚDOS REAIS EPI-USE DISPONÍVEIS (use SÓ estes; NUNCA invente URL) ===`,
          JSON.stringify(artigos.map(a => ({ titulo: a.titulo, url: a.url })), null, 0)].join('\n')
       : '';
+    // Cases REAIS sempre injetados (no pré-call o LOB ainda não foi detectado).
+    const cases = casesReais(context.lob);
+    const casesTxt = JSON.stringify(cases, null, 0);
+    const semContexto = !context.lob && !context.persona && !context.industria;
+
     const userPrompt = [
       `Monte um PRÉ-CALL BRIEF curto pra eu (SDR) abrir esta conversa com confiança.`,
       `Prospect: ${context.prospect || '—'} | Empresa: ${context.empresa || '—'} | Indústria: ${context.industria || '—'} | LOB: ${context.lob || '—'} | Persona: ${context.persona || '—'} | Estágio: ${context.estagio || '—'}`,
+      semContexto
+        ? `⚠️ ATENÇÃO: LOB, persona e indústria AINDA NÃO são conhecidos (o brief roda antes da conversa). NÃO finja que sabe. Trate as dores como HIPÓTESES a confirmar e escreva perguntas que DESCUBRAM o cenário. A abertura não pode afirmar dor específica como se fosse fato.`
+        : '',
+      ``,
+      `=== CASES REAIS EPI-USE (única prova social permitida — já anonimizados) ===`,
+      casesTxt,
+      `Repare: estes cases NÃO têm métrica. Então é PROIBIDO citar percentual, prazo ou economia.`,
       artigosBloco ? `\n${artigosBloco}` : '',
       ``,
       `Responda APENAS com JSON válido:`,
       `{`,
-      `  "abertura": "frase de abertura consultiva, HUMANIZADA (ver regras), ancorada na dor da persona/indústria",`,
-      `  "dores_provaveis": ["dor 1", "dor 2", "dor 3"],`,
-      `  "gatilho_2026": "o gatilho de urgência mais relevante pra usar",`,
+      `  "abertura": "frase de abertura consultiva, HUMANIZADA (ver regras). Sem afirmar dor como fato se o cenário é desconhecido.",`,
+      `  "dores_provaveis": ["hipótese de dor 1 (a confirmar)", "2", "3"],`,
+      `  "gatilho_2026": "o gatilho de urgência mais relevante da base (texto da base, sem inventar)",`,
       `  "perguntas_chave": ["pergunta de descoberta 1", "2", "3"],`,
-      `  "prova_social": "1 prova social objetiva da EPI-USE Brasil relevante (case anonimizado se preciso)",`,
+      `  "prova_social": "1 case da lista acima, com a descrição ANÔNIMA e o resultado como está escrito. Sem número inventado. Se nenhum for aderente, devolva string vazia.",`,
       `  "conteudos_sugeridos": [{"titulo": "título exato da lista", "url": "url exata da lista", "porque": "quando usar"}]`,
       `}`,
       `Em conteudos_sugeridos use NO MÁXIMO 3 itens, SOMENTE da lista acima (se não houver, devolva []).`
@@ -507,7 +586,27 @@ router.post('/api/jarvis/brief', jarvisLimiter, async (req, res) => {
       const urlsOk = new Set(artigos.map(a => a.url));
       parsed.conteudos_sugeridos = parsed.conteudos_sugeridos.filter(c => c && urlsOk.has(c.url)).slice(0, 3);
     }
-    res.json({ success: true, gerado_por_ia: true, ...parsed });
+    // ── SANEAMENTO (Regra 7): corta prova social com métrica que não existe na base ──
+    const avisos = [];
+    if (parsed.prova_social && temMetricaInventada(parsed.prova_social, casesTxt)) {
+      console.warn('[jarvis/brief] prova_social com número inventado, descartada:', parsed.prova_social);
+      parsed.prova_social = '';
+      avisos.push('Descartei uma prova social que citava número inexistente na nossa base.');
+    }
+    // gatilho fora da base também é invenção
+    const gatilhosTxt = JSON.stringify(PLAYBOOK.gatilhos_urgencia_2026 || []);
+    if (parsed.gatilho_2026 && temMetricaInventada(parsed.gatilho_2026, gatilhosTxt)) {
+      parsed.gatilho_2026 = String(parsed.gatilho_2026).replace(/\d+([.,]\d+)?\s*%/g, '').trim();
+    }
+    res.json({
+      success: true, gerado_por_ia: true, ...parsed,
+      _contexto_conhecido: !semContexto,
+      _cases_disponiveis: cases.length,
+      _avisos: avisos,
+      etiqueta: semContexto
+        ? '🤖 Gerado por IA · dores são HIPÓTESES (LOB/persona ainda não detectados) — confirme na call'
+        : '🤖 Gerado por IA — use seu julgamento'
+    });
   } catch (e) {
     console.error('[jarvis/brief] erro:', e.message);
     res.status(500).json({ success: false, error: e.message });
@@ -533,6 +632,11 @@ router.post('/api/jarvis/pesquisar', jarvisLimiter, async (req, res) => {
       `Pesquise informação TÉCNICA e ATUAL sobre: ${termo || duvida}.`,
       duvida ? `Dúvida específica a responder: "${duvida}".` : '',
       `Priorize fontes oficiais (site:sap.com, site:help.sap.com, site:servicenow.com). Responda em PT-BR.`,
+      `🚫 REGRAS DE PRECISÃO (o SDR vai repetir isso pro cliente):`,
+      `- Só afirme o que você REALMENTE encontrou na busca. Se não achou, diga que não achou.`,
+      `- Em "fontes", coloque APENAS URLs que vieram do resultado da busca. NUNCA construa/adivinhe URL.`,
+      `- Nada de número, preço, SLA ou data sem fonte. Prefira omitir a arriscar.`,
+      `- Se a informação for incerta ou variar por contrato/edição, diga isso explicitamente.`,
       `Responda APENAS com JSON válido:`,
       `{`,
       `  "resumo": ["bullet técnico 1", "bullet 2", "bullet 3"],`,
@@ -561,7 +665,30 @@ router.post('/api/jarvis/pesquisar', jarvisLimiter, async (req, res) => {
     if (!parsed) {
       return res.json({ success: true, gerado_por_ia: true, etiqueta: '🌐 Pesquisa web — verificar', resumo: [rawTxt.slice(0, 600)], fontes: [] });
     }
-    res.json({ success: true, gerado_por_ia: true, etiqueta: '🌐 Pesquisa web — verificar', ...parsed });
+    // ── SANEAMENTO das fontes (Regra 7): antes NADA era validado aqui ──
+    // O modelo às vezes "constrói" URL plausível (sap.com/products/xyz) que não existe.
+    // Separa em oficiais (confiáveis) vs demais (marcadas como não verificadas).
+    const OFICIAIS = /(^|\.)(sap\.com|help\.sap\.com|servicenow\.com|docs\.servicenow\.com|successfactors\.com|qualtrics\.com)$/i;
+    let oficiais = 0, outras = 0;
+    if (Array.isArray(parsed.fontes)) {
+      parsed.fontes = parsed.fontes.filter(f => f && f.url).map(f => {
+        let host = '';
+        try { host = new URL(f.url).hostname.replace(/^www\./, ''); } catch (e) { return null; }
+        const ok = OFICIAIS.test(host);
+        ok ? oficiais++ : outras++;
+        return { titulo: f.titulo || host, url: f.url, host, oficial: ok };
+      }).filter(Boolean).slice(0, 6);
+    } else parsed.fontes = [];
+
+    const semFonte = parsed.fontes.length === 0;
+    res.json({
+      success: true, gerado_por_ia: true, ...parsed,
+      _fontes_oficiais: oficiais, _fontes_outras: outras,
+      etiqueta: semFonte
+        ? '⚠️ Sem fonte verificável — NÃO repita isso pro cliente sem conferir'
+        : (oficiais ? '🌐 Pesquisa web · ' + oficiais + ' fonte(s) oficial(is) — confira antes de afirmar'
+                    : '⚠️ Nenhuma fonte oficial (SAP/ServiceNow) — trate como indício, não como fato')
+    });
   } catch (e) {
     console.error('[jarvis/pesquisar] erro:', e.message);
     res.status(500).json({ success: false, error: e.message });
@@ -751,11 +878,17 @@ router.post('/api/jarvis/ingest-zoho-call', async (req, res) => {
       return res.status(400).json({ success: false, error: 'Payload sem ID de call.' });
     }
 
-    // Evita duplicata
+    // Evita duplicata (force=true permite re-processar)
+    const forceReprocess = req.query.force === 'true';
     const existing = db.prepare('SELECT id FROM jarvis_calls WHERE zoho_call_id = ?').get(zohoCallId);
-    if (existing) {
+    if (existing && !forceReprocess) {
       console.log(tag, `call ${zohoCallId} já ingerida (jarvis_calls.id=${existing.id}), ignorando.`);
       return res.json({ success: true, skipped: true, call_id: existing.id, message: 'Call já processada.' });
+    }
+    if (existing && forceReprocess) {
+      db.prepare('DELETE FROM jarvis_aprendizados WHERE call_id = ?').run(existing.id);
+      db.prepare('DELETE FROM jarvis_calls WHERE id = ?').run(existing.id);
+      console.log(tag, `force reprocess: deletou call ${existing.id} (zoho ${zohoCallId})`);
     }
 
     const subject = callData.Subject || callData.subject || '';
@@ -767,15 +900,17 @@ router.post('/api/jarvis/ingest-zoho-call', async (req, res) => {
     const whoId = callData.Who_Id || callData.who_id || {};
     const seModule = callData['$se_module'] || callData.se_module || '';
 
-    const prospectName = (whatId && whatId.name) || (whoId && whoId.name) || '';
-
     // Extrai URL de gravação do Description
     const recMatch = description.match(/https?:\/\/[^\s)]+recording[^\s)]*/i);
     const recordingUrl = recMatch ? recMatch[0] : null;
 
-    // Extrai empresa do Description (padrão: "Nome (Empresa)")
-    const empMatch = description.match(/\(([^)]+)\)\s*\(/);
-    const empresa = empMatch ? empMatch[1] : '';
+    // Extrai prospect e empresa do Description (padrão: "para o NNN Nome (Empresa) (MM:SS)")
+    const descMatch = description.match(/para o \d+ (.+?) \(([^)]+)\)\s*\(/);
+    const prospectFromDesc = descMatch ? descMatch[1].trim() : '';
+    const empresaFromDesc = descMatch ? descMatch[2].trim() : '';
+
+    const prospectName = (whoId && typeof whoId === 'object' && whoId.name) || prospectFromDesc || (whatId && typeof whatId === 'object' && whatId.name) || '';
+    const empresa = empresaFromDesc || (whatId && typeof whatId === 'object' && whatId.name) || '';
 
     // Parseia duração "MM:SS" → segundos
     const durParts = String(duration).match(/(\d+):(\d+)/);
@@ -860,6 +995,7 @@ router.post('/api/jarvis/ingest-zoho-call', async (req, res) => {
     let resumo = null;
     let aprendizados = { dor: [], objecao: [], gatilho: [], pergunta_vencedora: [], sinal: [] };
 
+    console.log(tag, `aiReady=${aiReady()}, transcriptLen=${transcriptText.length}`);
     if (transcriptText && aiReady()) {
       try {
         const ext = [
@@ -883,8 +1019,11 @@ router.post('/api/jarvis/ingest-zoho-call', async (req, res) => {
           `Listas vazias se não houver. Sem texto fora do JSON.`
         ].join('\n');
 
-        const raw = await callLLM({ system: 'Extrator factual de calls de venda. Responde só JSON. PT-BR.', user: ext, maxTokens: 700 });
+        console.log(tag, 'chamando LLM pra extrair aprendizados...');
+        const raw = await callLLM({ system: 'Extrator factual de calls de venda. Responde APENAS JSON puro, sem markdown, sem tags, sem explicação. PT-BR.', user: ext, maxTokens: 1200 });
+        console.log(tag, 'LLM raw (300ch):', String(raw).slice(0, 300));
         const parsed = safeParseJson(raw);
+        console.log(tag, 'parsed:', parsed ? 'OK — resumo=' + String(parsed.resumo || '').slice(0, 80) : 'FALHOU — raw tail:' + String(raw).slice(-150));
         if (parsed) {
           resumo = parsed.resumo || null;
           const mapTipo = { dores: 'dor', objecoes: 'objecao', gatilhos: 'gatilho', perguntas_vencedoras: 'pergunta_vencedora', sinais: 'sinal' };
@@ -939,6 +1078,7 @@ router.get('/api/jarvis/zoho-calls', requireAuth, (req, res) => {
              transcript_json,
              LENGTH(transcript_json) > 4 AS tem_transcricao
       FROM jarvis_calls
+      WHERE zoho_call_id IS NOT NULL
       ORDER BY criado_em DESC
       LIMIT ?
     `).all(limit);
@@ -1028,6 +1168,44 @@ router.get('/api/jarvis/calls-by-prospect', requireAuth, (req, res) => {
     res.json({ success: true, query: q, total: result.length, calls: result });
   } catch (e) {
     console.error('[jarvis/calls-by-prospect] erro:', e.message);
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+// ── API: detalhe completo de uma call (para modal) ──────────────────────────
+router.get('/api/jarvis/call/:id', requireAuth, (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (!id) return res.status(400).json({ success: false, error: 'ID inválido.' });
+    const c = db.prepare(`
+      SELECT id, zoho_call_id, prospect, empresa, resumo, duracao_seg, fonte_audio, criado_em, transcript_json
+      FROM jarvis_calls WHERE id = ?
+    `).get(id);
+    if (!c) return res.status(404).json({ success: false, error: 'Call não encontrada.' });
+
+    let transcricao = '';
+    try {
+      const turns = JSON.parse(c.transcript_json || '[]');
+      transcricao = turns.map(t => {
+        const speaker = t.speaker === 'sdr' ? '🧑‍💼 SDR' : t.speaker === 'prospect' ? '👤 Cliente' : (t.speaker || '');
+        return speaker + ': ' + t.text;
+      }).join('\n\n');
+    } catch (_) { transcricao = c.transcript_json || ''; }
+
+    const aprendizados = db.prepare(`
+      SELECT tipo, texto FROM jarvis_aprendizados WHERE call_id = ? ORDER BY tipo
+    `).all(id);
+
+    res.json({
+      success: true,
+      call: {
+        id: c.id, zoho_call_id: c.zoho_call_id, prospect: c.prospect,
+        empresa: c.empresa, resumo: c.resumo, duracao_seg: c.duracao_seg,
+        fonte: c.fonte_audio, data: c.criado_em, transcricao, aprendizados
+      }
+    });
+  } catch (e) {
+    console.error('[jarvis/call/:id] erro:', e.message);
     res.status(500).json({ success: false, error: e.message });
   }
 });

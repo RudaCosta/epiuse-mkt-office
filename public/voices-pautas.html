@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Pautas dos Voices · EPI-USE Office</title>
+<link rel="stylesheet" href="/design-tokens.css">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0a1426; --surface:#0f1d36; --panel:#0b1830; --text:#e8f0ff; --text2:#9fb2d4; --dim:#6b83ad;
+    --line:rgba(134,158,195,.18); --accent:#cd1543; --blue:#60a5fa; --green:#4ade80; --yellow:#fbbf24;
+  }
+  body{font-family:'Maven Pro','Poppins',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.55}
+  .container{max-width:1080px;margin:0 auto;padding:0 24px 70px}
+  .hero{padding:40px 24px 24px;background:linear-gradient(160deg,#101c3a 0%,#001844 70%);border-bottom:1px solid var(--line);margin-bottom:24px}
+  .hero .eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--yellow);font-weight:700;margin-bottom:8px}
+  .hero h1{font-size:28px;font-weight:800;letter-spacing:-.4px;margin-bottom:6px}
+  .hero p{font-size:14px;color:var(--text2);max-width:680px}
+
+  /* trilho de estados */
+  .trilho{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+  .et{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:11px 14px;min-width:120px;flex:1;cursor:pointer;transition:border-color .15s}
+  .et:hover{border-color:rgba(96,165,250,.45)}
+  .et.on{border-color:var(--blue);background:rgba(96,165,250,.1)}
+  .et .n{font-size:21px;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--blue)}
+  .et .l{font-size:10.5px;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;margin-top:2px;line-height:1.3}
+  .et.zero .n{color:#43567a}
+
+  h2{font-size:14px;font-weight:800;margin:24px 0 12px;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  h2 .sub{font-size:11px;font-weight:600;text-transform:none;letter-spacing:0;color:var(--dim)}
+
+  .lista{display:flex;flex-direction:column;gap:10px}
+  .pauta{display:block;text-decoration:none;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:16px 18px;transition:transform .12s,border-color .15s}
+  .pauta:hover{transform:translateY(-2px);border-color:rgba(96,165,250,.45)}
+  .pauta .top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:7px;flex-wrap:wrap}
+  .pauta .tit{font-size:16px;font-weight:700;line-height:1.3}
+  .pauta .meta{font-size:12px;color:var(--text2);display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  .pauta .meta b{color:#a7c0e8;font-weight:600}
+  .badge{font-size:10px;font-weight:800;padding:3px 10px;border-radius:20px;white-space:nowrap;text-transform:uppercase;letter-spacing:.03em}
+  .b-enviada{background:rgba(96,165,250,.16);color:#93c5fd;border:1px solid rgba(96,165,250,.4)}
+  .b-em_revisao{background:rgba(168,85,247,.16);color:#d8b4fe;border:1px solid rgba(168,85,247,.4)}
+  .b-ajustes_pedidos{background:rgba(251,191,36,.14);color:#fcd34d;border:1px solid rgba(251,191,36,.4)}
+  .b-aprovada_voice{background:rgba(56,189,248,.14);color:#7dd3fc;border:1px solid rgba(56,189,248,.4)}
+  .b-liberada{background:rgba(34,211,122,.16);color:#4ade80;border:1px solid rgba(34,211,122,.4)}
+  .b-publicada{background:rgba(148,163,184,.14);color:#cbd5e1;border:1px solid rgba(148,163,184,.32)}
+  .chip{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(251,191,36,.12);color:#fcd34d;border:1px solid rgba(251,191,36,.32)}
+  .chip.ok{background:rgba(34,211,122,.12);color:#4ade80;border-color:rgba(34,211,122,.3)}
+  .vazio{background:var(--panel);border:1px dashed var(--line);border-radius:13px;padding:34px 20px;text-align:center;color:var(--text2);font-size:14px}
+  .vazio b{color:var(--text);display:block;margin-bottom:5px;font-size:15px}
+
+  .btn{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:10px 17px;font-size:13px;font-weight:800;font-family:inherit;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+  .btn:hover{filter:brightness(1.12)}
+  .btn.sec{background:rgba(96,165,250,.16);border:1px solid rgba(96,165,250,.4);color:#bfdbfe}
+
+  /* modal de atribuição */
+  .modal{position:fixed;inset:0;z-index:9999;display:none;align-items:flex-start;justify-content:center;background:rgba(3,10,22,.85);padding:40px 16px;overflow-y:auto}
+  .modal.open{display:flex}
+  .box{background:var(--panel);border:1px solid rgba(134,158,195,.2);border-radius:16px;max-width:660px;width:100%;padding:24px}
+  .box h3{font-size:18px;font-weight:800;margin-bottom:4px}
+  .box .hint{font-size:12.5px;color:var(--text2);margin-bottom:18px}
+  .fld{margin-bottom:14px}
+  .fld label{display:block;font-size:10.5px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;font-weight:700;margin-bottom:5px}
+  .fld input,.fld select,.fld textarea{width:100%;background:#0a1426;border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--text);font-family:inherit;font-size:14px}
+  .fld textarea{min-height:150px;resize:vertical;line-height:1.6;font-size:13.5px}
+  .fld .dica{font-size:11px;color:var(--dim);margin-top:4px}
+  .acoes{display:flex;gap:9px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}
+  .msg{font-size:12.5px;min-height:17px;margin-top:9px}
+  .msg.err{color:#f87171}.msg.ok{color:var(--green)}
+</style>
+</head>
+<body data-route="voices-pautas">
+<office-nav></office-nav>
+
+<div class="hero">
+  <div class="container" style="padding:0">
+    <div class="eyebrow">🎙️ EPI-USE Voices</div>
+    <h1 id="titulo">Pautas</h1>
+    <p id="intro">Carregando…</p>
+  </div>
+</div>
+
+<div class="container">
+  <div class="trilho" id="trilho"></div>
+
+  <h2 id="h-lista">Pautas <span class="sub" id="sub-lista"></span>
+    <button class="btn" id="btn-nova" type="button" style="margin-left:auto;display:none">➕ Atribuir pauta a um Voice</button>
+  </h2>
+  <div class="lista" id="lista"></div>
+</div>
+
+<!-- MODAL: atribuir -->
+<div class="modal" id="mnova"><div class="box">
+  <h3>➕ Atribuir pauta a um Voice</h3>
+  <div class="hint">O Voice recebe pra revisar, comenta parágrafo a parágrafo e aprova. Depois do OK da Duda o link rastreado é gerado no nome dele.</div>
+
+  <div class="fld">
+    <label for="n-origem">Pauta da Redatoria (opcional)</label>
+    <select id="n-origem"><option value="">— escrever do zero —</option></select>
+    <div class="dica">Puxa título e texto de uma pauta que já está no pipeline da Redatoria.</div>
+  </div>
+  <div class="fld">
+    <label for="n-voice">Voice</label>
+    <select id="n-voice"><option value="">Selecione…</option></select>
+    <div class="dica" id="n-voice-dica">O Voice precisa ter e-mail cadastrado em /admin/usuarios pra conseguir revisar.</div>
+  </div>
+  <div class="fld"><label for="n-titulo">Título</label><input id="n-titulo" type="text" placeholder="Ex: O que muda no SuccessFactors em 2026"></div>
+  <div class="fld">
+    <label for="n-corpo">Texto da pauta</label>
+    <textarea id="n-corpo" placeholder="Cole o texto. Separe os parágrafos com uma linha em branco — cada parágrafo vira um bloco comentável."></textarea>
+    <div class="dica">Uma linha em branco entre parágrafos: é assim que o Voice comenta trecho por trecho.</div>
+  </div>
+  <div class="fld">
+    <label for="n-destino">Link do conteúdo que o post divulga</label>
+    <input id="n-destino" type="url" placeholder="https://... (artigo, LP, case)">
+    <div class="dica">É esta URL que vira o link rastreado do Voice na aprovação. Pode preencher depois.</div>
+  </div>
+  <div class="fld"><label for="n-prazo">Publicar até (opcional)</label><input id="n-prazo" type="date"></div>
+
+  <div class="msg" id="n-msg"></div>
+  <div class="acoes">
+    <button class="btn sec" id="n-cancel" type="button">Cancelar</button>
+    <button class="btn" id="n-salvar" type="button">Enviar pro Voice</button>
+  </div>
+</div></div>
+
+<script src="/office-nav.js"></script>
+<script>
+(function(){
+  var esc=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c];});};
+  var D=null, FILTRO='';
+
+  function fmtData(s){
+    if(!s) return '';
+    var d=new Date(String(s).replace(' ','T')+(String(s).length<=10?'':'Z'));
+    if(isNaN(d)) return String(s);
+    var p=function(n){return (n<10?'0':'')+n;};
+    return p(d.getDate())+'/'+p(d.getMonth()+1);
+  }
+
+  function render(d){
+    D=d;
+    var voice = d.papel==='voice';
+    document.getElementById('titulo').textContent = voice ? 'Minhas pautas' : 'Pautas dos Voices';
+    document.getElementById('intro').textContent = voice
+      ? 'As pautas que a Redatoria mandou pra você. Comente nos parágrafos que quer mudar, aprove quando estiver bom — e depois do OK da Duda o seu link rastreado aparece aqui, pronto pra publicar no LinkedIn.'
+      : 'Todas as pautas atribuídas aos Voices, do envio à publicação. Cada clique no link do Voice é atribuído a ele (e vira ERP Coins).';
+    document.getElementById('btn-nova').style.display = voice ? 'none' : 'inline-flex';
+
+    // trilho de estados (clicável = filtro)
+    var r=d.resumo||{}, L=d.estado_label||{};
+    document.getElementById('trilho').innerHTML = (d.estados||[]).map(function(e){
+      var n=r[e]||0;
+      return '<div class="et'+(FILTRO===e?' on':'')+(n?'':' zero')+'" data-e="'+e+'">'+
+        '<div class="n">'+n+'</div><div class="l">'+esc(L[e]||e)+'</div></div>';
+    }).join('');
+    Array.prototype.forEach.call(document.querySelectorAll('.et'),function(el){
+      el.addEventListener('click',function(){ FILTRO = (FILTRO===el.dataset.e)?'':el.dataset.e; render(D); });
+    });
+
+    var ps=(d.pautas||[]).filter(function(p){ return !FILTRO || p.estado===FILTRO; });
+    document.getElementById('sub-lista').textContent = FILTRO
+      ? ('filtrando por "'+(L[FILTRO]||FILTRO)+'" · clique de novo pra limpar')
+      : (ps.length+' no total');
+
+    document.getElementById('lista').innerHTML = ps.length ? ps.map(function(p){
+      var pend = p.comentarios_abertos
+        ? '<span class="chip">💬 '+p.comentarios_abertos+' comentário(s) aberto(s)</span>' : '';
+      var link = p.estado==='liberada'
+        ? '<span class="chip ok">🔗 link pronto</span>'
+        : (p.estado==='publicada' ? '<span class="chip ok">✅ publicada</span>' : '');
+      return '<a class="pauta" href="/voices/pauta?id='+p.id+'">'+
+        '<div class="top"><div class="tit">'+esc(p.titulo)+'</div>'+
+        '<span class="badge b-'+p.estado+'">'+esc(L[p.estado]||p.estado)+'</span></div>'+
+        '<div class="meta">'+
+          (voice?'':'<span>🎙️ <b>'+esc(p.voice_nome||p.voice_email||'—')+'</b></span>')+
+          (p.prazo?'<span>📅 até <b>'+esc(fmtData(p.prazo))+'</b></span>':'')+
+          '<span>atualizada '+esc(fmtData(p.updated_at))+'</span>'+
+          pend+link+
+        '</div></a>';
+    }).join('') : ('<div class="vazio"><b>'+(FILTRO?'Nada nesse estado.':(voice?'Nenhuma pauta pra você ainda.':'Nenhuma pauta atribuída ainda.'))+'</b>'+
+        (voice?'Quando a Redatoria mandar uma pauta, ela aparece aqui e o sino te avisa.'
+              :'Use o botão acima pra mandar a primeira pauta pra um Voice.')+'</div>');
+  }
+
+  function load(){
+    fetch('/api/voices/pautas').then(function(r){
+      if(r.status===401){ location.href='/login'; throw new Error('401'); }
+      if(!r.ok) throw new Error(r.status); return r.json();
+    }).then(render).catch(function(e){
+      if(e.message!=='401') document.getElementById('lista').innerHTML='<div class="vazio"><b>Não deu pra carregar</b>'+esc(e.message)+'</div>';
+    });
+  }
+
+  // ── modal de atribuição ────────────────────────────────────────────────────
+  var m=document.getElementById('mnova');
+  function abrir(){
+    m.classList.add('open');
+    document.getElementById('n-msg').textContent='';
+    fetch('/api/voices/roster').then(function(r){return r.json();}).then(function(d){
+      var sel=document.getElementById('n-voice');
+      sel.innerHTML='<option value="">Selecione…</option>'+(d.voices||[]).map(function(v){
+        return '<option value="'+esc(v.email||'')+'" data-id="'+esc(v.id)+'" data-nome="'+esc(v.nome)+'"'+
+          (v.email?'':' disabled')+'>'+esc(v.nome)+(v.email?'':' — sem e-mail cadastrado')+'</option>';
+      }).join('');
+    }).catch(function(){});
+    fetch('/api/voices/pautas-disponiveis').then(function(r){return r.json();}).then(function(d){
+      var sel=document.getElementById('n-origem');
+      sel.innerHTML='<option value="">— escrever do zero —</option>'+(d.pautas||[]).map(function(p){
+        return '<option value="'+p.id+'" data-tit="'+esc(p.titulo)+'">'+esc(p.titulo)+(p.tem_corpo?'':' (sem texto)')+'</option>';
+      }).join('');
+    }).catch(function(){});
+  }
+  document.getElementById('btn-nova').addEventListener('click',abrir);
+  document.getElementById('n-cancel').addEventListener('click',function(){ m.classList.remove('open'); });
+  m.addEventListener('click',function(e){ if(e.target===m) m.classList.remove('open'); });
+  document.getElementById('n-origem').addEventListener('change',function(){
+    var o=this.options[this.selectedIndex];
+    if(o && o.dataset.tit && !document.getElementById('n-titulo').value) document.getElementById('n-titulo').value=o.dataset.tit;
+  });
+
+  document.getElementById('n-salvar').addEventListener('click',function(){
+    var msg=document.getElementById('n-msg'), btn=this;
+    var vs=document.getElementById('n-voice'), o=vs.options[vs.selectedIndex];
+    var body={
+      content_id: document.getElementById('n-origem').value || null,
+      voice_email: vs.value,
+      voice_id: o?o.dataset.id:'', voice_nome: o?o.dataset.nome:'',
+      titulo: document.getElementById('n-titulo').value.trim(),
+      corpo: document.getElementById('n-corpo').value,
+      destino_url: document.getElementById('n-destino').value.trim(),
+      prazo: document.getElementById('n-prazo').value
+    };
+    if(!body.voice_email){ msg.className='msg err'; msg.textContent='Escolha o Voice.'; return; }
+    if(!body.titulo){ msg.className='msg err'; msg.textContent='O título é obrigatório.'; return; }
+    btn.disabled=true; btn.textContent='Enviando…';
+    fetch('/api/voices/pautas',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(!d.success) throw new Error(d.error||'falhou');
+        m.classList.remove('open');
+        ['n-titulo','n-corpo','n-destino','n-prazo'].forEach(function(id){document.getElementById(id).value='';});
+        load();
+      })
+      .catch(function(e){ msg.className='msg err'; msg.textContent='Não deu pra enviar ('+esc(e.message)+').'; })
+      .finally(function(){ btn.disabled=false; btn.textContent='Enviar pro Voice'; });
+  });
+
+  load();
+})();
+</script>
+</body>
+</html>

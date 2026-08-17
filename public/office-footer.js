@@ -4,8 +4,8 @@
 // ════════════════════════════════════════════════════════════════════════════
 
 // Fonte ÚNICA da verdade: public/api/changelog.json#current via /api/version
-let OFFICE_FOOTER_VERSION = '0.82.4';
-const OFFICE_FOOTER_BUILD = '2026-07-08';
+let OFFICE_FOOTER_VERSION = '0.88.1';
+const OFFICE_FOOTER_BUILD = '2026-08-17';
 window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/version')
   .then(r => r.ok ? r.json() : null)
   .then(d => { if (d && d.current) { OFFICE_FOOTER_VERSION = d.current; window.__officeVersion = d.current; } return d; })
