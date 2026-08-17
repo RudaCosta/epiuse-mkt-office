@@ -83,7 +83,7 @@ try {
 const ODY_BASE = (process.env.JARVIS_LLM_BASE_URL || process.env.ODYSSEUS_BASE_URL || '').trim();
 const ODY_KEY  = (process.env.JARVIS_LLM_API_KEY  || process.env.ODYSSEUS_API_KEY  || '').trim();
 const AI_MODEL = (process.env.JARVIS_LLM_MODEL     || 'claude-haiku-4-5').trim();
-const AI_FALLBACK_MODELS = ['llama-3.3-70b-specdec', 'llama-3.1-70b-versatile', 'llama-3.1-8b-instant'];
+const AI_FALLBACK_MODELS = ['llama-3.1-70b-versatile', 'llama-3.1-8b-instant', 'llama3-70b-8192', 'gemma2-9b-it', 'mixtral-8x7b-32768'];
 // Formato da API do backend de IA:
 //   'anthropic' (padrão) → /v1/messages (API Anthropic ou gateway Anthropic-compat)
 //   'openai'             → /v1/chat/completions (Ollama, LM Studio, odysseus local etc.)
@@ -137,8 +137,8 @@ async function callLLM({ system, user, maxTokens }) {
           ]
         })
       });
-      if (resp.status === 404) {
-        console.warn(`[jarvis] modelo ${model} não encontrado, tentando próximo fallback...`);
+      if (resp.status === 404 || (resp.status === 400 && await resp.clone().text().then(t => t.includes('decommissioned')).catch(() => false))) {
+        console.warn(`[jarvis] modelo ${model} indisponível (${resp.status}), tentando próximo fallback...`);
         continue;
       }
       if (!resp.ok) {
