@@ -83,6 +83,7 @@ try {
 const ODY_BASE = (process.env.JARVIS_LLM_BASE_URL || process.env.ODYSSEUS_BASE_URL || '').trim();
 const ODY_KEY  = (process.env.JARVIS_LLM_API_KEY  || process.env.ODYSSEUS_API_KEY  || '').trim();
 const AI_MODEL = (process.env.JARVIS_LLM_MODEL     || 'claude-haiku-4-5').trim();
+const AI_FALLBACK_MODELS = ['llama-3.3-70b-specdec', 'llama-3.1-70b-versatile', 'llama-3.1-8b-instant'];
 // Formato da API do backend de IA:
 //   'anthropic' (padrão) → /v1/messages (API Anthropic ou gateway Anthropic-compat)
 //   'openai'             → /v1/chat/completions (Ollama, LM Studio, odysseus local etc.)
@@ -119,27 +120,35 @@ function openaiModelsUrl(base) {
 // Ramo 'openai' usa fetch (Ollama/LM Studio/odysseus); padrão usa o SDK Anthropic (inalterado).
 async function callLLM({ system, user, maxTokens }) {
   if (AI_FORMAT === 'openai') {
-    const resp = await fetch(openaiChatUrl(ODY_BASE), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(ODY_KEY ? { Authorization: `Bearer ${ODY_KEY}` } : {})
-      },
-      body: JSON.stringify({
-        model: AI_MODEL,
-        max_tokens: maxTokens,
-        messages: [
-          { role: 'system', content: system },
-          { role: 'user', content: user }
-        ]
-      })
-    });
-    if (!resp.ok) {
-      const t = await resp.text().catch(() => '');
-      throw new Error(`LLM ${resp.status}: ${t.slice(0, 200)}`);
+    const models = [AI_MODEL, ...AI_FALLBACK_MODELS.filter(m => m !== AI_MODEL)];
+    for (const model of models) {
+      const resp = await fetch(openaiChatUrl(ODY_BASE), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(ODY_KEY ? { Authorization: `Bearer ${ODY_KEY}` } : {})
+        },
+        body: JSON.stringify({
+          model,
+          max_tokens: maxTokens,
+          messages: [
+            { role: 'system', content: system },
+            { role: 'user', content: user }
+          ]
+        })
+      });
+      if (resp.status === 404) {
+        console.warn(`[jarvis] modelo ${model} não encontrado, tentando próximo fallback...`);
+        continue;
+      }
+      if (!resp.ok) {
+        const t = await resp.text().catch(() => '');
+        throw new Error(`LLM ${resp.status}: ${t.slice(0, 200)}`);
+      }
+      const data = await resp.json();
+      return data?.choices?.[0]?.message?.content || '';
     }
-    const data = await resp.json();
-    return data?.choices?.[0]?.message?.content || '';
+    throw new Error(`Nenhum modelo disponível. Tentados: ${models.join(', ')}`);
   }
   const completion = await aiClient.messages.create({
     model: AI_MODEL,
