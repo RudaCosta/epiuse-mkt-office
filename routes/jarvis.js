@@ -1020,10 +1020,10 @@ router.post('/api/jarvis/ingest-zoho-call', async (req, res) => {
         ].join('\n');
 
         console.log(tag, 'chamando LLM pra extrair aprendizados...');
-        const raw = await callLLM({ system: 'Extrator factual de calls de venda. Responde só JSON. PT-BR.', user: ext, maxTokens: 700 });
-        console.log(tag, 'LLM raw (200ch):', String(raw).slice(0, 200));
+        const raw = await callLLM({ system: 'Extrator factual de calls de venda. Responde APENAS JSON puro, sem markdown, sem tags, sem explicação. PT-BR.', user: ext, maxTokens: 1200 });
+        console.log(tag, 'LLM raw (300ch):', String(raw).slice(0, 300));
         const parsed = safeParseJson(raw);
-        console.log(tag, 'parsed:', parsed ? 'OK' : 'FALHOU');
+        console.log(tag, 'parsed:', parsed ? 'OK — resumo=' + String(parsed.resumo || '').slice(0, 80) : 'FALHOU — raw tail:' + String(raw).slice(-150));
         if (parsed) {
           resumo = parsed.resumo || null;
           const mapTipo = { dores: 'dor', objecoes: 'objecao', gatilhos: 'gatilho', perguntas_vencedoras: 'pergunta_vencedora', sinais: 'sinal' };
