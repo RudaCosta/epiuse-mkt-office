@@ -417,6 +417,23 @@ router.get('/api/jarvis/ping', async (req, res) => {
   return res.json({ ...base, ok: true, message: 'Anthropic client configurado.' });
 });
 
+// ── Diagnóstico temporário do pipeline de IA ────────────────────────────────
+router.get('/api/jarvis/diag-llm', async (req, res) => {
+  const diag = { aiReady: aiReady(), format: AI_FORMAT, model: AI_MODEL, base: ODY_BASE ? ODY_BASE.slice(0, 40) : null };
+  if (!aiReady()) return res.json({ ...diag, error: 'aiReady=false' });
+  try {
+    const raw = await callLLM({ system: 'Responde só JSON.', user: 'Responda: {"ok":true,"msg":"teste"}', maxTokens: 50 });
+    diag.rawResponse = String(raw).slice(0, 300);
+    const parsed = safeParseJson(raw);
+    diag.parsed = parsed;
+    diag.success = !!parsed;
+  } catch (e) {
+    diag.error = e.message;
+    diag.stack = e.stack ? e.stack.split('\n').slice(0, 3) : [];
+  }
+  res.json(diag);
+});
+
 // ── API: coach ao vivo ────────────────────────────────────────────────────────
 // Recebe contexto da call + transcrição recente + última fala do prospect.
 // Devolve JSON com próxima pergunta, talk track, contorno de objeção, sinais e temperatura.
