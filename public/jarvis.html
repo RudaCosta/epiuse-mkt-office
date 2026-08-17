@@ -326,8 +326,8 @@
       </div>
       <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
         <button class="btn" id="btn-dores" title="Dores reais já ouvidas em campo, por LOB — insumo pra pautar conteúdo">📊 Dores de campo</button>
-        <button class=”btn” id=”btn-calls-zoho” title=”Ver histórico de calls do Zoho/3CX para este prospect”>📞 Calls Zoho</button>
-        <span id=”save-status” style=”font-size:11px;color:var(--j-muted)”>💾 salva sozinho</span>
+        <button class="btn" id="btn-calls-zoho" title="Ver histórico de calls do Zoho/3CX para este prospect">📞 Calls Zoho</button>
+        <span id="save-status" style="font-size:11px;color:var(--j-muted)">💾 salva sozinho</span>
       </div>
     </div>
 
@@ -745,7 +745,7 @@ async function buscarCallsZoho(query){
     if(!r.ok || d.success===false){ body.innerHTML='<div class="calls-empty">⚠️ '+(d.error||'Erro ao buscar')+'</div>'; return; }
     $('calls-count').textContent = d.total;
     if(!d.calls || !d.calls.length){
-      body.innerHTML='<div class="calls-empty">Nenhuma call encontrada pra "'+escapeHtml(q)+'".</div>';
+      body.innerHTML='<div class="calls-empty">'+(hasQuery ? 'Nenhuma call encontrada pra "'+escapeHtml(q)+'".' : 'Nenhuma call registrada ainda.')+'</div>';
       return;
     }
     body.innerHTML = d.calls.map(c => {
