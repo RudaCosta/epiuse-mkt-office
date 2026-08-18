@@ -212,7 +212,15 @@
   .call-modal-section{margin-bottom:16px}
   .call-modal-section h4{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--j-cyan);margin-bottom:8px}
   .call-modal-resumo{font-size:13px;color:var(--j-dim);line-height:1.6}
-  .call-modal-transcript{font-size:12.5px;color:var(--j-dim);line-height:1.7;background:var(--j-surface);border-radius:10px;padding:14px;max-height:300px;overflow-y:auto;white-space:pre-wrap}
+  .call-modal-transcript{font-size:12.5px;color:var(--j-dim);line-height:1.7;background:var(--j-surface);border-radius:10px;padding:14px;max-height:400px;overflow-y:auto;display:flex;flex-direction:column;gap:8px}
+  .call-modal-transcript.mono{white-space:pre-wrap;display:block}
+  .call-bubble{padding:8px 12px;border-radius:12px;max-width:85%;line-height:1.5}
+  .call-bubble.sdr{align-self:flex-start;background:rgba(134,158,195,.12);border:1px solid rgba(134,158,195,.2)}
+  .call-bubble.prospect{align-self:flex-end;background:rgba(0,200,150,.08);border:1px solid rgba(0,200,150,.15)}
+  .call-bubble.sistema{align-self:center;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-style:italic;font-size:11px}
+  .call-bubble-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;opacity:.7}
+  .call-bubble.sdr .call-bubble-label{color:var(--j-cyan)}
+  .call-bubble.prospect .call-bubble-label{color:#00c896}
   .call-modal-apr{display:flex;flex-wrap:wrap;gap:6px}
   .call-modal-apr .apr-tag{font-size:11px;border-radius:14px;padding:4px 10px;font-weight:600}
 </style>
@@ -829,8 +837,16 @@ async function abrirCallModal(id){
         ).join('')+'</div></div>';
     }
 
-    if(c.transcricao){
-      html += '<div class="call-modal-section"><h4>Transcrição completa</h4><div class="call-modal-transcript">'+escapeHtml(c.transcricao)+'</div></div>';
+    if(c.diarizado && c.turns && c.turns.length){
+      html += '<div class="call-modal-section"><h4>Transcrição (SDR x Cliente)</h4><div class="call-modal-transcript">';
+      for(var ti=0;ti<c.turns.length;ti++){
+        var t=c.turns[ti], cls=t.speaker==='prospect'?'prospect':t.speaker==='sistema'?'sistema':'sdr';
+        var label=t.speaker==='sdr'?'SDR':t.speaker==='prospect'?'CLIENTE':'SISTEMA';
+        html+='<div class="call-bubble '+cls+'"><div class="call-bubble-label">'+label+'</div>'+escapeHtml(t.text)+'</div>';
+      }
+      html += '</div></div>';
+    } else if(c.transcricao){
+      html += '<div class="call-modal-section"><h4>Transcrição completa</h4><div class="call-modal-transcript mono">'+escapeHtml(c.transcricao)+'</div></div>';
     }
 
     body.innerHTML = html;
