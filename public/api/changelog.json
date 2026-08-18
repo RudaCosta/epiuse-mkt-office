@@ -1,6 +1,6 @@
 {
-  "current": "0.88.2",
-  "atualizado_em": "17/ago/2026",
+  "current": "0.88.3",
+  "atualizado_em": "18/ago/2026",
   "next": [
     {
       "version": "0.53.0",
@@ -54,9 +54,21 @@
   ],
   "releases": [
     {
+      "version": "0.88.3",
+      "date": "18/ago/2026",
+      "status": "current",
+      "path": "/",
+      "title": "🚨 Hotfix: o Office estava fora do ar",
+      "highlights": [
+        "A versão 0.88.2 subiu com uma variável declarada duas vezes no módulo do JARVIS. Isso é erro de sintaxe: o Node recusa o arquivo inteiro, o servidor nunca sobe e a Railway devolve 502 em TODAS as telas.",
+        "Removida a declaração antiga, que ficou órfã quando a cadeia de fallback de modelos foi reescrita. A nova, que já inclui o modelo primário, permaneceu.",
+        "Atalho ☕ Cafezinho entrou nos acessos rápidos da home."
+      ]
+    },
+    {
       "version": "0.88.1",
       "date": "17/ago/2026",
-      "status": "current",
+      "status": "released",
       "path": "/jarvis",
       "title": "📞 JARVIS × Zoho: ingestão automática de calls 3CX com transcrição e inteligência",
       "highlights": [

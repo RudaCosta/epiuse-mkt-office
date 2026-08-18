@@ -83,7 +83,6 @@ try {
 const ODY_BASE = (process.env.JARVIS_LLM_BASE_URL || process.env.ODYSSEUS_BASE_URL || '').trim();
 const ODY_KEY  = (process.env.JARVIS_LLM_API_KEY  || process.env.ODYSSEUS_API_KEY  || '').trim();
 const AI_MODEL = (process.env.JARVIS_LLM_MODEL     || 'claude-haiku-4-5').trim();
-const AI_FALLBACK_MODELS = ['qwen/qwen3.6-27b', 'openai/gpt-oss-120b', 'openai/gpt-oss-20b', 'groq/compound-mini'];
 // Formato da API do backend de IA:
 //   'anthropic' (padrão) → /v1/messages (API Anthropic ou gateway Anthropic-compat)
 //   'openai'             → /v1/chat/completions (Ollama, LM Studio, odysseus local etc.)
