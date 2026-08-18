@@ -989,12 +989,11 @@ router.post('/api/jarvis/ingest-zoho-call', async (req, res) => {
       }
     }
 
-    // 6) Montar transcript no formato JARVIS (sem diarização — áudio mono do 3CX)
-    const turns = transcriptText
+    // 6) Salvar na tabela jarvis_calls (transcript mono inicial)
+    let turns = transcriptText
       ? [{ speaker: 'call', text: transcriptText.trim(), ts: startTime }]
       : [];
 
-    // 7) Salvar na tabela jarvis_calls
     const callRow = db.prepare(`INSERT INTO jarvis_calls
       (prospect, empresa, transcript_json, role_map_json, duracao_seg, criado_por, zoho_call_id, fonte_audio)
       VALUES (?,?,?,?,?,?,?,?)`).run(
@@ -1002,38 +1001,79 @@ router.post('/api/jarvis/ingest-zoho-call', async (req, res) => {
     );
     const callId = callRow.lastInsertRowid;
 
-    // 8) Extrair aprendizados via IA (mesmo pipeline do /encerrar)
+    // 7) Diarização via LLM (separar SDR × Cliente) + extração de aprendizados
     let resumo = null;
     let aprendizados = { dor: [], objecao: [], gatilho: [], pergunta_vencedora: [], sinal: [] };
 
     console.log(tag, `aiReady=${aiReady()}, transcriptLen=${transcriptText.length}`);
     if (transcriptText && aiReady()) {
+      // 7a) Diarização — separar falas SDR vs Cliente
       try {
+        const diarPrompt = [
+          `Abaixo está a transcrição de uma call de prospecção B2B entre um SDR (vendedor) e um Cliente (prospect).`,
+          `O áudio era mono, então as falas vieram misturadas sem identificação.`,
+          `Sua tarefa: separar as falas entre SDR e CLIENTE baseado no contexto.`,
+          `- O SDR faz perguntas, apresenta soluções SAP/ServiceNow, conduz a conversa.`,
+          `- O CLIENTE descreve problemas, responde perguntas, faz objeções, conta sobre a empresa.`,
+          `- Se houver saudação/secretária/correio de voz, marque como SISTEMA.`,
+          ``,
+          `CONTEXTO: SDR da EPI-USE · prospect=${prospectName} · empresa=${empresa}`,
+          ``,
+          `TRANSCRIÇÃO BRUTA:`,
+          transcriptText.slice(0, 7000),
+          ``,
+          `Responda APENAS com JSON válido:`,
+          `{"falas":[{"speaker":"sdr","text":"fala do sdr"},{"speaker":"prospect","text":"fala do cliente"},{"speaker":"sdr","text":"..."}]}`,
+          `Mantenha a ordem cronológica. Agrupe frases consecutivas do mesmo speaker. Sem texto fora do JSON.`
+        ].join('\n');
+
+        const diarRaw = await callLLM({ system: 'Diarizador de calls de venda. Separa falas entre SDR e Cliente. Responde APENAS JSON puro. PT-BR.', user: diarPrompt, maxTokens: 2000 });
+        const diarParsed = safeParseJson(diarRaw);
+        if (diarParsed && Array.isArray(diarParsed.falas) && diarParsed.falas.length > 1) {
+          turns = diarParsed.falas.map(f => ({
+            speaker: f.speaker === 'prospect' ? 'prospect' : f.speaker === 'sistema' ? 'sistema' : 'sdr',
+            text: String(f.text || '').trim(),
+            ts: startTime
+          })).filter(t => t.text);
+          db.prepare('UPDATE jarvis_calls SET transcript_json = ? WHERE id = ?').run(JSON.stringify(turns), callId);
+          console.log(tag, `diarização OK: ${turns.length} turnos (${turns.filter(t=>t.speaker==='sdr').length} SDR, ${turns.filter(t=>t.speaker==='prospect').length} Cliente)`);
+        } else {
+          console.warn(tag, 'diarização falhou, mantendo transcrição mono');
+        }
+      } catch (e) {
+        console.warn(tag, 'diarização falhou:', e.message);
+      }
+
+      // 7b) Extrair aprendizados (usa transcrição diarizada quando disponível)
+      try {
+        const transcriptForLLM = turns.length > 1
+          ? turns.map(t => (t.speaker === 'sdr' ? 'SDR' : t.speaker === 'prospect' ? 'CLIENTE' : 'SISTEMA') + ': ' + t.text).join('\n')
+          : transcriptText.slice(0, 8000);
+
         const ext = [
           `Você é um analista de pré-vendas. Abaixo está a transcrição de uma call de prospecção B2B (SAP/ServiceNow).`,
-          `Extraia SOMENTE o que apareceu DE FATO na conversa (não invente). Foque no que o CLIENTE disse.`,
+          `As falas estão marcadas como SDR (vendedor) ou CLIENTE (prospect).`,
+          `Extraia SOMENTE o que apareceu DE FATO na conversa (não invente).`,
           ``,
           `CONTEXTO: prospect=${prospectName} · empresa=${empresa}`,
           ``,
           `TRANSCRIÇÃO:`,
-          transcriptText.slice(0, 8000),
+          transcriptForLLM.slice(0, 8000),
           ``,
           `Responda APENAS com JSON válido:`,
           `{`,
           `  "resumo": "2-3 frases do que rolou e onde parou",`,
-          `  "dores": ["dor de negócio concreta dita pelo cliente", "..."],`,
-          `  "objecoes": ["objeção levantada pelo cliente", "..."],`,
-          `  "gatilhos": ["gatilho de urgência/contexto real", "..."],`,
-          `  "perguntas_vencedoras": ["pergunta do SDR que abriu a conversa", "..."],`,
+          `  "dores": ["dor de negócio concreta dita pelo CLIENTE", "..."],`,
+          `  "objecoes": ["objeção levantada pelo CLIENTE", "..."],`,
+          `  "gatilhos": ["gatilho de urgência/contexto real mencionado na call", "..."],`,
+          `  "perguntas_vencedoras": ["pergunta do SDR que gerou abertura/resposta rica", "..."],`,
           `  "sinais": ["sinal de compra ou de risco observado", "..."]`,
           `}`,
           `Listas vazias se não houver. Sem texto fora do JSON.`
         ].join('\n');
 
         const raw = await callLLM({ system: 'Extrator factual de calls de venda. Responde APENAS JSON puro, sem markdown, sem tags, sem explicação. PT-BR.', user: ext, maxTokens: 1200 });
-        console.log(tag, 'LLM raw (primeiros 300 chars):', String(raw).slice(0, 300));
         const parsed = safeParseJson(raw);
-        console.log(tag, 'parsed:', parsed ? 'OK — resumo=' + String(parsed.resumo || '').slice(0, 80) : 'FALHOU — raw tail:' + String(raw).slice(-150));
         if (parsed) {
           resumo = parsed.resumo || null;
           const mapTipo = { dores: 'dor', objecoes: 'objecao', gatilhos: 'gatilho', perguntas_vencedoras: 'pergunta_vencedora', sinais: 'sinal' };
@@ -1196,13 +1236,16 @@ router.get('/api/jarvis/call/:id', requireAuth, (req, res) => {
     if (!c) return res.status(404).json({ success: false, error: 'Call não encontrada.' });
 
     let transcricao = '';
+    let turns = [];
     try {
-      const turns = JSON.parse(c.transcript_json || '[]');
+      turns = JSON.parse(c.transcript_json || '[]');
       transcricao = turns.map(t => {
         const speaker = t.speaker === 'sdr' ? '🧑‍💼 SDR' : t.speaker === 'prospect' ? '👤 Cliente' : (t.speaker || '');
         return speaker + ': ' + t.text;
       }).join('\n\n');
     } catch (_) { transcricao = c.transcript_json || ''; }
+
+    const diarizado = turns.length > 1 && turns.some(t => t.speaker === 'sdr' || t.speaker === 'prospect');
 
     const aprendizados = db.prepare(`
       SELECT tipo, texto FROM jarvis_aprendizados WHERE call_id = ? ORDER BY tipo
@@ -1213,7 +1256,8 @@ router.get('/api/jarvis/call/:id', requireAuth, (req, res) => {
       call: {
         id: c.id, zoho_call_id: c.zoho_call_id, prospect: c.prospect,
         empresa: c.empresa, resumo: c.resumo, duracao_seg: c.duracao_seg,
-        fonte: c.fonte_audio, data: c.criado_em, transcricao, aprendizados
+        fonte: c.fonte_audio, data: c.criado_em, transcricao, aprendizados,
+        diarizado, turns: diarizado ? turns : undefined
       }
     });
   } catch (e) {
