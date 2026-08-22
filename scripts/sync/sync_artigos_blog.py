@@ -84,10 +84,40 @@ def main():
         "por_regua_evento": dict(Counter(a["regua_eventos"] for a in artigos if a["regua_eventos"])),
     }
 
+    # MERGE-PRESERVE (jul/2026): o artigos.json existente carrega campos de
+    # enriquecimento (taxonomia canônica, scores SEO/GEO, curadoria Voices)
+    # que NÃO vêm do xlsx Manus. Regenerar do zero destruiria tudo isso.
+    PRESERVAR = [
+        "lob", "oferta", "funil", "classificacao_metodo", "classificacao_confianca",
+        "classificacao_em", "classificacao_pendente_revisao",
+        "seo_score", "geo_score", "score_metodo",
+        "status_reaproveitamento", "score_relevancia_2026",
+        "voice_atribuido", "favorito_voices",
+    ]
+    extras = {}
+    if OUT.exists():
+        try:
+            antigos = {a["id"]: a for a in json.loads(OUT.read_text(encoding="utf-8")).get("artigos", [])}
+            for a in artigos:
+                velho = antigos.get(a["id"])
+                if not velho:
+                    continue
+                for k in PRESERVAR:
+                    if k in velho and velho[k] not in (None, [], ""):
+                        a[k] = velho[k]
+            old_payload = json.loads(OUT.read_text(encoding="utf-8"))
+            for k in ("taxonomia_versao", "reclassificado_em", "scoring_seo_geo"):
+                if k in old_payload:
+                    extras[k] = old_payload[k]
+            print(f"[artigos] merge-preserve: campos de enriquecimento mantidos de {len(antigos)} artigos existentes")
+        except Exception as e:
+            print(f"[artigos] AVISO: merge-preserve falhou ({e}) — gravando sem merge")
+
     payload = {
         "fonte": fp,
         "gerado_em": pd.Timestamp.now().isoformat(),
         "agregados": agg,
+        **extras,
         "artigos": artigos,
     }
 
