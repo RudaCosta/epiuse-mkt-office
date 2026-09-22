@@ -89,8 +89,10 @@ def build_isabela(xl):
         criterio = s(df.iat[i, 4]) if df.shape[1] > 4 else ""
         if not valor or valor in ("nan","VALOR","META","CRITÉRIO"): continue
         metas.append({
-            "responsavel": "Isabela de Oliveira",
-            "area": "Eventos & Field Marketing (Isabela)",
+            # A aba e da AREA, nao de quem a ocupa: a cadeira ja trocou de dono
+            # duas vezes e a cada troca o JSON gerado ficava com o nome errado.
+            "responsavel": "Field Marketing",
+            "area": "Eventos & Field Marketing",
             "label": label, "valor": valor,
             "prazo": prazo, "criterio": criterio,
             "fonte": "Manual / relatório pós-evento",

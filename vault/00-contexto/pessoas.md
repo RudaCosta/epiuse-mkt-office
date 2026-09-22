@@ -24,11 +24,10 @@ O time de marketing está organizado em **5 áreas operacionais**, cada uma com 
 - **Limites**: não diagrama artes, não faz postagem manual
 - **No programa Voices**: define KPIs de engajamento, monitora performance de pautas
 
-### 📅 Fernanda Mattos Tavares — Field Marketing
-- **Foco**: 30+ eventos/ano (Brasil + LATAM), Business Plans SAP MDF, Proof of Performance, ativações presenciais
-- **Nasc.**: 13/12/1988 (aniversário 13/12)
-- **Anterior**: substituiu a Isabela (Isabela Carvalho / "Isabela de Oliveira") na área de Field Marketing em jul/2026 — trocar todas as referências
-- **Pendência**: e-mail @epiuse a confirmar → cadastrar no `/admin/usuarios` (role `field`); até lá cai como `hub`
+### 📅 Field Marketing — **cadeira vaga**
+- **Status**: sem dona desde set/2026. A área continua ativa; o Rudá (head) responde por ela enquanto isso.
+- **Foco da área**: 30+ eventos/ano (Brasil + LATAM), Business Plans SAP MDF, Proof of Performance, ativações presenciais
+- **Ao contratar**: cadastrar no `/admin/usuarios` com role `field` (persona `field`) e preencher `responsavel` em `public/api/team.json`
 - **Limites**: não faz régua de e-mail de evento
 - **No programa Voices**: garante presença dos Voices nos eventos relevantes (palestras, content capture)
 

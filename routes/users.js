@@ -14,7 +14,7 @@ const ROLE_CONFIG = {
   'head':            { persona: 'ruda',      landing: '/',     admin: true },
   'intelligence':    { persona: 'bruna',     landing: '/' },
   'growth':          { persona: 'gui',       landing: '/' },
-  'field':           { persona: 'fernanda',  landing: '/' },
+  'field':           { persona: 'field',     landing: '/' },
   'pipeline':        { persona: 'marlison',  landing: '/' },
   'brand':           { persona: 'duda',      landing: '/' },
   'conteudo':        { persona: 'conteudo',  landing: '/' },
@@ -25,6 +25,27 @@ const ROLE_CONFIG = {
 };
 const ROLES = Object.keys(ROLE_CONFIG);
 const DEFAULT_ROLE = 'hub';
+
+// Migração v0.89.1 (roda 1x, idempotente): a cadeira de Field Marketing ficou
+// vaga em set/2026 — quem ocupava saiu do time. O registro é preservado (vale
+// como histórico de acesso), mas perde o papel de dona de área: vira 'hub'
+// inativo, que é o mesmo tratamento de quem não está mais no MKT.
+// Ao contratar quem assumir: cadastrar em /admin/usuarios com role 'field'.
+// Marcador próprio: este módulo carrega antes do routes/utm.js, então não dá
+// pra usar a erp_coins como registro de migração (ainda não existe no boot).
+try {
+  db.exec(`CREATE TABLE IF NOT EXISTS users_migrations (
+    key TEXT PRIMARY KEY,
+    ran_at TEXT DEFAULT (datetime('now'))
+  )`);
+  const migKey = 'field_seat_vacated_v1';
+  const already = db.prepare(`SELECT 1 FROM users_migrations WHERE key = ? LIMIT 1`).get(migKey);
+  if (!already) {
+    const r = db.prepare(`UPDATE users SET role='hub', persona='', active=0, updated_at=datetime('now') WHERE role='field'`).run();
+    if (r.changes) console.log(`[users] Field Marketing: ${r.changes} acesso(s) rebaixado(s) — cadeira vaga`);
+    db.prepare(`INSERT OR IGNORE INTO users_migrations (key) VALUES (?)`).run(migKey);
+  }
+} catch (e) { console.warn('[users] migração cadeira vaga:', e.message); }
 
 function resolveRoleConfig(role) {
   return ROLE_CONFIG[role] || ROLE_CONFIG[DEFAULT_ROLE];
