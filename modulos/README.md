@@ -11,6 +11,7 @@
 |---|---|---|
 | `10-painel-duda/` | Painel da Duda (Módulo C) | 🚧 Em construção |
 | `11-jarvis-sdr/` | JARVIS — Copiloto SDR/BDR (biz dev · `/jarvis`) | 🟢 v0.10 (captura áudio da call + STT free no navegador · beta) |
+| `24-blog-converter/` | Blog Converter — artigo → template HTML do blog (brand · `/blog-converter`) | ✅ MVP (conversão por IA · texto/docx/pdf) |
 
 ## Módulos sem pasta própria (documentados em `docs/MODULES.md`)
 

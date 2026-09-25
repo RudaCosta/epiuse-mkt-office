@@ -8,7 +8,7 @@
 // Fonte ÚNICA da verdade: public/api/changelog.json#current via /api/version
 // Fallback hardcoded usado SÓ se fetch falhar (offline, etc).
 // Sincronização automática — não editar manualmente, basta bumpar changelog.json.
-let OFFICE_NAV_VERSION = '0.89.0';
+let OFFICE_NAV_VERSION = '0.90.0';
 // Promise compartilhada — nav + footer reaproveitam o mesmo fetch
 window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/version')
   .then(r => r.ok ? r.json() : null)
@@ -132,7 +132,7 @@ const OFFICE_NAV_TABS = [
   { id: 'intelligence', label: 'Intelligence',     icon: '🧠', href: '/area/intelligence', matches: ['area-intelligence','area-growth'] },
   { id: 'field',        label: 'Field Marketing',  icon: '📅', href: '/area/eventos',      matches: ['area-eventos','area-field'] },
   { id: 'pipeline',     label: 'Biz Dev',          icon: '📞', href: '/area/pipeline',     matches: ['area-pipeline','pipeline'] },
-  { id: 'brand',        label: 'Brand Experience', icon: '🎨', href: '/area/brand',        matches: ['area-brand','voices','inbound','cases','painel','optimizer','area-conteudo','artigos','jornadas','raccoon'] },
+  { id: 'brand',        label: 'Brand Experience', icon: '🎨', href: '/area/brand',        matches: ['area-brand','voices','inbound','cases','painel','optimizer','area-conteudo','artigos','jornadas','raccoon','blog-converter'] },
   { id: 'metas',        label: 'Metas FY27',       icon: '🎯', href: '/metas-fy27',        matches: ['metas','metas-fy26','metas-fy27'] },
   { id: 'relatorio',    label: 'Relatório Mensal', icon: '📊', href: '/relatorio',         matches: ['relatorio'] }
 ];
@@ -150,7 +150,8 @@ const OFFICE_NAV_BREADCRUMBS = {
   'cases': ['🎨 Brand Experience', '🤝 Cases & CS'],
   'artigos': ['🎨 Brand Experience', '📚 Artigos do Blog'],
   'jornadas': ['🎨 Brand Experience', '🗺️ Jornadas de Compra'],
-  'raccoon': ['🎨 Brand Experience', '🦝 Raccoon Studio']
+  'raccoon': ['🎨 Brand Experience', '🦝 Raccoon Studio'],
+  'blog-converter': ['🎨 Brand Experience', '📝 Blog Converter']
 };
 
 // Overflow agrupado por seção (Sprint 11.2 — UX/UI melhor)
@@ -176,6 +177,7 @@ const OFFICE_NAV_OVERFLOW = [
 
   { section: '🎙️ Voices & Optimizer' },
   { label: '🦝 Raccoon Studio',          href: '/raccoon' },
+  { label: '📝 Blog Converter',          href: '/blog-converter' },
   { label: '🪪 Profile Optimizer',        href: '/voices/optimizer-v3' },
   { label: '📨 Seja um Voice (LP)',      href: '/seja-voice' },
 
@@ -281,7 +283,7 @@ class OfficeNav extends HTMLElement {
   getActiveTab() {
     const r = this.getActiveRoute();
     if (r.startsWith('inbound')) return 'brand';
-    if (r === 'painel' || r === 'voices' || r === 'raccoon') return 'brand';
+    if (r === 'painel' || r === 'voices' || r === 'raccoon' || r === 'blog-converter') return 'brand';
     if (r === 'area-growth' || r === 'growth') return 'intelligence';
     if (r === 'area-eventos' || r === 'area-field' || r === 'eventos') return 'field';
     if (r === 'artigos' || r === 'jornadas' || r === 'area-conteudo') return 'brand';
@@ -1747,6 +1749,7 @@ const OfficeCommandPalette = (() => {
       { group:'Rotas', icon:'🎮', label:'Modo Game (mapa 2D)',  hint:'/game',       action:'/game' },
       { group:'Rotas', icon:'🎙️', label:'Voice Agents',         hint:'/voices',     action:'/voices' },
       { group:'Rotas', icon:'🦝', label:'Raccoon Studio',       hint:'/raccoon',    action:'/raccoon' },
+      { group:'Rotas', icon:'📝', label:'Blog Converter',       hint:'/blog-converter', action:'/blog-converter' },
       { group:'Rotas', icon:'✎',  label:'Brief → Post',         hint:'/inbound/brief',    action:'/inbound/brief' },
       { group:'Rotas', icon:'▥',  label:'Carrossel Hub',        hint:'/inbound/carousel', action:'/inbound/carousel' },
       { group:'Rotas', icon:'▦',  label:'Calendário Editorial', hint:'/inbound/calendar', action:'/inbound/calendar' },
