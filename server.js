@@ -2543,6 +2543,170 @@ app.get('/executivo', _requireExec, (req, res) => res.sendFile(path.join(__dirna
 app.get('/linkedin', (req, res) => res.sendFile(path.join(__dirname, 'public/linkedin.html')));
 app.get('/raccoon', (req, res) => res.sendFile(path.join(__dirname, 'public/raccoon.html')));
 
+// ═══════════════════════════════════════════════════════════════════════════
+// MÓDULO 24 — BLOG CONVERTER (Brand Experience)
+// Converte artigos (texto/docx/pdf) no template HTML visual do blog (HubSpot).
+// Extensão do Raccoon, módulo separado. Docs: modulos/24-blog-converter/
+// ═══════════════════════════════════════════════════════════════════════════
+app.get('/blog-converter', (req, res) => res.sendFile(path.join(__dirname, 'public/blog-converter.html')));
+
+// Spec do template lido do disco (cache em memória). Fonte da verdade da Bruna.
+let _blogTemplateSpec = null;
+function getBlogTemplateSpec() {
+  if (_blogTemplateSpec) return _blogTemplateSpec;
+  try {
+    _blogTemplateSpec = fs.readFileSync(
+      path.join(__dirname, 'modulos/24-blog-converter/template-spec.md'), 'utf8'
+    );
+  } catch (e) {
+    console.error('[blog-converter] falha ao ler template-spec.md:', e.message);
+    _blogTemplateSpec = '';
+  }
+  return _blogTemplateSpec;
+}
+
+// Extração de texto de .docx/.pdf via python (extract_text.py). Só roda onde há Python.
+app.post('/api/blog-converter/extract', upload.single('arquivo'), (req, res) => {
+  const file = req.file;
+  if (!file) return res.status(400).json({ ok: false, error: 'Nenhum arquivo enviado.' });
+
+  const orig = (file.originalname || '').toLowerCase();
+  const ext = orig.endsWith('.docx') ? '.docx' : orig.endsWith('.pdf') ? '.pdf' : null;
+  const cleanup = () => { try { fs.unlinkSync(file.path); } catch (_) {} };
+
+  if (!ext) { cleanup(); return res.status(400).json({ ok: false, error: 'Formato não suportado. Use .docx ou .pdf (ou cole o texto).' }); }
+
+  // renomeia com extensão pra o script detectar o tipo
+  const withExt = file.path + ext;
+  try { fs.renameSync(file.path, withExt); } catch (_) {}
+
+  const { spawn } = require('child_process');
+  const script = path.join(__dirname, 'modulos/24-blog-converter/extract_text.py');
+  const py = spawn('python', [script, withExt]);
+  let out = '', err = '';
+  py.stdout.on('data', d => out += d.toString());
+  py.stderr.on('data', d => err += d.toString());
+  py.on('error', (e) => {
+    try { fs.unlinkSync(withExt); } catch (_) {}
+    return res.status(500).json({ ok: false, error: 'Python indisponível neste ambiente. Cole o texto do artigo diretamente.', detail: e.message });
+  });
+  py.on('close', () => {
+    try { fs.unlinkSync(withExt); } catch (_) {}
+    try {
+      const j = JSON.parse(out.trim());
+      return res.json(j);
+    } catch (e) {
+      console.error('[blog-converter/extract] parse fail:', out.slice(0, 300), err.slice(0, 300));
+      return res.status(500).json({ ok: false, error: 'Falha ao extrair o texto do arquivo.', detail: (err || out).slice(0, 300) });
+    }
+  });
+});
+
+// Conversão do artigo no template HTML via OpenRouter (mesmo padrão do Raccoon SEO/GEO).
+app.post('/api/blog-converter/convert', express.json({ limit: '2mb' }), async (req, res) => {
+  const texto = String(req.body?.texto || '').trim();
+  const titulo = String(req.body?.titulo || '').trim();
+  const blog = String(req.body?.blog || 'artigo').trim();
+
+  if (!texto || texto.length < 80) {
+    return res.status(400).json({ ok: false, error: 'Cole o artigo (mínimo ~80 caracteres) ou suba um arquivo.' });
+  }
+
+  const orKey = process.env.OPENROUTER_API_KEY;
+  if (!orKey) {
+    return res.status(503).json({ ok: false, error: 'OPENROUTER_API_KEY não configurada no servidor. Sem ela a conversão por IA não roda.' });
+  }
+  const orModel = process.env.BLOG_CONVERTER_MODEL || process.env.OPENROUTER_MODEL || 'google/gemini-2.0-flash-exp:free';
+
+  const spec = getBlogTemplateSpec();
+  const prompt = `Você é um especialista em conteúdo do blog da EPI-USE Brasil. Sua tarefa é converter um artigo no TEMPLATE HTML VISUAL padronizado do blog, pronto pra colar no editor do HubSpot.
+
+=== ESPECIFICAÇÃO COMPLETA DO TEMPLATE (siga à risca) ===
+${spec}
+=== FIM DA ESPECIFICAÇÃO ===
+
+REGRAS OBRIGATÓRIAS DE SAÍDA:
+1. Use SOMENTE inline styles (atributos style="") com os hexes exatos do template (#001844, #cd1543, #869ec3, etc). NUNCA use classes CSS, <style> ou tags <html>/<head>/<body>.
+2. Siga a estrutura padrão: Lead → parágrafos intro → Sumário "Neste artigo" → seções <h2 id="..."> com componentes visuais adequados → Box de Resumo → FAQ Accordion (3-5 perguntas) → CTA Final.
+3. Cada <h2> precisa de um id único (slug) e o Sumário deve linkar pra esses ids com <a href="#id">.
+4. Escolha os componentes visuais conforme o conteúdo de cada seção (cards comparativos, grade 2x2, fluxo numerado, callouts, blockquote, dark box). NÃO invente dados, números ou fatos que não estejam no artigo original — apenas reorganize e formate o conteúdo fornecido.
+5. Todo o texto em português do Brasil. CTA padrão: https://www.epiuse.com.br/fale-conosco.
+6. Preserve o conteúdo do artigo (não resuma demais); melhore só estrutura e formatação visual.
+
+${titulo ? `TÍTULO SUGERIDO PELO USUÁRIO: "${titulo}"` : ''}
+BLOG DE DESTINO: ${blog === 'cases' ? 'Cases de Sucesso' : 'Artigo'}
+
+=== ARTIGO ORIGINAL A CONVERTER ===
+${texto}
+=== FIM DO ARTIGO ===
+
+FORMATO EXATO DA SUA RESPOSTA (use os delimitadores literais, nada antes ou depois):
+===HTML===
+<aqui vai APENAS o corpo HTML com inline styles, começando pelo Lead>
+===SEO===
+{"titulo": "título SEO até 60 caracteres", "meta_description": "meta description até 155 caracteres", "slug": "slug-em-kebab-case", "keywords": ["palavra1", "palavra2", "palavra3"]}`;
+
+  try {
+    const orResp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${orKey}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://epiuse-mkt-office-production.up.railway.app',
+        'X-Title': 'EPI-USE Office - Blog Converter'
+      },
+      body: JSON.stringify({
+        model: orModel,
+        temperature: 0.35,
+        max_tokens: 8000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!orResp.ok) {
+      const detail = await orResp.text().catch(() => '');
+      console.error('[blog-converter/convert] OR fail', orResp.status, detail.slice(0, 300));
+      const msg = orResp.status === 429
+        ? 'Limite gratuito do modelo atingido no OpenRouter. Tente de novo em alguns minutos ou configure BLOG_CONVERTER_MODEL.'
+        : `OpenRouter respondeu status ${orResp.status}.`;
+      return res.status(502).json({ ok: false, error: msg });
+    }
+
+    const data = await orResp.json();
+    const raw = ((data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '').trim();
+
+    // parse por delimitadores (HTML cru + SEO json)
+    let html = '', seo = null;
+    const htmlMatch = raw.match(/===HTML===\s*([\s\S]*?)\s*===SEO===/);
+    const seoMatch = raw.match(/===SEO===\s*([\s\S]*)$/);
+    if (htmlMatch) {
+      html = htmlMatch[1].replace(/^```html\s*/i, '').replace(/```\s*$/i, '').trim();
+    } else {
+      // fallback: sem delimitador, usa a resposta toda como html
+      html = raw.replace(/```html\s*/gi, '').replace(/```\s*/g, '').trim();
+    }
+    if (seoMatch) {
+      const sm = seoMatch[1].match(/\{[\s\S]*\}/);
+      if (sm) { try { seo = JSON.parse(sm[0]); } catch (_) { seo = null; } }
+    }
+
+    if (!html || html.length < 40) {
+      return res.status(502).json({ ok: false, error: 'A IA não retornou HTML utilizável. Tente novamente.' });
+    }
+
+    return res.json({
+      ok: true,
+      html,
+      seo: seo || { titulo: titulo || '', meta_description: '', slug: '', keywords: [] },
+      model: orModel,
+      aviso: '🤖 Gerado por IA — revisar antes de publicar.'
+    });
+  } catch (err) {
+    console.error('[blog-converter/convert] exception', err.message);
+    return res.status(500).json({ ok: false, error: `Exceção na conversão: ${err.message}` });
+  }
+});
+
 app.post('/api/zoho/sync', requireEditorToken, (req, res) => {
   const items = Array.isArray(req.body?.deals) ? req.body.deals : [];
   if (!items.length) return res.status(400).json({ success: false, error: 'deals[] vazio.' });
