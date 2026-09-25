@@ -51,7 +51,7 @@ Uma pessoa pode ter várias tags (a Bruna já tem garrafa + vôlei). A chave `qu
 
 - **Localhost não loga.** Como todo módulo com sessão (loja, ranking, meus-links), o `/cafezinho` mostra o gate 🔐 no local — SSO só resolve em prod. Validar os cartões e o mural com dado real é no Railway.
 - **Faltam itens de mesa reais** do Roberto, Anderson e Carlos (ainda `padrao: true` em `office-desks.json`).
-- **Field Marketing está sem dona** (set/2026) — o cartão da área aparece como `— vaga —`, sem signo e sem itens de mesa, até alguém assumir a cadeira e ser cadastrado em `/admin/usuarios` com role `field`.
+- **Gabrielle Senne (Field Marketing) ainda não tem e-mail @epiuse cadastrado** (`/admin/usuarios`, role `field`) — até lá ela cai como `hub` e não consegue editar o próprio cartão. O aniversário dela também está em branco no `team.json`, então o cartão sai sem signo até ela informar.
 
 ## Fora de escopo (v2)
 

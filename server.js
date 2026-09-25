@@ -295,8 +295,8 @@ try {
     ['ruda.costa@epiuse.com.br',        'Rudá Costa',         'head'],
     ['bruna.yamagami@epiuse.com.br',    'Bruna Yamagami',     'intelligence'],
     ['guilherme.marques@epiuse.com.br', 'Guilherme Marques',  'growth'],
-    // Field Marketing: cadeira vaga — quando entrar responsavel novo, cadastrar
-    // via /admin/usuarios com role 'field'.
+    // Gabrielle Senne (Field Marketing) entra via /admin/usuarios — email @epiuse
+    // ainda a confirmar; role 'field'. Nao seedar com email chutado.
     ['marlison.estrela@epiuse.com.br',  'Marlison Estrela',   'pipeline'],
     ['eduarda.hirose@epiuse.com.br',    'Eduarda Hirose',     'brand'],
     ['roberto.medeiros@epiuse.com.br',  'Roberto Medeiros',   'country-manager'],

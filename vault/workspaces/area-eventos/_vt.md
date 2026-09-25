@@ -1,4 +1,4 @@
-# _vt — memória de trabalho · Área Field Marketing & Eventos (cadeira de dona vaga)
+# _vt — memória de trabalho · Área Field Marketing & Eventos (Gabrielle Senne)
 
 > Atualizado pelo agente `area-eventos` ao fim de cada sessão.
 

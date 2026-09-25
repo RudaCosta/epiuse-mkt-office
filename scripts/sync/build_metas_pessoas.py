@@ -25,6 +25,26 @@ def num(v):
     try: f = float(t); return int(f) if f == int(f) else f
     except: return None
 
+def dona_da_area(area_id, fallback):
+    """Le o responsavel da area no team.json. Fonte unica de quem ocupa a cadeira.
+
+    Antes este script tinha o nome CRAVADO no codigo. A cadeira de Field Marketing
+    ja trocou de dono tres vezes e a cada troca o JSON gerado voltava com o nome
+    da pessoa ERRADA, porque ninguem lembrava de vir mexer aqui. Agora atualiza o
+    team.json e pronto.
+    """
+    try:
+        team = json.loads((ROOT / "public" / "api" / "team.json").read_text(encoding="utf-8"))
+        for a in team.get("areas", []):
+            if a.get("id") == area_id:
+                nome = (a.get("responsavel") or {}).get("nome") or ""
+                if nome and "vaga" not in nome.lower():
+                    return nome
+    except Exception as e:
+        print(f"[metas] nao consegui ler team.json ({e}) - usando fallback", file=sys.stderr)
+    return fallback
+
+
 SECTION_PREFIXES = ("🎯","📞","🌐","🌐","✅","🚫","🔑","🗓","📐","📥","📅","💰","🗂","EPI-USE")
 
 # ── MARLISON ─────────────────────────────────────────────────────────────────
@@ -89,9 +109,8 @@ def build_isabela(xl):
         criterio = s(df.iat[i, 4]) if df.shape[1] > 4 else ""
         if not valor or valor in ("nan","VALOR","META","CRITÉRIO"): continue
         metas.append({
-            # A aba e da AREA, nao de quem a ocupa: a cadeira ja trocou de dono
-            # duas vezes e a cada troca o JSON gerado ficava com o nome errado.
-            "responsavel": "Field Marketing",
+            "responsavel": dona_da_area("field", "Field Marketing"),
+            # A aba e da AREA, nao de quem a ocupa - por isso o label nao leva nome.
             "area": "Eventos & Field Marketing",
             "label": label, "valor": valor,
             "prazo": prazo, "criterio": criterio,

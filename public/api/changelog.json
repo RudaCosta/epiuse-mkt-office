@@ -1,6 +1,6 @@
 {
   "current": "0.89.1",
-  "atualizado_em": "22/set/2026",
+  "atualizado_em": "25/set/2026",
   "next": [
     {
       "version": "0.53.0",
@@ -55,18 +55,18 @@
   "releases": [
     {
       "version": "0.89.1",
-      "date": "22/set/2026",
+      "date": "25/set/2026",
       "status": "current",
       "path": "/area/eventos",
-      "title": "📅 Field Marketing sem dona: cadeira vaga, área ativa",
-      "summary": "Quem respondia por Field Marketing & Eventos saiu do time. A área continua de pé — 92 eventos, briefing e metas intactos — mas passa a aparecer como — vaga — em vez de um nome, e a persona da home virou da ÁREA, não da pessoa.",
+      "title": "📅 Field Marketing troca de dona: Gabrielle Senne assume",
+      "summary": "Quem respondia por Field Marketing & Eventos saiu do time e a Gabrielle Senne assumiu a área. Troca feita em todas as telas, no game e nos docs — e o acesso de quem saiu foi revogado.",
       "highlights": [
-        "Saiu das telas e dos dados: home, /area/eventos, /agentes, /metas, /metas-fy27, /field-marketing, /planilhas, /cafezinho, o NPC e a mesa do game.",
-        "A persona `field` agora é da área: quem assumir a cadeira herda a mesma home, sem remendo.",
-        "Acesso: o registro com role `field` foi rebaixado pra `hub` inativo (migração roda 1x). O histórico do acesso fica; o papel de dona de área, não.",
-        "O gerador das metas (build_metas_pessoas.py) parou de gravar nome de pessoa — grava a área. Era isso que fazia o JSON voltar com nome errado a cada troca de cadeira.",
-        "O changelog antigo NÃO foi reescrito — é registro do que aconteceu, não cadastro de quem está no time.",
-        "Ao contratar: cadastrar em /admin/usuarios com role `field` e preencher o responsável em team.json."
+        "Trocado em: home, /area/eventos, /agentes, /metas, /metas-fy27, /field-marketing, /planilhas, /cafezinho, o NPC e a mesa do bullpen no game.",
+        "A persona da home virou da ÁREA (`field`), não da pessoa — quem sentar nessa cadeira herda a mesma home, sem remendo. Era por isso que toda troca de dono dava retrabalho.",
+        "O gerador das metas parou de ter nome cravado no código: agora lê a dona do team.json. A cadeira já trocou três vezes e a cada troca o JSON voltava com o nome errado.",
+        "Acesso de quem saiu foi rebaixado pra `hub` inativo. A migração mira o e-mail, não o role — mirar no role rebaixaria a pessoa NOVA se ela fosse cadastrada antes do deploy.",
+        "⏳ Falta a Gabrielle: e-mail @epiuse pra cadastrar em /admin/usuarios (role `field`) e o aniversário (fica em branco até ela informar — o game dispara confete por esse campo e não se inventa data).",
+        "O changelog antigo NÃO foi reescrito — é registro do que aconteceu, não cadastro de quem está no time."
       ]
     },
     {
