@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-gen_tokens.py — v0.6.0
+gen_tokens.py — v0.7.0
 Lê vault/00-contexto/DESIGN.md (frontmatter YAML) → gera:
   - public/design-tokens.css  (CSS vars consumidas por todas as telas)
   - public/api/design-tokens.json (consumível por JS/tooling)
@@ -75,9 +75,11 @@ def flat_typography_to_css(name, typo):
     for k in keys:
         if k in typo:
             v = typo[k]
-            # font-family precisa quotes se tem espaço
-            if k == "fontFamily" and " " in str(v) and not str(v).startswith("'") and not str(v).startswith('"'):
-                v = f'"{v}"'
+            # font-family: aspas em CADA família com espaço (não na lista inteira —
+            # "Lato, Open Sans, ..." entre aspas vira 1 família inexistente)
+            if k == "fontFamily":
+                fams = [f.strip() for f in str(v).split(",")]
+                v = ", ".join(f'"{f}"' if " " in f and f[0] not in "'\"" else f for f in fams)
             out.append(f"  --type-{name}-{css_keys[k]}: {v};")
     return "\n".join(out)
 
@@ -88,7 +90,8 @@ def gen_css(tokens):
         "/* FONTE DA VERDADE: vault/00-contexto/DESIGN.md (NÃO editar este arquivo direto) */",
         f"/* Sistema: {tokens.get('name', 'EPI-USE Office')} · versão: {tokens.get('version', '?')} */",
         "",
-        "/* Open Sans self-hosted (fonte primária oficial EPI-USE confirmada 28/mai/2026) */",
+        "/* Fontes oficiais self-hosted (Brand Guide 2026 · seção 05): Lato (primária) + Open Sans (web body) */",
+        "@import url('/assets/fonts/lato/lato.css');",
         "@import url('/assets/fonts/open-sans/open-sans.css');",
         "",
         ":root {",

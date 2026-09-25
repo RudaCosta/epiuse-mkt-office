@@ -61,7 +61,7 @@ const OFFICE_VERSION_HISTORY = [
   { ver: '0.8.0',  date: '31/mai/2026', label: 'SSO Microsoft (Entra ID) + 6 módulos por área com dado REAL ao vivo de Apollo/LinkedIn/Artigos/Cases.', path: null, status: 'snapshot' },
   // ─── SPRINT 7 · Estabilização + Design Codex + Dados Reais (30/mai/2026) ───
   { ver: '0.7.1',  date: '30/mai/2026', label: 'DADOS REAIS (Regra 7): /metas KPIs despluguei o fake (era 7.844 chumbado/errado → 10.481 real via API) · auditoria DE/PARA completa (AUDITORIA-DADOS-REAIS.md) · footer history consertado (0.6.1→0.6.4 estavam sumidos)', path: null, status: 'snapshot' },
-  { ver: '0.7.0',  date: '30/mai/2026', label: 'ESTABILIZAÇÃO + DESIGN CODEX: localhost always-on (fix better-sqlite3 Node 24 + Tarefa Agendada, aposenta PM2) · /api/health · paleta Codex oficial (#013A6A + Open Sans, dark preservado) · protocolo multi-tool · backup tag v0.6.4-snapshot', path: null, status: 'snapshot' },
+  { ver: '0.7.0',  date: '30/mai/2026', label: 'ESTABILIZAÇÃO + DESIGN CODEX: localhost always-on (fix better-sqlite3 Node 24 + Tarefa Agendada, aposenta PM2) · /api/health · paleta Codex oficial (#26476b + Open Sans, dark preservado) · protocolo multi-tool · backup tag v0.6.4-snapshot', path: null, status: 'snapshot' },
   // ─── SPRINT 6 · Design System + Brand oficial (28/mai/2026) ───
   { ver: '0.6.4',  date: '28/mai/2026', label: 'Logos EPI-USE no nav (theme-aware) · refactor 10 telas → design-tokens.css · /design viewer com hierarquia 3 brands', path: null, status: 'snapshot' },
   { ver: '0.6.3',  date: '28/mai/2026', label: 'Brand assets consolidados: ERP.ngo + Group Elephant + Open Sans self-hosted + GE PPT', path: null, status: 'snapshot' },
@@ -121,7 +121,7 @@ class OfficeFooter extends HTMLElement {
           display: block;
           width: 100%;
           margin-top: 32px;
-          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+          font-family: 'Lato', 'Open Sans', Calibri, Verdana, sans-serif;
         }
         .foot {
           background: rgba(6, 14, 26, 0.85);
@@ -302,7 +302,7 @@ class OfficeFooter extends HTMLElement {
         <span class="ver-tag">EPI-USE OFFICE</span>
         <a class="ver-trigger" href="/changelog" title="Ver changelog completo" style="text-decoration:none">
           <span>${OFFICE_FOOTER_VERSION}</span>
-          <span id="ver-status-chip" style="font-size:9px;padding:2px 6px;border-radius:99px;margin-left:6px;background:rgba(134,158,195,.12);color:#869ec3" title="status do ambiente">…</span>
+          <span id="ver-status-chip" style="font-size:9px;padding:2px 6px;border-radius:99px;margin-left:6px;background:rgba(103,151,184,.12);color:#6797b8" title="status do ambiente">…</span>
         </a>
         <span class="sep">·</span>
         <span class="status">sistemas online</span>

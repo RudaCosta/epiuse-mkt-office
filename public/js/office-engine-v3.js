@@ -114,7 +114,7 @@ const ITEM_LABELS = {
 function drawItem(g, id, x, y) {
   switch(id) {
     case 'caneca': g.fillStyle='#3b82f6'; g.fillRect(x,y+3,7,6); g.fillRect(x+7,y+4,2,3); g.fillStyle='#93c5fd'; g.fillRect(x+1,y+4,5,1); break;
-    case 'caneca_vermelha': g.fillStyle='#cd1543'; g.fillRect(x,y+3,7,6); g.fillRect(x+7,y+4,2,3); g.fillStyle='#f9a8b4'; g.fillRect(x+1,y+4,5,1); break;
+    case 'caneca_vermelha': g.fillStyle='#CE181E'; g.fillRect(x,y+3,7,6); g.fillRect(x+7,y+4,2,3); g.fillStyle='#f9a8b4'; g.fillRect(x+1,y+4,5,1); break;
     case 'cafe': g.fillStyle='#fff'; g.fillRect(x,y+4,6,5); g.fillStyle='#78350f'; g.fillRect(x+1,y+5,4,1); g.fillStyle='#d6d3d1'; g.fillRect(x+6,y+5,2,2); break;
     case 'planta': g.fillStyle='#b45309'; g.fillRect(x+2,y+5,6,4); g.fillStyle='#16a34a'; g.fillRect(x+3,y,4,5); g.fillRect(x+1,y+2,3,3); g.fillRect(x+6,y+2,3,3); break;
     case 'livros': g.fillStyle='#dc2626'; g.fillRect(x,y+6,9,2); g.fillStyle='#2563eb'; g.fillRect(x+1,y+4,8,2); g.fillStyle='#16a34a'; g.fillRect(x,y+2,8,2); break;
@@ -222,7 +222,7 @@ function elephantSprite(dir, frame, kit) {
   return cv;
 }
 
-const SHIRT_CHOICES = ['#cd1543','#001844','#10b981','#7c3aed','#f59e0b','#0d9488'];
+const SHIRT_CHOICES = ['#CE181E','#001844','#10b981','#7c3aed','#f59e0b','#0d9488'];
 // Tons de pele — gama completa e inclusiva (claro → retinto), representando todo o time
 const SKINS = ['#ffe0bd','#f5cfa6','#e8b58a','#d9a06b','#c98e62','#9c6644','#7a4b2b','#5c3a21','#3d2817'];
 const HAIRS = ['#0a0a0a','#27190e','#0f172a','#5b3a1e','#7c5a3a','#3b2f2f','#94a3b8'];
@@ -375,7 +375,7 @@ function pBanner(g, x, y, w, text) {
 }
 function pReception(g, x, y, label) {
   g.fillStyle = '#9f1239'; g.fillRect(x, y+24, 96, 8);
-  g.fillStyle = '#cd1543'; g.fillRect(x, y, 96, 26);
+  g.fillStyle = '#CE181E'; g.fillRect(x, y, 96, 26);
   g.fillStyle = '#e11d48'; g.fillRect(x+3, y+3, 90, 4);
   g.fillStyle = '#fff'; g.font = 'bold 11px Inter'; g.textAlign = 'center';
   g.fillText(label || 'EPI-USE', x+48, y+18);
@@ -453,7 +453,7 @@ function prerenderWorld() {
                  [3,33.6],[12,33.8],[20,33.7],[38,33.8],[46,33.6],[54,33.7]];
   for (const [tc, tr] of TREES) pTree(g, tc*TS, tr*TS);
   // tapete de entrada
-  g.fillStyle = '#cd1543'; g.fillRect(28*TS+6, 32.2*TS, 4*TS-12, 18);
+  g.fillStyle = '#CE181E'; g.fillRect(28*TS+6, 32.2*TS, 4*TS-12, 18);
   g.fillStyle = '#fff'; g.font = 'bold 10px Inter'; g.textAlign = 'center';
   g.fillText('BEM-VINDO', 30*TS, 32.2*TS+13);
   // post-its de eventos REAIS no quadro (se o mundo tiver e os dados chegaram)
@@ -815,7 +815,7 @@ async function presenceTick() {
         world: W.id, anonId,
         x: Math.round(player.x), y: Math.round(player.y),
         dir: player.dir, moving: player.moving, name: player.name,
-        shirt: player.pal ? player.pal.shirt : '#cd1543',
+        shirt: player.pal ? player.pal.shirt : '#CE181E',
         emote: player.emote ? player.emote.e : null,
         emoteT: player.emote ? player.emote.at : 0,
       })
@@ -1047,7 +1047,7 @@ function updateQuestPill() {
 // confetti (screen-space)
 const confetti = [];
 function confettiBurst() {
-  const cols = ['#cd1543','#fbbf24','#10b981','#3b82f6','#a78bfa','#f472b6'];
+  const cols = ['#CE181E','#fbbf24','#10b981','#3b82f6','#a78bfa','#f472b6'];
   for (let i = 0; i < 120; i++) {
     confetti.push({
       x: innerWidth / 2 + (Math.random() - 0.5) * 220, y: -14 - Math.random() * 140,
@@ -1398,7 +1398,7 @@ function drawZoneHints(near) {
   if (!near) return;
   const sx = near.px - cam.x, sy = near.py - cam.y;
   const pulse = 4 + Math.sin(performance.now() / 280) * 2;
-  ctx.strokeStyle = 'rgba(205,21,67,0.65)'; ctx.lineWidth = 2.5;
+  ctx.strokeStyle = 'rgba(206,24,30,0.65)'; ctx.lineWidth = 2.5;
   ctx.beginPath(); ctx.arc(sx, sy, 22 + pulse, 0, Math.PI*2); ctx.stroke();
 }
 
@@ -1415,7 +1415,7 @@ function drawMini() {
   }
   for (const n of npcs) { if (n.off) continue; mg.fillStyle = n.pal ? n.pal.shirt : '#9ca3af'; mg.fillRect(n.x*sx - 1.5, n.y*sy - 1.5, 3.5, 3.5); }
   for (const o of others.values()) { mg.fillStyle = '#16a34a'; mg.fillRect(o.x*sx - 2, o.y*sy - 2, 4, 4); }
-  mg.fillStyle = '#cd1543'; mg.fillRect(player.x*sx - 2.5, player.y*sy - 2.5, 5, 5);
+  mg.fillStyle = '#CE181E'; mg.fillRect(player.x*sx - 2.5, player.y*sy - 2.5, 5, 5);
   mg.strokeStyle = '#fff'; mg.lineWidth = 1; mg.strokeRect(player.x*sx - 2.5, player.y*sy - 2.5, 5, 5);
 }
 

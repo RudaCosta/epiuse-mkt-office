@@ -124,7 +124,7 @@
   <section class="home-section" data-sec="leads" id="sec-leads">
     <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:4px">
       <h2 class="home-section-title" style="margin:0">🧲 Leads</h2>
-      <span class="mono" id="lead-meta" style="font-size:11px;color:var(--home-text-muted,#869ec3)">—</span>
+      <span class="mono" id="lead-meta" style="font-size:11px;color:var(--home-text-muted,#6797b8)">—</span>
       <a href="https://crm.zoho.com/crm/org657705661/tab/Leads/custom-view/2907496000000087501/kanban"
          target="_blank" rel="noopener" class="mono"
          style="margin-left:auto;font-size:11px;color:var(--home-accent-blue,#60a5fa);text-decoration:none">abrir no Zoho ↗</a>
@@ -139,12 +139,12 @@
   <style>
     .lead-card{padding:16px 18px}
     .lead-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
-    .lead-t{background:rgba(134,158,195,.06);border:1px solid rgba(134,158,195,.14);border-radius:11px;
+    .lead-t{background:rgba(103,151,184,.06);border:1px solid rgba(103,151,184,.14);border-radius:11px;
       padding:12px 13px;border-left:3px solid var(--c,#60a5fa)}
     .lead-t .n{font-size:27px;font-weight:800;font-family:'Fira Code',monospace;line-height:1.05;color:var(--c,#60a5fa)}
     .lead-t .l{font-size:11px;color:var(--home-text,#e6ebf2);margin-top:4px;font-weight:600}
-    .lead-t .s{font-size:10.5px;color:var(--home-text-muted,#869ec3);margin-top:2px;line-height:1.4}
-    .lead-say{margin-top:13px;padding-top:12px;border-top:1px solid rgba(134,158,195,.14);
+    .lead-t .s{font-size:10.5px;color:var(--home-text-muted,#6797b8);margin-top:2px;line-height:1.4}
+    .lead-say{margin-top:13px;padding-top:12px;border-top:1px solid rgba(103,151,184,.14);
       font-size:12.5px;line-height:1.55;color:var(--home-text-dim,#c0ccd9)}
     .lead-say b{color:var(--home-text,#e6ebf2)}
   </style>
@@ -166,7 +166,7 @@
       var tiles=[
         {n:reunioes, l:'Reuniões agendadas', s:'handover pro comercial', c:'#10b981'},
         {n:ativos,   l:'Em trabalho agora',  s:'carteira ativa do SDR',  c:'#60a5fa'},
-        {n:nf(base), l:'Leads na base',      s:'total no CRM',           c:'#869ec3'},
+        {n:nf(base), l:'Leads na base',      s:'total no CRM',           c:'#6797b8'},
         {n:(semStatus.pct!=null?semStatus.pct+'%':'—'), l:'Base no escuro',
          s:nf(semStatus.valor)+' leads sem status', c:'#f87171'}
       ];
@@ -181,7 +181,7 @@
       var plural=(reunioes===1?'1 reunião agendada':reunioes+' reuniões agendadas');
       if(say) say.innerHTML='<b>Gargalo:</b> '+parados+' leads presos em “Tentando Contato” — pra '+plural+'. '
         + '<b>Risco:</b> '+nf(semStatus.valor)+' leads ('+semStatus.pct+'%) sem status nenhum, fora de qualquer fluxo. '
-        + '<span style="color:var(--home-text-muted,#869ec3)">Números são foto de agora, não fluxo do mês.</span>';
+        + '<span style="color:var(--home-text-muted,#6797b8)">Números são foto de agora, não fluxo do mês.</span>';
     }).catch(function(){
       var m=document.getElementById('lead-meta'); if(m) m.textContent='snapshot indisponível';
     });

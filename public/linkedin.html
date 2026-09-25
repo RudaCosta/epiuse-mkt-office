@@ -120,7 +120,7 @@ const milhao=v=>'R$ '+(v/1e6).toFixed(1)+'M';
     h+=`<tr>
       <td class="lob">${esc(c.lob)}</td>
       <td>${liCell}${c.li_top?`<div class="muted" style="font-size:11px;margin-top:3px">top: ${esc((c.li_top.resumo||'').slice(0,40))}</div>`:''}</td>
-      <td><span class="num">${milhao(c.pipeline)}</span> <span class="muted">(${c.deals}d)</span><div class="bar"><i style="width:${pipePct}%;background:#cd1543"></i></div></td>
+      <td><span class="num">${milhao(c.pipeline)}</span> <span class="muted">(${c.deals}d)</span><div class="bar"><i style="width:${pipePct}%;background:#CE181E"></i></div></td>
       <td><span class="num">${c.artigos}</span> art · ${fundo}</td>
     </tr>`;
   });

@@ -15,9 +15,9 @@
     --bc-card:rgba(10,21,37,.55);
     --bc-border:rgba(255,255,255,.09);
     --bc-input-bg:rgba(0,0,0,.25);
-    --bc-red:var(--color-primary-red,#cd1543);
+    --bc-red:var(--color-primary-red,#CE181E);
     --bc-navy:var(--color-primary-navy,#001844);
-    --bc-blue:var(--color-erp-blue-light,#869ec3);
+    --bc-blue:var(--color-erp-blue-light,#6797b8);
   }
   [data-theme="light"]{
     --bc-card:rgba(255,255,255,.75);
@@ -30,7 +30,7 @@
   .hero{display:flex;align-items:flex-start;gap:16px;margin:8px 0 22px}
   .hero .ic{font-size:34px;line-height:1}
   .hero h1{font-family:var(--bc-font-display);font-size:26px;font-weight:700;margin:0 0 4px;color:var(--color-text,#fff)}
-  .hero p{margin:0;color:var(--color-text-muted,#869ec3);font-size:14px;max-width:720px;line-height:1.55}
+  .hero p{margin:0;color:var(--color-text-muted,#6797b8);font-size:14px;max-width:720px;line-height:1.55}
   .layout{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:22px}
   @media(max-width:980px){.layout{grid-template-columns:1fr}}
   .card{background:var(--bc-card);border:1px solid var(--bc-border);border-radius:16px;padding:22px}
@@ -38,31 +38,31 @@
   .card h2{font-family:var(--bc-font-display);font-size:16px;font-weight:600;margin:0 0 14px;color:var(--color-text,#fff);display:flex;align-items:center;gap:8px}
   .row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px}
   .field{flex:1;min-width:180px}
-  label.lbl{display:block;font-size:12px;font-weight:600;color:var(--color-text-muted,#869ec3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+  label.lbl{display:block;font-size:12px;font-weight:600;color:var(--color-text-muted,#6797b8);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
   input[type=text],select,textarea{width:100%;background:var(--bc-input-bg);border:1px solid var(--bc-border);border-radius:10px;padding:11px 13px;color:var(--color-text,#fff);font-family:var(--bc-font-body);font-size:14px}
   textarea{min-height:260px;resize:vertical;line-height:1.6}
-  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--bc-red);box-shadow:0 0 0 3px rgba(205,21,67,.15)}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--bc-red);box-shadow:0 0 0 3px rgba(206,24,30,.15)}
   .tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
-  .tab{background:transparent;border:1px solid var(--bc-border);color:var(--color-text-muted,#869ec3);padding:8px 16px;border-radius:999px;cursor:pointer;font-size:13px;font-weight:600;font-family:var(--bc-font-body)}
-  .tab.on{background:rgba(205,21,67,.14);border-color:var(--bc-red);color:var(--color-text,#fff)}
-  .drop{border:2px dashed var(--bc-border);border-radius:12px;padding:34px 20px;text-align:center;cursor:pointer;transition:.15s;color:var(--color-text-muted,#869ec3)}
-  .drop.hot{border-color:var(--bc-red);background:rgba(205,21,67,.06)}
+  .tab{background:transparent;border:1px solid var(--bc-border);color:var(--color-text-muted,#6797b8);padding:8px 16px;border-radius:999px;cursor:pointer;font-size:13px;font-weight:600;font-family:var(--bc-font-body)}
+  .tab.on{background:rgba(206,24,30,.14);border-color:var(--bc-red);color:var(--color-text,#fff)}
+  .drop{border:2px dashed var(--bc-border);border-radius:12px;padding:34px 20px;text-align:center;cursor:pointer;transition:.15s;color:var(--color-text-muted,#6797b8)}
+  .drop.hot{border-color:var(--bc-red);background:rgba(206,24,30,.06)}
   .drop .big{font-size:30px;display:block;margin-bottom:8px}
   .drop b{color:var(--color-text,#fff)}
   .btn{background:var(--bc-red);color:#fff;border:none;border-radius:10px;padding:13px 26px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--bc-font-display);display:inline-flex;align-items:center;gap:8px}
   .btn:disabled{opacity:.55;cursor:not-allowed}
   .btn.ghost{background:transparent;border:1px solid var(--bc-border);color:var(--color-text,#fff);font-weight:600;padding:9px 16px;font-size:13px}
-  .hint{font-size:12px;color:var(--color-text-muted,#869ec3);margin-top:8px}
+  .hint{font-size:12px;color:var(--color-text-muted,#6797b8);margin-top:8px}
   .aviso{background:rgba(139,110,20,.16);border:1px solid rgba(245,158,11,.35);color:#f5c451;border-radius:10px;padding:10px 14px;font-size:12.5px;margin-bottom:16px;display:flex;gap:8px;align-items:center}
-  .err{background:rgba(205,21,67,.12);border:1px solid rgba(205,21,67,.4);color:#ff8fa8;border-radius:10px;padding:11px 14px;font-size:13px;margin-bottom:14px}
+  .err{background:rgba(206,24,30,.12);border:1px solid rgba(206,24,30,.4);color:#ff8fa8;border-radius:10px;padding:11px 14px;font-size:13px;margin-bottom:14px}
   .out-tabs{display:flex;gap:6px;margin-bottom:14px;border-bottom:1px solid var(--bc-border);padding-bottom:10px;flex-wrap:wrap}
   .preview-frame{width:100%;min-height:520px;border:1px solid var(--bc-border);border-radius:12px;background:#fff}
   pre.code{background:#0b1220;border:1px solid var(--bc-border);border-radius:12px;padding:16px;overflow:auto;max-height:560px;font-family:'Fira Code',monospace;font-size:12.5px;line-height:1.6;color:#cbd5e1;white-space:pre-wrap;word-break:break-word}
   .seo-item{margin-bottom:14px}
   .seo-item .val{background:var(--bc-input-bg);border:1px solid var(--bc-border);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--color-text,#fff);display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
   .seo-item .val span{word-break:break-word}
-  .chip{display:inline-block;background:rgba(134,158,195,.15);border:1px solid var(--bc-border);border-radius:6px;padding:3px 9px;font-size:12px;margin:0 6px 6px 0;color:var(--bc-blue)}
-  .copy{background:transparent;border:1px solid var(--bc-border);color:var(--color-text-muted,#869ec3);border-radius:7px;padding:5px 10px;font-size:11.5px;cursor:pointer;font-weight:600;white-space:nowrap;flex-shrink:0}
+  .chip{display:inline-block;background:rgba(103,151,184,.15);border:1px solid var(--bc-border);border-radius:6px;padding:3px 9px;font-size:12px;margin:0 6px 6px 0;color:var(--bc-blue)}
+  .copy{background:transparent;border:1px solid var(--bc-border);color:var(--color-text-muted,#6797b8);border-radius:7px;padding:5px 10px;font-size:11.5px;cursor:pointer;font-weight:600;white-space:nowrap;flex-shrink:0}
   .copy:hover{color:var(--color-text,#fff);border-color:var(--bc-red)}
   .guide ol{margin:0;padding-left:20px;font-size:13px;line-height:1.75;color:var(--color-text-dim,#cbd5e1)}
   .guide ol li{margin-bottom:9px}
@@ -70,12 +70,12 @@
   .comp{border:1px solid var(--bc-border);border-radius:10px;margin-bottom:8px;overflow:hidden}
   .comp summary{padding:11px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--color-text,#fff);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:8px}
   .comp summary::-webkit-details-marker{display:none}
-  .comp summary .when{font-weight:400;font-size:11.5px;color:var(--color-text-muted,#869ec3)}
+  .comp summary .when{font-weight:400;font-size:11.5px;color:var(--color-text-muted,#6797b8)}
   .comp .body{padding:0 14px 14px}
   .comp pre{background:#0b1220;border:1px solid var(--bc-border);border-radius:8px;padding:11px;overflow:auto;max-height:220px;font-family:'Fira Code',monospace;font-size:11px;line-height:1.55;color:#cbd5e1;margin:0 0 8px}
   .spin{width:15px;height:15px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;display:inline-block}
   @keyframes sp{to{transform:rotate(360deg)}}
-  .muted{color:var(--color-text-muted,#869ec3);font-size:13px}
+  .muted{color:var(--color-text-muted,#6797b8);font-size:13px}
   [hidden]{display:none!important}
 </style>
 </head>
@@ -280,7 +280,7 @@ function renderResult(j){
   const frame=$('#frame');
   const doc=frame.contentDocument||frame.contentWindow.document;
   doc.open();
-  doc.write('<!doctype html><html><head><meta charset="utf-8"><style>body{font-family:Arial,Helvetica,sans-serif;color:#333;line-height:1.7;padding:24px;max-width:760px;margin:0 auto}h2{color:#001844}a{color:#cd1543}</style></head><body>'+j.html+'</body></html>');
+  doc.write('<!doctype html><html><head><meta charset="utf-8"><style>body{font-family:Arial,Helvetica,sans-serif;color:#333;line-height:1.7;padding:24px;max-width:760px;margin:0 auto}h2{color:#001844}a{color:#CE181E}</style></head><body>'+j.html+'</body></html>');
   doc.close();
   // código
   $('#codeBox').textContent=j.html;
@@ -307,17 +307,17 @@ function copyText(txt,btn){
 
 // ── biblioteca de componentes ──
 const COMPONENTS=[
-  {n:'Lead',w:'abertura em destaque',c:'<p style="font-size: 1.15em; color: #001844; font-weight: 500; line-height: 1.7; margin-bottom: 1.5em; padding-left: 20px; border-left: 4px solid #cd1543;">\nTexto do lead aqui.\n</p>'},
-  {n:'Sumário',w:'"Neste artigo"',c:'<div style="background: #f8f9fc; border: 1px solid #e8ecf0; border-radius: 12px; padding: 24px 28px; margin: 2em 0;">\n<div style="font-weight: bold; color: #001844; font-size: 0.9em; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px;">Neste artigo</div>\n<div style="padding: 8px 0; border-bottom: 1px solid #eff1f4;"><span style="color: #cd1543; font-weight: bold; margin-right: 12px; font-size: 0.9em;">01</span> <a href="#id-secao" style="color: #001844; text-decoration: none; font-weight: 500;">Título da seção</a></div>\n</div>'},
+  {n:'Lead',w:'abertura em destaque',c:'<p style="font-size: 1.15em; color: #001844; font-weight: 500; line-height: 1.7; margin-bottom: 1.5em; padding-left: 20px; border-left: 4px solid #CE181E;">\nTexto do lead aqui.\n</p>'},
+  {n:'Sumário',w:'"Neste artigo"',c:'<div style="background: #f8f9fc; border: 1px solid #e8ecf0; border-radius: 12px; padding: 24px 28px; margin: 2em 0;">\n<div style="font-weight: bold; color: #001844; font-size: 0.9em; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px;">Neste artigo</div>\n<div style="padding: 8px 0; border-bottom: 1px solid #eff1f4;"><span style="color: #CE181E; font-weight: bold; margin-right: 12px; font-size: 0.9em;">01</span> <a href="#id-secao" style="color: #001844; text-decoration: none; font-weight: 500;">Título da seção</a></div>\n</div>'},
   {n:'Caixa escura',w:'destaque / pontos-chave',c:'<div style="background: linear-gradient(135deg, #001844 0%, #0a2a5e 100%); color: #ffffff; padding: 24px 28px; border-radius: 12px; margin: 1.5em 0;">\n<p style="color: #ffffff; margin-bottom: 0.6em;">Texto de destaque com <strong>negrito</strong>.</p>\n</div>'},
-  {n:'Cards comparativos',w:'dois cenários',c:'<div style="display: flex; gap: 16px; margin: 1.5em 0; flex-wrap: wrap;">\n<div style="flex: 1; min-width: 250px; background: #fff; border: 1px solid #e8ecf0; border-radius: 12px; padding: 24px; border-top: 4px solid #869ec3;">\n<h4 style="font-size: 1em; margin-bottom: 10px; color: #000; font-weight: bold;">Título Card A</h4>\n<p style="font-size: 0.92em; color: #555; margin-bottom: 0;">Descrição A.</p>\n</div>\n<div style="flex: 1; min-width: 250px; background: #fff; border: 1px solid #e8ecf0; border-radius: 12px; padding: 24px; border-top: 4px solid #cd1543;">\n<h4 style="font-size: 1em; margin-bottom: 10px; color: #000; font-weight: bold;">Título Card B</h4>\n<p style="font-size: 0.92em; color: #555; margin-bottom: 0;">Descrição B.</p>\n</div>\n</div>'},
-  {n:'Fluxo numerado',w:'processo sequencial',c:'<div style="display: flex; flex-wrap: wrap; margin: 1.5em 0; align-items: stretch; justify-content: center;">\n<div style="text-align: center; padding: 16px 8px; background: #f0f4fa; border-radius: 10px; margin: 3px; min-width: 80px; flex: 1;">\n<span style="display: inline-block; background: #001844; color: #fff; width: 28px; height: 28px; line-height: 28px; border-radius: 50%; font-size: 0.8em; font-weight: bold; margin-bottom: 6px;">1</span>\n<span style="display: block; font-size: 0.78em; font-weight: 600; color: #001844;">Etapa</span>\n</div>\n<div style="display: flex; align-items: center; color: #cd1543; font-size: 1.2em; font-weight: bold; padding: 0 1px;">→</div>\n</div>'},
-  {n:'Callout info',w:'dica / nota (azul)',c:'<div style="background: #f0f4fa; border-left: 4px solid #869ec3; padding: 16px 20px; border-radius: 0 8px 8px 0; margin: 1.5em 0;">\n<span style="display: inline-block; background: #869ec3; color: #fff; width: 24px; height: 24px; line-height: 24px; text-align: center; border-radius: 50%; font-size: 0.75em; font-weight: bold; margin-right: 8px;">i</span>\nTexto do callout.\n</div>'},
-  {n:'Callout alerta',w:'aviso (vermelho)',c:'<div style="background: #fff5f7; border-left: 4px solid #cd1543; padding: 16px 20px; border-radius: 0 8px 8px 0; margin: 1.5em 0;">\n<strong>Atenção:</strong> texto do alerta.\n</div>'},
-  {n:'Blockquote',w:'citação / frase',c:'<div style="padding: 12px 0 12px 20px; margin: 1.2em 0; border-left: 3px solid #869ec3;">\n<p style="font-size: 1.05em; font-style: italic; color: #001844; font-weight: 500; margin: 0;">Citação de destaque.</p>\n</div>'},
-  {n:'Box de resumo',w:'antes do FAQ',c:'<div style="background: linear-gradient(135deg, #001844 0%, #0a2a5e 100%); color: #ffffff; padding: 24px 28px; border-radius: 12px; margin: 1.5em 0;">\n<span style="display: inline-block; background: #cd1543; color: #fff; font-size: 0.7em; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; padding: 4px 12px; border-radius: 4px; margin-bottom: 14px;">Resumo</span>\n<p style="color: #ffffff; margin-bottom: 0.6em;">Ponto 1.</p>\n<p style="color: #ffffff; margin: 0;">Ponto final.</p>\n</div>'},
-  {n:'FAQ Accordion',w:'perguntas frequentes',c:'<h2 id="faq">Perguntas Frequentes</h2>\n<div style="margin: 1.5em 0;">\n<div style="border: 1px solid #e8ecf0; border-radius: 10px; margin-bottom: 10px; overflow: hidden;">\n<div onclick="var a=this.nextElementSibling;var arrow=this.querySelector(\'.faq-arrow\');if(a.style.display===\'block\'){a.style.display=\'none\';arrow.textContent=\'+\';}else{a.style.display=\'block\';arrow.textContent=\'−\';}" style="background: #fff; padding: 16px 48px 16px 20px; font-weight: 600; color: #001844; cursor: pointer; position: relative;">\nPergunta?\n<span class="faq-arrow" style="position: absolute; right: 18px; top: 50%; transform: translateY(-50%); font-size: 1.3em; color: #cd1543; font-weight: 300;">+</span>\n</div>\n<div style="display: none; padding: 16px 20px; color: #444; line-height: 1.7; border-top: 1px solid #e8ecf0;">Resposta.</div>\n</div>\n</div>'},
-  {n:'CTA Final',w:'chamada + botão',c:'<div style="background: linear-gradient(135deg, #001844 0%, #0a2a5e 100%); color: #ffffff; padding: 36px 32px; border-radius: 16px; margin: 2em 0 1em; text-align: center;">\n<h3 style="color: #ffffff; font-size: 1.3em; margin-bottom: 10px;">Título do CTA</h3>\n<p style="color: rgba(255,255,255,0.85); margin-bottom: 20px;">Texto de apoio.</p>\n<a href="https://www.epiuse.com.br/fale-conosco" style="display: inline-block; background: #cd1543; color: #fff; text-decoration: none; padding: 12px 32px; border-radius: 8px; font-weight: bold; font-size: 1em;">Fale com um especialista</a>\n</div>'}
+  {n:'Cards comparativos',w:'dois cenários',c:'<div style="display: flex; gap: 16px; margin: 1.5em 0; flex-wrap: wrap;">\n<div style="flex: 1; min-width: 250px; background: #fff; border: 1px solid #e8ecf0; border-radius: 12px; padding: 24px; border-top: 4px solid #6797b8;">\n<h4 style="font-size: 1em; margin-bottom: 10px; color: #000; font-weight: bold;">Título Card A</h4>\n<p style="font-size: 0.92em; color: #555; margin-bottom: 0;">Descrição A.</p>\n</div>\n<div style="flex: 1; min-width: 250px; background: #fff; border: 1px solid #e8ecf0; border-radius: 12px; padding: 24px; border-top: 4px solid #CE181E;">\n<h4 style="font-size: 1em; margin-bottom: 10px; color: #000; font-weight: bold;">Título Card B</h4>\n<p style="font-size: 0.92em; color: #555; margin-bottom: 0;">Descrição B.</p>\n</div>\n</div>'},
+  {n:'Fluxo numerado',w:'processo sequencial',c:'<div style="display: flex; flex-wrap: wrap; margin: 1.5em 0; align-items: stretch; justify-content: center;">\n<div style="text-align: center; padding: 16px 8px; background: #f0f4fa; border-radius: 10px; margin: 3px; min-width: 80px; flex: 1;">\n<span style="display: inline-block; background: #001844; color: #fff; width: 28px; height: 28px; line-height: 28px; border-radius: 50%; font-size: 0.8em; font-weight: bold; margin-bottom: 6px;">1</span>\n<span style="display: block; font-size: 0.78em; font-weight: 600; color: #001844;">Etapa</span>\n</div>\n<div style="display: flex; align-items: center; color: #CE181E; font-size: 1.2em; font-weight: bold; padding: 0 1px;">→</div>\n</div>'},
+  {n:'Callout info',w:'dica / nota (azul)',c:'<div style="background: #f0f4fa; border-left: 4px solid #6797b8; padding: 16px 20px; border-radius: 0 8px 8px 0; margin: 1.5em 0;">\n<span style="display: inline-block; background: #6797b8; color: #fff; width: 24px; height: 24px; line-height: 24px; text-align: center; border-radius: 50%; font-size: 0.75em; font-weight: bold; margin-right: 8px;">i</span>\nTexto do callout.\n</div>'},
+  {n:'Callout alerta',w:'aviso (vermelho)',c:'<div style="background: #fff5f7; border-left: 4px solid #CE181E; padding: 16px 20px; border-radius: 0 8px 8px 0; margin: 1.5em 0;">\n<strong>Atenção:</strong> texto do alerta.\n</div>'},
+  {n:'Blockquote',w:'citação / frase',c:'<div style="padding: 12px 0 12px 20px; margin: 1.2em 0; border-left: 3px solid #6797b8;">\n<p style="font-size: 1.05em; font-style: italic; color: #001844; font-weight: 500; margin: 0;">Citação de destaque.</p>\n</div>'},
+  {n:'Box de resumo',w:'antes do FAQ',c:'<div style="background: linear-gradient(135deg, #001844 0%, #0a2a5e 100%); color: #ffffff; padding: 24px 28px; border-radius: 12px; margin: 1.5em 0;">\n<span style="display: inline-block; background: #CE181E; color: #fff; font-size: 0.7em; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; padding: 4px 12px; border-radius: 4px; margin-bottom: 14px;">Resumo</span>\n<p style="color: #ffffff; margin-bottom: 0.6em;">Ponto 1.</p>\n<p style="color: #ffffff; margin: 0;">Ponto final.</p>\n</div>'},
+  {n:'FAQ Accordion',w:'perguntas frequentes',c:'<h2 id="faq">Perguntas Frequentes</h2>\n<div style="margin: 1.5em 0;">\n<div style="border: 1px solid #e8ecf0; border-radius: 10px; margin-bottom: 10px; overflow: hidden;">\n<div onclick="var a=this.nextElementSibling;var arrow=this.querySelector(\'.faq-arrow\');if(a.style.display===\'block\'){a.style.display=\'none\';arrow.textContent=\'+\';}else{a.style.display=\'block\';arrow.textContent=\'−\';}" style="background: #fff; padding: 16px 48px 16px 20px; font-weight: 600; color: #001844; cursor: pointer; position: relative;">\nPergunta?\n<span class="faq-arrow" style="position: absolute; right: 18px; top: 50%; transform: translateY(-50%); font-size: 1.3em; color: #CE181E; font-weight: 300;">+</span>\n</div>\n<div style="display: none; padding: 16px 20px; color: #444; line-height: 1.7; border-top: 1px solid #e8ecf0;">Resposta.</div>\n</div>\n</div>'},
+  {n:'CTA Final',w:'chamada + botão',c:'<div style="background: linear-gradient(135deg, #001844 0%, #0a2a5e 100%); color: #ffffff; padding: 36px 32px; border-radius: 16px; margin: 2em 0 1em; text-align: center;">\n<h3 style="color: #ffffff; font-size: 1.3em; margin-bottom: 10px;">Título do CTA</h3>\n<p style="color: rgba(255,255,255,0.85); margin-bottom: 20px;">Texto de apoio.</p>\n<a href="https://www.epiuse.com.br/fale-conosco" style="display: inline-block; background: #CE181E; color: #fff; text-decoration: none; padding: 12px 32px; border-radius: 8px; font-weight: bold; font-size: 1em;">Fale com um especialista</a>\n</div>'}
 ];
 const compList=$('#compList');
 COMPONENTS.forEach((c,i)=>{

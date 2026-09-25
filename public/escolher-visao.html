@@ -7,12 +7,12 @@
 <link rel="stylesheet" href="/design-tokens.css">
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  :root{ --navy:#001844; --red:#cd1543; --blue:#869ec3; --ink:#e8f0ff; }
+  :root{ --navy:#001844; --red:#CE181E; --blue:#6797b8; --ink:#e8f0ff; }
   html,body{height:100%}
   body{
     font-family:'Maven Pro','Poppins',system-ui,sans-serif;color:var(--ink);
     background:
-      radial-gradient(ellipse 90% 60% at 50% -10%, rgba(205,21,67,.18), transparent 60%),
+      radial-gradient(ellipse 90% 60% at 50% -10%, rgba(206,24,30,.18), transparent 60%),
       linear-gradient(160deg, #001026 0%, #001844 55%, #001026 100%);
     display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;
   }
@@ -23,17 +23,17 @@
   .doors{display:grid;grid-template-columns:1fr 1fr;gap:18px}
   .door{
     display:flex;flex-direction:column;align-items:center;gap:12px;
-    background:rgba(6,16,34,.72);border:1.5px solid rgba(134,158,195,.25);
+    background:rgba(6,16,34,.72);border:1.5px solid rgba(103,151,184,.25);
     border-radius:20px;padding:40px 24px;text-decoration:none;color:var(--ink);
     cursor:pointer;transition:background .15s,border-color .15s,transform .08s,box-shadow .15s;
     box-shadow:0 12px 36px rgba(0,0,0,.35);
   }
-  .door:hover,.door:focus-visible{background:rgba(134,158,195,.12);border-color:var(--red);transform:translateY(-3px);box-shadow:0 20px 48px rgba(0,0,0,.5);outline:none}
+  .door:hover,.door:focus-visible{background:rgba(103,151,184,.12);border-color:var(--red);transform:translateY(-3px);box-shadow:0 20px 48px rgba(0,0,0,.5);outline:none}
   .door .ic{font-size:48px;line-height:1}
   .door .t{font-size:20px;font-weight:800}
   .door .d{font-size:13px;color:var(--blue);line-height:1.45}
   .door[aria-disabled="true"]{opacity:.55;pointer-events:none}
-  .foot{margin-top:30px;font-size:12px;color:rgba(134,158,195,.75);line-height:1.5}
+  .foot{margin-top:30px;font-size:12px;color:rgba(103,151,184,.75);line-height:1.5}
   .err{margin-top:18px;color:var(--red);font-size:13px;min-height:18px}
   @media(max-width:520px){.doors{grid-template-columns:1fr}}
 </style>

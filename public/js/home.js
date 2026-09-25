@@ -29,7 +29,7 @@
     const ys = pts.map(v => h - pad - (v - min) * (h - 2*pad) / rng);
     const line = pts.map((v, i) => (i ? 'L' : 'M') + xs[i].toFixed(1) + ' ' + ys[i].toFixed(1)).join(' ');
     return `<svg viewBox="0 0 ${w} ${h}" class="area-spark" preserveAspectRatio="none">
-      <path d="${line}" fill="none" stroke="${cor||'#869ec3'}" stroke-width="2" stroke-linecap="round"/>
+      <path d="${line}" fill="none" stroke="${cor||'#6797b8'}" stroke-width="2" stroke-linecap="round"/>
     </svg>`;
   }
 
@@ -159,7 +159,7 @@
       const r = await fetch('/api/areas.json'); const d = await r.json();
       const areas = d.areas || [];
       const cards = areas.map(a => {
-        const cor = a.cor || '#869ec3';
+        const cor = a.cor || '#6797b8';
         const kpis = (a.kpis || []).slice(0, 2).map(k => {
           const v = k.valor != null ? fmt(k.valor) : '<span style="color:var(--home-text-muted)">⏳</span>';
           return `<div class="area-kpi"><span>${esc(k.label).slice(0, 22)}</span><strong>${v}</strong></div>`;
@@ -239,7 +239,7 @@
   // Tudo num só lugar, agrupado por mês (layout de cards). Camadas filtráveis.
   const ANO = new Date().getFullYear();
   const CAMADAS = [
-    { id:'evento',     label:'🔴 Eventos',        cor:'#cd1543' },
+    { id:'evento',     label:'🔴 Eventos',        cor:'#CE181E' },
     { id:'artigo',     label:'📰 Artigos',        cor:'#001844' },
     { id:'post',       label:'📝 Posts (Duda)',   cor:'#0369a1' },
     { id:'mdf',        label:'💶 MDF/Deadlines',  cor:'#dc2626' },
@@ -369,7 +369,7 @@
         .dp-cell.empty { background:transparent; }
         .dp-cell.has { background:rgba(96,165,250,.10); cursor:pointer; }
         .dp-cell.has:hover { background:rgba(96,165,250,.20); }
-        .dp-cell.today { outline:2px solid #cd1543; }
+        .dp-cell.today { outline:2px solid #CE181E; }
         .dp-num { font-size:11px; font-weight:600; color:var(--home-text,#e2e8f0); }
         .dp-cell.today .dp-num { color:#fca5a5; }
         .dp-dots { display:flex; gap:2px; align-items:center; flex-wrap:wrap; }
@@ -481,7 +481,7 @@
           const country = e.country || 'BR';
           items.push({ camada:'evento', m:e.m, d:String(e.d||'TBC'), n:e.n, country,
             who:[e.who, country!=='BR'?country:''].filter(Boolean).join(' · '),
-            flag:e.flag||'', tag:e.lob||'', cor: LOB_CORES[e.lob] || '#cd1543' });
+            flag:e.flag||'', tag:e.lob||'', cor: LOB_CORES[e.lob] || '#CE181E' });
         }
       }
       // 2 — Editorial (artigos Redatoria + posts Duda)
@@ -616,23 +616,23 @@
     var banner = document.createElement('div');
     banner.id = 'bday-banner';
     banner.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);'
-      + 'background:linear-gradient(135deg,#001844 0%,#1a3a6e 100%);border:3px solid #cd1543;border-radius:24px;'
+      + 'background:linear-gradient(135deg,#001844 0%,#1a3a6e 100%);border:3px solid #CE181E;border-radius:24px;'
       + 'padding:40px 56px;text-align:center;font-family:Poppins,sans-serif;'
-      + 'box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 80px rgba(205,21,67,.3);'
+      + 'box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 80px rgba(206,24,30,.3);'
       + 'pointer-events:auto;cursor:pointer;opacity:0;'
       + 'transition:transform .6s cubic-bezier(.34,1.56,.64,1),opacity .4s ease';
     banner.innerHTML = '<div style="font-size:52px;margin-bottom:12px">🎂🎉🥳</div>'
       + '<div style="font-size:28px;font-weight:700;color:#fff;line-height:1.3;margin-bottom:8px">'
       + 'Feliz Aniversário, ' + esc(nome) + '!</div>'
-      + '<div style="font-size:15px;color:#869ec3;line-height:1.5;max-width:340px;margin:0 auto 16px">'
+      + '<div style="font-size:15px;color:#6797b8;line-height:1.5;max-width:340px;margin:0 auto 16px">'
       + 'O escritório inteiro celebra você hoje.<br>Obrigado por liderar essa manada! 🐘</div>'
       + '<div style="font-size:13px;color:#f472b6;margin-top:12px">' + esc(assinatura) + ' ❤️</div>'
-      + '<div style="font-size:11px;color:rgba(134,158,195,.5);margin-top:8px">clique pra fechar</div>';
+      + '<div style="font-size:11px;color:rgba(103,151,184,.5);margin-top:8px">clique pra fechar</div>';
     ov.appendChild(banner);
     document.body.appendChild(ov);
 
     var ctx = cv.getContext('2d'), W, H, pieces = [];
-    var colors = ['#cd1543','#001844','#869ec3','#fbbf24','#34d399','#f472b6','#60a5fa','#fff'];
+    var colors = ['#CE181E','#001844','#6797b8','#fbbf24','#34d399','#f472b6','#60a5fa','#fff'];
     function resize() { W = cv.width = window.innerWidth; H = cv.height = window.innerHeight; }
     resize(); window.addEventListener('resize', resize);
     function Piece() {
@@ -675,7 +675,7 @@
       : 'Hoje é aniversário de ' + nomes.join(' e ') + '! 🎂🎉';
     var toast = document.createElement('div');
     toast.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-20px);'
-      + 'z-index:99998;background:linear-gradient(135deg,#001844,#1a3a6e);border:2px solid #cd1543;'
+      + 'z-index:99998;background:linear-gradient(135deg,#001844,#1a3a6e);border:2px solid #CE181E;'
       + 'border-radius:16px;padding:16px 28px;font-family:Poppins,sans-serif;font-size:15px;color:#fff;'
       + 'box-shadow:0 8px 32px rgba(0,0,0,.4);opacity:0;transition:opacity .4s,transform .4s;cursor:pointer;'
       + 'text-align:center;max-width:400px';
@@ -857,7 +857,7 @@
       get: async () => { const d = await fetch('/api/pipeline').then(r=>r.json()); return fmt(d?.sequencias_ativas); } },
     ga4_usuarios:       { label: 'Usuários site (mês)', fonte: 'GA4', cor: '#f472b6',
       get: async () => { const d = await fetch('/api/relatorio/snapshot?mes=' + new Date().toISOString().slice(0,7)).then(r=>r.json()).catch(()=>null); return fmt(d?.site?.usuarios); } },
-    eventos_30d:        { label: 'Eventos 30 dias', fonte: 'Field Marketing', cor: '#cd1543',
+    eventos_30d:        { label: 'Eventos 30 dias', fonte: 'Field Marketing', cor: '#CE181E',
       get: async () => { const d = await fetch('/api/field-marketing').then(r=>r.json()); const hoje = new Date().toISOString().slice(0,10); const fim = new Date(Date.now()+30*864e5).toISOString().slice(0,10); return fmt((d?.eventos||[]).filter(e=>e.data_evento && e.data_evento>=hoje && e.data_evento<=fim).length); } },
     capturas_pendentes: { label: 'Capturas a preencher', fonte: 'Field Marketing', cor: '#fbbf24',
       get: async () => { const d = await fetch('/api/field-marketing').then(r=>r.json()); const hoje = new Date().toISOString().slice(0,10); return fmt((d?.eventos||[]).filter(e=>e.data_evento && e.data_evento<hoje && !(e.captura&&(e.captura.leads||e.captura.deals))).length); } },
@@ -870,7 +870,7 @@
     cases_publicaveis:  { label: 'Cases publicados', fonte: 'Cases CS', cor: '#34d399',
       get: async () => { const d = await fetch('/api/cases').then(r=>r.json()); return fmt(d?.kpis?.case_publicado); } },
     // ── Executivo (CMO View — persona Roberto) ──
-    pipeline_mkt_sourced: { label: 'Pipeline gerado por MKT', fonte: 'Zoho · atribuição', cor: '#cd1543',
+    pipeline_mkt_sourced: { label: 'Pipeline gerado por MKT', fonte: 'Zoho · atribuição', cor: '#CE181E',
       get: async () => { const d = await fetch('/api/executivo').then(r=>r.json()); const v = d?.pipeline?.mkt_sourced_total; const pct = d?.pipeline?.mkt_sourced_pct; return v ? 'R$ ' + (v/1e6).toFixed(1) + 'M' + (pct!=null ? ` (${pct}%)` : '') : '—'; } },
     receita_ganha:        { label: 'Receita ganha (won)', fonte: 'Zoho · closed-won', cor: '#10b981',
       get: async () => { const d = await fetch('/api/executivo').then(r=>r.json()); const r2 = d?.resultado; return r2?.ganho_valor ? 'R$ ' + (r2.ganho_valor/1e6).toFixed(1) + 'M · WR ' + (r2.win_rate_pct ?? '—') + '%' : '—'; } },
@@ -943,8 +943,8 @@
         fetch('/api/development-funds').then(r=>r.json()).catch(()=>({requests:[]})),
       ]);
       const itens = [];
-      for (const p of (cal.posts||[])) itens.push({ ico: p.fonte==='redatoria'?'📰':'📝', txt: p.titulo, sub: [p.autor,p.canal].filter(Boolean).join(' · '), cor: p.fonte==='redatoria'?'#869ec3':'#0ea5e9' });
-      for (const e of (fm.eventos||[])) if (e.data_evento === hoje) itens.push({ ico:'🔴', txt: e.nome, sub: 'evento · '+(e.lob||''), cor:'#cd1543' });
+      for (const p of (cal.posts||[])) itens.push({ ico: p.fonte==='redatoria'?'📰':'📝', txt: p.titulo, sub: [p.autor,p.canal].filter(Boolean).join(' · '), cor: p.fonte==='redatoria'?'#6797b8':'#0ea5e9' });
+      for (const e of (fm.eventos||[])) if (e.data_evento === hoje) itens.push({ ico:'🔴', txt: e.nome, sub: 'evento · '+(e.lob||''), cor:'#CE181E' });
       for (const r of (df.requests||[])) if (!r.derrubado && (+r.claim||0)===0 && r.expiracao === hoje) itens.push({ ico:'💶', txt:'Expira HOJE: claim '+r.nome, sub:'€'+Number(r.aprovado||0).toLocaleString('pt-BR'), cor:'#dc2626' });
       list.innerHTML = itens.length ? itens.map(i => `
         <div style="display:flex;align-items:center;gap:10px;padding:9px 14px;background:rgba(15,30,53,.4);border:1px solid rgba(96,165,250,.12);border-left:3px solid ${i.cor};border-radius:8px;font-size:13px">
@@ -963,7 +963,7 @@
       const d = await r.json();
       const saldo = d.meu;
       const sign = saldo > 0 ? '+' : '';
-      const cor = saldo > 0 ? 'var(--home-success,#10b981)' : saldo < 0 ? 'var(--home-danger,#ef4444)' : 'var(--home-text-muted,#869ec3)';
+      const cor = saldo > 0 ? 'var(--home-success,#10b981)' : saldo < 0 ? 'var(--home-danger,#ef4444)' : 'var(--home-text-muted,#6797b8)';
       const card = document.createElement('a');
       card.href = '/horas';
       card.className = 'home-digest-card';

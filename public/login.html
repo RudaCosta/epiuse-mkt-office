@@ -7,18 +7,18 @@
 <link rel="stylesheet" href="/design-tokens.css">
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  :root{ --navy:#001844; --red:#cd1543; --blue:#869ec3; --ink:#e8f0ff; }
+  :root{ --navy:#001844; --red:#CE181E; --blue:#6797b8; --ink:#e8f0ff; }
   html,body{height:100%}
   body{
     font-family:'Maven Pro','Poppins',system-ui,sans-serif;color:var(--ink);
     background:
-      radial-gradient(ellipse 90% 60% at 50% -10%, rgba(205,21,67,.18), transparent 60%),
+      radial-gradient(ellipse 90% 60% at 50% -10%, rgba(206,24,30,.18), transparent 60%),
       linear-gradient(160deg, #001026 0%, #001844 55%, #001026 100%);
     display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;
   }
   .card{
     width:100%;max-width:520px;background:rgba(6,16,34,.72);
-    border:1px solid rgba(134,158,195,.25);border-radius:20px;
+    border:1px solid rgba(103,151,184,.25);border-radius:20px;
     padding:40px 34px;box-shadow:0 24px 60px rgba(0,0,0,.5);backdrop-filter:blur(10px);text-align:center;
   }
   .logo{height:30px;margin-bottom:22px;filter:brightness(0) invert(1)}
@@ -34,19 +34,19 @@
   .sso-btn:active{transform:translateY(1px)}
   .ms-logo{width:18px;height:18px;display:inline-block}
   .divider{display:flex;align-items:center;gap:12px;color:var(--blue);font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin:8px 0 20px}
-  .divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(134,158,195,.25)}
+  .divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(103,151,184,.25)}
   .doors{display:grid;grid-template-columns:1fr 1fr;gap:14px}
   .door{
     display:flex;flex-direction:column;align-items:center;gap:8px;
-    background:rgba(134,158,195,.08);border:1px solid rgba(134,158,195,.25);
+    background:rgba(103,151,184,.08);border:1px solid rgba(103,151,184,.25);
     border-radius:14px;padding:20px 14px;text-decoration:none;color:var(--ink);
     cursor:pointer;transition:background .15s,border-color .15s,transform .08s;
   }
-  .door:hover{background:rgba(134,158,195,.16);border-color:var(--red);transform:translateY(-2px)}
+  .door:hover{background:rgba(103,151,184,.16);border-color:var(--red);transform:translateY(-2px)}
   .door .ic{font-size:30px;line-height:1}
   .door .t{font-size:15px;font-weight:700}
   .door .d{font-size:11.5px;color:var(--blue);line-height:1.4}
-  .foot{margin-top:26px;font-size:11px;color:rgba(134,158,195,.7)}
+  .foot{margin-top:26px;font-size:11px;color:rgba(103,151,184,.7)}
   .foot a{color:var(--blue)}
   @media(max-width:460px){.doors{grid-template-columns:1fr}}
 </style>

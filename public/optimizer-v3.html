@@ -7,9 +7,9 @@
 <link rel="stylesheet" href="/design-tokens.css">
 <style>
 :root {
-  --bg:var(--bg,#0a1525); --card:var(--surface,#0f1e35); --text:var(--text,#e6ebf2); --muted:var(--muted,#869ec3);
-  --border:rgba(134,158,195,.22); --primary:var(--blue,#2563eb); --primary-light:var(--blue,#60a5fa);
-  --navy:var(--surface,#001844); --red:var(--red,#cd1543); --green:var(--teal,#10b981); --yellow:var(--gold,#fcd34d);
+  --bg:var(--bg,#0a1525); --card:var(--surface,#0f1e35); --text:var(--text,#e6ebf2); --muted:var(--muted,#6797b8);
+  --border:rgba(103,151,184,.22); --primary:var(--blue,#2563eb); --primary-light:var(--blue,#60a5fa);
+  --navy:var(--surface,#001844); --red:var(--red,#CE181E); --green:var(--teal,#10b981); --yellow:var(--gold,#fcd34d);
 }
 body{margin:0;background:var(--bg);color:var(--text);font-family:'Open Sans',-apple-system,system-ui,sans-serif;font-size:14px;line-height:1.6}
 .wrap{max-width:1100px;margin:0 auto;padding:24px 18px 80px}
@@ -18,7 +18,7 @@ h1{font-size:26px;margin:6px 0 4px;color:#fff;font-weight:800;letter-spacing:-.0
 .badge{display:inline-block;font-size:10px;background:rgba(16,185,129,.18);color:var(--teal,#6ee7b7);padding:3px 10px;border-radius:99px;font-weight:700;letter-spacing:.04em;margin-left:8px}
 .badge.v3{background:rgba(96,165,250,.22);color:#bcd8ff}
 
-.hero{background:linear-gradient(135deg,rgba(0,75,141,.08),rgba(205,21,67,.06));border:1px solid rgba(96,165,250,.25);border-radius:14px;padding:22px 24px;margin-bottom:22px}
+.hero{background:linear-gradient(135deg,rgba(0,75,141,.08),rgba(206,24,30,.06));border:1px solid rgba(96,165,250,.25);border-radius:14px;padding:22px 24px;margin-bottom:22px}
 .hero h2{margin:0 0 14px;font-size:16px;color:#fff;font-weight:700}
 .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
 .step{background:rgba(0,0,0,.18);border:1px solid var(--border);border-radius:10px;padding:14px}
@@ -62,7 +62,7 @@ textarea:focus,select:focus,input:focus{outline:2px solid rgba(96,165,250,.5);ou
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:12px 22px;border-radius:8px;font-weight:700;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.3);display:none;z-index:300}
 .toast.show{display:block;animation:slideUp .25s ease-out}
 @keyframes slideUp{from{opacity:0;transform:translate(-50%,12px)}to{opacity:1;transform:translate(-50%,0)}}
-.err{background:rgba(205,21,67,.15);border:1px solid rgba(205,21,67,.4);color:#ffb3c2;padding:10px 14px;border-radius:8px;font-size:12px;margin-top:10px;display:none}
+.err{background:rgba(206,24,30,.15);border:1px solid rgba(206,24,30,.4);color:#ffb3c2;padding:10px 14px;border-radius:8px;font-size:12px;margin-top:10px;display:none}
 
 #loading{display:none;padding:32px 28px;background:linear-gradient(135deg,var(--card),rgba(0,75,141,.18));border:1px solid var(--border);border-radius:14px;margin-bottom:14px;position:relative;overflow:hidden}
 #loading::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 30%,rgba(96,165,250,.08),transparent 60%);pointer-events:none;animation:pulse 4s ease-in-out infinite}
@@ -118,7 +118,7 @@ textarea:focus,select:focus,input:focus{outline:2px solid rgba(96,165,250,.5);ou
 .ssi-num{font-size:40px;font-weight:900;color:var(--primary-light);font-family:'JetBrains Mono',monospace;line-height:1}
 .ssi-delta{font-size:12px;font-weight:700;padding:3px 8px;border-radius:5px}
 .ssi-delta.up{background:rgba(16,185,129,.2);color:#6ee7b7}
-.ssi-delta.down{background:rgba(205,21,67,.2);color:#ff8da3}
+.ssi-delta.down{background:rgba(206,24,30,.2);color:#ff8da3}
 .ssi-history{margin-top:12px;font-size:12px;color:var(--muted)}
 .ssi-history table{width:100%;border-collapse:collapse;margin-top:6px}
 .ssi-history th,.ssi-history td{padding:6px 10px;text-align:left;border-bottom:1px solid var(--border)}
@@ -587,7 +587,7 @@ function renderKit(d){
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px">
       <div class="box"><b style="color:var(--green)">Top 3</b><br>${(k.skills_top3||[]).map(s=>`<span style="display:inline-block;background:rgba(16,185,129,.18);color:#6ee7b7;padding:2px 8px;border-radius:99px;font-size:11px;margin:2px">${esc(s)}</span>`).join('')}</div>
       <div class="box"><b style="color:var(--green)">+ Adicionar</b><br>${(k.skills_adicionar||[]).map(s=>`<span style="display:inline-block;background:rgba(16,185,129,.12);color:#6ee7b7;padding:2px 8px;border-radius:99px;font-size:11px;margin:2px">${esc(s)}</span>`).join('')}</div>
-      <div class="box"><b style="color:var(--red)">− Remover</b><br>${(k.skills_remover||[]).map(s=>`<span style="display:inline-block;background:rgba(205,21,67,.15);color:#ff8da3;padding:2px 8px;border-radius:99px;font-size:11px;margin:2px;text-decoration:line-through">${esc(s)}</span>`).join('')}</div>
+      <div class="box"><b style="color:var(--red)">− Remover</b><br>${(k.skills_remover||[]).map(s=>`<span style="display:inline-block;background:rgba(206,24,30,.15);color:#ff8da3;padding:2px 8px;border-radius:99px;font-size:11px;margin:2px;text-decoration:line-through">${esc(s)}</span>`).join('')}</div>
     </div>
   </div>
   ${k.recommendations_estrategia?`
