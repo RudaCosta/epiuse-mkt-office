@@ -3,374 +3,87 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>🏠 EPI-USE Office · Command Center</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&family=Fira+Code:wght@500;600;700&display=swap" rel="stylesheet">
+<title>EPI-USE Office · Home</title>
+<meta name="description" content="Home do EPI-USE Office: atalhos por área, agenda e time.">
 <link rel="stylesheet" href="/design-tokens.css">
-<link rel="stylesheet" href="/css/polish-pro.css">
-<link rel="stylesheet" href="/css/consulting-dark.css">
-<link rel="stylesheet" href="/css/home.css">
+<link rel="stylesheet" href="/css/home-v2.css">
 </head>
-<body class="home-root atlas" data-route="home">
+<body class="hx" data-route="home">
 <office-nav></office-nav>
 
-<div class="home-wrap">
+<main class="hx-wrap" id="conteudo">
 
-  <!-- HERO / SAUDAÇÃO -->
-  <header class="home-hero">
-    <div>
-      <h1 id="hero-saudacao">Carregando…</h1>
-      <div class="subtitle" id="hero-data">—</div>
+  <!-- ═══ HERO · saudação + busca (porta de entrada) ═══ -->
+  <header class="hx-hero">
+    <div class="hx-hero-top">
+      <div>
+        <p class="hx-eyebrow" id="hero-data">&nbsp;</p>
+        <h1 class="hx-title" id="hero-saudacao">Olá 👋</h1>
+      </div>
+      <label class="hx-persona">
+        <span class="hx-sr">Ver a home como</span>
+        <select id="persona-select" aria-label="Ver a home como"></select>
+      </label>
     </div>
-    <select id="persona-select" title="Ver a home como…" style="background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.25);color:var(--muted,#94a3b8);padding:6px 10px;border-radius:8px;font-family:inherit;font-size:11px;cursor:pointer"></select>
-    <span class="chip-online" data-i18n="home.online">Escritório Online</span>
-    <svg class="home-hero-elephant" viewBox="0 0 100 100" aria-hidden="true">
-      <image href="/assets/logos-group-elephant/ge-logo.svg" width="100" height="100" preserveAspectRatio="xMidYMid meet"/>
-    </svg>
+    <button type="button" class="hx-search" id="hx-search" aria-label="Buscar telas, ferramentas e Voices">
+      <span class="hx-search-ico" aria-hidden="true">⌕</span>
+      <span class="hx-search-txt">Para onde vamos? Busque telas, ferramentas, Voices…</span>
+      <kbd class="hx-kbd" id="hx-kbd">Ctrl K</kbd>
+    </button>
   </header>
 
-  <!-- ════ COCKPIT (faixa executiva · dado real) ════ -->
-  <section class="cockpit-strip">
-    <div class="ck-head">
-      <div>
-        <div class="mono eyebrow">Cockpit · RevOps &amp; Marketing</div>
-        <h2 class="disp ck-title">Visão executiva</h2>
-      </div>
-      <span class="ck-livechip mono"><i></i> AO VIVO · <span id="ck-live">—</span></span>
-    </div>
-
-    <!-- KPI ROW -->
-    <div class="bento bento-kpi ck-kpis">
-      <div class="card hov">
-        <div class="kpi-accent" style="background:var(--home-accent-red)"></div>
-        <div class="mono eyebrow">Oportunidades · Zoho</div>
-        <div class="disp ck-num"><span id="ck-opps">—</span></div>
-        <div class="mono ck-sub">deals no CRM</div>
-      </div>
-      <div class="card hov">
-        <div class="kpi-accent" style="background:var(--home-accent-blue)"></div>
-        <div class="mono eyebrow">Contatos · Apollo</div>
-        <div class="disp ck-num"><span id="ck-contatos">—</span></div>
-        <div class="mono ck-sub"><span id="ck-empresas2">—</span> empresas mapeadas</div>
-      </div>
-      <div class="card hov">
-        <div class="kpi-accent" style="background:var(--home-success)"></div>
-        <div class="mono eyebrow">Seguidores · LinkedIn</div>
-        <div class="disp ck-num"><span id="ck-seguidores">—</span></div>
-        <div class="mono ck-sub" style="color:var(--home-success)"><span id="ck-ganho">+2.279</span> em 12m</div>
-      </div>
-      <div class="card hov">
-        <div class="kpi-accent" style="background:var(--home-warning)"></div>
-        <div class="mono eyebrow">Eventos FY · BR</div>
-        <div class="disp ck-num"><span id="ck-eventos">—</span></div>
-        <div class="mono ck-sub"><span id="ck-evexec">—</span> já realizados</div>
-      </div>
-    </div>
-
-    <!-- BENTO: funil + destaques -->
-    <div class="bento ck-bento2">
-      <div class="card ck-funnel">
-        <div class="mono eyebrow">Funil de aquisição · real</div>
-        <div class="ck-fn-rows">
-          <div class="ck-fn"><div class="ck-fn-top"><span>Contatos (Apollo)</span><b class="disp" id="fnv-contatos">—</b></div><div class="ck-fn-bar"><i id="fn-contatos" style="background:var(--home-accent-blue)"></i></div></div>
-          <div class="ck-fn"><div class="ck-fn-top"><span>Empresas mapeadas</span><b class="disp" id="fnv-empresas">—</b></div><div class="ck-fn-bar"><i id="fn-empresas" style="background:var(--home-accent-blue)"></i></div></div>
-          <div class="ck-fn"><div class="ck-fn-top"><span>Reuniões (30d)</span><b class="disp" id="fnv-reunioes">—</b></div><div class="ck-fn-bar"><i id="fn-reunioes" style="background:var(--home-success)"></i></div></div>
-          <div class="ck-fn"><div class="ck-fn-top"><span>Oportunidades (Zoho)</span><b class="disp" id="fnv-opps">—</b></div><div class="ck-fn-bar"><i id="fn-opps" style="background:var(--home-accent-red)"></i></div></div>
-        </div>
-      </div>
-      <div class="card ck-destaques">
-        <div class="mono eyebrow">Destaques do mês · real</div>
-        <div class="ck-dgrid">
-          <div class="ck-d"><div class="disp" id="ck-posts">—</div><div class="mono">posts/mês</div></div>
-          <div class="ck-d"><div class="disp" id="ck-cases">—</div><div class="mono">cases</div></div>
-          <div class="ck-d"><div class="disp" id="ck-voices">—</div><div class="mono">Voices ativos</div></div>
-          <div class="ck-d"><div class="disp" id="ck-artigos">—</div><div class="mono">artigos na base</div></div>
-        </div>
-        <div class="ck-pipe"><div class="disp" id="ck-pipe">—</div><div class="mono">Pipeline FY · Zoho CRM</div></div>
-      </div>
-    </div>
+  <!-- ═══ SEUS ATALHOS (por persona) ═══ -->
+  <section class="hx-section" data-sec="atalhos" aria-labelledby="t-atalhos">
+    <div class="hx-sec-head"><h2 class="hx-sec-title" id="t-atalhos">Seus atalhos</h2></div>
+    <nav class="hx-quick home-quick" aria-label="Atalhos"></nav>
   </section>
-  <script>
-  (function(){
-    var nf = function(n){ return n==null ? null : Number(n).toLocaleString('pt-BR'); };
-    function put(id,v){ var el=document.getElementById(id); if(el) el.textContent = (v==null?'—':nf(v)); }
-    function bar(id,pct){ var el=document.getElementById(id); if(el) el.style.width = Math.max(0,Math.min(100,pct))+'%'; }
-    fetch('/api/areas.json?t='+Date.now()).then(function(r){return r.json();}).then(function(d){
-      var o=d._overlay||{};
-      put('ck-opps',o.oportunidades); put('ck-contatos',o.contatos); put('ck-seguidores',o.seguidores); put('ck-eventos',o.eventos_total);
-      put('ck-empresas2',o.contas); put('ck-evexec',o.eventos_exec);
-      put('ck-posts',o.posts_mes); put('ck-cases',o.cases);
-      put('fnv-contatos',o.contatos); put('fnv-empresas',o.contas); put('fnv-reunioes',o.reunioes); put('fnv-opps',o.oportunidades);
-      var max=o.contatos||1;
-      bar('fn-contatos',100); bar('fn-empresas',(o.contas/max)*100); bar('fn-reunioes',Math.max((o.reunioes/max)*100,1.2)); bar('fn-opps',Math.max((o.oportunidades/max)*100,1.5));
-      var A=d.areas||[];
-      var brand=A.filter(function(a){return a.id==='brand';})[0];
-      var vk=brand&&(brand.kpis||[]).filter(function(k){return /voices ativos/i.test(k.label||'');})[0];
-      var vEl=document.getElementById('ck-voices'); if(vEl) vEl.textContent=(vk&&vk.valor)||'—';
-      var cont=A.filter(function(a){return a.id==='conteudo';})[0];
-      var ak=cont&&(cont.kpis||[]).filter(function(k){return /artigos na base/i.test(k.label||'');})[0];
-      var aEl=document.getElementById('ck-artigos'); if(aEl) aEl.textContent=(ak&&ak.valor!=null)?nf(ak.valor):'—';
-      var live=document.getElementById('ck-live'); if(live) live.textContent=(o.live_count||0)+' fontes';
-    }).catch(function(){ var live=document.getElementById('ck-live'); if(live) live.textContent='offline'; });
-    fetch('/api/zoho/pipeline?t='+Date.now()).then(function(r){return r.json();}).then(function(z){
-      var v = z&&z.kpis&&z.kpis.ultimo_fy ? z.kpis.ultimo_fy.valor : null;
-      var el=document.getElementById('ck-pipe'); if(el) el.textContent = (v!=null) ? ('R$ '+(v/1e6).toFixed(1).replace('.',',')+'M') : '—';
-    }).catch(function(){});
-  })();
-  </script>
 
-  <!-- ════ LEADS · ZOHO CRM — resumo de decisão (não espelho do CRM) ════ -->
-  <section class="home-section" data-sec="leads" id="sec-leads">
-    <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:4px">
-      <h2 class="home-section-title" style="margin:0">🧲 Leads</h2>
-      <span class="mono" id="lead-meta" style="font-size:11px;color:var(--home-text-muted,#6797b8)">—</span>
-      <a href="https://crm.zoho.com/crm/org657705661/tab/Leads/custom-view/2907496000000087501/kanban"
-         target="_blank" rel="noopener" class="mono"
-         style="margin-left:auto;font-size:11px;color:var(--home-accent-blue,#60a5fa);text-decoration:none">abrir no Zoho ↗</a>
+  <!-- ═══ ÁREAS · atalhos diretos por área ═══ -->
+  <section class="hx-section" data-sec="areas" aria-labelledby="t-areas">
+    <div class="hx-sec-head">
+      <h2 class="hx-sec-title" id="t-areas">Áreas</h2>
+      <p class="hx-sec-sub">Tudo de cada time, a um clique.</p>
     </div>
-
-    <div class="card lead-card">
-      <div class="lead-tiles" id="lead-tiles"></div>
-      <div class="lead-say" id="lead-say">—</div>
+    <div class="hx-areas" id="areas-grid">
+      <div class="hx-skel"></div><div class="hx-skel"></div><div class="hx-skel"></div>
     </div>
   </section>
 
-  <style>
-    .lead-card{padding:16px 18px}
-    .lead-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
-    .lead-t{background:rgba(103,151,184,.06);border:1px solid rgba(103,151,184,.14);border-radius:11px;
-      padding:12px 13px;border-left:3px solid var(--c,#60a5fa)}
-    .lead-t .n{font-size:27px;font-weight:800;font-family:'Fira Code',monospace;line-height:1.05;color:var(--c,#60a5fa)}
-    .lead-t .l{font-size:11px;color:var(--home-text,#e6ebf2);margin-top:4px;font-weight:600}
-    .lead-t .s{font-size:10.5px;color:var(--home-text-muted,#6797b8);margin-top:2px;line-height:1.4}
-    .lead-say{margin-top:13px;padding-top:12px;border-top:1px solid rgba(103,151,184,.14);
-      font-size:12.5px;line-height:1.55;color:var(--home-text-dim,#c0ccd9)}
-    .lead-say b{color:var(--home-text,#e6ebf2)}
-  </style>
-
-  <script>
-  (function(){
-    var nf=function(n){return n==null?'—':Number(n).toLocaleString('pt-BR');};
-    fetch('/api/zoho-leads-snapshot.json?t='+Date.now()).then(function(r){return r.json();}).then(function(d){
-      var k=d.kanban_sdr||{}, et=k.etapas||[];
-      var val=function(nome){var e=et.filter(function(x){return x.etapa===nome;})[0];return e?e.valor:0;};
-      var por=function(tipo){return et.filter(function(x){return x.tipo===tipo;}).reduce(function(a,x){return a+x.valor;},0);};
-
-      var reunioes=por('ganho'), ativos=por('ativo'), base=d.base_total;
-      var semStatus=(((d.higiene||{}).achados||[]).filter(function(a){return a.id==='sem-status';})[0])||{};
-      var m=document.getElementById('lead-meta');
-      if(m) m.textContent='Zoho CRM · '+(d._meta&&d._meta.gerado_em||'—');
-
-      // 4 números que mudam decisão (não o board inteiro)
-      var tiles=[
-        {n:reunioes, l:'Reuniões agendadas', s:'handover pro comercial', c:'#10b981'},
-        {n:ativos,   l:'Em trabalho agora',  s:'carteira ativa do SDR',  c:'#60a5fa'},
-        {n:nf(base), l:'Leads na base',      s:'total no CRM',           c:'#6797b8'},
-        {n:(semStatus.pct!=null?semStatus.pct+'%':'—'), l:'Base no escuro',
-         s:nf(semStatus.valor)+' leads sem status', c:'#f87171'}
-      ];
-      document.getElementById('lead-tiles').innerHTML=tiles.map(function(t){
-        return '<div class="lead-t" style="--c:'+t.c+'"><div class="n">'+(typeof t.n==='number'?nf(t.n):t.n)+'</div>'
-             + '<div class="l">'+t.l+'</div><div class="s">'+t.s+'</div></div>';
-      }).join('');
-
-      // a linha do "e daí" — onde está o gargalo e o que fazer
-      var parados=val('Tentando Contato');
-      var say=document.getElementById('lead-say');
-      var plural=(reunioes===1?'1 reunião agendada':reunioes+' reuniões agendadas');
-      if(say) say.innerHTML='<b>Gargalo:</b> '+parados+' leads presos em “Tentando Contato” — pra '+plural+'. '
-        + '<b>Risco:</b> '+nf(semStatus.valor)+' leads ('+semStatus.pct+'%) sem status nenhum, fora de qualquer fluxo. '
-        + '<span style="color:var(--home-text-muted,#6797b8)">Números são foto de agora, não fluxo do mês.</span>';
-    }).catch(function(){
-      var m=document.getElementById('lead-meta'); if(m) m.textContent='snapshot indisponível';
-    });
-  })();
-  </script>
-
-  <!-- NORTH-STAR STRIP (3 números que importam) -->
-  <section class="home-section" data-sec="northstar" style="display:none">
-    <div id="northstar-strip" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px"></div>
+  <!-- ═══ EXPLORAR · demais ferramentas (fonte: OFFICE_NAV_OVERFLOW) ═══ -->
+  <section class="hx-section" data-sec="explorar" aria-labelledby="t-explorar">
+    <div class="hx-sec-head">
+      <h2 class="hx-sec-title" id="t-explorar">Explorar o Office</h2>
+    </div>
+    <div class="hx-explore" id="explore-grid"></div>
   </section>
 
-  <!-- HOJE (o que acontece hoje) -->
-  <section class="home-section" data-sec="hoje" style="display:none">
-    <h2 class="home-section-title">📌 <span data-i18n="home.today">Hoje</span></h2>
-    <div id="hoje-list" style="display:flex;flex-direction:column;gap:6px"></div>
+  <!-- ═══ AGENDA UNIFICADA ═══ -->
+  <section class="hx-section" data-sec="agenda" aria-labelledby="t-agenda">
+    <div class="hx-sec-head">
+      <h2 class="hx-sec-title" id="t-agenda">Agenda EPI-USE / SAP</h2>
+      <a class="hx-link" href="/inbound/calendar">Calendário completo →</a>
+    </div>
+    <div class="hx-chips" id="evt-tabs" role="group" aria-label="Filtrar camadas da agenda"></div>
+    <div id="evt-grid"><div class="hx-skel hx-skel-lg"></div></div>
   </section>
 
-  <!-- MEU FOCO (KPIs da persona) -->
-  <section class="home-section" data-sec="foco" style="display:none">
-    <h2 class="home-section-title" id="foco-title">🎯 <span data-i18n="home.focus">Meu foco</span></h2>
-    <div id="foco-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px"></div>
+  <!-- ═══ ANIVERSÁRIOS ═══ -->
+  <section class="hx-section" data-sec="bdays" aria-labelledby="t-bdays">
+    <div class="hx-sec-head"><h2 class="hx-sec-title" id="t-bdays">Próximos aniversários</h2></div>
+    <div class="hx-bdays" id="bday-grid"><div class="hx-skel"></div></div>
   </section>
 
-  <!-- DAILY DIGEST -->
-  <section class="home-section" data-sec="digest">
-    <h2 class="home-section-title">🌅 <span data-i18n="home.digest">Daily Digest</span></h2>
-    <div class="home-digest-grid" id="digest-grid">
-      <div class="home-empty skel" role="status" aria-busy="true" aria-label="Carregando"></div>
-    </div>
-  </section>
+</main>
 
-  <!-- METAS FY26 STRIP -->
-  <section class="home-section" data-sec="metas">
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px">
-      <h2 class="home-section-title" style="margin:0">🎯 <span data-i18n="home.topGoals">Top metas FY26</span></h2>
-      <span class="dk-live" data-i18n="home.live">AO VIVO</span>
-    </div>
-    <div class="home-metas-strip" id="metas-strip">
-      <div class="home-empty skel" role="status" aria-busy="true" aria-label="Carregando"></div>
-    </div>
-  </section>
-
-  <!-- REAL-TIME CHART PREVIEW (LinkedIn growth trend) -->
-  <section class="home-section" data-sec="growth">
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px">
-      <h2 class="home-section-title" style="margin:0">📈 <span data-i18n="home.growthTrend">Growth trend · LinkedIn 12 meses</span></h2>
-      <span class="dk-live" data-i18n="home.realtime">REAL-TIME</span>
-    </div>
-    <div class="dk-glass" style="padding:18px 22px">
-      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-bottom:12px">
-        <div>
-          <div style="font-size:11px;color:var(--dk-text-muted);text-transform:uppercase;letter-spacing:.1em" data-i18n="home.followers">Seguidores totais</div>
-          <div class="dk-num blue" style="font-size:38px;line-height:1">10.640</div>
-        </div>
-        <div style="text-align:right">
-          <span class="dk-sec-badge">+2.279 últimos 12m</span>
-        </div>
-      </div>
-      <div class="dk-chart-preview" data-points="[8361,8520,8745,8920,9150,9388,9580,9755,9920,10122,10355,10481,10640]"></div>
-    </div>
-  </section>
-
-  <script>
-  (async function(){
-    try{
-      const sec = document.querySelector('[data-sec="growth"]'); if(!sec) return;
-      const r = await fetch('/api/linkedin/historical?t=' + Date.now()); const d = await r.json();
-      const serie = (d.serie_mensal || []).filter(x => x.total_seguidores != null);
-      if(!serie.length) return;
-      const pts = serie.map(x => x.total_seguidores);
-      const last = pts[pts.length - 1];
-      const base = pts.length >= 13 ? pts[pts.length - 13] : pts[0];
-      const num = sec.querySelector('.dk-num'); if(num) num.textContent = last.toLocaleString('pt-BR');
-      const badge = sec.querySelector('.dk-sec-badge'); if(badge){ const dl = last - base; badge.textContent = (dl >= 0 ? '+' : '') + dl.toLocaleString('pt-BR') + ' últimos 12m'; }
-      const chart = sec.querySelector('.dk-chart-preview'); if(chart){ chart.setAttribute('data-points', JSON.stringify(pts.slice(-13))); window.dispatchEvent(new Event('office-theme-change')); }
-    }catch(e){}
-  })();
-  </script>
-
-  <!-- GRID 6 ÁREAS -->
-  <section class="home-section" data-sec="areas">
-    <h2 class="home-section-title" data-i18n="home.areas">📂 Áreas · resumo</h2>
-    <div class="home-areas-grid" id="areas-grid">
-      <div class="home-empty skel" role="status" aria-busy="true" aria-label="Carregando"></div>
-    </div>
-  </section>
-
-  <!-- QUICK ACTIONS -->
-  <section class="home-section" data-sec="quick">
-    <h2 class="home-section-title">⚡ <span data-i18n="home.quickActions">Acessos rápidos</span></h2>
-    <div class="home-quick">
-      <a href="/voices/optimizer-v3"><span class="ico">🪪</span>Profile Optimizer</a>
-      <a href="/cowork"><span class="ico">🤝</span>Cowork (workflows)</a>
-      <a href="/painel"><span class="ico">🎯</span>Painel da Duda</a>
-      <a href="/relatorio"><span class="ico">📈</span>Relatório mensal</a>
-      <a href="/cafezinho"><span class="ico">☕</span>Cafezinho</a>
-      <a href="/horas"><span class="ico">⏰</span>Banco de Horas</a>
-    </div>
-  </section>
-
-  <!-- AGENDA UNIFICADA — eventos + posts + artigos + MDF/deadlines + datas -->
-  <section class="home-section" data-sec="agenda">
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:6px">
-      <h2 class="home-section-title" style="margin:0">📅 Agenda EPI-USE / SAP — <span id="evt-count">—</span></h2>
-      <a href="/inbound/calendar" style="font-size:11px;color:var(--dk-text-muted,var(--muted,#94a3b8));text-decoration:none;padding:4px 10px;border:1px solid rgba(96,165,250,.2);border-radius:6px">Ver calendário completo →</a>
-    </div>
-    <div style="font-size:11px;color:var(--dk-text-muted,var(--muted,#64748b));margin-bottom:10px">Tudo em 1 lugar — clique nas camadas pra filtrar:</div>
-    <div class="home-evt-tabs" id="evt-tabs" style="margin-bottom:12px;flex-wrap:wrap"></div>
-    <div class="home-evt-grid" id="evt-grid">
-      <div class="home-empty skel" role="status" aria-busy="true" aria-label="Carregando"></div>
-    </div>
-  </section>
-
-  <!-- ANIVERSÁRIOS -->
-  <section class="home-section" data-sec="bdays">
-    <h2 class="home-section-title">🎂 <span data-i18n="home.birthdays">Próximos aniversários</span></h2>
-    <div class="home-bday-grid" id="bday-grid">
-      <div class="home-empty skel" role="status" aria-busy="true" aria-label="Carregando"></div>
-    </div>
-  </section>
-
-  <!-- ALERTAS & BLOQUEIOS (era War Room) -->
-  <section class="home-section" data-sec="alertas">
-    <h2 class="home-section-title">🔴 <span data-i18n="home.alerts">Alertas & Bloqueios</span></h2>
-    <div class="home-alerts" id="alerts-list">
-      <div class="home-empty skel" role="status" aria-busy="true" aria-label="Carregando"></div>
-    </div>
-  </section>
-
-</div>
-
-<!-- Report Modal -->
+<!-- Report Modal (itens de atalho com "modal") -->
 <div id="report-modal-overlay" class="rpt-overlay" onclick="closeReportModal(event)">
-  <div class="rpt-modal">
-    <button class="rpt-close" onclick="closeReportModal(event,true)">&times;</button>
-    <div class="rpt-modal-icon">📊</div>
+  <div class="rpt-modal" role="dialog" aria-modal="true" aria-labelledby="rpt-modal-title">
+    <button class="rpt-close" onclick="closeReportModal(event,true)" aria-label="Fechar">&times;</button>
+    <div class="rpt-modal-icon" aria-hidden="true">📊</div>
     <h3 id="rpt-modal-title"></h3>
     <div class="rpt-links" id="rpt-modal-links"></div>
   </div>
 </div>
-
-<style>
-  .home-quick-modal { cursor:pointer; }
-
-  .rpt-overlay {
-    display:none; position:fixed; inset:0; z-index:9999;
-    background:rgba(0,0,0,.6); backdrop-filter:blur(6px);
-    justify-content:center; align-items:center;
-  }
-  .rpt-overlay.open { display:flex; animation:rptFadeIn .2s ease; }
-  @keyframes rptFadeIn { from{opacity:0} to{opacity:1} }
-
-  .rpt-modal {
-    background:var(--home-bg,#0f1d36); border:1px solid rgba(96,165,250,.2);
-    border-radius:18px; padding:32px 28px 28px; max-width:420px; width:92%;
-    position:relative; box-shadow:0 20px 60px rgba(0,0,0,.5);
-    animation:rptSlideUp .25s ease;
-  }
-  @keyframes rptSlideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
-
-  .rpt-close {
-    position:absolute; top:14px; right:16px; background:none; border:none;
-    color:var(--home-text-muted,#64748b); font-size:22px; cursor:pointer;
-    width:32px; height:32px; display:flex; align-items:center; justify-content:center;
-    border-radius:8px; transition:all .15s;
-  }
-  .rpt-close:hover { background:rgba(255,255,255,.08); color:var(--home-text,#e6ebf2); }
-
-  .rpt-modal-icon { font-size:36px; margin-bottom:8px; }
-  .rpt-modal h3 { font-size:18px; font-weight:700; margin:0 0 20px; color:var(--home-text,#e6ebf2); }
-
-  .rpt-links { display:flex; flex-direction:column; gap:10px; }
-  .rpt-link {
-    display:flex; align-items:center; gap:12px;
-    padding:14px 16px; border-radius:12px; text-decoration:none;
-    background:rgba(96,165,250,.06); border:1px solid rgba(96,165,250,.12);
-    transition:all .18s ease; color:var(--home-text,#e6ebf2);
-  }
-  .rpt-link:hover {
-    background:rgba(96,165,250,.14); border-color:rgba(96,165,250,.35);
-    transform:translateX(4px); box-shadow:0 2px 12px rgba(96,165,250,.12);
-  }
-  .rpt-link .rl-ico { font-size:22px; flex-shrink:0; }
-  .rpt-link .rl-text { flex:1; }
-  .rpt-link .rl-title { font-size:14px; font-weight:600; }
-  .rpt-link .rl-sub { font-size:11px; color:var(--home-text-muted,#64748b); margin-top:2px; }
-  .rpt-link .rl-go { font-size:13px; color:#60a5fa; opacity:.5; transition:all .15s; }
-  .rpt-link:hover .rl-go { opacity:1; transform:translateX(2px); }
-</style>
 
 <script>
 var REPORT_DATA = {
@@ -425,6 +138,5 @@ document.addEventListener('keydown', function(e) {
 <script src="/office-nav.js"></script>
 <script src="/office-footer.js"></script>
 <script src="/js/home.js"></script>
-<script src="/js/live-charts.js"></script>
 </body>
 </html>

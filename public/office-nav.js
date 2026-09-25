@@ -217,7 +217,7 @@ const OFFICE_NAV_INACTIVE = [
   { label: '📊 Planilhas (Live API)',     href: '/planilhas' }
 ];
 // Fonte única para o /changelog listar os inativos
-try { window.OFFICE_NAV_INACTIVE = OFFICE_NAV_INACTIVE; } catch (e) {}
+try { window.OFFICE_NAV_INACTIVE = OFFICE_NAV_INACTIVE; window.OFFICE_NAV_OVERFLOW = OFFICE_NAV_OVERFLOW; } catch (e) {}
 
 class OfficeNav extends HTMLElement {
   constructor() {

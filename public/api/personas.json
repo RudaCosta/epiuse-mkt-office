@@ -1,14 +1,34 @@
 {
-  "_obs": "Home por role (S38 v0.36.0 · quick[] por persona v0.81.0). emails: mapa email SSO -> persona (ajustar emails reais quando SSO ativar — só ruda confirmado). personas: ordem das seções da home + KPIs do bloco 'Meu foco' + quick[] (Acessos rápidos — itens {icon,label,href} por pessoa; fallback quick_default). Seções: northstar, hoje, foco, digest, metas, growth, areas, quick, agenda, bdays, team, alertas.",
+  "_obs": "Home v2 (25/set/2026): hub de navegação sem KPIs. emails: mapa email SSO -> persona. personas: ordem das seções (atalhos, areas, explorar, agenda, bdays) + area (card 'Sua área' vai pro topo) + quick[] (atalhos por pessoa; fallback quick_default).",
   "emails": {
     "ruda.costa@epiuse.com.br": "ruda"
   },
   "quick_default": [
-    { "icon": "🪪", "label": "Profile Optimizer", "href": "/voices/optimizer-v3" },
-    { "icon": "🤝", "label": "Cowork (workflows)", "href": "/cowork" },
-    { "icon": "🎯", "label": "Painel da Duda", "href": "/painel" },
-    { "icon": "📣", "label": "Campanhas em jogo", "href": "/campanhas" },
-    { "icon": "📈", "label": "Relatório mensal", "href": "/relatorio" }
+    {
+      "icon": "🪪",
+      "label": "Profile Optimizer",
+      "href": "/voices/optimizer-v3"
+    },
+    {
+      "icon": "🤝",
+      "label": "Cowork (workflows)",
+      "href": "/cowork"
+    },
+    {
+      "icon": "🎯",
+      "label": "Painel da Duda",
+      "href": "/painel"
+    },
+    {
+      "icon": "📣",
+      "label": "Campanhas em jogo",
+      "href": "/campanhas"
+    },
+    {
+      "icon": "📈",
+      "label": "Relatório mensal",
+      "href": "/relatorio"
+    }
   ],
   "personas": {
     "ruda": {
@@ -16,31 +36,54 @@
       "icon": "🎯",
       "role": "Head RevOps & Marketing",
       "ordem": [
-        "northstar",
-        "hoje",
-        "digest",
-        "metas",
-        "growth",
+        "atalhos",
         "areas",
-        "quick",
+        "explorar",
         "agenda",
-        "bdays",
-        "team",
-        "alertas"
+        "bdays"
       ],
-      "esconde": [
-        "foco"
-      ],
-      "kpis": [],
+      "esconde": [],
       "quick": [
-        { "icon": "🎙️", "label": "Inscrições Voices", "href": "/admin/inscricoes" },
-        { "icon": "🔗", "label": "UTM & Links", "href": "/admin/utm" },
-        { "icon": "📊", "label": "Analytics de Uso", "href": "/admin/analytics" },
-        { "icon": "🪙", "label": "Coins & Resgates", "href": "/admin/coins" },
-        { "icon": "👥", "label": "Usuários & Perfis", "href": "/admin/usuarios" },
-        { "icon": "📂", "label": "Meus Links & QR", "href": "/meus-links" },
-        { "icon": "📣", "label": "Campanhas", "href": "/campanhas" },
-        { "icon": "📈", "label": "Relatório mensal", "href": "/relatorio" }
+        {
+          "icon": "🎙️",
+          "label": "Inscrições Voices",
+          "href": "/admin/inscricoes"
+        },
+        {
+          "icon": "🔗",
+          "label": "UTM & Links",
+          "href": "/admin/utm"
+        },
+        {
+          "icon": "📊",
+          "label": "Analytics de Uso",
+          "href": "/admin/analytics"
+        },
+        {
+          "icon": "🪙",
+          "label": "Coins & Resgates",
+          "href": "/admin/coins"
+        },
+        {
+          "icon": "👥",
+          "label": "Usuários & Perfis",
+          "href": "/admin/usuarios"
+        },
+        {
+          "icon": "📂",
+          "label": "Meus Links & QR",
+          "href": "/meus-links"
+        },
+        {
+          "icon": "📣",
+          "label": "Campanhas",
+          "href": "/campanhas"
+        },
+        {
+          "icon": "📈",
+          "label": "Relatório mensal",
+          "href": "/relatorio"
+        }
       ]
     },
     "duda": {
@@ -48,256 +91,332 @@
       "icon": "🎨",
       "role": "Brand Experience",
       "ordem": [
-        "quick",
-        "foco",
-        "hoje",
-        "agenda",
-        "digest",
-        "bdays",
-        "alertas"
-      ],
-      "esconde": [
-        "northstar",
-        "metas",
-        "growth",
+        "atalhos",
         "areas",
-        "team"
+        "explorar",
+        "agenda",
+        "bdays"
       ],
-      "kpis": [
-        "posts_semana",
-        "content_aguardando",
-        "voices_ativos"
-      ],
+      "esconde": [],
       "quick": [
-        { "icon": "📝", "label": "Pautas dos Voices", "href": "/voices/pautas" },
-        { "icon": "🎙️", "label": "Voices", "href": "/voices" },
-        { "icon": "🦝", "label": "Raccoon Studio", "href": "/raccoon" },
-        { "icon": "🤝", "label": "Cases & CS", "href": "/cases" },
-        { "icon": "🎨", "label": "Design System", "href": "/design" },
-        { "icon": "🔗", "label": "UTM & Links", "href": "/admin/utm" },
-        { "icon": "📂", "label": "Meus Links & QR", "href": "/meus-links" },
-        { "icon": "🏪", "label": "Loja de Coins", "href": "/loja" },
-        { "icon": "📣", "label": "Campanhas", "href": "/campanhas" },
-        { "icon": "📊", "label": "Report · EPI-USE", "modal": "epiuse" },
-        { "icon": "📊", "label": "Report · Stratview", "modal": "stratview" }
-      ]
+        {
+          "icon": "📝",
+          "label": "Pautas dos Voices",
+          "href": "/voices/pautas"
+        },
+        {
+          "icon": "🎙️",
+          "label": "Voices",
+          "href": "/voices"
+        },
+        {
+          "icon": "🦝",
+          "label": "Raccoon Studio",
+          "href": "/raccoon"
+        },
+        {
+          "icon": "🤝",
+          "label": "Cases & CS",
+          "href": "/cases"
+        },
+        {
+          "icon": "🎨",
+          "label": "Design System",
+          "href": "/design"
+        },
+        {
+          "icon": "🔗",
+          "label": "UTM & Links",
+          "href": "/admin/utm"
+        },
+        {
+          "icon": "📂",
+          "label": "Meus Links & QR",
+          "href": "/meus-links"
+        },
+        {
+          "icon": "🏪",
+          "label": "Loja de Coins",
+          "href": "/loja"
+        },
+        {
+          "icon": "📣",
+          "label": "Campanhas",
+          "href": "/campanhas"
+        },
+        {
+          "icon": "📊",
+          "label": "Report · EPI-USE",
+          "modal": "epiuse"
+        },
+        {
+          "icon": "📊",
+          "label": "Report · Stratview",
+          "modal": "stratview"
+        }
+      ],
+      "area": "brand"
     },
     "bruna": {
       "nome": "Bruna",
       "icon": "🧠",
       "role": "Intelligence & CRM",
       "ordem": [
-        "quick",
-        "foco",
-        "hoje",
-        "agenda",
-        "digest",
-        "alertas"
-      ],
-      "esconde": [
-        "northstar",
-        "metas",
-        "growth",
+        "atalhos",
         "areas",
-        "team",
+        "explorar",
+        "agenda",
         "bdays"
       ],
-      "kpis": [
-        "apollo_contatos",
-        "apollo_sequencias",
-        "linkedin_total"
-      ],
+      "esconde": [],
       "quick": [
-        { "icon": "🎁", "label": "Brindes (fila)", "href": "/hub/brindes" },
-        { "icon": "🔗", "label": "UTM & Links", "href": "/admin/utm" },
-        { "icon": "📂", "label": "Meus Links & QR", "href": "/meus-links" },
-        { "icon": "📊", "label": "LinkedIn Intelligence", "href": "/linkedin" },
-        { "icon": "📣", "label": "Campanhas", "href": "/campanhas" },
-        { "icon": "🏪", "label": "Loja de Coins", "href": "/loja" }
-      ]
+        {
+          "icon": "🎁",
+          "label": "Brindes (fila)",
+          "href": "/hub/brindes"
+        },
+        {
+          "icon": "🔗",
+          "label": "UTM & Links",
+          "href": "/admin/utm"
+        },
+        {
+          "icon": "📂",
+          "label": "Meus Links & QR",
+          "href": "/meus-links"
+        },
+        {
+          "icon": "📊",
+          "label": "LinkedIn Intelligence",
+          "href": "/linkedin"
+        },
+        {
+          "icon": "📣",
+          "label": "Campanhas",
+          "href": "/campanhas"
+        },
+        {
+          "icon": "🏪",
+          "label": "Loja de Coins",
+          "href": "/loja"
+        }
+      ],
+      "area": "intelligence"
     },
     "gui": {
       "nome": "Gui",
       "icon": "🚀",
       "role": "Growth & Performance",
       "ordem": [
-        "quick",
-        "foco",
-        "growth",
-        "hoje",
-        "agenda",
-        "alertas"
-      ],
-      "esconde": [
-        "northstar",
-        "metas",
+        "atalhos",
         "areas",
-        "team",
-        "bdays",
-        "digest"
+        "explorar",
+        "agenda",
+        "bdays"
       ],
-      "kpis": [
-        "linkedin_total",
-        "linkedin_novos",
-        "ga4_usuarios"
-      ],
+      "esconde": [],
       "quick": [
-        { "icon": "🔗", "label": "UTM & Links", "href": "/admin/utm" },
-        { "icon": "📂", "label": "Meus Links & QR", "href": "/meus-links" },
-        { "icon": "📊", "label": "LinkedIn Intelligence", "href": "/linkedin" },
-        { "icon": "📚", "label": "Artigos do Blog", "href": "/artigos" },
-        { "icon": "📣", "label": "Campanhas", "href": "/campanhas" },
-        { "icon": "🏪", "label": "Loja de Coins", "href": "/loja" }
-      ]
+        {
+          "icon": "🔗",
+          "label": "UTM & Links",
+          "href": "/admin/utm"
+        },
+        {
+          "icon": "📂",
+          "label": "Meus Links & QR",
+          "href": "/meus-links"
+        },
+        {
+          "icon": "📊",
+          "label": "LinkedIn Intelligence",
+          "href": "/linkedin"
+        },
+        {
+          "icon": "📚",
+          "label": "Artigos do Blog",
+          "href": "/artigos"
+        },
+        {
+          "icon": "📣",
+          "label": "Campanhas",
+          "href": "/campanhas"
+        },
+        {
+          "icon": "🏪",
+          "label": "Loja de Coins",
+          "href": "/loja"
+        }
+      ],
+      "area": "growth"
     },
     "field": {
       "nome": "Field Marketing",
       "icon": "📣",
       "role": "Field Marketing & Eventos",
       "ordem": [
-        "quick",
-        "foco",
-        "hoje",
-        "agenda",
-        "digest",
-        "alertas"
-      ],
-      "esconde": [
-        "northstar",
-        "metas",
-        "growth",
+        "atalhos",
         "areas",
-        "team",
+        "explorar",
+        "agenda",
         "bdays"
       ],
-      "kpis": [
-        "eventos_30d",
-        "capturas_pendentes",
-        "claims_df"
-      ],
+      "esconde": [],
       "quick": [
-        { "icon": "📱", "label": "QR de eventos", "href": "/meus-links" },
-        { "icon": "📣", "label": "Field Marketing", "href": "/field-marketing" },
-        { "icon": "🎁", "label": "Brindes", "href": "/hub/brindes" },
-        { "icon": "🔗", "label": "UTM & Links", "href": "/admin/utm" },
-        { "icon": "📣", "label": "Campanhas", "href": "/campanhas" },
-        { "icon": "🏪", "label": "Loja de Coins", "href": "/loja" }
-      ]
+        {
+          "icon": "📱",
+          "label": "QR de eventos",
+          "href": "/meus-links"
+        },
+        {
+          "icon": "📣",
+          "label": "Field Marketing",
+          "href": "/field-marketing"
+        },
+        {
+          "icon": "🎁",
+          "label": "Brindes",
+          "href": "/hub/brindes"
+        },
+        {
+          "icon": "🔗",
+          "label": "UTM & Links",
+          "href": "/admin/utm"
+        },
+        {
+          "icon": "📣",
+          "label": "Campanhas",
+          "href": "/campanhas"
+        },
+        {
+          "icon": "🏪",
+          "label": "Loja de Coins",
+          "href": "/loja"
+        }
+      ],
+      "area": "eventos"
     },
     "marlison": {
       "nome": "Marlison",
       "icon": "📞",
       "role": "Development Sales / Pipeline",
       "ordem": [
-        "quick",
-        "foco",
-        "hoje",
-        "agenda",
-        "alertas"
-      ],
-      "esconde": [
-        "northstar",
-        "metas",
-        "growth",
+        "atalhos",
         "areas",
-        "team",
-        "bdays",
-        "digest"
+        "explorar",
+        "agenda",
+        "bdays"
       ],
-      "kpis": [
-        "pipeline_fy",
-        "golives_30d",
-        "apollo_sequencias"
-      ],
+      "esconde": [],
       "quick": [
-        { "icon": "🤖", "label": "JARVIS — Copiloto SDR", "href": "/jarvis" },
-        { "icon": "📞", "label": "Pipeline (Apollo/Zoho)", "href": "/pipeline" },
-        { "icon": "📂", "label": "Meus Links & QR", "href": "/meus-links" },
-        { "icon": "🔗", "label": "UTM & Links", "href": "/admin/utm" },
-        { "icon": "📣", "label": "Campanhas", "href": "/campanhas" },
-        { "icon": "🏪", "label": "Loja de Coins", "href": "/loja" }
-      ]
+        {
+          "icon": "🤖",
+          "label": "JARVIS — Copiloto SDR",
+          "href": "/jarvis"
+        },
+        {
+          "icon": "📞",
+          "label": "Pipeline (Apollo/Zoho)",
+          "href": "/pipeline"
+        },
+        {
+          "icon": "📂",
+          "label": "Meus Links & QR",
+          "href": "/meus-links"
+        },
+        {
+          "icon": "🔗",
+          "label": "UTM & Links",
+          "href": "/admin/utm"
+        },
+        {
+          "icon": "📣",
+          "label": "Campanhas",
+          "href": "/campanhas"
+        },
+        {
+          "icon": "🏪",
+          "label": "Loja de Coins",
+          "href": "/loja"
+        }
+      ],
+      "area": "pipeline"
     },
     "roberto": {
       "nome": "Roberto",
       "icon": "🏛️",
       "role": "Country Manager",
       "ordem": [
-        "northstar",
-        "foco",
-        "metas",
-        "agenda",
         "areas",
-        "alertas"
+        "atalhos",
+        "explorar",
+        "agenda",
+        "bdays"
       ],
-      "esconde": [
-        "hoje",
-        "growth",
-        "quick",
-        "bdays",
-        "team",
-        "digest"
-      ],
-      "kpis": [
-        "pipeline_mkt_sourced",
-        "receita_ganha",
-        "pipeline_fy",
-        "df_meta_pct"
-      ]
+      "esconde": []
     },
     "conteudo": {
       "nome": "Lisiane",
       "icon": "📣",
       "role": "Conteúdo / Redatoria",
       "ordem": [
-        "quick",
-        "foco",
-        "hoje",
-        "agenda",
-        "digest",
-        "alertas"
-      ],
-      "esconde": [
-        "northstar",
-        "metas",
-        "growth",
+        "atalhos",
         "areas",
-        "team",
+        "explorar",
+        "agenda",
         "bdays"
       ],
-      "kpis": [
-        "content_aguardando",
-        "posts_semana"
-      ],
+      "esconde": [],
       "quick": [
-        { "icon": "📝", "label": "Pautas dos Voices", "href": "/voices/pautas" },
-        { "icon": "📚", "label": "Artigos do Blog", "href": "/artigos" },
-        { "icon": "🗺️", "label": "Jornadas de Compra", "href": "/jornadas" },
-        { "icon": "📂", "label": "Meus Links & QR", "href": "/meus-links" },
-        { "icon": "🔗", "label": "UTM & Links", "href": "/admin/utm" },
-        { "icon": "📣", "label": "Campanhas", "href": "/campanhas" },
-        { "icon": "🏪", "label": "Loja de Coins", "href": "/loja" }
-      ]
+        {
+          "icon": "📝",
+          "label": "Pautas dos Voices",
+          "href": "/voices/pautas"
+        },
+        {
+          "icon": "📚",
+          "label": "Artigos do Blog",
+          "href": "/artigos"
+        },
+        {
+          "icon": "🗺️",
+          "label": "Jornadas de Compra",
+          "href": "/jornadas"
+        },
+        {
+          "icon": "📂",
+          "label": "Meus Links & QR",
+          "href": "/meus-links"
+        },
+        {
+          "icon": "🔗",
+          "label": "UTM & Links",
+          "href": "/admin/utm"
+        },
+        {
+          "icon": "📣",
+          "label": "Campanhas",
+          "href": "/campanhas"
+        },
+        {
+          "icon": "🏪",
+          "label": "Loja de Coins",
+          "href": "/loja"
+        }
+      ],
+      "area": "conteudo"
     },
     "visitante": {
       "nome": "Visitante",
       "icon": "👤",
       "role": "Visão completa",
       "ordem": [
-        "northstar",
-        "hoje",
-        "digest",
-        "metas",
-        "growth",
+        "atalhos",
         "areas",
-        "quick",
+        "explorar",
         "agenda",
-        "bdays",
-        "team",
-        "alertas"
+        "bdays"
       ],
-      "esconde": [],
-      "kpis": []
+      "esconde": []
     }
   }
 }

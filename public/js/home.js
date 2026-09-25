@@ -1,16 +1,14 @@
-// home.js — EPI-USE Office HOME (Sprint 20 · v2 pipeline)
-// Carrega digest + métricas + áreas + alertas em paralelo
-// Tema é gerenciado pelo office-nav (NÃO duplicar — Ressalva R4)
+// home.js — EPI-USE Office HOME v2 (25/set/2026)
+// Hub de navegação: busca ⌘K · atalhos da persona · áreas com atalhos · explorar · agenda · aniversários.
+// Sem KPIs e sem tags de sync (decisão Rudá) — números moram em /area/:id e /relatorio.
+// Visual 100% tokens do DESIGN.md v4.0 (css/home-v2.css). Tema é do office-nav (não duplicar).
 
 (function() {
   'use strict';
-  // marca JS carregado — fallback sem JS mantem sections visiveis (CSS rule)
-  document.documentElement.classList.add('js-loaded');
 
   // ── HELPERS ─────────────────────────────────────────────────────
   const $ = id => document.getElementById(id);
-  const fmt = n => n == null ? '—' : (typeof n === 'number' ? n.toLocaleString('pt-BR') : n);
-  const esc = s => String(s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
   function saudacao() {
     const h = new Date().getHours();
@@ -18,19 +16,6 @@
     if (h < 12) return 'Bom dia';
     if (h < 18) return 'Boa tarde';
     return 'Boa noite';
-  }
-
-  // SVG sparkline minimalista (4-8 pontos)
-  function spark(pts, cor) {
-    if (!pts || pts.length < 2) return '<svg viewBox="0 0 100 28"></svg>';
-    const max = Math.max(...pts), min = Math.min(...pts), rng = (max-min) || 1;
-    const w = 100, h = 28, pad = 2;
-    const xs = pts.map((_, i) => pad + i * (w - 2*pad) / (pts.length-1));
-    const ys = pts.map(v => h - pad - (v - min) * (h - 2*pad) / rng);
-    const line = pts.map((v, i) => (i ? 'L' : 'M') + xs[i].toFixed(1) + ' ' + ys[i].toFixed(1)).join(' ');
-    return `<svg viewBox="0 0 ${w} ${h}" class="area-spark" preserveAspectRatio="none">
-      <path d="${line}" fill="none" stroke="${cor||'#6797b8'}" stroke-width="2" stroke-linecap="round"/>
-    </svg>`;
   }
 
   // ── NOME do usuário (SSO > persona ativa > office.user) ─────────
@@ -74,466 +59,325 @@
     }
   }
 
-  // ── DIGEST (3 cards) ────────────────────────────────────────────
-  async function renderDigest() {
-    const target = $('digest-grid');
-    try {
-      const [voicesR, eventosR, pendR] = await Promise.all([
-        fetch('/api/voices.json').then(r => r.json()).catch(() => ({})),
-        fetch('/api/events.json').then(r => r.json()).catch(() => ({})),
-        fetch('/api/pendencias').then(r => r.json()).catch(() => ({}))
-      ]);
-      const voicesAtivos = (voicesR.voices || []).length;
-      const voicesMeta = voicesR.programa?.vagas_total || 5;
-      const ev7d = countEventos7d(eventosR);
-      const bloqueados = (pendR.buckets?.bloqueadas || []).length + (pendR.buckets?.achados || []).length;
-      target.innerHTML = `
-        <div class="home-digest-card">
-          <div class="label">Voices ativos</div>
-          <div class="value">${voicesAtivos}/${voicesMeta}</div>
-          <div class="sub">programa MVP em curso</div>
-        </div>
-        <div class="home-digest-card${ev7d === 0 ? '' : ' warn'}">
-          <div class="label">Eventos · próximos 7d</div>
-          <div class="value">${ev7d}</div>
-          <div class="sub">${ev7d === 0 ? 'sem eventos esta semana' : 'na agenda'}</div>
-        </div>
-        <div class="home-digest-card${bloqueados > 0 ? ' alert' : ''}">
-          <div class="label">Pendências 🔴 / ⚠️</div>
-          <div class="value">${bloqueados}</div>
-          <div class="sub">${bloqueados === 0 ? 'tudo no eixo' : 'ver Alertas & Bloqueios ↓'}</div>
-        </div>`;
-    } catch (e) {
-      target.innerHTML = '<div class="home-empty">Erro ao carregar digest.</div>';
-    }
+
+  // ── BUSCA ⌘K — reaproveita a paleta global do office-nav.js ──────
+  function initSearch() {
+    const btn = $('hx-search'); if (!btn) return;
+    const kbd = $('hx-kbd');
+    if (kbd && /Mac|iPhone|iPad/.test(navigator.platform || '')) kbd.textContent = '⌘ K';
+    btn.addEventListener('click', () => {
+      try { if (typeof OfficeCommandPalette !== 'undefined') return OfficeCommandPalette.open(); } catch (e) {}
+      // fallback: dispara o atalho de teclado que o office-nav escuta
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, metaKey: true, bubbles: true }));
+    });
   }
 
-  function countEventos7d(ev) {
-    try {
-      const lista = []
-        .concat((ev.abas?.brasil?.eventos) || [])
-        .concat((ev.abas?.latam?.eventos) || []);
-      const hoje = new Date();
-      const ymHoje = hoje.getFullYear() * 100 + (hoje.getMonth() + 1);
-      // contagem aproximada: eventos do mês corrente
-      return lista.filter(e => {
-        if (e.y && e.m) return (e.y * 100 + e.m) === ymHoje;
-        return false;
-      }).length;
-    } catch { return 0; }
+  // ── MANADA ANIMADA (hero) — elefante + filhote em SVG/JS puro ──────
+  // Brand Guide 2026 · seção 04: imagem = natureza e animais em estado natural.
+  // Liga ao ERP.ngo (1% da receita → elefantes e rinocerontes). Respeita prefers-reduced-motion.
+  function elephantSVG(cls) {
+    // de perfil, virado pra ESQUERDA (sentido da caminhada)
+    return `<svg class="hx-el ${cls}" viewBox="0 0 124 84" aria-hidden="true">
+      <path class="el-tail" d="M101 36 q9 6 7 18" fill="none" stroke-width="2.5" stroke-linecap="round"/>
+      <g class="el-leg el-back-far"><rect x="86" y="48" width="10" height="24" rx="4"/></g>
+      <g class="el-leg el-front-far"><rect x="50" y="48" width="10" height="24" rx="4"/></g>
+      <ellipse class="el-body" cx="72" cy="40" rx="33" ry="21"/>
+      <g class="el-leg el-back"><rect x="93" y="48" width="10" height="25" rx="4"/></g>
+      <g class="el-leg el-front"><rect x="57" y="48" width="10" height="25" rx="4"/></g>
+      <g class="el-head">
+        <circle class="el-skull" cx="38" cy="33" r="16"/>
+        <path class="el-trunk" d="M27 40 Q15 52 19 66" fill="none" stroke-width="7.5" stroke-linecap="round"/>
+        <path class="el-tusk" d="M30 44 q-6 4 -11 2" fill="none" stroke-width="2.4" stroke-linecap="round"/>
+        <ellipse class="el-ear" cx="50" cy="32" rx="11" ry="14"/>
+        <circle class="el-eye" cx="32" cy="29" r="1.8"/>
+      </g>
+    </svg>`;
   }
 
-  // ── METAS FY26 STRIP ────────────────────────────────────────────
-  async function renderMetas() {
-    const target = $('metas-strip');
-    try {
-      const r = await fetch('/api/areas.json'); const d = await r.json();
-      const metas = [];
-      (d.areas || []).forEach(a => {
-        (a.funil || []).forEach(s => {
-          if (s.valor != null && s.meta) {
-            const pct = Math.round(100 * s.valor / s.meta);
-            metas.push({ nome: a.nome.split(' ')[0], estagio: s.estagio, valor: s.valor, meta: s.meta, pct, cor: a.cor });
-          }
-        });
-      });
-      const top = metas.sort((a, b) => b.pct - a.pct).slice(0, 5);
-      if (!top.length) { target.innerHTML = '<div class="home-empty">Sem metas com valor real ainda.</div>'; return; }
-      target.innerHTML = top.map(m => {
-        const cls = m.pct >= 75 ? 'ok' : m.pct >= 50 ? 'warn' : 'off';
-        return `<div class="home-meta-cell">
-          <div class="nome">${esc(m.nome)} · ${esc(m.estagio.slice(0, 20))}</div>
-          <div class="pct ${cls}">${m.pct}%</div>
-          <div class="bar"><i class="${cls}" style="width:${Math.min(100,m.pct)}%"></i></div>
-        </div>`;
-      }).join('');
-    } catch {
-      target.innerHTML = '<div class="home-empty">⏳ Aguarda integração de metas.</div>';
-    }
-  }
+  function initElephant() {
+    const hero = document.querySelector('.hx-hero'); if (!hero || $('hx-herd')) return;
+    const herd = document.createElement('a');
+    herd.id = 'hx-herd'; herd.className = 'hx-herd';
+    herd.href = 'https://erp.ngo'; herd.target = '_blank'; herd.rel = 'noopener';
+    herd.title = '1% da receita protege elefantes e rinocerontes · erp.ngo';
+    herd.setAttribute('aria-label', 'ERP.ngo: 1% da receita protege elefantes e rinocerontes');
+    herd.innerHTML = elephantSVG('el-mae') + elephantSVG('el-filhote');
+    hero.appendChild(herd);
 
-  // ── GRID 6 ÁREAS + SAP card disabled (7º) ───────────────────────
-  async function renderAreas() {
-    const target = $('areas-grid');
-    try {
-      const r = await fetch('/api/areas.json'); const d = await r.json();
-      const areas = d.areas || [];
-      const cards = areas.map(a => {
-        const cor = a.cor || '#6797b8';
-        const kpis = (a.kpis || []).slice(0, 2).map(k => {
-          const v = k.valor != null ? fmt(k.valor) : '<span style="color:var(--home-text-muted)">⏳</span>';
-          return `<div class="area-kpi"><span>${esc(k.label).slice(0, 22)}</span><strong>${v}</strong></div>`;
-        }).join('');
-        // sparkline: usa valores numéricos do funil se houver, senão omite
-        const valoresNum = (a.funil || []).map(s => s.valor).filter(v => typeof v === 'number');
-        const sparkSvg = valoresNum.length >= 2 ? spark(valoresNum, cor) : '';
-        return `<a class="home-area-card" href="/area/${esc(a.id)}" style="--area-color:${cor}">
-          <div>
-            <div class="area-head">
-              <span class="area-icon">${esc(a.icon||'📂')}</span>
-            </div>
-            <div class="area-nome">${esc(a.nome)}</div>
-            <div class="area-dona">👤 ${esc(a.dona)}</div>
-            <div class="area-kpis">${kpis}</div>
-            ${sparkSvg}
-          </div>
-          <div class="area-footer"><span>Abrir módulo</span><span class="arrow">→</span></div>
-        </a>`;
-      }).join('');
-      // SAP Competitor "em breve" (Ressalva: skill não funciona ainda)
-      const sapCard = `<div class="home-area-card disabled" style="--area-color:#a37d57" aria-disabled="true">
-        <div>
-          <div class="area-head">
-            <span class="area-icon">🔍</span>
-            <span class="area-emcoming">🔜 em breve</span>
-          </div>
-          <div class="area-nome">SAP Competitor Intel</div>
-          <div class="area-dona">👤 Bruna · skill em construção</div>
-          <div class="area-kpis">
-            <div class="area-kpi"><span>Concorrentes mapeados</span><strong>⏳</strong></div>
-            <div class="area-kpi"><span>LinkedIn ranking</span><strong>⏳</strong></div>
-          </div>
-        </div>
-        <div class="area-footer"><span>Indisponível</span><span class="arrow">·</span></div>
-      </div>`;
-      target.innerHTML = cards + sapCard;
-    } catch {
-      target.innerHTML = '<div class="home-empty">Erro ao carregar áreas.</div>';
-    }
-  }
+    const els = [...herd.querySelectorAll('.hx-el')].map((svg, i) => ({
+      svg, fase: i * 1.7,
+      legs: [...svg.querySelectorAll('.el-leg')],
+      trunk: svg.querySelector('.el-trunk'),
+      tail: svg.querySelector('.el-tail'),
+      head: svg.querySelector('.el-head'),
+    }));
+    // pivô de cada pata = topo (quadril/ombro)
+    els.forEach(e => e.legs.forEach(g => {
+      const r = g.querySelector('rect');
+      g.style.transformOrigin = `${+r.getAttribute('x') + 5}px ${r.getAttribute('y')}px`;
+      g.style.transformBox = 'view-box';
+    }));
 
-  // ── ALERTAS & BLOQUEIOS (substitui War Room) ────────────────────
-  async function renderAlertas() {
-    const target = $('alerts-list');
-    try {
-      const r = await fetch('/api/pendencias'); const d = await r.json();
-      const bloq = d.buckets?.bloqueadas || [];
-      const ach = d.buckets?.achados || [];
-      const items = [
-        ...bloq.map(x => ({ ...x, tipo: 'b', tag: '🔴 BLOQ' })),
-        ...ach.map(x => ({ ...x, tipo: 'a', tag: '⚠️ ACHADO' }))
-      ];
-      if (!items.length) {
-        target.innerHTML = '<div class="home-empty">🎉 Sem bloqueios ativos.</div>';
-        return;
+    const reduz = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduz) { herd.classList.add('is-still'); return; }
+
+    let x = null, pausaAte = 0, last = performance.now(), passo = 0;
+    const VEL = 34;                 // px/s — passo calmo de manada
+    function frame(now) {
+      const dt = Math.min(0.05, (now - last) / 1000); last = now;
+      const W = hero.clientWidth, w = herd.offsetWidth || 200;
+      if (x === null) x = W * 0.62;
+      const parado = now < pausaAte;
+      if (!parado) {
+        x -= VEL * dt; passo += dt * 5.2;
+        if (x < -w - 20) { x = W + 20; }                       // reentra pela direita
+        if (Math.random() < dt * 0.06) pausaAte = now + 2600;   // de vez em quando para pra "farejar"
       }
-      target.innerHTML = items.map(i => `<div class="home-alert-item">
-        <span class="tag ${i.tipo}">${i.tag}</span>
-        <div style="flex:1; min-width:0;">
-          <div class="titulo">${esc(i.titulo)}</div>
-          <div class="desc">${esc((i.descricao||'').slice(0, 140))}</div>
-        </div>
-      </div>`).join('');
-    } catch {
-      target.innerHTML = '<div class="home-empty">Erro ao carregar alertas.</div>';
+      herd.style.transform = `translateX(${x.toFixed(1)}px)`;
+      els.forEach(e => {
+        const t = passo + e.fase, t2 = now / 1000 + e.fase;
+        const amp = parado ? 0 : 16;
+        // passada diagonal: dianteira-perto + traseira-longe em fase
+        const a = Math.sin(t) * amp, b = Math.sin(t + Math.PI) * amp;
+        e.legs[0].style.transform = `rotate(${b}deg)`; // back-far
+        e.legs[1].style.transform = `rotate(${a}deg)`; // front-far
+        e.legs[2].style.transform = `rotate(${a}deg)`; // back
+        e.legs[3].style.transform = `rotate(${b}deg)`; // front
+        const bob = parado ? 0 : Math.abs(Math.sin(t)) * -1.4;
+        e.svg.style.transform = `translateY(${bob.toFixed(2)}px)`;
+        // tromba: balanço contínuo; parado = "fareja" pra cima
+        const sway = parado ? 10 + Math.sin(t2 * 2.2) * 6 : Math.sin(t2 * 1.6) * 5;
+        const cx = 15 - sway * 0.6, cy = 52 - sway * 0.5, ex = 19 - sway * 0.4, ey = 66 - sway * 1.1;
+        e.trunk.setAttribute('d', `M27 40 Q${cx.toFixed(1)} ${cy.toFixed(1)} ${ex.toFixed(1)} ${ey.toFixed(1)}`);
+        e.tail.setAttribute('d', `M101 36 q${(9 + Math.sin(t2 * 3) * 3).toFixed(1)} 6 ${(7 + Math.sin(t2 * 3 + 1) * 4).toFixed(1)} 18`);
+        e.head.style.transform = `rotate(${(parado ? -3 : Math.sin(t) * 1.2).toFixed(2)}deg)`;
+      });
+      if (!document.hidden) requestAnimationFrame(frame);
+      else document.addEventListener('visibilitychange', () => { last = performance.now(); requestAnimationFrame(frame); }, { once: true });
     }
+    requestAnimationFrame(frame);
   }
 
-  // ── EVENTOS BR/LATAM/TODOS (grid mensal) ────────────────────────
-  const MES_NOMES = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
+  // ── ÁREAS — cada card = porta de entrada + atalhos diretos (sem números) ──
+  let AREAS = [];
+  let MINHA_AREA = null; // área da persona ativa (vai pro topo, destacada)
+
+  async function loadAreas() {
+    if (AREAS.length) return AREAS;
+    try { const d = await fetch('/api/areas.json').then(r => r.json()); AREAS = d.areas || []; } catch { AREAS = []; }
+    return AREAS;
+  }
+
+  function areaLinks(a) {
+    // ferramentas (com ícone/desc) + subabas que ainda não apareceram — dedup por href
+    const seen = new Set(); const out = [];
+    for (const f of (a.ferramentas || [])) if (f.href && !seen.has(f.href)) { seen.add(f.href); out.push(f); }
+    for (const s of (a.subabas || [])) if (s.href && !seen.has(s.href)) { seen.add(s.href); out.push({ icon: '↗', ...s }); }
+    return out;
+  }
+
+  async function renderAreas() {
+    const target = $('areas-grid'); if (!target) return;
+    const areas = (await loadAreas()).slice();
+    if (!areas.length) { target.innerHTML = '<p class="hx-empty">Não consegui carregar as áreas agora.</p>'; return; }
+    if (MINHA_AREA) areas.sort((x, y) => (y.id === MINHA_AREA) - (x.id === MINHA_AREA));
+    target.innerHTML = areas.map(a => {
+      const links = areaLinks(a);
+      const vis = links.slice(0, 5), extra = links.length - vis.length;
+      const dona = String(a.dona || '').replace(/\s*\(.*\)\s*$/, '');
+      const mine = a.id === MINHA_AREA;
+      return `<article class="hx-area${mine ? ' is-mine' : ''}" data-area="${esc(a.id)}">
+        <a class="hx-area-head" href="/area/${esc(a.id)}">
+          <span class="hx-area-ico" aria-hidden="true">${esc(a.icon || '📂')}</span>
+          <span class="hx-area-id">
+            ${mine ? '<span class="hx-pill">Sua área</span>' : ''}
+            <span class="hx-area-nome">${esc(a.nome)}</span>
+            <span class="hx-area-dona">${esc(dona)}</span>
+          </span>
+          <span class="hx-area-go" aria-hidden="true">→</span>
+        </a>
+        ${a.foco ? `<p class="hx-area-foco">${esc(a.foco)}</p>` : ''}
+        <ul class="hx-area-links">
+          ${vis.map(l => `<li><a href="${esc(l.href)}" title="${esc(l.desc || l.label)}"><span aria-hidden="true">${esc(l.icon || '↗')}</span>${esc(l.label)}</a></li>`).join('')}
+          ${extra > 0 ? `<li><a class="hx-more" href="/area/${esc(a.id)}">Ver tudo da área</a></li>` : ''}
+        </ul>
+      </article>`;
+    }).join('');
+  }
+
+  // ── EXPLORAR — resto do Office, fonte única: OFFICE_NAV_OVERFLOW (office-nav.js) ──
+  async function renderExplorar() {
+    const target = $('explore-grid'); if (!target) return;
+    const nav = window.OFFICE_NAV_OVERFLOW || [];
+    const areas = await loadAreas();
+    const jaTem = new Set();
+    areas.forEach(a => areaLinks(a).forEach(l => jaTem.add(l.href)));
+    document.querySelectorAll('.hx-quick a[href]').forEach(el => jaTem.add(el.getAttribute('href')));
+    const grupos = []; let cur = null;
+    for (const it of nav) {
+      if (it.section) { cur = { titulo: it.section, itens: [] }; grupos.push(cur); continue; }
+      if (!cur || !it.href || jaTem.has(it.href)) continue;
+      cur.itens.push(it);
+    }
+    const html = grupos.filter(g => g.itens.length).map(g => `
+      <div class="hx-exp-group">
+        <h3 class="hx-exp-title">${esc(g.titulo)}</h3>
+        <ul>${g.itens.map(it => {
+          const ext = it.external ? ' target="_blank" rel="noopener"' : '';
+          return `<li><a href="${esc(it.href)}"${ext}>${esc(it.label)}${it.external ? ' <span aria-hidden="true">↗</span>' : ''}</a></li>`;
+        }).join('')}</ul>
+      </div>`).join('');
+    target.innerHTML = html;
+    const sec = document.querySelector('[data-sec="explorar"]');
+    if (sec && !html) sec.hidden = true;
+  }
+
+  // ── AGENDA UNIFICADA (eventos + posts + artigos + MDF/deadlines + datas) ──
+  // Cores = tokens do Brand Guide (secundárias + spot). Vermelho só em deadline.
+  const MES_NOMES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const MES_CURTO = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  const T = n => `var(--color-${n})`;
   const LOB_CORES = {
-    HCM:'#60a5fa', ERP:'#34d399', Cross:'#c084fc', BTP:'#fb923c', Cloud:'#22d3ee',
-    Branding:'#f472b6', Institucional:'#f87171', WFS:'#fbbf24', SN:'#818cf8', BTM:'#2dd4bf'
+    HCM: T('spot-azure-blue'), ERP: T('spot-teal-green'), Cross: T('brand-cornflower-blue'), BTP: T('spot-aws-orange'),
+    Cloud: T('spot-french-blue'), Branding: T('brand-royal-blue'), Institucional: T('brand-service-line-blue'),
+    WFS: T('brand-steel-blue'), SN: T('spot-servicenow-green'), BTM: T('brand-dark-slate-blue')
   };
-  // ── AGENDA UNIFICADA (eventos + posts + artigos + MDF/deadlines + ações) ───
-  // Tudo num só lugar, agrupado por mês (layout de cards). Camadas filtráveis.
   const ANO = new Date().getFullYear();
   const CAMADAS = [
-    { id:'evento',     label:'🔴 Eventos',        cor:'#CE181E' },
-    { id:'artigo',     label:'📰 Artigos',        cor:'#001844' },
-    { id:'post',       label:'📝 Posts (Duda)',   cor:'#0369a1' },
-    { id:'mdf',        label:'💶 MDF/Deadlines',  cor:'#dc2626' },
-    { id:'data',       label:'🎉 Datas',          cor:'#d97706' },
+    { id:'evento', label:'Eventos',       cor: T('spot-azure-blue') },
+    { id:'artigo', label:'Artigos',       cor: T('brand-cornflower-blue') },
+    { id:'post',   label:'Posts',         cor: T('spot-teal-green') },
+    { id:'mdf',    label:'MDF/Deadlines', cor: T('brand-red') },
+    { id:'data',   label:'Datas',         cor: T('spot-aws-orange') },
   ];
-  let AG_ITEMS = [];                              // itens normalizados
-  let AG_ATIVAS = new Set(CAMADAS.map(c => c.id)); // camadas visíveis
+  let AG_ITEMS = [];
+  const AG_ATIVAS = new Set(CAMADAS.map(c => c.id));
 
-  function diaFromISO(iso){ const p=String(iso).split('-'); return p[2]?String(parseInt(p[2])):'?'; }
-  function mesFromISO(iso){ const p=String(iso).split('-'); return p[1]?parseInt(p[1]):null; }
+  const diaFromISO = iso => { const p = String(iso).split('-'); return p[2] ? String(parseInt(p[2], 10)) : '?'; };
+  const mesFromISO = iso => { const p = String(iso).split('-'); return p[1] ? parseInt(p[1], 10) : null; };
+  const parseDayNum = d => { const n = parseInt(String(d).replace(/[^0-9]/g, ''), 10); return isNaN(n) ? null : n; };
+  const agVisiveis = () => AG_ITEMS.filter(i => AG_ATIVAS.has(i.camada));
 
-  function agGetVisiveis(){ return AG_ITEMS.filter(i => AG_ATIVAS.has(i.camada)); }
-
-  function renderAgMonth(m, items, mode) {
-    const evs = items.filter(e => e.m === m).sort((a,b) => String(a.d).localeCompare(String(b.d), undefined, {numeric:true}));
-    const isEmpty = evs.length === 0;
-    const cls = mode === 'past' ? 'past' : mode === 'current' ? 'current' : (isEmpty ? 'empty' : '');
-    const curBadge = mode === 'current' ? ' <span style="font-size:8px;color:#34d399;background:rgba(16,185,129,.18);padding:3px 5px;border-radius:4px;margin-left:6px;letter-spacing:.1em">AGORA</span>' : '';
-    const countTxt = mode === 'past' ? 'passou' : `${evs.length} ${evs.length === 1 ? 'item' : 'itens'}`;
-    let body = isEmpty ? '<div class="home-evt-empty">— sem itens —</div>' : evs.map(e => {
-      const flag = e.flag ? `<span style="margin-right:4px">${e.flag}</span>` : '';
-      const tag = e.tag ? `<span class="lob" style="background:${e.cor}22;color:${e.cor}">${esc(e.tag)}</span>` : '';
-      return `<div class="home-evt-item" style="border-left:3px solid ${e.cor};padding-left:8px">
-        <div class="home-evt-day">${esc(e.d)}</div>
-        <div class="home-evt-info">
-          <div class="nome">${flag}${esc(e.n)}${tag}</div>
-          <div class="who">${esc(e.who||'')}</div>
-        </div>
-      </div>`;
-    }).join('');
-    return `<div class="home-evt-month ${cls}">
-      <div class="home-evt-month-head">
-        <span class="home-evt-month-name">${MES_NOMES[m-1]}${curBadge}</span>
-        <span class="home-evt-month-count">${countTxt}</span>
-      </div>
-      ${body}
-    </div>`;
+  function agItem(e) {
+    const tag = e.tag ? `<span class="hx-tag">${esc(e.tag)}</span>` : '';
+    return `<li class="hx-ev" style="--c:${e.cor}">
+      <span class="hx-ev-date"><b>${esc(e.d)}</b>${MES_CURTO[e.m - 1] || ''}</span>
+      <span class="hx-ev-info">
+        <span class="hx-ev-nome">${e.flag ? esc(e.flag) + ' ' : ''}${esc(e.n)}${tag}</span>
+        ${e.who ? `<span class="hx-ev-who">${esc(e.who)}</span>` : ''}
+      </span>
+    </li>`;
   }
 
-  // Modo de visualização: 'compact' (default, Daily Planner) ou 'full' (cronograma anual)
-  let AG_MODE = localStorage.getItem('office.agenda.mode') || 'compact';
-  const MES_BR_SHORT = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-
-  function parseDayNum(d){ const n = parseInt(String(d).replace(/[^0-9]/g,''),10); return isNaN(n)?null:n; }
-
-  // ── COMPACT MODE — mini grid mês corrente + lista top próximos (BR) + sanfona LATAM ──
-  function renderEventosCompact(){
-    const grid = $('evt-grid');
-    const items = agGetVisiveis();
-    $('evt-count').textContent = `${items.length} itens · vista compacta`;
-
+  function renderEventos() {
+    const grid = $('evt-grid'); if (!grid) return;
+    const items = agVisiveis();
     const hoje = new Date();
-    const Y = hoje.getFullYear();
-    const M = hoje.getMonth() + 1; // 1-12
-    const todayD = hoje.getDate();
-    const dim = new Date(Y, M, 0).getDate(); // dias do mês
-    const firstDow = new Date(Y, M-1, 1).getDay(); // 0=Dom
+    const Y = hoje.getFullYear(), M = hoje.getMonth() + 1, todayD = hoje.getDate();
+    const dim = new Date(Y, M, 0).getDate();
+    const firstDow = new Date(Y, M - 1, 1).getDay();
+    const isBR = i => !i.country || i.country === 'BR';
 
-    // Mapa dia→items do mês corrente (BR/sem país)
-    const mesItems = items.filter(i => i.m === M && (!i.country || i.country === 'BR'));
     const byDay = {};
-    for (const it of mesItems){
-      const d = parseDayNum(it.d); if (!d) continue;
-      (byDay[d] = byDay[d] || []).push(it);
+    items.filter(i => i.m === M && isBR(i)).forEach(it => { const d = parseDayNum(it.d); if (d) (byDay[d] = byDay[d] || []).push(it); });
+
+    let cells = ['D','S','T','Q','Q','S','S'].map(x => `<span class="hx-dow" aria-hidden="true">${x}</span>`).join('');
+    for (let i = 0; i < firstDow; i++) cells += '<span class="hx-day is-empty"></span>';
+    for (let d = 1; d <= dim; d++) {
+      const list = byDay[d] || [];
+      const dots = list.slice(0, 3).map(it => `<i style="--c:${it.cor}"></i>`).join('');
+      const nomes = list.map(i => i.n).join(' · ');
+      cells += `<span class="hx-day${d === todayD ? ' is-today' : ''}${list.length ? ' has' : ''}"${nomes ? ` title="${esc(nomes)}"` : ''}>
+        <span class="hx-day-n">${d}</span><span class="hx-dots">${dots}</span></span>`;
     }
 
-    // Mini grid celulas
-    let cells = '';
-    const DOW = ['D','S','T','Q','Q','S','S'];
-    cells += DOW.map(x=>`<div class="dp-dow">${x}</div>`).join('');
-    for (let i=0;i<firstDow;i++) cells += `<div class="dp-cell empty"></div>`;
-    for (let d=1; d<=dim; d++){
-      const list = byDay[d]||[];
-      const isToday = d === todayD;
-      const dots = list.slice(0,3).map(it=>`<span class="dp-dot" style="background:${it.cor}"></span>`).join('');
-      const more = list.length>3 ? `<span class="dp-more">+${list.length-3}</span>` : '';
-      cells += `<div class="dp-cell ${isToday?'today':''} ${list.length?'has':''}" data-day="${d}" title="${list.length} item(s)">
-        <div class="dp-num">${d}</div>
-        <div class="dp-dots">${dots}${more}</div>
-      </div>`;
-    }
-
-    // Top 8 próximos (BR) — current month em diante, ordenado
-    const proximos = items
-      .filter(i => (!i.country || i.country === 'BR'))
-      .filter(i => i.m > M || (i.m === M && (parseDayNum(i.d)||0) >= todayD))
-      .sort((a,b)=> (a.m-b.m) || ((parseDayNum(a.d)||99) - (parseDayNum(b.d)||99)))
-      .slice(0, 8);
-    const proxHtml = proximos.length ? proximos.map(e=>{
-      const flag = e.flag ? `<span style="margin-right:4px">${e.flag}</span>` : '';
-      const tag = e.tag ? `<span class="lob" style="background:${e.cor}22;color:${e.cor}">${esc(e.tag)}</span>` : '';
-      return `<div class="home-evt-item" style="border-left:3px solid ${e.cor};padding-left:8px">
-        <div class="home-evt-day">${esc(e.d)}<span style="display:block;font-size:9px;opacity:.6">${MES_BR_SHORT[e.m-1]}</span></div>
-        <div class="home-evt-info">
-          <div class="nome">${flag}${esc(e.n)}${tag}</div>
-          <div class="who">${esc(e.who||'')}</div>
-        </div>
-      </div>`;
-    }).join('') : '<div class="home-evt-empty">Nada por aqui. ✨</div>';
-
-    // LATAM acordeão (eventos com country !== BR, próximos 90d aproximação por mês)
-    const latam = items
-      .filter(i => i.camada==='evento' && i.country && i.country !== 'BR')
-      .filter(i => i.m >= M)
-      .sort((a,b)=> (a.m-b.m) || ((parseDayNum(a.d)||99) - (parseDayNum(b.d)||99)));
-    const latamHtml = latam.length ? latam.slice(0,20).map(e=>`
-      <div class="home-evt-item" style="border-left:3px solid ${e.cor};padding-left:8px">
-        <div class="home-evt-day">${esc(e.d)}<span style="display:block;font-size:9px;opacity:.6">${MES_BR_SHORT[e.m-1]}</span></div>
-        <div class="home-evt-info">
-          <div class="nome">${e.flag?`<span style="margin-right:4px">${e.flag}</span>`:''}${esc(e.n)}</div>
-          <div class="who">${esc(e.who||'')}</div>
-        </div>
-      </div>`).join('') : '<div class="home-evt-empty">Sem eventos LATAM no horizonte.</div>';
+    const ordem = (a, b) => (a.m - b.m) || ((parseDayNum(a.d) || 99) - (parseDayNum(b.d) || 99));
+    const proximos = items.filter(isBR)
+      .filter(i => i.m > M || (i.m === M && (parseDayNum(i.d) || 0) >= todayD))
+      .sort(ordem).slice(0, 8);
+    const latam = items.filter(i => i.camada === 'evento' && !isBR(i) && i.m >= M).sort(ordem).slice(0, 20);
 
     grid.innerHTML = `
-      <style>
-        .dp-root { grid-column: 1 / -1; display:block; }
-        .dp-wrap { display:grid; grid-template-columns: minmax(280px, 1fr) minmax(260px, 1fr); gap:18px; align-items:start; }
-        @media (max-width: 760px){ .dp-wrap { grid-template-columns: 1fr; } }
-        .dp-cal { background:var(--dk-surface,rgba(255,255,255,.02)); border:1px solid rgba(96,165,250,.12); border-radius:12px; padding:14px; }
-        .dp-cal-h { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; }
-        .dp-cal-h .m { font-weight:700; font-size:14px; color:var(--home-text,#e2e8f0); }
-        .dp-cal-h .y { font-size:10px; color:var(--home-text-muted,#64748b); font-family:'JetBrains Mono',monospace; letter-spacing:.1em; }
-        .dp-grid { display:grid; grid-template-columns: repeat(7, 1fr); gap:4px; }
-        .dp-dow { font-size:9px; color:var(--home-text-muted,#64748b); text-align:center; padding:4px 0; font-weight:700; letter-spacing:.1em; }
-        .dp-cell { aspect-ratio:1/1; min-height:44px; border-radius:6px; padding:4px 5px; background:rgba(96,165,250,.04); display:flex; flex-direction:column; justify-content:space-between; transition:background .15s; cursor:default; position:relative; }
-        .dp-cell.empty { background:transparent; }
-        .dp-cell.has { background:rgba(96,165,250,.10); cursor:pointer; }
-        .dp-cell.has:hover { background:rgba(96,165,250,.20); }
-        .dp-cell.today { outline:2px solid #CE181E; }
-        .dp-num { font-size:11px; font-weight:600; color:var(--home-text,#e2e8f0); }
-        .dp-cell.today .dp-num { color:#fca5a5; }
-        .dp-dots { display:flex; gap:2px; align-items:center; flex-wrap:wrap; }
-        .dp-dot { width:5px; height:5px; border-radius:50%; }
-        .dp-more { font-size:8px; color:var(--home-text-muted,#64748b); font-family:'JetBrains Mono',monospace; }
-        .dp-side { display:flex; flex-direction:column; gap:8px; }
-        .dp-side h4 { font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--home-text-muted,#94a3b8); margin:0 0 6px; }
-        .dp-acc { background:var(--dk-surface,rgba(255,255,255,.02)); border:1px solid rgba(96,165,250,.12); border-radius:10px; margin-top:14px; overflow:hidden; }
-        .dp-acc-h { padding:12px 14px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; font-size:12px; font-weight:600; color:var(--home-text,#e2e8f0); user-select:none; }
-        .dp-acc-h:hover { background:rgba(96,165,250,.06); }
-        .dp-acc-h .arrow { transition:transform .2s; font-size:10px; opacity:.6; }
-        .dp-acc[open] .dp-acc-h .arrow { transform:rotate(90deg); }
-        .dp-acc-body { padding:0 14px 14px; display:none; }
-        .dp-acc[open] .dp-acc-body { display:block; }
-      </style>
-      <div class="dp-root">
-      <div class="dp-wrap">
-        <div class="dp-cal" aria-label="Mês corrente">
-          <div class="dp-cal-h"><span class="m">${MES_NOMES[M-1]}</span><span class="y">${Y}</span></div>
-          <div class="dp-grid">${cells}</div>
+      <div class="hx-agenda">
+        <div class="hx-cal" aria-label="Calendário de ${MES_NOMES[M - 1]}">
+          <div class="hx-cal-head"><span>${MES_NOMES[M - 1]}</span><span class="hx-muted">${Y}</span></div>
+          <div class="hx-cal-grid">${cells}</div>
         </div>
-        <div class="dp-side">
-          <h4>📌 Próximos itens (Brasil)</h4>
-          ${proxHtml}
+        <div class="hx-next">
+          <h3 class="hx-mini-title">Próximos no Brasil</h3>
+          ${proximos.length ? `<ul class="hx-ev-list">${proximos.map(agItem).join('')}</ul>` : '<p class="hx-empty">Nada no horizonte por aqui.</p>'}
         </div>
       </div>
-      <div class="dp-acc" id="dp-latam">
-        <div class="dp-acc-h" data-acc="latam">
-          <span>🌎 LATAM &amp; Internacional — ${latam.length} item${latam.length===1?'':'s'}</span>
-          <span class="arrow">▶</span>
-        </div>
-        <div class="dp-acc-body">${latamHtml}</div>
-      </div>
-      </div>
-    `;
-    // Acordeão LATAM
-    const acc = grid.querySelector('#dp-latam');
-    acc?.querySelector('.dp-acc-h')?.addEventListener('click', ()=>{
-      if (acc.hasAttribute('open')) acc.removeAttribute('open'); else acc.setAttribute('open','');
-    });
-    // Click em dia preenchido scrolla pra sanfona se for LATAM ou expande detalhes
-    grid.querySelectorAll('.dp-cell.has').forEach(c=>{
-      c.addEventListener('click', ()=>{
-        const d = parseInt(c.dataset.day, 10);
-        const items2 = byDay[d]||[];
-        if (!items2.length) return;
-        const sum = items2.map(i=>`${i.flag||''} ${i.n}`).join('\n');
-        alert(`${MES_NOMES[M-1]} ${d} · ${items2.length} item(s):\n\n${sum}`);
-      });
-    });
-  }
-
-  // ── FULL MODE — cronograma anual (versão anterior) ──
-  function renderEventosFull(){
-    const grid = $('evt-grid');
-    const items = agGetVisiveis();
-    $('evt-count').textContent = `${items.length} itens · vista anual`;
-    const cur = new Date().getMonth() + 1;
-    const start = Math.max(1, cur - 1);
-    let html = '';
-    for (let m = start; m <= 12; m++) html += renderAgMonth(m, items, m === cur ? 'current' : 'future');
-    if (start > 1) {
-      html += `<div class="home-evt-divider"><span></span><span class="txt">↓ Já passou ↓</span><span></span></div>`;
-      for (let m = 1; m < start; m++) html += renderAgMonth(m, items, 'past');
-    }
-    grid.innerHTML = html;
-  }
-
-  function renderEventos(){
-    if (AG_MODE === 'full') renderEventosFull(); else renderEventosCompact();
-  }
-
-  // Toggle compact/full button injection — adiciona ao header da seção
-  function ensureAgendaToggle(){
-    const sec = document.querySelector('[data-sec="agenda"]');
-    if (!sec || sec.querySelector('#ag-mode-toggle')) return;
-    const link = sec.querySelector('a[href="/inbound/calendar"]');
-    if (!link) return;
-    const btn = document.createElement('button');
-    btn.id = 'ag-mode-toggle';
-    btn.type = 'button';
-    btn.style.cssText = 'font-size:11px;color:var(--dk-text-muted,#94a3b8);background:rgba(96,165,250,.06);border:1px solid rgba(96,165,250,.2);border-radius:6px;padding:4px 10px;cursor:pointer;margin-right:6px';
-    const label = () => AG_MODE === 'compact' ? '📋 Ver cronograma anual' : '📅 Vista compacta';
-    btn.textContent = label();
-    btn.addEventListener('click', () => {
-      AG_MODE = AG_MODE === 'compact' ? 'full' : 'compact';
-      localStorage.setItem('office.agenda.mode', AG_MODE);
-      btn.textContent = label();
-      renderEventos();
-    });
-    link.parentNode.insertBefore(btn, link);
+      ${latam.length ? `<details class="hx-acc">
+        <summary>🌎 LATAM &amp; Internacional</summary>
+        <ul class="hx-ev-list">${latam.map(agItem).join('')}</ul>
+      </details>` : ''}`;
   }
 
   async function initEventos() {
     try {
       const [ev, cal, dl, df, dat] = await Promise.all([
-        fetch('/api/events.json').then(r=>r.json()).catch(()=>({abas:{}})),
-        fetch(`/api/inbound/calendar?from=${ANO}-01-01&to=${ANO}-12-31`).then(r=>r.json()).catch(()=>({posts:[]})),
-        fetch('/api/deadlines-2026.json').then(r=>r.json()).catch(()=>({itens:[]})),
-        fetch('/api/development-funds').then(r=>r.json()).catch(()=>({requests:[]})),
-        fetch('/api/datas-especiais-2026.json').then(r=>r.json()).catch(()=>({itens:[]})),
+        fetch('/api/events.json').then(r => r.json()).catch(() => ({ abas: {} })),
+        fetch(`/api/inbound/calendar?from=${ANO}-01-01&to=${ANO}-12-31`).then(r => r.json()).catch(() => ({ posts: [] })),
+        fetch('/api/deadlines-2026.json').then(r => r.json()).catch(() => ({ itens: [] })),
+        fetch('/api/development-funds').then(r => r.json()).catch(() => ({ requests: [] })),
+        fetch('/api/datas-especiais-2026.json').then(r => r.json()).catch(() => ({ itens: [] })),
       ]);
+      const cor = id => CAMADAS.find(c => c.id === id).cor;
       const items = [];
-
       // 1 — Eventos EPI-USE/SAP (BR + LATAM)
       for (const aba of Object.values(ev.abas || {})) {
         for (const e of (aba.eventos || [])) {
           if (!e.m) continue;
           const country = e.country || 'BR';
-          items.push({ camada:'evento', m:e.m, d:String(e.d||'TBC'), n:e.n, country,
-            who:[e.who, country!=='BR'?country:''].filter(Boolean).join(' · '),
-            flag:e.flag||'', tag:e.lob||'', cor: LOB_CORES[e.lob] || '#CE181E' });
+          items.push({ camada:'evento', m:e.m, d:String(e.d || 'TBC'), n:e.n, country,
+            who:[e.who, country !== 'BR' ? country : ''].filter(Boolean).join(' · '),
+            flag:e.flag || '', tag:e.lob || '', cor: LOB_CORES[e.lob] || cor('evento') });
         }
       }
       // 2 — Editorial (artigos Redatoria + posts Duda)
       for (const p of (cal.posts || [])) {
         const m = mesFromISO(p.data); if (!m) continue;
         const camada = p.fonte === 'redatoria' ? 'artigo' : 'post';
-        const cor = camada === 'artigo' ? '#001844' : '#0369a1';
-        items.push({ camada, m, d:diaFromISO(p.data), n:p.titulo||'(sem título)',
-          who:[p.autor, p.canal].filter(Boolean).join(' · '), tag:p.pilar||'', cor });
+        items.push({ camada, m, d:diaFromISO(p.data), n:p.titulo || '(sem título)',
+          who:[p.autor, p.canal].filter(Boolean).join(' · '), tag:p.pilar || '', cor: cor(camada) });
       }
       // 3 — Deadlines MDF gerais
       for (const it of (dl.itens || [])) {
         const m = mesFromISO(it.data); if (!m) continue;
-        items.push({ camada:'mdf', m, d:diaFromISO(it.data), n:it.nome, who:'deadline SAP', tag:'MDF', cor:'#dc2626' });
+        items.push({ camada:'mdf', m, d:diaFromISO(it.data), n:it.nome, who:'deadline SAP', tag:'MDF', cor: cor('mdf') });
       }
       // 4 — Claims DF a reclamar (expiração) — só não derrubados, claim pendente
       for (const r of (df.requests || [])) {
-        if (r.derrubado || (+r.claim||0) > 0 || !r.expiracao) continue;
+        if (r.derrubado || (+r.claim || 0) > 0 || !r.expiracao) continue;
         const m = mesFromISO(r.expiracao); if (!m) continue;
-        items.push({ camada:'mdf', m, d:diaFromISO(r.expiracao), n:`💶 Expira claim: ${r.nome}`,
-          who:`€${Number(r.aprovado||0).toLocaleString('pt-BR')} · ${r.status||''}`, tag:'claim', cor:'#dc2626' });
+        items.push({ camada:'mdf', m, d:diaFromISO(r.expiracao), n:`Expira claim: ${r.nome}`,
+          who: r.status || '', tag:'claim', cor: cor('mdf') });
       }
-      // 5 — Datas comemorativas (só tipo comemorativa/premiacao, não feriado pra não poluir)
+      // 5 — Datas comemorativas (sem feriado, pra não poluir)
       for (const it of (dat.itens || [])) {
-        if (!it.data) continue;
-        if (!['comemorativa','premiacao','efemeride'].includes(it.tipo)) continue;
+        if (!it.data || !['comemorativa','premiacao','efemeride'].includes(it.tipo)) continue;
         const m = mesFromISO(it.data); if (!m) continue;
-        items.push({ camada:'data', m, d:diaFromISO(it.data), n:it.nome, who:it.descricao||'', tag:'', cor: it.cor||'#d97706' });
+        items.push({ camada:'data', m, d:diaFromISO(it.data), n:it.nome, who:it.descricao || '', tag:'', cor: cor('data') });
       }
-
       AG_ITEMS = items;
 
-      // Filtros por camada (substitui tabs BR/LATAM/TODOS)
-      const tabsEl = $('evt-tabs');
-      if (tabsEl) {
-        const counts = {}; for (const c of CAMADAS) counts[c.id] = items.filter(i=>i.camada===c.id).length;
-        tabsEl.innerHTML = CAMADAS.map(c =>
-          `<button class="home-evt-tab active" data-cam="${c.id}" style="border-color:${c.cor}66">${c.label} (${counts[c.id]})</button>`
+      // Filtros por camada (chips on/off, sem contadores)
+      const tabs = $('evt-tabs');
+      if (tabs) {
+        tabs.innerHTML = CAMADAS.map(c =>
+          `<button type="button" class="hx-chip" aria-pressed="true" data-cam="${c.id}" style="--c:${c.cor}"><i aria-hidden="true"></i>${c.label}</button>`
         ).join('');
-        tabsEl.querySelectorAll('.home-evt-tab').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const id = btn.dataset.cam;
-            if (AG_ATIVAS.has(id)) { AG_ATIVAS.delete(id); btn.classList.remove('active'); }
-            else { AG_ATIVAS.add(id); btn.classList.add('active'); }
-            renderEventos();
-          });
-        });
+        tabs.querySelectorAll('.hx-chip').forEach(btn => btn.addEventListener('click', () => {
+          const id = btn.dataset.cam, on = !AG_ATIVAS.has(id);
+          on ? AG_ATIVAS.add(id) : AG_ATIVAS.delete(id);
+          btn.setAttribute('aria-pressed', String(on));
+          renderEventos();
+        }));
       }
-      ensureAgendaToggle();
       renderEventos();
     } catch (e) {
-      $('evt-grid').innerHTML = '<div class="home-empty">Falha ao carregar agenda</div>';
+      const g = $('evt-grid'); if (g) g.innerHTML = '<p class="hx-empty">Não consegui carregar a agenda agora.</p>';
     }
   }
 
@@ -543,7 +387,7 @@
     try {
       const r = await fetch('/api/team.json'); const team = await r.json();
       const all = [
-        ...(team.lideranca || []).map(p => ({ nome: p.nome, papel: p.cargo, icon: p.icon, color: '#34d399', aniversario: p.aniversario })),
+        ...(team.lideranca || []).map(p => ({ nome: p.nome, papel: p.cargo, icon: p.icon, color: '#6797b8', aniversario: p.aniversario })),
         ...(team.areas || []).map(a => ({ nome: a.responsavel.nome, papel: a.nome, icon: a.icon, color: a.color, aniversario: a.responsavel.aniversario, avatar_grad: a.responsavel.avatar_grad }))
       ].filter(p => p.aniversario);
 
@@ -584,7 +428,7 @@
         const badge = isToday ? `<span class="home-bday-badge today">🎉 HOJE</span>`
           : isSoon ? `<span class="home-bday-badge soon">em ${p._days}d</span>`
           : `<span class="home-bday-badge future">em ${p._days}d</span>`;
-        const grad = p.avatar_grad ? `linear-gradient(135deg,${p.avatar_grad[0]},${p.avatar_grad[1]})` : `linear-gradient(135deg,${p.color},${p.color}88)`;
+        const grad = isToday ? 'var(--color-brand-red)' : 'linear-gradient(135deg,var(--color-brand-service-line-blue),var(--color-brand-cornflower-blue))';
         return `<div class="home-bday-card${isToday ? ' today' : ''}">
           <div class="home-bday-head">
             <div class="home-bday-person">
@@ -616,8 +460,8 @@
     var banner = document.createElement('div');
     banner.id = 'bday-banner';
     banner.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);'
-      + 'background:linear-gradient(135deg,#001844 0%,#1a3a6e 100%);border:3px solid #CE181E;border-radius:24px;'
-      + 'padding:40px 56px;text-align:center;font-family:Poppins,sans-serif;'
+      + 'background:linear-gradient(135deg,#001844 0%,#26476b 100%);border:3px solid #CE181E;border-radius:24px;'
+      + 'padding:40px 56px;text-align:center;font-family:Lato,sans-serif;'
       + 'box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 80px rgba(206,24,30,.3);'
       + 'pointer-events:auto;cursor:pointer;opacity:0;'
       + 'transition:transform .6s cubic-bezier(.34,1.56,.64,1),opacity .4s ease';
@@ -626,13 +470,13 @@
       + 'Feliz Aniversário, ' + esc(nome) + '!</div>'
       + '<div style="font-size:15px;color:#6797b8;line-height:1.5;max-width:340px;margin:0 auto 16px">'
       + 'O escritório inteiro celebra você hoje.<br>Obrigado por liderar essa manada! 🐘</div>'
-      + '<div style="font-size:13px;color:#f472b6;margin-top:12px">' + esc(assinatura) + ' ❤️</div>'
+      + '<div style="font-size:13px;color:#f2f2f2;margin-top:12px">' + esc(assinatura) + ' ❤️</div>'
       + '<div style="font-size:11px;color:rgba(103,151,184,.5);margin-top:8px">clique pra fechar</div>';
     ov.appendChild(banner);
     document.body.appendChild(ov);
 
     var ctx = cv.getContext('2d'), W, H, pieces = [];
-    var colors = ['#CE181E','#001844','#6797b8','#fbbf24','#34d399','#f472b6','#60a5fa','#fff'];
+    var colors = ['#CE181E','#001844','#26476b','#6797b8','#487494','#f89921','#53bb41','#f2f2f2'];
     function resize() { W = cv.width = window.innerWidth; H = cv.height = window.innerHeight; }
     resize(); window.addEventListener('resize', resize);
     function Piece() {
@@ -675,8 +519,8 @@
       : 'Hoje é aniversário de ' + nomes.join(' e ') + '! 🎂🎉';
     var toast = document.createElement('div');
     toast.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-20px);'
-      + 'z-index:99998;background:linear-gradient(135deg,#001844,#1a3a6e);border:2px solid #CE181E;'
-      + 'border-radius:16px;padding:16px 28px;font-family:Poppins,sans-serif;font-size:15px;color:#fff;'
+      + 'z-index:99998;background:linear-gradient(135deg,#001844,#26476b);border:2px solid #CE181E;'
+      + 'border-radius:16px;padding:16px 28px;font-family:Lato,sans-serif;font-size:15px;color:#fff;'
       + 'box-shadow:0 8px 32px rgba(0,0,0,.4);opacity:0;transition:opacity .4s,transform .4s;cursor:pointer;'
       + 'text-align:center;max-width:400px';
     toast.textContent = txt;
@@ -694,54 +538,7 @@
     }, 8000);
   }
 
-  // ── TIME · 6 ÁREAS (responsáveis) ───────────────────────────────
-  async function renderTeam() {
-    const target = $('team-grid');
-    if (!target) return; // seção 'team' não existe mais na home (substituída por 'areas-grid')
-    try {
-      const r = await fetch('/api/team.json'); const team = await r.json();
-      target.innerHTML = (team.areas || []).map(a => {
-        const respGrad = a.responsavel?.avatar_grad
-          ? `linear-gradient(135deg,${a.responsavel.avatar_grad[0]},${a.responsavel.avatar_grad[1]})`
-          : `linear-gradient(135deg,${a.color},${a.color}88)`;
-        const voicesLine = a.voices_connect ? `<div class="home-team-voices">🎙️ Voices: ${esc(a.voices_connect)}</div>` : '';
-        return `<div class="home-team-card" style="--team-color:${a.color};--team-bg:${a.color_bg}">
-          <div class="home-team-head">
-            <div class="home-team-icon">${esc(a.icon||'📂')}</div>
-            <div class="home-team-name">${esc(a.nome)}</div>
-          </div>
-          <div class="home-team-resp">
-            <div class="home-team-resp-avatar" style="background:${respGrad}">👤</div>
-            <div class="home-team-resp-info">
-              <div class="home-team-resp-name">${esc(a.responsavel?.nome||'—')}${a.responsavel?.apelido ? ` <span style="opacity:.7">(${esc(a.responsavel.apelido)})</span>` : ''}</div>
-              <div class="home-team-resp-tag">Responsável</div>
-            </div>
-          </div>
-          <div class="home-team-foco">${esc(a.foco||'')}</div>
-          ${voicesLine}
-        </div>`;
-      }).join('');
-    } catch {
-      target.innerHTML = '<div class="home-empty">Erro ao carregar time.</div>';
-    }
-  }
-
-  // ── FADE-IN SECTIONS ────────────────────────────────────────────
-  function initSectionFadeIn() {
-    if (!('IntersectionObserver' in window)) {
-      document.querySelectorAll('.home-section').forEach(s => s.classList.add('visible'));
-      return;
-    }
-    const io = new IntersectionObserver(entries => {
-      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
-    }, { threshold: 0.05, rootMargin: '0px 0px -40px 0px' });
-    document.querySelectorAll('.home-section').forEach(s => io.observe(s));
-  }
-
-  // ── INIT ────────────────────────────────────────────────────────
-  // ── HOME POR ROLE (S38 v0.36.0) ─────────────────────────────────
-  // personas.json define ordem/visibilidade das seções + KPIs do "Meu foco".
-  // Persona vem de: localStorage override > role/persona do SSO (DB) > mapa email (fallback) > visitante.
+  // ── HOME POR ROLE — persona define ordem das seções e atalhos ──
   let PERSONAS = null;
 
   // Override manual do "Ver como". Formato novo: JSON {persona, for:<email|null>}.
@@ -789,250 +586,73 @@
     return 'visitante';
   }
 
+  // Persona → área própria (card "Sua área" vai pro topo)
+  const PERSONA_AREA = { duda:'brand', bruna:'intelligence', gui:'growth', field:'eventos', marlison:'pipeline', conteudo:'conteudo' };
+
   function applyPersona(pid) {
     const p = PERSONAS?.personas?.[pid];
     if (!p) return;
-    const wrap = document.querySelector('.home-wrap');
-    // Reordena: appendChild move cada seção pro fim na ordem definida
+    const wrap = document.querySelector('.hx-wrap');
     (p.ordem || []).forEach(secId => {
       const el = document.querySelector(`[data-sec="${secId}"]`);
-      if (el) { el.style.display = ''; wrap.appendChild(el); }
+      if (el && wrap) { el.hidden = false; wrap.appendChild(el); }
     });
     (p.esconde || []).forEach(secId => {
       const el = document.querySelector(`[data-sec="${secId}"]`);
-      if (el) el.style.display = 'none';
+      if (el) el.hidden = true;
     });
-    // Seções fora de ordem+esconde ficam visíveis no fim (default)
-    const conhecidas = new Set([...(p.ordem||[]), ...(p.esconde||[])]);
-    document.querySelectorAll('[data-sec]').forEach(el => {
-      if (!conhecidas.has(el.dataset.sec) && !['northstar','hoje','foco'].includes(el.dataset.sec)) el.style.display = '';
-    });
-    const ft = $('foco-title');
-    if (ft) ft.textContent = `${p.icon || '🎯'} Foco · ${p.nome}`;
-    if ((p.kpis || []).length) renderFoco(p.kpis);
-    else { const f = document.querySelector('[data-sec="foco"]'); if (f) f.style.display = 'none'; }
+    MINHA_AREA = p.area || PERSONA_AREA[pid] || null;
     renderQuick(p);
-    // Reorder via appendChild conflita com o IntersectionObserver do fade-in
-    // (seções movidas ficam presas em opacity:0). Força .visible após aplicar.
-    document.querySelectorAll('.home-section').forEach(s => s.classList.add('visible'));
+    renderAreas().then(renderExplorar);
   }
 
-  // ── Acessos rápidos por persona (v0.81.0) ───────────────────────
-  // Itens vêm de personas.json (persona.quick[] → fallback quick_default[]).
-  // Sem dado (fetch falhou), o HTML hardcoded da home.html fica como está.
+  // ── Atalhos por persona (personas.json → quick[] | quick_default[]) ──
   function renderQuick(p) {
     const items = (p && p.quick && p.quick.length) ? p.quick : (PERSONAS?.quick_default || []);
-    if (!items.length) return;
-    const box = document.querySelector('.home-quick');
+    const box = document.querySelector('.hx-quick');
     if (!box) return;
-    const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
     box.innerHTML = items.map(it => {
       if (it.modal) {
-        return `<a href="#" onclick="event.preventDefault();openReportModal('${esc(it.modal)}')" class="home-quick-modal"><span class="ico">${esc(it.icon || '🔗')}</span>${esc(it.label)}</a>`;
+        return `<a href="#" data-modal="${esc(it.modal)}"><span class="hx-q-ico" aria-hidden="true">${esc(it.icon || '🔗')}</span><span>${esc(it.label)}</span></a>`;
       }
       const ext = it.external ? ' target="_blank" rel="noopener"' : '';
-      return `<a href="${esc(it.href)}"${ext}><span class="ico">${esc(it.icon || '🔗')}</span>${esc(it.label)}${it.external ? ' ↗' : ''}</a>`;
+      return `<a href="${esc(it.href)}"${ext}><span class="hx-q-ico" aria-hidden="true">${esc(it.icon || '🔗')}</span><span>${esc(it.label)}${it.external ? ' ↗' : ''}</span></a>`;
     }).join('');
-  }
-
-  // ── KPIs por fonte (todas APIs já existentes) ───────────────────
-  const KPI_DEFS = {
-    pipeline_fy:        { label: 'Pipeline MKT · FY', fonte: 'Zoho CRM', cor: '#60a5fa',
-      get: async () => { const d = await fetch('/api/zoho/pipeline?source=all').then(r=>r.json()); const v = d?.kpis?.ultimo_fy?.valor; return v ? 'R$ ' + (v/1e6).toFixed(1) + 'M' : '—'; } },
-    linkedin_total:     { label: 'Seguidores LinkedIn', fonte: 'XLS Bruna', cor: '#34d399',
-      get: async () => { const d = await fetch('/api/linkedin/historical').then(r=>r.json()); const s = d?.serie_mensal||[]; return fmt(s.length ? s[s.length-1].total_seguidores : null); } },
-    linkedin_novos:     { label: 'Novos no mês', fonte: 'LinkedIn', cor: '#34d399',
-      get: async () => { const d = await fetch('/api/linkedin/historical').then(r=>r.json()); const s = d?.serie_mensal||[]; const n = s.length ? s[s.length-1].novos : null; return n != null ? '+' + fmt(n) : '—'; } },
-    ddf_aprovado:       { label: 'DDF aprovado válido', fonte: 'SAP DF', cor: '#a78bfa',
-      get: async () => { const d = await fetch('/api/development-funds').then(r=>r.json()); const v = d?.kpis?.aprovado_valido; return v ? '€ ' + (v/1e3).toFixed(1) + 'k' : '—'; } },
-    posts_semana:       { label: 'Posts esta semana', fonte: 'Calendar Duda', cor: '#0ea5e9',
-      get: async () => { const hoje = new Date().toISOString().slice(0,10); const fim = new Date(Date.now()+7*864e5).toISOString().slice(0,10); const d = await fetch(`/api/inbound/calendar?from=${hoje}&to=${fim}`).then(r=>r.json()); return fmt((d?.posts||[]).filter(p=>p.fonte!=='redatoria').length); } },
-    content_aguardando: { label: 'Conteúdos aguardando', fonte: 'Pipeline Conteúdo', cor: '#fbbf24',
-      get: async () => { const d = await fetch('/api/content').then(r=>r.json()); const pe = d?.por_estado||{}; return fmt((pe.seo_geo||0)+(pe.persona||0)+(pe.copy_cta||0)); } },
-    voices_ativos:      { label: 'Voices ativos', fonte: 'Voices', cor: '#c084fc',
-      get: async () => { const d = await fetch('/api/voices.json').then(r=>r.json()).catch(()=>null); const vs = d?.voices||[]; return fmt(Array.isArray(vs) ? vs.filter(v=>['ativo','piloto','onboarding'].includes(String(v.status||'').toLowerCase())).length : null); } },
-    apollo_contatos:    { label: 'Contatos Apollo', fonte: 'Apollo', cor: '#60a5fa',
-      get: async () => { const d = await fetch('/api/pipeline').then(r=>r.json()); return fmt(d?.contatos_total); } },
-    apollo_sequencias:  { label: 'Sequências ativas', fonte: 'Apollo', cor: '#60a5fa',
-      get: async () => { const d = await fetch('/api/pipeline').then(r=>r.json()); return fmt(d?.sequencias_ativas); } },
-    ga4_usuarios:       { label: 'Usuários site (mês)', fonte: 'GA4', cor: '#f472b6',
-      get: async () => { const d = await fetch('/api/relatorio/snapshot?mes=' + new Date().toISOString().slice(0,7)).then(r=>r.json()).catch(()=>null); return fmt(d?.site?.usuarios); } },
-    eventos_30d:        { label: 'Eventos 30 dias', fonte: 'Field Marketing', cor: '#CE181E',
-      get: async () => { const d = await fetch('/api/field-marketing').then(r=>r.json()); const hoje = new Date().toISOString().slice(0,10); const fim = new Date(Date.now()+30*864e5).toISOString().slice(0,10); return fmt((d?.eventos||[]).filter(e=>e.data_evento && e.data_evento>=hoje && e.data_evento<=fim).length); } },
-    capturas_pendentes: { label: 'Capturas a preencher', fonte: 'Field Marketing', cor: '#fbbf24',
-      get: async () => { const d = await fetch('/api/field-marketing').then(r=>r.json()); const hoje = new Date().toISOString().slice(0,10); return fmt((d?.eventos||[]).filter(e=>e.data_evento && e.data_evento<hoje && !(e.captura&&(e.captura.leads||e.captura.deals))).length); } },
-    claims_df:          { label: 'Claims DF a reclamar', fonte: 'SAP DF', cor: '#dc2626',
-      get: async () => { const d = await fetch('/api/development-funds').then(r=>r.json()); return fmt((d?.a_reclamar||[]).length); } },
-    golives_30d:        { label: 'Go-lives SAP 30d', fonte: 'SAP 4 ME', cor: '#a78bfa',
-      get: async () => { const d = await fetch('/api/clientes-sap-4me').then(r=>r.json()); const hoje = new Date().toISOString().slice(0,10); const fim = new Date(Date.now()+30*864e5).toISOString().slice(0,10); return fmt((d?.proximos_golive||[]).filter(g=>g.golive>=hoje&&g.golive<=fim).length); } },
-    sap_live:           { label: 'Projetos SAP Live', fonte: 'SAP 4 ME', cor: '#34d399',
-      get: async () => { const d = await fetch('/api/clientes-sap-4me').then(r=>r.json()); return fmt(d?.kpis?.live); } },
-    cases_publicaveis:  { label: 'Cases publicados', fonte: 'Cases CS', cor: '#34d399',
-      get: async () => { const d = await fetch('/api/cases').then(r=>r.json()); return fmt(d?.kpis?.case_publicado); } },
-    // ── Executivo (CMO View — persona Roberto) ──
-    pipeline_mkt_sourced: { label: 'Pipeline gerado por MKT', fonte: 'Zoho · atribuição', cor: '#CE181E',
-      get: async () => { const d = await fetch('/api/executivo').then(r=>r.json()); const v = d?.pipeline?.mkt_sourced_total; const pct = d?.pipeline?.mkt_sourced_pct; return v ? 'R$ ' + (v/1e6).toFixed(1) + 'M' + (pct!=null ? ` (${pct}%)` : '') : '—'; } },
-    receita_ganha:        { label: 'Receita ganha (won)', fonte: 'Zoho · closed-won', cor: '#10b981',
-      get: async () => { const d = await fetch('/api/executivo').then(r=>r.json()); const r2 = d?.resultado; return r2?.ganho_valor ? 'R$ ' + (r2.ganho_valor/1e6).toFixed(1) + 'M · WR ' + (r2.win_rate_pct ?? '—') + '%' : '—'; } },
-    df_meta_pct:          { label: 'DF · meta 70% (1/jul)', fonte: 'SAP DF', cor: '#fbbf24',
-      get: async () => { const d = await fetch('/api/executivo').then(r=>r.json()); const df = d?.df; return (df && df.meta_70pct_1jul) ? Math.round(100*(df.aprovado_valido||0)/df.meta_70pct_1jul) + '%' : '—'; } },
-  };
-
-  // Destinos de ação por KPI — card do foco vira link (S39: acionável, não só info)
-  const KPI_LINKS = {
-    pipeline_fy: '/relatorio#s6', linkedin_total: '/metas', linkedin_novos: '/metas',
-    ddf_aprovado: '/development-funds', claims_df: '/development-funds',
-    posts_semana: '/inbound/calendar', content_aguardando: '/content-pipeline',
-    voices_ativos: '/voices', apollo_contatos: '/pipeline', apollo_sequencias: '/pipeline',
-    ga4_usuarios: '/relatorio', eventos_30d: '/field-marketing', capturas_pendentes: '/field-marketing',
-    golives_30d: '/area-clientes', sap_live: '/area-clientes', cases_publicaveis: '/cases',
-    pipeline_mkt_sourced: '/executivo', receita_ganha: '/executivo', df_meta_pct: '/executivo',
-  };
-
-  async function renderFoco(kpiIds) {
-    const grid = $('foco-grid');
-    const sec = document.querySelector('[data-sec="foco"]');
-    if (!grid || !sec) return;
-    sec.style.display = '';
-    grid.innerHTML = kpiIds.map(id => {
-      const def = KPI_DEFS[id];
-      const href = KPI_LINKS[id] || '#';
-      return `<a href="${href}" class="dk-glass" style="display:block;padding:16px 18px;border-left:3px solid ${def?.cor||'#60a5fa'};text-decoration:none;color:inherit;cursor:pointer">
-        <div style="font-size:10px;color:var(--dk-text-muted,#94a3b8);text-transform:uppercase;letter-spacing:.08em">${esc(def?.label||id)}</div>
-        <div id="foco-${id}" style="font-size:26px;font-weight:800;font-family:'JetBrains Mono',monospace;margin-top:6px">…</div>
-        <div style="font-size:9px;color:var(--dk-text-muted,#64748b);margin-top:4px">🟢 ${esc(def?.fonte||'')} · abrir →</div>
-      </a>`;
-    }).join('');
-    kpiIds.forEach(async id => {
-      const def = KPI_DEFS[id]; if (!def) return;
-      try { const v = await def.get(); const el = $('foco-' + id); if (el) el.textContent = v; }
-      catch (e) { const el = $('foco-' + id); if (el) el.textContent = '—'; }
-    });
-  }
-
-  // ── NORTH-STAR (3 números que importam) ─────────────────────────
-  async function renderNorthstar() {
-    const strip = $('northstar-strip');
-    const sec = document.querySelector('[data-sec="northstar"]');
-    if (!strip || !sec) return;
-    const NS = ['pipeline_fy', 'linkedin_total', 'ddf_aprovado'];
-    strip.innerHTML = NS.map(id => {
-      const def = KPI_DEFS[id];
-      return `<div class="dk-glass" style="padding:20px 24px;text-align:center;border-top:3px solid ${def.cor}">
-        <div id="ns-${id}" style="font-size:34px;font-weight:800;font-family:'JetBrains Mono',monospace;line-height:1">…</div>
-        <div style="font-size:11px;color:var(--dk-text-muted,#94a3b8);text-transform:uppercase;letter-spacing:.08em;margin-top:8px">${esc(def.label)}</div>
-        <div style="font-size:9px;color:var(--dk-text-muted,#64748b);margin-top:3px">🟢 ${esc(def.fonte)}</div>
-      </div>`;
-    }).join('');
-    NS.forEach(async id => {
-      try { const v = await KPI_DEFS[id].get(); const el = $('ns-' + id); if (el) el.textContent = v; }
-      catch (e) {}
-    });
-  }
-
-  // ── HOJE (o que acontece hoje) ──────────────────────────────────
-  async function renderHoje() {
-    const list = $('hoje-list');
-    const sec = document.querySelector('[data-sec="hoje"]');
-    if (!list || !sec) return;
-    const hoje = new Date().toISOString().slice(0,10);
-    try {
-      const [cal, fm, df] = await Promise.all([
-        fetch(`/api/inbound/calendar?from=${hoje}&to=${hoje}`).then(r=>r.json()).catch(()=>({posts:[]})),
-        fetch('/api/field-marketing').then(r=>r.json()).catch(()=>({eventos:[]})),
-        fetch('/api/development-funds').then(r=>r.json()).catch(()=>({requests:[]})),
-      ]);
-      const itens = [];
-      for (const p of (cal.posts||[])) itens.push({ ico: p.fonte==='redatoria'?'📰':'📝', txt: p.titulo, sub: [p.autor,p.canal].filter(Boolean).join(' · '), cor: p.fonte==='redatoria'?'#6797b8':'#0ea5e9' });
-      for (const e of (fm.eventos||[])) if (e.data_evento === hoje) itens.push({ ico:'🔴', txt: e.nome, sub: 'evento · '+(e.lob||''), cor:'#CE181E' });
-      for (const r of (df.requests||[])) if (!r.derrubado && (+r.claim||0)===0 && r.expiracao === hoje) itens.push({ ico:'💶', txt:'Expira HOJE: claim '+r.nome, sub:'€'+Number(r.aprovado||0).toLocaleString('pt-BR'), cor:'#dc2626' });
-      list.innerHTML = itens.length ? itens.map(i => `
-        <div style="display:flex;align-items:center;gap:10px;padding:9px 14px;background:rgba(15,30,53,.4);border:1px solid rgba(96,165,250,.12);border-left:3px solid ${i.cor};border-radius:8px;font-size:13px">
-          <span>${i.ico}</span>
-          <span style="flex:1;color:var(--dk-text,#e2e8f0);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(i.txt)}</span>
-          <span style="font-size:10px;color:var(--dk-text-muted,#64748b);white-space:nowrap">${esc(i.sub)}</span>
-        </div>`).join('') : '<div style="font-size:12px;color:var(--dk-text-muted,#64748b);padding:8px 0">Nada agendado pra hoje. ✨</div>';
-    } catch (e) { list.innerHTML = ''; }
-  }
-
-  // ── BANCO DE HORAS — mini-card na home ──────────────────────────
-  async function renderHorasSaldo() {
-    try {
-      const r = await fetch('/api/horas/saldo');
-      if (!r.ok) return;
-      const d = await r.json();
-      const saldo = d.meu;
-      const sign = saldo > 0 ? '+' : '';
-      const cor = saldo > 0 ? 'var(--home-success,#10b981)' : saldo < 0 ? 'var(--home-danger,#ef4444)' : 'var(--home-text-muted,#6797b8)';
-      const card = document.createElement('a');
-      card.href = '/horas';
-      card.className = 'home-digest-card';
-      card.style.textDecoration = 'none';
-      card.style.color = 'inherit';
-      card.style.cursor = 'pointer';
-      card.innerHTML = `
-        <div class="label">Banco de Horas</div>
-        <div class="value" style="color:${cor}">${sign}${saldo.toFixed(1).replace('.0','')}h</div>
-        <div class="sub">${saldo === 0 ? 'saldo zerado' : 'saldo acumulado'}</div>`;
-      const grid = $('digest-grid');
-      if (grid) grid.appendChild(card);
-    } catch {}
-  }
-
-  // ── FRESHNESS CHIPS (S39 — Regra 7 automática) ──────────────────
-  async function renderFreshness() {
-    try {
-      const d = await fetch('/api/freshness').then(r => r.json());
-      const stale = (d.datasets || []).filter(x => x.stale);
-      if (!stale.length) return;
-      const hero = document.querySelector('.home-hero');
-      if (!hero) return;
-      const bar = document.createElement('div');
-      bar.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 0;width:100%';
-      bar.innerHTML = '<span style="font-size:10px;color:var(--dk-text-muted,#64748b);align-self:center">⚠️ dados desatualizados:</span>' +
-        stale.map(x => `<span title="última atualização: ${x.atualizado || 'nunca'}" style="font-size:10px;padding:3px 9px;border-radius:10px;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);color:#fbbf24;font-weight:600">${esc(x.label)} · ${x.dias != null ? x.dias + 'd' : 'sem dado'}</span>`).join('');
-      hero.appendChild(bar);
-    } catch (e) {}
+    box.querySelectorAll('a[data-modal]').forEach(a => a.addEventListener('click', ev => {
+      ev.preventDefault(); if (typeof window.openReportModal === 'function') window.openReportModal(a.dataset.modal);
+    }));
+    const sec = document.querySelector('[data-sec="atalhos"]');
+    if (sec) sec.hidden = !items.length;
   }
 
   async function initPersonas() {
     try {
       PERSONAS = await fetch('/api/personas.json').then(r => r.json());
-      const pid = await getPersonaId();
-      // Seletor "Ver como…"
-      // Email da identidade logada (pra amarrar o override "Ver como" a ela).
-      let currentEmail = null;
-      try { const st = await fetch('/api/auth/status').then(r => r.json()); currentEmail = (st && st.user && st.user.email || '').toLowerCase() || null; } catch {}
-      const sel = $('persona-select');
-      if (sel) {
-        sel.innerHTML = Object.entries(PERSONAS.personas).map(([id, p]) =>
-          `<option value="${id}" ${id===pid?'selected':''}>${p.icon} Ver como: ${p.nome}</option>`).join('');
-        sel.addEventListener('change', () => {
-          writePersonaOverride(sel.value, currentEmail);
-          applyPersona(sel.value);
-          renderHero();
-        });
-      }
-      applyPersona(pid);
-      renderNorthstar();
-      renderHoje();
-      renderFreshness();
-    } catch (e) { console.warn('personas:', e); }
+    } catch (e) { PERSONAS = null; }
+    const pid = PERSONAS ? await getPersonaId() : 'visitante';
+    let currentEmail = null;
+    try { const st = await fetch('/api/auth/status').then(r => r.json()); currentEmail = (st && st.user && st.user.email || '').toLowerCase() || null; } catch {}
+    const sel = $('persona-select');
+    if (sel && PERSONAS) {
+      sel.innerHTML = Object.entries(PERSONAS.personas).map(([id, p]) =>
+        `<option value="${esc(id)}" ${id === pid ? 'selected' : ''}>${esc(p.icon)} Ver como: ${esc(p.nome)}</option>`).join('');
+      sel.addEventListener('change', () => {
+        writePersonaOverride(sel.value, currentEmail);
+        applyPersona(sel.value);
+        renderHero();
+      });
+    } else if (sel) sel.closest('label').hidden = true;
+    if (PERSONAS) applyPersona(pid);
+    else { renderQuick(null); renderAreas().then(renderExplorar); }
   }
 
   function init() {
     renderHero();
-    renderDigest();
-    renderHorasSaldo();
-    renderMetas();
-    renderAreas();
+    initSearch();
+    initElephant();
+    initPersonas();
     initEventos();
     renderBdays();
-    renderTeam();
-    renderAlertas();
-    initPersonas();
-    initSectionFadeIn();
-    setInterval(() => { renderDigest(); renderAlertas(); }, 60000);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
