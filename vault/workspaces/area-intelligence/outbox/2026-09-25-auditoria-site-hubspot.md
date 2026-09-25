@@ -20,7 +20,7 @@
 
 ## 🔴 Críticos
 
-1. **O formulário da Home envia para o RD Station, não para o HubSpot** (módulo "Embed Forms - RD Station"). Por isso o CRM tem só 2 contatos, e a atribuição e o relatório do HubSpot ficam zerados. Decidir qual é a fonte oficial de leads. O RD foi descartado em 26/mai.
+1. ~~Formulário RD na Home~~ → **correto por decisão (25/set):** HubSpot é só CMS; leads e marketing ficam no RD e vendas no Zoho. O que precisa: integrar os dados (ver `modulos/23-visao-unica-funil/`) e confirmar o script do RD no header do tema.
 2. **A página /404 é a 2ª mais vista (513 de 1.988 views, 26%).** As URLs do site antigo e os backlinks não foram redirecionados. Isso perde SEO e leads. Ação: exportar as URLs antigas (Search Console) e criar redirects 301 em massa (CSV em Settings → Domains & URLs).
 3. **Conteúdo duplicado indexável:** `/artigo`, `/pt-br/artigo` e `50204216.hs-sites.com/pt-br/artigo` estão todos recebendo views. Ação: redirect de `/pt-br/*` → canônico e bloquear o domínio `hs-sites.com`.
 4. **Links quebrados ou placeholder na Home:**
@@ -32,7 +32,7 @@
 
 ## 🟡 Importantes
 
-5. **Zero landing pages para 783 posts.** Posts de ebook/webinar/relatório (IDC, ISG, Guia RH Estratégico) não têm gate nem LP. São o maior ativo de captura e hoje estão parados.
+5. **Posts de ebook/webinar/relatório sem gate** (IDC, ISG, Guia RH Estratégico). Criar LP **no RD** e linkar a partir do post. São o maior ativo de captura e hoje estão parados.
 6. **Blog com conteúdo velho:** Covid, Sapphire 2017–2020, releases 2020, Natal. Isso dilui a autoridade. Proposta: revisar os ~783 posts → **manter/atualizar** (evergreen de RH, S/4, eSocial), **consolidar** (releases → 1 hub) ou **despublicar + 301** (datados).
 7. **2 rascunhos placeholder** "O título do seu post do blog aqui..." (criados em 16/set) — apagar.
 8. **Bounce de 84% na Home** (811 views): o hero só tem o CTA "Falar com um especialista" (âncora #formulario). Faltam prova social acima da dobra, CTA por dor/LOB e um CTA secundário de conteúdo.

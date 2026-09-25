@@ -4,7 +4,7 @@
 > Este documento é a **fonte da verdade** do que tá real e o que falta integrar.
 > Atualizar TODA vez que rolar nova integração ou novo dado entrar no Office.
 
-**Última atualização:** 09/jun/2026
+**Última atualização:** 25/set/2026
 
 ---
 
@@ -53,7 +53,7 @@
 
 | Dado | Telas | Fonte futura | Status / Próximo passo |
 |---|---|---|---|
-| **Site:** usuários · views · sessão · MoM% | `/relatorio` Site KPI | **GA4 Data API** | Rudá gera Service Account JSON + Property ID → me passa via Teams DM → Bloco D Sprint v0.5.1 |
+| **Site:** usuários · views · sessão · MoM% | `/relatorio` Site KPI, `/funil` | **HubSpot CMS Analytics API** (site migrou pro HubSpot CMS em ago/2026) · GA4 como secundário | Rudá cria Private App HubSpot (`HUBSPOT_TOKEN`) → módulo 23 |
 | **SEO:** queries · CTR · posição · top pages | `/relatorio`, `/seo` (novo) | **Search Console API** | Mesmo Service Account → Bloco D |
 | **Instagram:** seguidores · alcance · engagement | `/relatorio` Instagram KPI | **Instagram Graph API** | Requer Business Account + Facebook App + token long-lived (~2h setup Rudá) |
 | **E-mail:** taxa abertura · cliques · leads | `/relatorio` E-mail KPI | **RD Station API** | Personal API Token (não publisher key) — Rudá pede admin RD master |
@@ -63,7 +63,7 @@
 | **Reconhecimentos SAP/analistas** (meta FY26: 4+2) | `/relatorio`, `/metas` | Planilha simples ou form `/reconhecimentos` | Decidir: subir XLS atual OU criar form no Office |
 | **NPS clientes** | `/cases` | SurveyMonkey/Typeform export OU XLSX manual | Rudá sobe `vault/00-contexto/nps/` (sugerido em Bloco G) |
 | **Histórico campanhas Ads** (Meta/Google/LinkedIn) | `/projecoes` (recalibrar premissas) | CSV export plataformas | Rudá sobe `vault/00-contexto/ads/` quando rodar 1ª campanha real |
-| **CRM oportunidades** (oficial — depende qual CRM) | `/pipeline`, `/relatorio` | Pipedrive/HubSpot/Salesforce | Definir CRM oficial primeiro · Sprint v0.6.x |
+| **CRM oportunidades** | `/pipeline`, `/relatorio`, `/funil` | **Zoho CRM** (oficial) · RD Station = marketing · HubSpot = só CMS (decisão 25/set/2026) | Automatizar o sync do Zoho · módulo 23 |
 | **Calendário Editorial Duda** | `/inbound/calendar` | SharePoint xlsx | Duda criar a planilha (B2 pendência) — esperando |
 
 ## 🔮 PROJEÇÃO / ESTIMATIVA — NÃO É DADO REAL (clearly labeled)
