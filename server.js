@@ -6033,6 +6033,11 @@ app.use('/', require('./routes/comunicados')); // Modulo 21 -- fila de comunicad
 app.use('/', require('./routes/cafezinho')); // Módulo 22 — Cafezinho (área pessoal do time)
 app.use('/', require('./routes/horas'));      // Módulo 23 — Banco de Horas MKT
 
+// Saida de pessoa do time: roda aqui, no fim do boot, porque precisa das
+// tabelas de TODOS os modulos (as do Cafezinho, por exemplo, so existem
+// depois que aquele router carrega). Sem OFFBOARD_PESSOA setada, e no-op.
+require('./routes/offboarding').rodarOffboarding();
+
 app.listen(PORT, () => {
   console.log(`\n🎙️  EPI-USE Voices — Profile Optimizer`);
   console.log(`🚀  http://localhost:${PORT}\n`);

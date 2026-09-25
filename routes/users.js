@@ -26,32 +26,9 @@ const ROLE_CONFIG = {
 const ROLES = Object.keys(ROLE_CONFIG);
 const DEFAULT_ROLE = 'hub';
 
-// Migração v0.89.1 (roda 1x, idempotente): troca de dona em Field Marketing
-// (set/2026). Quem ocupava a cadeira saiu do time e o acesso sai junto — vira
-// 'hub' inativo, mesmo tratamento de quem não está mais no MKT. O registro em
-// si fica, porque vale como histórico de acesso.
-//
-// Alvo é o E-MAIL, não o role: se fosse `WHERE role='field'`, a migração
-// rebaixaria a pessoa NOVA caso ela fosse cadastrada antes deste deploy rodar.
-// A ordem de quem cadastra quando não pode virar armadilha.
-//
-// Marcador em tabela própria: este módulo carrega antes do routes/utm.js, então
-// a erp_coins (usada como registro de migração lá) ainda não existe no boot.
-const FIELD_SAIU = 'fernanda.tavares@epiuse.com.br';
-try {
-  db.exec(`CREATE TABLE IF NOT EXISTS users_migrations (
-    key TEXT PRIMARY KEY,
-    ran_at TEXT DEFAULT (datetime('now'))
-  )`);
-  const migKey = 'field_seat_handover_v2';
-  const already = db.prepare(`SELECT 1 FROM users_migrations WHERE key = ? LIMIT 1`).get(migKey);
-  if (!already) {
-    const r = db.prepare(`UPDATE users SET role='hub', persona='', active=0, updated_at=datetime('now')
-                          WHERE lower(email)=? AND (role<>'hub' OR active<>0)`).run(FIELD_SAIU);
-    if (r.changes) console.log('[users] Field Marketing: acesso de quem saiu foi rebaixado');
-    db.prepare(`INSERT OR IGNORE INTO users_migrations (key) VALUES (?)`).run(migKey);
-  }
-} catch (e) { console.warn('[users] migração troca de cadeira:', e.message); }
+// Saída de pessoa do time (acesso + nome espalhado pelo banco) é tratada em
+// routes/offboarding.js, que roda no fim do boot — precisa das tabelas de todos
+// os módulos, e várias só existem depois que os routers carregam.
 
 function resolveRoleConfig(role) {
   return ROLE_CONFIG[role] || ROLE_CONFIG[DEFAULT_ROLE];
