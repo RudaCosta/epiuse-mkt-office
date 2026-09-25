@@ -6,7 +6,11 @@
 
 ## 🔴 BLOQUEADO POR TERCEIROS — Rudá precisa acompanhar
 
-Nenhuma pendência bloqueada no momento (última resolvida: B1 SSO, ver histórico abaixo).
+### B2. Confirmar se o "EPI-USE Brand Guide 2026" é a versão final aprovada (25/set/2026)
+- **O que:** o PDF (Drive id `1TuOfKEr2SXG24MFpjdnXaeW3s2pYK56c`) tem nome interno `Brand Guide 2022_V1.1.indd` e seções em lorem ipsum (templates, service logos, assets).
+- **Quem:** Duda / branding global.
+- **Por que importa:** DESIGN.md v4.0 foi refeito 100% em cima dele (red `#CE181E`, Lato, secundárias azuis). Se houver versão mais nova, re-rodar o diff.
+- **Bug conhecido (não-bloqueante):** tema "EPI-USE · claro" continua com fundo escuro nas telas com rota — `body[data-route]` do office-nav.js vence o tema, e `home.css` tem cards escuros fixos. Corrigir exige refactor do home.css.
 
 ---
 

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🎨 Brand System · EPI-USE Office</title>
 <link rel="stylesheet" href="/design-tokens.css">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/fonts/lato/lato.css">
 <script type="module" src="/office-nav.js"></script>
 <script type="module" src="/office-footer.js"></script>
 <style>
@@ -23,12 +23,12 @@
   .toc { position: sticky; top: 64px; align-self: start; font-size: 12px; }
   .toc .toc-hdr { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--color-text-muted); margin-bottom: 10px; font-family: 'JetBrains Mono', monospace; }
   .toc a { display: block; color: var(--color-text-muted); text-decoration: none; padding: 5px 10px; border-left: 2px solid var(--color-border); transition: all .12s; }
-  .toc a:hover, .toc a.active { color: var(--color-text); border-left-color: var(--color-primary-400, var(--blue,#0070bf)); background: rgba(0,112,191,.06); }
+  .toc a:hover, .toc a.active { color: var(--color-text); border-left-color: var(--color-primary-400, var(--blue,#487494)); background: rgba(72,116,148,.06); }
 
   /* ── Hero ── */
   .hero { margin-bottom: 34px; }
   .hero .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--color-text-muted); margin-bottom: 8px; }
-  h1 { font-family: 'Poppins', 'Lexend', 'Open Sans', sans-serif; font-size: 32px; font-weight: 700; letter-spacing: -0.015em; margin-bottom: 8px; }
+  h1 { font-family: 'Lato', 'Open Sans', Calibri, Verdana, sans-serif; font-size: 32px; font-weight: 700; letter-spacing: -0.015em; margin-bottom: 8px; }
   .hero p.lede { color: var(--color-text-dim, var(--color-text-muted)); font-size: 15px; max-width: 720px; line-height: 1.6; }
   .hero .meta { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
   .hero .chip { font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--color-border); color: var(--color-text-muted); background: var(--color-surface); }
@@ -37,7 +37,7 @@
   /* ── Sections ── */
   .section { margin-bottom: 44px; scroll-margin-top: 64px; }
   .section-hdr { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; padding-bottom: 8px; border-bottom: 1px solid var(--color-border); }
-  .section-hdr h2 { font-family: 'Poppins', 'Lexend', sans-serif; font-size: 20px; font-weight: 600; }
+  .section-hdr h2 { font-family: 'Lato', 'Open Sans', sans-serif; font-size: 20px; font-weight: 600; }
   .section-hdr .count { color: var(--color-text-muted); font-family: 'JetBrains Mono', monospace; font-size: 11px; }
   .section > .desc { color: var(--color-text-muted); font-size: 13px; line-height: 1.6; margin-bottom: 16px; max-width: 760px; }
   .section h3.subhdr { font-size: 11px; color: var(--color-text-muted); margin: 18px 0 10px; letter-spacing: .08em; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; }
@@ -46,7 +46,7 @@
   .attr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
   .attr-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--rounded-lg, 12px); padding: 18px; }
   .attr-card .swatch-dot { width: 34px; height: 34px; border-radius: 9px; margin-bottom: 12px; border: 1px solid rgba(255,255,255,.12); }
-  .attr-card h3 { font-family: 'Poppins', 'Lexend', sans-serif; font-size: 15px; margin-bottom: 6px; }
+  .attr-card h3 { font-family: 'Lato', 'Open Sans', sans-serif; font-size: 15px; margin-bottom: 6px; }
   .attr-card .valor { font-size: 12px; color: var(--color-text-muted); line-height: 1.55; margin-bottom: 10px; }
   .attr-card .ui-rule { font-size: 12px; line-height: 1.55; border-top: 1px dashed var(--color-border); padding-top: 10px; }
   .attr-card .ui-rule b { font-family: 'JetBrains Mono', monospace; font-size: 11px; }
@@ -67,8 +67,8 @@
   .layer-card:first-child { border-radius: var(--rounded-lg, 12px) 0 0 var(--rounded-lg, 12px); }
   .layer-card:last-child { border-radius: 0 var(--rounded-lg, 12px) var(--rounded-lg, 12px) 0; }
   .layer-card + .layer-card { border-left: none; }
-  .layer-card .n { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--color-primary-400, var(--blue,#0070bf)); letter-spacing: .1em; }
-  .layer-card h3 { font-size: 14px; margin: 4px 0 8px; font-family: 'Poppins', 'Lexend', sans-serif; }
+  .layer-card .n { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--color-primary-400, var(--blue,#487494)); letter-spacing: .1em; }
+  .layer-card h3 { font-size: 14px; margin: 4px 0 8px; font-family: 'Lato', 'Open Sans', sans-serif; }
   .layer-card p { font-size: 12px; color: var(--color-text-muted); line-height: 1.55; margin-bottom: 10px; }
   .layer-card code { display: block; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; background: var(--color-bg-2, rgba(0,0,0,.25)); border: 1px solid var(--color-border); border-radius: 6px; padding: 8px 10px; color: var(--color-text-dim, var(--color-text)); overflow-x: auto; white-space: nowrap; }
   @media (max-width: 900px) { .layer-card { border-radius: 0 !important; } .layer-card + .layer-card { border-left: 1px solid var(--color-border); border-top: none; } }
@@ -76,7 +76,7 @@
   /* ── Color swatches + WCAG ── */
   .color-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(195px, 1fr)); gap: 10px; }
   .swatch { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--rounded-md, 8px); overflow: hidden; cursor: pointer; transition: border-color .12s; }
-  .swatch:hover { border-color: var(--color-primary-400, var(--blue,#0070bf)); }
+  .swatch:hover { border-color: var(--color-primary-400, var(--blue,#487494)); }
   .swatch-color { height: 56px; display: flex; align-items: flex-end; padding: 6px; gap: 4px; }
   .swatch-meta { padding: 8px 10px; }
   .swatch-name { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--color-text); word-break: break-all; }
@@ -89,7 +89,7 @@
 
   /* ── Typography ── */
   .type-row { display: grid; grid-template-columns: 220px 1fr; gap: 18px; padding: 12px 0; border-bottom: 1px solid var(--color-border); align-items: center; }
-  .type-name code { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--color-primary-400, var(--blue,#0070bf)); }
+  .type-name code { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--color-primary-400, var(--blue,#487494)); }
   .type-name .uso { font-size: 10px; color: var(--color-text-muted); display: block; margin-top: 3px; line-height: 1.45; }
   .type-preview { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
   @media (max-width: 720px) { .type-row { grid-template-columns: 1fr; gap: 6px; } }
@@ -99,15 +99,15 @@
   .spacing-row { display: grid; grid-template-columns: 60px 60px 1fr; align-items: center; gap: 10px; }
   .spacing-name { font-family: 'JetBrains Mono', monospace; font-size: 11px; }
   .spacing-val { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--color-text-muted); }
-  .spacing-bar { height: 14px; background: var(--color-primary-500, #013a6a); border-radius: 3px; min-width: 2px; }
+  .spacing-bar { height: 14px; background: var(--color-primary-500, #26476b); border-radius: 3px; min-width: 2px; }
   .rounded-grid, .elev-grid { display: flex; gap: 14px; flex-wrap: wrap; }
-  .rounded-box { width: 86px; height: 86px; background: var(--color-surface); border: 1.5px solid var(--color-primary-400, var(--blue,#0070bf)); display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-align: center; }
+  .rounded-box { width: 86px; height: 86px; background: var(--color-surface); border: 1.5px solid var(--color-primary-400, var(--blue,#487494)); display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-align: center; }
   .elev-box { width: 120px; height: 80px; background: var(--color-surface); border-radius: var(--rounded-md, 8px); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 10px; }
 
   /* ── Atomic design ── */
   .atomic-lvl { margin-bottom: 22px; }
   .atomic-lvl .lvl-hdr { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; }
-  .atomic-lvl .lvl-hdr h3 { font-family: 'Poppins', 'Lexend', sans-serif; font-size: 15px; }
+  .atomic-lvl .lvl-hdr h3 { font-family: 'Lato', 'Open Sans', sans-serif; font-size: 15px; }
   .atomic-lvl .lvl-hdr span { font-size: 11px; color: var(--color-text-muted); }
   .comp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
   .comp-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--rounded-lg, 12px); padding: 14px 16px; }
@@ -115,10 +115,10 @@
   .comp-demo { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 
   /* átomos demo */
-  .btn-primary-demo { background: var(--color-primary-500, #013a6a); color: #fff; border: none; padding: 10px 18px; min-height: 44px; border-radius: var(--rounded-md, 8px); font-weight: 600; font-size: 13px; cursor: pointer; font-family: inherit; }
-  .btn-primary-demo:hover { background: var(--color-primary-400, var(--blue,#0070bf)); }
+  .btn-primary-demo { background: var(--color-primary-500, #26476b); color: #fff; border: none; padding: 10px 18px; min-height: 44px; border-radius: var(--rounded-md, 8px); font-weight: 600; font-size: 13px; cursor: pointer; font-family: inherit; }
+  .btn-primary-demo:hover { background: var(--color-primary-400, var(--blue,#487494)); }
   .btn-secondary-demo { background: transparent; color: var(--color-text); border: 1px solid var(--color-border); padding: 10px 18px; min-height: 44px; border-radius: var(--rounded-md, 8px); font-weight: 600; font-size: 13px; cursor: pointer; font-family: inherit; }
-  .btn-secondary-demo:hover { border-color: var(--color-primary-400, var(--blue,#0070bf)); }
+  .btn-secondary-demo:hover { border-color: var(--color-primary-400, var(--blue,#487494)); }
   .badge { font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 99px; font-family: 'JetBrains Mono', monospace; }
   .badge.real     { background: rgba(5,150,105,.15);  color: var(--teal,#6ee7b7); border: 1px solid rgba(5,150,105,.35); }
   .badge.manual   { background: rgba(217,119,6,.15);  color: var(--gold,#fcd34d); border: 1px solid rgba(217,119,6,.35); }
@@ -127,22 +127,22 @@
   .badge.ia       { background: rgba(96,165,250,.15); color: var(--blue,#93c5fd); border: 1px solid rgba(96,165,250,.35); }
   .badge.projecao { background: rgba(244,114,182,.15);color: #f9a8d4; border: 1px solid rgba(244,114,182,.35); }
   .input-demo { background: var(--color-bg-2, rgba(0,0,0,.2)); border: 1px solid var(--color-border); color: var(--color-text); border-radius: var(--rounded-md, 8px); padding: 10px 12px; min-height: 44px; font-size: 13px; font-family: inherit; width: 200px; }
-  .input-demo:focus { outline: 2px solid var(--color-primary-400, var(--blue,#0070bf)); outline-offset: 1px; border-color: transparent; }
+  .input-demo:focus { outline: 2px solid var(--color-primary-400, var(--blue,#487494)); outline-offset: 1px; border-color: transparent; }
 
   /* moléculas demo */
   .kpi-demo { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--rounded-lg, 12px); padding: 14px; min-width: 180px; }
   .kpi-demo .lbl { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-text-muted); font-family: 'JetBrains Mono', monospace; }
-  .kpi-demo .val { font-size: 26px; font-weight: 800; font-family: 'Poppins', 'Lexend', sans-serif; margin: 4px 0; }
+  .kpi-demo .val { font-size: 26px; font-weight: 800; font-family: 'Lato', 'Open Sans', sans-serif; margin: 4px 0; }
   .kpi-demo .src { font-size: 9.5px; color: var(--color-text-muted); font-family: 'JetBrains Mono', monospace; }
   .alert { padding: 10px 14px; border-radius: var(--rounded-md, 8px); font-size: 12.5px; line-height: 1.5; border: 1px solid; width: 100%; }
   .alert.warn   { background: rgba(217,119,6,.08);  border-color: rgba(217,119,6,.3);  color: var(--gold,#fcd34d); }
-  .alert.info   { background: rgba(0,112,191,.08);  border-color: rgba(0,112,191,.3);  color: var(--blue,#93c5fd); }
+  .alert.info   { background: rgba(72,116,148,.08);  border-color: rgba(72,116,148,.3);  color: var(--blue,#93c5fd); }
   .alert.danger { background: rgba(220,38,38,.08);  border-color: rgba(220,38,38,.3);  color: var(--red,#fca5a5); }
 
   /* ── UX writing ── */
   .uxw-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
   .uxw-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--rounded-lg, 12px); padding: 16px; }
-  .uxw-card h3 { font-size: 13px; font-family: 'Poppins', 'Lexend', sans-serif; margin-bottom: 10px; }
+  .uxw-card h3 { font-size: 13px; font-family: 'Lato', 'Open Sans', sans-serif; margin-bottom: 10px; }
   .uxw-card .ex { font-size: 12px; line-height: 1.6; padding: 8px 10px; border-radius: 6px; margin-bottom: 6px; }
   .uxw-card .ex.sim { background: rgba(5,150,105,.08); border-left: 3px solid #059669; }
   .uxw-card .ex.nao { background: rgba(220,38,38,.07); border-left: 3px solid var(--red,#dc2626); color: var(--color-text-muted); }
@@ -156,18 +156,18 @@
   .rules-card ul { list-style: none; }
   .rules-card li { font-size: 12.5px; line-height: 1.55; padding: 5px 0; border-bottom: 1px dashed var(--color-border); }
   .rules-card li:last-child { border-bottom: none; }
-  .rules-card code { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--color-primary-400, var(--blue,#0070bf)); }
+  .rules-card code { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--color-primary-400, var(--blue,#487494)); }
 
   .gov-flow { display: flex; gap: 0; flex-wrap: wrap; align-items: stretch; margin-top: 14px; }
   .gov-step { background: var(--color-surface); border: 1px solid var(--color-border); padding: 12px 16px; font-size: 12px; display: flex; flex-direction: column; gap: 3px; min-width: 170px; flex: 1; }
   .gov-step:first-child { border-radius: var(--rounded-md, 8px) 0 0 var(--rounded-md, 8px); }
   .gov-step:last-child { border-radius: 0 var(--rounded-md, 8px) var(--rounded-md, 8px) 0; }
   .gov-step + .gov-step { border-left: none; }
-  .gov-step b { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--color-primary-400, var(--blue,#0070bf)); }
+  .gov-step b { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--color-primary-400, var(--blue,#487494)); }
   .gov-step code { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--color-text-muted); }
 
   .theme-toggle { background: var(--color-surface); border: 1px solid var(--color-border); color: var(--color-text); padding: 8px 16px; min-height: 40px; border-radius: var(--rounded-md, 8px); cursor: pointer; font-family: inherit; font-size: 12px; font-weight: 600; }
-  .theme-toggle:hover { border-color: var(--color-primary-400, var(--blue,#0070bf)); }
+  .theme-toggle:hover { border-color: var(--color-primary-400, var(--blue,#487494)); }
 </style>
 </head>
 <body data-route="design">
@@ -214,10 +214,10 @@
           <div class="ui-rule">→ na UI: <b>navy var(--surface,#001844)</b> como cor master, precisão tipográfica (Lexend para títulos, mono para números) e <b>todo dado com fonte citada</b> (chip de origem).</div>
         </div>
         <div class="attr-card">
-          <div class="swatch-dot" style="background:var(--red,#cd1543)"></div>
+          <div class="swatch-dot" style="background:var(--red,#CE181E)"></div>
           <h3>Humano em primeiro lugar</h3>
           <div class="valor">HCM é sobre gente. Programa Voices dá voz real ao time. Tom acessível, sem jargão desnecessário.</div>
-          <div class="ui-rule">→ na UI: <b>red var(--red,#cd1543)</b> como energia/calor em acentos, microcopy direto em PT-BR, saudação com nome, avatares e mesas personalizadas no /game.</div>
+          <div class="ui-rule">→ na UI: <b>red var(--red,#CE181E)</b> como energia/calor em acentos, microcopy direto em PT-BR, saudação com nome, avatares e mesas personalizadas no /game.</div>
         </div>
         <div class="attr-card">
           <div class="swatch-dot" style="background:linear-gradient(135deg,var(--surface,#131b41) 50%,var(--blue,#0066b2) 50%)"></div>
@@ -230,8 +230,8 @@
 
     <!-- 2 · HIERARQUIA -->
     <section class="section" id="hierarquia">
-      <div class="section-hdr"><h2>2 · Hierarquia de marcas</h2><span class="count">4 brands</span></div>
-      <p class="desc">Quatro identidades convivem no ecossistema — cada uma com paleta própria. <strong>Não misturar sem propósito:</strong> telas do Office usam a escala operacional Codex; conteúdo ERP.ngo usa a paleta ERP.ngo; material do grupo usa GE. Fotografia institucional (ref. epiuse.com/company-overview): <strong>pessoas reais do time + elefantes/conservação</strong> — nunca stock genérico de "negócios".</p>
+      <div class="section-hdr"><h2>2 · Hierarquia de marcas</h2><span class="count">3 brands</span></div>
+      <p class="desc">Três identidades convivem no ecossistema — cada uma com paleta própria. <strong>Não misturar sem propósito:</strong> telas do Office usam a paleta do <strong>EPI-USE Brand Guide 2026</strong>; conteúdo ERP.ngo usa a paleta ERP.ngo; material do grupo usa GE. Fotografia institucional (ref. epiuse.com/company-overview): <strong>pessoas reais do time + elefantes/conservação</strong> — nunca stock genérico de "negócios".</p>
       <div class="brand-grid">
         <div class="brand-card" style="border-left:4px solid #1C478A">
           <div class="ttl">🐘 Group Elephant</div>
@@ -246,18 +246,18 @@
           </div>
           <div class="src">GE Colour Palette 2019 · Brand Guide Apr 2024</div>
         </div>
-        <div class="brand-card" style="border-left:4px solid var(--surface,#001844)">
+        <div class="brand-card" style="border-left:4px solid #001844">
           <div class="ttl">🔵 EPI-USE Brasil</div>
           <div class="role">Operação · consultoria SAP HCM → EPI-USE 5.0</div>
           <div class="logo-box"><img src="/assets/logos-epi-use/epi-use-logo-rgb.svg" alt="EPI-USE Brasil" style="max-height:38px"></div>
           <div class="pal">
-            <span style="background:var(--surface,#001844)" onclick="copyHex('var(--surface,#001844)')" title="var(--surface,#001844)"></span>
-            <span style="background:var(--red,#cd1543)" onclick="copyHex('var(--red,#cd1543)')" title="var(--red,#cd1543)"></span>
-            <span style="background:#272F3A" onclick="copyHex('#272F3A')" title="#272F3A"></span>
-            <span style="background:var(--muted,#869ec3)" onclick="copyHex('var(--muted,#869ec3)')" title="var(--muted,#869ec3)"></span>
-            <span style="background:var(--text-dim,#cfd1d3)" onclick="copyHex('var(--text-dim,#cfd1d3)')" title="var(--text-dim,#cfd1d3)"></span>
+            <span style="background:#001844" onclick="copyHex('#001844')" title="deep blue #001844"></span>
+            <span style="background:#CE181E" onclick="copyHex('#CE181E')" title="EPI-USE red #CE181E"></span>
+            <span style="background:#26476b" onclick="copyHex('#26476b')" title="service line blue #26476b"></span>
+            <span style="background:#6797b8" onclick="copyHex('#6797b8')" title="cornflower blue #6797b8"></span>
+            <span style="background:#f2f2f2" onclick="copyHex('#f2f2f2')" title="stone gray #f2f2f2"></span>
           </div>
-          <div class="src">Brand Guide V1.1 + uso real PPT Template Jan 2026</div>
+          <div class="src">EPI-USE Brand Guide 2026 · vermelho só como acento</div>
         </div>
         <div class="brand-card" style="border-left:4px solid var(--surface,#131b41)">
           <div class="ttl">🦏 ERP.ngo</div>
@@ -271,19 +271,6 @@
             <span style="background:#BBA997" onclick="copyHex('#BBA997')" title="#BBA997"></span>
           </div>
           <div class="src">Brand Guide V1.0 (2016) · tagline obrigatória</div>
-        </div>
-        <div class="brand-card" style="border-left:4px solid var(--blue,#0083b3)">
-          <div class="ttl">📊 Stratview</div>
-          <div class="role">Analytics / Reporting · Group Company</div>
-          <div class="logo-box"><img src="/assets/logos-stratview/stratview-logo.svg" alt="Stratview" style="max-height:42px"></div>
-          <div class="pal">
-            <span style="background:var(--blue,#0083b3)" onclick="copyHex('var(--blue,#0083b3)')" title="var(--blue,#0083b3)"></span>
-            <span style="background:#005F82" onclick="copyHex('#005F82')" title="#005F82"></span>
-            <span style="background:#003D54" onclick="copyHex('#003D54')" title="#003D54"></span>
-            <span style="background:#7CC4DE" onclick="copyHex('#7CC4DE')" title="#7CC4DE"></span>
-            <span style="background:#D6EEF7" onclick="copyHex('#D6EEF7')" title="#D6EEF7"></span>
-          </div>
-          <div class="src">🤖 sistema proposto por IA — único asset oficial é o logo (var(--blue,#0083b3) do SVG) · validar antes de uso externo</div>
         </div>
       </div>
 
@@ -315,7 +302,7 @@
           <div class="n">CAMADA 1 · GLOBAL (primitivos)</div>
           <h3>O valor bruto</h3>
           <p>Escala completa de cor, sem contexto de uso. Definida no DESIGN.md, nunca consumida direto por telas.</p>
-          <code>--color-primary-500: #013a6a;</code>
+          <code>--color-primary-500: #26476b;</code>
         </div>
         <div class="layer-card">
           <div class="n">CAMADA 2 · ALIAS (semânticos)</div>
@@ -348,7 +335,7 @@
     <!-- 5 · TIPOGRAFIA -->
     <section class="section" id="tipografia">
       <div class="section-hdr"><h2>5 · Tipografia</h2><span class="count" id="type-count">—</span></div>
-      <p class="desc">Stack oficial (decisão 12/jun/2026): <strong>Poppins</strong> (display/títulos — geométrica-circular, mesma família do Maven Pro do Brand Guide V1.1, aproxima a web do ideal de marca) · <strong>Open Sans</strong> (corpo — humanista, legível em dashboard denso; self-hosted) · <strong>Verdana</strong> (fallback honesto: é a fonte real do PPT corporativo Jan 2026, 295 ocorrências auditadas) · <strong>JetBrains Mono</strong> (números, código, chips) · <strong>Press Start 2P</strong> (exclusivo /game). <strong>Aposentadas:</strong> Lato · Inter (migração gradual) · Maven Pro direto (não self-hosted). Body mínimo 16px no mobile · line-height 1.5–1.75.</p>
+      <p class="desc">Stack oficial (<strong>EPI-USE Brand Guide 2026</strong>, seção 05): <strong>Lato</strong> (primária — headlines e todo material de marketing; self-hosted) · <strong>Open Sans</strong> (body do site/telas; self-hosted) · <strong>Calibri → Verdana</strong> (fallback quando Lato/Open Sans indisponíveis) · <strong>Verdana</strong> (PPT/Word: título 24–32pt, corpo 12–16pt #231f20) · <strong>JetBrains Mono</strong> (só código/dados — funcional, fora do guia) · <strong>Press Start 2P</strong> (exclusivo /game). Leading oficial 12/22 · 10/20 · 10/16pt, tracking 10. <strong>Aposentadas:</strong> Poppins · Maven Pro · Avenir · Inter.</p>
       <div id="types"></div>
     </section>
 
@@ -555,10 +542,11 @@ async function carregar() {
 function renderColors() {
   const cats = {
     '🐘 Group Elephant (holding)': k => k.startsWith('ge-'),
-    '🔵 EPI-USE Brasil — escala primary (Codex + navy master)': k => k.startsWith('primary-'),
-    '🔵 EPI-USE Brasil — secondary + backgrounds': k => k.startsWith('secondary-') || k.startsWith('bg-light-'),
+    '🔵 EPI-USE — Brand Guide 2026 (primary · secondary · texto)': k => k.startsWith('brand-'),
+    '🎯 EPI-USE — spot colors por serviço': k => k.startsWith('spot-'),
+    '🔵 EPI-USE — escala operacional UI (azuis do guia)': k => k.startsWith('primary-'),
+    '🔵 EPI-USE — aliases secondary + backgrounds': k => k.startsWith('secondary-') || k.startsWith('bg-light-'),
     '🦏 ERP.ngo': k => k.startsWith('erp-'),
-    '📊 Stratview — 🤖 sistema proposto (derivado do logo, sem brand guide)': k => k.startsWith('stratview-'),
   };
   const all = Object.entries(TOKENS.colors);
   const shown = all.filter(([k]) => Object.values(cats).some(fn => fn(k)));
@@ -589,16 +577,18 @@ function renderColors() {
 
 // Orientação de uso por nível tipográfico
 const TYPE_USO = {
-  'display-lg':    'Hero de LPs e telas de capa — 1 por página · Poppins',
-  'display-md':    'Título de página interna · Poppins',
-  'headline-lg':   'Título de seção principal · Poppins',
-  'headline-md':   'Título de card grande / modal · Poppins',
-  'headline-sm':   'Título de card padrão · Poppins',
+  'display-lg':    'Hero de LPs e telas de capa — 1 por página · Lato',
+  'display-md':    'Título de página interna · Lato',
+  'headline-lg':   'Título de seção principal · Lato',
+  'headline-md':   'Título de card grande / modal · Lato',
+  'headline-sm':   'Título de card padrão · Lato',
   'body-lg':       'Texto de leitura longa · Open Sans',
   'body-md':       'Corpo padrão da UI · Open Sans',
   'body-sm':       'Texto secundário, descrições · Open Sans',
-  'label-md':      'Labels de form e botões · Open Sans',
-  'label-sm':      'Eyebrows, chips, uppercase · Open Sans',
+  'label-md':      'Labels de form e botões · Lato',
+  'label-sm':      'Eyebrows, chips, uppercase · Lato',
+  'ppt-title':     'Título de slide PPT (24–32pt) · Verdana',
+  'ppt-body':      'Corpo de slide PPT (12–16pt, #231f20) · Verdana',
   'code-md':       'Números, KPIs, código · JetBrains Mono',
   'code-sm':       'Chips de fonte de dado · JetBrains Mono',
   'pixel-display': 'EXCLUSIVO /game — nunca em telas de dado',

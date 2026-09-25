@@ -35,7 +35,7 @@ window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/ver
 })();
 
 // GLOBAL polish stylesheets (v0.24.0) — injeta em TODAS paginas que carregam office-nav.js
-// Inclui Poppins + Source Sans 3 (consulting fonts) + polish-pro.css + consulting-dark.css
+// Inclui Lato + Open Sans (Brand Guide 2026) + polish-pro.css + consulting-dark.css
 (function injectGlobalPolish() {
   if (document.getElementById('global-polish-loader')) return;
   const marker = document.createElement('meta');
@@ -51,21 +51,28 @@ window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/ver
     document.head.appendChild(l);
   });
 
-  // Google Fonts CSS (Poppins + Source Sans 3 + Fira Code)
-  if (!document.querySelector('link[href*="Poppins"]')) {
+  // Fontes oficiais Brand Guide 2026 (self-hosted): Lato (primaria) + Open Sans (web body)
+  ['/assets/fonts/lato/lato.css', '/assets/fonts/open-sans/open-sans.css'].forEach(href => {
+    if (document.querySelector(`link[href="${href}"]`)) return;
+    const l = document.createElement('link');
+    l.rel = 'stylesheet'; l.href = href;
+    document.head.appendChild(l);
+  });
+  // Mono (codigo/dados) via Google Fonts — funcional, fora do escopo do Brand Guide
+  if (!document.querySelector('link[href*="Fira+Code"]')) {
     const fontsLink = document.createElement('link');
     fontsLink.rel = 'stylesheet';
-    fontsLink.href = 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&family=Fira+Code:wght@500;600;700&display=swap';
+    fontsLink.href = 'https://fonts.googleapis.com/css2?family=Fira+Code:wght@500;600;700&display=swap';
     document.head.appendChild(fontsLink);
   }
 
-  // FONTE GLOBAL PADRAO = Poppins (sobrepoe Inter/Open Sans/etc das telas).
+  // FONTE GLOBAL PADRAO = Lato (Brand Guide 2026 · sobrepoe Poppins/Inter/etc das telas).
   // Mono (code/pre) preservado. Aplicado 1x via <style> de alta especificidade.
   if (!document.getElementById('office-global-font')) {
     const fs = document.createElement('style');
     fs.id = 'office-global-font';
     fs.textContent = `
-      :root { --font-base: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+      :root { --font-base: 'Lato', 'Open Sans', Calibri, Verdana, sans-serif; }
       html, body, button, input, select, textarea,
       h1, h2, h3, h4, h5, h6, p, a, span, div, li, td, th, label, strong, em, small {
         font-family: var(--font-base) !important;
@@ -73,7 +80,7 @@ window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/ver
       code, pre, kbd, samp, .mono, [class*="mono"], [style*="JetBrains"], [style*="Fira"], [style*="Courier"] {
         font-family: 'Fira Code', 'JetBrains Mono', ui-monospace, monospace !important;
       }
-      /* icones (emoji/material/etc) nao herdam Poppins */
+      /* icones (emoji/material/etc) nao herdam a fonte base */
       .material-icons, .material-symbols-outlined, .ic {
         font-family: revert !important;
       }
@@ -432,7 +439,7 @@ class OfficeNav extends HTMLElement {
           position: sticky;
           top: 0;
           z-index: 100;
-          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+          font-family: 'Lato', 'Open Sans', Calibri, Verdana, sans-serif;
         }
         .nav-bar {
           background: var(--nav-bg);
@@ -676,7 +683,7 @@ class OfficeNav extends HTMLElement {
           color: var(--nav-accent, #2563eb);
           padding: 6px 10px 4px;
           opacity: .95;
-          border-bottom: 1px solid rgba(134,158,195,.15);
+          border-bottom: 1px solid rgba(103,151,184,.15);
           margin-bottom: 4px;
         }
 
@@ -1256,22 +1263,23 @@ function applyTheme(theme) {
        Páginas que usam CSS vars locais escuras hardcoded ficam parcialmente cobertas —
        é o trade-off prático sem reescrever 8 HTMLs. */
     :root[data-theme="light"] {
-      --bg: #f8fafc;
-      --bg-2: #f1f5f9;
+      /* Brand Guide 2026 — stone gray + dark grey PPT + azuis oficiais */
+      --bg: #f2f2f2;
+      --bg-2: #e6e5e5;
       --surface: #ffffff;
-      --surface-2: #f8fafc;
-      --border: rgba(15, 23, 42, 0.08);
-      --border-light: rgba(15, 23, 42, 0.06);
-      --text: #0f172a;
-      --text-dim: #334155;
-      --text-muted: #64748b;
-      --primary: #2563eb;
-      --primary-light: #3b82f6;
+      --surface-2: #f2f2f2;
+      --border: rgba(35, 31, 32, 0.12);
+      --border-light: rgba(35, 31, 32, 0.06);
+      --text: #231f20;
+      --text-dim: #313131;
+      --text-muted: #7b7979;
+      --primary: #26476b;
+      --primary-light: #487494;
       color-scheme: light;
     }
     :root[data-theme="light"] body {
-      background: #f8fafc !important;
-      color: #0f172a !important;
+      background: #f2f2f2 !important;
+      color: #231f20 !important;
     }
 
     /* ─── GRID PATTERN GLOBAL — aplica em TODAS rotas com data-route ───────
@@ -1281,14 +1289,14 @@ function applyTheme(theme) {
     @media screen {
       body[data-route]:not([data-route="seja-voice"]) {
         background:
-          linear-gradient(rgba(134,158,195,.04) 1px, transparent 1px) 0 0/48px 48px,
-          linear-gradient(90deg, rgba(134,158,195,.04) 1px, transparent 1px) 0 0/48px 48px,
-          radial-gradient(ellipse 80% 60% at 50% -10%, rgba(205,21,67,.12), transparent 60%),
-          radial-gradient(ellipse 60% 50% at 100% 100%, rgba(20,184,166,.05), transparent 60%),
-          #050b18 !important;
+          linear-gradient(rgba(103,151,184,.05) 1px, transparent 1px) 0 0/48px 48px,
+          linear-gradient(90deg, rgba(103,151,184,.05) 1px, transparent 1px) 0 0/48px 48px,
+          radial-gradient(ellipse 80% 60% at 50% -10%, rgba(38,71,107,.55), transparent 60%),
+          radial-gradient(ellipse 60% 50% at 100% 100%, rgba(72,116,148,.18), transparent 60%),
+          #001844 !important;
         background-attachment: fixed !important;
-        font-family: 'Source Sans 3', 'Source Sans Pro', system-ui, sans-serif !important;
-        color: #e6ebf2 !important;
+        font-family: 'Open Sans', 'Lato', Calibri, Verdana, sans-serif !important;
+        color: #f2f2f2 !important;
         -webkit-font-smoothing: antialiased;
         margin: 0 !important;
       }
@@ -1296,18 +1304,18 @@ function applyTheme(theme) {
     body[data-route]:not([data-route="seja-voice"]) h1,
     body[data-route]:not([data-route="seja-voice"]) h2,
     body[data-route]:not([data-route="seja-voice"]) h3 {
-      font-family: 'Poppins', 'Source Sans 3', sans-serif;
-      letter-spacing: -0.012em;
-      font-weight: 600;
+      font-family: 'Lato', 'Open Sans', Calibri, Verdana, sans-serif;
+      letter-spacing: 0.01em;
+      font-weight: 700;
     }
     /* Light mode preserva grid mas mais sutil */
     :root[data-theme="light"] body[data-route]:not([data-route="seja-voice"]) {
       background:
         linear-gradient(rgba(0,24,68,.025) 1px, transparent 1px) 0 0/48px 48px,
         linear-gradient(90deg, rgba(0,24,68,.025) 1px, transparent 1px) 0 0/48px 48px,
-        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(205,21,67,.06), transparent 60%),
-        #f4f7fb !important;
-      color: #0f172a !important;
+        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(103,151,184,.14), transparent 60%),
+        #f2f2f2 !important;
+      color: #231f20 !important;
     }
 
     /* ─── ARMORY THEME ─────────────────────────────────────────────────────
@@ -1794,7 +1802,7 @@ const OfficeCommandPalette = (() => {
           backdrop-filter: blur(8px); display: none;
           align-items: flex-start; justify-content: center;
           z-index: 9999; padding: 80px 16px 16px;
-          font-family: 'Inter', -apple-system, sans-serif;
+          font-family: 'Lato', 'Open Sans', Calibri, Verdana, sans-serif;
         }
         #office-cmdk-overlay.open { display: flex; }
         #office-cmdk-box {
@@ -2024,7 +2032,7 @@ class HubSubmenu extends HTMLElement {
           position: sticky;
           top: 48px;
           z-index: 99;
-          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+          font-family: 'Lato', 'Open Sans', Calibri, Verdana, sans-serif;
         }
         .bar {
           display: flex;

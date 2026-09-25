@@ -1,36 +1,17 @@
 # Branding EPI-USE
 
-> ⚠️ **A partir de v0.6.0 (28/mai/2026): a fonte da verdade dos tokens de design é `DESIGN.md`** (formato Google Labs spec).
-> Este arquivo agora mantém só contexto narrativo: tom de voz · emojis padronizados · mensagens obrigatórias.
-> Cores/tipografia/spacing/componentes → editar `DESIGN.md` → rodar `python modulo-a-profile-optimizer/scripts/design/gen_tokens.py`.
-> Ver visual em http://localhost:3000/design
+> ⚠️ **Fonte da verdade visual: `DESIGN.md` v4.0 (25/set/2026), 100% dentro do EPI-USE Brand Guide 2026** (Drive: `EPI-USE Brand Guide 2026.pdf`).
+> Este arquivo mantém só contexto narrativo: tom de voz · emojis padronizados · mensagens obrigatórias.
+> Cores/tipografia/spacing/componentes → editar `DESIGN.md` → rodar `python scripts/design/gen_tokens.py`. Ver visual em `/design`.
 
-## Paleta de cores
+## Resumo do Brand Guide 2026 (detalhe em DESIGN.md)
 
-### Cores institucionais
-| Variável | HEX | Uso |
-|---|---|---|
-| `--epiuse-blue` | `#004B8D` | Azul institucional histórico (Marketing Hub portals) |
-| `--primary` | `#0A2342` | Azul escuro (EPI-USE Voices) |
-| `--accent` | `#2563EB` | Azul para CTAs |
-| `--success` | `#059669` | Verde — status ativo |
-| `--warning` | `#D97706` | Âmbar — campos pendentes |
-| `--danger` | `#DC2626` | Vermelho — alertas |
-| `--bg` | `#F0F4F8` | Fundo claro |
-
-### Cores de apoio (Marketing Hub)
-| Variável | HEX | Uso |
-|---|---|---|
-| `--green` | `#2E7D32` | Verde institucional |
-| `--red` | `#C62828` | Vermelho institucional |
-| `--purple` | `#6A1B9A` | Roxo para destaque |
-| `--gray-bg` | `#F5F7FA` | Fundo neutro |
-
-## Tipografia
-
-- **Body/UI**: Inter (Google Fonts) — pesos 400, 500, 600, 700
-- **Display retrô (engine)**: Press Start 2P — apenas títulos pixel art
-- **Hierarquia**: H1 24px, H2 20px, H3 16px, body 14px, small 12px
+- **Primárias:** Deep Blue `#001844` + EPI-USE Red `#CE181E` — "mostly blue with an accent of red"
+- **Secundárias:** `#26476b` service line · `#355b7e` dark slate · `#487494` royal · `#5585a3` steel · `#6797b8` cornflower · `#f2f2f2` stone gray
+- **Vermelho é reservado:** acento (bullets, ícones, 1 CTA). Nunca predominante em tabela/gráfico
+- **Spot colors** só em material de linha de serviço (PEX, AI Services, AWS, ServiceNow…)
+- **Tipografia:** Lato (primária) · Open Sans (body web) · Calibri/Verdana (fallback) · Verdana no PPT/Word
+- **Imagem:** natureza e animais em estado natural; nunca cativeiro
 
 ## Logos
 
