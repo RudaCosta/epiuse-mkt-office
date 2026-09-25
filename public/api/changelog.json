@@ -1,6 +1,6 @@
 {
-  "current": "0.89.0",
-  "atualizado_em": "03/set/2026",
+  "current": "0.89.1",
+  "atualizado_em": "25/set/2026",
   "next": [
     {
       "version": "0.53.0",
@@ -54,9 +54,27 @@
   ],
   "releases": [
     {
+      "version": "0.89.1",
+      "date": "25/set/2026",
+      "status": "current",
+      "path": "/area/eventos",
+      "title": "📅 Field Marketing: Gabrielle Senne assume a área",
+      "summary": "Troca de dona feita em todo o Office — telas, game, docs e banco. O nome de quem saiu não aparece mais em lugar nenhum: nem nas telas, nem no histórico do changelog, nem no código.",
+      "highlights": [
+        "Gabrielle Senne entra em: home, /area/eventos, /agentes, /metas, /metas-fy27, /planilhas, /cafezinho e no game (mesa do bullpen, cartão e NPC).",
+        "🧹 Limpeza de saída (routes/offboarding.js): varre o banco de PROD atrás do nome de quem saiu — responsável de evento, autor de ideia/pauta, cartão e posts do Cafezinho, registro de acesso. Sem isso, quem assume abre /field-marketing e continua vendo o nome antigo em cada evento.",
+        "A limpeza distingue RESPONSABILIDADE de AUTORIA: evento passa pra quem assumiu (é handover de verdade); autoria de texto vira rótulo neutro, nunca o nome de quem assumiu — atribuir texto dos outros a alguém é falsificar autoria.",
+        "O nome de quem sai NÃO fica cravado no repositório: a limpeza é dirigida pela var OFFBOARD_PESSOA, que roda uma vez e depois pode ser apagada.",
+        "O changelog antigo foi ANONIMIZADO, não reescrito: as entradas de jul e ago/2026 seguem contando o que aconteceu, sem o nome, o e-mail e o aniversário da pessoa. Trocar por \"Gabrielle\" ali teria criado histórico falso.",
+        "A persona da home é da ÁREA (`field`), não da pessoa — a próxima troca de cadeira é só editar o team.json.",
+        "O gerador das metas parou de ter nome cravado no código: lê a dona do team.json (a cadeira já trocou três vezes e a cada troca o JSON voltava errado).",
+        "⏳ Falta da Gabrielle: e-mail @epiuse pra cadastrar em /admin/usuarios (role `field`) e o aniversário — fica em branco até ela informar, porque o game dispara confete por esse campo e data não se inventa."
+      ]
+    },
+    {
       "version": "0.89.0",
       "date": "03/set/2026",
-      "status": "current",
+      "status": "released",
       "title": "⏰ Banco de Horas MKT — controle interno de horas extras/a menos",
       "summary": "Novo módulo para o time registrar horas a mais (+) ou a menos (-), com saldo acumulativo por pessoa. Visibilidade pessoal via SSO (head vê painel do time inteiro). Notifica Rudá via email quando alguém ultrapassa +8h. Card de saldo na home + atalho nos acessos rápidos.",
       "highlights": ["Página /horas com form + histórico", "Painel do time (head only)", "Email automático a cada +8h acumuladas", "Card saldo no Daily Digest da home"]
@@ -97,7 +115,7 @@
         "Cada pessoa tem um cartão que ela mesma edita: apelido, emoji, a frase que repete no café, a série que está vendo e o item-assinatura dela.",
         "O signo aparece calculado a partir do aniversário que já estava cadastrado — ninguém precisa digitar, e dá pra corrigir à mão se sair errado.",
         "Mural do time com meme, ideia, causo e série. Post marcado como spoiler entra borrado e só abre no clique — a regra do café virou regra da tela.",
-        "As mesas do game ganharam a garrafa da Bruna e o tarot da Fernanda, que até então estavam com itens genéricos.",
+        "As mesas do game ganharam a garrafa da Bruna e um item na mesa do Field Marketing, que até então estavam com itens genéricos.",
         "Folclore do papo quinzenal de 14/ago/2026 entrou com a fonte à vista: Suits, eclipse em Leão, proibido spoiler e a unanimidade de que todo mundo acredita em ET."
       ]
     },
@@ -317,7 +335,7 @@
       "path": null,
       "title": "🔒 Visão executiva SÓ pra Rudá + Roberto — home do time focada no dia a dia",
       "highlights": [
-        "Home de Duda, Bruna, Gui, Fernanda, Marlison e Lisiane perdeu TODAS as seções executivas (North Star, Metas FY, panorama de áreas, time) — agora abre com ⚡ Acessos rápidos no topo + foco próprio, hoje, agenda e alertas. Exceção cirúrgica: Gui mantém o gráfico de growth (é o trabalho diário dele)",
+        "Home de Duda, Bruna, Gui, Field, Marlison e Lisiane perdeu TODAS as seções executivas (North Star, Metas FY, panorama de áreas, time) — agora abre com ⚡ Acessos rápidos no topo + foco próprio, hoje, agenda e alertas. Exceção cirúrgica: Gui mantém o gráfico de growth (é o trabalho diário dele)",
         "/executivo e /api/executivo (CMO View) agora exigem role head ou country-manager — antes qualquer pessoa logada que soubesse a URL via os números",
         "Rudá e Roberto seguem com a visão executiva completa; visitante (demo) inalterado"
       ]
@@ -329,7 +347,7 @@
       "path": null,
       "title": "⚡ Menu inicial por pessoa — Acessos rápidos da home personalizados por persona",
       "highlights": [
-        "A seção 'Acessos rápidos' da home deixou de ser 4 links fixos iguais pra todos: agora cada pessoa do MKT tem a sua lista (personas.json quick[]) com as páginas novas — Rudá vê Inscrições/UTM/Analytics/Coins/Usuários; Duda vê Voices/Raccoon/Cases/Design; Fernanda vê QR de eventos/Brindes; Bruna vê fila de Brindes; Gui vê LinkedIn Intelligence/Artigos; Marlison vê JARVIS/Pipeline; Lisiane vê Artigos/Jornadas — todos com UTM, Meus Links, Campanhas e Loja",
+        "A seção 'Acessos rápidos' da home deixou de ser 4 links fixos iguais pra todos: agora cada pessoa do MKT tem a sua lista (personas.json quick[]) com as páginas novas — Rudá vê Inscrições/UTM/Analytics/Coins/Usuários; Duda vê Voices/Raccoon/Cases/Design; Field Marketing vê QR de eventos/Brindes; Bruna vê fila de Brindes; Gui vê LinkedIn Intelligence/Artigos; Marlison vê JARVIS/Pipeline; Lisiane vê Artigos/Jornadas — todos com UTM, Meus Links, Campanhas e Loja",
         "Menu overflow: 📣 Campanhas em jogo entrou pra todos e 🪙 Coins & Resgates (/admin/coins) pro head — antes não apareciam em lugar nenhum",
         "Sem persona definida (visitante), vale o quick_default; Roberto segue sem a seção (visão executiva)"
       ]
@@ -710,11 +728,11 @@
       "date": "06/jul/2026",
       "status": "past",
       "path": null,
-      "title": "🔐 Permissões atualizam sem relogar + Optimizer v3 no Hub + nome completo da Fernanda Mattos Tavares",
+      "title": "🔐 Permissões atualizam sem relogar + Optimizer v3 no Hub + nome completo da responsável de Field Marketing",
       "highlights": [
         "Role/persona da sessão passam a ser re-hidratados do banco a cada navegação — cadastrar/editar alguém no /admin/usuarios vale no próximo carregamento de página, sem precisar deslogar e logar de novo",
         "Marketing Hub e game do colaborador agora abrem o Profile Optimizer v3 (/voices/optimizer-v3) — antes caíam na v1; rota v3 liberada no hard-lock do colaborador",
-        "Fernanda Mattos Tavares: nome completo corrigido em team, areas, agentes, metas (FY26/FY27), hub, office-desks e docs (email SSO fernanda.tavares@epiuse.com.br, role field)"
+        "Responsável de Field Marketing: nome completo corrigido em team, areas, agentes, metas (FY26/FY27), hub, office-desks e docs (e-mail SSO cadastrado, role field)"
       ]
     },
     {
@@ -830,10 +848,10 @@
       "date": "02/jul/2026",
       "status": "past",
       "path": null,
-      "title": "🔄 Fernanda entra no lugar da Isabela + NPCs falantes + Parede de Memes no game",
+      "title": "🔄 Troca de responsável em Field Marketing + NPCs falantes + Parede de Memes no game",
       "highlights": [
-        "Fernanda Mattos (nasc. 13/12) substitui a Isabela em Field Marketing — trocado em team, personas, areas, agentes, metas, office-desks e docs",
-        "E-mail da Fernanda a confirmar: seed SSO da Isabela removido; ela entra como colaboradora até ser cadastrada no /admin/usuarios (role field)",
+        "Nova responsável assume Field Marketing no lugar da Isabela — trocado em team, personas, areas, agentes, metas, office-desks e docs",
+        "E-mail da nova responsável a confirmar: seed SSO da Isabela removido; ela entra como colaboradora até ser cadastrada no /admin/usuarios (role field)",
         "Game do MKT: NPCs ganharam mais falas de personagem (menos repetição nos balões)",
         "Roberto agora solta 'VAI ARGENTINA!' com frequência — zoeira do Country Manager Brasil na Copa 🇦🇷😂",
         "Quem loga via SSO não vê mais um clone de si mesmo como NPC (esconde o próprio personagem)",

@@ -4,9 +4,8 @@
 // Por que existe: o Office inteiro é tela de trabalho. A única coisa "pessoal"
 // era o /memes (100% hardcoded, ninguém posta nada) e a mesa do game (só muda
 // por commit). No papo quinzenal de café de 14/ago/2026 saiu um monte de
-// folclore do time — signos, a garrafa nova da Bruna toda semana, o tarot da
-// Fernanda, Suits como série em comum, "é proibido spoiler" — e não tinha
-// onde isso morar.
+// folclore do time — signos, a garrafa nova da Bruna toda semana, Suits como
+// série em comum, "é proibido spoiler" — e não tinha onde isso morar.
 //
 // Como funciona:
 //  - cafe_perfil  → o cartão que CADA UM edita do seu próprio jeito. A gravação

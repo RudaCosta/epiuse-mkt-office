@@ -295,8 +295,8 @@ try {
     ['ruda.costa@epiuse.com.br',        'Rudá Costa',         'head'],
     ['bruna.yamagami@epiuse.com.br',    'Bruna Yamagami',     'intelligence'],
     ['guilherme.marques@epiuse.com.br', 'Guilherme Marques',  'growth'],
-    // Fernanda Mattos Tavares (Field Marketing, entrou no lugar da Isabela em jul/2026)
-    // entra via /admin/usuarios — email @epiuse ainda a confirmar; role 'field'.
+    // Gabrielle Senne (Field Marketing) entra via /admin/usuarios — email @epiuse
+    // ainda a confirmar; role 'field'. Nao seedar com email chutado.
     ['marlison.estrela@epiuse.com.br',  'Marlison Estrela',   'pipeline'],
     ['eduarda.hirose@epiuse.com.br',    'Eduarda Hirose',     'brand'],
     ['roberto.medeiros@epiuse.com.br',  'Roberto Medeiros',   'country-manager'],
@@ -6032,6 +6032,11 @@ app.use('/', require('./routes/voices-pipeline')); // Módulo 20 — pipeline de
 app.use('/', require('./routes/comunicados')); // Modulo 21 -- fila de comunicados por e-mail
 app.use('/', require('./routes/cafezinho')); // Módulo 22 — Cafezinho (área pessoal do time)
 app.use('/', require('./routes/horas'));      // Módulo 23 — Banco de Horas MKT
+
+// Saida de pessoa do time: roda aqui, no fim do boot, porque precisa das
+// tabelas de TODOS os modulos (as do Cafezinho, por exemplo, so existem
+// depois que aquele router carrega). Sem OFFBOARD_PESSOA setada, e no-op.
+require('./routes/offboarding').rodarOffboarding();
 
 app.listen(PORT, () => {
   console.log(`\n🎙️  EPI-USE Voices — Profile Optimizer`);

@@ -106,7 +106,7 @@ window.WORLD = {
     P.pMicBooth(g, 4*TS, 18.5*TS); P.pChair(g, 4.8*TS, 19.9*TS);
     P.pMicBooth(g, 9*TS, 18.5*TS); P.pChair(g, 9.8*TS, 19.9*TS);
     // Bullpen — mesas personalizadas (dados reais do office-desks.json)
-    const BULL = [['duda',20,13.5],['bruna',26,13.5],['gui',32,13.5],['fernanda',20,18.5],['marlison',26,18.5],['ruda',32,18.5]];
+    const BULL = [['duda',20,13.5],['bruna',26,13.5],['gui',32,13.5],['gabrielle',20,18.5],['marlison',26,18.5],['ruda',32,18.5]];
     for (const [id, bc, br] of BULL) { P.pDesk(g, bc*TS, br*TS, id); P.pChair(g, (bc+0.6)*TS, (br+1.2)*TS); }
     P.pWaterCooler(g, 38.8*TS, 20.6*TS);
     // Field — o quadro recebe post-its de eventos REAIS (eventsBoard)
@@ -204,7 +204,7 @@ window.WORLD = {
       { id:'egg-elefante', px:54.9*TS, py:31.7*TS, r:48, name:'🐾 …?', tip:'algo pequeno se mexe atrás da árvore', action:{type:'egg'} },
     ];
     // mesas do bullpen → cartão da pessoa (dados reais)
-    for (const [id, c, r] of [['duda',21,14.3],['bruna',27,14.3],['gui',33,14.3],['fernanda',21,19.3],['marlison',27,19.3],['ruda',33,19.3]]) {
+    for (const [id, c, r] of [['duda',21,14.3],['bruna',27,14.3],['gui',33,14.3],['gabrielle',21,19.3],['marlison',27,19.3],['ruda',33,19.3]]) {
       Z.push({ id:'desk-'+id, px:c*TS, py:r*TS, r:46, name:'Mesa', tip:'Ver perfil', action:{type:'person', id} });
     }
     return Z;
@@ -218,7 +218,7 @@ window.WORLD = {
       falas:['dado bom é dado limpo 🧹','o CRM agradece 🙏','bora segmentar essa base 🎯','dedup na base hoje 🧽','lead sem UTM me dói 😩','o funil não mente 📊','higiene de base é sagrado ✨'] },
     { id:'gui',      px:33, py:14, room:'bullpen', pal:{hair:'#27190e',skin:'#f5cfa6',shirt:'#10b981',pants:'#44403c'},
       falas:['teste A/B rodando 🧪','SEO é maratona, não sprint 🏃','viu o CTR de hoje? 👀','subiu o CPC, calma 📉','growth é experimento atrás de experimento 🔬','essa pauta vai ranquear 📈','otimiza e mede, sempre'] },
-    { id:'fernanda', px:21, py:19, room:'bullpen', pal:{hair:'#7c5a3a',skin:'#f5cfa6',shirt:'#f59e0b',pants:'#334155'},
+    { id:'gabrielle', px:21, py:19, room:'bullpen', pal:{hair:'#3f3f46',skin:'#e8b58a',shirt:'#f59e0b',pants:'#334155'},
       falas:['evento chegando! 📅','já confirmou presença?','checklist do estande ✓','MDF aprovado, bora! 💰','roll-up impresso? ✅','logística de evento é arte 🎪','LATAM tá no radar 🌎','proof of performance depois do evento 📸'] },
     { id:'marlison', px:27, py:19, room:'bullpen', pal:{hair:'#0f172a',skin:'#c98e62',shirt:'#0d9488',pants:'#1e3a5f'},
       falas:['cold call é arte ☎️','foco no C-Level 🎯','pipeline não dorme 💪','cadência no Apollo rodando 📨','CHRO, CIO, CFO — é com eles 👔','follow-up salva deal 🔁','high intent primeiro 🔥'] },

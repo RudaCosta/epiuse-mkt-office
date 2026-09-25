@@ -14,7 +14,7 @@ const ROLE_CONFIG = {
   'head':            { persona: 'ruda',      landing: '/',     admin: true },
   'intelligence':    { persona: 'bruna',     landing: '/' },
   'growth':          { persona: 'gui',       landing: '/' },
-  'field':           { persona: 'fernanda',  landing: '/' },
+  'field':           { persona: 'field',     landing: '/' },
   'pipeline':        { persona: 'marlison',  landing: '/' },
   'brand':           { persona: 'duda',      landing: '/' },
   'conteudo':        { persona: 'conteudo',  landing: '/' },
@@ -25,6 +25,10 @@ const ROLE_CONFIG = {
 };
 const ROLES = Object.keys(ROLE_CONFIG);
 const DEFAULT_ROLE = 'hub';
+
+// Saída de pessoa do time (acesso + nome espalhado pelo banco) é tratada em
+// routes/offboarding.js, que roda no fim do boot — precisa das tabelas de todos
+// os módulos, e várias só existem depois que os routers carregam.
 
 function resolveRoleConfig(role) {
   return ROLE_CONFIG[role] || ROLE_CONFIG[DEFAULT_ROLE];

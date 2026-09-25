@@ -18,7 +18,7 @@ Este doc ensina como **usar os agentes** do escritório no dia a dia. Não é te
         ┌────────┬────────┬─────┴────┬────────┬────────┐
         ↓        ↓        ↓          ↓        ↓        ↓
       🧠 Intel  🚀 Growth  📅 Eventos  📞 Pipeline  🎨 Brand  📣 Conteúdo
-      (Bruna)  (Gui)      (Fernanda)  (Marlison)   (Duda)    (Lisiane)
+      (Bruna)  (Gui)      (Gabrielle) (Marlison)   (Duda)    (Lisiane)
         │        │           │           │          │          │
         └────────┴───────────┴───────────┴──────────┴──────────┘
                               ↓ acionam quando precisam
