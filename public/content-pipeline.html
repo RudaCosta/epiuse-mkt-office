@@ -106,6 +106,8 @@ const ESTADOS = [
   { id:'publicado', label:'Publicado' },
 ];
 let DATA = null, cur = null;
+let TAXO_LOBS = [];      // [{slug, rotulo}] — taxonomia v1.1
+let LOB_ROTULO = {};     // slug -> rótulo PT-BR
 
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',2600);}
@@ -113,7 +115,13 @@ function scoreCls(s){return s>=70?'s-hi':s>=45?'s-mid':'s-lo';}
 
 async function load() {
   try {
-    DATA = await fetch('/api/content').then(r=>r.json());
+    const [data, taxo] = await Promise.all([
+      fetch('/api/content').then(r=>r.json()),
+      fetch('/api/taxonomia-conteudo.json').then(r=>r.json()).catch(()=>({lobs:[]})),
+    ]);
+    DATA = data;
+    TAXO_LOBS = taxo.lobs || [];
+    LOB_ROTULO = Object.fromEntries(TAXO_LOBS.map(l=>[l.slug, l.rotulo]));
     document.getElementById('total-lbl').textContent = `${DATA.total} conteúdos`;
     render();
   } catch(e) { document.getElementById('content').innerHTML='<div class="loading" style="color:#fca5a5">Erro: '+esc(e.message)+'</div>'; }
@@ -136,7 +144,7 @@ function card(it) {
   const geo = it.geo && it.geo.score!=null ? `<span class="cc-score ${scoreCls(it.geo.score)}">GEO ${it.geo.score}</span>` : '';
   return `<div class="ccard" onclick="openItem(${it.id})">
     <div class="cc-title">${esc(it.titulo)}</div>
-    <div class="cc-meta">${it.pilar?`<span class="cc-pill">${esc(it.pilar)}</span>`:''}${it.autor?`<span>${esc(it.autor)}</span>`:''}</div>
+    <div class="cc-meta">${it.lob||it.pilar?`<span class="cc-pill">${esc(LOB_ROTULO[it.lob] || it.lob || it.pilar)}</span>`:''}${it.autor?`<span>${esc(it.autor)}</span>`:''}</div>
     ${(seo||geo)?`<div class="cc-scores">${seo}${geo}</div>`:''}
   </div>`;
 }
@@ -171,7 +179,16 @@ function renderModal() {
       <div class="m-field"><label>Título</label><input id="f-titulo" value="${esc(it.titulo)}"></div>
       <div class="m-row">
         <div class="m-field"><label>Keyword foco</label><input id="f-kw" value="${esc(it.tema_keyword)}"></div>
-        <div class="m-field"><label>Pilar/LOB</label><input id="f-pilar" value="${esc(it.pilar||it.lob)}"></div>
+        <div class="m-field"><label>LOB</label><select id="f-pilar">
+          <option value="">— selecionar LOB —</option>
+          ${(() => {
+            // valor legado (não-slug) fica numa opção disabled que RETÉM o valor
+            // original: salvar sem mexer não apaga nada; escolher um slug migra.
+            const legado = it.lob || it.pilar;
+            return (legado && !LOB_ROTULO[legado]) ? `<option value="${esc(legado)}" disabled selected>legado: ${esc(legado)} — reclassificar</option>` : '';
+          })()}
+          ${TAXO_LOBS.map(l=>`<option value="${l.slug}" ${it.lob===l.slug?'selected':''}>${esc(l.rotulo)}</option>`).join('')}
+        </select></div>
         <div class="m-field"><label>Persona alvo</label><input id="f-persona" value="${esc(it.persona_alvo)}"></div>
       </div>
       <div class="m-row">
@@ -215,7 +232,12 @@ function collectBody() {
   return {
     titulo: document.getElementById('f-titulo').value,
     tema_keyword: document.getElementById('f-kw').value,
-    pilar: document.getElementById('f-pilar').value, lob: document.getElementById('f-pilar').value,
+    // lob = slug canônico (dropdown); pilar espelha o slug durante a transição.
+    // Opção "legado" selecionada (disabled) => NÃO envia lob/pilar → PUT preserva
+    // os valores existentes (salvar título etc. sem ser obrigado a reclassificar).
+    ...(document.getElementById('f-pilar').selectedOptions[0]?.disabled
+        ? {}
+        : { pilar: document.getElementById('f-pilar').value, lob: document.getElementById('f-pilar').value }),
     persona_alvo: document.getElementById('f-persona').value,
     autor: document.getElementById('f-autor').value,
     estado: document.getElementById('f-estado').value,

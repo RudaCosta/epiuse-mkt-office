@@ -45,7 +45,9 @@
   .tag.topo  { background: rgba(167,139,250,.12); color: var(--violet,#c4b5fd) }
   .tag.meio  { background: rgba(251,191,36,.12); color: var(--gold,#fcd34d) }
   .tag.fundo { background: rgba(16,185,129,.12); color: var(--teal,#6ee7b7) }
+  .tag.pos   { background: rgba(96,165,250,.12); color: var(--blue,#93c5fd) }
   .tag.lob   { background: rgba(0,102,178,.15); color: var(--blue,#93c5fd) }
+  .tag.revisar { background: rgba(251,191,36,.14); color: var(--gold,#fcd34d); border: 1px dashed rgba(251,191,36,.4) }
   .tag.seo   { background: rgba(16,185,129,.10); color: var(--teal,#6ee7b7) }
   .tag.geo   { background: rgba(139,92,246,.12); color: var(--violet,#c4b5fd) }
   .card-foot { display:flex; justify-content:space-between; align-items:center; font-size:11px; color: var(--muted,#64748b); margin-top: 8px; padding-top: 8px; border-top: 1px dashed rgba(148,163,184,.08); }
@@ -64,7 +66,7 @@
 
 <div class="container">
   <h1>📚 Artigos do Blog EPI-USE Brasil</h1>
-  <p class="sub">707 conteúdos classificados (via Manus AI) · SEO médio 53 / GEO médio 52 (cálculo real) · fonte de matéria-prima pros Voices republicarem/comentarem/reescreverem</p>
+  <p class="sub" id="sub">Artigos do blog na taxonomia canônica (LOB × oferta × funil) · classificações heurística/IA carregam etiqueta 🤖 até revisão humana · matéria-prima pros Voices</p>
 
   <!-- STATS -->
   <div class="stats-strip" id="stats"></div>
@@ -77,9 +79,10 @@
     </select>
     <select id="f-etapa">
       <option value="">Todas as etapas</option>
-      <option value="Topo (Aprendizado)">Topo (Aprendizado)</option>
-      <option value="Meio (Consideração)">Meio (Consideração)</option>
-      <option value="Fundo (Decisão)">Fundo (Decisão)</option>
+      <option value="topo">Topo — Aprendizado</option>
+      <option value="meio">Meio — Consideração</option>
+      <option value="fundo">Fundo — Decisão</option>
+      <option value="pos">Pós-venda — Retenção</option>
     </select>
     <select id="f-oferta">
       <option value="">Todas as ofertas</option>
@@ -88,7 +91,7 @@
   </div>
 
   <div id="resultados">
-    <div class="loading">carregando 693 artigos...</div>
+    <div class="loading">carregando artigos...</div>
   </div>
 
   <div class="pagination" id="pag"></div>
@@ -98,52 +101,64 @@
 
 <script>
 let DATA = null;
+let TAXO = { lobs: [], ofertas: [], funil: [] };
+let LOB_ROTULO = {}, OFERTA_ROTULO = {}, FUNIL_ROTULO = {};
 let pagina = 0;
 const PER_PAGE = 30;
 
 async function carregar() {
-  const r = await fetch('/api/artigos?limit=1000');
+  const [r, rt] = await Promise.all([
+    fetch('/api/artigos?limit=1000'),
+    fetch('/api/taxonomia-conteudo.json'),
+  ]);
   DATA = await r.json();
+  try { TAXO = await rt.json(); } catch (e) { /* taxonomia opcional — fallback nos slugs */ }
+  LOB_ROTULO = Object.fromEntries((TAXO.lobs || []).map(l => [l.slug, l.rotulo]));
+  OFERTA_ROTULO = Object.fromEntries((TAXO.ofertas || []).map(o => [o.slug, o.rotulo]));
+  FUNIL_ROTULO = Object.fromEntries((TAXO.funil || []).map(f => [f.slug, f.rotulo_curto || f.slug]));
   if (!DATA.success) { document.getElementById('resultados').innerHTML = '<div class="empty">Falha ao carregar</div>'; return; }
-  // Stats top
+  // Stats top (canônico + fila de revisão — Regra 7)
   const agg = DATA.agregados || {};
+  const pf = agg.por_funil || {};
   document.getElementById('stats').innerHTML = `
     <div class="stat"><div class="stat-num">${DATA.total}</div><div class="stat-lbl">Artigos Total</div></div>
-    <div class="stat"><div class="stat-num">${agg.por_etapa_funil?.['Topo (Aprendizado)'] || 0}</div><div class="stat-lbl">Topo (TOFU)</div></div>
-    <div class="stat"><div class="stat-num">${agg.por_etapa_funil?.['Meio (Consideração)'] || 0}</div><div class="stat-lbl">Meio (MOFU)</div></div>
-    <div class="stat"><div class="stat-num">${agg.por_etapa_funil?.['Fundo (Decisão)'] || 0}</div><div class="stat-lbl">Fundo (BOFU)</div></div>
-    <div class="stat"><div class="stat-num">${Object.keys(agg.por_linha_negocio || {}).length}</div><div class="stat-lbl">LOBs Cobertas</div></div>
+    <div class="stat"><div class="stat-num">${pf.topo || 0}</div><div class="stat-lbl">Topo (TOFU)</div></div>
+    <div class="stat"><div class="stat-num">${pf.meio || 0}</div><div class="stat-lbl">Meio (MOFU)</div></div>
+    <div class="stat"><div class="stat-num">${pf.fundo || 0}</div><div class="stat-lbl">Fundo (BOFU)</div></div>
+    <div class="stat"><div class="stat-num">${pf.pos || 0}</div><div class="stat-lbl">Pós-venda</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--gold,#fcd34d)">${agg.pendentes_revisao || 0}</div><div class="stat-lbl">🤖 A revisar</div></div>
   `;
-  // Popula selects
+  // Selects canônicos (slugs + rótulos da taxonomia, contagens dos agregados)
   const lobSel = document.getElementById('f-linha');
-  Object.entries(agg.por_linha_negocio || {}).sort((a,b)=>b[1]-a[1]).forEach(([k,v]) => {
-    lobSel.innerHTML += `<option value="${k}">${k} (${v})</option>`;
+  Object.entries(agg.por_lob || {}).sort((a,b)=>b[1]-a[1]).forEach(([k,v]) => {
+    lobSel.innerHTML += `<option value="${k}">${LOB_ROTULO[k] || k} (${v})</option>`;
   });
+  if (agg.nao_classificados) lobSel.innerHTML += `<option value="__sem__">🤖 Fila IA — sem LOB (${agg.nao_classificados})</option>`;
   const ofSel = document.getElementById('f-oferta');
-  Object.entries(agg.por_oferta || {}).sort((a,b)=>b[1]-a[1]).forEach(([k,v]) => {
-    ofSel.innerHTML += `<option value="${k}">${k} (${v})</option>`;
+  Object.entries(agg.por_oferta_canonica || {}).sort((a,b)=>b[1]-a[1]).forEach(([k,v]) => {
+    ofSel.innerHTML += `<option value="${k}">${OFERTA_ROTULO[k] || k} (${v})</option>`;
   });
   render();
 }
 
 function filtrados() {
   const q = document.getElementById('f-q').value.toLowerCase().trim();
-  const linha = document.getElementById('f-linha').value;
-  const etapa = document.getElementById('f-etapa').value;
+  const lob = document.getElementById('f-linha').value;
+  const funil = document.getElementById('f-etapa').value;
   const oferta = document.getElementById('f-oferta').value;
   return DATA.artigos.filter(a => {
     if (q && !a.titulo.toLowerCase().includes(q)) return false;
-    if (linha && a.linha_de_negocio !== linha) return false;
-    if (etapa && a.etapa_funil !== etapa) return false;
-    if (oferta && a.oferta_especifica !== oferta) return false;
+    if (lob === '__sem__') { if (a.lob) return false; }
+    else if (lob && a.lob !== lob) return false;
+    if (funil && a.funil !== funil) return false;
+    if (oferta && a.oferta !== oferta) return false;
     return true;
   });
 }
 
-function tagEtapa(e) {
-  if (!e) return '';
-  const k = e.startsWith('Topo') ? 'topo' : e.startsWith('Meio') ? 'meio' : 'fundo';
-  return `<span class="tag ${k}">${e}</span>`;
+function tagEtapa(slug) {
+  if (!slug) return '';
+  return `<span class="tag ${slug}">${FUNIL_ROTULO[slug] || slug}</span>`;
 }
 
 function render() {
@@ -157,10 +172,11 @@ function render() {
     <div class="card">
       <div class="card-titulo"><a href="${a.url}" target="_blank">${a.titulo}</a></div>
       <div class="card-meta">
-        ${tagEtapa(a.etapa_funil)}
-        ${a.linha_de_negocio ? `<span class="tag lob">${a.linha_de_negocio}</span>` : ''}
-        ${a.oferta_especifica && a.oferta_especifica !== 'Outros' ? `<span class="tag">${a.oferta_especifica}</span>` : ''}
+        ${tagEtapa(a.funil)}
+        ${a.lob ? `<span class="tag lob">${LOB_ROTULO[a.lob] || a.lob}</span>` : `<span class="tag lob" style="opacity:.6" title="Legado Manus — sem LOB canônico ainda">${a.linha_de_negocio || 'sem LOB'}</span>`}
+        ${a.oferta ? `<span class="tag">${OFERTA_ROTULO[a.oferta] || a.oferta}</span>` : ''}
         ${a.ativos_nutricao && a.ativos_nutricao !== 'Institucional' ? `<span class="tag">${a.ativos_nutricao}</span>` : ''}
+        ${a.classificacao_pendente_revisao && a.classificacao_metodo !== 'humano' ? `<span class="tag revisar" title="Classificação ${a.classificacao_metodo || 'pendente'} — aguarda revisão humana (Regra 7)">🤖 revisar</span>` : ''}
       </div>
       <div class="card-foot">
         <span class="tag seo" title="Score heuristico: titulo + URL + funil + LOB">SEO ${a.seo_score ?? '—'}</span>
