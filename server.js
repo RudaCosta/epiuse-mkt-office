@@ -2611,7 +2611,7 @@ app.post('/api/blog-converter/convert', express.json({ limit: '2mb' }), async (r
   if (!orKey) {
     return res.status(503).json({ ok: false, error: 'OPENROUTER_API_KEY não configurada no servidor. Sem ela a conversão por IA não roda.' });
   }
-  const orModel = process.env.BLOG_CONVERTER_MODEL || process.env.OPENROUTER_MODEL || 'google/gemini-2.0-flash-exp:free';
+  const orModel = process.env.BLOG_CONVERTER_MODEL || process.env.OPENROUTER_MODEL || 'google/gemma-4-31b-it:free';
 
   const spec = getBlogTemplateSpec();
   const prompt = `Você é um especialista em conteúdo do blog da EPI-USE Brasil. Sua tarefa é converter um artigo no TEMPLATE HTML VISUAL padronizado do blog, pronto pra colar no editor do HubSpot.

@@ -6,7 +6,14 @@
 
 ## 🔴 BLOQUEADO POR TERCEIROS — Rudá precisa acompanhar
 
-Nenhuma pendência bloqueada no momento (última resolvida: B1 SSO, ver histórico abaixo).
+### B3. Blog Converter — IA em prod: chave OK, faltava modelo válido (28/set)
+- **Status:** 🟠 quase lá. Rudá subiu `OPENROUTER_API_KEY` no Railway (sex 26/set) → chave FUNCIONA. Mas o teste deu **"OpenRouter respondeu status 404"**.
+- **Causa raiz:** o modelo default que eu tinha posto — `google/gemini-2.0-flash-exp:free` — **foi aposentado** pelo OpenRouter (confirmado na lista viva 28/set: não está mais entre os 17 free). OpenRouter responde 404 quando o ID de modelo não existe. E o `BLOG_CONVERTER_MODEL` do Railway (se setado com esse ID) **sobrescreve** o código.
+- **Fix (2 partes):**
+  1. **Código:** default trocado pra `google/gemma-4-31b-it:free` (vivo + mesmo do Raccoon) — commit no branch, precisa de push pra ir pro Railway.
+  2. **Railway (instantâneo):** se `BLOG_CONVERTER_MODEL` estiver setado, Rudá troca o valor pra `google/gemma-4-31b-it:free` **ou remove a var** (aí o default do código vale). Salvar → redeploy. Isso destrava sem depender do push.
+- **Regra aprendida:** só usar IDs de modelo que existam em `GET https://openrouter.ai/api/v1/models` — modelos `:free` experimentais somem sem aviso.
+- **Custo:** modelo `:free` = $0 (limite ~50 req/dia sem crédito, compartilhado com Raccoon; 1 conversão = 1 requisição). US$10 de crédito único → ~1000/dia.
 
 ---
 
