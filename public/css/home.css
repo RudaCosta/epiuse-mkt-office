@@ -10,14 +10,14 @@
   --home-bg: #0a1525;
   --home-surface: #0f1e35;
   --home-surface-2: #142547;
-  --home-border: rgba(134,158,195,.18);
+  --home-border: rgba(103,151,184,.18);
   --home-text: #e6ebf2;
   --home-text-dim: #c0ccd9;
-  --home-text-muted: #869ec3;
+  --home-text-muted: #6797b8;
   --home-accent-navy: #001844;
-  --home-accent-red: #cd1543;
-  --home-accent-blue: #869ec3;
-  --home-accent-grey: #cfd1d3;
+  --home-accent-red: #CE181E;
+  --home-accent-blue: #6797b8;
+  --home-accent-grey: #f2f2f2;
   --home-success: #10b981;
   --home-warning: #fbbf24;
   --home-danger: #ef4444;
@@ -193,7 +193,7 @@
 .home-meta-cell .pct.off { color: var(--home-danger); }
 .home-meta-cell .pct.pend { color: var(--home-text-muted); }
 .home-meta-cell .bar {
-  height: 4px; background: rgba(134,158,195,.15);
+  height: 4px; background: rgba(103,151,184,.15);
   border-radius: 99px; overflow: hidden;
 }
 .home-meta-cell .bar > i {
@@ -498,7 +498,7 @@
   width: 36px; height: 36px; border-radius: 8px;
   display: flex; align-items: center; justify-content: center;
   font-size: 18px;
-  background: var(--team-bg, rgba(134,158,195,.1));
+  background: var(--team-bg, rgba(103,151,184,.1));
   color: var(--team-color, var(--home-accent-blue));
 }
 .home-team-name {
@@ -601,7 +601,7 @@ html { scroll-behavior: smooth; }
 .home-area-card .area-dona { font-size: 11.5px; opacity: .8; }
 
 /* SECTION FEATURE REVEAL — borda lateral colorida sutil */
-.home-section-title { padding-left: 14px; border-left: 3px solid var(--home-accent-red, #cd1543); }
+.home-section-title { padding-left: 14px; border-left: 3px solid var(--home-accent-red, #CE181E); }
 
 /* ════════════════════════════════════════════════════════════════════
    POLISH v2 — segue abaixo (existente)
@@ -618,7 +618,7 @@ html.js-loaded .home-section.visible { opacity: 1; transform: none; }
 
 /* SKELETON loader (substitui "Carregando…" feio) */
 .home-empty.skel {
-  background: linear-gradient(90deg, transparent, rgba(134,158,195,.08), transparent);
+  background: linear-gradient(90deg, transparent, rgba(103,151,184,.08), transparent);
   background-size: 200% 100%;
   animation: shimmer 1.8s infinite linear;
   border-radius: 8px; min-height: 40px;
@@ -633,7 +633,7 @@ html.js-loaded .home-section.visible { opacity: 1; transform: none; }
 .home-hero::after {
   content: ''; position: absolute; top: -50%; right: -10%;
   width: 60%; height: 200%;
-  background: radial-gradient(ellipse, rgba(205,21,67,.18) 0%, transparent 60%);
+  background: radial-gradient(ellipse, rgba(206,24,30,.18) 0%, transparent 60%);
   pointer-events: none; opacity: .7;
 }
 
@@ -676,14 +676,14 @@ html.js-loaded .home-section.visible { opacity: 1; transform: none; }
 .home-quick a::after {
   content: ''; position: absolute; top: 0; left: -100%;
   width: 100%; height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(205,21,67,.12), transparent);
+  background: linear-gradient(90deg, transparent, rgba(206,24,30,.12), transparent);
   transition: left .6s cubic-bezier(.16,1,.3,1);
 }
 .home-quick a:hover {
   transform: translateY(-3px);
   border-color: var(--home-accent-red);
   background: var(--home-surface-2);
-  box-shadow: 0 12px 32px -12px rgba(205,21,67,.4), 0 1px 0 rgba(255,255,255,.08) inset;
+  box-shadow: 0 12px 32px -12px rgba(206,24,30,.4), 0 1px 0 rgba(255,255,255,.08) inset;
 }
 .home-quick a:hover::after { left: 100%; }
 .home-quick a .ico {
@@ -691,7 +691,7 @@ html.js-loaded .home-section.visible { opacity: 1; transform: none; }
 }
 .home-quick a:hover .ico {
   transform: scale(1.15) rotate(-3deg);
-  filter: drop-shadow(0 4px 8px rgba(205,21,67,.4));
+  filter: drop-shadow(0 4px 8px rgba(206,24,30,.4));
 }
 
 /* HOVER · cards de área (hierarquia visual reforçada) */
@@ -721,14 +721,14 @@ html.js-loaded .home-section.visible { opacity: 1; transform: none; }
 
 /* HOVER · evento item */
 .home-evt-item { transition: background .15s, padding .15s; }
-.home-evt-item:hover { background: rgba(205,21,67,.04); padding-left: 6px; }
+.home-evt-item:hover { background: rgba(206,24,30,.04); padding-left: 6px; }
 
 /* HOVER · tab eventos · destaque red brand */
 .home-evt-tab { transition: all .2s cubic-bezier(.16,1,.3,1); }
 .home-evt-tab:hover:not(.active) {
-  background: rgba(205,21,67,.08);
+  background: rgba(206,24,30,.08);
   color: var(--home-accent-red);
-  border-color: rgba(205,21,67,.3);
+  border-color: rgba(206,24,30,.3);
   transform: translateY(-1px);
 }
 
@@ -808,7 +808,7 @@ html.js-loaded .home-section.visible { opacity: 1; transform: none; }
   font-size: 12px; color: var(--home-text-dim); margin-bottom: 6px;
 }
 .cockpit-strip .ck-fn-top b { font-weight: 700; color: var(--home-text); font-variant-numeric: tabular-nums; }
-.cockpit-strip .ck-fn-bar { height: 9px; border-radius: 6px; background: rgba(134,158,195,.15); overflow: hidden; }
+.cockpit-strip .ck-fn-bar { height: 9px; border-radius: 6px; background: rgba(103,151,184,.15); overflow: hidden; }
 .cockpit-strip .ck-fn-bar > i {
   display: block; height: 100%; width: 0; border-radius: 6px;
   transition: width .9s cubic-bezier(.16,1,.3,1);
@@ -827,7 +827,7 @@ html.js-loaded .home-section.visible { opacity: 1; transform: none; }
   display: flex; align-items: baseline; gap: 12px;
   border: 1px solid var(--home-border);
   border-left: 3px solid var(--home-accent-red);
-  border-radius: 10px; background: rgba(205,21,67,.06);
+  border-radius: 10px; background: rgba(206,24,30,.06);
 }
 .cockpit-strip .ck-pipe .disp {
   font-size: 22px; font-weight: 700; color: var(--home-text);

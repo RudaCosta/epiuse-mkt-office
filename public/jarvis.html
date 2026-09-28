@@ -16,16 +16,16 @@
     --j-bg2:       var(--color-neutral-dark-bg, #0a1525);
     --j-surface:   var(--color-neutral-dark-surface, #0f1e35);
     --j-surface2:  var(--color-neutral-dark-surface-2, #142547);
-    --j-border:    var(--color-neutral-dark-border, rgba(134,158,195,.18));
+    --j-border:    var(--color-neutral-dark-border, rgba(103,151,184,.18));
     --j-text:      var(--color-neutral-dark-text, #e6ebf2);
     --j-dim:       var(--color-neutral-dark-text-dim, #c0ccd9);
-    --j-muted:     var(--color-neutral-dark-text-muted, #869ec3);
-    --j-blue:      var(--color-secondary-blue-light, #869ec3);
+    --j-muted:     var(--color-neutral-dark-text-muted, #6797b8);
+    --j-blue:      var(--color-secondary-blue-light, #6797b8);
     --j-cyan:      var(--color-erp-blue-mid, #0066B2);
-    --j-glow:      var(--color-stratview-blue-light, #7CC4DE);
+    --j-glow:      var(--color-secondary-blue-light, #6797b8);
     --j-navy:      var(--color-primary-navy, #001844);
-    --j-red:       var(--color-primary-red, #cd1543);
-    --j-purple:    var(--color-service-now-purple, #6a1b9a);
+    --j-red:       var(--color-primary-red, #CE181E);
+    --j-purple:    var(--color-ia-purple-500, #2042b1);
     --j-gold:      var(--color-warning-300, #fcd34d);
     --j-green:     var(--color-success-300, #6ee7b7);
   }
@@ -108,7 +108,7 @@
     padding:6px 8px;font-size:11px;font-family:inherit;outline:none;max-width:270px}
   #callcap-src:focus{border-color:var(--j-glow)}
   #btn-callcap.on{background:linear-gradient(135deg,var(--j-red),#7a0c25);border-color:transparent;color:#fff}
-  #callcap-lvl{display:none;width:64px;height:8px;background:rgba(134,158,195,.16);border-radius:99px;overflow:hidden;flex:none}
+  #callcap-lvl{display:none;width:64px;height:8px;background:rgba(103,151,184,.16);border-radius:99px;overflow:hidden;flex:none}
   #callcap-lvl.on{display:block}
   #callcap-lvl i{display:block;height:100%;width:0%;border-radius:99px;background:var(--j-green);transition:width .1s linear}
   #callcap-lvl.mudo i{background:var(--j-red)}
@@ -173,7 +173,7 @@
 
   .footnote{font-size:11px;color:var(--j-muted);margin-top:14px;line-height:1.6;background:rgba(15,30,53,.4);border-radius:10px;padding:12px}
   .footnote code{background:rgba(124,196,222,.08);padding:1px 5px;border-radius:3px;color:var(--j-glow)}
-  ::-webkit-scrollbar{width:8px}::-webkit-scrollbar-thumb{background:rgba(134,158,195,.2);border-radius:8px}
+  ::-webkit-scrollbar{width:8px}::-webkit-scrollbar-thumb{background:rgba(103,151,184,.2);border-radius:8px}
 
   /* ── Histórico de calls Zoho ── */
   .calls-panel{background:var(--j-surface);border:1px solid var(--j-border);border-radius:14px;padding:16px;margin-top:16px}
@@ -190,7 +190,7 @@
   .call-hint{font-size:10.5px;color:var(--j-cyan);opacity:.7}
   .call-apr{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
   .call-apr .apr-tag{font-size:10px;border-radius:14px;padding:3px 8px;font-weight:600}
-  .apr-tag.dor{background:rgba(205,21,67,.12);border:1px solid rgba(205,21,67,.25);color:#f87171}
+  .apr-tag.dor{background:rgba(206,24,30,.12);border:1px solid rgba(206,24,30,.25);color:#f87171}
   .apr-tag.objecao{background:rgba(252,211,77,.1);border:1px solid rgba(252,211,77,.22);color:var(--j-gold)}
   .apr-tag.gatilho{background:rgba(110,231,183,.1);border:1px solid rgba(110,231,183,.22);color:var(--j-green)}
   .apr-tag.sinal{background:rgba(124,196,222,.1);border:1px solid rgba(124,196,222,.22);color:var(--j-glow)}
@@ -215,7 +215,7 @@
   .call-modal-transcript{font-size:12.5px;color:var(--j-dim);line-height:1.7;background:var(--j-surface);border-radius:10px;padding:14px;max-height:400px;overflow-y:auto;display:flex;flex-direction:column;gap:8px}
   .call-modal-transcript.mono{white-space:pre-wrap;display:block}
   .call-bubble{padding:8px 12px;border-radius:12px;max-width:85%;line-height:1.5}
-  .call-bubble.sdr{align-self:flex-start;background:rgba(134,158,195,.12);border:1px solid rgba(134,158,195,.2)}
+  .call-bubble.sdr{align-self:flex-start;background:rgba(103,151,184,.12);border:1px solid rgba(103,151,184,.2)}
   .call-bubble.prospect{align-self:flex-end;background:rgba(0,200,150,.08);border:1px solid rgba(0,200,150,.15)}
   .call-bubble.sistema{align-self:center;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-style:italic;font-size:11px}
   .call-bubble-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;opacity:.7}
@@ -365,7 +365,7 @@
       <div class="hud">
         <div class="gauge">
           <div class="ring">
-            <svg width="84" height="84"><circle cx="42" cy="42" r="36" stroke="rgba(134,158,195,.15)" stroke-width="7" fill="none"/>
+            <svg width="84" height="84"><circle cx="42" cy="42" r="36" stroke="rgba(103,151,184,.15)" stroke-width="7" fill="none"/>
               <circle id="g-temp-arc" cx="42" cy="42" r="36" stroke="var(--j-glow)" stroke-width="7" fill="none" stroke-linecap="round" stroke-dasharray="226" stroke-dashoffset="226"/></svg>
             <div class="gval" id="g-temp">—</div>
           </div>
@@ -373,7 +373,7 @@
         </div>
         <div class="gauge">
           <div class="ring">
-            <svg width="84" height="84"><circle cx="42" cy="42" r="36" stroke="rgba(134,158,195,.15)" stroke-width="7" fill="none"/>
+            <svg width="84" height="84"><circle cx="42" cy="42" r="36" stroke="rgba(103,151,184,.15)" stroke-width="7" fill="none"/>
               <circle id="g-talk-arc" cx="42" cy="42" r="36" stroke="var(--j-cyan)" stroke-width="7" fill="none" stroke-linecap="round" stroke-dasharray="226" stroke-dashoffset="226"/></svg>
             <div class="gval" id="g-talk">—</div>
           </div>
@@ -381,7 +381,7 @@
         </div>
         <div class="gauge">
           <div class="ring">
-            <svg width="84" height="84"><circle cx="42" cy="42" r="36" stroke="rgba(134,158,195,.15)" stroke-width="7" fill="none"/>
+            <svg width="84" height="84"><circle cx="42" cy="42" r="36" stroke="rgba(103,151,184,.15)" stroke-width="7" fill="none"/>
               <circle id="g-q-arc" cx="42" cy="42" r="36" stroke="var(--j-green)" stroke-width="7" fill="none" stroke-linecap="round" stroke-dasharray="226" stroke-dashoffset="226"/></svg>
             <div class="gval" id="g-q">0</div>
           </div>
@@ -622,7 +622,7 @@ async function pesquisarProduto(){
     const d = await r.json();
     if(!r.ok||d.success===false){ renderCoachError(d.error||('HTTP '+r.status)); return; }
     const semFonte=!Array.isArray(d.fontes)||!d.fontes.length;
-    const corBanner=semFonte?'rgba(205,21,67,.14)':(d._fontes_oficiais?'rgba(110,231,183,.10)':'rgba(252,211,77,.12)');
+    const corBanner=semFonte?'rgba(206,24,30,.14)':(d._fontes_oficiais?'rgba(110,231,183,.10)':'rgba(252,211,77,.12)');
     let html = `<div class="ai-banner" style="margin:0 0 10px;background:${corBanner}">${escapeHtml(d.etiqueta||'🌐 Pesquisa web — verificar')}</div>`;
     const resumo = Array.isArray(d.resumo)? d.resumo : (d.resumo? [d.resumo]: []);
     if (resumo.length) html += `<div class="cc q"><div class="cct">🔬 Resumo técnico — ${escapeHtml(produto)}</div><div class="ccb">${resumo.map(b=>'• '+escapeHtml(b)).join('<br>')}</div></div>`;
@@ -735,7 +735,7 @@ function drawWave(){
   loop();
 }
 function idleWave(){ const cv=$('wave'),c=cv.getContext('2d'); c.clearRect(0,0,cv.width,cv.height);
-  c.strokeStyle='rgba(134,158,195,.35)'; c.lineWidth=2; c.beginPath(); c.moveTo(0,cv.height/2); c.lineTo(cv.width,cv.height/2); c.stroke(); }
+  c.strokeStyle='rgba(103,151,184,.35)'; c.lineWidth=2; c.beginPath(); c.moveTo(0,cv.height/2); c.lineTo(cv.width,cv.height/2); c.stroke(); }
 
 // ── Eventos ─────────────────────────────────────────────────────────────────
 $('btn-mic').addEventListener('click', ()=> ST.micOn? stopMic() : startMic());

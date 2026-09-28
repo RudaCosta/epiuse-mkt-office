@@ -1,20 +1,20 @@
 /* ════════════════════════════════════════════════════════════════════
    polish-pro.css · v0.21.0
    Aplica ui-ux-pro-max skill em telas existentes (metas, relatorio, etc)
-   Brand EPI-USE: Navy #001844 + Red #cd1543 + Blue Light #869ec3
+   Brand EPI-USE (Brand Guide 2026): tokens de /design-tokens.css
    Pattern: Modern Professional typography + Glassmorphism + Flat
    ════════════════════════════════════════════════════════════════════ */
 
 /* TYPOGRAPHY (Data-Dense Dashboard · Fira Sans+Code · skill official rec) */
 :root {
-  --pro-font-heading: 'Fira Sans', 'Inter', -apple-system, system-ui, sans-serif;
-  --pro-font-body: 'Fira Sans', 'Inter', -apple-system, system-ui, sans-serif;
+  --pro-font-heading: 'Lato', 'Open Sans', Calibri, Verdana, sans-serif;
+  --pro-font-body: 'Open Sans', 'Lato', Calibri, Verdana, sans-serif;
   --pro-font-mono: 'Fira Code', 'JetBrains Mono', 'SF Mono', Consolas, monospace;
-  --pro-font-display: 'Poppins', 'Fira Sans', sans-serif; /* hero only */
-  --pro-navy: #001844;
-  --pro-red: #cd1543;
-  --pro-blue-light: #869ec3;
-  --pro-grey: #cfd1d3;
+  --pro-font-display: 'Lato', 'Open Sans', sans-serif; /* hero only */
+  --pro-navy: var(--color-primary-navy, #001844);
+  --pro-red: var(--color-primary-red, #CE181E);
+  --pro-blue-light: var(--color-secondary-blue-light, #6797b8);
+  --pro-grey: var(--color-secondary-grey, #f2f2f2);
   --pro-easing: cubic-bezier(0.16, 1, 0.3, 1);
   --pro-shadow-1: 0 1px 3px rgba(0,0,0,.12), 0 1px 2px rgba(0,0,0,.06);
   --pro-shadow-2: 0 4px 12px -2px rgba(0,0,0,.18), 0 2px 4px -1px rgba(0,0,0,.08);
@@ -83,7 +83,7 @@ html[data-theme="light"] .kpi-sub, html[data-theme="light"] .stat-sub, .sub-text
 .pro-glass:hover, .kpi-card.pro:hover, .meta-card.pro:hover, .stat.pro:hover {
   transform: translateY(-2px);
   box-shadow: var(--pro-shadow-3);
-  border-color: rgba(205,21,67,.4);
+  border-color: rgba(206,24,30,.4);
 }
 
 /* SECTION TITLE com border-left brand red (B2B Feature reveal) */
@@ -104,7 +104,7 @@ html[data-theme="light"] .kpi-sub, html[data-theme="light"] .stat-sub, .sub-text
 /* HEAT MAP bar (Analytics Dashboard pattern) */
 .pro-heat-bar {
   height: 6px;
-  background: rgba(134,158,195,.15);
+  background: rgba(103,151,184,.15);
   border-radius: 99px;
   overflow: hidden;
 }
@@ -158,10 +158,10 @@ table.pro tbody tr, .pro-row {
   transition: background .15s var(--pro-easing);
 }
 table.pro tbody tr:hover, .pro-row:hover {
-  background: rgba(205,21,67,.06);
+  background: rgba(206,24,30,.06);
   cursor: pointer;
 }
-[data-theme="light"] table.pro tbody tr:hover { background: rgba(205,21,67,.04); }
+[data-theme="light"] table.pro tbody tr:hover { background: rgba(206,24,30,.04); }
 
 /* FILTER ANIMATION (smooth show/hide) */
 .pro-filter-enter { opacity: 0; transform: translateY(-4px); }
@@ -170,7 +170,7 @@ table.pro tbody tr:hover, .pro-row:hover {
 /* DATA LOADING SPINNER inline */
 .pro-spinner {
   display: inline-block; width: 14px; height: 14px;
-  border: 2px solid rgba(205,21,67,.2);
+  border: 2px solid rgba(206,24,30,.2);
   border-top-color: var(--pro-red);
   border-radius: 50%;
   animation: pro-spin 0.8s linear infinite;

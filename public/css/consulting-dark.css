@@ -2,28 +2,28 @@
    consulting-dark.css · v0.23.0
    Enterprise Gateway + Dark Mode OLED (ui-ux-pro-max audit oficial)
    Foco: SAP consulting · security · trust · real-time
-   Fonts: Poppins (heading geométrica — ecoa Maven Pro) + Source Sans 3 (body accessible)
+   Fonts: Lato (heading) + Open Sans (body) — Brand Guide 2026
    ════════════════════════════════════════════════════════════════════ */
 
 :root {
-  --dk-bg-oled: #050a14;
-  --dk-bg-surface: #0a1525;
-  --dk-bg-elev: #0f1e35;
-  --dk-bg-elev2: #142547;
+  --dk-bg-oled: var(--color-neutral-dark-bg-2, #00102c);
+  --dk-bg-surface: var(--color-neutral-dark-bg, #001844);
+  --dk-bg-elev: var(--color-neutral-dark-surface, #0b2650);
+  --dk-bg-elev2: var(--color-neutral-dark-surface-2, #153259);
   --dk-navy: #001844;
-  --dk-red: #cd1543;
-  --dk-blue-light: #869ec3;
-  --dk-grey: #cfd1d3;
-  --dk-mint: #14B8A6;
-  --dk-green: #10b981;
-  --dk-amber: #fbbf24;
-  --dk-text: #e8eef5;
-  --dk-text-dim: #c0ccd9;
-  --dk-text-muted: #7d96b8;
-  --dk-glow-red: 0 0 16px rgba(205,21,67,.4);
+  --dk-red: var(--color-primary-red, #CE181E);
+  --dk-blue-light: var(--color-secondary-blue-light, #6797b8);
+  --dk-grey: var(--color-secondary-grey, #f2f2f2);
+  --dk-mint: var(--color-spot-teal-green, #009193);
+  --dk-green: var(--color-success-500, #53bb41);
+  --dk-amber: var(--color-warning-500, #f89921);
+  --dk-text: var(--color-neutral-dark-text, #f2f2f2);
+  --dk-text-dim: var(--color-neutral-dark-text-dim, #c1d2de);
+  --dk-text-muted: var(--color-neutral-dark-text-muted, #6797b8);
+  --dk-glow-red: 0 0 16px rgba(206,24,30,.4);
   --dk-glow-green: 0 0 10px rgba(16,185,129,.6);
-  --dk-glow-blue: 0 0 12px rgba(134,158,195,.5);
-  --dk-grid: rgba(134,158,195,.04);
+  --dk-glow-blue: 0 0 12px rgba(103,151,184,.5);
+  --dk-grid: rgba(103,151,184,.04);
   --dk-easing: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -33,22 +33,22 @@ body[data-route]:not([data-route="seja-voice"]) {
   background:
     linear-gradient(var(--dk-grid) 1px, transparent 1px) 0 0/48px 48px,
     linear-gradient(90deg, var(--dk-grid) 1px, transparent 1px) 0 0/48px 48px,
-    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(205,21,67,.12), transparent 60%),
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(206,24,30,.12), transparent 60%),
     radial-gradient(ellipse 60% 50% at 100% 100%, rgba(20,184,166,.05), transparent 60%),
     var(--dk-bg-oled);
   background-attachment: fixed;
 }
 
-/* FONT consulting (Poppins + Source Sans 3) — aplica em TODAS rotas */
+/* FONT Brand Guide 2026 (Lato + Open Sans) — aplica em TODAS rotas */
 body[data-route]:not([data-route="seja-voice"]) {
-  font-family: 'Source Sans 3', 'Source Sans Pro', system-ui, sans-serif;
+  font-family: 'Open Sans', 'Lato', Calibri, Verdana, sans-serif;
   color: var(--dk-text);
   -webkit-font-smoothing: antialiased;
 }
 body[data-route]:not([data-route="seja-voice"]) h1,
 body[data-route]:not([data-route="seja-voice"]) h2,
 body[data-route]:not([data-route="seja-voice"]) h3 {
-  font-family: 'Poppins', 'Source Sans 3', sans-serif;
+  font-family: 'Lato', 'Open Sans', Calibri, Verdana, sans-serif;
   letter-spacing: -0.012em;
   font-weight: 600;
 }
@@ -82,7 +82,7 @@ body[data-route]:not([data-route="seja-voice"]) h3 {
   gap: 12px;
   background: rgba(15,30,53,.4);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(134,158,195,.1);
+  border: 1px solid rgba(103,151,184,.1);
   border-radius: 14px;
   padding: 14px 18px;
   margin-bottom: 24px;
@@ -90,7 +90,7 @@ body[data-route]:not([data-route="seja-voice"]) h3 {
 .dk-trust-item {
   display: flex; align-items: center; gap: 10px;
   padding: 6px 4px;
-  font-family: 'Source Sans 3', sans-serif;
+  font-family: 'Open Sans', 'Lato', sans-serif;
   font-size: 12px; font-weight: 500;
 }
 .dk-trust-item .ico {
@@ -112,7 +112,7 @@ body[data-route]:not([data-route="seja-voice"]) h3 {
   padding: 5px 12px; border-radius: 99px;
   background: rgba(16,185,129,.14);
   border: 1px solid rgba(16,185,129,.4);
-  font-family: 'Source Sans 3', sans-serif;
+  font-family: 'Open Sans', 'Lato', sans-serif;
   font-size: 11px; font-weight: 700; color: var(--dk-green);
   letter-spacing: 0.08em; text-transform: uppercase;
 }
@@ -129,7 +129,7 @@ body[data-route]:not([data-route="seja-voice"]) h3 {
 
 /* NUMBERS com minimal glow (skill effect) */
 .dk-num {
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Lato', 'Open Sans', sans-serif;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.025em;
@@ -143,7 +143,7 @@ body[data-route]:not([data-route="seja-voice"]) h3 {
 .dk-sec-badge {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 3px 9px; border-radius: 6px;
-  font-family: 'Source Sans 3', sans-serif;
+  font-family: 'Open Sans', 'Lato', sans-serif;
   font-size: 10px; font-weight: 700;
   background: rgba(20,184,166,.12);
   border: 1px solid rgba(20,184,166,.3);
@@ -196,15 +196,15 @@ body[data-route="relatorio"] *:focus-visible {
    ════════════════════════════════════════════════════════════════════ */
 
 html[data-theme="light"] {
-  --dk-bg-oled: #f4f7fb;
+  --dk-bg-oled: var(--color-neutral-light-bg, #f2f2f2);
   --dk-bg-surface: #ffffff;
   --dk-bg-elev: #ffffff;
-  --dk-bg-elev2: #f8fafc;
-  --dk-text: #0f1e35;
-  --dk-text-dim: #1e3a5f;
-  --dk-text-muted: #475569;
+  --dk-bg-elev2: var(--color-neutral-light-surface-2, #f2f2f2);
+  --dk-text: var(--color-neutral-light-text, #231f20);
+  --dk-text-dim: var(--color-neutral-light-text-dim, #313131);
+  --dk-text-muted: var(--color-neutral-light-text-muted, #7b7979);
   --dk-grid: rgba(0,24,68,.04);
-  --dk-glow-red: 0 0 12px rgba(205,21,67,.18);
+  --dk-glow-red: 0 0 12px rgba(206,24,30,.18);
   --dk-glow-green: 0 0 8px rgba(16,185,129,.25);
   --dk-glow-blue: 0 0 8px rgba(0,102,178,.18);
 }
@@ -238,7 +238,7 @@ html[data-theme="light"] body[data-route="relatorio"] {
   background:
     linear-gradient(rgba(0,24,68,.025) 1px, transparent 1px) 0 0/48px 48px,
     linear-gradient(90deg, rgba(0,24,68,.025) 1px, transparent 1px) 0 0/48px 48px,
-    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(205,21,67,.06), transparent 60%),
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(206,24,30,.06), transparent 60%),
     #f4f7fb;
   background-attachment: fixed;
   color: #0f1e35;
@@ -260,8 +260,8 @@ html[data-theme="light"] .dk-glass {
 }
 html[data-theme="light"] .dk-glass::before { background: linear-gradient(90deg, transparent, rgba(0,24,68,.08), transparent); }
 html[data-theme="light"] .dk-glass:hover {
-  border-color: rgba(205,21,67,.5);
-  box-shadow: 0 16px 32px -8px rgba(0,24,68,.15), 0 0 0 1px rgba(205,21,67,.1);
+  border-color: rgba(206,24,30,.5);
+  box-shadow: 0 16px 32px -8px rgba(0,24,68,.15), 0 0 0 1px rgba(206,24,30,.1);
 }
 
 html[data-theme="light"] .dk-trust-bar {
@@ -281,7 +281,7 @@ html[data-theme="light"] .dk-num {
   color: #001844;
   text-shadow: none;
 }
-html[data-theme="light"] .dk-num.red { color: #b91c3c; text-shadow: 0 0 4px rgba(205,21,67,.15); }
+html[data-theme="light"] .dk-num.red { color: #b91c3c; text-shadow: 0 0 4px rgba(206,24,30,.15); }
 html[data-theme="light"] .dk-num.green { color: #047857; }
 html[data-theme="light"] .dk-num.blue { color: #1e40af; }
 

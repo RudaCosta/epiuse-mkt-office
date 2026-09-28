@@ -275,14 +275,14 @@
                   || (a.linha_de_negocio||'').toLowerCase().indexOf(term) !== -1
                   || (a.linhas_de_negocio_multi||'').toLowerCase().indexOf(term) !== -1;
               }).slice(0,10);
-              if (!matches.length) { results.innerHTML = '<div style="padding:8px;color:#869ec3">Nenhum artigo encontrado</div>'; results.style.display=''; return; }
+              if (!matches.length) { results.innerHTML = '<div style="padding:8px;color:#6797b8">Nenhum artigo encontrado</div>'; results.style.display=''; return; }
               results.innerHTML = matches.map(function(a){
                 var lob = a.linha_de_negocio||'—';
                 var etapa = a.etapa_funil||'';
                 var score = a.score_relevancia_2026 != null ? ('· 📊 '+a.score_relevancia_2026) : '';
-                return '<div data-slug="'+a.slug_atual+'" data-titulo="'+(a.titulo||'').replace(/"/g,'&quot;')+'" data-lob="'+lob+'" class="bib-item" style="padding:6px 8px;border-bottom:1px solid rgba(134,158,195,.1);cursor:pointer">'
+                return '<div data-slug="'+a.slug_atual+'" data-titulo="'+(a.titulo||'').replace(/"/g,'&quot;')+'" data-lob="'+lob+'" class="bib-item" style="padding:6px 8px;border-bottom:1px solid rgba(103,151,184,.1);cursor:pointer">'
                   + '<div style="font-weight:600">'+(a.titulo||'(sem título)')+'</div>'
-                  + '<div style="font-size:10px;color:#869ec3;margin-top:2px">'+lob+' · '+etapa+' '+score+'</div></div>';
+                  + '<div style="font-size:10px;color:#6797b8;margin-top:2px">'+lob+' · '+etapa+' '+score+'</div></div>';
               }).join('');
               results.style.display='';
               // hook click

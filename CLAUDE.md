@@ -51,15 +51,15 @@ Em qualquer sessão nova, faça **NA ORDEM**:
 
    **Mapa-fonte completo:** `vault/00-contexto/mapa-fontes-dados.md` (auditoria 20+ métricas) — manter sempre atualizado.
 
-8. **Design System — DESIGN.md é fonte única da verdade** (28/mai/2026 · v1.0 oficial com Brand Guide V1.1) — toda mudança de cor, tipografia, spacing, rounded, elevation ou componente atômico do Office passa por `vault/00-contexto/DESIGN.md` (formato Google Labs DESIGN.md spec). **Nunca hardcodar hex em CSS local** — sempre `var(--color-*)` consumindo o `public/design-tokens.css` (gerado por `scripts/design/gen_tokens.py`). **Brand Guide oficial:** `vault/00-contexto/brand-guide-oficial/EPIUSE Brand Guide V1.1.pdf` · cores reais Navy `#001844` + Red `#cd1543` + Blue Light `#869ec3` + Grey `#cfd1d3` · fontes **Maven Pro** (primary) + **Avenir** (secondary).
+8. **Design System — DESIGN.md é fonte única da verdade** (25/set/2026 · **v4.0 = 100% dentro do EPI-USE Brand Guide 2026**, decisão Rudá "deixa tudo dentro do branding book") — toda mudança de cor, tipografia, spacing, rounded, elevation ou componente atômico do Office passa por `vault/00-contexto/DESIGN.md` (formato Google Labs DESIGN.md spec). **Nunca hardcodar hex em CSS local** — sempre `var(--color-*)` consumindo o `public/design-tokens.css` (gerado por `scripts/design/gen_tokens.py`). **Brand Guide oficial:** Drive `EPI-USE Brand Guide 2026.pdf` (id `1TuOfKEr2SXG24MFpjdnXaeW3s2pYK56c`) · cores: Deep Blue `#001844` + Red `#CE181E` (reservado, só acento) + secundárias `#26476b` `#355b7e` `#487494` `#5585a3` `#6797b8` `#f2f2f2` + spot colors por serviço · fontes **Lato** (primary) + **Open Sans** (web body) + Calibri/Verdana (fallback; Verdana no PPT). **Aposentados:** `#cd1543` · `#013a6a` · `#869ec3` · `#cfd1d3` · Poppins · Maven Pro · Avenir · Inter. Nenhuma cor/fonte fora do guia sem decisão explícita do Rudá.
 
    **Workflow:**
    1. Editar `vault/00-contexto/DESIGN.md` (YAML frontmatter + markdown body)
-   2. Rodar `python modulo-a-profile-optimizer/scripts/design/gen_tokens.py`
+   2. Rodar `python scripts/design/gen_tokens.py`
    3. Reload browser → mudança propaga em TODAS as telas que consomem o CSS
    4. Validar visualmente em `/design` (viewer Storybook lite)
 
-   **Sub-palettes preservadas:** `primary-*` (Office app azul) · `secondary-*` (ERP.ngo navy `#131B41`) · `tertiary-*` (ERP.ngo brown) · `brand-epiuse-*` (legacy corporate). **NÃO misturar identidades** sem propósito.
+   **Sub-palettes:** `brand-*` + `spot-*` (Brand Guide 2026) · `primary-*`/`secondary-*` (escala UI montada só com azuis do guia) · `ge-*` (Group Elephant) · `erp-*` (ERP.ngo). **NÃO misturar identidades** sem propósito.
 
    **Telas novas SEMPRE devem linkar** `<link rel="stylesheet" href="/design-tokens.css">` no `<head>`.
 

@@ -822,7 +822,7 @@ app.post('/api/game/presence', express.json({ limit: '4kb' }), (req, res) => {
   if (b.bye) { _gamePresence.delete(id); return res.status(204).end(); }
   const world = b.world === 'hub' ? 'hub' : 'mkt';
   const dir = ['up','down','left','right'].includes(b.dir) ? b.dir : 'down';
-  const shirt = /^#[0-9a-f]{6}$/i.test(String(b.shirt || '')) ? b.shirt : '#cd1543';
+  const shirt = /^#[0-9a-f]{6}$/i.test(String(b.shirt || '')) ? b.shirt : '#CE181E';
   const emote = ['👋','❤️','😄','🎉'].includes(b.emote) ? b.emote : null;
   if (!_gamePresence.has(id) && _gamePresence.size >= _PRESENCE_CAP) {
     for (const [k, v] of _gamePresence) if (now - v.ts > _PRESENCE_TTL) _gamePresence.delete(k);
@@ -2626,7 +2626,7 @@ ${spec}
 === FIM DA ESPECIFICAÇÃO ===
 
 REGRAS OBRIGATÓRIAS DE SAÍDA:
-1. Use SOMENTE inline styles (atributos style="") com os hexes exatos do template (#001844, #cd1543, #869ec3, etc). NUNCA use classes CSS, <style> ou tags <html>/<head>/<body>.
+1. Use SOMENTE inline styles (atributos style="") com os hexes exatos do template (#001844, #CE181E, #6797b8, etc). NUNCA use classes CSS, <style> ou tags <html>/<head>/<body>.
 2. Siga a estrutura padrão: Lead → parágrafos intro → Sumário "Neste artigo" → seções <h2 id="..."> com componentes visuais adequados → Box de Resumo → FAQ Accordion (3-5 perguntas) → CTA Final.
 3. Cada <h2> precisa de um id único (slug) e o Sumário deve linkar pra esses ids com <a href="#id">.
 4. Escolha os componentes visuais conforme o conteúdo de cada seção (cards comparativos, grade 2x2, fluxo numerado, callouts, blockquote, dark box). NÃO invente dados, números ou fatos que não estejam no artigo original — apenas reorganize e formate o conteúdo fornecido.
