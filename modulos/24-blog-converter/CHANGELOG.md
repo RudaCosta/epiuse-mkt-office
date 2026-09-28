@@ -1,12 +1,14 @@
 # Changelog — Módulo 24 Blog Converter
 
-## v3.0 — 28/set/2026 (IA via Claude do próprio Office)
+## v3.0 — 28/set/2026 (IA via Gemini do próprio Office — GRÁTIS)
 
-> Badge `v3.0` + `IA · Claude` no cabeçalho da tela. **Versionamento próprio do módulo** — não altera a versão global do Office (que segue 0.90.0 pro Blog Converter).
+> Badge `v3.0` + `IA · Gemini` no cabeçalho da tela. **Versionamento próprio do módulo** — não altera a versão global do Office (que segue 0.90.0 pro Blog Converter).
 
-- 🤖 **Conversão via Claude (Anthropic SDK) do próprio Office** — o mesmo cliente/chave (`ANTHROPIC_API_KEY`) que já roda o Profile Optimizer e a extração dos Voices. **Não usa OpenRouter** (fim do 404/429). Modelo `claude-sonnet-4-6`.
-  - **Por quê o pivô (de novo):** a Bruna mostrou o **padrão-ouro** que espera (artigo do Joule com cards 2x2, cards comparativos, fluxo numerado, callout, badge SAP, blockquote, resumo, FAQ). Isso é **seleção editorial de componente por seção** — código determinístico não faz. Só IA que entende o conteúdo entrega esse nível.
-  - **Por que Claude do Office e não OpenRouter:** já está configurado, é confiável (API oficial), e reusa o orçamento Claude que a empresa já paga (não é gasto novo tipo os US$10 do OpenRouter). ~1-3 centavos por artigo.
+- 🤖 **Conversão via Gemini (Google) do próprio Office** — reusa a **mesma `GEMINI_API_KEY` e o `geminiPostComFallback`** que já rodam o **gerador de artigos do Stratview**. Cadeia de modelos (`gemini-2.5-flash` → `gemini-3-flash` → … → `gemini-2.0-flash`): no 429/404 de um modelo, cai pro próximo — resolve sozinho o problema que matava o OpenRouter.
+  - **GRÁTIS:** tier gratuito do Google (o mesmo que o Stratview usa), sem cartão, sem OpenRouter, sem crédito Anthropic.
+  - **Por quê o pivô (de novo):** a Bruna mostrou o **padrão-ouro** (artigo do Joule com cards 2x2, comparativos, fluxo numerado, callout, badge SAP, blockquote). Isso é **seleção editorial de componente por seção** — determinístico não faz. Precisa de IA.
+  - **Histórico curto:** tentei Claude do Office (v3.0 draft), mas a conta Anthropic estava com crédito zerado em prod (mesma chave do Optimizer). A Bruna lembrou que o Office **já tem Gemini grátis** (Stratview) → reusei. Sem custo novo.
+  - **Tradeoff honesto:** Gemini Flash é bom, mas pode não ser 100% Claude/padrão-ouro. Calibrado com few-shot (`example-gold.html`); ajustar o prompt conforme o resultado real.
 - 🏆 **Few-shot com o padrão-ouro:** `example-gold.html` (o artigo do Joule da Bruna) entra no prompt como exemplo de qualidade/riqueza esperada — é o que calibra o output.
 - 📎 **Extração de arquivo no navegador mantida** (mammoth.js/pdf.js) — funciona em prod.
 - ⚙️ Endpoint `/api/blog-converter/convert` reescrito pra Anthropic SDK (parse por delimitadores ===HTML===/===SEO===, aviso de truncamento se `stop_reason=max_tokens`).

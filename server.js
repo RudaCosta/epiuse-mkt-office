@@ -2617,7 +2617,7 @@ app.post('/api/blog-converter/extract', upload.single('arquivo'), (req, res) => 
   });
 });
 
-// Conversão do artigo no template HTML via OpenRouter (mesmo padrão do Raccoon SEO/GEO).
+// Conversão do artigo no template HTML via Gemini do Office (mesma GEMINI_API_KEY + fallback do gerador Stratview).
 app.post('/api/blog-converter/convert', express.json({ limit: '2mb' }), async (req, res) => {
   const texto = String(req.body?.texto || '').trim();
   const titulo = String(req.body?.titulo || '').trim();
@@ -2626,11 +2626,10 @@ app.post('/api/blog-converter/convert', express.json({ limit: '2mb' }), async (r
   if (!texto || texto.length < 40) {
     return res.status(400).json({ ok: false, error: 'Cole o artigo ou suba um arquivo primeiro.' });
   }
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return res.status(503).json({ ok: false, error: 'ANTHROPIC_API_KEY não configurada no servidor.' });
+  if (!process.env.GEMINI_API_KEY) {
+    return res.status(503).json({ ok: false, error: 'GEMINI_API_KEY não configurada no servidor.' });
   }
 
-  const model = 'claude-sonnet-4-6'; // mesmo Claude que o Office já usa (Optimizer)
   const spec = getBlogTemplateSpec();
   const gold = getBlogGoldExample();
 
@@ -2664,14 +2663,13 @@ ARTIGO A CONVERTER:
 ${texto}`;
 
   try {
-    const response = await client.messages.create({
-      model,
-      max_tokens: 8000,
-      temperature: 0.4,
-      system,
-      messages: [{ role: 'user', content: userMsg }]
+    const { result, model } = await geminiPostComFallback({
+      contents: [{ parts: [{ text: userMsg }] }],
+      systemInstruction: { parts: [{ text: system }] },
+      generationConfig: { maxOutputTokens: 16384, temperature: 0.4, topP: 0.95 }
     });
-    const raw = (response.content || []).filter(b => b.type === 'text').map(b => b.text).join('').trim();
+    const cand = result.candidates?.[0];
+    const raw = (cand?.content?.parts?.[0]?.text || '').trim();
 
     let html = '', seo = null;
     const htmlMatch = raw.match(/===HTML===\s*([\s\S]*?)\s*===SEO===/);
@@ -2695,15 +2693,13 @@ ${texto}`;
       html,
       seo: seo || { titulo: titulo || '', meta_description: '', slug: '', keywords: [] },
       model,
-      truncado: response.stop_reason === 'max_tokens',
-      aviso: '🤖 Gerado por IA (Claude) — revisar antes de publicar.'
+      truncado: cand?.finishReason === 'MAX_TOKENS',
+      aviso: '🤖 Gerado por IA (Gemini) — revisar antes de publicar.'
     });
   } catch (err) {
     console.error('[blog-converter/convert] exception', err.message);
-    const msg = /overloaded|rate|429|529/i.test(err.message)
-      ? 'O Claude está sobrecarregado no momento. Tente de novo em alguns segundos.'
-      : `Erro na conversão: ${err.message}`;
-    return res.status(502).json({ ok: false, error: msg });
+    // geminiPostComFallback já devolve mensagem amigável quando a cota (429) esgota em todos os modelos
+    return res.status(502).json({ ok: false, error: err.message || 'Falha na conversão.' });
   }
 });
 

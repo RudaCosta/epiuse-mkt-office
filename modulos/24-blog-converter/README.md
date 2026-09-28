@@ -6,9 +6,9 @@
 
 Converter artigos (texto colado, `.docx` ou `.pdf`) para o **template HTML visual padronizado do blog EPI-USE** (inline styles, pronto pra colar no editor do HubSpot). Extensão do Raccoon, mas **separada do módulo principal** (08-inbound-offline) — vive por conta própria.
 
-A conversão é feita pela **IA Claude do próprio Office** (Anthropic SDK, `claude-sonnet-4-6`, a mesma `ANTHROPIC_API_KEY` que já roda o Optimizer). **Não usa OpenRouter.** A IA lê o artigo e faz a **seleção editorial de componentes por seção** — cards 2x2 pra pilares, cards comparativos pra contrastes, fluxo numerado pra processos, callouts pra dicas/avisos, badge pra produtos, resumo, FAQ, CTA — no nível do padrão-ouro (`example-gold.html`, que entra no prompt como few-shot). Também gera os metadados de SEO. Não inventa fatos: só reorganiza e formata o conteúdo fornecido.
+A conversão é feita pela **IA Gemini do próprio Office** (Google, via `geminiPostComFallback` + `GEMINI_API_KEY` — a mesma infra que já roda o gerador de artigos do Stratview). **Grátis** (tier gratuito do Google), **sem OpenRouter, sem crédito Anthropic**. A cadeia de fallback de modelos (gemini-2.5-flash → 3-flash → … → 2.0-flash) resolve 429/404 sozinha. A IA lê o artigo e faz a **seleção editorial de componentes por seção** — cards 2x2 pra pilares, comparativos pra contrastes, fluxo numerado pra processos, callouts pra dicas/avisos, badge pra produtos, resumo, FAQ, CTA — calibrada pelo padrão-ouro (`example-gold.html`, few-shot no prompt). Também gera SEO. Não inventa fatos: só reorganiza e formata.
 
-> **Histórico:** v1.0 tentou OpenRouter (deu 404/429); v2.0 foi um motor determinístico local (grátis, mas sem seleção inteligente de componentes — abaixo do padrão-ouro); v3.0 usa o Claude do Office (confiável + qualidade). Ver `CHANGELOG.md` e `DECISIONS.md`.
+> **Histórico:** v1.0 OpenRouter (404/429); v2.0 determinístico local (grátis, mas sem seleção de componentes — abaixo do padrão-ouro); v3.0 tentou Claude do Office (conta Anthropic sem crédito em prod) e então **Gemini grátis do Office** (Stratview) — grátis + qualidade. Ver `CHANGELOG.md` e `DECISIONS.md`.
 
 ## Arquivos-chave
 
@@ -60,7 +60,7 @@ Nenhum dado de métrica/KPI é inventado — é só **transformação estrutural
 
 ## Config
 
-- **`ANTHROPIC_API_KEY`** — a mesma chave que o Office já usa (Optimizer/Voices). Está setada no Railway. Sem ela, o endpoint responde 503 com mensagem clara (é o caso do localhost, que não tem a chave — só prod tem).
-- Modelo: `claude-sonnet-4-6` (hardcoded no endpoint, alinhado ao que o Optimizer usa). **Não** usa `BLOG_CONVERTER_MODEL`/`OPENROUTER_*` — se essas vars ficaram no Railway da v1, podem ser removidas (não têm mais efeito).
+- **`GEMINI_API_KEY`** — a mesma chave que o Office já usa no **gerador Stratview**. Já está no Railway. Sem ela, o endpoint responde 503 (é o caso do localhost, que não tem a chave — só prod tem).
+- Modelos: cadeia `geminiPostComFallback` (gemini-2.5-flash → 3-flash → 3.1-flash → 3-flash-lite → 2.0-flash). Não usa `ANTHROPIC_*`/`BLOG_CONVERTER_MODEL`/`OPENROUTER_*` — se sobraram no Railway das versões anteriores, podem ser removidas.
 - Libs de leitura de arquivo (navegador): cdnjs — mammoth 1.9.0 · pdf.js 3.11.174.
-- Custo: ~1-3 centavos por artigo, no orçamento Claude que a empresa já paga.
+- Custo: **grátis** (tier gratuito do Google). Limite: cota diária do free tier (compartilhada com o Stratview) — se esgotar, reseta ~4h BRT (mensagem clara no erro).
