@@ -77,6 +77,21 @@
   .comp summary .when{font-weight:400;font-size:11.5px;color:var(--color-text-muted,#6797b8)}
   .comp .body{padding:0 14px 14px}
   .comp pre{background:#0b1220;border:1px solid var(--bc-border);border-radius:8px;padding:11px;overflow:auto;max-height:220px;font-family:'Fira Code',monospace;font-size:11px;line-height:1.55;color:#cbd5e1;margin:0 0 8px}
+  .pub-link{display:inline-flex;align-items:center;gap:8px;background:var(--bc-red);color:#fff;text-decoration:none;border-radius:10px;padding:11px 20px;font-weight:700;font-family:var(--bc-font-display);font-size:13.5px;margin:2px 0 20px}
+  .pub-link:hover{opacity:.92}
+  .pub-steps{display:flex;flex-direction:column;gap:18px}
+  .pub-step{border:1px solid var(--bc-border);border-radius:14px;padding:18px 20px;background:rgba(0,0,0,.12)}
+  .pub-head{display:flex;gap:14px;align-items:flex-start}
+  .pub-head .num{flex-shrink:0;width:30px;height:30px;border-radius:50%;background:var(--bc-red);color:#fff;font-weight:700;font-family:var(--bc-font-display);display:flex;align-items:center;justify-content:center;font-size:14px}
+  .pub-head h4{margin:2px 0 5px;font-family:var(--bc-font-display);font-size:15px;color:var(--color-text,#fff)}
+  .pub-head p{margin:0;font-size:13.5px;line-height:1.6;color:var(--color-text-dim,#cbd5e1)}
+  .pub-head code{background:var(--bc-input-bg);padding:1px 6px;border-radius:5px;font-family:'Fira Code',monospace;font-size:11.5px;color:var(--bc-blue)}
+  .pub-head b{color:var(--color-text,#fff)}
+  .shot{display:block;margin:14px 0 0 44px;border:1px solid var(--bc-border);border-radius:10px;overflow:hidden;background:#fff;max-width:820px;line-height:0;position:relative}
+  .shot img{width:100%;height:auto;display:block}
+  .shot::after{content:'🔍 abrir';position:absolute;top:8px;right:8px;background:rgba(0,0,0,.65);color:#fff;font-size:10.5px;padding:3px 8px;border-radius:6px;font-family:var(--bc-font-body);line-height:normal}
+  .pub-tip{margin-top:18px;font-size:12.5px;color:var(--color-text-muted,#6797b8);border-top:1px solid var(--bc-border);padding-top:12px}
+  .pub-tip code{background:var(--bc-input-bg);padding:1px 6px;border-radius:5px;font-family:'Fira Code',monospace;font-size:11px;color:var(--bc-blue)}
   .spin{width:15px;height:15px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;display:inline-block}
   @keyframes sp{to{transform:rotate(360deg)}}
   .muted{color:var(--color-text-muted,#6797b8);font-size:13px}
@@ -182,19 +197,6 @@
 
     <!-- SIDEBAR -->
     <aside>
-      <section class="card guide">
-        <h2>📖 Como aplicar no HubSpot</h2>
-        <ol>
-          <li>Clique em <b>Copiar HTML</b> no resultado.</li>
-          <li>No HubSpot, crie um post no blog escolhido (Artigo ou Cases).</li>
-          <li>No editor de rich text, abra o modo <code>&lt;/&gt; Source code</code> e cole o HTML.</li>
-          <li>Na aba <b>Settings/SEO</b>, cole o título, a meta description e o slug gerados.</li>
-          <li>Revise os links internos (<code>/nome-da-pagina</code>) e o CTA final.</li>
-          <li>Pré-visualize — o FAQ accordion abre/fecha (usa <code>onclick</code> inline).</li>
-        </ol>
-        <div class="hint" style="margin-top:12px">Blog <b>Artigo</b>: ID <code>216571523122</code> · <b>Cases</b>: <code>222053726081</code> · Portal <code>50204216</code></div>
-      </section>
-
       <section class="card">
         <h2>🧱 Componentes do template</h2>
         <p class="muted" style="margin:0 0 12px">A conversão já monta lead, sumário, seções, resumo, FAQ e CTA. Use estes blocos pra <b>enriquecer</b> à mão (cards, fluxo, callouts). Clique pra copiar.</p>
@@ -202,6 +204,64 @@
       </section>
     </aside>
   </div>
+
+  <!-- SEÇÃO 3 — COMO SUBIR NO SITE -->
+  <section class="card" id="publishCard" style="margin-top:20px">
+    <h2>3 · Como subir no site (HubSpot)</h2>
+    <p class="muted" style="margin:-4px 0 16px">Passo a passo pra publicar o artigo convertido no blog da EPI-USE. Faça a conversão na etapa 2 antes de começar.</p>
+    <a class="pub-link" href="https://app.hubspot.com/blog/50204216/manage/posts/all" target="_blank" rel="noopener">🔗 Abrir o editor de posts do HubSpot →</a>
+
+    <div class="pub-steps">
+      <div class="pub-step">
+        <div class="pub-head"><span class="num">1</span><div>
+          <h4>Copie o código e abra o HubSpot</h4>
+          <p>Na etapa <b>2 · Resultado</b> acima, clique na aba <code>&lt;/&gt; Código HTML</code> e depois em <b>📋 Copiar HTML</b>. Em seguida, abra o editor de posts pelo botão acima (ou pelo link direto).</p>
+        </div></div>
+        <a class="shot" href="/img/blog-converter/passo-1.png" target="_blank" rel="noopener"><img src="/img/blog-converter/passo-1.png" alt="Editor de posts do HubSpot" onerror="this.closest('.shot').remove()"></a>
+      </div>
+
+      <div class="pub-step">
+        <div class="pub-head"><span class="num">2</span><div>
+          <h4>Crie um post do zero</h4>
+          <p>No canto superior direito, clique em <b>Criar</b> e escolha <b>Criar do zero</b>.</p>
+        </div></div>
+        <a class="shot" href="/img/blog-converter/passo-2.png" target="_blank" rel="noopener"><img src="/img/blog-converter/passo-2.png" alt="Menu Criar → Criar do zero" onerror="this.closest('.shot').remove()"></a>
+      </div>
+
+      <div class="pub-step">
+        <div class="pub-head"><span class="num">3</span><div>
+          <h4>Selecione o blog e o idioma</h4>
+          <p>Escolha o blog <b>Artigo</b> (ou <b>Cases de Sucesso</b>), idioma <b>Português - Brasil</b>, e clique em <b>Criar post de blog</b>.</p>
+        </div></div>
+        <a class="shot" href="/img/blog-converter/passo-3.png" target="_blank" rel="noopener"><img src="/img/blog-converter/passo-3.png" alt="Modal criar post de blog" onerror="this.closest('.shot').remove()"></a>
+      </div>
+
+      <div class="pub-step">
+        <div class="pub-head"><span class="num">4</span><div>
+          <h4>Abra a área de texto do post</h4>
+          <p>Na página do post, role até a caixa <b>“Clique para adicionar texto”</b> e clique nela.</p>
+        </div></div>
+        <a class="shot" href="/img/blog-converter/passo-4.png" target="_blank" rel="noopener"><img src="/img/blog-converter/passo-4.png" alt="Caixa clique para adicionar texto" onerror="this.closest('.shot').remove()"></a>
+      </div>
+
+      <div class="pub-step">
+        <div class="pub-head"><span class="num">5</span><div>
+          <h4>Abra o editor de código-fonte</h4>
+          <p>No menu de texto que aparece no topo, clique em <b>Avançado</b> e depois em <b>Código fonte</b>.</p>
+        </div></div>
+        <a class="shot" href="/img/blog-converter/passo-5.png" target="_blank" rel="noopener"><img src="/img/blog-converter/passo-5.png" alt="Menu Avançado → Código fonte" onerror="this.closest('.shot').remove()"></a>
+      </div>
+
+      <div class="pub-step">
+        <div class="pub-head"><span class="num">6</span><div>
+          <h4>Cole o HTML e salve</h4>
+          <p>Na janela de código que abrir, <b>cole o HTML</b> que você copiou e clique em <b>Salvar alterações</b>. Depois, na aba de <b>SEO/Configurações</b>, cole o <b>título</b>, a <b>meta description</b> e o <b>slug</b> gerados — e revise os links internos e o CTA antes de <b>Publicar</b>. ✅</p>
+        </div></div>
+      </div>
+    </div>
+
+    <div class="pub-tip">💡 Blog <b>Artigo</b>: ID <code>216571523122</code> · <b>Cases</b>: <code>222053726081</code> · Portal <code>50204216</code> · O FAQ accordion abre/fecha sozinho no post (usa <code>onclick</code> inline, funciona no HubSpot).</div>
+  </section>
 </main>
 
 <office-footer></office-footer>

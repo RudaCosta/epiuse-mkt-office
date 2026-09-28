@@ -9,6 +9,7 @@
   - **Por quê o pivô (de novo):** a Bruna mostrou o **padrão-ouro** (artigo do Joule com cards 2x2, comparativos, fluxo numerado, callout, badge SAP, blockquote). Isso é **seleção editorial de componente por seção** — determinístico não faz. Precisa de IA.
   - **Histórico curto:** tentei Claude do Office (v3.0 draft), mas a conta Anthropic estava com crédito zerado em prod (mesma chave do Optimizer). A Bruna lembrou que o Office **já tem Gemini grátis** (Stratview) → reusei. Sem custo novo.
   - **Tradeoff honesto:** Gemini Flash é bom, mas pode não ser 100% Claude/padrão-ouro. Calibrado com few-shot (`example-gold.html`); ajustar o prompt conforme o resultado real.
+- 📖 **Seção "3 · Como subir no site (HubSpot)"** — passo a passo visual (6 passos) com link direto pro editor de posts + espaço pros prints de cada etapa (`public/img/blog-converter/passo-1..5.png`; se faltar arquivo, o passo mostra só o texto). O antigo mini-guia da lateral virou essa seção; a lateral ficou só com a biblioteca de blocos.
 - 🏆 **Few-shot com o padrão-ouro:** `example-gold.html` (o artigo do Joule da Bruna) entra no prompt como exemplo de qualidade/riqueza esperada — é o que calibra o output.
 - 📎 **Extração de arquivo no navegador mantida** (mammoth.js/pdf.js) — funciona em prod.
 - ⚙️ Endpoint `/api/blog-converter/convert` reescrito pra Anthropic SDK (parse por delimitadores ===HTML===/===SEO===, aviso de truncamento se `stop_reason=max_tokens`).
