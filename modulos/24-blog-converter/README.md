@@ -1,12 +1,14 @@
 # Módulo 24 — Blog Converter
 
-> **Área:** 🎨 Brand Experience · **Rota:** `/blog-converter` · **Versão do módulo:** v2.0 · **Status:** ✅ em produção (set/2026)
+> **Área:** 🎨 Brand Experience · **Rota:** `/blog-converter` · **Versão do módulo:** v3.0 · **Status:** ✅ em produção (set/2026)
 
 ## Propósito
 
 Converter artigos (texto colado, `.docx` ou `.pdf`) para o **template HTML visual padronizado do blog EPI-USE** (inline styles, pronto pra colar no editor do HubSpot). Extensão do Raccoon, mas **separada do módulo principal** (08-inbound-offline) — vive por conta própria.
 
-A conversão é **100% determinística e local (no navegador)** — sem IA, sem API, sem custo, sem limite. Transformar um texto que já existe em HTML é transformação estrutural, não geração; um LLM só traria 404 (modelo aposentado), 429 (rate limit) e custo. O motor detecta a estrutura do texto (lead, seções, listas, resumo, FAQ, CTA) e monta os componentes do template + os metadados de SEO.
+A conversão é feita pela **IA Claude do próprio Office** (Anthropic SDK, `claude-sonnet-4-6`, a mesma `ANTHROPIC_API_KEY` que já roda o Optimizer). **Não usa OpenRouter.** A IA lê o artigo e faz a **seleção editorial de componentes por seção** — cards 2x2 pra pilares, cards comparativos pra contrastes, fluxo numerado pra processos, callouts pra dicas/avisos, badge pra produtos, resumo, FAQ, CTA — no nível do padrão-ouro (`example-gold.html`, que entra no prompt como few-shot). Também gera os metadados de SEO. Não inventa fatos: só reorganiza e formata o conteúdo fornecido.
+
+> **Histórico:** v1.0 tentou OpenRouter (deu 404/429); v2.0 foi um motor determinístico local (grátis, mas sem seleção inteligente de componentes — abaixo do padrão-ouro); v3.0 usa o Claude do Office (confiável + qualidade). Ver `CHANGELOG.md` e `DECISIONS.md`.
 
 ## Arquivos-chave
 
@@ -58,4 +60,7 @@ Nenhum dado de métrica/KPI é inventado — é só **transformação estrutural
 
 ## Config
 
-Nenhuma. Não depende de chave de API nem de variável de ambiente. As libs de leitura de arquivo vêm do cdnjs (mammoth 1.9.0 · pdf.js 3.11.174).
+- **`ANTHROPIC_API_KEY`** — a mesma chave que o Office já usa (Optimizer/Voices). Está setada no Railway. Sem ela, o endpoint responde 503 com mensagem clara (é o caso do localhost, que não tem a chave — só prod tem).
+- Modelo: `claude-sonnet-4-6` (hardcoded no endpoint, alinhado ao que o Optimizer usa). **Não** usa `BLOG_CONVERTER_MODEL`/`OPENROUTER_*` — se essas vars ficaram no Railway da v1, podem ser removidas (não têm mais efeito).
+- Libs de leitura de arquivo (navegador): cdnjs — mammoth 1.9.0 · pdf.js 3.11.174.
+- Custo: ~1-3 centavos por artigo, no orçamento Claude que a empresa já paga.

@@ -2565,6 +2565,21 @@ function getBlogTemplateSpec() {
   return _blogTemplateSpec;
 }
 
+// Exemplo padrão-ouro (few-shot) — calibra a qualidade do output da IA.
+let _blogGoldExample = null;
+function getBlogGoldExample() {
+  if (_blogGoldExample !== null) return _blogGoldExample;
+  try {
+    _blogGoldExample = fs.readFileSync(
+      path.join(__dirname, 'modulos/24-blog-converter/example-gold.html'), 'utf8'
+    );
+  } catch (e) {
+    console.error('[blog-converter] falha ao ler example-gold.html:', e.message);
+    _blogGoldExample = '';
+  }
+  return _blogGoldExample;
+}
+
 // Extração de texto de .docx/.pdf via python (extract_text.py). Só roda onde há Python.
 app.post('/api/blog-converter/extract', upload.single('arquivo'), (req, res) => {
   const file = req.file;
@@ -2608,89 +2623,70 @@ app.post('/api/blog-converter/convert', express.json({ limit: '2mb' }), async (r
   const titulo = String(req.body?.titulo || '').trim();
   const blog = String(req.body?.blog || 'artigo').trim();
 
-  if (!texto || texto.length < 80) {
-    return res.status(400).json({ ok: false, error: 'Cole o artigo (mínimo ~80 caracteres) ou suba um arquivo.' });
+  if (!texto || texto.length < 40) {
+    return res.status(400).json({ ok: false, error: 'Cole o artigo ou suba um arquivo primeiro.' });
+  }
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return res.status(503).json({ ok: false, error: 'ANTHROPIC_API_KEY não configurada no servidor.' });
   }
 
-  const orKey = process.env.OPENROUTER_API_KEY;
-  if (!orKey) {
-    return res.status(503).json({ ok: false, error: 'OPENROUTER_API_KEY não configurada no servidor. Sem ela a conversão por IA não roda.' });
-  }
-  const orModel = process.env.BLOG_CONVERTER_MODEL || process.env.OPENROUTER_MODEL || 'google/gemma-4-31b-it:free';
-
+  const model = 'claude-sonnet-4-6'; // mesmo Claude que o Office já usa (Optimizer)
   const spec = getBlogTemplateSpec();
-  const prompt = `Você é um especialista em conteúdo do blog da EPI-USE Brasil. Sua tarefa é converter um artigo no TEMPLATE HTML VISUAL padronizado do blog, pronto pra colar no editor do HubSpot.
+  const gold = getBlogGoldExample();
 
-=== ESPECIFICAÇÃO COMPLETA DO TEMPLATE (siga à risca) ===
+  const system = `Você é um designer editorial do blog da EPI-USE Brasil. Recebe um artigo em texto e devolve o MESMO conteúdo formatado no template HTML visual padronizado do blog, pronto pra colar no editor do HubSpot.
+
+=== ESPECIFICAÇÃO DO TEMPLATE (componentes + estilos inline exatos) ===
 ${spec}
 === FIM DA ESPECIFICAÇÃO ===
 
-REGRAS OBRIGATÓRIAS DE SAÍDA:
-1. Use SOMENTE inline styles (atributos style="") com os hexes exatos do template (#001844, #CE181E, #6797b8, etc). NUNCA use classes CSS, <style> ou tags <html>/<head>/<body>.
-2. Siga a estrutura padrão: Lead → parágrafos intro → Sumário "Neste artigo" → seções <h2 id="..."> com componentes visuais adequados → Box de Resumo → FAQ Accordion (3-5 perguntas) → CTA Final.
-3. Cada <h2> precisa de um id único (slug) e o Sumário deve linkar pra esses ids com <a href="#id">.
-4. Escolha os componentes visuais conforme o conteúdo de cada seção (cards comparativos, grade 2x2, fluxo numerado, callouts, blockquote, dark box). NÃO invente dados, números ou fatos que não estejam no artigo original — apenas reorganize e formate o conteúdo fornecido.
-5. Todo o texto em português do Brasil. CTA padrão: https://www.epiuse.com.br/fale-conosco.
-6. Preserve o conteúdo do artigo (não resuma demais); melhore só estrutura e formatação visual.
+=== EXEMPLO PADRÃO-OURO (este é o nível de qualidade e riqueza esperado) ===
+${gold}
+=== FIM DO EXEMPLO ===
 
-${titulo ? `TÍTULO SUGERIDO PELO USUÁRIO: "${titulo}"` : ''}
-BLOG DE DESTINO: ${blog === 'cases' ? 'Cases de Sucesso' : 'Artigo'}
+REGRAS INEGOCIÁVEIS:
+1. SOMENTE inline styles (atributos style="") com os hexes EXATOS do template do blog: #001844 (azul), #cd1543 (vermelho), #869ec3 (azul claro), #f8f9fc, #f0f4fa, #e8ecf0. NUNCA use classes CSS, <style>, ou tags <html>/<head>/<body>. (Atenção: são as cores DO BLOG, não as do app.)
+2. Estrutura: Lead (1º parágrafo com barra vermelha) → 1-2 parágrafos de intro → Sumário "Neste artigo" com âncoras → seções <h2 id="slug"> → Box de Resumo → FAQ Accordion (3-5 perguntas) → CTA Final.
+3. ESCOLHA O COMPONENTE CERTO PARA CADA SEÇÃO, como no exemplo: 3-4 conceitos → cards em grade 2x2; dois cenários opostos → cards comparativos; processo com etapas → fluxo numerado com setas; dica/nota → callout azul; aviso → callout vermelho; frase de impacto → blockquote; lista de pontos-chave → dark box com <ul>; dado/produto de destaque → dark box com badge. Varie os componentes — um artigo rico usa vários.
+4. NÃO invente fatos, números, estatísticas ou citações que não estejam no artigo original. Você reorganiza e formata; não cria conteúdo novo. Se o artigo não tiver FAQ explícito, formule 3-5 perguntas cujas respostas ESTEJAM no texto.
+5. Português do Brasil. CTA sempre aponta para https://www.epiuse.com.br/fale-conosco.
+6. Preserve o conteúdo (não resuma demais). Todo <h2> tem id único e o Sumário linka pra ele.
 
-=== ARTIGO ORIGINAL A CONVERTER ===
-${texto}
-=== FIM DO ARTIGO ===
-
-FORMATO EXATO DA SUA RESPOSTA (use os delimitadores literais, nada antes ou depois):
+FORMATO EXATO DA RESPOSTA (delimitadores literais, nada antes/depois):
 ===HTML===
-<aqui vai APENAS o corpo HTML com inline styles, começando pelo Lead>
+(apenas o corpo HTML com inline styles, começando pelo Lead)
 ===SEO===
-{"titulo": "título SEO até 60 caracteres", "meta_description": "meta description até 155 caracteres", "slug": "slug-em-kebab-case", "keywords": ["palavra1", "palavra2", "palavra3"]}`;
+{"titulo":"até 60 caracteres","meta_description":"até 155 caracteres","slug":"kebab-case","keywords":["k1","k2","k3"]}`;
+
+  const userMsg = `${titulo ? `TÍTULO SUGERIDO: "${titulo}"\n` : ''}BLOG DE DESTINO: ${blog === 'cases' ? 'Cases de Sucesso' : 'Artigo'}
+
+ARTIGO A CONVERTER:
+${texto}`;
 
   try {
-    const orResp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${orKey}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://epiuse-mkt-office-production.up.railway.app',
-        'X-Title': 'EPI-USE Office - Blog Converter'
-      },
-      body: JSON.stringify({
-        model: orModel,
-        temperature: 0.35,
-        max_tokens: 8000,
-        messages: [{ role: 'user', content: prompt }]
-      })
+    const response = await client.messages.create({
+      model,
+      max_tokens: 8000,
+      temperature: 0.4,
+      system,
+      messages: [{ role: 'user', content: userMsg }]
     });
+    const raw = (response.content || []).filter(b => b.type === 'text').map(b => b.text).join('').trim();
 
-    if (!orResp.ok) {
-      const detail = await orResp.text().catch(() => '');
-      console.error('[blog-converter/convert] OR fail', orResp.status, detail.slice(0, 300));
-      const msg = orResp.status === 429
-        ? 'Limite gratuito do modelo atingido no OpenRouter. Tente de novo em alguns minutos ou configure BLOG_CONVERTER_MODEL.'
-        : `OpenRouter respondeu status ${orResp.status}.`;
-      return res.status(502).json({ ok: false, error: msg });
-    }
-
-    const data = await orResp.json();
-    const raw = ((data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '').trim();
-
-    // parse por delimitadores (HTML cru + SEO json)
     let html = '', seo = null;
     const htmlMatch = raw.match(/===HTML===\s*([\s\S]*?)\s*===SEO===/);
     const seoMatch = raw.match(/===SEO===\s*([\s\S]*)$/);
     if (htmlMatch) {
       html = htmlMatch[1].replace(/^```html\s*/i, '').replace(/```\s*$/i, '').trim();
     } else {
-      // fallback: sem delimitador, usa a resposta toda como html
-      html = raw.replace(/```html\s*/gi, '').replace(/```\s*/g, '').trim();
+      html = raw.replace(/```html\s*/gi, '').replace(/```\s*/g, '').replace(/===SEO===[\s\S]*$/, '').trim();
     }
     if (seoMatch) {
       const sm = seoMatch[1].match(/\{[\s\S]*\}/);
       if (sm) { try { seo = JSON.parse(sm[0]); } catch (_) { seo = null; } }
     }
 
-    if (!html || html.length < 40) {
+    if (!html || html.length < 60) {
       return res.status(502).json({ ok: false, error: 'A IA não retornou HTML utilizável. Tente novamente.' });
     }
 
@@ -2698,12 +2694,16 @@ FORMATO EXATO DA SUA RESPOSTA (use os delimitadores literais, nada antes ou depo
       ok: true,
       html,
       seo: seo || { titulo: titulo || '', meta_description: '', slug: '', keywords: [] },
-      model: orModel,
-      aviso: '🤖 Gerado por IA — revisar antes de publicar.'
+      model,
+      truncado: response.stop_reason === 'max_tokens',
+      aviso: '🤖 Gerado por IA (Claude) — revisar antes de publicar.'
     });
   } catch (err) {
     console.error('[blog-converter/convert] exception', err.message);
-    return res.status(500).json({ ok: false, error: `Exceção na conversão: ${err.message}` });
+    const msg = /overloaded|rate|429|529/i.test(err.message)
+      ? 'O Claude está sobrecarregado no momento. Tente de novo em alguns segundos.'
+      : `Erro na conversão: ${err.message}`;
+    return res.status(502).json({ ok: false, error: msg });
   }
 });
 

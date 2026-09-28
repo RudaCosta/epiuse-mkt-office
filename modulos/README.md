@@ -12,7 +12,7 @@
 | `10-painel-duda/` | Painel da Duda (Módulo C) | 🚧 Em construção |
 | `11-jarvis-sdr/` | JARVIS — Copiloto SDR/BDR (biz dev · `/jarvis`) | 🟢 v0.10 (captura áudio da call + STT free no navegador · beta) |
 | `20-aeo-geo/` | AEO/SEO/GEO — Visibilidade em IA (`/aeo-geo`) | 🟢 v0.1 (diagnóstico AEO Grader + plano de ação + dashboard) |
-| `24-blog-converter/` | Blog Converter — artigo → template HTML do blog (brand · `/blog-converter`) | ✅ v2.0 (motor determinístico local · sem IA/custo · docx/pdf no navegador) |
+| `24-blog-converter/` | Blog Converter — artigo → template HTML do blog (brand · `/blog-converter`) | ✅ v3.0 (IA via Claude do Office · seleção de componentes · docx/pdf no navegador) |
 
 ## Módulos sem pasta própria (documentados em `docs/MODULES.md`)
 

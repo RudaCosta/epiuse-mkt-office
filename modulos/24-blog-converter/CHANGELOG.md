@@ -1,6 +1,20 @@
 # Changelog — Módulo 24 Blog Converter
 
-## v2.0 — 28/set/2026 (motor determinístico local — reescrita)
+## v3.0 — 28/set/2026 (IA via Claude do próprio Office)
+
+> Badge `v3.0` + `IA · Claude` no cabeçalho da tela. Office v0.92.0.
+
+- 🤖 **Conversão via Claude (Anthropic SDK) do próprio Office** — o mesmo cliente/chave (`ANTHROPIC_API_KEY`) que já roda o Profile Optimizer e a extração dos Voices. **Não usa OpenRouter** (fim do 404/429). Modelo `claude-sonnet-4-6`.
+  - **Por quê o pivô (de novo):** a Bruna mostrou o **padrão-ouro** que espera (artigo do Joule com cards 2x2, cards comparativos, fluxo numerado, callout, badge SAP, blockquote, resumo, FAQ). Isso é **seleção editorial de componente por seção** — código determinístico não faz. Só IA que entende o conteúdo entrega esse nível.
+  - **Por que Claude do Office e não OpenRouter:** já está configurado, é confiável (API oficial), e reusa o orçamento Claude que a empresa já paga (não é gasto novo tipo os US$10 do OpenRouter). ~1-3 centavos por artigo.
+- 🏆 **Few-shot com o padrão-ouro:** `example-gold.html` (o artigo do Joule da Bruna) entra no prompt como exemplo de qualidade/riqueza esperada — é o que calibra o output.
+- 📎 **Extração de arquivo no navegador mantida** (mammoth.js/pdf.js) — funciona em prod.
+- ⚙️ Endpoint `/api/blog-converter/convert` reescrito pra Anthropic SDK (parse por delimitadores ===HTML===/===SEO===, aviso de truncamento se `stop_reason=max_tokens`).
+- 🧱 Biblioteca de blocos segue pra ajustes manuais pontuais.
+
+## v2.0 — 28/set/2026 (motor determinístico local — reescrita) — SUPERADA pela v3.0
+
+> Não chegou a produção. A conversão determinística montava lead/sumário/seções/listas/resumo/FAQ/CTA, mas **não fazia seleção inteligente de componentes** (cards, fluxo, callouts, badge). Ao ver o padrão-ouro da Bruna, ficou claro que o teto de qualidade do determinístico era insuficiente → pivô pra Claude (v3.0). A extração de arquivo no navegador desta versão foi preservada.
 
 > Versão própria do módulo (badge `v2.0` no cabeçalho da tela). Independente da versão global do Office.
 

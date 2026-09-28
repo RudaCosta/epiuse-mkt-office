@@ -90,8 +90,8 @@
   <div class="hero">
     <span class="ic">📝</span>
     <div>
-      <h1>Blog Converter <span class="bc-ver">v2.0</span> <span class="bc-ver local">motor local</span></h1>
-      <p>Cole um artigo ou suba um <b>.docx / .pdf</b> e ele vira o template visual padronizado do blog EPI-USE — pronto pra colar no editor do HubSpot. <span style="color:var(--bc-blue)">Conversão 100% local e gratuita, sem IA e sem limite. Dica: use <code style="background:var(--bc-input-bg);padding:1px 5px;border-radius:4px">##</code> antes dos títulos de seção pra garantir a separação certa.</span></p>
+      <h1>Blog Converter <span class="bc-ver">v3.0</span> <span class="bc-ver local">IA · Claude</span></h1>
+      <p>Cole um artigo ou suba um <b>.docx / .pdf</b> e a IA monta o template visual padronizado do blog EPI-USE — escolhendo cards, fluxo, callouts e FAQ por seção, pronto pra colar no HubSpot. <span style="color:var(--bc-blue)">Roda no Claude do próprio Office (o mesmo do Optimizer) — confiável e sem OpenRouter. 🤖 Revise sempre antes de publicar.</span></p>
     </div>
   </div>
 
@@ -271,222 +271,22 @@ async function handleFile(f){
   }catch(e){$('#fileStatus').innerHTML='<span style="color:#ff8fa8">Erro ao ler o arquivo: '+e.message+' — cole o texto direto.</span>';}
 }
 
-/* ─────────────────── conversão determinística (sem IA) ─────────────────── */
-const CTA_HREF='https://www.epiuse.com.br/fale-conosco';
-const STOP=new Set(('a o e de da do das dos que em no na nos nas um uma uns umas para por com sem sob sobre entre ao aos à às se ou como mais menos muito muita pouco os as seu sua seus suas este esta esse essa isso aquilo ele ela eles elas na não sim ja já ser estar tem têm ter foi são está pode ser sua the of and to in is are be this that it as at').split(' '));
-
+/* ─────────────────── helper ─────────────────── */
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function slugify(s){return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9\s-]/g,'').trim().replace(/\s+/g,'-').replace(/-+/g,'-').slice(0,70);}
-function inlineMd(s){
-  s=esc(s);
-  s=s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g,'<a href="$2" style="color:#cd1543;text-decoration:none;">$1</a>');
-  s=s.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/__(.+?)__/g,'<strong>$1</strong>');
-  s=s.replace(/(^|[^\*])\*([^*\n]+?)\*(?!\*)/g,'$1<em>$2</em>');
-  return s;
-}
-function parseBlocks(text){
-  const lines=text.replace(/\r\n?/g,'\n').split('\n');
-  const blocks=[];let buf=[];
-  const flush=()=>{if(buf.length){blocks.push(buf.join('\n').trim());buf=[];}};
-  for(const ln of lines){ if(ln.trim()===''){flush();} else {buf.push(ln);} }
-  flush();
-  return blocks.filter(Boolean);
-}
-function isList(b){return b.split('\n').every(l=>/^\s*([-*•·]|\d+[.)])\s+/.test(l));}
-function headingText(b,isFirst){
-  let m=b.match(/^\s*(#{1,6})\s+(.+?)\s*#*$/);
-  if(m) return {text:m[2].trim(),strong:true};
-  if(isFirst) return null; // primeiro bloco nunca é heading (é o lead)
-  if(!b.includes('\n')){
-    const t=b.trim();
-    const words=t.split(/\s+/).length;
-    if(t.length>=3 && t.length<=85 && words<=12 && !/[.,;:!?]$/.test(t) && /^[A-ZÀ-Ý0-9"“]/.test(t) && !/^https?:/i.test(t)){
-      return {text:t,strong:false};
-    }
-  }
-  return null;
-}
-function classify(text){
-  const blocks=parseBlocks(text);
-  const nodes=[];
-  blocks.forEach((b,i)=>{
-    if(/^\s*>/.test(b)){nodes.push({type:'quote',text:b.replace(/^\s*>\s?/gm,'').replace(/\n/g,' ').trim()});return;}
-    const lines=b.split('\n');
-    const ITEM=/^\s*([-*•·]|\d+[.)])\s+/;
-    if(lines.some(l=>ITEM.test(l))){
-      // bloco misto: separa parágrafos (linhas não-lista) de listas (linhas-lista consecutivas)
-      let cur=null,curType=null;
-      const flush=()=>{ if(cur&&cur.length){ if(curType==='list')nodes.push({type:'list',items:cur}); else nodes.push({type:'p',text:cur.join(' ').trim()}); } cur=null;curType=null; };
-      lines.forEach(l=>{
-        const isItem=ITEM.test(l);
-        const t=isItem?l.replace(ITEM,'').trim():l.trim();
-        if(!t)return;
-        const ty=isItem?'list':'p';
-        if(ty!==curType){flush();curType=ty;cur=[];}
-        cur.push(t);
-      });
-      flush();
-      return;
-    }
-    const h=headingText(b,i===0);
-    if(h){nodes.push({type:h.strong?'h2':'maybe',text:h.text});return;}
-    nodes.push({type:'p',text:b.replace(/\n/g,' ').trim()});
-  });
-  // resolve headings fracos: só vira h2 se vier antes de conteúdo
-  for(let i=0;i<nodes.length;i++){
-    if(nodes[i].type==='maybe'){
-      const nx=nodes[i+1];
-      nodes[i].type=(nx && (nx.type==='p'||nx.type==='list'||nx.type==='quote'))?'h2':'p';
-    }
-  }
-  return nodes;
-}
-
-// componentes (inline styles do template)
-const C={
-  lead:t=>`<p style="font-size: 1.15em; color: #001844; font-weight: 500; line-height: 1.7; margin-bottom: 1.5em; padding-left: 20px; border-left: 4px solid #cd1543;">\n${t}\n</p>`,
-  p:t=>`<p style="line-height:1.7; margin: 0 0 1.2em;">${t}</p>`,
-  h2:(t,id)=>`<h2 id="${id}" style="color:#001844; font-size:1.5em; margin: 1.6em 0 .6em;">${t}</h2>`,
-  ul:items=>`<ul style="line-height:1.8; margin: 0 0 1.2em; padding-left: 22px;">\n${items.map(i=>`<li>${i}</li>`).join('\n')}\n</ul>`,
-  quote:t=>`<div style="padding: 12px 0 12px 20px; margin: 1.2em 0; border-left: 3px solid #869ec3;">\n<p style="font-size: 1.05em; font-style: italic; color: #001844; font-weight: 500; margin: 0;">${t}</p>\n</div>`,
-  sumario:secs=>{
-    const rows=secs.map((s,i)=>{
-      const last=i===secs.length-1;
-      const n=String(i+1).padStart(2,'0');
-      return `<div style="padding: 8px 0;${last?'':' border-bottom: 1px solid #eff1f4;'}"><span style="color: #cd1543; font-weight: bold; margin-right: 12px; font-size: 0.9em;">${n}</span> <a href="#${s.id}" style="color: #001844; text-decoration: none; font-weight: 500;">${s.text}</a></div>`;
-    }).join('\n');
-    return `<div style="background: #f8f9fc; border: 1px solid #e8ecf0; border-radius: 12px; padding: 24px 28px; margin: 2em 0;">\n<div style="font-weight: bold; color: #001844; font-size: 0.9em; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px;">Neste artigo</div>\n${rows}\n</div>`;
-  },
-  resumo:paras=>`<div style="background: linear-gradient(135deg, #001844 0%, #0a2a5e 100%); color: #ffffff; padding: 24px 28px; border-radius: 12px; margin: 1.5em 0;">\n<span style="display: inline-block; background: #cd1543; color: #fff; font-size: 0.7em; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; padding: 4px 12px; border-radius: 4px; margin-bottom: 14px;">Resumo</span>\n${paras.map((p,i)=>`<p style="color: #ffffff; margin: ${i===paras.length-1?'0':'0 0 0.6em'};">${p}</p>`).join('\n')}\n</div>`,
-  faq:pairs=>{
-    const items=pairs.map(qa=>`<div style="border: 1px solid #e8ecf0; border-radius: 10px; margin-bottom: 10px; overflow: hidden;">\n<div onclick="var a=this.nextElementSibling;var arrow=this.querySelector('.faq-arrow');if(a.style.display==='block'){a.style.display='none';arrow.textContent='+';}else{a.style.display='block';arrow.textContent='−';}" style="background: #fff; padding: 16px 48px 16px 20px; font-weight: 600; color: #001844; cursor: pointer; position: relative;">\n${qa.q}\n<span class="faq-arrow" style="position: absolute; right: 18px; top: 50%; transform: translateY(-50%); font-size: 1.3em; color: #cd1543; font-weight: 300;">+</span>\n</div>\n<div style="display: none; padding: 16px 20px; color: #444; line-height: 1.7; border-top: 1px solid #e8ecf0;">${qa.a}</div>\n</div>`).join('\n');
-    return `<h2 id="faq" style="color:#001844; font-size:1.5em; margin: 1.6em 0 .6em;">Perguntas Frequentes</h2>\n<div style="margin: 1.5em 0;">\n${items}\n</div>`;
-  },
-  cta:(titulo,texto)=>`<div style="background: linear-gradient(135deg, #001844 0%, #0a2a5e 100%); color: #ffffff; padding: 36px 32px; border-radius: 16px; margin: 2em 0 1em; text-align: center;">\n<h3 style="color: #ffffff; font-size: 1.3em; margin-bottom: 10px;">${titulo}</h3>\n<p style="color: rgba(255,255,255,0.85); margin-bottom: 20px;">${texto}</p>\n<a href="${CTA_HREF}" style="display: inline-block; background: #cd1543; color: #fff; text-decoration: none; padding: 12px 32px; border-radius: 8px; font-weight: bold; font-size: 1em;">Fale com um especialista</a>\n</div>`
-};
-
-function keywords(text){
-  const freq={};
-  (text.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').match(/[a-z][a-z0-9]{3,}/g)||[]).forEach(w=>{
-    if(STOP.has(w))return; freq[w]=(freq[w]||0)+1;
-  });
-  return Object.keys(freq).sort((a,b)=>freq[b]-freq[a]).slice(0,6);
-}
-
-function convert(rawText,tituloInput,blog){
-  const nodes=classify(rawText);
-  if(!nodes.length) return null;
-
-  // CTA global: se o último bloco é uma chamada, extrai ANTES de montar seções
-  const ctaRe=/(converse|fale com|entre em contato|saiba mais|agende|solicite|descubra como|conte com|entre em contato)/i;
-  let ctaTexto='Converse com o nosso time e descubra como a EPI-USE pode ajudar a sua empresa.';
-  const lastN=nodes[nodes.length-1];
-  if(lastN && lastN.type==='p' && ctaRe.test(lastN.text) && lastN.text.length<240){ ctaTexto=inlineMd(lastN.text); nodes.pop(); }
-
-  // separa lead + intro (antes do 1º h2) do resto
-  let idx=0;
-  const leadNode = nodes[0].type==='p' ? nodes[idx++] : null;
-  const introNodes=[];
-  while(idx<nodes.length && nodes[idx].type!=='h2'){ introNodes.push(nodes[idx++]); }
-
-  // seções por h2
-  const sections=[];
-  while(idx<nodes.length){
-    if(nodes[idx].type==='h2'){
-      const sec={text:nodes[idx].text, id:slugify(nodes[idx].text)||('sec-'+sections.length), nodes:[]};
-      idx++;
-      while(idx<nodes.length && nodes[idx].type!=='h2'){ sec.nodes.push(nodes[idx++]); }
-      sections.push(sec);
-    } else { idx++; }
-  }
-
-  // detecta seções especiais
-  const isFaq=s=>/perguntas\s+frequentes|faq|d[úu]vidas\s+frequentes/i.test(s.text);
-  const isResumo=s=>/^(resumo|em resumo|conclus[ãa]o|conclusao)/i.test(s.text.trim());
-  const faqSec=sections.find(isFaq);
-  const resumoSec=sections.find(s=>isResumo(s)&&!isFaq(s));
-  const bodySecs=sections.filter(s=>s!==faqSec && s!==resumoSec);
-
-  // renderiza nó genérico
-  const renderNode=n=>{
-    if(n.type==='p') return C.p(inlineMd(n.text));
-    if(n.type==='list') return C.ul(n.items.map(inlineMd));
-    if(n.type==='quote') return C.quote(inlineMd(n.text));
-    return '';
-  };
-
-  const out=[];
-  // lead
-  const leadText = leadNode ? leadNode.text : (introNodes[0] && introNodes[0].type==='p' ? introNodes.shift().text : '');
-  if(leadText) out.push(C.lead(inlineMd(leadText)));
-  // intro
-  introNodes.forEach(n=>{const h=renderNode(n); if(h)out.push(h);});
-  // sumário (só se >=2 seções de corpo)
-  const sumSecs=bodySecs.map(s=>({text:s.text,id:s.id}));
-  if(resumoSec) {/* resumo não entra no sumário */}
-  if(faqSec) sumSecs.push({text:'Perguntas frequentes',id:'faq'});
-  if(sumSecs.length>=2) out.push(C.sumario(sumSecs));
-  // corpo
-  bodySecs.forEach(s=>{
-    out.push(C.h2(s.text,s.id));
-    s.nodes.forEach(n=>{const h=renderNode(n); if(h)out.push(h);});
-  });
-  // resumo (quebra em bullets por sentença/linha pra legibilidade)
-  if(resumoSec){
-    let rp=[];
-    const lists=resumoSec.nodes.filter(n=>n.type==='list');
-    if(lists.length){ rp=lists[0].items.map(inlineMd); }
-    else {
-      const rt=resumoSec.nodes.filter(n=>n.type==='p').map(n=>n.text.trim()).join(' ').replace(/\s+/g,' ').trim();
-      rp=rt.split(/(?<=[.!?])\s+/).map(s=>s.trim()).filter(Boolean).map(inlineMd);
-    }
-    if(rp.length) out.push(C.resumo(rp));
-  }
-  // faq (parser robusto: junta o texto da seção e separa por "?")
-  if(faqSec){
-    const faqText=faqSec.nodes.filter(n=>n.type==='p').map(n=>n.text.trim()).join(' ').replace(/\s+/g,' ').trim();
-    const chunks=faqText.split('?');
-    const pairs=[]; let q=(chunks[0]||'').trim();
-    for(let i=1;i<chunks.length;i++){
-      const m=chunks[i].trim();
-      if(i===chunks.length-1){ if(q) pairs.push({q,a:m}); }
-      else {
-        const cut=Math.max(m.lastIndexOf('. '),m.lastIndexOf('! '),m.lastIndexOf('; '));
-        let ans,nextQ;
-        if(cut>=0){ans=m.slice(0,cut+1).trim();nextQ=m.slice(cut+1).trim();}
-        else{ans='';nextQ=m;}
-        if(q) pairs.push({q,a:ans});
-        q=nextQ;
-      }
-    }
-    const rendered=pairs.filter(p=>p.q).map(p=>({q:inlineMd(p.q+'?'),a:inlineMd(p.a||'')}));
-    if(rendered.length) out.push(C.faq(rendered));
-  }
-  // cta
-  const ctaTitulo = blog==='cases' ? 'Quer resultados como esse na sua empresa?' : 'Vamos conversar sobre o seu próximo passo?';
-  out.push(C.cta(ctaTitulo,ctaTexto));
-
-  const html=out.join('\n\n');
-
-  // SEO
-  const titulo=(tituloInput||'').trim() || (bodySecs[0]&&bodySecs[0].text) || (leadText.split(/[.!?]/)[0]||'').trim();
-  const metaBase=(leadText||introNodes.map(n=>n.text).join(' ')||html.replace(/<[^>]+>/g,' ')).replace(/\s+/g,' ').trim();
-  let meta=metaBase.slice(0,155); if(metaBase.length>155){meta=meta.replace(/\s+\S*$/,'')+'…';}
-  const seo={titulo:titulo.slice(0,60),meta_description:meta,slug:slugify(titulo),keywords:keywords(rawText)};
-
-  return {html,seo};
-}
 
 /* ─────────────────── ação: converter ─────────────────── */
-$('#convertBtn').addEventListener('click',()=>{
+$('#convertBtn').addEventListener('click',async()=>{
   const t=texto.value.trim();
   const prevErr=document.querySelector('#inputCard .err'); if(prevErr)prevErr.remove();
   if(!t){showError('Cole um artigo ou suba um arquivo primeiro.');return;}
+  const btn=$('#convertBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span> Convertendo com IA… (~15-30s)';
   try{
-    const r=convert(t,$('#titulo').value,$('#blog').value);
-    if(!r){showError('Não consegui interpretar o texto. Confira o conteúdo colado.');return;}
-    renderResult(r);
-  }catch(e){showError('Erro na conversão: '+e.message);}
+    const r=await fetch('/api/blog-converter/convert',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({texto:t,titulo:$('#titulo').value.trim(),blog:$('#blog').value})});
+    const j=await r.json();
+    if(!j.ok){showError(j.error||'Falha na conversão.');return;}
+    renderResult(j);
+  }catch(e){showError('Erro de rede: '+e.message);}
+  finally{btn.disabled=false;btn.innerHTML='✨ Converter no template';}
 });
 
 function showError(msg){
@@ -496,6 +296,7 @@ function showError(msg){
 
 function renderResult(j){
   currentHtml=j.html;
+  $('#avisoTxt').textContent=(j.aviso||'Gerado por IA — revisar antes de publicar.')+(j.truncado?' ⚠️ Artigo longo: a saída pode ter sido cortada — revise o final.':'');
   const frame=$('#frame');
   const doc=frame.contentDocument||frame.contentWindow.document;
   doc.open();
