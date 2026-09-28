@@ -1,5 +1,5 @@
 {
-  "current": "0.90.0",
+  "current": "0.91.0",
   "atualizado_em": "25/set/2026",
   "next": [
     {
@@ -54,9 +54,17 @@
   ],
   "releases": [
     {
+      "version": "0.91.0",
+      "date": "28/set/2026",
+      "status": "current",
+      "title": "📝 Blog Converter v2.0 — motor local, sem IA, sem custo, e upload funcionando em prod",
+      "summary": "Reescrita do conversor de artigos. A conversão texto→template HTML agora é 100% determinística e roda no navegador (sem IA/OpenRouter): acabou o 404/429/custo e passou a funcionar pra qualquer pessoa em produção. Extração de .docx/.pdf também migrou pro navegador (mammoth.js/pdf.js). Ganhou badge de versão próprio (v2.0).",
+      "highlights": ["Motor determinístico: lead, sumário automático, seções, listas, resumo, FAQ e CTA sem IA", "Zero custo e zero limite (não usa mais OpenRouter)", "Upload .docx/.pdf agora funciona em produção (extração no navegador)", "SEO automático: título, meta, slug e keywords", "Badge de versão próprio do módulo, no estilo do Raccoon"]
+    },
+    {
       "version": "0.90.0",
       "date": "25/set/2026",
-      "status": "current",
+      "status": "previous",
       "title": "📝 Blog Converter — converte artigos pro template visual do blog (HubSpot)",
       "summary": "Nova área em Brand Experience (extensão do Raccoon, módulo separado). Cole um artigo ou suba .docx/.pdf e a IA converte pro template HTML visual padronizado do blog EPI-USE (inline styles, pronto pro editor do HubSpot), gerando também metadados de SEO. Inclui mini-guia de aplicação e biblioteca dos 12 componentes.",
       "highlights": ["Página /blog-converter com entrada por texto, .docx ou .pdf", "Conversão por IA via OpenRouter (mesmo padrão do Raccoon)", "Preview + código copiável + SEO (título/meta/slug/keywords)", "Mini-guia HubSpot + biblioteca dos 12 componentes do template", "Módulo 24 documentado (README/CHANGELOG/DECISIONS/PENDENCIAS)"]

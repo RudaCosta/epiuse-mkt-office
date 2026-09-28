@@ -1,35 +1,47 @@
 # Módulo 24 — Blog Converter
 
-> **Área:** 🎨 Brand Experience · **Rota:** `/blog-converter` · **Status:** ✅ MVP construído (set/2026)
+> **Área:** 🎨 Brand Experience · **Rota:** `/blog-converter` · **Versão do módulo:** v2.0 · **Status:** ✅ em produção (set/2026)
 
 ## Propósito
 
 Converter artigos (texto colado, `.docx` ou `.pdf`) para o **template HTML visual padronizado do blog EPI-USE** (inline styles, pronto pra colar no editor do HubSpot). Extensão do Raccoon, mas **separada do módulo principal** (08-inbound-offline) — vive por conta própria.
 
-A conversão é feita por **IA** (OpenRouter, mesmo padrão do Raccoon SEO/GEO): a IA lê o artigo, escolhe os componentes visuais do template (lead, sumário, cards, fluxo, callouts, resumo, FAQ, CTA), monta o HTML inline e gera os metadados de SEO (título, meta description, slug, keywords).
+A conversão é **100% determinística e local (no navegador)** — sem IA, sem API, sem custo, sem limite. Transformar um texto que já existe em HTML é transformação estrutural, não geração; um LLM só traria 404 (modelo aposentado), 429 (rate limit) e custo. O motor detecta a estrutura do texto (lead, seções, listas, resumo, FAQ, CTA) e monta os componentes do template + os metadados de SEO.
 
 ## Arquivos-chave
 
 | Arquivo | O quê |
 |---|---|
-| `template-spec.md` | Fonte da verdade do template (12 componentes + regras + dados HubSpot). O `.md` mestre da Bruna. |
-| `extract_text.py` | Extrator de texto de `.docx` (python-docx) e `.pdf` (pypdf). Chamado pelo endpoint de upload. |
-| `../../public/blog-converter.html` | A página (single-file, dark theme, design tokens). |
-| `server.js` → `/blog-converter`, `/api/blog-converter/extract`, `/api/blog-converter/convert` | Rota + endpoints. |
+| `../../public/blog-converter.html` | **A tela inteira** — single-file, dark theme, design tokens. Contém o motor de conversão em JS (client-side) e a extração de arquivo no navegador (mammoth.js/pdf.js via CDN). |
+| `template-spec.md` | Fonte da verdade do template (12 componentes + regras + dados HubSpot). O `.md` mestre da Bruna — referência dos estilos inline usados no HTML gerado. |
+| `server.js` → `/blog-converter` | Rota que serve a página. |
+| `extract_text.py`, `server.js` → `/api/blog-converter/{extract,convert}` | **Legado (não usado pela tela v2.0).** Eram a extração server-side (python) e a conversão via OpenRouter da v1.0. Mantidos por ora; podem ser removidos numa limpeza. |
 
-## Fluxo
+## Fluxo (v2.0 — tudo no navegador)
 
 ```
 Cola texto  ─┐
-Sobe .docx ─┼─► (extract_text.py se arquivo) ─► POST /api/blog-converter/convert
-Sobe .pdf  ─┘                                         │
-                                                      ▼
-                                       OpenRouter (lê template-spec + artigo)
-                                                      ▼
-                                   { html inline HubSpot, seo{título,meta,slug,keywords} }
-                                                      ▼
-                              Preview renderizado + código copiável + mini-guia HubSpot
+Sobe .docx ─┼─► extração no navegador (mammoth / pdf.js)  ─► motor determinístico (JS)
+Sobe .pdf  ─┘                                                        │
+                                                                     ▼
+                                     { html inline HubSpot, seo{título,meta,slug,keywords} }
+                                                                     ▼
+                        Preview renderizado + código copiável + SEO + mini-guia + biblioteca de blocos
 ```
+
+## O que o motor monta (determinístico)
+
+- **Lead** (1º parágrafo, com barra vermelha).
+- **Sumário "Neste artigo"** automático a partir das seções.
+- **Seções `<h2 id>`** — por `##` (recomendado) ou heurística de título (linha curta, sem pontuação final).
+- **Listas** — inclusive blocos mistos (linha de intro + bullets).
+- **Blockquote** — linhas com `>`.
+- **Box de Resumo** — seção titulada "Resumo/Conclusão" vira caixa escura com bullets.
+- **FAQ accordion** — seção "Perguntas Frequentes" (perguntas terminadas em `?`).
+- **CTA final** — consome a chamada do fim do texto ("converse/fale com/saiba mais…").
+- **SEO** — título, meta description (do lead), slug, keywords por frequência.
+
+A **biblioteca de componentes** na lateral serve pra **enriquecer à mão** (cards comparativos, fluxo numerado, callouts) — o motor entrega o esqueleto, a pessoa incrementa.
 
 ## Como aplicar no HubSpot (mini-guia)
 
@@ -42,9 +54,8 @@ Sobe .pdf  ─┘                                         │
 
 ## Etiquetas de dado (Regra 6/7)
 
-O HTML e o SEO são **🤖 Gerado por IA — revisar**. A página deixa isso explícito no output. Nenhum dado de métrica/KPI é inventado aqui — é só transformação de conteúdo que a Bruna fornece.
+Nenhum dado de métrica/KPI é inventado — é só **transformação estrutural** do texto que a Bruna fornece. O motor não escreve conteúdo novo (não gera fatos): reorganiza e formata o que já existe. A tela sinaliza "revise e ajuste os blocos antes de publicar".
 
 ## Config
 
-- `OPENROUTER_API_KEY` — necessária pra conversão (mesma do Raccoon).
-- `BLOG_CONVERTER_MODEL` — override do modelo (default: `OPENROUTER_MODEL` ou `google/gemma-4-31b-it:free`). ⚠️ Usar só IDs de modelo que existam na lista viva do OpenRouter (`GET https://openrouter.ai/api/v1/models`) — modelos `:free` experimentais são aposentados sem aviso e o endpoint responde **404** se o ID não existir. O `gemma-4-31b-it:free` é o mesmo do Raccoon (proven).
+Nenhuma. Não depende de chave de API nem de variável de ambiente. As libs de leitura de arquivo vêm do cdnjs (mammoth 1.9.0 · pdf.js 3.11.174).

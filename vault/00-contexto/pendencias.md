@@ -6,14 +6,6 @@
 
 ## 🔴 BLOQUEADO POR TERCEIROS — Rudá precisa acompanhar
 
-### B3. Blog Converter — IA em prod: chave OK, faltava modelo válido (28/set)
-- **Status:** 🟠 quase lá. Rudá subiu `OPENROUTER_API_KEY` no Railway (sex 26/set) → chave FUNCIONA. Mas o teste deu **"OpenRouter respondeu status 404"**.
-- **Causa raiz:** o modelo default que eu tinha posto — `google/gemini-2.0-flash-exp:free` — **foi aposentado** pelo OpenRouter (confirmado na lista viva 28/set: não está mais entre os 17 free). OpenRouter responde 404 quando o ID de modelo não existe. E o `BLOG_CONVERTER_MODEL` do Railway (se setado com esse ID) **sobrescreve** o código.
-- **Fix (2 partes):**
-  1. **Código:** default trocado pra `google/gemma-4-31b-it:free` (vivo + mesmo do Raccoon) — commit no branch, precisa de push pra ir pro Railway.
-  2. **Railway (instantâneo):** se `BLOG_CONVERTER_MODEL` estiver setado, Rudá troca o valor pra `google/gemma-4-31b-it:free` **ou remove a var** (aí o default do código vale). Salvar → redeploy. Isso destrava sem depender do push.
-- **Regra aprendida:** só usar IDs de modelo que existam em `GET https://openrouter.ai/api/v1/models` — modelos `:free` experimentais somem sem aviso.
-- **Custo:** modelo `:free` = $0 (limite ~50 req/dia sem crédito, compartilhado com Raccoon; 1 conversão = 1 requisição). US$10 de crédito único → ~1000/dia.
 ### B2. Confirmar se o "EPI-USE Brand Guide 2026" é a versão final aprovada (25/set/2026)
 - **O que:** o PDF (Drive id `1TuOfKEr2SXG24MFpjdnXaeW3s2pYK56c`) tem nome interno `Brand Guide 2022_V1.1.indd` e seções em lorem ipsum (templates, service logos, assets).
 - **Quem:** Duda / branding global.
@@ -74,6 +66,7 @@ F1 multiplayer game · F2 editor token via cookie · F3 Plausible dashboard · F
 
 ## ✅ ENTREGUE — pra contexto histórico
 
+- **28/set: B3 Blog Converter IA — RESOLVIDO por pivô, não por config.** A v1.0 dependia de OpenRouter e deu 404 (modelo `:free` aposentado) e 429 (rate limit). Em vez de brigar com chave/modelo/crédito, o conversor foi reescrito pra **motor determinístico local (v2.0)** — texto→HTML é transformação estrutural, não precisa de IA. Some 404/429/custo, e o upload passa a funcionar em prod (extração no navegador). Decisão a partir do feedback da Bruna. Módulo 24 (`modulos/24-blog-converter/`), Office v0.91.0.
 - **29/jun–18/jul: B1 SSO Microsoft + Roles + Marketing Hub — RESOLVIDO.** `@azure/msal-node` configurado em prod, `SSO_ENFORCE=true`, time todo logando com role real (head/intelligence/growth/field/pipeline/brand/conteudo/country-manager/hub). Módulo 13 (`modulos/13-sso-roles/`). Confirmado pelo uso contínuo em produção: analytics com logins reais, UTM/coins por usuário, homes personalizadas por persona.
 - **08/jun: B2 Calendário editorial Duda — RESOLVIDO.** Sync automático via `scripts/sync/sync_calendario_duda.js` → `/api/inbound/calendar`.
 - **09/jun: Volume persistente Railway (P0/D1) — RESOLVIDO E PROVADO.** `DATA_DIR=/data` montado; SQLite sobrevive a deploy. Base de tudo que foi construído depois (coins, UTM, resgates, usuários).
