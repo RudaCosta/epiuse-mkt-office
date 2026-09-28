@@ -47,4 +47,4 @@ O HTML e o SEO são **🤖 Gerado por IA — revisar**. A página deixa isso exp
 ## Config
 
 - `OPENROUTER_API_KEY` — necessária pra conversão (mesma do Raccoon).
-- `BLOG_CONVERTER_MODEL` — override do modelo (default: `OPENROUTER_MODEL` ou `google/gemini-2.0-flash-exp:free`).
+- `BLOG_CONVERTER_MODEL` — override do modelo (default: `OPENROUTER_MODEL` ou `google/gemma-4-31b-it:free`). ⚠️ Usar só IDs de modelo que existam na lista viva do OpenRouter (`GET https://openrouter.ai/api/v1/models`) — modelos `:free` experimentais são aposentados sem aviso e o endpoint responde **404** se o ID não existir. O `gemma-4-31b-it:free` é o mesmo do Raccoon (proven).
