@@ -295,8 +295,8 @@ try {
     ['ruda.costa@epiuse.com.br',        'Rudá Costa',         'head'],
     ['bruna.yamagami@epiuse.com.br',    'Bruna Yamagami',     'intelligence'],
     ['guilherme.marques@epiuse.com.br', 'Guilherme Marques',  'growth'],
-    // Fernanda Mattos Tavares (Field Marketing, entrou no lugar da Isabela em jul/2026)
-    // entra via /admin/usuarios — email @epiuse ainda a confirmar; role 'field'.
+    // Gabrielle Senne (Field Marketing) entra via /admin/usuarios — email @epiuse
+    // ainda a confirmar; role 'field'. Nao seedar com email chutado.
     ['marlison.estrela@epiuse.com.br',  'Marlison Estrela',   'pipeline'],
     ['eduarda.hirose@epiuse.com.br',    'Eduarda Hirose',     'brand'],
     ['roberto.medeiros@epiuse.com.br',  'Roberto Medeiros',   'country-manager'],
@@ -822,7 +822,7 @@ app.post('/api/game/presence', express.json({ limit: '4kb' }), (req, res) => {
   if (b.bye) { _gamePresence.delete(id); return res.status(204).end(); }
   const world = b.world === 'hub' ? 'hub' : 'mkt';
   const dir = ['up','down','left','right'].includes(b.dir) ? b.dir : 'down';
-  const shirt = /^#[0-9a-f]{6}$/i.test(String(b.shirt || '')) ? b.shirt : '#cd1543';
+  const shirt = /^#[0-9a-f]{6}$/i.test(String(b.shirt || '')) ? b.shirt : '#CE181E';
   const emote = ['👋','❤️','😄','🎉'].includes(b.emote) ? b.emote : null;
   if (!_gamePresence.has(id) && _gamePresence.size >= _PRESENCE_CAP) {
     for (const [k, v] of _gamePresence) if (now - v.ts > _PRESENCE_TTL) _gamePresence.delete(k);
@@ -1360,19 +1360,21 @@ app.post('/api/stratview/gerar', async (req, res) => {
     const abertura = ARTIGOS_ABERTURAS[Math.floor(Math.random() * ARTIGOS_ABERTURAS.length)];
 
     // Detecta o serviço correto baseado no tema (feedback Alexandre — CSS NÃO é pra tudo)
+    // ORDEM IMPORTA: AMS primeiro (pós-go-live/compliance/reforma/evolução vence HCM genérico)
+    // CSS é RESTRITO: só implementação/projeto NOVO de HCM — nunca pra compliance, reforma, sustentação
     const temaLower = (idea.title + ' ' + (idea.description || '') + ' ' + (idea.keywords || []).join(' ')).toLowerCase();
-    const isHCM = /\b(hcm|human capital|recrutamento|onboarding|folha|payroll|talent|rh\b|recursos humanos|people analytics|redwood|employee experience|gestão de pessoas|workforce)/i.test(temaLower);
-    const isAMS = /\b(sustentação|sustentacao|pós-go-live|pos-go-live|maintenance|support|ams\b|evolução contínua|evoluç)/i.test(temaLower);
-    const servicoCorreto = isHCM ? 'CSS' : isAMS ? 'AMS' : 'TECH';
-    const servicoLabel = isHCM
-      ? 'Client Side Services (CSS) — o modelo "guardião do cliente" em projetos Oracle HCM'
-      : isAMS
-      ? 'AMS (Application Maintenance & Support) — sustentação e evolução contínua de aplicações Oracle'
+    const isAMS = /\b(sustentação|sustentacao|pós-go-live|pos-go-live|maintenance|support|ams\b|evolução contínua|evoluç|compliance|reforma tributária|reforma tributaria|adequação|adequac|atualização legal|atualizac|regulamentação|regulamentac|legislação|legislac|trabalhist|tributári|fiscal)/i.test(temaLower);
+    const isCSS = !isAMS && /\b(implementação hcm|implementac.*hcm|projeto.*hcm|hcm.*projeto|go-live|migração.*hcm|migrac.*hcm|deploy.*hcm|implantação|implantac)/i.test(temaLower);
+    const servicoCorreto = isAMS ? 'AMS' : isCSS ? 'CSS' : /\b(hcm|human capital|recrutamento|onboarding|folha|payroll|talent|rh\b|recursos humanos|people analytics|redwood|employee experience|gestão de pessoas|workforce)/i.test(temaLower) ? 'AMS' : 'TECH';
+    const servicoLabel = servicoCorreto === 'CSS'
+      ? 'Client Side Services (CSS) — o modelo "guardião do cliente" em projetos de IMPLEMENTAÇÃO Oracle HCM'
+      : servicoCorreto === 'AMS'
+      ? 'AMS (Application Maintenance & Support) — sustentação, evolução contínua e adequação de aplicações Oracle'
       : 'Serviços Gerenciados de TECH — gestão, otimização, operação e monitoramento de OCI, FinOps e CloudOps';
-    const servicoAntiRegra = isHCM
-      ? 'NÃO mencione TECH nem AMS — este artigo é sobre projetos HCM, o serviço é CSS.'
-      : isAMS
-      ? 'NÃO mencione CSS nem TECH — este artigo é sobre sustentação, o serviço é AMS.'
+    const servicoAntiRegra = servicoCorreto === 'CSS'
+      ? 'NÃO mencione TECH nem AMS — este artigo é sobre projeto de implementação HCM, o serviço é CSS.'
+      : servicoCorreto === 'AMS'
+      ? 'NÃO mencione CSS nem TECH — este artigo é sobre sustentação/evolução/compliance, o serviço é AMS.'
       : 'NÃO mencione CSS (Client Side Services) — CSS é EXCLUSIVO pra projetos de implementação HCM. Este artigo é sobre infraestrutura/OCI/FinOps/IA, o serviço correto é TECH.';
 
     const systemPrompt = `Você é um Consultor Estratégico Sênior da Stratview focado na tríade: Oracle HCM, IA (Agentic Apps) e OCI.
@@ -1382,10 +1384,11 @@ ${servicoAntiRegra}
 
 REGRA ABSOLUTA (feedback direto do Country Manager Alexandre Ormigo — INEGOCIÁVEL, violação = artigo reprovado):
 A Stratview tem 3 serviços distintos. Cada artigo posiciona APENAS UM, conforme o tema:
-1. Tema de OCI / FinOps / CloudOps / infraestrutura / IA / nuvem → **Serviços Gerenciados de TECH**
-2. Tema de implementação / projetos Oracle HCM / advocacia do cliente → **Client Side Services (CSS)**
-3. Tema de sustentação / pós-go-live / evolução de aplicações Oracle → **AMS**
-O serviço deste artigo é **${servicoCorreto}**. Mencione SOMENTE ele. Se você mencionar CSS em um artigo que não é sobre HCM, o artigo será REPROVADO.`;
+1. OCI / FinOps / CloudOps / infraestrutura / IA / nuvem → **Serviços Gerenciados de TECH**
+2. IMPLEMENTAÇÃO de projeto NOVO Oracle HCM (go-live, migração, deploy) → **Client Side Services (CSS)**
+3. Sustentação / pós-go-live / evolução / compliance / reforma tributária / adequação legal / RH operacional / folha → **AMS**
+ATENÇÃO: temas de RH, folha, compliance, reforma tributária e legislação trabalhista são AMS (sustentação/evolução), NÃO CSS. CSS é EXCLUSIVAMENTE pra projetos de implementação nova.
+O serviço deste artigo é **${servicoCorreto}**. Mencione SOMENTE ele. Se você mencionar CSS em um artigo que não é sobre implementação HCM, o artigo será REPROVADO.`;
 
     const userPrompt = `Escreva um artigo premium (~1000-1200 palavras) para o blog da Stratview sobre: "${idea.title}".
 
@@ -2373,6 +2376,8 @@ app.post('/api/metas', requireEditorToken, (req, res) => {
 
 // ── MODULE F · INBOUND ENGINE (Modularizado em routes/inbound.js) ──────────────
 app.get('/field-marketing', (req, res) => res.sendFile(path.join(__dirname, 'public/field-marketing.html')));
+// ── MODULE 20 · AEO/SEO/GEO (visibilidade em IA) ─────────────────────────────
+app.get(['/aeo-geo', '/aeo', '/geo', '/seo'], (req, res) => res.sendFile(path.join(__dirname, 'public/aeo-geo.html')));
 app.get('/content-pipeline', (req, res) => res.redirect(301, '/area/brand'));
 app.get('/area/conteudo', (req, res) => res.redirect(301, '/area/brand'));
 app.get('/development-funds', (req, res) => res.sendFile(path.join(__dirname, 'public/development-funds.html')));
@@ -2621,7 +2626,7 @@ ${spec}
 === FIM DA ESPECIFICAÇÃO ===
 
 REGRAS OBRIGATÓRIAS DE SAÍDA:
-1. Use SOMENTE inline styles (atributos style="") com os hexes exatos do template (#001844, #cd1543, #869ec3, etc). NUNCA use classes CSS, <style> ou tags <html>/<head>/<body>.
+1. Use SOMENTE inline styles (atributos style="") com os hexes exatos do template (#001844, #CE181E, #6797b8, etc). NUNCA use classes CSS, <style> ou tags <html>/<head>/<body>.
 2. Siga a estrutura padrão: Lead → parágrafos intro → Sumário "Neste artigo" → seções <h2 id="..."> com componentes visuais adequados → Box de Resumo → FAQ Accordion (3-5 perguntas) → CTA Final.
 3. Cada <h2> precisa de um id único (slug) e o Sumário deve linkar pra esses ids com <a href="#id">.
 4. Escolha os componentes visuais conforme o conteúdo de cada seção (cards comparativos, grade 2x2, fluxo numerado, callouts, blockquote, dark box). NÃO invente dados, números ou fatos que não estejam no artigo original — apenas reorganize e formate o conteúdo fornecido.
@@ -6196,6 +6201,11 @@ app.use('/', require('./routes/voices-pipeline')); // Módulo 20 — pipeline de
 app.use('/', require('./routes/comunicados')); // Modulo 21 -- fila de comunicados por e-mail
 app.use('/', require('./routes/cafezinho')); // Módulo 22 — Cafezinho (área pessoal do time)
 app.use('/', require('./routes/horas'));      // Módulo 23 — Banco de Horas MKT
+
+// Saida de pessoa do time: roda aqui, no fim do boot, porque precisa das
+// tabelas de TODOS os modulos (as do Cafezinho, por exemplo, so existem
+// depois que aquele router carrega). Sem OFFBOARD_PESSOA setada, e no-op.
+require('./routes/offboarding').rodarOffboarding();
 
 app.listen(PORT, () => {
   console.log(`\n🎙️  EPI-USE Voices — Profile Optimizer`);

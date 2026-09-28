@@ -48,6 +48,7 @@
   .frase{font-size:13px;color:var(--text);font-style:italic;margin-bottom:8px;min-height:20px}
   .linha{font-size:12px;color:var(--text-dim);display:flex;gap:6px;margin-bottom:3px}
   .linha b{color:var(--text);font-weight:700}
+  .cadeira-vaga{margin-top:10px;font-size:12.5px;font-style:italic;color:var(--text-muted)}
   .mesa{margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:12px;color:var(--text-muted)}
   .mesa .itens{font-size:19px;letter-spacing:3px}
   .edit-btn{position:absolute;top:14px;right:14px;background:transparent;border:1px solid var(--border);
@@ -281,6 +282,11 @@
     if (pf.item_assinatura) h += '<div class="linha">🎒 <b>'+esc(pf.item_assinatura)+'</b></div>';
 
     if (itens) h += '<div class="mesa">Na mesa dele(a) no game<div class="itens">'+itens+'</div></div>';
+    // Cadeira vaga: sem signo, folclore, cartão salvo nem mesa. Sem essa linha o
+    // card fica uma caixa vazia do lado dos outros e parece tela quebrada.
+    if (!sg && !(p.lore||[]).length && !pf.frase && !p.aniversario && !pf.serie
+        && !pf.item_assinatura && !itens)
+      h += '<div class="cadeira-vaga">Cadeira aberta — esperando quem vai sentar aqui.</div>';
     h += '</div>';
     return h;
   }

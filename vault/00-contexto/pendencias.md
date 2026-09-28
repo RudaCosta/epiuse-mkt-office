@@ -14,6 +14,11 @@
   2. **Railway (instantâneo):** se `BLOG_CONVERTER_MODEL` estiver setado, Rudá troca o valor pra `google/gemma-4-31b-it:free` **ou remove a var** (aí o default do código vale). Salvar → redeploy. Isso destrava sem depender do push.
 - **Regra aprendida:** só usar IDs de modelo que existam em `GET https://openrouter.ai/api/v1/models` — modelos `:free` experimentais somem sem aviso.
 - **Custo:** modelo `:free` = $0 (limite ~50 req/dia sem crédito, compartilhado com Raccoon; 1 conversão = 1 requisição). US$10 de crédito único → ~1000/dia.
+### B2. Confirmar se o "EPI-USE Brand Guide 2026" é a versão final aprovada (25/set/2026)
+- **O que:** o PDF (Drive id `1TuOfKEr2SXG24MFpjdnXaeW3s2pYK56c`) tem nome interno `Brand Guide 2022_V1.1.indd` e seções em lorem ipsum (templates, service logos, assets).
+- **Quem:** Duda / branding global.
+- **Por que importa:** DESIGN.md v4.0 foi refeito 100% em cima dele (red `#CE181E`, Lato, secundárias azuis). Se houver versão mais nova, re-rodar o diff.
+- **Bug conhecido (não-bloqueante):** tema "EPI-USE · claro" continua com fundo escuro nas telas com rota — `body[data-route]` do office-nav.js vence o tema, e `home.css` tem cards escuros fixos. Corrigir exige refactor do home.css.
 
 ---
 
