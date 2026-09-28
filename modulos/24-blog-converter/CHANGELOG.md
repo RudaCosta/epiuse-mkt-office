@@ -2,7 +2,7 @@
 
 ## v3.0 — 28/set/2026 (IA via Claude do próprio Office)
 
-> Badge `v3.0` + `IA · Claude` no cabeçalho da tela. Office v0.92.0.
+> Badge `v3.0` + `IA · Claude` no cabeçalho da tela. **Versionamento próprio do módulo** — não altera a versão global do Office (que segue 0.90.0 pro Blog Converter).
 
 - 🤖 **Conversão via Claude (Anthropic SDK) do próprio Office** — o mesmo cliente/chave (`ANTHROPIC_API_KEY`) que já roda o Profile Optimizer e a extração dos Voices. **Não usa OpenRouter** (fim do 404/429). Modelo `claude-sonnet-4-6`.
   - **Por quê o pivô (de novo):** a Bruna mostrou o **padrão-ouro** que espera (artigo do Joule com cards 2x2, cards comparativos, fluxo numerado, callout, badge SAP, blockquote, resumo, FAQ). Isso é **seleção editorial de componente por seção** — código determinístico não faz. Só IA que entende o conteúdo entrega esse nível.

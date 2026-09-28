@@ -1,5 +1,5 @@
 {
-  "current": "0.92.0",
+  "current": "0.90.0",
   "atualizado_em": "25/set/2026",
   "next": [
     {
@@ -54,28 +54,12 @@
   ],
   "releases": [
     {
-      "version": "0.92.0",
-      "date": "28/set/2026",
-      "status": "current",
-      "title": "📝 Blog Converter v3.0 — IA via Claude do próprio Office (qualidade padrão-ouro)",
-      "summary": "O conversor de artigos passou a usar o Claude que o Office já roda (mesma chave do Optimizer), no lugar do OpenRouter. Agora a IA faz seleção editorial de componente por seção — cards, fluxo numerado, callouts, badge, resumo, FAQ — no nível do padrão-ouro do time. Confiável (API oficial, sem 404/429) e sem cadastro novo. Extração de .docx/.pdf segue no navegador.",
-      "highlights": ["Conversão via Claude do Office (claude-sonnet-4-6), sem OpenRouter", "IA escolhe o componente certo por seção (cards/fluxo/callout/badge)", "Few-shot com o artigo padrão-ouro do time calibra a qualidade", "Upload .docx/.pdf funciona em produção (extração no navegador)", "Badge de versão próprio do módulo: v3.0"]
-    },
-    {
-      "version": "0.91.0",
-      "date": "28/set/2026",
-      "status": "previous",
-      "title": "📝 Blog Converter v2.0 — motor local, sem IA, sem custo, e upload funcionando em prod",
-      "summary": "Reescrita do conversor de artigos. A conversão texto→template HTML agora é 100% determinística e roda no navegador (sem IA/OpenRouter): acabou o 404/429/custo e passou a funcionar pra qualquer pessoa em produção. Extração de .docx/.pdf também migrou pro navegador (mammoth.js/pdf.js). Ganhou badge de versão próprio (v2.0).",
-      "highlights": ["Motor determinístico: lead, sumário automático, seções, listas, resumo, FAQ e CTA sem IA", "Zero custo e zero limite (não usa mais OpenRouter)", "Upload .docx/.pdf agora funciona em produção (extração no navegador)", "SEO automático: título, meta, slug e keywords", "Badge de versão próprio do módulo, no estilo do Raccoon"]
-    },
-    {
       "version": "0.90.0",
       "date": "25/set/2026",
-      "status": "previous",
-      "title": "📝 Blog Converter — converte artigos pro template visual do blog (HubSpot)",
-      "summary": "Nova área em Brand Experience (extensão do Raccoon, módulo separado). Cole um artigo ou suba .docx/.pdf e a IA converte pro template HTML visual padronizado do blog EPI-USE (inline styles, pronto pro editor do HubSpot), gerando também metadados de SEO. Inclui mini-guia de aplicação e biblioteca dos 12 componentes.",
-      "highlights": ["Página /blog-converter com entrada por texto, .docx ou .pdf", "Conversão por IA via OpenRouter (mesmo padrão do Raccoon)", "Preview + código copiável + SEO (título/meta/slug/keywords)", "Mini-guia HubSpot + biblioteca dos 12 componentes do template", "Módulo 24 documentado (README/CHANGELOG/DECISIONS/PENDENCIAS)"]
+      "status": "current",
+      "title": "📝 Blog Converter — artigos pro template visual do blog (HubSpot)",
+      "summary": "Nova área em Brand Experience (extensão do Raccoon, módulo separado). Cole um artigo ou suba .docx/.pdf e a IA monta o template HTML visual padronizado do blog EPI-USE (inline styles, pronto pro editor do HubSpot), escolhendo cards, fluxo, callouts, badge, resumo e FAQ por seção, e gerando os metadados de SEO. O conversor tem versionamento próprio (badge na tela) — hoje v3.0, rodando no Claude do próprio Office.",
+      "highlights": ["Página /blog-converter: texto colado, .docx ou .pdf (extração no navegador)", "IA via Claude do Office (mesma chave do Optimizer) — seleção de componente por seção", "Preview + código copiável + SEO (título/meta/slug/keywords)", "Mini-guia HubSpot + biblioteca de blocos para ajuste manual", "Versão própria do módulo (v3.0) — não altera a versão global do Office"]
     },
     {
       "version": "0.89.2",
