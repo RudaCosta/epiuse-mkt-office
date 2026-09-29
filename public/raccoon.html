@@ -3734,10 +3734,10 @@
       var title = (lines[0] || 'Artigo').replace(/[#*_]/g, '').trim();
       var shortTitle = title.substring(0, 80);
 
-      // Extrair pontos-chave do artigo (pegar parágrafos mais substantivos)
+      // Extrair parágrafos substantivos do artigo original
       var paragraphs = [];
       var current = '';
-      lines.forEach(function(line) {
+      conteudo.split('\n').forEach(function(line) {
         if (line.trim() === '') {
           if (current.trim()) paragraphs.push(current.trim());
           current = '';
@@ -3747,48 +3747,66 @@
       });
       if (current.trim()) paragraphs.push(current.trim());
 
-      var keyPoints = paragraphs.filter(function(p) { return p.length > 80; }).slice(0, 5);
-      if (keyPoints.length < 3) keyPoints = paragraphs.slice(1, 6);
+      var keyPoints = paragraphs.filter(function(p) { return p.length > 60; });
+      if (keyPoints.length < 4) keyPoints = paragraphs.slice(1, 8);
+      var chunk1 = keyPoints.slice(0, Math.ceil(keyPoints.length * 0.25));
+      var chunk2 = keyPoints.slice(Math.ceil(keyPoints.length * 0.25), Math.ceil(keyPoints.length * 0.5));
+      var chunk3 = keyPoints.slice(Math.ceil(keyPoints.length * 0.5), Math.ceil(keyPoints.length * 0.75));
+      var chunk4 = keyPoints.slice(Math.ceil(keyPoints.length * 0.75));
 
-      // === OUTPUT 1: Artigo LinkedIn (mock seguindo padrão dos docs) ===
-      var artigoLinkedIn = shortTitle + '\n\n';
-      artigoLinkedIn += 'Você já parou para pensar no impacto real que isso tem no dia a dia da sua operação?\n\n';
-      artigoLinkedIn += 'Não estamos falando de teoria. Estamos falando do que acontece quando processos críticos dependem de decisões que ninguém revisou — ou pior, de sistemas que ninguém integrou.\n\n';
+      // === OUTPUT 1: Artigo LinkedIn (~400 palavras, padrão docs de referência) ===
+      var a = '';
 
-      // Gerar seções H1 a partir dos pontos-chave
-      var sectionTitles = [
-        'O cenário que muitas empresas ignoram',
-        'Onde a dor realmente começa',
-        'O que muda quando você olha com profundidade',
-        'A visão prática: o que fazer agora',
-        'O caminho daqui pra frente'
-      ];
-      keyPoints.forEach(function(point, i) {
-        if (i < sectionTitles.length) {
-          artigoLinkedIn += sectionTitles[i] + '\n\n';
-          artigoLinkedIn += point + '\n\n';
-        }
-      });
+      a += shortTitle + '\n\n';
 
-      artigoLinkedIn += 'Esse é o tipo de conversa que a gente tem com frequência aqui na EPI-USE. Se você quer entender como isso se aplica à realidade da sua empresa, fale com o nosso time 👇\n';
-      if (url) artigoLinkedIn += '\n🔗 Leia o artigo completo: ' + url;
+      a += 'Você entra na reunião de segunda-feira. O diretor pede um número que deveria ser simples. Três pessoas abrem três sistemas diferentes. Nenhum dos dados bate.\n\n';
+      a += 'Essa cena se repete em dezenas de empresas que acompanho — e o problema quase nunca é falta de ferramenta. É falta de processo. É falta de integração. É falta de alguém que olhe pro todo e diga: "isso aqui não funciona como deveria".\n\n';
+      a += 'É exatamente sobre isso que precisamos falar quando falamos de ' + shortTitle.toLowerCase() + '.\n\n';
 
-      renderArtigoLinkedIn(artigoLinkedIn);
+      a += 'O cenário que a maioria das empresas ainda ignora\n\n';
+      if (chunk1.length > 0) a += chunk1.join('\n\n') + '\n\n';
+      a += 'Quando esse tipo de lacuna se instala, o impacto não aparece no dashboard. Aparece no retrabalho silencioso, nas decisões adiadas, na equipe que gasta 70% do tempo compilando dado e 30% analisando.\n\n';
 
-      // === OUTPUT 2: 3 Posts de divulgação (mock seguindo padrão dos docs) ===
+      a += 'Onde a dor realmente começa\n\n';
+      if (chunk2.length > 0) a += chunk2.join('\n\n') + '\n\n';
+      a += 'O problema é que a maioria dos gestores normaliza esse cenário. "Sempre foi assim" vira escudo contra qualquer mudança — até o dia que um talento-chave sai, um compliance falha, ou um concorrente mais ágil toma mercado.\n\n';
+      a += 'A dor não é técnica. É estratégica. E quanto mais tempo leva pra endereçar, maior o custo acumulado.\n\n';
+
+      a += 'O que muda quando você olha com profundidade\n\n';
+      if (chunk3.length > 0) a += chunk3.join('\n\n') + '\n\n';
+      a += 'Empresas que param para mapear de verdade onde estão os gargalos — não com achismo, mas com dados — descobrem que a solução geralmente é mais simples do que imaginavam. Nem sempre precisa de um projeto de 18 meses. Às vezes, um quick win nos primeiros 90 dias já muda o jogo.\n\n';
+      a += 'O segredo não é a tecnologia em si. É a decisão de parar de conviver com o problema.\n\n';
+
+      a += 'A visão prática: por onde começar\n\n';
+      if (chunk4.length > 0) a += chunk4.join('\n\n') + '\n\n';
+      a += 'Três passos que funcionam na prática:\n\n';
+      a += '→ Mapeie os 3 processos que mais drenam horas do time hoje\n';
+      a += '→ Identifique onde a informação se perde entre sistemas (ou entre pessoas)\n';
+      a += '→ Monte um piloto com KPIs claros — ROI mensurável em menos de 90 dias\n\n';
+      a += 'Não precisa resolver tudo de uma vez. Precisa começar com visibilidade.\n\n';
+
+      a += 'O caminho daqui pra frente\n\n';
+      a += 'Esse é o tipo de conversa que a gente tem com frequência aqui na EPI-USE. Não é sobre vender ferramenta — é sobre entender o cenário, mapear o que faz sentido, e construir junto.\n\n';
+      a += 'Se você quer entender como ' + shortTitle.toLowerCase() + ' se aplica à realidade da sua empresa, fale com o nosso time. A conversa é sem compromisso e com visão prática.\n\n';
+      a += 'Converse com a gente 👇';
+      if (url) a += '\n\n🔗 Leia o artigo completo: ' + url;
+
+      renderArtigoLinkedIn(a);
+
+      // === OUTPUT 2: 3 Posts de divulgação (padrão docs: 3-6 parágrafos, gancho forte, "Leia no link") ===
       var ctaLink = url ? '\n\n🔗 Leia no link' : '';
       var ganchos = [
         {
           gancho: 'gancho na dor',
-          texto: 'Todo gestor já sentiu isso:\n\nA equipe está sobrecarregada, os sistemas não conversam, e a decisão que deveria ser simples vira um e-mail de 15 respostas.\n\n' + shortTitle + ' não é um problema de ferramenta.\nÉ um problema de processo que ninguém parou pra resolver.\n\nEscrevemos sobre isso — com visão prática, sem jargão.' + ctaLink
+          texto: 'Todo gestor já sentiu isso:\n\nA equipe está sobrecarregada, os sistemas não conversam, e a decisão que deveria ser simples vira um e-mail de 15 respostas.\n\nO pior? Todo mundo sabe que o processo é ineficiente. Mas "sempre foi assim" — e ninguém para pra questionar.\n\n' + shortTitle + ' não é um problema de ferramenta.\nÉ um problema de processo que ninguém parou pra resolver.\n\nA gente escreveu sobre isso com visão prática — sem jargão, sem promessa de bala de prata. Só o que funciona.' + ctaLink
         },
         {
           gancho: 'gancho na cena',
-          texto: 'Imagine a seguinte cena:\n\nReunião de segunda-feira. O diretor pede um número. Três pessoas abrem três planilhas diferentes. Nenhum bate.\n\nIsso não é falta de dado — é falta de integração.\n\nNo artigo, a gente explora como ' + shortTitle.toLowerCase() + ' pode mudar esse cenário.' + ctaLink
+          texto: 'Imagine a seguinte cena:\n\nReunião de board, segunda-feira. O CFO pede o número consolidado do trimestre. Três diretores abrem três planilhas diferentes. Nenhum bate.\n\nNão é falta de dado — é falta de integração.\n\nE esse cenário se repete em mais empresas do que a gente imagina. O dado existe, o sistema existe, mas a conexão entre eles simplesmente não acontece.\n\nNo artigo, a gente explora como ' + shortTitle.toLowerCase() + ' pode mudar esse cenário — com exemplos reais e visão prática de quem implementa isso no dia a dia.' + ctaLink
         },
         {
           gancho: 'gancho na virada',
-          texto: 'A maioria das empresas acha que já resolveu.\n\nMas quando você olha de perto, o processo ainda depende de uma pessoa que "sabe como funciona" — e quando ela sai, tudo para.\n\n' + shortTitle + ' é sobre tornar a operação resiliente, não dependente.\n\nA gente detalhou isso num artigo.' + ctaLink
+          texto: 'A maioria das empresas acha que já resolveu.\n\nMas quando você olha de perto, o processo ainda depende de uma pessoa que "sabe como funciona" — e quando ela sai, tudo para.\n\nIsso não é operação. É fragilidade.\n\n' + shortTitle + ' é sobre tornar a operação resiliente, não dependente. É sobre trocar o "funciona na base do jeitinho" por algo que escale sem depender de heróis.\n\nA gente detalhou isso num artigo — vale a leitura se você lidera uma área que não pode parar.' + ctaLink
         }
       ];
 
