@@ -3735,38 +3735,30 @@
       var shortTitle = title.substring(0, 80);
       var tema = shortTitle.toLowerCase();
 
-      // === OUTPUT 1: Artigo LinkedIn (~400 palavras, texto próprio, padrão docs) ===
+      // === OUTPUT 1: Artigo LinkedIn (~400 palavras, humanizado, padrão docs) ===
       var a = '';
 
       a += shortTitle + '\n\n';
 
-      a += 'Você entra na reunião de segunda-feira. O diretor pede um número que deveria ser simples. Três pessoas abrem três sistemas diferentes. Nenhum dos dados bate.\n\n';
-      a += 'Essa cena se repete em dezenas de empresas que acompanho — e o problema quase nunca é falta de ferramenta. É falta de processo. É falta de integração. É falta de alguém que olhe pro todo e diga: "isso aqui não funciona como deveria".\n\n';
-      a += 'É exatamente sobre isso que precisamos falar quando falamos de ' + tema + '.\n\n';
+      a += 'Segunda-feira, 9h. Alguém pede o faturamento consolidado do trimestre. Três pessoas abrem três planilhas. Os números não batem. Ninguém sabe qual está certo.\n\n';
+      a += 'Já vi essa cena em muitas empresas nos últimos anos. O problema nunca é falta de sistema. Sempre tem ERP, tem BI, tem CRM. O que falta é esses sistemas conversarem entre si de um jeito que faça sentido pra quem precisa tomar decisão.\n\n';
+      a += 'É disso que ' + tema + ' trata.\n\n';
 
-      a += 'O cenário que a maioria das empresas ainda ignora\n\n';
-      a += 'Quando esse tipo de lacuna se instala, o impacto não aparece no dashboard. Aparece no retrabalho silencioso, nas decisões adiadas, na equipe que gasta 70% do tempo compilando dado e 30% analisando.\n\n';
-      a += 'E o mais perigoso: a liderança muitas vezes nem sabe que o problema existe — porque os times aprenderam a contornar. O processo "funciona", mas funciona no jeitinho, no workaround, na planilha paralela que alguém montou em 2019 e nunca mais atualizou.\n\n';
+      a += 'O que ninguém conta sobre a "integração que funciona"\n\n';
+      a += 'A maioria das empresas tem algum nível de integração. O problema é que ela foi construída aos poucos, por equipes diferentes, com prioridades diferentes. O resultado é uma colcha de retalhos que funciona até alguém perguntar algo novo.\n\n';
+      a += 'O impacto disso não aparece em nenhum relatório. Aparece no analista que gasta a manhã inteira cruzando planilha. Na reunião que atrasa porque o dado não está pronto. No gestor que toma decisão com base no número que chegou primeiro, não no número certo.\n\n';
 
-      a += 'Onde a dor realmente começa\n\n';
-      a += 'O problema é que a maioria dos gestores normaliza esse cenário. "Sempre foi assim" vira escudo contra qualquer mudança — até o dia que um talento-chave sai, um compliance falha, ou um concorrente mais ágil toma mercado.\n\n';
-      a += 'A dor não é técnica. É estratégica. E quanto mais tempo leva pra endereçar, maior o custo acumulado. Cada mês sem integração é um mês de decisões tomadas com dados incompletos.\n\n';
+      a += 'Onde isso começa a custar caro\n\n';
+      a += 'Tem um momento em que "funciona no jeitinho" vira risco de verdade. É quando sai aquela pessoa que sabia de cor como o processo funcionava. Ou quando uma auditoria pede rastreabilidade e ninguém sabe de onde veio o número. Ou quando o concorrente toma uma decisão em dois dias que você leva duas semanas pra montar.\n\n';
+      a += 'Cada mês sem resolver isso é mais um mês de decisão tomada com dado incompleto.\n\n';
 
-      a += 'O que muda quando você olha com profundidade\n\n';
-      a += 'Empresas que param para mapear de verdade onde estão os gargalos — não com achismo, mas com dados — descobrem que a solução geralmente é mais simples do que imaginavam. Nem sempre precisa de um projeto de 18 meses. Às vezes, um quick win nos primeiros 90 dias já muda o jogo.\n\n';
-      a += 'O segredo não é a tecnologia em si. É a decisão de parar de conviver com o problema. É trocar a cultura do "apagar incêndio" pela cultura do "prevenir o incêndio".\n\n';
+      a += 'O que empresas que resolveram fizeram diferente\n\n';
+      a += 'Nenhuma delas começou com um projeto de 18 meses. O padrão que vi funcionar foi outro: mapear dois ou três processos que mais drenam horas do time, identificar onde a informação se perde entre um sistema e outro, montar um piloto pequeno com indicadores claros. Resultado em 90 dias, não em 90 semanas.\n\n';
+      a += 'A parte difícil não é a tecnologia. É convencer a liderança de que o problema existe, porque todo mundo aprendeu a conviver com ele.\n\n';
 
-      a += 'A visão prática: por onde começar\n\n';
-      a += 'Três passos que funcionam na prática:\n\n';
-      a += '→ Mapeie os 3 processos que mais drenam horas do time hoje\n';
-      a += '→ Identifique onde a informação se perde entre sistemas (ou entre pessoas)\n';
-      a += '→ Monte um piloto com KPIs claros — ROI mensurável em menos de 90 dias\n\n';
-      a += 'Não precisa resolver tudo de uma vez. Precisa começar com visibilidade. E, principalmente, precisa de alguém que conheça o caminho e já tenha feito isso antes.\n\n';
-
-      a += 'O caminho daqui pra frente\n\n';
-      a += 'Esse é o tipo de conversa que a gente tem com frequência aqui na EPI-USE. Não é sobre vender ferramenta — é sobre entender o cenário, mapear o que faz sentido, e construir junto.\n\n';
-      a += 'Se você quer entender como ' + tema + ' se aplica à realidade da sua empresa, fale com o nosso time. A conversa é sem compromisso e com visão prática.\n\n';
-      a += 'Converse com a gente 👇';
+      a += 'Se isso soa familiar\n\n';
+      a += 'A EPI-USE trabalha com esse tipo de cenário. Se você quer entender como isso se encaixa na sua operação, a conversa é direta e sem compromisso.\n\n';
+      a += 'Fale com o nosso time.';
       if (url) a += '\n\n🔗 Leia o artigo completo: ' + url;
 
       renderArtigoLinkedIn(a);
@@ -3776,15 +3768,15 @@
       var ganchos = [
         {
           gancho: 'gancho na dor',
-          texto: 'Todo gestor já sentiu isso:\n\nA equipe está sobrecarregada, os sistemas não conversam, e a decisão que deveria ser simples vira um e-mail de 15 respostas.\n\nO pior? Todo mundo sabe que o processo é ineficiente. Mas "sempre foi assim" — e ninguém para pra questionar.\n\n' + shortTitle + ' não é um problema de ferramenta.\nÉ um problema de processo que ninguém parou pra resolver.\n\nA gente escreveu sobre isso com visão prática — sem jargão, sem promessa de bala de prata. Só o que funciona.' + ctaLink
+          texto: 'Todo gestor já passou por isso.\n\nVocê pede um número que deveria estar pronto. Três pessoas abrem três planilhas. Nenhuma bate. E o que era pra ser uma decisão rápida vira uma semana de e-mails.\n\nTodo mundo sabe que o processo tem problema. Mas "sempre foi assim" e ninguém mexe.\n\nA gente escreveu sobre isso. Sem jargão, sem promessa milagrosa. Só o que funciona na prática.' + ctaLink
         },
         {
           gancho: 'gancho na cena',
-          texto: 'Imagine a seguinte cena:\n\nReunião de board, segunda-feira. O CFO pede o número consolidado do trimestre. Três diretores abrem três planilhas diferentes. Nenhum bate.\n\nNão é falta de dado — é falta de integração.\n\nE esse cenário se repete em mais empresas do que a gente imagina. O dado existe, o sistema existe, mas a conexão entre eles simplesmente não acontece.\n\nNo artigo, a gente explora como ' + shortTitle.toLowerCase() + ' pode mudar esse cenário — com exemplos reais e visão prática de quem implementa isso no dia a dia.' + ctaLink
+          texto: 'Reunião de segunda. O CFO pede o consolidado do trimestre.\n\nTrês diretores abrem três fontes diferentes. Os números divergem. A discussão muda de "o que fazer" pra "qual planilha está certa".\n\nEsse cenário é mais comum do que parece. O dado existe, o sistema existe, mas a ponte entre eles nunca foi construída direito.\n\nA gente explorou isso num artigo, com exemplos concretos.' + ctaLink
         },
         {
           gancho: 'gancho na virada',
-          texto: 'A maioria das empresas acha que já resolveu.\n\nMas quando você olha de perto, o processo ainda depende de uma pessoa que "sabe como funciona" — e quando ela sai, tudo para.\n\nIsso não é operação. É fragilidade.\n\n' + shortTitle + ' é sobre tornar a operação resiliente, não dependente. É sobre trocar o "funciona na base do jeitinho" por algo que escale sem depender de heróis.\n\nA gente detalhou isso num artigo — vale a leitura se você lidera uma área que não pode parar.' + ctaLink
+          texto: 'A maioria das empresas acha que já resolveu a integração de dados.\n\nMas quando você olha de perto, o processo todo depende de uma pessoa que "sabe como funciona". Quando ela sai de férias, tudo atrasa. Quando ela pede demissão, tudo para.\n\nIsso não é operação. É sorte.\n\nEscrevemos sobre como sair desse ciclo. Vale a leitura se você lidera uma área que não pode depender de heróis.' + ctaLink
         }
       ];
 
