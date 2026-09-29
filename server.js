@@ -3036,6 +3036,13 @@ REGRAS DO ARTIGO LINKEDIN (output 1):
 - Entre 350 e 500 palavras
 - Português BR impecável
 - NÃO use clichês de IA: "no cenário atual", "em um mundo cada vez mais", "revolucionar", "robusto", "game-changer", "abordagem holística", "jornada" (max 1x)
+- ZERO travessões (em dash — ou en dash –). Use ponto, vírgula ou dois-pontos no lugar.
+- Evite "staccato drama" (3+ frases curtas declarativas em sequência pra criar drama artificial)
+- Evite "regra de três" forçada (não agrupe tudo em 3 itens artificialmente)
+- Evite paralelismo negativo ("Não é X, é Y") mais de 1x no texto
+- Evite fórmulas de aforismo ("X é a Y de Z", "X não é ferramenta, é espelho")
+- Varie o ritmo das frases (misture curtas e longas, não mantenha cadência uniforme)
+- Escreva como se fosse um colunista de negócios com opinião, não como consultor genérico
 ${urlArtigo ? '- Inclua no final: 🔗 Leia o artigo completo: ' + urlArtigo : ''}
 ${autor ? '- O artigo será publicado por: ' + autor + ' — ajuste a voz (1ª pessoa se for indivíduo, institucional se for página)' : ''}
 ${lob !== 'auto' ? '- LOB/Produto: ' + lob : ''}
