@@ -3013,6 +3013,73 @@ app.post('/api/raccoon/generate', (req, res) => {
     return;
   }
 
+  // ── GROWTH ARTIGOS: Blog → Artigo LinkedIn + Posts de Divulgação (Gemini free) ──
+  if (req.body.growth_module === 'artigo-linkedin') {
+    const conteudo = (req.body.conteudo || '').trim();
+    if (!conteudo || conteudo.length < 100) return res.status(400).json({ success: false, error: 'Cole o artigo original (mínimo 100 caracteres).' });
+    const urlArtigo = (req.body.url_artigo || '').trim();
+    const lob = (req.body.lob || 'auto').trim();
+    const autor = (req.body.autor || '').trim();
+
+    const prompt = `Você é um redator sênior de conteúdo B2B especializado em LinkedIn Articles para o mercado de tecnologia corporativa (SAP, ServiceNow, IA empresarial).
+
+TAREFA: Reescrever o artigo de blog abaixo como um ARTIGO LINKEDIN completo + 3 POSTS DE DIVULGAÇÃO.
+
+REGRAS DO ARTIGO LINKEDIN (output 1):
+- Título provocativo ou reflexivo (pergunta ou afirmação que desafia)
+- Abertura com cenário real / dor concreta — SEM meta-narrativa ("neste artigo vamos...")
+- 4 a 6 seções com heading em texto puro (não use markdown, não use #, apenas o título da seção em linha própria seguido de linha vazia)
+- Tom consultivo, não vendedor — posicione a EPI-USE como quem entende o problema, não quem empurra produto
+- Frases curtas (max 20 palavras na maioria). Parágrafos curtos (max 4 frases)
+- Palavras de transição em pelo menos 30% das frases (no entanto, além disso, na prática, por isso...)
+- CTA suave no final: "Converse com o nosso time", "Fale com a gente 👇" — nunca "agende uma demo" ou "solicite orçamento"
+- Entre 350 e 500 palavras
+- Português BR impecável
+- NÃO use clichês de IA: "no cenário atual", "em um mundo cada vez mais", "revolucionar", "robusto", "game-changer", "abordagem holística", "jornada" (max 1x)
+${urlArtigo ? '- Inclua no final: 🔗 Leia o artigo completo: ' + urlArtigo : ''}
+${autor ? '- O artigo será publicado por: ' + autor + ' — ajuste a voz (1ª pessoa se for indivíduo, institucional se for página)' : ''}
+${lob !== 'auto' ? '- LOB/Produto: ' + lob : ''}
+
+REGRAS DOS POSTS DE DIVULGAÇÃO (output 2):
+- Gere exatamente 3 opções de post curto para LinkedIn (3-6 parágrafos cada, max 200 palavras cada)
+- Cada post usa um GANCHO diferente. Escolha 3 entre: gancho na dor, gancho na cena, gancho na virada, gancho no dado, gancho na analogia, gancho na urgência, gancho na pergunta errada, gancho no dado invisível
+- Tom direto, emoji moderado (1-3 por post)
+- Sempre terminar com "🔗 Leia no link" ou similar
+- Referenciar o conteúdo do artigo mas NÃO repetir o texto
+
+ARTIGO ORIGINAL DO BLOG:
+---
+${conteudo.substring(0, 12000)}
+---
+
+Retorne APENAS JSON válido, sem texto antes/depois:
+{
+  "artigo": "texto completo do artigo LinkedIn (plain text, sem markdown, headings como linha de texto simples)",
+  "posts": [
+    { "gancho": "nome do gancho (ex: gancho na dor)", "texto": "texto do post" },
+    { "gancho": "nome do gancho", "texto": "texto do post" },
+    { "gancho": "nome do gancho", "texto": "texto do post" }
+  ]
+}`;
+
+    try {
+      const { result, model } = await geminiPostComFallback({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.7, maxOutputTokens: 4096 }
+      });
+      let rawText = (result.candidates?.[0]?.content?.parts?.[0]?.text || '').trim();
+      rawText = rawText.replace(/```json\s*/gi, '').replace(/```\s*/g, '');
+      const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) return res.status(500).json({ success: false, error: 'Gemini não retornou JSON válido.' });
+      const parsed = JSON.parse(jsonMatch[0]);
+      console.log(`[GROWTH-ARTIGOS] Gerado via ${model}: artigo ${(parsed.artigo||'').length} chars + ${(parsed.posts||[]).length} posts`);
+      return res.json({ success: true, artigo: parsed.artigo, posts: parsed.posts, model });
+    } catch (e) {
+      console.error('[GROWTH-ARTIGOS-FAIL]', e.message);
+      return res.status(500).json({ success: false, error: e.message });
+    }
+  }
+
   if (!tema) {
     return res.status(400).json({ success: false, error: 'tema é obrigatório.' });
   }
