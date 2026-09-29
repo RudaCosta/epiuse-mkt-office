@@ -2741,7 +2741,7 @@ app.delete('/api/content/:id', requireEditorToken, (req, res) => {
 });
 
 // ── RACCOON OFFLINE GENERATOR ENDPOINT ──
-app.post('/api/raccoon/generate', (req, res) => {
+app.post('/api/raccoon/generate', async (req, res) => {
   const { ping, tema, persona, lob, outputs } = req.body || {};
   
   // Se for apenas ping para checar status e presença do Ollama
