@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Insights Editorial — EPI-USE Office</title>
+<link rel="stylesheet" href="/design-tokens.css">
+<link rel="stylesheet" href="/editorial/editorial.css">
+</head>
+<body class="home-root" data-route="editorial-insights">
+<office-nav></office-nav>
+
+<main class="edt-wrap">
+  <div class="edt-top">
+    <div class="edt-titlerow">
+      <div>
+        <div class="edt-title"><span class="em">💡</span> Insights Editorial</div>
+        <p class="edt-sub" id="subtitle">O que os dados dizem sobre conteúdo e crescimento de seguidores.</p>
+      </div>
+      <div class="edt-actions">
+        <span class="edt-lastsync" id="lastSync">—</span>
+        <button class="resync-btn" id="resyncBtn"></button>
+      </div>
+    </div>
+    <nav class="edt-tabs">
+      <a class="edt-tab active" href="/editorial/insights">💡 Insights</a>
+      <a class="edt-tab" href="/editorial/calendario">📅 Calendário</a>
+      <a class="edt-tab" href="/editorial/pautas">📝 Pautas</a>
+    </nav>
+  </div>
+
+  <div id="content"><div class="edt-empty"><div class="big">⏳</div>Carregando…</div></div>
+</main>
+
+<office-footer></office-footer>
+<script src="/office-nav.js"></script>
+<script src="/office-footer.js"></script>
+<script src="/editorial/editorial-common.js"></script>
+<script>
+// Detecta colunas numéricas pra alinhar à direita
+function isNumeric(v){return /^[\d.,]+%?$/.test(String(v).trim()) && /\d/.test(v);}
+function renderTable(t){
+  const cols=t.columns||[];
+  let html=`<div class="edt-card"><h2>${edtEsc(t.titulo)}</h2><div class="edt-tablewrap"><table class="edt"><thead><tr>`;
+  html+=cols.map(c=>`<th>${edtEsc(c)}</th>`).join('');
+  html+='</tr></thead><tbody>';
+  for(const row of (t.rows||[])){
+    html+='<tr>'+cols.map((_,i)=>{
+      const v=row[i]==null?'':row[i];
+      const cls=(i>0 && i<cols.length-1 && isNumeric(v))?' class="num"':'';
+      return `<td${cls}>${edtEsc(v)}</td>`;
+    }).join('')+'</tr>';
+  }
+  html+='</tbody></table></div></div>';
+  return html;
+}
+function render(data){
+  const el=document.getElementById('content');
+  if(data.subtitle) document.getElementById('subtitle').textContent=data.subtitle;
+  if(!data.tables||!data.tables.length){
+    el.innerHTML='<div class="edt-empty"><div class="big">💡</div>Nenhum insight sincronizado ainda.<br>Clique em <b>Resync</b> para puxar da planilha.</div>';
+    return;
+  }
+  el.innerHTML=data.tables.map(renderTable).join('');
+}
+async function load(){
+  const r=await fetch('/api/editorial/insights');
+  const j=await r.json();
+  render(j);
+  document.getElementById('lastSync').textContent=edtFmtSync(j.last_sync);
+}
+edtWireResync(document.getElementById('resyncBtn'), load);
+load();
+</script>
+</body>
+</html>

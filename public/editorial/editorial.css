@@ -1,0 +1,111 @@
+/* Módulo 25 — Calendário Editorial · estilo compartilhado das 3 telas
+   Consome design-tokens.css (Regra 8: nada de hex hardcoded). */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Lato','Open Sans',system-ui,sans-serif;
+  background:var(--color-bg);color:var(--color-text);
+  min-height:100vh;display:flex;flex-direction:column;
+}
+office-nav,office-footer{flex-shrink:0}
+
+.edt-wrap{flex:1;max-width:1180px;width:100%;margin:0 auto;padding:20px 18px 48px}
+
+/* ── Topbar ─────────────────────────────────────────── */
+.edt-top{display:flex;flex-direction:column;gap:14px;margin-bottom:22px}
+.edt-titlerow{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.edt-title{font-size:22px;font-weight:800;color:var(--color-text);line-height:1.2}
+.edt-title .em{font-size:24px}
+.edt-sub{font-size:13px;color:var(--color-text-muted);margin-top:4px;max-width:640px}
+.edt-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.edt-lastsync{font-size:11.5px;color:var(--color-text-dim)}
+
+.resync-btn{
+  display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:var(--radius,10px);
+  border:1px solid var(--color-brand-deep-blue);background:var(--color-brand-deep-blue);color:#fff;
+  font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:filter .15s,opacity .15s;
+}
+.resync-btn:hover{filter:brightness(1.12)}
+.resync-btn:disabled{opacity:.55;cursor:not-allowed}
+.resync-btn svg{width:15px;height:15px}
+.resync-btn.spinning svg{animation:edt-spin .8s linear infinite}
+@keyframes edt-spin{to{transform:rotate(360deg)}}
+
+/* ── Tabs entre as 3 telas ──────────────────────────── */
+.edt-tabs{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid var(--color-border);padding-bottom:0}
+.edt-tab{
+  padding:9px 15px;border-radius:10px 10px 0 0;text-decoration:none;font-size:13.5px;font-weight:600;
+  color:var(--color-text-muted);border:1px solid transparent;border-bottom:none;transition:color .15s,background .15s;
+}
+.edt-tab:hover{color:var(--color-text)}
+.edt-tab.active{color:var(--color-text);background:var(--color-surface);border-color:var(--color-border)}
+
+/* ── Cards / seções ─────────────────────────────────── */
+.edt-card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:14px;padding:18px 18px 6px;margin-top:20px}
+.edt-card h2{font-size:15px;font-weight:700;color:var(--color-text);margin-bottom:4px}
+.edt-card .card-note{font-size:12px;color:var(--color-text-dim);margin-bottom:12px}
+
+/* ── Tabela ──────────────────────────────────────────── */
+.edt-tablewrap{overflow-x:auto;margin-bottom:14px;-webkit-overflow-scrolling:touch}
+table.edt{width:100%;border-collapse:collapse;font-size:13px;min-width:560px}
+table.edt th{
+  text-align:left;font-weight:700;color:var(--color-text-dim);font-size:11.5px;text-transform:uppercase;
+  letter-spacing:.03em;padding:8px 10px;border-bottom:1px solid var(--color-border-2);white-space:nowrap;
+}
+table.edt td{padding:9px 10px;border-bottom:1px solid var(--color-border);color:var(--color-text);vertical-align:top}
+table.edt tr:hover td{background:var(--color-surface-2)}
+table.edt td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* ── Badges ──────────────────────────────────────────── */
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
+.badge.b-planejado{background:color-mix(in srgb,var(--color-info-500) 18%,transparent);color:var(--color-info-300)}
+.badge.b-producao{background:color-mix(in srgb,var(--color-warning-500) 20%,transparent);color:var(--color-warning-300)}
+.badge.b-publicado{background:color-mix(in srgb,var(--color-success-500) 20%,transparent);color:var(--color-success-300)}
+.badge.b-vazio{background:var(--color-surface-2);color:var(--color-text-dim)}
+
+/* ── Empty / toast ──────────────────────────────────── */
+.edt-empty{text-align:center;padding:60px 20px;color:var(--color-text-muted)}
+.edt-empty .big{font-size:40px;margin-bottom:12px}
+.edt-toast{
+  position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--color-brand-deep-blue);color:#fff;padding:11px 20px;border-radius:10px;
+  font-size:13px;font-weight:600;box-shadow:0 8px 30px rgba(0,0,0,.35);opacity:0;pointer-events:none;
+  transition:opacity .25s,transform .25s;z-index:200;max-width:90vw;
+}
+.edt-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.edt-toast.err{background:var(--color-danger-500)}
+
+.demo-tag{display:inline-block;font-size:11px;color:var(--color-text-dim);margin-top:2px}
+
+/* ── Calendário: agrupamento por semana ─────────────── */
+.week-group{margin-top:22px}
+.week-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.week-head h3{font-size:13.5px;font-weight:800;color:var(--color-brand-deep-blue);text-transform:uppercase;letter-spacing:.04em}
+.week-head .wk-count{font-size:11.5px;color:var(--color-text-dim)}
+
+.post-row{display:grid;grid-template-columns:92px 1fr;gap:14px;padding:12px 0;border-bottom:1px solid var(--color-border)}
+.post-date{font-size:12px;color:var(--color-text-muted);font-weight:600}
+.post-date .d{font-size:20px;color:var(--color-text);display:block;font-weight:800;line-height:1}
+.post-main .post-title{font-size:14.5px;font-weight:700;color:var(--color-text);margin-bottom:4px}
+.post-meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+.chip{font-size:11px;padding:2px 8px;border-radius:6px;background:var(--color-surface-2);color:var(--color-text-dim);font-weight:600}
+.chip.lob{background:color-mix(in srgb,var(--color-brand-deep-blue) 18%,transparent);color:var(--color-brand-cornflower-blue)}
+.post-copy{font-size:12.5px;color:var(--color-text-muted);line-height:1.5;white-space:pre-wrap;margin-top:4px}
+.post-copy.clamp{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer}
+
+/* ── Pautas cards ───────────────────────────────────── */
+.pauta{background:var(--color-surface);border:1px solid var(--color-border);border-radius:14px;padding:16px 18px;margin-top:14px}
+.pauta-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.pauta-editoria{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--color-brand-cornflower-blue)}
+.pauta-tema{font-size:15px;font-weight:700;color:var(--color-text);margin:4px 0 8px}
+.pauta-kv{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--color-text-dim);margin-bottom:8px}
+.pauta-kv b{color:var(--color-text-muted);font-weight:700}
+.pauta-resumo{font-size:13px;color:var(--color-text-muted);line-height:1.55}
+.pauta-links{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.pauta-links a{font-size:12px;font-weight:600;color:var(--color-brand-cornflower-blue);text-decoration:none;border:1px solid var(--color-border-2);padding:5px 11px;border-radius:8px;transition:background .15s}
+.pauta-links a:hover{background:var(--color-surface-2)}
+
+@media (max-width:560px){
+  .edt-title{font-size:19px}
+  .post-row{grid-template-columns:64px 1fr;gap:10px}
+  .edt-wrap{padding:16px 12px 40px}
+}

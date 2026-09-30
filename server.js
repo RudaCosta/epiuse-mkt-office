@@ -165,6 +165,46 @@ db.exec(`
     synced_at       TEXT
   );
   CREATE INDEX IF NOT EXISTS idx_cal_data ON editorial_calendar(data);
+  -- ── Módulo 25 · Calendário Editorial (planilha do marketing, 3 abas) ──────────
+  CREATE TABLE IF NOT EXISTS edt_insights (
+    id          INTEGER PRIMARY KEY CHECK (id = 1),
+    titulo      TEXT DEFAULT '',
+    subtitle    TEXT DEFAULT '',
+    tables_json TEXT DEFAULT '[]',
+    synced_at   TEXT
+  );
+  CREATE TABLE IF NOT EXISTS edt_calendario (
+    external_id  TEXT PRIMARY KEY,
+    fonte        TEXT DEFAULT 'planilha-editorial',
+    semana       TEXT DEFAULT '',
+    data         TEXT NOT NULL,
+    dia          TEXT DEFAULT '',
+    tipo         TEXT DEFAULT '',
+    titulo       TEXT DEFAULT '',
+    lob          TEXT DEFAULT '',
+    solucao      TEXT DEFAULT '',
+    narrativa    TEXT DEFAULT '',
+    formato      TEXT DEFAULT '',
+    cta          TEXT DEFAULT '',
+    copy         TEXT DEFAULT '',
+    status       TEXT DEFAULT 'Planejado',
+    synced_at    TEXT
+  );
+  CREATE INDEX IF NOT EXISTS idx_edt_cal_data ON edt_calendario(data);
+  CREATE TABLE IF NOT EXISTS edt_pautas (
+    external_id  TEXT PRIMARY KEY,
+    fonte        TEXT DEFAULT 'planilha-editorial',
+    editoria     TEXT DEFAULT '',
+    tema         TEXT DEFAULT '',
+    volumetria   TEXT DEFAULT '',
+    keyword      TEXT DEFAULT '',
+    resumo       TEXT DEFAULT '',
+    fontes       TEXT DEFAULT '',
+    link_doc     TEXT DEFAULT '',
+    link_artigo  TEXT DEFAULT '',
+    chamada      TEXT DEFAULT '',
+    synced_at    TEXT
+  );
   CREATE TABLE IF NOT EXISTS metas_linkedin (
     area_id         TEXT PRIMARY KEY,
     seg_30d         INTEGER,
@@ -6271,6 +6311,7 @@ app.use('/', require('./routes/voices-pipeline')); // Módulo 20 — pipeline de
 app.use('/', require('./routes/comunicados')); // Modulo 21 -- fila de comunicados por e-mail
 app.use('/', require('./routes/cafezinho')); // Módulo 22 — Cafezinho (área pessoal do time)
 app.use('/', require('./routes/horas'));      // Módulo 23 — Banco de Horas MKT
+app.use('/', require('./routes/editorial'));  // Módulo 25 — Calendário Editorial (planilha marketing, 3 abas)
 
 // Saida de pessoa do time: roda aqui, no fim do boot, porque precisa das
 // tabelas de TODOS os modulos (as do Cafezinho, por exemplo, so existem

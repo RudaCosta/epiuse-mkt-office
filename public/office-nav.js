@@ -8,7 +8,7 @@
 // Fonte ÚNICA da verdade: public/api/changelog.json#current via /api/version
 // Fallback hardcoded usado SÓ se fetch falhar (offline, etc).
 // Sincronização automática — não editar manualmente, basta bumpar changelog.json.
-let OFFICE_NAV_VERSION = '0.90.0';
+let OFFICE_NAV_VERSION = '0.91.0';
 // Promise compartilhada — nav + footer reaproveitam o mesmo fetch
 window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/version')
   .then(r => r.ok ? r.json() : null)
@@ -136,10 +136,10 @@ function cycleLang() {
 // Fonte: /api/areas.json. Telas antigas viram "ferramentas" dentro de cada modulo (deep-links seguem valendo).
 const OFFICE_NAV_TABS = [
   { id: 'hub',          label: 'Home',             icon: '🏠', href: '/',                  matches: ['hub','home'] },
-  { id: 'intelligence', label: 'Intelligence',     icon: '🧠', href: '/area/intelligence', matches: ['area-intelligence','area-growth'] },
+  { id: 'intelligence', label: 'Intelligence',     icon: '🧠', href: '/area/intelligence', matches: ['area-intelligence','area-growth','editorial-insights'] },
   { id: 'field',        label: 'Field Marketing',  icon: '📅', href: '/area/eventos',      matches: ['area-eventos','area-field'] },
   { id: 'pipeline',     label: 'Biz Dev',          icon: '📞', href: '/area/pipeline',     matches: ['area-pipeline','pipeline'] },
-  { id: 'brand',        label: 'Brand Experience', icon: '🎨', href: '/area/brand',        matches: ['area-brand','voices','inbound','cases','painel','optimizer','area-conteudo','artigos','jornadas','raccoon','blog-converter'] },
+  { id: 'brand',        label: 'Brand Experience', icon: '🎨', href: '/area/brand',        matches: ['area-brand','voices','inbound','cases','painel','optimizer','area-conteudo','artigos','jornadas','raccoon','blog-converter','editorial-calendario','editorial-pautas'] },
   { id: 'metas',        label: 'Metas FY27',       icon: '🎯', href: '/metas-fy27',        matches: ['metas','metas-fy26','metas-fy27'] },
   { id: 'relatorio',    label: 'Relatório Mensal', icon: '📊', href: '/relatorio',         matches: ['relatorio'] }
 ];
@@ -158,7 +158,10 @@ const OFFICE_NAV_BREADCRUMBS = {
   'artigos': ['🎨 Brand Experience', '📚 Artigos do Blog'],
   'jornadas': ['🎨 Brand Experience', '🗺️ Jornadas de Compra'],
   'raccoon': ['🎨 Brand Experience', '🦝 Raccoon Studio'],
-  'blog-converter': ['🎨 Brand Experience', '📝 Blog Converter']
+  'blog-converter': ['🎨 Brand Experience', '📝 Blog Converter'],
+  'editorial-insights':   ['📅 Calendário Editorial', '💡 Insights'],
+  'editorial-calendario': ['📅 Calendário Editorial', '📅 Calendário'],
+  'editorial-pautas':     ['📅 Calendário Editorial', '📝 Sugestão de Pautas']
 };
 
 // Overflow agrupado por seção (Sprint 11.2 — UX/UI melhor)

@@ -12,6 +12,13 @@
 - **Por que importa:** DESIGN.md v4.0 foi refeito 100% em cima dele (red `#CE181E`, Lato, secundárias azuis). Se houver versão mais nova, re-rodar o diff.
 - **Bug conhecido (não-bloqueante):** tema "EPI-USE · claro" continua com fundo escuro nas telas com rota — `body[data-route]` do office-nav.js vence o tema, e `home.css` tem cards escuros fixos. Corrigir exige refactor do home.css.
 
+### B3. Graph API `Files.Read.All` pro Calendário Editorial (Módulo 25 · 30/set/2026)
+- **O que:** o app do Azure (o mesmo do SSO) precisa da permissão de APLICATIVO `Files.Read.All` (ou `Sites.Read.All`) + admin consent, pra Fase 2 puxar a planilha do calendário editorial direto da nuvem (OneDrive do marketing).
+- **Quem:** TI / quem aprovou o admin consent do SSO (~2 min no Azure Portal).
+- **Por que importa:** sem isso o resync do `/editorial/*` lê só a cópia local (Fase 1); com isso a atualização vira automática da nuvem, do localhost E do Railway.
+- **Detalhe completo:** `modulos/25-calendario-editorial/PENDENCIAS.md`.
+- **Não-bloqueante:** as 3 telas já funcionam com os dados semeados (Fase 1).
+
 ---
 
 ## 🟡 DROPADO (decisão Rudá 26/mai)

@@ -1,6 +1,6 @@
 {
-  "current": "0.90.0",
-  "atualizado_em": "25/set/2026",
+  "current": "0.91.0",
+  "atualizado_em": "30/set/2026",
   "next": [
     {
       "version": "0.53.0",
@@ -54,9 +54,17 @@
   ],
   "releases": [
     {
+      "version": "0.91.0",
+      "date": "30/set/2026",
+      "status": "current",
+      "title": "📅 Calendário Editorial — planilha do marketing sincronizada no Office (Intelligence + Brand)",
+      "summary": "Nova área (módulo 25) que espelha a planilha de Calendário Editorial do OneDrive do marketing em 3 telas: 💡 Insights (performance de conteúdo LinkedIn — formato, tema e melhor dia, base 214 posts/365 dias), 📅 Calendário (planejamento semana a semana) e 📝 Sugestão de Pautas (backlog por editoria). Cards aparecem nas áreas Intelligence (Bruna) e Brand (Duda), com botão 🔄 Resync em cada tela. Fase 1: dados da planilha semeados. Fase 2 (pendente TI): leitura ao vivo da nuvem via Microsoft Graph (mesmo app do SSO).",
+      "highlights": ["3 telas em /editorial/insights · /editorial/calendario · /editorial/pautas", "Botão Resync (🔄) em cada tela — sincroniza da planilha", "40 posts (ago→out/26), 3 tabelas de insights e 7 pautas parseados", "Cards nas áreas Intelligence e Brand", "Fase 2: Graph API (client-credentials) aguarda permissão Files.Read.All da TI"]
+    },
+    {
       "version": "0.90.0",
       "date": "25/set/2026",
-      "status": "current",
+      "status": "previous",
       "title": "📝 Blog Converter — artigos pro template visual do blog (HubSpot)",
       "summary": "Nova área em Brand Experience (extensão do Raccoon, módulo separado). Cole um artigo ou suba .docx/.pdf e a IA monta o template HTML visual padronizado do blog EPI-USE (inline styles, pronto pro editor do HubSpot), escolhendo cards, fluxo, callouts, badge, resumo e FAQ por seção, e gerando os metadados de SEO. O conversor tem versionamento próprio (badge na tela) — hoje v3.0, rodando no Gemini gratuito do próprio Office (o mesmo do gerador Stratview).",
       "highlights": ["Página /blog-converter: texto colado, .docx ou .pdf (extração no navegador)", "IA via Gemini do Office (grátis, mesma chave do Stratview) — seleção de componente por seção", "Preview + código copiável + SEO (título/meta/slug/keywords)", "Mini-guia HubSpot + biblioteca de blocos para ajuste manual", "Versão própria do módulo (v3.0) — não altera a versão global do Office"]
