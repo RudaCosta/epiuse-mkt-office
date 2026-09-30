@@ -55,13 +55,16 @@ function render(posts){
     el.innerHTML='<div class="edt-empty"><div class="big">📅</div>Nenhum post sincronizado ainda.<br>Clique em <b>Resync</b> para puxar da planilha.</div>';
     return;
   }
-  // agrupa por semana preservando ordem
+  // agrupa por semana preservando ordem cronológica dos dias
   const groups=[]; const idx={};
   for(const p of posts){
     const k=p.semana||'Sem semana';
     if(idx[k]==null){idx[k]=groups.length;groups.push({semana:k,items:[]});}
     groups[idx[k]].items.push(p);
   }
+  // semana mais recente no topo (evita rolar até a semana atual);
+  // dias dentro de cada semana seguem na ordem natural (seg→sex)
+  groups.reverse();
   let html='';
   for(const g of groups){
     html+=`<div class="week-group"><div class="week-head"><h3>${edtEsc(g.semana)}</h3><span class="wk-count">${g.items.length} post(s)</span></div>`;
