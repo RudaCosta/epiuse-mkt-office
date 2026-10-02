@@ -192,6 +192,9 @@ const OFFICE_NAV_OVERFLOW = [
   { label: '🪪 Profile Optimizer',        href: '/voices/optimizer-v3' },
   { label: '📨 Seja um Voice (LP)',      href: '/seja-voice' },
 
+  { section: '🎒 Onboarding' },
+  { label: '🎒 Onboarding de Marketing',  href: '/onboarding' },
+
   { section: '🎨 Design & Sistema' },
   { label: '🎨 Design System',           href: '/design' },
   { label: '📜 Histórico de versões',   href: '/changelog' },
@@ -1769,6 +1772,7 @@ const OfficeCommandPalette = (() => {
       { group:'Rotas', icon:'🎨', label:'Brand Experience / Voices', hint:'/area/brand', action:'/area/brand' },
       { group:'Rotas', icon:'🪪', label:'Profile Optimizer',    hint:'/voices/optimizer-v3',  action:'/voices/optimizer-v3' },
       { group:'Rotas', icon:'📨', label:'LP Seja um Voice',     hint:'/seja-voice', action:'/seja-voice' },
+      { group:'Rotas', icon:'🎒', label:'Onboarding de Marketing (novos colaboradores)', hint:'/onboarding', action:'/onboarding' },
       { group:'Rotas', icon:'📜', label:'Changelog',            hint:'/changelog',  action:'/changelog' },
       // Ações
       { group:'Ações', icon:'🔮',  label:'Alternar tema (Legado / Atlas / Aurora / Light / Glass)', hint:'persiste', action: () => {
@@ -2010,6 +2014,7 @@ const OfficeCommandPalette = (() => {
 const HUB_SUBMENU_ITEMS = [
   { id: 'hub',        label: 'MKT Hub',                icon: '📈', href: '/hub' },
   { id: 'institucional', label: 'Apresentação Institucional', icon: '🏢', href: '/hub', tab: 'institucional' },
+  { id: 'onboarding', label: 'Onboarding',              icon: '🎒', href: '/onboarding' },
   { id: 'seja-voice', label: 'Seja um Voice',           icon: '🎙️', href: '/seja-voice' },
   { id: 'optimizer',  label: 'LinkedIn Optimizer',      icon: '🪪', href: '/optimizer' },
   { id: 'brindes',    label: 'Brindes',                 icon: '🎁', href: '/hub/brindes' },
@@ -2099,6 +2104,7 @@ class HubSubmenu extends HTMLElement {
       if (tab === 'institucional') return 'institucional';
       return 'hub';
     }
+    if (path.startsWith('/onboarding')) return 'onboarding';
     if (path.startsWith('/seja-voice')) return 'seja-voice';
     if (path.startsWith('/optimizer') || path.startsWith('/voices/optimizer')) return 'optimizer';
     if (path.startsWith('/hub/brindes') || path === '/brindes') return 'brindes';
