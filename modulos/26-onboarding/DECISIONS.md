@@ -5,3 +5,6 @@
 - **Regra 7:** nenhuma métrica inventada. Números só do PPT oficial GE (jan/2026). Animações marcadas `📝 Ilustrativo`; metas linkam `/metas-fy27`.
 - **Concorrentes:** links de busca (não URL chutada) e aviso de uso interno.
 - **Stack:** CRM = Zoho · site EUBR = HubSpot CMS · marketing = RD (módulo 23, 25/set).
+- **v2 (02/out):** liberar a trilha **em fases**, validando cada etapa com o Rudá antes da próxima. Menos texto por tela, mais interação.
+- **Modo foco em overlay** (acima do `office-nav`): reduz distração; `Esc`/✕ volta ao mapa.
+- **Aprovação no quiz com ≥ 75%** para não travar quem erra uma pergunta.
