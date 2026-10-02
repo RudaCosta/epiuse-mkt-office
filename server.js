@@ -960,6 +960,45 @@ app.post('/api/game/egg', express.json({ limit: '2kb' }), async (req, res) => {
   res.json({ ok: true });
 });
 
+// ── ONBOARDING (módulo 26) — conquistas da trilha valem ERP Coins ───────────
+// 1x por pessoa (dia fixo '∀', igual ao easter egg). O gabarito dos quizzes
+// fica espelhado aqui (fonte: public/onboarding.html, QUIZ/QUIZ2/QUIZ3/QUIZ4)
+// para o crédito não depender só do navegador. 'trilha' é bônus automático
+// quando as 5 conquistas existem. Valores só no server.
+const ONB_COINS = { kit: 50, e1: 100, e2: 100, e3: 100, e4: 100, trilha: 150 };
+const ONB_GABARITO = { e1: [1, 0, 1, 1], e2: [1, 1, 0, 1], e3: [1, 1, 1, 1], e4: [1, 0, 1, 1] };
+const onbConquistas = email => db.prepare(`SELECT ref FROM erp_coins WHERE email=? AND evento='onboarding'`).all(email).map(r => r.ref);
+const onbSaldo = email => db.prepare(`SELECT COALESCE(SUM(coins),0) n FROM erp_coins WHERE email=?`).get(email).n;
+app.get('/api/onboarding/me', (req, res) => {
+  const u = req.session && req.session.user;
+  if (!u || !u.email) return res.status(401).json({ error: 'auth_required' });
+  const email = String(u.email).toLowerCase();
+  try { res.json({ conquistas: onbConquistas(email), saldo: onbSaldo(email), valores: ONB_COINS }); }
+  catch (e) { res.status(500).json({ error: e.message }); }
+});
+app.post('/api/onboarding/conquista', express.json({ limit: '2kb' }), (req, res) => {
+  const u = req.session && req.session.user;
+  if (!u || !u.email) return res.status(401).json({ error: 'auth_required' });
+  const email = String(u.email).toLowerCase();
+  const etapa = String((req.body || {}).etapa || '');
+  if (!ONB_COINS[etapa] || etapa === 'trilha') return res.status(400).json({ error: 'etapa_invalida' });
+  const key = ONB_GABARITO[etapa];
+  if (key) {
+    const resp = Array.isArray((req.body || {}).respostas) ? req.body.respostas : [];
+    const acertos = key.filter((a, i) => Number(resp[i]) === a).length;
+    if (acertos < Math.ceil(key.length * 0.75)) return res.status(400).json({ error: 'quiz_reprovado' });
+  }
+  try {
+    const ins = db.prepare(`INSERT OR IGNORE INTO erp_coins (email, evento, ref, coins, dia) VALUES (?,?,?,?,'∀')`);
+    const novas = [];
+    if (ins.run(email, 'onboarding', etapa, ONB_COINS[etapa]).changes) novas.push(etapa);
+    const tem = onbConquistas(email);
+    if (['kit', 'e1', 'e2', 'e3', 'e4'].every(k => tem.includes(k)) && ins.run(email, 'onboarding', 'trilha', ONB_COINS.trilha).changes) novas.push('trilha');
+    if (novas.length) console.log(`[onboarding] ${email} +${novas.join('+')}`);
+    res.json({ ok: true, novas, conquistas: onbConquistas(email), saldo: onbSaldo(email), valores: ONB_COINS });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 // Painel do head: ranking + ledger (não linkado em nenhum menu de usuário)
 const { requireAdmin: _coinsAdmin, requireExec: _requireExec } = require('./routes/users');
 app.get('/api/admin/coins', _coinsAdmin, (req, res) => {
