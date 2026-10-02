@@ -1,5 +1,12 @@
 # Pendências — Onboarding (⏳ marcadas na página)
 
+## Próximas fases
+- [ ] **Fase 2** — Etapa 2 (Estratégia & Demanda) no formato v2 · validar com Rudá
+- [ ] **Fase 3** — Etapa 3 (SAP & Técnico)
+- [ ] **Fase 4** — Etapa 4 (Comercial)
+
+## Conteúdo a preencher
+
 - [ ] Os "4 pilares" institucionais (conteúdo oficial)
 - [ ] Tusk — o que é + link
 - [ ] URL Multidados + manual de horas/despesas

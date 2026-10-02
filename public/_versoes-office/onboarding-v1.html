@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Onboarding Marketing · EPI-USE Brasil</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/design-tokens.css">
+<script type="module" src="/office-nav.js"></script>
+<script type="module" src="/office-footer.js"></script>
+<style>
+  /* Tudo consome tokens do DESIGN.md v4.0 (regra 8) — nenhum hex local */
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --ob-head: var(--type-headline-lg-font-family);
+    --ob-body: var(--type-body-md-font-family);
+    --ob-blue: var(--color-brand-deep-blue);
+    --ob-red: var(--color-brand-red);
+    --ob-steel: var(--color-brand-steel-blue);
+    --ob-corn: var(--color-brand-cornflower-blue);
+    --ob-royal: var(--color-brand-royal-blue);
+    --ob-ok: var(--color-success-500);
+    --ob-warn: var(--color-warning-500);
+  }
+  body{font-family:var(--ob-body);background:var(--color-bg);color:var(--color-text);line-height:1.55}
+  h1,h2,h3,h4{font-family:var(--ob-head);line-height:1.2}
+  a{color:var(--ob-corn)}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 16px}
+
+  /* HERO */
+  .hero{background:linear-gradient(160deg,var(--color-neutral-dark-bg),var(--ob-blue));color:var(--color-neutral-dark-text);padding:48px 0 32px}
+  .eyebrow{font:700 12px/1 var(--ob-head);letter-spacing:.14em;text-transform:uppercase;color:var(--ob-corn);margin-bottom:12px}
+  .hero h1{font-size:clamp(26px,4.5vw,40px);font-weight:900;margin-bottom:10px}
+  .hero h1 .dot{color:var(--ob-red)}
+  .hero p{max-width:680px;color:var(--color-neutral-dark-text-muted)}
+  .progress{margin-top:24px;max-width:520px}
+  .progress-bar{height:8px;background:var(--color-neutral-dark-surface-2);border-radius:var(--rounded-full);overflow:hidden}
+  .progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--ob-corn),var(--ob-ok));transition:width .6s ease}
+  .progress-label{font-size:13px;margin-top:8px;color:var(--color-neutral-dark-text-muted)}
+
+  /* STEPPER */
+  .stepper{position:sticky;top:0;z-index:20;background:var(--color-bg);border-bottom:1px solid var(--color-border)}
+  .steps{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:10px 0}
+  .step{appearance:none;border:1px solid var(--color-border);background:var(--color-surface);color:var(--color-text);border-radius:var(--rounded-md);padding:8px 6px;cursor:pointer;text-align:left;font:inherit;min-width:0}
+  .step small{display:block;font:700 10px/1.2 var(--ob-head);letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-muted)}
+  .step b{display:block;font:700 13px/1.25 var(--ob-head);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .step .mini{height:3px;background:var(--color-border);border-radius:3px;margin-top:6px;overflow:hidden}
+  .step .mini i{display:block;height:100%;width:0;background:var(--ob-ok);transition:width .4s}
+  .step[aria-selected="true"]{border-color:var(--ob-red);box-shadow:inset 0 -2px 0 var(--ob-red)}
+  @media (max-width:640px){.step b{font-size:11px}.step small{font-size:9px}}
+
+  /* PAINÉIS */
+  .panel{display:none;padding:28px 0 48px}
+  .panel.active{display:block;animation:fade .35s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .panel-head{margin-bottom:20px}
+  .panel-head h2{font-size:clamp(22px,3.5vw,30px);font-weight:900;margin-bottom:6px}
+  .panel-head p{color:var(--color-text-muted);max-width:760px}
+
+  .grid{display:grid;gap:14px}
+  .g2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+  .g3{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+  .g4{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+  .card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--rounded-lg);padding:18px}
+  .card h4{font-size:15px;margin-bottom:6px}
+  .card p,.card li{font-size:14px;color:var(--color-text-muted)}
+  .card ul{padding-left:18px;margin-top:6px}
+  .card .ico{font-size:24px;margin-bottom:8px}
+  .kpi{font:900 26px/1 var(--ob-head);color:var(--ob-corn);margin-bottom:4px}
+  .src{font-size:11px;color:var(--color-text-dimmest);margin-top:10px}
+
+  /* MÓDULOS (accordion) */
+  details.mod{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--rounded-lg);margin-bottom:12px;overflow:hidden}
+  details.mod>summary{list-style:none;cursor:pointer;padding:16px 18px;display:flex;gap:12px;align-items:center}
+  details.mod>summary::-webkit-details-marker{display:none}
+  details.mod>summary .n{flex:0 0 32px;height:32px;border-radius:var(--rounded-full);display:grid;place-items:center;background:var(--ob-blue);color:var(--color-neutral-dark-text);font:900 13px var(--ob-head)}
+  details.mod>summary h3{font-size:16px;flex:1}
+  details.mod>summary .chev{transition:transform .25s;color:var(--color-text-muted)}
+  details.mod[open]>summary .chev{transform:rotate(90deg)}
+  details.mod.done>summary .n{background:var(--ob-ok)}
+  .mod-body{padding:0 18px 18px}
+  .mod-body>p{margin-bottom:12px;color:var(--color-text-muted)}
+  .done-btn{margin-top:14px;appearance:none;border:1px solid var(--color-border);background:transparent;color:var(--color-text);padding:8px 14px;border-radius:var(--rounded-md);font:700 13px var(--ob-head);cursor:pointer}
+  .done-btn[aria-pressed="true"]{background:var(--ob-ok);border-color:var(--ob-ok);color:var(--color-neutral-dark-bg)}
+
+  /* LINKS */
+  .links{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));margin-top:8px}
+  .lnk{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--color-border);border-radius:var(--rounded-md);text-decoration:none;color:var(--color-text);background:var(--color-bg);font-size:13.5px}
+  .lnk:hover{border-color:var(--ob-corn)}
+  .lnk span.t{font-size:11px;color:var(--color-text-muted);display:block}
+  .lnk.pend{border-style:dashed;cursor:default;opacity:.8}
+
+  .tag{display:inline-block;font:700 11px/1 var(--ob-head);padding:4px 8px;border-radius:var(--rounded-full);border:1px solid var(--color-border);color:var(--color-text-muted);margin:2px 4px 2px 0}
+  .tag.pend{border-color:var(--ob-warn);color:var(--ob-warn)}
+  .tag.ill{border-color:var(--ob-royal);color:var(--ob-corn)}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th,td{padding:9px 10px;border-bottom:1px solid var(--color-border);text-align:left;vertical-align:top}
+  th{font:700 12px var(--ob-head);text-transform:uppercase;letter-spacing:.06em;color:var(--color-text-muted)}
+  .tbl{overflow-x:auto}
+
+  /* ANIMAÇÕES */
+  .viz{background:var(--color-bg);border:1px solid var(--color-border);border-radius:var(--rounded-lg);padding:14px;margin:6px 0 14px}
+  .viz canvas{width:100%;height:auto;display:block}
+  .viz-cap{font-size:12.5px;color:var(--color-text-muted);margin-top:8px}
+  .viz-ctrl{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+  .chip{appearance:none;border:1px solid var(--color-border);background:var(--color-surface);color:var(--color-text);padding:6px 11px;border-radius:var(--rounded-full);font:700 12px var(--ob-head);cursor:pointer}
+  .chip.on{background:var(--ob-blue);border-color:var(--ob-corn);color:var(--color-neutral-dark-text)}
+  .info-box{min-height:58px;font-size:13.5px;padding:10px 12px;border-left:3px solid var(--ob-red);background:var(--color-surface);border-radius:0 var(--rounded-md) var(--rounded-md) 0;margin-top:10px}
+
+  /* QUIZ */
+  .quiz{border:1px solid var(--color-border);border-radius:var(--rounded-lg);padding:18px;background:var(--color-surface);margin-top:22px}
+  .quiz h3{margin-bottom:12px}
+  .q{margin-bottom:16px}
+  .q p{font-weight:600;margin-bottom:8px}
+  .q label{display:block;padding:8px 10px;border:1px solid var(--color-border);border-radius:var(--rounded-md);margin-bottom:6px;cursor:pointer;font-size:14px}
+  .q label.ok{border-color:var(--ob-ok)}
+  .q label.ko{border-color:var(--ob-red)}
+  .q input{margin-right:8px}
+  .btn{appearance:none;border:0;background:var(--ob-red);color:var(--color-neutral-dark-text);padding:10px 18px;border-radius:var(--rounded-md);font:700 14px var(--ob-head);cursor:pointer}
+  .btn.ghost{background:transparent;border:1px solid var(--color-border);color:var(--color-text)}
+  .qres{margin-top:10px;font-weight:700}
+
+  /* CHECKLIST DIA 1 */
+  .check{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--color-border);border-radius:var(--rounded-md);background:var(--color-bg);font-size:14px}
+  .check input{margin-top:4px;accent-color:var(--color-success-500)}
+  .check a{font-size:12.5px}
+  .check small{display:block;color:var(--color-text-muted);font-size:12px}
+
+  /* DICIONÁRIO */
+  .dict-search{width:100%;padding:11px 14px;border:1px solid var(--color-border);border-radius:var(--rounded-md);background:var(--color-bg);color:var(--color-text);font:inherit;margin-bottom:12px}
+  .dict{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+  .term{padding:10px 12px;border:1px solid var(--color-border);border-radius:var(--rounded-md);background:var(--color-surface);font-size:13.5px}
+  .term b{font-family:var(--ob-head);color:var(--color-text)}
+  .term span{color:var(--color-text-muted)}
+
+  .legend{font-size:12px;color:var(--color-text-muted);margin-top:8px}
+  .nav-row{display:flex;justify-content:space-between;gap:10px;margin-top:26px}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<office-nav></office-nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">EPI-USE Brasil · Marketing & RevOps</div>
+    <h1>Bem-vindo(a) ao time<span class="dot">.</span></h1>
+    <p>Trilha de onboarding em <b>4 etapas</b>: da marca e do grupo à estratégia, ao conhecimento técnico SAP e às metodologias comerciais. Marque cada módulo como concluído, faça o quiz de cada etapa e use o <b>Dicionário</b> sempre que travar num termo.</p>
+    <div class="progress">
+      <div class="progress-bar"><div class="progress-fill" id="pFill"></div></div>
+      <div class="progress-label" id="pLabel">0% concluído</div>
+    </div>
+    <p class="legend" style="margin-top:14px;color:var(--color-neutral-dark-text-muted)">Legenda: <span class="tag pend">⏳ A preencher</span> link/conteúdo ainda não confirmado · <span class="tag ill">📝 Ilustrativo</span> animação didática, não é dado real · seu progresso fica salvo só neste navegador.</p>
+  </div>
+</header>
+
+<nav class="stepper" aria-label="Etapas">
+  <div class="wrap steps" role="tablist">
+    <button class="step" role="tab" data-p="d0" aria-selected="true"><small>Dia 1</small><b>🎒 Kit & acessos</b><div class="mini"><i></i></div></button>
+    <button class="step" role="tab" data-p="e1"><small>Etapa 1</small><b>🐘 Marca & Grupo</b><div class="mini"><i></i></div></button>
+    <button class="step" role="tab" data-p="e2"><small>Etapa 2</small><b>🚀 Estratégia</b><div class="mini"><i></i></div></button>
+    <button class="step" role="tab" data-p="e3"><small>Etapa 3</small><b>🧪 SAP & Técnico</b><div class="mini"><i></i></div></button>
+    <button class="step" role="tab" data-p="e4"><small>Etapa 4</small><b>📞 Comercial</b><div class="mini"><i></i></div></button>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<!-- ===================== DIA 1 ===================== -->
+<section class="panel active" id="d0" data-step="d0">
+  <div class="panel-head">
+    <h2>🎒 Dia 1 — Kit, acessos e rotina</h2>
+    <p>Antes das 4 etapas: garanta acesso às ferramentas e organize seu ambiente. Peça cada acesso ao gestor/TI e marque aqui quando estiver funcionando.</p>
+  </div>
+
+  <details class="mod" data-id="d0-acessos" open>
+    <summary><span class="n">1</span><h3>Checklist de acessos</h3><span class="chev">▶</span></summary>
+    <div class="mod-body">
+      <div class="grid g2" id="accessList"></div>
+      <p class="src">Credenciais compartilhadas (ex.: cursos pagos) <b>nunca</b> ficam nesta página — peça ao Rudá por canal privado.</p>
+      <button class="done-btn" aria-pressed="false">Marcar módulo como concluído</button>
+    </div>
+  </details>
+
+  <details class="mod" data-id="d0-time">
+    <summary><span class="n">2</span><h3>Time de Marketing & Comercial</h3><span class="chev">▶</span></summary>
+    <div class="mod-body">
+      <p>5 áreas operacionais, cada uma com dona/dono. Saber <b>quem decide o quê</b> economiza dias de retrabalho.</p>
+      <div class="tbl"><table>
+        <tr><th>Pessoa</th><th>Área</th><th>Procure para…</th></tr>
+        <tr><td><b>Rudá Costa</b></td><td>Head RevOps & Marketing</td><td>Estratégia, pipeline, SLA com Vendas, ROI de eventos, Office</td></tr>
+        <tr><td><b>Bruna Yamagami</b></td><td>Marketing Intelligence & CRM</td><td>CRM, lead scoring, dashboards de funil, higiene de base</td></tr>
+        <tr><td><b>Guilherme Marques (Gui)</b></td><td>Growth & Performance</td><td>Mídia paga, SEO/pautas, LinkedIn, briefing de agência</td></tr>
+        <tr><td><b>Gabrielle Senne</b></td><td>Field Marketing</td><td>Eventos BR/LATAM, MDF SAP, ativações</td></tr>
+        <tr><td><b>Marlison Estrela</b></td><td>Development Sales</td><td>Outbound Apollo, prospecção C-Level</td></tr>
+        <tr><td><b>Eduarda Hirose (Duda)</b></td><td>Brand Experience</td><td>Identidade visual, Voices, aprovação de conteúdo, calendário editorial</td></tr>
+        <tr><td><b>Roberto</b></td><td>Country Manager Brasil</td><td>Aprovação executiva, orçamento, comunicação oficial</td></tr>
+        <tr><td><b>Lisiane de Assis</b></td><td>Redatoria (parceira externa)</td><td>Tom de voz, artigos, curadoria</td></tr>
+      </table></div>
+      <div class="links">
+        <a class="lnk" href="/agentes">🤖 <div>Escritório virtual de agentes IA<span class="t">1 agente por área · /agentes</span></div></a>
+        <span class="lnk pend">💼 <div>Organograma do time comercial<span class="t">⏳ A preencher</span></div></span>
+      </div>
+      <button class="done-btn" aria-pressed="false">Marcar módulo como concluído</button>
+    </div>
+  </details>
+
+  <details class="mod" data-id="d0-rotina">
+    <summary><span class="n">3</span><h3>Rotina: home office, horas e despesas (Multidados)</h3><span class="chev">▶</span></summary>
+    <div class="mod-body">
+      <div class="grid g3">
+        <div class="card"><div class="ico">💡</div><h4>Luz</h4><p>Luz de frente para o rosto (janela ou ring light). Nunca contraluz.</p></div>
+        <div class="card"><div class="ico">🔇</div><h4>Barulho</h4><p>Fone com microfone, ambiente fechado, mute quando não estiver falando.</p></div>
+        <div class="card"><div class="ico">🖼️</div><h4>Apresentação & local</h4><p>Fundo neutro ou o background oficial EPI-USE. Câmera ligada em reuniões com cliente.</p></div>
+        <div class="card"><div class="ico">⏱️</div><h4>Lançamento de horas</h4><p>Lance suas horas no <b>Multidados</b> com a frequência combinada com o gestor — sem acumular.</p></div>
+        <div class="card"><div class="ico">🧾</div><h4>Despesas</h4><p>Despesas (eventos, deslocamento) também via <b>Multidados</b>, com nota fiscal anexada.</p></div>
+      </div>
+      <div class="links">
+        <span class="lnk pend">⏱️ <div>Multidados — horas e despesas<span class="t">⏳ A preencher: URL + manual interno</span></div></span>
+        <a class="lnk" href="/horas">📊 <div>Tela de horas do Office<span class="t">/horas</span></div></a>
+        <a class="lnk" href="/brand">🖼️ <div>Backgrounds e assets oficiais<span class="t">/brand</span></div></a>
+      </div>
+      <button class="done-btn" aria-pressed="false">Marcar módulo como concluído</button>
+    </div>
+  </details>
+
+  <details class="mod" data-id="d0-dict">
+    <summary><span class="n">4</span><h3>📖 Dicionário do Marketing EPI-USE</h3><span class="chev">▶</span></summary>
+    <div class="mod-body">
+      <input class="dict-search" id="dictQ" placeholder="Buscar termo… (ex.: MQL, MDF, Clean Core)" aria-label="Buscar termo">
+      <div class="dict" id="dict"></div>
+      <button class="done-btn" aria-pressed="false">Marcar módulo como concluído</button>
+    </div>
+  </details>
+
+  <div class="nav-row"><span></span><button class="btn" data-go="e1">Começar Etapa 1 →</button></div>
+</section>
+
+<!-- ===================== ETAPA 1 ===================== -->
+<section class="panel" id="e1" data-step="e1">
+  <div class="panel-head">
+    <div class="eyebrow">Etapa 1 de 4</div>
+    <h2>🐘 Marca: EPI-USE, Group Elephant, Stratview, ERP.ngo</h2>
+    <p>Quem somos, de onde viemos, como ganhamos dinheiro e por que existe um elefante no nosso logo.</p>
+  </div>
+
+  <details class="mod" data-id="e1-grupo" open>
+    <summary><span class="n">1</span><h3>Apresentação institucional — o grupo</h3><span class="chev">▶</span></summary>
+    <div class="mod-body">
+      <p><b>Group Elephant</b> é a holding (nasceu em Pretória, África do Sul). <b>EPI-USE</b> é uma das 20+ marcas do grupo. No Brasil usamos sempre <b>"EPI-USE Brasil"</b> — nunca só "EPI-USE", porque existem entidades do grupo em dezenas de países.</p>
+      <div class="grid g4">
+        <div class="card"><div class="kpi">1983</div><p>Fundação (Universidade de Pretória)</p></div>
+        <div class="card"><div class="kpi">4.200+</div><p>pessoas no mundo</p></div>
+        <div class="card"><div class="kpi">42</div><p>países</p></div>
+        <div class="card"><div class="kpi">2.000+</div><p>clientes corporativos</p></div>
+      </div>
+      <p class="src">Fonte: EPI-USE PPT Template oficial (jan/2026). SAP Partner desde 1988 · Global SuccessFactors Partner desde 2008 · SAP Gold Partner.</p>
+
+      <div class="viz">
+        <div class="viz-ctrl" id="geCtrl"></div>
+        <canvas id="cvGE" width="1000" height="420" aria-label="Animação do ecossistema Group Elephant"></canvas>
+        <div class="info-box" id="geInfo">Clique numa marca para saber o que ela faz.</div>
+        <div class="viz-cap">Ecossistema Group Elephant — marcas em órbita da holding. Azul = foco SAP · cinza = outras tecnologias.</div>
+      </div>
+
+      <div class="links">
+        <a class="lnk" href="https://www.groupelephant.com" target="_blank" rel="noopener">🐘 <div>groupelephant.com<span class="t">site da holding</span></div></a>
+        <a class="lnk" href="https://www.epiuse.com.br" target="_blank" rel="noopener">🌐 <div>epiuse.com.br<span class="t">site EPI-USE Brasil</span></div></a>
+        <a class="lnk" href="https://www.linkedin.com/company/epi-use-brasil/" target="_blank" rel="noopener">in <div>LinkedIn EPI-USE Brasil<span class="t">siga e ative notificações</span></div></a>
+        <span class="lnk pend">🦣 <div>Tusk<span class="t">⏳ A preencher: o que é e link oficial</span></div></span>
+      </div>
+      <button class="done-btn" aria-pressed="false">Marcar módulo como concluído</button>
+    </div>
+  </details>
+
+  <details class="mod" data-id="e1-brasil">
+    <summary><span class="n">2</span><h3>EPI-USE Brasil: braços, 4 frentes de receita, LOBs</h3><span class="chev">▶</span></summary>
+    <div class="mod-body">
+      <p>Somos a consultoria SAP especializada em <b>HCM/Payroll</b>, evoluindo para <b>EPI-USE 5.0</b>: consultoria de <b>transformação empresarial</b>, não só SAP.</p>
+      <h4 style="margin:6px 0 10px">💰 As 4 frentes de receita</h4>
+      <div class="viz">
+        <canvas id="cvRev" width="1000" height="300" aria-label="Animação das 4 frentes de receita no ciclo do cliente"></canvas>
+        <div class="viz-cap">📝 Ilustrativo — o ciclo de vida de um cliente passa pelas 4 frentes. Um bom marketing gera demanda para <b>todas</b>, não só para implementação.</div>
+      </div>
+      <div class="grid g4">
+        <div class="card"><div class="ico">🔑</div><h4>1. Licença</h4><p>Revenda e gestão de licenças SAP.</p></div>
+        <div class="card"><div class="ico">🏗️</div><h4>2. Implementação</h4><p>Projetos de implantação até o go-live.</p></div>
+        <div class="card"><div class="ico">🛟</div><h4>3. Suporte</h4><p>AMS e sustentação pós-go-live.</p></div>
+        <div class="card"><div class="ico">🧩</div><h4>4. Desenvolvimento</h4><p>Custom dev, ABAP, BTP e IPs.</p></div>
+      </div>
+      <h4 style="margin:18px 0 10px">🏢 Braços no Brasil</h4>
+      <div class="grid g4">
+        <div class="card"><h4>EPI-USE Brasil</h4><p>Consultoria SAP principal.</p></div>
+        <div class="card"><h4>EPI-USE Labs</h4><p>P&D de software proprietário (IPs).</p></div>
+        <div class="card"><h4>Stratview</h4><p>Analytics/Reporting e ofertas Oracle HCM · OCI · IA.</p></div>
+        <div class="card"><h4>Valcann</h4><p>Infraestrutura e Cloud.</p></div>
+      </div>
+      <h4 style="margin:18px 0 10px">📚 Lines of Business (LOBs)</h4>
+      <p><span class="tag">SAP HCM / SuccessFactors</span><span class="tag">SAP ERP / S/4HANA (RISE & GROW)</span><span class="tag">SAP BTP</span><span class="tag">SAP Signavio</span><span class="tag">ServiceNow (HRSD/ITSM)</span><span class="tag">Analytics / Stratview</span><span class="tag">ERP.ngo (Terceiro Setor)</span></p>
+      <h4 style="margin:18px 0 10px">🏛️ Os 4 pilares</h4>
+      <p><span class="tag pend">⏳ A preencher</span> Conteúdo oficial dos 4 pilares institucionais a confirmar com o Rudá.</p>
+      <button class="done-btn" aria-pressed="false">Marcar módulo como concluído</button>
+    </div>
+  </details>
+
+  <details class="mod" data-id="e1-ips">
+    <summary><span class="n">3</span><h3>Propriedades intelectuais (IPs) e metas</h3><span class="chev">▶</span></summary>
+    <div class="mod-body">
+      <p>IPs são nosso <b>diferencial contra consultorias generalistas</b>: aceleram projetos e reduzem risco. Em todo conteúdo, prefira mostrar o resultado que o IP entrega, não o nome do produto.</p>
+      <div class="grid g3">
+        <div class="card"><div class="ico">🧰</div><h4>TalenTools</h4><p>Suíte aceleradora para RH.</p></div>
+        <div class="card"><div class="ico">🔷</div><h4>PRISM</h4><p>Analytics e reporting.</p></div>
+        <div class="card"><div class="ico">🛡️</div><h4>DSM (EPI-USE Labs)</h4><p>Gestão de dados e landscapes SAP (cópia, anonimização).</p></div>
+        <div class="card"><div class="ico">🔍</div><h4>XCODESEEKER</h4><p>Ferramenta EPI-USE Labs.</p></div>
+        <div class="card"><div class="ico">🛒</div><h4>OmniPOS</h4><p>Ferramenta EPI-USE Labs.</p></div>
+        <div class="card"><div class="ico">⚙️</div><h4>Aceleradores + método próprio</h4><p>Metodologia de implementação e sustentação.</p></div>
+      </div>
+      <h4 style="margin:18px 0 8px">🎯 Metas</h4>
+      <p>As metas do time vivem no Office (dados reais das planilhas oficiais) — não decore número, consulte a fonte:</p>
+      <div class="links">
+        <a class="lnk" href="/metas-fy27">🎯 <div>Metas FY27<span class="t">/metas-fy27</span></div></a>
+        <a class="lnk" href="/metas-fy26">📈 <div>Metas FY26 (histórico)<span class="t">/metas-fy26</span></div></a>
+        <a class="lnk" href="/planilhas">📑 <div>Registro de planilhas oficiais<span class="t">/planilhas · metas, cases, eventos, LinkedIn</span></div></a>
+      </div>
+      <button class="done-btn" aria-pressed="false">Marcar módulo como concluído</button>
+    </div>
+  </details>
+
+  <details class="mod" data-id="e1-erpngo">
+    <summary><span class="n">4</span><h3>🐘 ERP.ngo — propósito além do negócio</h3><span class="chev">▶</span></summary>
+    <div class="mod-body">
+      <p><b>1% da receita global do grupo</b> vai para a ERP.ngo: conservação de elefantes e rinocerontes e combate à pobreza rural na África. Todo conteúdo institucional menciona a ERP.ngo — e todo EPI-USE Voice é embaixador dela.</p>
+      <div class="viz">
+        <canvas id="cvNgo" width="1000" height="260" aria-label="Animação do fluxo de 1% da receita para a ERP.ngo"></canvas>
+        <div class="viz-cap">📝 Ilustrativo — cada projeto com cliente gera receita; 1% dela vira impacto real em conservação e comunidades.</div>
+      </div>
+      <div class="links">
+        <a class="lnk" href="https://www.erp.ngo" target="_blank" rel="noopener">🦏 <div>erp.ngo<span class="t">site oficial</span></div></a>
+        <a class="lnk" href="/erp-impacto">📊 <div>Impacto dos clientes no ERP.ngo<span class="t">/erp-impacto</span></div></a>
+        <a class="lnk" href="https://www.epiuse.com.br/artigo/o-que-nossos-clientes-fizeram-pelo-nosso-erp-em-2022" target="_blank" rel="noopener">📰 <div>O que nossos clientes fizeram pelo ERP em 2022<span class="t">artigo</span></div></a>
+        <a class="lnk" href="https://www.epiuse.com.br/artigo/o-que-nossos-clientes-fizeram-pelo-nosso-erp-em-2020" target="_blank" rel="noopener">📰 <div>O que nossos clientes fizeram pelo ERP em 2020<span class="t">artigo</span></div></a>
+        <a class="lnk" href="https://www.epiuse.com.br/artigo/erp-exemplo-de-human-centered-design-hcd" target="_blank" rel="noopener">📰 <div>ERP: exemplo de Human Centered Design<span class="t">artigo</span></div></a>
+        <a class="lnk" href="https://www.linkedin.com/company/erpngo/" target="_blank" rel="noopener">in <div>LinkedIn ERP.ngo</div></a>
+      </div>
+      <button class="done-btn" aria-pressed="false">Marcar módulo como concluído</button>
+    </div>
+  </details>
+
+  <details class="mod" data-id="e1-linguagem">
+    <summary><span class="n">5</span><h3>Identidade visual, linguagem e cultura GE</h3><span class="chev">▶</span></summary>
+    <div class="mod-body">
+      <div class="grid g2">
+        <div class="card"><h4>🎨 Brand Guide 2026</h4>
+          <ul><li>"Mostly blue with an accent of red": <b>Deep Blue</b> predomina; <b>vermelho</b> só como acento (1 CTA, bullet, ícone)</li>
+          <li>Fontes: <b>Lato</b> (títulos) + <b>Open Sans</b> (texto web) · Verdana no PPT</li>
+          <li>Imagens: natureza e animais em estado natural — nunca em cativeiro</li></ul>
+          <p style="margin-top:10px"><span class="tag" style="background:var(--ob-blue);color:var(--color-neutral-dark-text)">Deep Blue</span><span class="tag" style="background:var(--ob-red);color:var(--color-neutral-dark-text)">Red</span><span class="tag" style="background:var(--ob-royal);color:var(--color-neutral-dark-text)">Royal</span><span class="tag" style="background:var(--ob-corn);color:var(--color-neutral-dark-bg)">Cornflower</span></p>
+        </div>
+        <div class="card"><h4>🗣️ Tom de voz</h4>
+          <ul><li>Técnico mas acessível · parágrafos curtos · hook na 1ª linha · CTA claro</li>
+          <li>Fale da <b>dor</b> do executivo, não da tecnologia</li>
+          <li>Nunca: política, religião, concorrente citado, cliente sem aprovação, promessa sem evidência</li></ul>
+        </div>
+        <div class="card"><h4>😀 Emojis padronizados</h4>
+          <p>🎙️ Voices · 🐘🦏 ERP.ngo · 📅 Eventos · 📊 Painel · 📘 Marketing Hub · 💼 Sales Hub · 🧪 SAP Lab · ☕ Cafezinho</p>
+        </div>
+        <div class="card"><h4>🐘 Cultura GE & rituais</h4>
+          <ul><li><b>#TBT</b> — posts de memória/história do grupo às quintas</li>
+          <li>Aprovação da <b>Duda</b> antes de qualquer publicação externa</li>
+          <li><span class="tag pend">⏳ A preencher</span> demais rituais e expressões da cultura Group Elephant</li></ul>
+        </div>
+      </div>
+      <div class="links">
+        <a class="lnk" href="/brand">🎨 <div>Brand assets (logos, cores, regras)<span class="t">/brand</span></div></a>
+        <a class="lnk" href="/design">🧱 <div>Design System do Office<span class="t">/design</span></div></a>
+        <a class="lnk" href="https://drive.google.com/file/d/1TuOfKEr2SXG24MFpjdnXaeW3s2pYK56c/view" target="_blank" rel="noopener">📕 <div>EPI-USE Brand Guide 2026 (PDF)<span class="t">Google Drive</span></div></a>
+      </div>
+      <button class="done-btn" aria-pressed="false">Marcar módulo como concluído</button>
+    </div>
+  </details>
+
+  <details class="mod" data-id="e1-incentivo">
+    <summary><span class="n">6</span><h3>Programas internos: EPI-USE Voices e projetos de incentivo</h3><span class="chev">▶</span></summary>
+    <div class="mod-body">
+      <div class="grid g3">
+        <div class="card"><div class="ico">🎙️</div><h4>EPI-USE Voices</h4><p>Programa de embaixadores no LinkedIn: especialistas da casa publicando com kit de perfil gerado pelo Profile Optimizer. Operado pela Duda.</p></div>
+        <div class="card"><div class="ico">📣</div><h4>EU nas Redes</h4><p><span class="tag pend">⏳ A preencher</span> regras e recompensas.</p></div>
+        <div class="card"><div class="ico">🏠</div><h4>Fique bem, Fique em Casa</h4><p><span class="tag pend">⏳ A preencher</span> descrição do programa.</p></div>
+      </div>
+      <div class="links">
+        <a class="lnk" href="/seja-voice">🎙️ <div>Quero ser um Voice<span class="t">/seja-voice</span></div></a>
+        <a class="lnk" href="/optimizer-v3">🪪 <div>Profile Optimizer<span class="t">/optimizer-v3</span></div></a>
+        <a class="lnk" href="/campanhas">🪙 <div>Campanhas & coins<span class="t">/campanhas</span></div></a>
+      </div>
+      <button class="done-btn" aria-pressed="false">Marcar módulo como concluído</button>
+    </div>
+  </details>
+
+  <div class="quiz" data-quiz="e1"></div>
+  <div class="nav-row"><button class="btn ghost" data-go="d0">← Dia 1</button><button class="btn" data-go="e2">Etapa 2 →</button></div>
+</section>
+
+<!-- ===================== ETAPA 2 ===================== -->
+<section class="panel" id="e2" data-step="e2">
+  <div class="panel-head">
+    <div class="eyebrow">Etapa 2 de 4</div>
+    <h2>🚀 Estratégia de MKT, Geração de Demanda, RevOps e Eventos</h2>
+    <p>Como o marketing transforma atenção em pipeline — e como medimos isso.</p>
+  </div>
+
+  <details class="mod" data-id="e2-estrategia" open>
+    <summary><span class="n">1</span><h3>Estratégia de marketing: persona, dor e urgência</h3><span class="chev">▶</span></summary>
+    <div class="mod-body">
+      <p>Vendemos para o <b>C-Level</b>. Regra de ouro: comece pela dor do negócio, nunca pelo nome do módulo SAP.</p>
+      <div class="grid g3">
+        <div class="card"><h4>💵 CFO</h4><p>"Sua infraestrutura de ERP está preparada para a Reforma Tributária ou seu time financeiro vai precisar de processos manuais?"</p></div>
+        <div class="card"><h4>👥 CHRO / COO</h4><p>"Se sua empresa fosse um app, a experiência dos colaboradores seria intuitiva ou eles o desinstalariam?"</p></div>
+        <div class="card"><h4>🖥️ CIO</h4><p>"Sua empresa investe em IA, mas seus dados e processos têm governança para que as decisões não sejam baseadas em achismo?"</p></div>
+      </div>
+      <h4 style="margin:16px 0 8px">⏰ Gatilhos de urgência 2026</h4>
+      <ul style="padding-left:18px;color:var(--color-text-muted);font-size:14px">
+        <li>Fim do suporte ao <b>SAP ECC</b> (EHP0 a EHP5) — sem extensão</li>
+        <li><b>Reforma Tributária</b>: CBS e IBS em vigor</li>
+        <li><b>Clean Core</b> e SAP Public Cloud: upgrade barato só com core limpo</li>
+      </ul>
+      <button class="done-btn" aria-pressed="false">Marcar módulo como concluído</button>
+    </div>
+  </details>
+
+  <details class="mod" data-id="e2-demanda">
+    <summary><span class="n">2</span><h3>Canais de geração de demanda + funil</h3><span class="chev">▶</span></summary>
+    <div class="mod-body">
+      <p>Leads entram por vários canais, são qualificados pelo marketing (MQL), aceitos e trabalhados por vendas (SQL) e viram oportunidade. Clique num canal para destacar o fluxo.</p>
+      <div class="viz">
+        <div class="viz-ctrl" id="funnelCtrl"></div>
+        <canvas id="cvFunnel" width="1000" height="440" aria-label="Animação do funil de geração de demanda"></canvas>
+        <div class="info-box" id="funnelInfo">Todos os canais ativos.</div>
+        <div class="viz-cap">📝 Ilustrativo — fluxo e proporção das partículas são didáticos, não volume real. Volumes reais: <a href="/relatorio">/relatorio</a> e <a href="/executivo">/executivo</a>.</div>
+      </div>
+      <button class="done-btn" aria-pressed="false">Marcar módulo como concluído</button>
+    </div>
+  </details>
+
+  <details class="mod" data-id="e2-inbound">
+    <summary><span class="n">3</span><h3>Inbound: campanhas, nutrição de leads e e-mails</h3><span class="chev">▶</span></summary>
+    <div class="mod-body">
+      <div class="grid g3">
+        <div class="card"><div class="ico">🎯</div><h4>Campanhas</h4><p>Oferta (e-book, webinar, diagnóstico) + LP + mídia + UTM. Toda campanha precisa de UTM para atribuição.</p></div>
+        <div class="card"><div class="ico">🌱</div><h4>Nutrição de leads</h4><p>Fluxos de e-mail por estágio e LOB até o lead "esquentar" (lead scoring) e virar MQL.</p></div>
+        <div class="card"><div class="ico">✉️</div><h4>News interna e externa</h4><p>Newsletter externa para base/mercado e news interna para o time — ambas aprovadas pela Duda.</p></div>
+      </div>
+      <div class="links">
+        <a class="lnk" href="/inbound">📥 <div>Inbound no Office<span class="t">/inbound</span></div></a>
+        <a class="lnk" href="/jornadas">🧭 <div>Jornadas de compra por LOB<span class="t">/jornadas</span></div></a>
+        <a class="lnk" href="/admin/utm">🔗 <div>Gerador de UTM<span class="t">/admin/utm</span></div></a>
+        <a class="lnk" href="https://app.rdstation.com.br" target="_blank" rel="noopener">📧 <div>RD Station Marketing<span class="t">e-mails, LPs, automação</span></div></a>
+      </div>
+      <button class="done-btn" aria-pressed="false">Marcar módulo como concluído</button>
+    </div>
+  </details>
+
+  <details class="mod" data-id="e2-conteudo">
+    <summary><span class="n">4</span><h3>Conteúdo: Redatoria, site EUBR/Stratview e SEO</h3><span class="chev">▶</span></summary>
+    <div class="mod-body">
+      <p>A <b>Redatoria</b> (Lisiane) entrega <b>20 conteúdos por mês</b> a partir dos briefings do Gui. O site é o centro do inbound: cases, artigos e páginas de oferta.</p>
+      <div class="viz">
+        <canvas id="cvPost" width="1000" height="230" aria-label="Animação do fluxo de publicação de artigo"></canvas>
+        <div class="viz-cap">Como um artigo vai da pauta ao ar — passo a passo usado no Office.</div>
+      </div>
+      <div class="links">
+        <a class="lnk" href="https://www.epiuse.com.br" target="_blank" rel="noopener">🌐 <div>Site EUBR<span class="t">cases, artigos, ofertas</span></div></a>
+        <span class="lnk pend">🌐 <div>Site Stratview<span class="t">⏳ A preencher: URL + acesso WP</span></div></span>
+        <a class="lnk" href="/content-pipeline">🏭 <div>Pipeline de conteúdo (kanban + SEO checker)<span class="t">/content-pipeline</span></div></a>
+        <a class="lnk" href="/blog-converter">🔄 <div>Blog Converter (artigo → template do blog)<span class="t">/blog-converter</span></div></a>
+        <a class="lnk" href="/editorial/calendario.html">🗓️ <div>Calendário editorial<span class="t">/editorial</span></div></a>
+        <a class="lnk" href="/cases">🏆 <div>Cases de sucesso<span class="t">/cases</span></div></a>
+        <a class="lnk" href="/aeo-geo">🤖 <div>SEO + visibilidade em IA (AEO/GEO)<span class="t">/aeo-geo</span></div></a>
+        <a class="lnk" href="/generator-stratview">✍️ <div>Stratview Generator<span class="t">artigos Oracle HCM/OCI</span></div></a>
+      </div>
+      <button class="done-btn" aria-pressed="false">Marcar módulo como concluído</button>
+    </div>
+  </details>
+
+  <details class="mod" data-id="e2-revops">
+    <summary><span class="n">5</span><h3>Marketing RevOps: dashboards, report mensal e trimestral</h3><span class="chev">▶</span></summary>
+    <div class="mod-body">
+      <p><b>RevOps</b> alinha marketing, vendas e CS em torno de uma métrica: <b>receita</b>. O ciclo abaixo se repete todo mês.</p>
+      <div class="grid g3" style="margin-bottom:12px"><div class="card"><h4>🌐 Site</h4><p><b>HubSpot CMS</b> — visitas, páginas, origem de tráfego.</p></div><div class="card"><h4>📧 Marketing</h4><p><b>RD Station</b> — leads, conversões, e-mail, automação, lead scoring.</p></div><div class="card"><h4>💼 Vendas</h4><p><b>Zoho CRM</b> — deals, pipeline, receita.</p></div></div>
+      <div class="viz">
+        <canvas id="cvRevops" width="1000" height="320" aria-label="Animação do ciclo RevOps"></canvas>
+        <div class="viz-cap">Ciclo RevOps: planejar → executar → medir → reportar → ajustar.</div>
+      </div>
+      <div class="tbl"><table>
+        <tr><th>Ritual</th><th>Frequência</th><th>Para quem</th><th>Onde</th></tr>
+        <tr><td>Report mensal de marketing</td><td>Mensal</td><td>Roberto / diretoria</td><td><a href="/relatorio">/relatorio</a> + PPT</td></tr>
+        <tr><td>Reunião geral</td><td>Trimestral</td><td>Empresa toda</td><td><span class="tag pend">⏳ A preencher</span></td></tr>
+        <tr><td>Dashboard de CRM / funil</td><td>Contínuo</td><td>Marketing + Vendas</td><td>Zoho CRM · <code>/funil</code> <span class="tag pend">⏳ em construção</span></td></tr>
+        <tr><td>Dashboard Redatoria</td><td>Contínuo</td><td>Conteúdo</td><td><a href="/content-pipeline">/content-pipeline</a></td></tr>
+        <tr><td>Google (Looker) Studio</td><td>Contínuo</td><td>Marketing</td><td><a href="https://lookerstudio.google.com" target="_blank" rel="noopener">lookerstudio.google.com</a></td></tr>
+      </table></div>
+      <div class="links">
+        <a class="lnk" href="/executivo">📊 <div>Visão executiva<span class="t">/executivo</span></div></a>
+        <a class="lnk" href="/admin/analytics">📈 <div>Analytics do Office<span class="t">/admin/analytics</span></div></a>
+      </div>
+      <button class="done-btn" aria-pressed="false">Marcar módulo como concluído</button>
+    </div>
+  </details>
+
+  <details class="mod" data-id="e2-eventos">
+    <summary><span class="n">6</span><h3>📅 Eventos e marketing com a SAP</h3><span class="chev">▶</span></summary>
+    <div class="mod-body">
+      <p>Field Marketing roda 30+ eventos/ano (BR + LATAM). Boa parte pode ser cofinanciada pela SAP via <b>MDF</b> (Market Development Funds): Business Plan → execução → <b>Proof of Performance</b> → reembolso.</p>
+      <div class="grid g3">
+        <div class="card"><h4>Canais de demanda via SAP</h4><ul><li>Eventos SAP e <b>ASUG</b></li><li>Listas/indicações da SAP</li><li>Programas do Partner Benefits Catalog (PBC)</li></ul></div>
+        <div class="card"><h4>Programas SAP</h4><ul><li><b>REX</b> e <b>CIV</b> (indicadores de parceiro)</li><li><b>Gold Partner</b></li><li>Digital Assets (materiais co-branded)</li></ul></div>
+        <div class="card"><h4>Clientes & reputação</h4><ul><li><b>Binds</b> — pesquisa de NPS com clientes</li><li><b>Empresas Transformadoras</b> <span class="tag pend">⏳ detalhar</span></li></ul></div>
+      </div>
+      <div class="links">
+        <a class="lnk" href="/field-marketing">📅 <div>Field Marketing no Office<span class="t">/field-marketing · 92 eventos + ROI</span></div></a>
+        <a class="lnk" href="/development-funds">💶 <div>Development Funds (MDF)<span class="t">/development-funds</span></div></a>
+        <a class="lnk" href="https://partneredge.sap.com/en/library/assets/partnership/dgl/25/92/SAP1242592.html" target="_blank" rel="noopener">📄 <div>Guia MDF (Partner Edge)</div></a>
+        <a class="lnk" href="https://partnerbenefitscatalog.sap.com/Partner-Benefits-Catalog/Marketing-Excellence/Social-Selling-Concierge/p/1000895" target="_blank" rel="noopener">🤝 <div>Social Selling Concierge<span class="t">PBC</span></div></a>
+        <a class="lnk" href="https://partnerbenefitscatalog.sap.com/Partner-Benefits-Catalog/Marketing-Excellence/NNN4Growth/p/1000929" target="_blank" rel="noopener">🌱 <div>NNN4Growth<span class="t">PBC</span></div></a>
+        <a class="lnk" href="https://partnerbenefitscatalog.sap.com/Partner-Benefits-Catalog/Marketing-Agency-Packages/Intro-to-Marketing-Services/p/1000612" target="_blank" rel="noopener">📦 <div>Intro to Marketing Services<span class="t">PBC</span></div></a>
+        <a class="lnk" href="https://partneredge.sap.com" target="_blank" rel="noopener">🏛️ <div>SAP Partner Edge</div></a>
+        <span class="lnk pend">⭐ <div>Binds — painel NPS<span class="t">⏳ A preencher: link</span></div></span>
+      </div>
+      <button class="done-btn" aria-pressed="false">Marcar módulo como concluído</button>
+    </div>
+  </details>
+
+  <details class="mod" data-id="e2-concorrentes">
+    <summary><span class="n">7</span><h3>Concorrentes: o que observar</h3><span class="chev">▶</span></summary>
+    <div class="mod-body">
+      <p>Uso <b>interno</b>. Em conteúdo público, <b>nunca</b> citamos concorrente pelo nome. Observe 4 dimensões em cada um: <b>site</b>, <b>LinkedIn</b>, <b>artes</b> e <b>conteúdos</b>.</p>
+      <div class="tbl"><table>
+        <tr><th>Concorrente</th><th>Site</th><th>LinkedIn</th></tr>
+        <tbody id="compRows"></tbody>
+      </table></div>
+      <p class="src">Os links abrem uma busca para você chegar no perfil oficial. Benchmark de seguidores e tráfego: peça ao agente de Campanhas ou ao Gui.</p>
+      <button class="done-btn" aria-pressed="false">Marcar módulo como concluído</button>
+    </div>
+  </details>
+
+  <details class="mod" data-id="e2-ferramentas">
+    <summary><span class="n">8</span><h3>Ferramentas do dia a dia: Trello, IA e o Office</h3><span class="chev">▶</span></summary>
+    <div class="mod-body">
+      <div class="grid g3">
+        <div class="card"><div class="ico">📋</div><h4>Trello</h4><p>Gestão de demandas do time: todo pedido vira card, com responsável e prazo.</p></div>
+        <div class="card"><div class="ico">🤖</div><h4>ChatGPT / Claude / Gemini</h4><p>Use para rascunho, pesquisa e revisão. Sempre revise; nunca cole dado de cliente ou credencial em IA pública.</p></div>
+        <div class="card"><div class="ico">🏢</div><h4>EPI-USE Office</h4><p>Este app: hub do marketing com dashboards, agentes de IA e ferramentas.</p></div>
+      </div>
+      <div class="links">
+        <a class="lnk" href="https://trello.com" target="_blank" rel="noopener">📋 <div>Trello</div></a>
+        <a class="lnk" href="/hub">📘 <div>Marketing Hub<span class="t">/hub</span></div></a>
+        <a class="lnk" href="/agentes">🤖 <div>Agentes de IA do escritório<span class="t">/agentes</span></div></a>
+      </div>
+      <button class="done-btn" aria-pressed="false">Marcar módulo como concluído</button>
+    </div>
+  </details>
+
+  <div class="quiz" data-quiz="e2"></div>
+  <div class="nav-row"><button class="btn ghost" data-go="e1">← Etapa 1</button><button class="btn" data-go="e3">Etapa 3 →</button></div>
+</section>
+
+<!-- ===================== ETAPA 3 ===================== -->
+<section class="panel" id="e3" data-step="e3">
+  <div class="panel-head">
+    <div class="eyebrow">Etapa 3 de 4</div>
+    <h2>🧪 Conhecimento técnico: SAP, ERP, HCM, ServiceNow e Marketing</h2>
+    <p>Você não precisa configurar SAP — mas precisa entender o suficiente para conversar com um CIO e escrever sem erro.</p>
+  </div>
+
+  <details class="mod" data-id="e3-erp" open>
+    <summary><span class="n">1</span><h3>O que é um ERP e onde cada solução se encaixa</h3><span class="chev">▶</span></summary>
+    <div class="mod-body">
+      <p>ERP é o sistema que integra os processos da empresa (finanças, compras, vendas, RH) numa base única. Clique em cada bloco do mapa.</p>
+      <div class="viz">
+        <canvas id="cvSap" width="1000" height="440" aria-label="Mapa interativo do ecossistema SAP"></canvas>
+        <div class="info-box" id="sapInfo">Clique num bloco para ver o que é e qual dor resolve.</div>
+        <div class="viz-cap">Mapa simplificado do ecossistema que vendemos. Os dados fluem entre os blocos (pontos animados).</div>
+      </div>
+      <div class="links">
+        <a class="lnk" href="https://www.youtube.com/watch?v=BntjvxRet4I" target="_blank" rel="noopener">▶️ <div>SAP e o ERP<span class="t">YouTube</span></div></a>
+        <a class="lnk" href="https://www.youtube.com/watch?v=HvrIzogVbLw" target="_blank" rel="noopener">▶️ <div>S/4HANA<span class="t">YouTube</span></div></a>
+        <a class="lnk" href="https://www.youtube.com/watch?v=_3dtG69n9CQ" target="_blank" rel="noopener">▶️ <div>ServiceNow<span class="t">YouTube</span></div></a>
+      </div>
+      <button class="done-btn" aria-pressed="false">Marcar módulo como concluído</button>
+    </div>
+  </details>
+
+  <details class="mod" data-id="e3-ecc">
+    <summary><span class="n">2</span><h3>ECC → S/4HANA, RISE e Clean Core</h3><span class="chev">▶</span></summary>
+    <div class="mod-body">
+      <div class="viz">
+        <canvas id="cvMig" width="1000" height="260" aria-label="Animação da migração ECC para S/4HANA com Clean Core"></canvas>
+        <div class="viz-cap">📝 Ilustrativo — no ECC, customizações "grudam" no core e encarecem cada upgrade. No Clean Core, extensões ficam fora (BTP) e o core se atualiza limpo.</div>
+      </div>
+      <div class="grid g3">
+        <div class="card"><h4>ECC</h4><p>ERP legado da SAP. Suporte das versões EHP0–EHP5 encerrado: urgência para migrar.</p></div>
+        <div class="card"><h4>RISE with SAP</h4><p>Pacote de transformação para S/4HANA Cloud (clientes existentes).</p></div>
+        <div class="card"><h4>GROW with SAP</h4><p>Pacote para novos clientes adotarem S/4HANA Cloud Public.</p></div>
+      </div>
+      <button class="done-btn" aria-pressed="false">Marcar módulo como concluído</button>
+    </div>
+  </details>
+
+  <details class="mod" data-id="e3-signavio">
+    <summary><span class="n">3</span><h3>Process Mining e SAP Signavio</h3><span class="chev">▶</span></summary>
+    <div class="mod-body">
+      <p><b>Process mining</b> lê os logs do ERP e desenha como o processo <b>realmente</b> acontece — com desvios, retrabalho e gargalos — em vez de como deveria acontecer.</p>
+      <div class="viz">
+        <div class="viz-ctrl"><button class="chip on" id="pmPlay">▶ Processo real</button><button class="chip" id="pmIdeal">✔ Processo ideal</button></div>
+        <canvas id="cvPM" width="1000" height="300" aria-label="Animação de process mining mostrando desvios do processo"></canvas>
+        <div class="viz-cap">📝 Ilustrativo — processo "pedido → pagamento". No modo real, parte dos casos volta (retrabalho) e acumula em gargalo.</div>
+      </div>
+      <div class="links">
+        <a class="lnk" href="https://www.youtube.com/watch?v=tvRE2HXIQ0Y" target="_blank" rel="noopener">▶️ <div>Process Mining (vídeo 1)</div></a>
+        <a class="lnk" href="https://www.youtube.com/watch?v=QT4N4V1xKWY" target="_blank" rel="noopener">▶️ <div>Process Mining (vídeo 2)</div></a>
+      </div>
+      <button class="done-btn" aria-pressed="false">Marcar módulo como concluído</button>
+    </div>
+  </details>
+
+  <details class="mod" data-id="e3-sapacad">
+    <summary><span class="n">4</span><h3>Trilhas SAP e portais de parceiro</h3><span class="chev">▶</span></summary>
+    <div class="mod-body">
+      <div class="grid g4">
+        <div class="card"><h4>👥 HCM / SuccessFactors</h4><p>Nosso core: folha, ponto, talentos, experiência do colaborador.</p></div>
+        <div class="card"><h4>🏭 ERP / S/4HANA</h4><p>Finanças, logística, Reforma Tributária.</p></div>
+        <div class="card"><h4>🧩 BTP</h4><p>Plataforma para extensões, integração, dados e IA.</p></div>
+        <div class="card"><h4>🔀 Signavio</h4><p>Modelagem e mineração de processos.</p></div>
+      </div>
+      <div class="links">
+        <a class="lnk" href="https://learning.sap.com" target="_blank" rel="noopener">🎓 <div>SAP Learning<span class="t">trilhas gratuitas HCM/ERP/BTP/Signavio</span></div></a>
+        <a class="lnk" href="https://me.sap.com" target="_blank" rel="noopener">👤 <div>SAP for Me<span class="t">exige S-user</span></div></a>
+        <a class="lnk" href="https://partneredge.sap.com" target="_blank" rel="noopener">🏛️ <div>Partner Edge<span class="t">conteúdo de parceiro, users management</span></div></a>
+        <a class="lnk" href="https://partnerbenefitscatalog.sap.com" target="_blank" rel="noopener">🎁 <div>Partner Benefits Catalog (PBC)</div></a>
+        <a class="lnk" href="/clientes-sap-4me">🌍 <div>Clientes SAP 4 ME (projetos globais)<span class="t">/clientes-sap-4me</span></div></a>
+        <span class="lnk pend">📚 <div>Treinamentos internos SAP<span class="t">⏳ A preencher: grade HCM/ERP/BTP/Signavio</span></div></span>
+      </div>
+      <button class="done-btn" aria-pressed="false">Marcar módulo como concluído</button>
+    </div>
+  </details>
+
+  <details class="mod" data-id="e3-mkt">
+    <summary><span class="n">5</span><h3>Treinamentos de Marketing</h3><span class="chev">▶</span></summary>
+    <div class="mod-body">
+      <div class="tbl"><table>
+        <tr><th>Tema</th><th>Material</th></tr>
+        <tr><td>Inbound / Marketing Digital</td><td><a href="https://materiais.resultadosdigitais.com.br/agradecimento-curso-de-marketing-digital-gratuito" target="_blank" rel="noopener">Curso de Marketing Digital (RD)</a> · <a href="https://university.rdstation.com/start" target="_blank" rel="noopener">RD University</a></td></tr>
+        <tr><td>RD Station (ferramenta)</td><td><a href="https://university.rdstation.com/cursos?busca=rd+station" target="_blank" rel="noopener">Cursos RD Station</a></td></tr>
+        <tr><td>SEO</td><td><a href="https://rockcontent.com/br/blog/o-que-e-seo/" target="_blank" rel="noopener">O que é SEO (Rock Content)</a></td></tr>
+        <tr><td>SEM</td><td><a href="https://resultadosdigitais.com.br/marketing/o-que-e-sem/" target="_blank" rel="noopener">O que é SEM (RD)</a> · <a href="https://pt.semrush.com/blog/seo-ou-sem-qual-e-a-diferenca" target="_blank" rel="noopener">SEO × SEM (Semrush)</a></td></tr>
+        <tr><td>Design</td><td><a href="https://www.eucapacito.com.br/cursos/design-grafico/" target="_blank" rel="noopener">Design Gráfico FIAP</a> · <a href="https://drive.google.com/drive/u/1/folders/1cDTedhRgenXv9AO8Rt2sGyB88gV63oSj" target="_blank" rel="noopener">Livro "Design para quem não é designer" (Drive)</a></td></tr>
+        <tr><td>LGPD</td><td><a href="https://ajuda.rdstation.com/s/article/Conhe%C3%A7a-a-Lei-Geral-de-Prote%C3%A7%C3%A3o-de-Dados?language=pt_BR" target="_blank" rel="noopener">Conheça a LGPD (RD)</a> · <a href="https://ajuda.rdstation.com/s/article/Lei-Geral-de-Prote%C3%A7%C3%A3o-de-Dados-LGPD?language=pt_BR" target="_blank" rel="noopener">LGPD na prática (RD)</a></td></tr>
+        <tr><td>Growth Hacking</td><td><a href="https://www.crehana.com/clases/v2/10260/player/36309/" target="_blank" rel="noopener">Curso Crehana</a> <span class="tag">login compartilhado: pedir ao Rudá</span></td></tr>
+        <tr><td>Cursos gratuitos FIAP</td><td><a href="https://www.fiap.com.br/2022/06/06/fiap-disponibilza-20-cursos-gratuitos-nas-areas-de-tecnologia-e-negocios/" target="_blank" rel="noopener">20 cursos FIAP</a> · <a href="https://eucapacito.com.br/" target="_blank" rel="noopener">Eu Capacito</a></td></tr>
+      </table></div>
+      <button class="done-btn" aria-pressed="false">Marcar módulo como concluído</button>
+    </div>
+  </details>
+
+  <div class="quiz" data-quiz="e3"></div>
+  <div class="nav-row"><button class="btn ghost" data-go="e2">← Etapa 2</button><button class="btn" data-go="e4">Etapa 4 →</button></div>
+</section>
+
+<!-- ===================== ETAPA 4 ===================== -->
+<section class="panel" id="e4" data-step="e4">
+  <div class="panel-head">
+    <div class="eyebrow">Etapa 4 de 4</div>
+    <h2>📞 Metodologias: Inside Sales, SDR e Comercial</h2>
+    <p>Marketing gera demanda; o time comercial converte. Entender o processo de vendas é o que separa um marketing de "likes" de um marketing de receita.</p>
+  </div>
+
+  <details class="mod" data-id="e4-rp" open>
+    <summary><span class="n">1</span><h3>Receita Previsível: especialização de funções</h3><span class="chev">▶</span></summary>
+    <div class="mod-body">
+      <p>A metodologia <b>Receita Previsível</b> (Aaron Ross) separa o funil em funções especializadas. Cada uma é dona de uma etapa e passa o bastão com critério claro.</p>
+      <div class="viz">
+        <canvas id="cvRP" width="1000" height="300" aria-label="Animação da especialização de funções da Receita Previsível"></canvas>
+        <div class="viz-cap">📝 Ilustrativo — Marketing (inbound) e SDR (outbound) alimentam o Closer; CS retém e expande (alimentando suporte e novas frentes).</div>
+      </div>
+      <div class="links">
+        <a class="lnk" href="https://drive.google.com/drive/u/1/folders/1cDTedhRgenXv9AO8Rt2sGyB88gV63oSj" target="_blank" rel="noopener">📗 <div>Livro Receita Previsível<span class="t">Google Drive</span></div></a>
+        <a class="lnk" href="https://www.exactsales.com.br" target="_blank" rel="noopener">🎯 <div>Exact Sales<span class="t">metodologia/ferramenta de pré-vendas</span></div></a>
+        <a class="lnk" href="https://university.rdstation.com/start" target="_blank" rel="noopener">🎓 <div>RD University<span class="t">cursos de vendas e SDR</span></div></a>
+      </div>
+      <button class="done-btn" aria-pressed="false">Marcar módulo como concluído</button>
+    </div>
+  </details>
+
+  <details class="mod" data-id="e4-sdr">
+    <summary><span class="n">2</span><h3>Treinamento SDR: cadência e qualificação</h3><span class="chev">▶</span></summary>
+    <div class="mod-body">
+      <p>O SDR prospecta e qualifica. Uma <b>cadência</b> combina canais (e-mail, ligação, LinkedIn) em dias alternados até gerar resposta.</p>
+      <div class="viz">
+        <canvas id="cvCad" width="1000" height="260" aria-label="Animação de cadência de prospecção"></canvas>
+        <div class="viz-cap">📝 Ilustrativo — exemplo de cadência de 14 dias. As sequências oficiais vivem no Apollo.</div>
+      </div>
+      <div class="grid g3">
+        <div class="card"><h4>📏 SLA do Development Sales</h4><p><b>40 ligações + 200 e-mails/mês</b> (Marlison, prospecção C-Level).</p></div>
+        <div class="card"><h4>✅ Qualificação</h4><p>Antes de passar ao Closer: há <b>dor</b>, <b>orçamento</b>, <b>autoridade</b> e <b>prazo</b>? (BANT)</p></div>
+        <div class="card"><h4>🔥 High intent</h4><p>Priorize leads que já engajaram com posts dos Voices ou visitaram o site.</p></div>
+      </div>
+      <div class="links">
+        <a class="lnk" href="/jarvis">🧠 <div>JARVIS — copiloto SDR<span class="t">/jarvis · battle cards na call</span></div></a>
+        <a class="lnk" href="/pipeline">📞 <div>Pipeline Apollo<span class="t">/pipeline</span></div></a>
+        <a class="lnk" href="https://www.linkedin.com/sales/" target="_blank" rel="noopener">in <div>LinkedIn Sales Navigator</div></a>
+      </div>
+      <button class="done-btn" aria-pressed="false">Marcar módulo como concluído</button>
+    </div>
+  </details>
+
+  <details class="mod" data-id="e4-comercial">
+    <summary><span class="n">3</span><h3>Processo comercial e abordagem S/4HANA</h3><span class="chev">▶</span></summary>
+    <div class="mod-body">
+      <div class="grid g4">
+        <div class="card"><div class="ico">🔎</div><h4>1. Descoberta</h4><p>Entender dor, contexto e decisores.</p></div>
+        <div class="card"><div class="ico">🧭</div><h4>2. Diagnóstico</h4><p>Mapear processo atual e impacto.</p></div>
+        <div class="card"><div class="ico">📄</div><h4>3. Proposta</h4><p>Escopo, investimento, prazo e diferenciais.</p></div>
+        <div class="card"><div class="ico">🤝</div><h4>4. Fechamento & CS</h4><p>Contrato, kick-off, sucesso do cliente.</p></div>
+      </div>
+      <p class="src">Etapas genéricas de venda consultiva B2B. <span class="tag pend">⏳ A preencher</span> playbook comercial oficial EPI-USE Brasil.</p>
+      <div class="links">
+        <a class="lnk" href="https://www.youtube.com/watch?v=HvrIzogVbLw" target="_blank" rel="noopener">▶️ <div>S/4HANA Sales Approach<span class="t">YouTube</span></div></a>
+        <a class="lnk" href="/war-room">🎯 <div>War Room<span class="t">/war-room</span></div></a>
+        <a class="lnk" href="/curva-abc">📊 <div>Curva ABC de clientes<span class="t">/curva-abc</span></div></a>
+      </div>
+      <button class="done-btn" aria-pressed="false">Marcar módulo como concluído</button>
+    </div>
+  </details>
+
+  <div class="quiz" data-quiz="e4"></div>
+  <div class="card" id="finale" style="margin-top:22px;text-align:center;display:none">
+    <div style="font-size:42px">🐘🎉</div>
+    <h3>Onboarding concluído!</h3>
+    <p>Agende 30 min com o Rudá para tirar dúvidas e receber sua primeira demanda.</p>
+  </div>
+  <div class="nav-row"><button class="btn ghost" data-go="e3">← Etapa 3</button><span></span></div>
+</section>
+
+</main>
+<office-footer></office-footer>
+
+<script>
+(() => {
+  'use strict';
+  const LS = 'eubr-onboarding-v1';
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let state = {};
+  try { state = JSON.parse(localStorage.getItem(LS) || '{}') || {}; } catch { state = {}; }
+  const save = () => { try { localStorage.setItem(LS, JSON.stringify(state)); } catch {} };
+
+  /* Cores lidas dos tokens → canvas acompanha o tema sem hex hardcoded */
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  let C = {};
+  const readColors = () => C = {
+    bg: css('--color-bg'), surf: css('--color-surface'), text: css('--color-text'), muted: css('--color-text-muted'),
+    line: css('--color-border'), blue: css('--color-brand-deep-blue'), red: css('--color-brand-red'),
+    corn: css('--color-brand-cornflower-blue'), steel: css('--color-brand-steel-blue'), royal: css('--color-brand-royal-blue'),
+    ok: css('--color-success-500'), warn: css('--color-warning-500'), grey: css('--color-ge-grey') || css('--color-text-muted'),
+    light: css('--color-neutral-dark-text')
+  };
+  readColors();
+
+  /* ---------- DADOS ---------- */
+  const ACCESS = [
+    ['rd', 'RD Station Marketing', 'E-mail, LPs, automação', 'https://app.rdstation.com.br'],
+    ['crm', 'Zoho CRM', 'Deals, pipeline e receita (vendas)', 'https://crm.zoho.com'],
+    ['sfsf', 'SuccessFactors EUBR', 'Portal do colaborador', null],
+    ['nav', 'LinkedIn Sales Navigator', 'Licença com o gestor', 'https://www.linkedin.com/sales/'],
+    ['canva', 'Canva (time EPI-USE)', 'Convite para o time com brand kit', 'https://www.canva.com'],
+    ['cms-eubr', 'Site EUBR (HubSpot CMS)', 'Usuário de editor', 'https://app.hubspot.com'],
+    ['wp-str', 'Site Stratview', 'Usuário de editor do CMS', null],
+    ['trello', 'Trello', 'Board do time de marketing', 'https://trello.com'],
+    ['suser', 'SAP S-user', 'SAP for Me / Partner Edge', 'https://me.sap.com'],
+    ['multi', 'Multidados', 'Horas e despesas', null],
+    ['office', 'EPI-USE Office', 'Login SSO Microsoft', '/hub']
+  ];
+
+  const DICT = [
+    ['ABM','Account-Based Marketing: marketing direcionado a contas-alvo específicas.'],
+    ['AMS','Application Management Services: suporte e sustentação contínua do SAP.'],
+    ['AEO / GEO','Otimização para aparecer em respostas de IA (ChatGPT, Gemini, Perplexity).'],
+    ['ASUG','Associação de usuários SAP — eventos e comunidade, ótimo canal de demanda.'],
+    ['BANT','Critério de qualificação: Budget, Authority, Need, Timing.'],
+    ['Binds','Pesquisa de NPS com clientes.'],
+    ['BTP','SAP Business Technology Platform: extensões, integrações, dados e IA.'],
+    ['Cadência','Sequência planejada de contatos (e-mail, ligação, LinkedIn) de prospecção.'],
+    ['CIV','Indicador de valor do parceiro no programa SAP.'],
+    ['Clean Core','Manter o ERP sem customizações no núcleo; extensões ficam no BTP.'],
+    ['Closer / AE','Vendedor responsável por conduzir a oportunidade até o fechamento.'],
+    ['CS','Customer Success: garante resultado, retenção e expansão do cliente.'],
+    ['ECC','ERP legado da SAP, sendo substituído pelo S/4HANA.'],
+    ['ERP','Sistema integrado de gestão (finanças, compras, vendas, RH...).'],
+    ['ERP.ngo','Braço social do Group Elephant: 1% da receita para conservação e comunidades.'],
+    ['GROW with SAP','Pacote para novos clientes adotarem S/4HANA Cloud Public.'],
+    ['HCM','Human Capital Management: soluções de RH, folha e talentos.'],
+    ['ICP','Ideal Customer Profile: perfil da empresa ideal para vender.'],
+    ['Inbound','Atrair o cliente com conteúdo e oferta (ele vem até nós).'],
+    ['IP','Propriedade intelectual: software/acelerador proprietário (ex.: TalenTools, PRISM).'],
+    ['Lead scoring','Pontuação do lead por perfil e engajamento.'],
+    ['LOB','Line of Business: linha de solução (HCM, ERP, BTP, Signavio...).'],
+    ['MDF','Market Development Funds: verba da SAP para cofinanciar marketing de parceiros.'],
+    ['MQL','Marketing Qualified Lead: lead que o marketing considera pronto para vendas.'],
+    ['NPS','Net Promoter Score: métrica de lealdade do cliente.'],
+    ['Outbound','Prospecção ativa: nós vamos até o cliente.'],
+    ['PBC','Partner Benefits Catalog: catálogo de benefícios da SAP para parceiros.'],
+    ['PoP','Proof of Performance: comprovação de execução para reembolso do MDF.'],
+    ['Process mining','Análise de logs do sistema para ver o processo como ele realmente ocorre.'],
+    ['REX','Indicador de experiência/reconhecimento do parceiro SAP.'],
+    ['RevOps','Revenue Operations: alinhamento de marketing, vendas e CS em torno da receita.'],
+    ['RISE with SAP','Pacote de transformação para S/4HANA Cloud para clientes existentes.'],
+    ['S/4HANA','ERP atual da SAP, sucessor do ECC.'],
+    ['S-user','Usuário SAP para acessar SAP for Me, suporte e portais.'],
+    ['SDR','Sales Development Representative: prospecta e qualifica leads.'],
+    ['SEO / SEM','SEO: busca orgânica. SEM: marketing de busca, inclui mídia paga.'],
+    ['Signavio','Solução SAP de modelagem e mineração de processos.'],
+    ['SLA','Acordo de nível de serviço (ex.: tempo de resposta de vendas a um MQL).'],
+    ['SQL','Sales Qualified Lead: lead aceito e qualificado por vendas.'],
+    ['SuccessFactors','Suíte SAP de RH em nuvem.'],
+    ['TBT','Throwback Thursday: post de memória às quintas.'],
+    ['UTM','Parâmetros no link para rastrear a origem do tráfego.'],
+    ['Voices','EPI-USE Voices: programa de especialistas embaixadores no LinkedIn.']
+  ];
+
+  const COMP = [
+    ['itz','ITZ'], ['hrst','HRST'], ['ntt data brasil','NTT DATA'], ['seidor brasil','Seidor'], ['deloitte brasil','Deloitte']
+  ];
+
+  const QUIZ = {
+    e1: [
+      ['Como devemos chamar a empresa em comunicação no Brasil?', ['EPI-USE', 'EPI-USE Brasil', 'Group Elephant Brasil'], 1],
+      ['Quais são as 4 frentes de receita?', ['Licença, Implementação, Suporte, Desenvolvimento', 'HCM, ERP, BTP, Signavio', 'Inbound, Outbound, Eventos, Parcerias'], 0],
+      ['Quanto da receita global vai para a ERP.ngo?', ['0,1%', '1%', '10%'], 1],
+      ['Qual o papel do vermelho na identidade visual?', ['Cor predominante', 'Só acento (CTA, bullet, ícone)', 'Fundo de tabelas'], 1]
+    ],
+    e2: [
+      ['Qual a ordem correta do funil?', ['SQL → MQL → Lead', 'Lead → MQL → SQL → Oportunidade', 'MQL → Lead → Oportunidade'], 1],
+      ['Quantos conteúdos a Redatoria entrega por mês?', ['10', '20', '40'], 1],
+      ['O que é MDF?', ['Verba da SAP para cofinanciar marketing de parceiros', 'Ferramenta de e-mail', 'Métrica de NPS'], 0],
+      ['Podemos citar concorrentes em conteúdo público?', ['Sim, se for elogio', 'Não, nunca nominalmente', 'Só no LinkedIn'], 1]
+    ],
+    e3: [
+      ['O que significa Clean Core?', ['Apagar dados antigos', 'Manter o núcleo do ERP sem customizações, com extensões no BTP', 'Migrar para outro fornecedor'], 1],
+      ['Para que serve process mining?', ['Desenhar o processo ideal', 'Mostrar como o processo realmente acontece, a partir dos logs', 'Minerar criptomoedas'], 1],
+      ['Qual o sucessor do SAP ECC?', ['SuccessFactors', 'S/4HANA', 'Signavio'], 1]
+    ],
+    e4: [
+      ['Na Receita Previsível, quem prospecta e qualifica?', ['Closer', 'SDR', 'CS'], 1],
+      ['Qual o SLA mensal do Development Sales?', ['40 ligações + 200 e-mails', '10 ligações + 50 e-mails', '100 ligações + 1.000 e-mails'], 0],
+      ['O que significa o "A" de BANT?', ['Atendimento', 'Autoridade (quem decide)', 'Agenda'], 1]
+    ]
+  };
+
+  /* ---------- NAVEGAÇÃO ---------- */
+  const steps = [...document.querySelectorAll('.step')];
+  const go = (id, noScroll) => {
+    document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === id));
+    steps.forEach(s => s.setAttribute('aria-selected', s.dataset.p === id));
+    state.tab = id; save();
+    if (!noScroll) window.scrollTo({ top: document.querySelector('.stepper').offsetTop, behavior: reduce ? 'auto' : 'smooth' });
+    setTimeout(() => window.dispatchEvent(new Event('ob:tab')), 30);
+  };
+  steps.forEach(s => s.addEventListener('click', () => go(s.dataset.p)));
+  document.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => go(b.dataset.go)));
+
+  /* ---------- PROGRESSO ---------- */
+  state.mods = state.mods || {}; state.quiz = state.quiz || {}; state.access = state.access || {};
+  const mods = [...document.querySelectorAll('details.mod')];
+  function refresh() {
+    let done = 0, total = mods.length + Object.keys(QUIZ).length;
+    mods.forEach(m => {
+      const ok = !!state.mods[m.dataset.id];
+      m.classList.toggle('done', ok);
+      const b = m.querySelector('.done-btn');
+      b.setAttribute('aria-pressed', ok); b.textContent = ok ? '✓ Concluído' : 'Marcar módulo como concluído';
+      if (ok) done++;
+    });
+    Object.keys(QUIZ).forEach(k => { if (state.quiz[k]) done++; });
+    const pct = Math.round(done / total * 100);
+    document.getElementById('pFill').style.width = pct + '%';
+    document.getElementById('pLabel').textContent = pct + '% concluído · ' + done + ' de ' + total + ' itens';
+    steps.forEach(s => {
+      const p = document.getElementById(s.dataset.p);
+      const ms = [...p.querySelectorAll('details.mod')];
+      let d = ms.filter(m => state.mods[m.dataset.id]).length, t = ms.length;
+      if (QUIZ[s.dataset.p]) { t++; if (state.quiz[s.dataset.p]) d++; }
+      s.querySelector('.mini i').style.width = (t ? d / t * 100 : 0) + '%';
+    });
+    document.getElementById('finale').style.display = pct === 100 ? 'block' : 'none';
+  }
+  mods.forEach(m => m.querySelector('.done-btn').addEventListener('click', e => {
+    e.preventDefault(); state.mods[m.dataset.id] = !state.mods[m.dataset.id]; save(); refresh();
+  }));
+
+  /* ---------- ACESSOS ---------- */
+  const al = document.getElementById('accessList');
+  ACCESS.forEach(([id, name, hint, url]) => {
+    const lab = document.createElement('label'); lab.className = 'check';
+    lab.innerHTML = `<input type="checkbox" ${state.access[id] ? 'checked' : ''}><div><b>${name}</b><small>${hint}</small>${url ? `<a href="${url}" target="_blank" rel="noopener">abrir ↗</a>` : '<span class="tag pend">⏳ link a preencher</span>'}</div>`;
+    lab.querySelector('input').addEventListener('change', e => { state.access[id] = e.target.checked; save(); });
+    al.appendChild(lab);
+  });
+
+  /* ---------- DICIONÁRIO ---------- */
+  const dictEl = document.getElementById('dict');
+  const renderDict = q => {
+    q = (q || '').toLowerCase();
+    dictEl.innerHTML = DICT.filter(([t, d]) => !q || (t + ' ' + d).toLowerCase().includes(q))
+      .map(([t, d]) => `<div class="term"><b>${t}</b><br><span>${d}</span></div>`).join('') || '<p>Nenhum termo encontrado.</p>';
+  };
+  document.getElementById('dictQ').addEventListener('input', e => renderDict(e.target.value));
+  renderDict('');
+
+  /* ---------- CONCORRENTES ---------- */
+  const g = q => 'https://www.google.com/search?q=' + encodeURIComponent(q);
+  document.getElementById('compRows').innerHTML = COMP.map(([q, n]) =>
+    `<tr><td><b>${n}</b></td><td><a href="${g(q + ' SAP site oficial')}" target="_blank" rel="noopener">buscar site ↗</a></td><td><a href="${g(q + ' SAP linkedin company')}" target="_blank" rel="noopener">buscar LinkedIn ↗</a></td></tr>`).join('');
+
+  /* ---------- QUIZ ---------- */
+  document.querySelectorAll('[data-quiz]').forEach(box => {
+    const k = box.dataset.quiz, qs = QUIZ[k];
+    box.innerHTML = `<h3>📝 Quiz da etapa</h3>` + qs.map((q, i) =>
+      `<div class="q"><p>${i + 1}. ${q[0]}</p>${q[1].map((o, j) => `<label><input type="radio" name="${k}-${i}" value="${j}">${o}</label>`).join('')}</div>`).join('') +
+      `<button class="btn">Corrigir</button><div class="qres"></div>`;
+    box.querySelector('.btn').addEventListener('click', () => {
+      let hit = 0;
+      qs.forEach((q, i) => {
+        box.querySelectorAll(`[name="${k}-${i}"]`).forEach(inp => {
+          const l = inp.parentElement; l.classList.remove('ok', 'ko');
+          if (+inp.value === q[2]) l.classList.add('ok'); else if (inp.checked) l.classList.add('ko');
+          if (inp.checked && +inp.value === q[2]) hit++;
+        });
+      });
+      const pass = hit === qs.length;
+      box.querySelector('.qres').textContent = pass ? `✅ ${hit}/${qs.length} — etapa aprovada!` : `${hit}/${qs.length} — revise os itens em vermelho e tente de novo.`;
+      if (pass) { state.quiz[k] = true; save(); refresh(); }
+    });
+  });
+
+  /* =========================================================
+     ANIMAÇÕES — canvas vanilla. Cada uma só roda quando visível
+     (IntersectionObserver) e respeita prefers-reduced-motion.
+     ========================================================= */
+  function anim(id, draw, onClick) {
+    const cv = document.getElementById(id); if (!cv) return;
+    const ctx = cv.getContext('2d');
+    let t0 = performance.now(), raf = 0, vis = false;
+    const loop = now => { draw(ctx, (now - t0) / 1000, cv.width, cv.height); if (vis && !reduce) raf = requestAnimationFrame(loop); };
+    new IntersectionObserver(es => es.forEach(e => {
+      vis = e.isIntersecting && cv.offsetParent !== null;
+      cancelAnimationFrame(raf); if (vis) raf = requestAnimationFrame(loop);
+    })).observe(cv);
+    window.addEventListener('ob:tab', () => { if (cv.offsetParent !== null) { draw(ctx, (performance.now() - t0) / 1000, cv.width, cv.height); } });
+    document.querySelectorAll('details.mod').forEach(d => d.addEventListener('toggle', () => { if (d.open && d.contains(cv)) { vis = true; cancelAnimationFrame(raf); raf = requestAnimationFrame(loop); } }));
+    if (onClick) cv.addEventListener('click', e => {
+      const r = cv.getBoundingClientRect();
+      onClick((e.clientX - r.left) * cv.width / r.width, (e.clientY - r.top) * cv.height / r.height);
+      draw(ctx, (performance.now() - t0) / 1000, cv.width, cv.height);
+    });
+    return { redraw: () => draw(ctx, (performance.now() - t0) / 1000, cv.width, cv.height) };
+  }
+  const rr = (c, x, y, w, h, r) => { c.beginPath(); c.roundRect ? c.roundRect(x, y, w, h, r) : c.rect(x, y, w, h); };
+  const txt = (c, s, x, y, o = {}) => { c.fillStyle = o.color || C.text; c.font = `${o.w || 700} ${o.size || 14}px Lato, sans-serif`; c.textAlign = o.align || 'center'; c.textBaseline = 'middle'; c.fillText(s, x, y); };
+  const ease = p => p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+
+  /* 1) Ecossistema Group Elephant */
+  const GE = [
+    ['EPI-USE', 1, 'Marca principal: SAP HCM / SuccessFactors no mundo todo.'],
+    ['EPI-USE Labs', 1, 'Software proprietário, transformação de landscape SAP e migração para cloud.'],
+    ['G3G', 1, 'SAP Enterprise Management: finanças, logística, analytics, HANA.'],
+    ['K5 Business', 1, 'Implementação SAP regional e managed services.'],
+    ['konkconsulting', 1, 'Desenvolvimento sob medida em SAP HCM.'],
+    ['AWS Services', 1, 'EPI-USE Services for AWS — parceiro AWS avançado.'],
+    ['Stratview', 0, 'Analytics/Reporting e ofertas Oracle HCM · OCI · IA.'],
+    ['Cognetics', 0, 'RPA, IA e integração de aplicações.'],
+    ['Evolutio', 0, 'Observabilidade (AppDynamics + Splunk).'],
+    ['Glyde', 0, 'Serviços para clientes Workday.'],
+    ['ClearSky', 0, 'Infor HCM + Finance global.'],
+    ['ERP.ngo', 2, 'Braço social: 1% da receita global para conservação e comunidades.']
+  ];
+  let geSel = -1;
+  const geCtrl = document.getElementById('geCtrl');
+  ['Todas', 'Foco SAP', 'Outras tecnologias'].forEach((l, i) => {
+    const b = document.createElement('button'); b.className = 'chip' + (i ? '' : ' on'); b.textContent = l;
+    b.onclick = () => { geCtrl.querySelectorAll('.chip').forEach(x => x.classList.remove('on')); b.classList.add('on'); geFilter = i; geA && geA.redraw(); };
+    geCtrl.appendChild(b);
+  });
+  let geFilter = 0, gePos = [];
+  const geA = anim('cvGE', (c, t, W, H) => {
+    c.clearRect(0, 0, W, H);
+    const cx = W / 2, cy = H / 2;
+    [130, 190].forEach(r => { c.strokeStyle = C.line; c.setLineDash([4, 6]); c.beginPath(); c.ellipse(cx, cy, r * 2.1, r, 0, 0, 7); c.stroke(); });
+    c.setLineDash([]);
+    gePos = GE.map((b, i) => {
+      const ring = i % 2 ? 190 : 130, sp = i % 2 ? .08 : -.11;
+      const a = i / GE.length * Math.PI * 2 + t * sp;
+      return [cx + Math.cos(a) * ring * 2.1, cy + Math.sin(a) * ring];
+    });
+    gePos.forEach(([x, y], i) => {
+      const b = GE[i]; const dim = (geFilter === 1 && b[1] !== 1) || (geFilter === 2 && b[1] === 1);
+      c.globalAlpha = dim ? .2 : 1;
+      c.strokeStyle = b[1] === 2 ? C.red : C.line; c.beginPath(); c.moveTo(cx, cy); c.lineTo(x, y); c.stroke();
+      c.font = '700 13px Lato'; const w = c.measureText(b[0]).width + 22;
+      rr(c, x - w / 2, y - 15, w, 30, 15);
+      c.fillStyle = b[1] === 1 ? C.royal : b[1] === 2 ? C.red : C.grey; c.fill();
+      if (i === geSel) { c.strokeStyle = C.text; c.lineWidth = 2; c.stroke(); c.lineWidth = 1; }
+      txt(c, b[0], x, y, { color: C.light, size: 13 });
+      c.globalAlpha = 1;
+    });
+    c.beginPath(); c.arc(cx, cy, 52 + Math.sin(t * 2) * 2, 0, 7); c.fillStyle = C.blue; c.fill();
+    c.strokeStyle = C.corn; c.stroke();
+    txt(c, '🐘', cx, cy - 12, { size: 22 }); txt(c, 'Group Elephant', cx, cy + 16, { color: C.light, size: 12 });
+  }, (x, y) => {
+    geSel = gePos.findIndex(([px, py]) => Math.abs(px - x) < 70 && Math.abs(py - y) < 20);
+    document.getElementById('geInfo').innerHTML = geSel < 0 ? 'Clique numa marca para saber o que ela faz.' : `<b>${GE[geSel][0]}</b> — ${GE[geSel][2]}`;
+  });
+
+  /* 2) 4 frentes de receita no ciclo do cliente */
+  anim('cvRev', (c, t, W, H) => {
+    c.clearRect(0, 0, W, H);
+    const st = [['🔑', 'Licença'], ['🏗️', 'Implementação'], ['🛟', 'Suporte'], ['🧩', 'Desenvolvimento']];
+    const xs = st.map((_, i) => 140 + i * 240), y = 130;
+    c.strokeStyle = C.line; c.lineWidth = 3; c.beginPath(); c.moveTo(xs[0], y); c.lineTo(xs[3], y); c.stroke();
+    // retorno: desenvolvimento/suporte geram nova licença (loop)
+    c.setLineDash([6, 6]); c.beginPath(); c.moveTo(xs[3], y + 40); c.quadraticCurveTo(W / 2, H + 40, xs[0], y + 40); c.stroke(); c.setLineDash([]); c.lineWidth = 1;
+    txt(c, 'expansão: novos módulos e novas licenças', W / 2, H - 28, { color: C.muted, size: 12, w: 400 });
+    const cyc = (t % 6) / 6; const pos = cyc * 3.6; const active = Math.min(3, Math.floor(pos));
+    st.forEach(([e, n], i) => {
+      const on = i === active;
+      c.beginPath(); c.arc(xs[i], y, on ? 44 : 38, 0, 7); c.fillStyle = on ? C.blue : C.surf; c.fill();
+      c.strokeStyle = on ? C.red : C.line; c.lineWidth = 2; c.stroke(); c.lineWidth = 1;
+      txt(c, e, xs[i], y, { size: 26 }); txt(c, n, xs[i], y + 64, { size: 14, color: on ? C.text : C.muted });
+    });
+    const px = xs[0] + Math.min(1, pos / 3) * (xs[3] - xs[0]);
+    c.beginPath(); c.arc(px, y - 60, 9, 0, 7); c.fillStyle = C.red; c.fill();
+    txt(c, 'cliente', px, y - 82, { size: 12, color: C.muted, w: 400 });
+  });
+
+  /* 3) ERP.ngo — 1% */
+  const ngoP = Array.from({ length: 70 }, (_, i) => ({ o: Math.random(), s: .15 + Math.random() * .1, ngo: i % 12 === 0 }));
+  anim('cvNgo', (c, t, W, H) => {
+    c.clearRect(0, 0, W, H);
+    const A = [110, 130], B = [500, 130], N = [880, 70], P = [880, 190];
+    const box = (x, y, l, s, col) => { rr(c, x - 85, y - 32, 170, 64, 12); c.fillStyle = col; c.fill(); txt(c, l, x, y - 8, { color: C.light, size: 14 }); txt(c, s, x, y + 13, { color: C.light, size: 11, w: 400 }); };
+    ngoP.forEach(p => {
+      const k = (p.o + t * p.s) % 1;
+      let x, y;
+      if (k < .5) { const q = k / .5; x = A[0] + (B[0] - A[0]) * q; y = A[1] + Math.sin(q * 9 + p.o * 6) * 14; }
+      else { const q = (k - .5) / .5, T = p.ngo ? N : P; x = B[0] + (T[0] - B[0]) * q; y = B[1] + (T[1] - B[1]) * q; }
+      c.beginPath(); c.arc(x, y, p.ngo && k > .5 ? 5 : 3, 0, 7); c.fillStyle = p.ngo && k > .5 ? C.red : C.corn; c.globalAlpha = .85; c.fill(); c.globalAlpha = 1;
+    });
+    box(...A, '🤝 Projetos', 'clientes EPI-USE', C.royal);
+    box(...B, '💰 Receita global', 'Group Elephant', C.royal);
+    box(...N, '🐘 1% → ERP.ngo', 'conservação + comunidades', C.red);
+    box(...P, '🏢 99% → operação', 'pessoas, IPs, expansão', C.steel);
+  });
+
+  /* 4) Funil de demanda */
+  const CH = [['Inbound', 'Conteúdo, SEO, LPs e e-mail atraem quem já pesquisa o tema.'], ['Outbound', 'SDR prospecta contas-alvo via Apollo, ligação e LinkedIn.'], ['Eventos', 'Eventos próprios, SAP e LATAM geram conversas presenciais.'], ['ASUG', 'Comunidade de usuários SAP: palestras e networking com clientes SAP.'], ['Listas SAP', 'Indicações e listas compartilhadas pela SAP (parceria).'], ['Voices', 'Especialistas no LinkedIn geram leads de alta intenção.']];
+  let chSel = -1;
+  const fc = document.getElementById('funnelCtrl');
+  CH.forEach(([n, d], i) => { const b = document.createElement('button'); b.className = 'chip'; b.textContent = n; b.onclick = () => { chSel = chSel === i ? -1 : i; fc.querySelectorAll('.chip').forEach((x, j) => x.classList.toggle('on', j === chSel)); document.getElementById('funnelInfo').innerHTML = chSel < 0 ? 'Todos os canais ativos.' : `<b>${n}</b> — ${d}`; }; fc.appendChild(b); });
+  const STG = [['Lead', 1], ['MQL', .62], ['SQL', .4], ['Oportunidade', .24], ['Cliente', .12]];
+  const fP = Array.from({ length: 160 }, () => ({ ch: Math.floor(Math.random() * 6), o: Math.random(), d: Math.random(), lane: Math.random() - .5 }));
+  anim('cvFunnel', (c, t, W, H) => {
+    c.clearRect(0, 0, W, H);
+    const chX = 110, fx0 = 300, fx1 = W - 70, cy = H / 2, maxH = 340;
+    CH.forEach(([n], i) => {
+      const y = 50 + i * 68, on = chSel < 0 || chSel === i;
+      c.globalAlpha = on ? 1 : .3; rr(c, chX - 80, y - 18, 160, 36, 18); c.fillStyle = C.royal; c.fill();
+      txt(c, n, chX, y, { color: C.light, size: 13 }); c.globalAlpha = 1;
+    });
+    const sw = (fx1 - fx0) / STG.length;
+    STG.forEach(([n, h], i) => {
+      const x = fx0 + i * sw, hh = maxH * h, nh = maxH * (STG[i + 1] ? STG[i + 1][1] : h * .8);
+      c.beginPath(); c.moveTo(x, cy - hh / 2); c.lineTo(x + sw - 6, cy - nh / 2); c.lineTo(x + sw - 6, cy + nh / 2); c.lineTo(x, cy + hh / 2); c.closePath();
+      c.fillStyle = i === STG.length - 1 ? C.red : C.blue; c.globalAlpha = .18 + i * .12; c.fill(); c.globalAlpha = 1;
+      c.strokeStyle = C.line; c.stroke();
+      txt(c, n, x + sw / 2, cy - hh / 2 - 14, { size: 13, color: C.text });
+    });
+    fP.forEach(p => {
+      const k = (p.o + t * .09) % 1, y0 = 50 + p.ch * 68;
+      const dimmed = chSel >= 0 && chSel !== p.ch;
+      let x, y;
+      if (k < .25) { const q = ease(k / .25); x = chX + 80 + (fx0 - chX - 80) * q; y = y0 + (cy - y0) * q; }
+      else {
+        const q = (k - .25) / .75, xx = fx0 + q * (fx1 - fx0), si = Math.min(STG.length - 1, Math.floor(q * STG.length));
+        if (p.d > STG[si][1] + .02) return; // lead "cai" do funil
+        x = xx; y = cy + p.lane * maxH * STG[si][1] * .85;
+      }
+      c.beginPath(); c.arc(x, y, 3.2, 0, 7); c.fillStyle = dimmed ? C.line : (k > .9 ? C.red : C.corn); c.fill();
+    });
+  });
+
+  /* 5) Fluxo de publicação */
+  const PS = [['💡', 'Pauta', 'Gui'], ['📝', 'Briefing', 'SEO + tese'], ['✍️', 'Redação', 'Redatoria'], ['🔍', 'SEO check', 'Office'], ['✅', 'Aprovação', 'Duda'], ['🌐', 'WordPress', 'publicar'], ['📣', 'Distribuição', 'LI + news']];
+  anim('cvPost', (c, t, W, H) => {
+    c.clearRect(0, 0, W, H);
+    const n = PS.length, gap = (W - 120) / (n - 1), y = 95, cur = (t * .8) % (n + 1);
+    c.strokeStyle = C.line; c.lineWidth = 3; c.beginPath(); c.moveTo(60, y); c.lineTo(W - 60, y); c.stroke();
+    c.strokeStyle = C.ok; c.beginPath(); c.moveTo(60, y); c.lineTo(60 + Math.min(n - 1, cur) * gap, y); c.stroke(); c.lineWidth = 1;
+    PS.forEach(([e, l, s], i) => {
+      const x = 60 + i * gap, done = cur >= i;
+      c.beginPath(); c.arc(x, y, 28, 0, 7); c.fillStyle = done ? C.blue : C.surf; c.fill(); c.strokeStyle = done ? C.ok : C.line; c.lineWidth = 2; c.stroke(); c.lineWidth = 1;
+      txt(c, e, x, y, { size: 20 }); txt(c, l, x, y + 50, { size: 13 }); txt(c, s, x, y + 70, { size: 11, color: C.muted, w: 400 });
+    });
+  });
+
+  /* 6) Ciclo RevOps */
+  const RV = [['🧭', 'Planejar', 'metas, ICP, campanhas'], ['🚀', 'Executar', 'inbound, outbound, eventos'], ['📏', 'Medir', 'CRM, UTM, dashboards'], ['📊', 'Reportar', 'mensal + trimestral'], ['🔧', 'Ajustar', 'verba, canal, mensagem']];
+  anim('cvRevops', (c, t, W, H) => {
+    c.clearRect(0, 0, W, H);
+    const cx = W / 2, cy = H / 2, rx = 330, ry = 115, a0 = t * .5;
+    c.strokeStyle = C.line; c.lineWidth = 2; c.beginPath(); c.ellipse(cx, cy, rx, ry, 0, 0, 7); c.stroke(); c.lineWidth = 1;
+    const dot = a0 % (Math.PI * 2);
+    c.beginPath(); c.arc(cx + Math.cos(dot - Math.PI / 2) * rx, cy + Math.sin(dot - Math.PI / 2) * ry, 8, 0, 7); c.fillStyle = C.red; c.fill();
+    const act = Math.floor(((dot) / (Math.PI * 2)) * RV.length + .5) % RV.length;
+    RV.forEach(([e, l, s], i) => {
+      const a = i / RV.length * Math.PI * 2 - Math.PI / 2, x = cx + Math.cos(a) * rx, y = cy + Math.sin(a) * ry, on = i === act;
+      rr(c, x - 78, y - 30, 156, 60, 12); c.fillStyle = on ? C.blue : C.surf; c.fill(); c.strokeStyle = on ? C.corn : C.line; c.stroke();
+      txt(c, e + ' ' + l, x, y - 9, { size: 14, color: on ? C.light : C.text }); txt(c, s, x, y + 13, { size: 11, w: 400, color: on ? C.light : C.muted });
+    });
+    txt(c, '💵 Receita', cx, cy - 6, { size: 20 }); txt(c, 'MKT · Vendas · CS', cx, cy + 18, { size: 12, color: C.muted, w: 400 });
+  });
+
+  /* 7) Mapa SAP */
+  const SAP = [
+    { k: 'S/4HANA', x: 500, y: 220, w: 220, h: 90, col: 'blue', d: 'ERP core da SAP: finanças, compras, vendas, logística. Dor: Reforma Tributária, fim do ECC, processos manuais.' },
+    { k: 'SuccessFactors (HCM)', x: 160, y: 120, w: 230, h: 64, col: 'royal', d: 'RH em nuvem: folha, ponto, recrutamento, desempenho. Nosso core histórico. Dor: experiência do colaborador e compliance de folha.' },
+    { k: 'BTP', x: 500, y: 380, w: 380, h: 56, col: 'steel', d: 'Plataforma de extensões, integrações, dados e IA. Permite Clean Core: customização fora do ERP.' },
+    { k: 'Signavio', x: 840, y: 120, w: 200, h: 64, col: 'royal', d: 'Modelagem e process mining: mostra o processo real antes/depois da transformação.' },
+    { k: 'ServiceNow', x: 160, y: 320, w: 200, h: 64, col: 'grey', d: 'Gestão de serviços (HRSD para RH, ITSM para TI). Integra com SuccessFactors e S/4HANA.' },
+    { k: 'Analytics / PRISM', x: 840, y: 320, w: 220, h: 64, col: 'grey', d: 'Dashboards e reporting sobre os dados do ERP e do RH (Stratview, PRISM).' },
+    { k: 'IPs EPI-USE Labs', x: 500, y: 60, w: 220, h: 52, col: 'red', d: 'Aceleradores proprietários (TalenTools, DSM...) que reduzem prazo e risco dos projetos.' }
+  ];
+  let sapSel = -1;
+  anim('cvSap', (c, t, W, H) => {
+    c.clearRect(0, 0, W, H);
+    const core = SAP[0];
+    SAP.slice(1).forEach((b, i) => {
+      c.strokeStyle = C.line; c.setLineDash([3, 5]); c.beginPath(); c.moveTo(core.x, core.y); c.lineTo(b.x, b.y); c.stroke(); c.setLineDash([]);
+      for (let j = 0; j < 3; j++) {
+        const q = ((t * .35 + j / 3 + i * .13) % 1), inv = i % 2;
+        const x = inv ? b.x + (core.x - b.x) * q : core.x + (b.x - core.x) * q, y = inv ? b.y + (core.y - b.y) * q : core.y + (b.y - core.y) * q;
+        c.beginPath(); c.arc(x, y, 3, 0, 7); c.fillStyle = C.corn; c.fill();
+      }
+    });
+    SAP.forEach((b, i) => {
+      rr(c, b.x - b.w / 2, b.y - b.h / 2, b.w, b.h, 12); c.fillStyle = C[b.col]; c.fill();
+      c.strokeStyle = i === sapSel ? C.text : C.corn; c.lineWidth = i === sapSel ? 3 : 1.5; c.stroke(); c.lineWidth = 1;
+      txt(c, b.k, b.x, b.y, { color: C.light, size: i ? 14 : 18 });
+    });
+  }, (x, y) => {
+    sapSel = SAP.findIndex(b => Math.abs(b.x - x) < b.w / 2 && Math.abs(b.y - y) < b.h / 2);
+    document.getElementById('sapInfo').innerHTML = sapSel < 0 ? 'Clique num bloco para ver o que é e qual dor resolve.' : `<b>${SAP[sapSel].k}</b> — ${SAP[sapSel].d}`;
+  });
+
+  /* 8) ECC → S/4 Clean Core */
+  anim('cvMig', (c, t, W, H) => {
+    c.clearRect(0, 0, W, H);
+    const p = ease(Math.min(1, ((t % 8) / 8) * 1.4));
+    // lado ECC
+    rr(c, 70, 70, 250, 120, 14); c.fillStyle = C.steel; c.fill(); txt(c, 'ECC (legado)', 195, 130, { color: C.light, size: 16 });
+    for (let i = 0; i < 9; i++) { const a = i / 9 * 6.28 + t * .2; c.beginPath(); c.arc(195 + Math.cos(a) * 110, 130 + Math.sin(a) * 52, 9, 0, 7); c.fillStyle = C.warn; c.fill(); }
+    txt(c, 'customizações coladas no core', 195, 220, { size: 12, color: C.muted, w: 400 });
+    // seta
+    c.strokeStyle = C.red; c.lineWidth = 3; c.beginPath(); c.moveTo(360, 130); c.lineTo(360 + 180 * p, 130); c.stroke(); c.lineWidth = 1;
+    txt(c, 'migração', 450, 108, { size: 12, color: C.muted, w: 400 });
+    // S/4 clean core
+    c.globalAlpha = .25 + .75 * p;
+    rr(c, 600, 90, 200, 80, 14); c.fillStyle = C.blue; c.fill(); c.strokeStyle = C.corn; c.stroke(); txt(c, 'S/4HANA · Clean Core', 700, 130, { color: C.light, size: 15 });
+    rr(c, 590, 196, 330, 40, 10); c.fillStyle = C.royal; c.fill(); txt(c, 'BTP — extensões', 755, 216, { color: C.light, size: 13 });
+    for (let i = 0; i < 5; i++) { const bx = 830 + (i % 2) * 40, by = 80 + i * 22; c.beginPath(); c.arc(bx, by + Math.sin(t * 2 + i) * 3, 8, 0, 7); c.fillStyle = C.warn; c.fill(); }
+    txt(c, 'extensões fora do core', 880, 200 - 160, { size: 12, color: C.muted, w: 400 });
+    c.globalAlpha = 1;
+  });
+
+  /* 9) Process mining */
+  let pmIdeal = false;
+  document.getElementById('pmPlay').onclick = e => { pmIdeal = false; e.target.classList.add('on'); document.getElementById('pmIdeal').classList.remove('on'); };
+  document.getElementById('pmIdeal').onclick = e => { pmIdeal = true; e.target.classList.add('on'); document.getElementById('pmPlay').classList.remove('on'); };
+  const PMS = ['Pedido', 'Aprovação', 'Recebimento', 'Fatura', 'Pagamento'];
+  const pmC = Array.from({ length: 40 }, (_, i) => ({ o: i / 40, rw: Math.random() < .35, bn: Math.random() < .4 }));
+  anim('cvPM', (c, t, W, H) => {
+    c.clearRect(0, 0, W, H);
+    const gap = (W - 160) / (PMS.length - 1), y = 140;
+    if (!pmIdeal) { c.strokeStyle = C.red; c.setLineDash([5, 5]); c.beginPath(); c.moveTo(80 + gap * 3, y - 34); c.quadraticCurveTo(80 + gap * 2, y - 120, 80 + gap, y - 34); c.stroke(); c.setLineDash([]); txt(c, '↺ retrabalho', 80 + gap * 2, y - 92, { size: 12, color: C.red }); }
+    c.strokeStyle = C.line; c.lineWidth = 3; c.beginPath(); c.moveTo(80, y); c.lineTo(W - 80, y); c.stroke(); c.lineWidth = 1;
+    PMS.forEach((s, i) => {
+      const x = 80 + i * gap; rr(c, x - 62, y - 24, 124, 48, 10);
+      c.fillStyle = !pmIdeal && i === 2 ? C.warn : C.blue; c.fill(); txt(c, s, x, y, { color: C.light, size: 13 });
+    });
+    if (!pmIdeal) txt(c, '⚠ gargalo', 80 + gap * 2, y + 44, { size: 12, color: C.warn });
+    pmC.forEach(k => {
+      let q = (k.o + t * .07) % 1, x, yy = y + 52 + (k.o * 37 % 1) * 40;
+      if (!pmIdeal && k.bn && q > .45 && q < .62) q = .45 + (q - .45) * .2; // fica parado no gargalo
+      x = 80 + q * (W - 160);
+      if (!pmIdeal && k.rw && q > .5 && q < .75) { const r = (q - .5) / .25; x = 80 + gap * 3 - r * gap * 2; yy = y - 34 - Math.sin(r * Math.PI) * 70; }
+      c.beginPath(); c.arc(x, yy, 4, 0, 7); c.fillStyle = !pmIdeal && k.rw ? C.red : C.ok; c.fill();
+    });
+    txt(c, pmIdeal ? 'Fluxo linear: todos os casos seguem o caminho previsto' : 'Fluxo real: desvios (vermelho) e casos parados no gargalo', W / 2, H - 18, { size: 12, color: C.muted, w: 400 });
+  });
+
+  /* 10) Receita Previsível */
+  const RP = [['📥', 'Marketing', 'gera MQL (inbound)', 'royal'], ['📞', 'SDR', 'prospecta + qualifica', 'royal'], ['🤝', 'Closer', 'proposta + fechamento', 'blue'], ['🌱', 'CS', 'retém + expande', 'steel']];
+  const rpP = Array.from({ length: 50 }, () => ({ o: Math.random(), src: Math.random() < .5 ? 0 : 1 }));
+  anim('cvRP', (c, t, W, H) => {
+    c.clearRect(0, 0, W, H);
+    const pos = [[150, 80], [150, 220], [560, 150], [880, 150]];
+    pos.forEach(([x, y], i) => {
+      const [e, l, s, col] = RP[i]; rr(c, x - 100, y - 38, 200, 76, 14); c.fillStyle = C[col]; c.fill();
+      txt(c, e + ' ' + l, x, y - 10, { color: C.light, size: 16 }); txt(c, s, x, y + 14, { color: C.light, size: 12, w: 400 });
+    });
+    rpP.forEach(p => {
+      const k = (p.o + t * .12) % 1, [sx, sy] = pos[p.src];
+      let x, y;
+      if (k < .6) { const q = ease(k / .6); x = sx + 100 + (pos[2][0] - 100 - sx - 100) * q; y = sy + (150 - sy) * q; }
+      else { if (p.o > .55) return; const q = (k - .6) / .4; x = pos[2][0] + 100 + (pos[3][0] - 100 - pos[2][0] - 100) * q; y = 150; }
+      c.beginPath(); c.arc(x, y, 4, 0, 7); c.fillStyle = k > .6 ? C.ok : C.corn; c.fill();
+    });
+    txt(c, 'Especialização = previsibilidade: cada função tem meta e critério de passagem', W / 2, H - 20, { size: 12, color: C.muted, w: 400 });
+  });
+
+  /* 11) Cadência SDR */
+  const CAD = [[1, '✉️', 'E-mail'], [2, 'in', 'LinkedIn'], [3, '📞', 'Ligação'], [5, '✉️', 'E-mail'], [7, '📞', 'Ligação'], [10, 'in', 'Mensagem'], [14, '✉️', 'Break-up']];
+  anim('cvCad', (c, t, W, H) => {
+    c.clearRect(0, 0, W, H);
+    const x0 = 60, x1 = W - 60, y = 120, day = 1 + ((t * 1.6) % 15);
+    c.strokeStyle = C.line; c.lineWidth = 3; c.beginPath(); c.moveTo(x0, y); c.lineTo(x1, y); c.stroke(); c.lineWidth = 1;
+    for (let d = 1; d <= 14; d++) { const x = x0 + (d - 1) / 13 * (x1 - x0); txt(c, 'D' + d, x, y + 70, { size: 11, color: C.muted, w: 400 }); }
+    CAD.forEach(([d, e, l]) => {
+      const x = x0 + (d - 1) / 13 * (x1 - x0), hit = day >= d;
+      c.beginPath(); c.arc(x, y, hit ? 24 : 18, 0, 7); c.fillStyle = hit ? C.blue : C.surf; c.fill(); c.strokeStyle = hit ? C.red : C.line; c.lineWidth = 2; c.stroke(); c.lineWidth = 1;
+      txt(c, e, x, y, { size: 15, color: hit ? C.light : C.text }); txt(c, l, x, y - 40, { size: 12, color: hit ? C.text : C.muted });
+    });
+    const px = x0 + Math.min(13, day - 1) / 13 * (x1 - x0);
+    c.strokeStyle = C.red; c.beginPath(); c.moveTo(px, y - 60); c.lineTo(px, y + 50); c.stroke();
+  });
+
+  /* ---------- BOOT ---------- */
+  // stepper gruda logo abaixo do office-nav (que também é sticky)
+  const fixTop = () => { const n = document.querySelector('office-nav'); const sticky = n && ['sticky','fixed'].includes(getComputedStyle(n).position); document.querySelector('.stepper').style.top = (sticky ? n.getBoundingClientRect().height : 0) + 'px'; };
+  setTimeout(fixTop, 600); addEventListener('resize', fixTop);
+  refresh();
+  if (state.tab && document.getElementById(state.tab)) go(state.tab, true);
+  new MutationObserver(() => { readColors(); window.dispatchEvent(new Event('ob:tab')); }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+})();
+</script>
+</body>
+</html>
