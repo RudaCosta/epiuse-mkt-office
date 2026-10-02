@@ -824,7 +824,7 @@ app.use((req, res, next) => {
 // Páginas que o colaborador (role hub) PODE acessar: o hub, o game dele, e os
 // destinos do menu de acesso rápido do portal. O resto do Office segue bloqueado.
 const HUB_LOCK_PAGES = new Set([
-  '/hub', '/game', '/game-hub', '/login', '/escolher-visao', '/brand',
+  '/hub', '/game', '/game-hub', '/login', '/escolher-visao', '/brand', '/onboarding',
   '/design', '/erp-impacto', '/seja-voice', '/artigos', '/optimizer',
   '/optimizer-v3', '/voices/optimizer-v3',
   '/campanhas', '/brindes', '/hub/brindes', '/hub/solicitacao-brindes',
@@ -3463,6 +3463,7 @@ app.get('/dashboard', (req, res) => res.redirect(301, '/'));
 app.get('/hub',       (req, res) => res.sendFile(HUB_HTML));
 // Brand Assets — página própria (paleta, tipografia, logos). Linkada por último no Hub.
 app.get('/brand',     (req, res) => res.sendFile(path.join(__dirname, 'public/brand.html')));
+app.get('/onboarding', (req, res) => res.sendFile(path.join(__dirname, 'public/onboarding.html')));
 // Campanhas em jogo — campanhas internas (Gol de Placa) + LinkedIn ativas.
 app.get('/campanhas', (req, res) => res.sendFile(path.join(__dirname, 'public/campanhas.html')));
 // Escolher visualização (Office | Game) pós-login. Requer sessão (enforcement cuida disso).
