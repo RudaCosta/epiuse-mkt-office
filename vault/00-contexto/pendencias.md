@@ -6,18 +6,11 @@
 
 ## 🔴 BLOQUEADO POR TERCEIROS — Rudá precisa acompanhar
 
-### B2. Confirmar se o "EPI-USE Brand Guide 2026" é a versão final aprovada (25/set/2026)
-- **O que:** o PDF (Drive id `1TuOfKEr2SXG24MFpjdnXaeW3s2pYK56c`) tem nome interno `Brand Guide 2022_V1.1.indd` e seções em lorem ipsum (templates, service logos, assets).
-- **Quem:** Duda / branding global.
-- **Por que importa:** DESIGN.md v4.0 foi refeito 100% em cima dele (red `#CE181E`, Lato, secundárias azuis). Se houver versão mais nova, re-rodar o diff.
-- **Bug conhecido (não-bloqueante):** tema "EPI-USE · claro" continua com fundo escuro nas telas com rota — `body[data-route]` do office-nav.js vence o tema, e `home.css` tem cards escuros fixos. Corrigir exige refactor do home.css.
+_Nada bloqueado no momento (02/out/2026)._
 
-### B3. Graph API `Files.Read.All` pro Calendário Editorial (Módulo 25 · 30/set/2026)
-- **O que:** o app do Azure (o mesmo do SSO) precisa da permissão de APLICATIVO `Files.Read.All` (ou `Sites.Read.All`) + admin consent, pra Fase 2 puxar a planilha do calendário editorial direto da nuvem (OneDrive do marketing).
-- **Quem:** TI / quem aprovou o admin consent do SSO (~2 min no Azure Portal).
-- **Por que importa:** sem isso o resync do `/editorial/*` lê só a cópia local (Fase 1); com isso a atualização vira automática da nuvem, do localhost E do Railway.
-- **Detalhe completo:** `modulos/25-calendario-editorial/PENDENCIAS.md`.
-- **Não-bloqueante:** as 3 telas já funcionam com os dados semeados (Fase 1).
+## ✅ RESOLVIDOS 02/out/2026 (confirmação Rudá: "b2 e b3 ok")
+- **B2 · Brand Guide 2026** — confirmado como versão final. DESIGN.md v4.0 segue valendo, sem re-diff. Segue em aberto, não-bloqueante: o tema “EPI-USE · claro” fica com fundo escuro nas telas com rota (`body[data-route]` do office-nav.js vence o tema; `home.css` tem cards escuros fixos).
+- **B3 · Graph API `Files.Read.All`** — permissão liberada. **Fase 2 do Calendário Editorial desbloqueada**; falta só implementar a leitura direto da nuvem (ver `modulos/25-calendario-editorial/PENDENCIAS.md`).
 
 ---
 

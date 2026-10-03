@@ -338,6 +338,82 @@ button{font:inherit;color:inherit}
 .done-wrap .cta-row{justify-content:center}
 #confetti{position:fixed;inset:0;z-index:1100;pointer-events:none}
 
+/* ---------- v2.1: etapas 2–4 + ERP Coins + conquistas ---------- */
+.coin-pill{display:inline-flex;gap:8px;align-items:center;margin-top:22px;margin-left:8px;padding:7px 14px;border-radius:var(--rounded-full);background:color-mix(in srgb,var(--color-warning-500) 14%,transparent);border:1px solid color-mix(in srgb,var(--color-warning-500) 50%,transparent);font-size:13px;color:var(--o-text);text-decoration:none;transition:transform .3s var(--spring)}
+.coin-pill:hover{transform:translateY(-2px)}
+.coin-pill b{font:900 15px var(--o-head);color:var(--color-warning-500)}
+.coin-pill.bump{animation:bump .6s var(--spring)}
+@keyframes bump{40%{transform:scale(1.18)}}
+.ach-sec{position:relative;z-index:1;padding:0 0 120px}
+.ach-sec h2{font-size:clamp(22px,3vw,30px);font-weight:900;margin-bottom:6px}
+.ach-sec .sub{color:var(--o-dim);margin-bottom:18px;font-size:15px}
+.ach-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+@media (max-width:980px){.ach-grid{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:520px){.ach-grid{grid-template-columns:repeat(2,1fr)}}
+.ach{position:relative;overflow:hidden;padding:18px 12px;border-radius:20px;border:1px solid var(--o-line);background:var(--o-glass);text-align:center;opacity:0;animation:stIn .6s var(--ease) forwards;animation-delay:calc(var(--i)*.07s + .3s)}
+.ach .ai{font-size:38px;display:block;filter:grayscale(1) brightness(.55);transition:filter .4s}
+.ach b{display:block;font:900 14px var(--o-head);margin-top:8px}
+.ach small{display:block;font-size:12px;color:var(--o-muted);margin-top:2px}
+.ach .val{display:inline-block;margin-top:10px;font:700 12px var(--o-head);padding:4px 10px;border-radius:var(--rounded-full);border:1px solid var(--o-line);color:var(--o-muted)}
+.ach.on{border-color:color-mix(in srgb,var(--color-warning-500) 55%,transparent);box-shadow:0 14px 40px -18px var(--color-warning-500)}
+.ach.on .ai{filter:none;animation:float 3s ease-in-out infinite alternate}
+.ach.on .val{color:var(--color-warning-500);border-color:color-mix(in srgb,var(--color-warning-500) 50%,transparent)}
+.ach.on::after{content:'';position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,color-mix(in srgb,var(--o-text) 16%,transparent) 50%,transparent 65%);transform:translateX(-120%);animation:shine 3.6s ease-in-out infinite;pointer-events:none}
+@keyframes shine{60%,100%{transform:translateX(120%)}}
+.achpop{position:fixed;left:50%;top:84px;z-index:1300;width:min(390px,92vw);display:flex;gap:14px;align-items:center;padding:16px 20px;border-radius:22px;background:var(--o-surf);border:1px solid color-mix(in srgb,var(--color-warning-500) 60%,transparent);box-shadow:0 30px 60px -20px var(--o-bg),0 0 44px -12px var(--color-warning-500);transform:translate(-50%,-30px) scale(.9);opacity:0;transition:transform .5s var(--spring),opacity .4s;pointer-events:none}
+.achpop.on{transform:translate(-50%,0) scale(1);opacity:1}
+.achpop .ai{font-size:46px;animation:medal 1s var(--spring) both}
+.achpop small{display:block;font:700 11px var(--o-head);letter-spacing:.14em;text-transform:uppercase;color:var(--color-warning-500)}
+.achpop b{display:block;font:900 18px var(--o-head)}
+.achpop span{font-size:14px;color:var(--o-dim)}
+.coinfly{position:fixed;z-index:1310;font-size:22px;pointer-events:none;transition:transform 1s cubic-bezier(.3,-.4,.6,1),opacity 1s}
+.claim{margin-top:14px;font:700 14px var(--o-head);color:var(--color-warning-500);min-height:22px}
+.claim a{color:inherit}
+/* Flip cards */
+.flips{display:grid;gap:12px}
+.flip{appearance:none;border:0;background:none;cursor:pointer;perspective:1000px;height:128px;text-align:left;opacity:0;animation:fadeUp .7s var(--ease) forwards;animation-delay:calc(var(--i)*.12s + .2s)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.fl-in{position:relative;display:block;width:100%;height:100%;transform-style:preserve-3d;transition:transform .8s var(--spring)}
+.flip.on .fl-in{transform:rotateY(180deg)}
+.fl-f,.fl-b{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:16px 18px;border-radius:20px;border:1px solid var(--o-line);-webkit-backface-visibility:hidden;backface-visibility:hidden}
+.fl-f{background:var(--o-glass)}
+.fl-f .e{font-size:26px}
+.fl-f b{font:900 17px var(--o-head);margin-top:2px}
+.fl-f small{font-size:13px;color:var(--o-dim)}
+.fl-f em{position:absolute;right:14px;top:12px;font-style:normal;font-size:11px;color:var(--o-muted)}
+.fl-b{background:linear-gradient(135deg,var(--o-royal),var(--o-svc));transform:rotateY(180deg);font-size:15px;line-height:1.5}
+/* Stepper vertical */
+.steps{position:relative;padding:4px}
+.stp-track{position:absolute;left:25px;top:30px;bottom:30px;width:3px;border-radius:3px;background:var(--o-line)}
+.stp-track i{display:block;width:100%;height:0;border-radius:3px;background:linear-gradient(var(--o-corn),var(--o-ok));transition:height .6s var(--ease)}
+.stp{position:relative;display:flex;gap:14px;align-items:center;padding:8px 0;opacity:.4;transition:opacity .45s}
+.stp.on{opacity:1}
+.stp-o{position:relative;z-index:1;flex:0 0 44px;height:44px;border-radius:50%;display:grid;place-items:center;font-size:20px;background:var(--o-surf);border:2px solid var(--o-line);transition:transform .45s var(--spring),border-color .3s,background .3s,box-shadow .3s}
+.stp.on .stp-o{border-color:var(--o-corn);background:var(--o-royal)}
+.stp.cur .stp-o{transform:scale(1.12);box-shadow:0 0 0 7px color-mix(in srgb,var(--o-corn) 25%,transparent)}
+.stp b{display:block;font:900 15px var(--o-head)}
+.stp span{font-size:13px;color:var(--o-dim)}
+/* BANT */
+.bant{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.bl{appearance:none;cursor:pointer;padding:18px 8px;border-radius:18px;border:1px solid var(--o-line);background:var(--o-glass);text-align:center;transition:transform .35s var(--spring),border-color .3s,background .3s}
+.bl b{display:block;font:900 42px/1 var(--o-head);color:var(--o-muted);transition:color .3s}
+.bl span{display:block;font-size:12px;color:var(--o-dim);margin-top:6px}
+.bl.on{border-color:var(--o-ok);background:color-mix(in srgb,var(--o-ok) 14%,transparent);transform:translateY(-5px)}
+.bl.on b{color:var(--o-ok)}
+.meter{height:10px;border-radius:10px;background:var(--o-line);overflow:hidden;margin-top:16px}
+.meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--o-corn),var(--o-ok));transition:width .5s var(--ease)}
+.bant-q{margin-top:12px;min-height:44px;font-size:14px;color:var(--o-dim)}
+.bant-q b{color:var(--o-text)}
+@media (max-width:520px){.bant{grid-template-columns:repeat(2,1fr)}}
+/* Concorrentes */
+.comp{display:grid;gap:10px}
+.cp{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:12px 14px;border-radius:16px;border:1px solid var(--o-line);background:var(--o-glass);opacity:0;animation:fadeUp .6s var(--ease) forwards;animation-delay:calc(var(--i)*.08s + .15s)}
+.cp b{flex:1;min-width:120px;font:900 15px var(--o-head)}
+.cp a{font-size:12px;padding:5px 11px;border-radius:var(--rounded-full);border:1px solid var(--o-line);text-decoration:none;transition:border-color .3s}
+.cp a:hover{border-color:var(--o-corn)}
+.comp-dims{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+.comp-dims span{font:700 11px var(--o-head);letter-spacing:.08em;text-transform:uppercase;color:var(--o-muted);padding:4px 9px;border-radius:var(--rounded-full);border:1px dashed var(--o-line)}
+
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important}}
 </style>
 </head>
@@ -351,12 +427,12 @@ button{font:inherit;color:inherit}
     <div>
       <div class="eyebrow">Onboarding · Marketing & RevOps</div>
       <h1><span class="grad">Sua trilha no Marketing</span><br>EPI-USE Brasil 🐘</h1>
-      <p>Uma etapa de cada vez. Comece pelo <b>Kit Dia 1</b> e depois mergulhe na <b>Etapa 1</b>: telas curtas, animações e um quiz no final.</p>
+      <p>Quatro etapas, uma de cada vez: telas curtas, animações e um quiz no final de cada uma. Toda conquista vale <b>ERP Coins</b>.</p>
       <div class="cta-row">
         <button class="btn" id="ctaMain">▶ Começar a trilha</button>
         <button class="btn ghost" id="ctaKit">🎒 Kit Dia 1</button>
       </div>
-      <div class="phase-pill"><i></i> Fase 1 de 4 liberada · as próximas etapas chegam em fases</div>
+      <div class="phase-pill"><i></i> 4 etapas liberadas</div><a class="coin-pill" id="coinPill" hidden></a>
     </div>
     <div class="ring" aria-label="Progresso da trilha">
       <svg viewBox="0 0 120 120"><defs><linearGradient id="rg" x1="0" x2="1"><stop offset="0" style="stop-color:var(--o-corn)"/><stop offset="1" style="stop-color:var(--o-ok)"/></linearGradient></defs>
@@ -369,6 +445,13 @@ button{font:inherit;color:inherit}
     <svg class="map-svg" id="mapSvg"><defs><linearGradient id="pg" x1="0" x2="1"><stop offset="0" style="stop-color:var(--o-corn)"/><stop offset="1" style="stop-color:var(--o-ok)"/></linearGradient></defs>
       <path class="path-base" id="pathBase"/><path class="path-prog" id="pathProg"/><circle class="comet" id="comet" r="4"/></svg>
     <div class="map" id="map"></div>
+  </section>
+
+  <section class="ach-sec" aria-label="Conquistas">
+    <div class="eyebrow">Conquistas · <span id="achCount">0/6</span></div>
+    <h2>Ganhe ERP Coins enquanto aprende 🪙</h2>
+    <p class="sub">Cada conquista vale coins uma única vez, direto no seu saldo. Troque na <a href="/loja">Loja de Coins</a> e suba no <a href="/ranking">Ranking</a>.</p>
+    <div class="ach-grid" id="achGrid"></div>
   </section>
 </main>
 
@@ -390,6 +473,7 @@ button{font:inherit;color:inherit}
   </div>
 </div>
 <canvas id="confetti"></canvas>
+<div class="achpop" id="achPop" role="status" aria-live="polite"></div>
 <div class="toast" id="toast" role="status"></div>
 
 <office-footer></office-footer>
@@ -413,7 +497,7 @@ const K = {
   dim: css('--color-neutral-dark-text-dim'), muted: css('--color-neutral-dark-text-muted'),
   blue: css('--color-brand-deep-blue'), red: css('--color-brand-red'), corn: css('--color-brand-cornflower-blue'),
   royal: css('--color-brand-royal-blue'), steel: css('--color-brand-steel-blue'), slate: css('--color-brand-dark-slate-blue'),
-  svc: css('--color-brand-service-line-blue'), stone: css('--color-brand-stone-gray'), ok: css('--color-success-500')
+  svc: css('--color-brand-service-line-blue'), stone: css('--color-brand-stone-gray'), ok: css('--color-success-500'), warn: css('--color-warning-500')
 };
 const rgba = (hex, a) => { const h = (hex || '#000').replace('#', ''); const n = parseInt(h.length === 3 ? h.split('').map(x => x + x).join('') : h, 16); return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`; };
 const ease = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
@@ -423,13 +507,14 @@ const ACCESS = [
   ['rd', 'RD Station Marketing', 'E-mail, LPs, automação', 'https://app.rdstation.com.br'],
   ['crm', 'Zoho CRM', 'Deals, pipeline e receita', 'https://crm.zoho.com'],
   ['cms', 'Site EUBR (HubSpot CMS)', 'Usuário de editor', 'https://app.hubspot.com'],
-  ['str', 'Site Stratview', 'Usuário de editor do CMS', null],
-  ['sfsf', 'SuccessFactors EUBR', 'Portal do colaborador', null],
+  ['str', 'Site Stratview (admin)', 'Painel do site', 'http://stratview.com.br/admin'],
+  ['sfsf', 'SuccessFactors EUBR', 'Portal do colaborador', 'https://hcm19.sapsf.com/sf/home?bplte_company=epiusebras'],
   ['nav', 'LinkedIn Sales Navigator', 'Licença com o gestor', 'https://www.linkedin.com/sales/'],
   ['canva', 'Canva (time EPI-USE)', 'Convite com brand kit', 'https://www.canva.com'],
-  ['trello', 'Trello', 'Board do time de marketing', 'https://trello.com'],
+  ['trello', 'Trello', 'Board Atividades de Marketing', 'https://trello.com/b/M6xLnTcT/atividades-de-marketing-mise-en-place'],
+  ['cowork', 'Coworking EPI-USE', 'Portal do coworking', 'https://coworking.epiuse.com.br/login'],
   ['suser', 'SAP S-user', 'SAP for Me e Partner Edge', 'https://me.sap.com'],
-  ['multi', 'Multidados', 'Horas e despesas', null],
+  ['multi', 'Multidados', 'Horas e despesas', 'https://epiuse.multidadosti.com.br/login.php'],
   ['office', 'EPI-USE Office', 'Login SSO Microsoft', '/hub']
 ];
 const TEAM = [
@@ -446,7 +531,7 @@ const TIPS = [
   ['💡', '<b>Luz:</b> de frente para o rosto (janela ou ring light). Nunca contraluz.'],
   ['🔇', '<b>Barulho:</b> fone com microfone, ambiente fechado, mute quando não estiver falando.'],
   ['🖼️', '<b>Fundo:</b> neutro ou o background oficial EPI-USE (em <a href="/brand">/brand</a>). Câmera ligada com cliente.'],
-  ['⏱️', '<b>Horas:</b> lance no Multidados na frequência combinada com o gestor, sem acumular. <span class="tag">⏳ link a preencher</span>'],
+  ['⏱️', '<b>Horas:</b> lance no <a href="https://epiuse.multidadosti.com.br/login.php" target="_blank" rel="noopener">Multidados</a> na frequência combinada com o gestor, sem acumular.'],
   ['🧾', '<b>Despesas:</b> também no Multidados, com nota fiscal anexada.']
 ];
 const DICT = [
@@ -472,9 +557,9 @@ const DICT = [
 const STAGES = [
   { k: 'd1', kick: 'Comece aqui', t: 'Kit Dia 1', s: 'Acessos · time · rotina', ico: '🎒', phase: 1 },
   { k: 'e1', kick: 'Etapa 1', t: 'Marca & Grupo', s: 'EPI-USE · Group Elephant · ERP.ngo', ico: '🐘', phase: 1 },
-  { k: 'e2', kick: 'Etapa 2', t: 'Estratégia & Demanda', s: 'Funil · RevOps · Eventos', ico: '🚀', phase: 2 },
-  { k: 'e3', kick: 'Etapa 3', t: 'SAP & Técnico', s: 'ERP · HCM · BTP · ServiceNow', ico: '🧪', phase: 3 },
-  { k: 'e4', kick: 'Etapa 4', t: 'Comercial', s: 'Receita Previsível · SDR', ico: '📞', phase: 4 }
+  { k: 'e2', kick: 'Etapa 2', t: 'Estratégia & Demanda', s: 'Funil · RevOps · Eventos', ico: '🚀', phase: 1 },
+  { k: 'e3', kick: 'Etapa 3', t: 'SAP & Técnico', s: 'ERP · HCM · BTP · ServiceNow', ico: '🧪', phase: 1 },
+  { k: 'e4', kick: 'Etapa 4', t: 'Comercial', s: 'Receita Previsível · SDR', ico: '📞', phase: 1 }
 ];
 
 /* ======================= FUNDO: estrelas ======================= */
@@ -503,13 +588,14 @@ function stageStatus(st) {
   if (st.phase > 1) return { cls: 'lock', pill: `🔒 Fase ${st.phase} · em breve`, badge: '🔒' };
   if (st.k === 'd1') { const n = ACCESS.filter(a => S.access[a[0]]).length;
     return n === ACCESS.length ? { cls: 'done', pill: '✓ Completo', badge: '✓' } : { cls: '', pill: n ? `${n}/${ACCESS.length} acessos` : '▶ Abrir kit', badge: '' }; }
-  if (S.e1.done) return { cls: 'done', pill: '✓ Concluída', badge: '✓' };
-  return { cls: '', pill: S.e1.max > 0 ? '▶ Continuar' : '▶ Começar', badge: '' };
+  const e = S[st.k];
+  if (e.done) return { cls: 'done', pill: '✓ Concluída', badge: '✓' };
+  return { cls: '', pill: e.max > 0 ? '▶ Continuar' : '▶ Começar', badge: '' };
 }
 function progress() {
   const d1 = ACCESS.filter(a => S.access[a[0]]).length / ACCESS.length;
-  const e1 = S.e1.done ? 1 : Math.min(.8, (S.e1.max / SLIDES.length) * .8);
-  return (d1 + e1) / STAGES.length;
+  const et = ETAPAS.reduce((sum, k) => sum + (S[k].done ? 1 : Math.min(.8, (S[k].max / STAGE_DATA[k].slides.length) * .8)), 0);
+  return (d1 + et) / STAGES.length;
 }
 function renderMap() {
   const curIdx = STAGES.findIndex(st => stageStatus(st).cls === '');
@@ -522,8 +608,9 @@ function renderMap() {
   const pct = Math.round(progress() * 100);
   $('#ringFg').style.strokeDashoffset = 314.16 * (1 - pct / 100);
   countTo($('#ringPct'), pct, '%');
-  const kitOk = ACCESS.every(a => S.access[a[0]]);
-  $('#ctaMain').textContent = !S.e1.done ? (S.e1.max > 0 ? '▶ Continuar a Etapa 1' : '▶ Começar a trilha') : (kitOk ? '✓ Fase 1 concluída' : '🎒 Completar o Kit Dia 1');
+  const kitOk = ACCESS.every(a => S.access[a[0]]), nk = ETAPAS.find(k => !S[k].done);
+  $('#ctaMain').textContent = nk ? (S[nk].max > 0 || nk !== 'e1' ? `▶ Continuar · Etapa ${STAGE_DATA[nk].n}` : '▶ Começar a trilha') : (kitOk ? '🏆 Trilha concluída' : '🎒 Completar o Kit Dia 1');
+  renderShelf();
   // nós entram animados: posiciona já (linha oculta) e anima quando assentarem
   requestAnimationFrame(() => drawPath('hide'));
   clearTimeout(pathT); pathT = setTimeout(() => drawPath('anim'), 1150);
@@ -570,9 +657,9 @@ function openStage(k) {
   const st = STAGES.find(s => s.k === k);
   if (st.phase > 1) return toast(`🔒 A ${st.kick} (${st.t}) chega na Fase ${st.phase} da trilha.`);
   if (k === 'd1') return openDrawer('kit');
-  openPlayer();
+  openPlayer(k);
 }
-$('#ctaMain').addEventListener('click', () => { if (!S.e1.done) return openPlayer(); if (!ACCESS.every(a => S.access[a[0]])) return openDrawer('kit'); toast('🎉 Fase 1 completa! A Etapa 2 chega na próxima fase.'); });
+$('#ctaMain').addEventListener('click', () => { const nk = ETAPAS.find(k => !S[k].done); if (nk) return openPlayer(nk); if (!ACCESS.every(a => S.access[a[0]])) return openDrawer('kit'); toast('🏆 Trilha completa! Confira suas conquistas abaixo.'); });
 $('#ctaKit').addEventListener('click', () => openDrawer('kit'));
 
 /* ======================= DRAWER (Kit Dia 1 + Dicionário) ======================= */
@@ -602,7 +689,7 @@ function renderDrawer() {
     $$('#accList input').forEach(inp => inp.addEventListener('change', () => {
       S.access[inp.dataset.id] = inp.checked; save(); inp.closest('.chk').classList.toggle('on', inp.checked);
       const m = ACCESS.filter(a => S.access[a[0]]).length; $('#accBar').style.width = m / ACCESS.length * 100 + '%';
-      if (m === ACCESS.length) { burst(); toast('🔑 Todos os acessos ok!'); }
+      if (m === ACCESS.length) { burst(); toast('🔑 Todos os acessos ok!'); claim('kit'); }
     }));
   } else if (drTab === 'time') {
     body.innerHTML = `<p style="color:var(--o-dim);font-size:14px;margin-bottom:6px">Saber <b>quem decide o quê</b> economiza dias de retrabalho.</p>` +
@@ -725,31 +812,8 @@ function vizArms(el) {
   el.innerHTML = `<div class="arms"><div class="arm-core">🐘</div>${A.map(([e, n, d, x, y], i) => `<div class="arm" style="--i:${i};--x:${-x};--y:${-y}"><span class="e">${e}</span><b>${n}</b><span>${d}</span></div>`).join('')}</div>`;
 }
 
-/* ---- 5. Anel das 4 frentes de receita ---- */
-function vizRevenue(el) {
-  const R = [['🔑', 'Licença', 'Revenda e gestão de licenças SAP.'], ['🏗️', 'Implementação', 'Projetos de implantação até o go-live.'], ['🛟', 'Suporte', 'AMS e sustentação depois do go-live.'], ['🧩', 'Desenvolvimento', 'Custom dev, ABAP, BTP e IPs.']];
-  el.innerHTML = `<div class="rev"><svg viewBox="0 0 320 320"><circle class="rev-tr" cx="160" cy="160" r="122"/><circle class="rev-arc" id="revArc" cx="160" cy="160" r="122" stroke-dasharray="230 537"/></svg>
-    ${R.map(([e, n], j) => `<button class="rev-n" data-j="${j}" style="--a:${-90 + j * 90}deg">${e}<small>${n}</small></button>`).join('')}
-    <div class="rev-c" id="revC"></div></div><span class="viz-cap">Toque numa frente para fixar</span>`;
-  const arc = $('#revArc', el), cEl = $('#revC', el), nodes = $$('.rev-n', el);
-  let cur = -1, pin = -1, pinT = 0, head = -90;
-  const setActive = j => { if (j === cur) return; cur = j; nodes.forEach((n, k) => n.classList.toggle('on', k === j)); cEl.innerHTML = `<b class="fade">${R[j][1]}</b><span class="fade">${R[j][2]}</span>`; };
-  nodes.forEach(n => n.addEventListener('click', () => { pin = +n.dataset.j; pinT = performance.now(); setActive(pin); }));
-  setActive(0);
-  if (reduce) { arc.style.transform = 'rotate(-130deg)'; return () => {}; }
-  let raf = 0, last = performance.now();
-  const f = n => {
-    const dt = (n - last) / 1000; last = n;
-    const target = pin >= 0 ? -90 + pin * 90 : null;
-    if (pin >= 0 && n - pinT > 5000) pin = -1;
-    if (target === null) head += dt * 45; else { let d = ((target - head) % 360 + 540) % 360 - 180; head += d * Math.min(1, dt * 6); }
-    arc.style.transform = `rotate(${head - 54}deg)`;
-    if (pin < 0) setActive(((Math.round((head + 90) / 90) % 4) + 4) % 4);
-    raf = requestAnimationFrame(f);
-  };
-  raf = requestAnimationFrame(f);
-  return () => cancelAnimationFrame(raf);
-}
+/* ---- 5. Anel das 4 frentes de receita (vizRing, abaixo) ---- */
+const vizRevenue = el => vizRing([['🔑', 'Licença', 'Revenda e gestão de licenças SAP.'], ['🏗️', 'Implementação', 'Projetos de implantação até o go-live.'], ['🛟', 'Suporte', 'AMS e sustentação depois do go-live.'], ['🧩', 'Desenvolvimento', 'Custom dev, ABAP, BTP e IPs.']], 'Toque numa frente para fixar')(el);
 
 /* ---- 6. LOBs ---- */
 function vizLobs(el) {
@@ -804,9 +868,8 @@ function vizBrand(el) {
 
 /* ---- 10. Links da etapa ---- */
 function vizLinks(el) {
-  el.classList.add('auto');
   const L = [['🌐', 'epiuse.com.br', 'site EPI-USE Brasil', 'https://www.epiuse.com.br'], ['🐘', 'groupelephant.com', 'site da holding', 'https://www.groupelephant.com'], ['🦏', 'erp.ngo', 'site oficial', 'https://www.erp.ngo'], ['📊', 'Impacto ERP.ngo', '/erp-impacto', '/erp-impacto'], ['🎨', 'Brand assets', '/brand', '/brand'], ['📕', 'Brand Guide 2026', 'PDF no Drive', 'https://drive.google.com/file/d/1TuOfKEr2SXG24MFpjdnXaeW3s2pYK56c/view'], ['🎯', 'Metas FY27', '/metas-fy27', '/metas-fy27'], ['🎙️', 'Seja um Voice', '/seja-voice', '/seja-voice']];
-  el.innerHTML = `<div class="links">${L.map(([e, t, s, h], i) => `<a class="lk" style="--i:${i}" href="${h}" target="_blank" rel="noopener"><span class="e">${e}</span><span>${t}<small>${s}</small></span></a>`).join('')}</div>`;
+  return linkGrid(L)(el);
 }
 
 /* ======================= ETAPA 1: SLIDES ======================= */
@@ -834,25 +897,431 @@ const QUIZ = [
   { q: 'Qual o papel do vermelho na identidade visual?', o: ['Cor predominante', 'Só acento: CTA, bullet, ícone', 'Fundo de tabelas e gráficos'], a: 1, w: '“Mostly blue, with an accent of red.”' }
 ];
 
+/* ======================= COMPONENTES REUTILIZÁVEIS ======================= */
+const box = (x, cx, cy, w, h, r) => { x.beginPath(); x.roundRect ? x.roundRect(cx - w / 2, cy - h / 2, w, h, r) : x.rect(cx - w / 2, cy - h / 2, w, h); };
+/* Anel com 4 nós: um arco percorre os nós; toque fixa */
+const vizRing = (R, cap) => el => {
+  el.innerHTML = `<div class="rev"><svg viewBox="0 0 320 320"><circle class="rev-tr" cx="160" cy="160" r="122"/><circle class="rev-arc" cx="160" cy="160" r="122" stroke-dasharray="230 537"/></svg>
+    ${R.map(([e, n], j) => `<button class="rev-n" data-j="${j}" style="--a:${-90 + j * 90}deg">${e}<small>${n}</small></button>`).join('')}
+    <div class="rev-c"></div></div><span class="viz-cap">${cap || 'Toque num item para fixar'}</span>`;
+  const arc = $('.rev-arc', el), cEl = $('.rev-c', el), nodes = $$('.rev-n', el);
+  let cur = -1, pin = -1, pinT = 0, head = -90;
+  const setActive = j => { if (j === cur) return; cur = j; nodes.forEach((n, k) => n.classList.toggle('on', k === j)); cEl.innerHTML = `<b class="fade">${R[j][1]}</b><span class="fade">${R[j][2]}</span>`; };
+  nodes.forEach(n => n.addEventListener('click', () => { pin = +n.dataset.j; pinT = performance.now(); setActive(pin); }));
+  setActive(0);
+  if (reduce) { arc.style.transform = 'rotate(-144deg)'; return () => {}; }
+  let raf = 0, last = performance.now();
+  const f = n => {
+    const dt = (n - last) / 1000; last = n;
+    if (pin >= 0 && n - pinT > 5000) pin = -1;
+    if (pin < 0) head += dt * 45; else { const d = ((-90 + pin * 90 - head) % 360 + 540) % 360 - 180; head += d * Math.min(1, dt * 6); }
+    arc.style.transform = `rotate(${head - 54}deg)`;
+    if (pin < 0) setActive(((Math.round((head + 90) / 90) % 4) + 4) % 4);
+    raf = requestAnimationFrame(f);
+  };
+  raf = requestAnimationFrame(f);
+  return () => cancelAnimationFrame(raf);
+};
+/* Cards que viram */
+const vizFlip = items => el => {
+  el.classList.add('auto');
+  el.innerHTML = `<div class="flips">${items.map(([e, t, s, back], i) => `<button class="flip" style="--i:${i}" aria-label="${t}: virar card"><span class="fl-in"><span class="fl-f"><em>toque ↻</em><span class="e">${e}</span><b>${t}</b><small>${s}</small></span><span class="fl-b">${back}</span></span></button>`).join('')}</div>`;
+  $$('.flip', el).forEach(b => b.addEventListener('click', () => b.classList.toggle('on')));
+  if (!reduce) { const t = setTimeout(() => { const f = $('.flip', el); if (f) { f.classList.add('on'); setTimeout(() => f.classList.remove('on'), 1600); } }, 1400); return () => clearTimeout(t); }
+};
+/* Stepper vertical que acende em sequência */
+const vizSteps = (items, cap) => el => {
+  el.classList.add('auto');
+  el.innerHTML = `<div class="steps"><div class="stp-track"><i></i></div>${items.map(([e, t, s]) => `<div class="stp"><span class="stp-o">${e}</span><div><b>${t}</b><span>${s}</span></div></div>`).join('')}</div>${cap ? `<p class="src">${cap}</p>` : ''}`;
+  const st = $$('.stp', el), tr = $('.stp-track i', el), n = st.length;
+  const show = k => { st.forEach((s, j) => { s.classList.toggle('on', j <= k); s.classList.toggle('cur', j === k); }); tr.style.height = (n > 1 ? Math.min(k, n - 1) / (n - 1) * 100 : 100) + '%'; };
+  if (reduce) { show(n - 1); return () => {}; }
+  let k = -1; const iv = setInterval(() => { k = k >= n + 1 ? -1 : k + 1; show(Math.min(k, n - 1)); if (k === -1) show(-1); }, 950);
+  return () => clearInterval(iv);
+};
+/* Grade de links */
+const linkGrid = L => el => {
+  el.classList.add('auto');
+  el.innerHTML = `<div class="links">${L.map(([e, t, s, h], i) => `<a class="lk" style="--i:${i}" href="${h}" target="_blank" rel="noopener"><span class="e">${e}</span><span>${t}<small>${s}</small></span></a>`).join('')}</div>`;
+};
+
+/* ======================= ETAPA 2: animações ======================= */
+function vizRadar(el) {
+  el.insertAdjacentHTML('beforeend', '<span class="viz-cap">Radar de urgência 2026</span>');
+  const B = [['Fim do suporte ECC', .85, .66], ['Reforma Tributária', 2.75, .74], ['Clean Core', 4.55, .5]];
+  return canvasViz(el, (g, t) => {
+    const x = g.ctx, { W, H } = g; x.clearRect(0, 0, W, H);
+    const cx = W / 2, cy = H / 2 - 4, R = Math.min(W, H) * .4;
+    x.strokeStyle = rgba(K.corn, .18); x.lineWidth = 1;
+    for (let i = 1; i <= 4; i++) { x.beginPath(); x.arc(cx, cy, R * i / 4, 0, 7); x.stroke(); }
+    x.beginPath(); x.moveTo(cx - R, cy); x.lineTo(cx + R, cy); x.moveTo(cx, cy - R); x.lineTo(cx, cy + R); x.stroke();
+    const a = (t * 1.1) % (Math.PI * 2);
+    for (let k = 0; k < 28; k++) { const a0 = a - k * .04; x.fillStyle = rgba(K.corn, .22 * (1 - k / 28)); x.beginPath(); x.moveTo(cx, cy); x.arc(cx, cy, R, a0 - .045, a0); x.closePath(); x.fill(); }
+    x.strokeStyle = rgba(K.corn, .9); x.lineWidth = 2; x.beginPath(); x.moveTo(cx, cy); x.lineTo(cx + Math.cos(a) * R, cy + Math.sin(a) * R); x.stroke(); x.lineWidth = 1;
+    B.forEach(([l, ang, r]) => {
+      const px = cx + Math.cos(ang) * R * r, py = cy + Math.sin(ang) * R * r;
+      let d = (a - ang) % (Math.PI * 2); if (d < 0) d += Math.PI * 2;
+      const v = Math.max(.35, 1 - d / 3);
+      x.globalAlpha = v; x.strokeStyle = K.red; x.lineWidth = 2; x.beginPath(); x.arc(px, py, 6 + (1 - v) * 20, 0, 7); x.stroke(); x.lineWidth = 1;
+      x.fillStyle = K.red; x.beginPath(); x.arc(px, py, 5, 0, 7); x.fill();
+      x.font = '700 12px Lato, sans-serif'; const w = x.measureText(l).width + 20, lx = Math.max(w / 2 + 6, Math.min(W - w / 2 - 6, px));
+      x.globalAlpha = Math.max(.6, v); box(x, lx, py - 26, w, 26, 13); x.fillStyle = K.surf; x.fill(); x.strokeStyle = rgba(K.red, .7); x.stroke();
+      label(x, l, lx, py - 26, { size: 12 }); x.globalAlpha = 1;
+    });
+  });
+}
+function vizFunnel(el) {
+  const CH = [['Inbound', 'Conteúdo, SEO, LPs e e-mail atraem quem já pesquisa o tema.'], ['Outbound', 'SDR prospecta contas-alvo via Apollo, ligação e LinkedIn.'], ['Eventos', 'Eventos próprios, SAP e LATAM geram conversas presenciais.'], ['ASUG', 'Comunidade de usuários SAP: palestras e networking.'], ['Listas SAP', 'Indicações e listas compartilhadas pela SAP.'], ['Voices', 'Especialistas no LinkedIn geram leads de alta intenção.']];
+  const STG = [['Lead', 1], ['MQL', .62], ['SQL', .4], ['Oport.', .24], ['Cliente', .12]];
+  el.classList.add('tall');
+  el.insertAdjacentHTML('beforeend', `<div class="viz-info">Toque num canal para destacar o fluxo.</div><span class="viz-cap" style="top:12px;bottom:auto;left:auto;right:16px">📝 Ilustrativo · não é volume real</span>`);
+  const info = $('.viz-info', el), fP = Array.from({ length: 160 }, () => ({ ch: Math.floor(Math.random() * 6), o: Math.random(), d: Math.random(), lane: Math.random() - .5 }));
+  let sel = -1, hit = [];
+  return canvasViz(el, (g, t) => {
+    const x = g.ctx, { W, H } = g; x.clearRect(0, 0, W, H);
+    const top = 40, bot = H - 86, cy = (top + bot) / 2, maxH = bot - top - 34, chW = Math.min(120, W * .25), chX = 14 + chW / 2, fx0 = chX + chW / 2 + 26, fx1 = W - 14, gap = (bot - top) / CH.length, sw = (fx1 - fx0) / STG.length;
+    hit = [];
+    STG.forEach(([n, h], i) => { const xx = fx0 + i * sw, hh = maxH * h, nh = maxH * (STG[i + 1] ? STG[i + 1][1] : h * .8);
+      x.beginPath(); x.moveTo(xx, cy - hh / 2); x.lineTo(xx + sw - 4, cy - nh / 2); x.lineTo(xx + sw - 4, cy + nh / 2); x.lineTo(xx, cy + hh / 2); x.closePath();
+      x.fillStyle = i === STG.length - 1 ? rgba(K.red, .5) : rgba(K.corn, .1 + i * .07); x.fill(); x.strokeStyle = rgba(K.corn, .25); x.stroke();
+      label(x, n, xx + sw / 2, cy - hh / 2 - 12, { size: 11, color: K.dim }); });
+    fP.forEach(p => { const k = (p.o + t * .09) % 1, y0 = top + gap * (p.ch + .5), dim = sel >= 0 && sel !== p.ch; let px, py;
+      if (k < .25) { const q = ease(k / .25); px = chX + chW / 2 + (fx0 - chX - chW / 2) * q; py = y0 + (cy - y0) * q; }
+      else { const q = (k - .25) / .75, si = Math.min(STG.length - 1, Math.floor(q * STG.length)); if (p.d > STG[si][1] + .02) return; px = fx0 + q * (fx1 - fx0); py = cy + p.lane * maxH * STG[si][1] * .85; }
+      x.fillStyle = dim ? rgba(K.corn, .12) : (k > .9 ? K.red : K.corn); x.beginPath(); x.arc(px, py, 2.8, 0, 7); x.fill(); });
+    CH.forEach(([n], i) => { const y = top + gap * (i + .5), h = Math.min(30, gap - 6); x.globalAlpha = sel < 0 || sel === i ? 1 : .3;
+      box(x, chX, y, chW, h, h / 2); x.fillStyle = K.royal; x.fill(); if (sel === i) { x.strokeStyle = K.text; x.lineWidth = 2; x.stroke(); x.lineWidth = 1; }
+      label(x, n, chX, y, { size: 12 }); x.globalAlpha = 1; hit.push([chX, y, chW / 2, h / 2, i]); });
+  }, (g, ev) => {
+    const h = hit.find(h => Math.abs(g.mx - h[0]) < h[2] && Math.abs(g.my - h[1]) < h[3]);
+    g.ctx.canvas.style.cursor = h ? 'pointer' : '';
+    if (ev !== 'click') return;
+    sel = h ? (sel === h[4] ? -1 : h[4]) : -1;
+    info.classList.toggle('hl', sel >= 0); info.innerHTML = sel < 0 ? 'Toque num canal para destacar o fluxo.' : `<b>${CH[sel][0]}</b> — ${CH[sel][1]}`;
+  });
+}
+function vizStack(el) {
+  const N = [['🌐', 'Site', 'HubSpot CMS', 'visitas'], ['📧', 'RD Station', 'marketing', 'leads'], ['💼', 'Zoho CRM', 'vendas', 'deals'], ['💵', 'Receita', 'report mensal', 'resultado']];
+  el.insertAdjacentHTML('beforeend', '<span class="viz-cap">📝 Ilustrativo · o dado viaja do clique até a receita</span>');
+  const pk = Array.from({ length: 40 }, (_, i) => ({ o: i / 40, j: Math.random() * 2 - 1 }));
+  return canvasViz(el, (g, t) => {
+    const x = g.ctx, { W, H } = g; x.clearRect(0, 0, W, H);
+    const y = H * .44, xs = N.map((_, i) => W * (.13 + i * .247)), r = Math.min(38, W * .075), cols = [K.corn, K.steel, K.ok];
+    x.strokeStyle = rgba(K.corn, .25); x.setLineDash([4, 6]); x.beginPath(); x.moveTo(xs[0], y); x.lineTo(xs[3], y); x.stroke(); x.setLineDash([]);
+    pk.forEach(p => { const k = (p.o + t * .11) % 1, seg = Math.min(2, Math.floor(k * 3)), q = ease((k * 3) % 1), px = xs[seg] + (xs[seg + 1] - xs[seg]) * q, py = y + p.j * 12 * Math.sin(q * Math.PI);
+      x.fillStyle = cols[seg]; x.beginPath(); x.arc(px, py, 3, 0, 7); x.fill(); });
+    N.forEach(([e, n, s, m], i) => { const pr = r * (1 + .05 * Math.sin(t * 3 + i));
+      x.beginPath(); x.arc(xs[i], y, pr, 0, 7); x.fillStyle = i === 3 ? K.red : K.royal; x.fill(); x.strokeStyle = K.corn; x.stroke();
+      label(x, e, xs[i], y, { size: Math.round(r * .7) }); label(x, n, xs[i], y + r + 18, { size: 13 }); label(x, s, xs[i], y + r + 35, { size: 11, color: K.dim, w: 400 }); label(x, m, xs[i], y - r - 16, { size: 11, color: K.muted, w: 400 }); });
+  });
+}
+function vizComp(el) {
+  el.classList.add('auto');
+  const C2 = [['itz', 'ITZ'], ['hrst', 'HRST'], ['ntt data brasil', 'NTT DATA'], ['seidor brasil', 'Seidor'], ['deloitte brasil', 'Deloitte']];
+  const g2 = q => 'https://www.google.com/search?q=' + encodeURIComponent(q);
+  el.innerHTML = `<div class="comp-dims"><span>observe:</span><span>site</span><span>LinkedIn</span><span>artes</span><span>conteúdos</span></div><div class="comp">${C2.map(([q, n], i) => `<div class="cp" style="--i:${i}"><b>${n}</b><a href="${g2(q + ' SAP site oficial')}" target="_blank" rel="noopener">site ↗</a><a href="${g2(q + ' SAP linkedin company')}" target="_blank" rel="noopener">LinkedIn ↗</a></div>`).join('')}</div><p class="src">🔒 Uso interno. Links abrem uma busca para chegar ao perfil oficial.</p>`;
+}
+
+/* ======================= ETAPA 3: animações ======================= */
+function vizErp(el) {
+  const DP = [['💵', 'Finanças'], ['🛒', 'Compras'], ['📈', 'Vendas'], ['👥', 'RH'], ['🚚', 'Logística']];
+  const sc = [[.16, .2], [.78, .16], [.86, .62], [.2, .7], [.52, .84]];
+  return canvasViz(el, (g, t) => {
+    const x = g.ctx, { W, H } = g; x.clearRect(0, 0, W, H);
+    const c = (t % 9) / 9, ph = c < .38 ? 0 : c < .55 ? (c - .38) / .17 : c < .9 ? 1 : 1 - (c - .9) / .1, p = ease(Math.max(0, Math.min(1, ph)));
+    const cx = W / 2, cy = H * .46, R = Math.min(W * .36, H * .32);
+    const pos = DP.map((_, i) => { const a = i / DP.length * Math.PI * 2 - Math.PI / 2, ox = cx + Math.cos(a) * R, oy = cy + Math.sin(a) * R, sx = sc[i][0] * W + Math.sin(t * 2 + i) * 4 * (1 - p), sy = sc[i][1] * H * .9; return [sx + (ox - sx) * p, sy + (oy - sy) * p]; });
+    x.globalAlpha = 1 - p; x.strokeStyle = rgba(K.red, .55); x.setLineDash([3, 5]);
+    for (let i = 0; i < pos.length; i++) for (let j = i + 1; j < pos.length; j++) { x.beginPath(); x.moveTo(pos[i][0], pos[i][1]); x.lineTo(pos[j][0], pos[j][1]); x.stroke(); }
+    x.setLineDash([]); x.globalAlpha = p;
+    pos.forEach((pp, i) => { x.strokeStyle = rgba(K.corn, .4); x.beginPath(); x.moveTo(cx, cy); x.lineTo(pp[0], pp[1]); x.stroke();
+      const q = (t * .6 + i * .2) % 1; x.fillStyle = K.corn; x.beginPath(); x.arc(cx + (pp[0] - cx) * q, cy + (pp[1] - cy) * q, 3, 0, 7); x.fill(); });
+    x.beginPath(); x.arc(cx, cy, 40, 0, 7); x.fillStyle = K.blue; x.fill(); x.strokeStyle = K.corn; x.lineWidth = 2; x.stroke(); x.lineWidth = 1;
+    label(x, 'ERP', cx, cy - 6, { size: 16 }); label(x, 'base única', cx, cy + 12, { size: 10, color: K.dim, w: 400 });
+    x.globalAlpha = 1;
+    pos.forEach((pp, i) => { x.beginPath(); x.arc(pp[0], pp[1], 27, 0, 7); x.fillStyle = K.surf; x.fill(); x.strokeStyle = p > .5 ? K.corn : rgba(K.red, .8); x.lineWidth = 1.5; x.stroke(); x.lineWidth = 1;
+      label(x, DP[i][0], pp[0], pp[1], { size: 18 }); label(x, DP[i][1], pp[0], pp[1] + 40, { size: 11 }); });
+    label(x, p < .5 ? 'Antes: sistemas isolados, planilhas e retrabalho' : 'Com ERP: um dado só, a mesma verdade para todas as áreas', W / 2, H - 20, { size: 12, color: p < .5 ? K.red : K.ok });
+  });
+}
+function vizSap(el) {
+  el.classList.add('tall');
+  const B = [
+    { k: 'S/4HANA', fx: .5, fy: .5, w: .36, h: 58, c: 'blue', d: 'ERP core da SAP: finanças, compras, vendas, logística. Dor: Reforma Tributária, fim do ECC, processos manuais.' },
+    { k: 'SuccessFactors', fx: .2, fy: .18, w: .32, h: 44, c: 'royal', d: 'RH em nuvem: folha, ponto, recrutamento, desempenho. Nosso core histórico.' },
+    { k: 'Signavio', fx: .8, fy: .18, w: .28, h: 44, c: 'royal', d: 'Modelagem e process mining: mostra o processo real antes e depois da transformação.' },
+    { k: 'ServiceNow', fx: .2, fy: .82, w: .28, h: 44, c: 'slate', d: 'Gestão de serviços: HRSD (RH) e ITSM (TI). Integra com SuccessFactors e S/4HANA.' },
+    { k: 'Analytics · PRISM', fx: .8, fy: .82, w: .32, h: 44, c: 'slate', d: 'Dashboards e reporting sobre os dados do ERP e do RH (Stratview, PRISM).' },
+    { k: 'BTP', fx: .5, fy: 1, w: .62, h: 34, c: 'steel', d: 'Plataforma de extensões, integrações, dados e IA. Permite o Clean Core: customização fora do ERP.' },
+    { k: 'IPs EPI-USE Labs', fx: .5, fy: 0, w: .34, h: 34, c: 'red', d: 'Aceleradores próprios (TalenTools, DSM…) que reduzem prazo e risco dos projetos.' }];
+  el.insertAdjacentHTML('beforeend', '<div class="viz-info">Toque num bloco para ver o que é e qual dor resolve.</div>');
+  const info = $('.viz-info', el); let sel = -1, rects = [];
+  return canvasViz(el, (g, t) => {
+    const x = g.ctx, { W, H } = g; x.clearRect(0, 0, W, H);
+    const top = 34, bot = H - 104, P2 = B.map(b => [b.fx * W, top + b.fy * (bot - top)]), [cx, cy] = P2[0];
+    rects = [];
+    B.slice(1).forEach((b, i) => { const [bx, by] = P2[i + 1];
+      x.strokeStyle = rgba(K.corn, .3); x.setLineDash([3, 5]); x.beginPath(); x.moveTo(cx, cy); x.lineTo(bx, by); x.stroke(); x.setLineDash([]);
+      for (let j = 0; j < 3; j++) { const q = (t * .35 + j / 3 + i * .13) % 1, inv = i % 2, px = inv ? bx + (cx - bx) * q : cx + (bx - cx) * q, py = inv ? by + (cy - by) * q : cy + (by - cy) * q; x.fillStyle = K.corn; x.beginPath(); x.arc(px, py, 3, 0, 7); x.fill(); } });
+    B.forEach((b, i) => { const [bx, by] = P2[i], w = b.w * W; box(x, bx, by, w, b.h, 12); x.fillStyle = K[b.c]; x.fill();
+      x.strokeStyle = i === sel ? K.text : K.corn; x.lineWidth = i === sel ? 3 : 1.2; x.stroke(); x.lineWidth = 1;
+      label(x, b.k, bx, by, { size: Math.round(Math.min(i ? 14 : 18, w / 8)) }); rects.push([bx, by, w / 2, b.h / 2]); });
+  }, (g, ev) => {
+    const i = rects.findIndex(r => Math.abs(g.mx - r[0]) < r[2] && Math.abs(g.my - r[1]) < r[3]);
+    g.ctx.canvas.style.cursor = i >= 0 ? 'pointer' : '';
+    if (ev !== 'click') return; sel = i;
+    info.classList.toggle('hl', sel >= 0); info.innerHTML = sel < 0 ? 'Toque num bloco para ver o que é e qual dor resolve.' : `<b>${B[sel].k}</b> — ${B[sel].d}`;
+  });
+}
+function vizMig(el) {
+  el.insertAdjacentHTML('beforeend', '<span class="viz-cap">📝 Ilustrativo</span>');
+  return canvasViz(el, (g, t) => {
+    const x = g.ctx, { W, H } = g; x.clearRect(0, 0, W, H);
+    const p = ease(Math.min(1, ((t % 8) / 8) * 1.5)), lx = W * .25, rx = W * .73, y = H * .42, bw = Math.min(170, W * .34), bh = 70;
+    box(x, lx, y, bw, bh, 14); x.fillStyle = K.slate; x.fill(); label(x, 'ECC (legado)', lx, y, { size: 14 });
+    for (let i = 0; i < 10; i++) { const a = i / 10 * 6.28 + t * .25; x.fillStyle = K.warn; x.beginPath(); x.arc(lx + Math.cos(a) * bw * .58, y + Math.sin(a) * bh * .78, 7, 0, 7); x.fill(); }
+    label(x, 'customizações coladas no core', lx, y + bh + 26, { size: 11, color: K.dim, w: 400 });
+    const ax0 = lx + bw / 2 + 22, ax1 = rx - bw / 2 - 22, ax = ax0 + (ax1 - ax0) * p;
+    x.strokeStyle = K.red; x.lineWidth = 3; x.beginPath(); x.moveTo(ax0, y); x.lineTo(ax, y); x.stroke(); x.lineWidth = 1;
+    x.fillStyle = K.red; x.beginPath(); x.moveTo(ax + 8, y); x.lineTo(ax - 4, y - 7); x.lineTo(ax - 4, y + 7); x.fill();
+    label(x, 'migração', (ax0 + ax1) / 2, y - 18, { size: 11, color: K.dim, w: 400 });
+    x.globalAlpha = .2 + .8 * p;
+    box(x, rx, y, bw, bh, 14); x.fillStyle = K.blue; x.fill(); x.strokeStyle = K.corn; x.lineWidth = 2; x.stroke(); x.lineWidth = 1; label(x, 'S/4HANA', rx, y - 9, { size: 14 }); label(x, 'Clean Core', rx, y + 11, { size: 11, color: K.ok });
+    box(x, rx, y + bh / 2 + 34, bw * 1.15, 32, 10); x.fillStyle = K.royal; x.fill(); label(x, 'BTP · extensões', rx, y + bh / 2 + 34, { size: 12 });
+    for (let i = 0; i < 4; i++) { const ex = rx - bw * .45 + i * bw * .3; x.fillStyle = K.warn; x.beginPath(); x.arc(ex, y + bh / 2 + 34 + Math.sin(t * 2 + i) * 3, 6, 0, 7); x.fill(); }
+    label(x, 'core limpo, upgrades baratos', rx, y + bh + 50, { size: 11, color: K.dim, w: 400 });
+    x.globalAlpha = 1;
+  });
+}
+function vizPM(el) {
+  let ideal = false;
+  el.insertAdjacentHTML('beforeend', `<div class="viz-chips"><button class="vchip on" data-m="0">▶ Processo real</button><button class="vchip" data-m="1">✔ Processo ideal</button></div><span class="viz-cap">📝 Ilustrativo · processo “pedido → pagamento”</span>`);
+  $$('.vchip', el).forEach(b => b.addEventListener('click', () => { ideal = b.dataset.m === '1'; $$('.vchip', el).forEach(c => c.classList.toggle('on', c === b)); }));
+  const S5 = ['Pedido', 'Aprovação', 'Recebimento', 'Fatura', 'Pagamento'], cs = Array.from({ length: 44 }, (_, i) => ({ o: i / 44, rw: Math.random() < .35, bn: Math.random() < .4, ly: Math.random() }));
+  return canvasViz(el, (g, t) => {
+    const x = g.ctx, { W, H } = g; x.clearRect(0, 0, W, H);
+    const m = 20 + Math.min(60, W * .08), gap = (W - 2 * m) / 4, y = H * .5, bw = Math.min(112, gap - 8);
+    if (!ideal) { x.strokeStyle = K.red; x.setLineDash([5, 5]); x.beginPath(); x.moveTo(m + gap * 3, y - 28); x.quadraticCurveTo(m + gap * 2, y - 130, m + gap, y - 28); x.stroke(); x.setLineDash([]); label(x, '↺ retrabalho', m + gap * 2, y - 92, { size: 12, color: K.red }); }
+    x.strokeStyle = rgba(K.corn, .3); x.lineWidth = 3; x.beginPath(); x.moveTo(m, y); x.lineTo(W - m, y); x.stroke(); x.lineWidth = 1;
+    S5.forEach((s, i) => { const bx = m + i * gap; box(x, bx, y, bw, 42, 10); x.fillStyle = !ideal && i === 2 ? K.warn : K.blue; x.fill(); x.strokeStyle = K.corn; x.stroke(); label(x, s, bx, y, { size: Math.round(Math.min(13, bw / 8)) }); });
+    if (!ideal) label(x, '⚠ gargalo', m + gap * 2, y + 40, { size: 12, color: K.warn });
+    cs.forEach(c => { let q = (c.o + t * .07) % 1, px, py = y + 56 + c.ly * 46;
+      if (!ideal && c.bn && q > .45 && q < .62) q = .45 + (q - .45) * .2;
+      px = m + q * (W - 2 * m);
+      if (!ideal && c.rw && q > .5 && q < .75) { const r = (q - .5) / .25; px = m + gap * 3 - r * gap * 2; py = y - 28 - Math.sin(r * Math.PI) * 70; }
+      x.fillStyle = !ideal && c.rw ? K.red : K.ok; x.beginPath(); x.arc(px, py, 4, 0, 7); x.fill(); });
+  });
+}
+
+/* ======================= ETAPA 4: animações ======================= */
+function vizRP(el) {
+  el.insertAdjacentHTML('beforeend', '<span class="viz-cap">📝 Ilustrativo · especialização de funções</span>');
+  const R4 = [['📥', 'Marketing', 'gera MQL (inbound)', 'slate'], ['📞', 'SDR', 'prospecta + qualifica', 'slate'], ['🤝', 'Closer', 'proposta + fechamento', 'royal'], ['🌱', 'CS', 'retém + expande', 'steel']];
+  const pp = Array.from({ length: 56 }, () => ({ o: Math.random(), src: Math.random() < .5 ? 0 : 1 }));
+  return canvasViz(el, (g, t) => {
+    const x = g.ctx, { W, H } = g; x.clearRect(0, 0, W, H);
+    const bw = Math.min(150, W * .27), cl = v => Math.max(bw / 2 + 10, Math.min(W - bw / 2 - 10, v)), pos = [[cl(W * .17), H * .27], [cl(W * .17), H * .67], [cl(W * .5), H * .47], [cl(W * .83), H * .47]];
+    pp.forEach(p => { const k = (p.o + t * .12) % 1, [sx, sy] = pos[p.src]; let px, py;
+      if (k < .6) { const q = ease(k / .6); px = sx + bw / 2 + (pos[2][0] - bw / 2 - sx - bw / 2) * q; py = sy + (pos[2][1] - sy) * q; }
+      else { if (p.o > .55) return; const q = (k - .6) / .4; px = pos[2][0] + bw / 2 + (pos[3][0] - bw / 2 - pos[2][0] - bw / 2) * q; py = pos[2][1]; }
+      x.fillStyle = k > .6 ? K.ok : K.corn; x.beginPath(); x.arc(px, py, 3.5, 0, 7); x.fill(); });
+    pos.forEach(([px, py], i) => { const [e, l, s, c] = R4[i]; box(x, px, py, bw, 66, 14); x.fillStyle = K[c]; x.fill(); x.strokeStyle = K.corn; x.stroke();
+      label(x, e + ' ' + l, px, py - 9, { size: 15 }); label(x, s, px, py + 13, { size: 11, color: K.dim, w: 400 }); });
+  });
+}
+function vizCad(el) {
+  el.insertAdjacentHTML('beforeend', '<span class="viz-cap">📝 Ilustrativo · cadência de 14 dias (sequências oficiais no Apollo)</span>');
+  const CD = [[1, '✉️', 'E-mail'], [2, 'in', 'LinkedIn'], [3, '📞', 'Ligação'], [5, '✉️', 'E-mail'], [7, '📞', 'Ligação'], [10, 'in', 'Mensagem'], [14, '✉️', 'Break-up']];
+  return canvasViz(el, (g, t) => {
+    const x = g.ctx, { W, H } = g; x.clearRect(0, 0, W, H);
+    const x0 = 44, x1 = W - 44, y = H * .48, day = 1 + ((t * 1.6) % 15), X = d => x0 + (d - 1) / 13 * (x1 - x0);
+    x.strokeStyle = rgba(K.corn, .3); x.lineWidth = 3; x.beginPath(); x.moveTo(x0, y); x.lineTo(x1, y); x.stroke();
+    x.strokeStyle = K.ok; x.beginPath(); x.moveTo(x0, y); x.lineTo(X(Math.min(14, day)), y); x.stroke(); x.lineWidth = 1;
+    // raio e rótulos se adaptam à largura (no celular, 14 dias cabem em ~300px)
+    const sp = (x1 - x0) / 13, rH = Math.min(17, sp * .5), rN = rH * .78, fs = Math.round(Math.min(13, rH * .85));
+    for (let d = 1; d <= 14; d++) if (sp >= 30 || CD.some(c => c[0] === d)) label(x, 'D' + d, X(d), y + 64, { size: 10, color: K.muted, w: 400 });
+    CD.forEach(([d, e, l], i) => { const px = X(d), hit = day >= d, up = i % 2 === 0;
+      x.beginPath(); x.arc(px, y, hit ? rH : rN, 0, 7); x.fillStyle = hit ? K.royal : K.surf; x.fill(); x.strokeStyle = hit ? K.red : rgba(K.corn, .4); x.lineWidth = 2; x.stroke(); x.lineWidth = 1;
+      label(x, e, px, y, { size: fs }); label(x, l, px, up ? y - 34 : y + 36, { size: sp < 30 ? 10 : 11, color: hit ? K.text : K.muted }); });
+  });
+}
+function vizBant(el) {
+  el.classList.add('auto');
+  const BT = [['B', 'Budget', 'Existe <b>orçamento</b> (ou caminho para ele)?'], ['A', 'Authority', 'Estamos falando com <b>quem decide</b> ou influencia?'], ['N', 'Need', 'Existe uma <b>dor real</b> que resolvemos?'], ['T', 'Timing', 'Há <b>prazo ou urgência</b> (ECC, Reforma, go-live)?']];
+  el.innerHTML = `<div class="bant">${BT.map(([l, n], i) => `<button class="bl" data-i="${i}"><b>${l}</b><span>${n}</span></button>`).join('')}</div><div class="meter"><i></i></div><div class="bant-q">Toque em cada letra conforme o lead atende o critério.</div>`;
+  const on = new Set(), q = $('.bant-q', el), m = $('.meter i', el);
+  $$('.bl', el).forEach(b => b.addEventListener('click', () => { const i = +b.dataset.i; on.has(i) ? on.delete(i) : on.add(i); b.classList.toggle('on', on.has(i));
+    m.style.width = on.size / 4 * 100 + '%';
+    q.innerHTML = on.size === 4 ? '✅ <b>Lead qualificado!</b> Passa para o Closer com o contexto completo.' : (on.has(i) ? BT[i][2] : `Faltam ${4 - on.size} critério(s).`);
+    if (on.size === 4) burst(b); }));
+}
+
+/* ======================= CONTEÚDO DAS ETAPAS 2–4 ======================= */
+const TRELLO = 'https://trello.com/b/M6xLnTcT/atividades-de-marketing-mise-en-place';
+const SLIDES2 = [
+  { e: 'Etapa 2 · Estratégia & Demanda', t: 'Vendemos para o C-Level', l: 'Regra de ouro: comece pela dor do negócio, nunca pelo nome do módulo SAP. Vire os cards para ver o pitch de cada persona.',
+    v: vizFlip([['💵', 'CFO', 'Finanças e compliance', '“Sua infraestrutura de ERP está preparada para a Reforma Tributária ou seu time financeiro vai precisar de processos manuais?”'], ['👥', 'CHRO / COO', 'Pessoas e operação', '“Se sua empresa fosse um app, a experiência dos colaboradores seria intuitiva ou eles o desinstalariam?”'], ['🖥️', 'CIO', 'Tecnologia e dados', '“Sua empresa investe em IA, mas seus dados e processos têm governança para que as decisões não sejam baseadas em achismo?”']]) },
+  { e: 'Urgência', t: 'Os gatilhos de 2026', l: 'Três motivos que fazem o cliente agir agora. Use nos ganchos de conteúdo e de campanha.', b: ['<b>Fim do suporte ECC</b> (EHP0 a EHP5), sem extensão', '<b>Reforma Tributária</b>: CBS e IBS em vigor', '<b>Clean Core</b>: upgrade barato só com core limpo'], v: vizRadar },
+  { e: 'Geração de demanda', t: 'De onde vêm os leads', l: 'Os leads entram por vários canais, o marketing qualifica (MQL), vendas aceita (SQL) e vira oportunidade. Toque num canal.', v: vizFunnel },
+  { e: 'Inbound', t: 'Da oferta ao MQL', l: 'Campanha boa tem oferta, LP, UTM e nutrição. O lead “esquenta” até ficar pronto para vendas.', b: ['Toda campanha precisa de UTM para atribuição', 'News externa (mercado) e interna (time) passam pela Duda'],
+    v: vizSteps([['🎯', 'Oferta', 'e-book, webinar, diagnóstico'], ['🔗', 'LP + UTM', 'toda campanha rastreável'], ['🙋', 'Lead', 'converteu no formulário'], ['✉️', 'Nutrição', 'e-mails por estágio e LOB'], ['🔥', 'Lead scoring', 'perfil + engajamento'], ['✅', 'MQL', 'pronto para vendas']]) },
+  { e: 'Conteúdo', t: '20 conteúdos por mês', l: 'A Redatoria (Lisiane) entrega 20 conteúdos por mês a partir dos briefings do Gui. É assim que um artigo vai da pauta ao ar:',
+    v: vizSteps([['💡', 'Pauta', 'Gui'], ['📝', 'Briefing', 'tese · CTA · SEO'], ['✍️', 'Redação', 'Redatoria'], ['🔍', 'SEO check', '/content-pipeline'], ['✅', 'Aprovação', 'Duda'], ['🌐', 'Publicação', 'site EUBR / Stratview'], ['📣', 'Distribuição', 'LinkedIn + news']]) },
+  { e: 'Marketing RevOps', t: 'Do clique à receita', l: 'RevOps alinha marketing, vendas e CS em torno de uma métrica: receita. Cada ferramenta mede uma parte do caminho.', b: ['<b>Report mensal</b> para Roberto e diretoria (/relatorio)', '<b>Reunião geral</b> trimestral com a empresa'], v: vizStack },
+  { e: 'Eventos & SAP', t: 'Eventos com verba da SAP', l: 'Field Marketing roda mais de 30 eventos por ano (Brasil + LATAM). Boa parte pode ser cofinanciada pela SAP via MDF.', b: ['Canais via SAP: eventos, ASUG, listas e o Partner Benefits Catalog', 'Indicadores de parceiro: REX, CIV e Gold Partner · NPS via Binds'],
+    v: vizRing([['📝', 'Business Plan', 'Plano aprovado com a SAP antes da ação.'], ['🎪', 'Execução', 'O evento ou a campanha acontece.'], ['📸', 'Proof of Performance', 'Comprovação: fotos, leads, notas.'], ['💶', 'Reembolso', 'A SAP reembolsa a parte acordada.']], 'Ciclo do MDF · toque para fixar') },
+  { e: 'Concorrência', t: 'De olho nos concorrentes', l: 'Observe site, LinkedIn, artes e conteúdos de cada um. Em conteúdo público, nunca citamos concorrente pelo nome.', v: vizComp },
+  { e: 'Para guardar', t: 'Seu kit de links da Etapa 2', l: 'Telas e ferramentas que você vai usar toda semana.',
+    v: linkGrid([['📊', 'Report mensal', '/relatorio', '/relatorio'], ['📈', 'Visão executiva', '/executivo', '/executivo'], ['📅', 'Field Marketing', '/field-marketing', '/field-marketing'], ['💶', 'Development Funds (MDF)', '/development-funds', '/development-funds'], ['🏭', 'Pipeline de conteúdo', '/content-pipeline', '/content-pipeline'], ['🗓️', 'Calendário editorial', '/editorial', '/editorial/calendario.html'], ['🔗', 'Gerador de UTM', '/admin/utm', '/admin/utm'], ['📋', 'Trello do marketing', 'Atividades de Marketing', TRELLO], ['📧', 'RD Station', 'e-mail e automação', 'https://app.rdstation.com.br'], ['🎁', 'Partner Benefits Catalog', 'SAP PBC', 'https://partnerbenefitscatalog.sap.com'], ['📄', 'Guia MDF', 'Partner Edge', 'https://partneredge.sap.com/en/library/assets/partnership/dgl/25/92/SAP1242592.html'], ['🤝', 'Social Selling Concierge', 'PBC', 'https://partnerbenefitscatalog.sap.com/Partner-Benefits-Catalog/Marketing-Excellence/Social-Selling-Concierge/p/1000895']]) }
+];
+const QUIZ2 = [
+  { q: 'Qual a ordem correta do funil?', o: ['SQL → MQL → Lead', 'Lead → MQL → SQL → Oportunidade', 'MQL → Lead → Oportunidade'], a: 1, w: 'O marketing qualifica (MQL), vendas aceita (SQL) e aí vira oportunidade.' },
+  { q: 'Quantos conteúdos a Redatoria entrega por mês?', o: ['10', '20', '40'], a: 1, w: '20 conteúdos por mês, a partir dos briefings do Gui.' },
+  { q: 'O que é MDF?', o: ['Verba da SAP para cofinanciar marketing de parceiros', 'Uma ferramenta de e-mail', 'Uma métrica de NPS'], a: 0, w: 'Market Development Funds: Business Plan → execução → Proof of Performance → reembolso.' },
+  { q: 'Podemos citar concorrentes em conteúdo público?', o: ['Sim, se for elogio', 'Não, nunca nominalmente', 'Só no LinkedIn'], a: 1, w: 'Benchmark é uso interno. Em público, nunca pelo nome.' }
+];
+const SLIDES3 = [
+  { e: 'Etapa 3 · SAP & Técnico', t: 'O que é um ERP?', l: 'É o sistema que integra os processos da empresa (finanças, compras, vendas, RH) numa base única. Você não vai configurar SAP, mas precisa entender o bastante para conversar com um CIO.', v: vizErp },
+  { e: 'Ecossistema', t: 'Onde cada solução se encaixa', l: 'Toque em cada bloco para ver o que é e qual dor resolve. Os pontos animados são os dados circulando.', v: vizSap },
+  { e: 'Migração', t: 'ECC → S/4HANA e Clean Core', l: 'No ECC, customizações “grudam” no core e encarecem cada upgrade. No Clean Core, as extensões ficam no BTP.', b: ['<b>RISE with SAP</b>: transformação para S/4HANA Cloud (clientes existentes)', '<b>GROW with SAP</b>: novos clientes no S/4HANA Cloud Public'], v: vizMig },
+  { e: 'Processos', t: 'Process mining e Signavio', l: 'O process mining lê os logs do ERP e mostra como o processo <b>realmente</b> acontece: desvios, retrabalho e gargalos. Compare com o ideal.', v: vizPM },
+  { e: 'Nosso core', t: 'HCM: a jornada do colaborador', l: 'O SAP SuccessFactors cobre a jornada inteira do colaborador, e o ServiceNow HRSD atende quem tem dúvidas. Folha de pagamento é nosso DNA desde 1983.',
+    v: vizRing([['🔎', 'Recrutar', 'Atração e seleção de talentos.'], ['📝', 'Admitir', 'Admissão e onboarding digital.'], ['💰', 'Pagar', 'Folha e ponto: nossa especialidade.'], ['🌱', 'Desenvolver', 'Desempenho, aprendizagem e sucessão.']], 'Jornada do colaborador · toque para fixar') },
+  { e: 'Trilhas SAP', t: 'Onde estudar SAP', l: 'Trilhas gratuitas, portais de parceiro e vídeos para começar.', x: '<p class="src">Grade de treinamentos internos (HCM/ERP/BTP/Signavio): <span class="tag">⏳ a preencher</span></p>',
+    v: linkGrid([['▶️', 'SAP e o ERP', 'vídeo', 'https://www.youtube.com/watch?v=BntjvxRet4I'], ['▶️', 'S/4HANA', 'vídeo', 'https://www.youtube.com/watch?v=HvrIzogVbLw'], ['▶️', 'ServiceNow', 'vídeo', 'https://www.youtube.com/watch?v=_3dtG69n9CQ'], ['▶️', 'Process mining (1)', 'vídeo', 'https://www.youtube.com/watch?v=tvRE2HXIQ0Y'], ['▶️', 'Process mining (2)', 'vídeo', 'https://www.youtube.com/watch?v=QT4N4V1xKWY'], ['🎓', 'SAP Learning', 'trilhas gratuitas', 'https://learning.sap.com'], ['👤', 'SAP for Me', 'exige S-user', 'https://me.sap.com'], ['🏛️', 'Partner Edge', 'portal do parceiro', 'https://partneredge.sap.com'], ['🌍', 'Clientes SAP 4 ME', '/clientes-sap-4me', '/clientes-sap-4me']]) },
+  { e: 'Marketing', t: 'Treinamentos de marketing', l: 'Inbound, SEO, SEM, design, LGPD e growth: escolha por onde começar.', x: '<p class="src">🔐 Cursos com login compartilhado: peça ao Rudá.</p>',
+    v: linkGrid([['📧', 'Marketing Digital (RD)', 'curso gratuito', 'https://materiais.resultadosdigitais.com.br/agradecimento-curso-de-marketing-digital-gratuito'], ['🎓', 'RD University', 'inbound', 'https://university.rdstation.com/start'], ['⚙️', 'Cursos RD Station', 'a ferramenta', 'https://university.rdstation.com/cursos?busca=rd+station'], ['🔎', 'O que é SEO', 'Rock Content', 'https://rockcontent.com/br/blog/o-que-e-seo/'], ['💲', 'O que é SEM', 'RD', 'https://resultadosdigitais.com.br/marketing/o-que-e-sem/'], ['⚖️', 'SEO × SEM', 'Semrush', 'https://pt.semrush.com/blog/seo-ou-sem-qual-e-a-diferenca'], ['🎨', 'Design Gráfico', 'FIAP', 'https://www.eucapacito.com.br/cursos/design-grafico/'], ['📘', 'Design p/ não designers', 'livro (Drive)', 'https://drive.google.com/drive/u/1/folders/1cDTedhRgenXv9AO8Rt2sGyB88gV63oSj'], ['🔒', 'Conheça a LGPD', 'RD', 'https://ajuda.rdstation.com/s/article/Conhe%C3%A7a-a-Lei-Geral-de-Prote%C3%A7%C3%A3o-de-Dados?language=pt_BR'], ['🔒', 'LGPD na prática', 'RD', 'https://ajuda.rdstation.com/s/article/Lei-Geral-de-Prote%C3%A7%C3%A3o-de-Dados-LGPD?language=pt_BR'], ['🚀', 'Growth Hacking', 'Crehana (login c/ Rudá)', 'https://www.crehana.com/clases/v2/10260/player/36309/'], ['🎓', 'Cursos gratuitos', 'FIAP · Eu Capacito', 'https://eucapacito.com.br/']]) }
+];
+const QUIZ3 = [
+  { q: 'O que significa Clean Core?', o: ['Apagar dados antigos do ERP', 'Manter o núcleo do ERP sem customizações, com extensões no BTP', 'Migrar para outro fornecedor'], a: 1, w: 'Core limpo = upgrades baratos; customização vai para o BTP.' },
+  { q: 'Para que serve o process mining?', o: ['Desenhar o processo ideal do zero', 'Mostrar como o processo realmente acontece, a partir dos logs', 'Minerar criptomoedas'], a: 1, w: 'Ele revela desvios, retrabalho e gargalos reais.' },
+  { q: 'Qual é o sucessor do SAP ECC?', o: ['SuccessFactors', 'S/4HANA', 'Signavio'], a: 1, w: 'O S/4HANA é o ERP atual da SAP.' },
+  { q: 'Para que serve o SAP BTP?', o: ['Folha de pagamento', 'Extensões, integrações, dados e IA', 'Gestão de eventos'], a: 1, w: 'É a plataforma que permite o Clean Core.' }
+];
+const SLIDES4 = [
+  { e: 'Etapa 4 · Comercial', t: 'Receita Previsível', l: 'A metodologia de Aaron Ross separa o funil em funções especializadas. Cada uma é dona de uma etapa e passa o bastão com critério claro.', v: vizRP },
+  { e: 'Funções', t: 'Quem faz o quê', l: 'Vire os cards para ver a responsabilidade de cada função.',
+    v: vizFlip([['📞', 'SDR', 'Pré-vendas', 'Prospecta e qualifica. SLA do Development Sales: 40 ligações + 200 e-mails por mês.'], ['🤝', 'Closer', 'Vendas', 'Conduz a oportunidade: diagnóstico, proposta e fechamento.'], ['🌱', 'CS', 'Customer Success', 'Garante resultado, retém e expande para novas frentes de receita.']]) },
+  { e: 'Prospecção', t: 'Cadência de prospecção', l: 'Uma cadência combina e-mail, ligação e LinkedIn em dias alternados até gerar resposta.', b: ['Priorize leads que já engajaram com os posts dos Voices (high intent)'], v: vizCad },
+  { e: 'Qualificação', t: 'BANT: o lead está pronto?', l: 'Antes de passar para o Closer, confira os 4 critérios. Toque em cada letra.', v: vizBant },
+  { e: 'Venda consultiva', t: 'O processo comercial', l: 'As etapas de uma venda consultiva B2B.', x: '<p class="src">Playbook comercial oficial EPI-USE Brasil: <span class="tag">⏳ a preencher</span></p>',
+    v: vizSteps([['🔎', 'Descoberta', 'dor, contexto e decisores'], ['🧭', 'Diagnóstico', 'processo atual e impacto'], ['📄', 'Proposta', 'escopo, investimento, prazo, diferenciais'], ['🤝', 'Fechamento', 'contrato e kick-off'], ['🌱', 'Sucesso do cliente', 'resultado, retenção e expansão']]) },
+  { e: 'Para guardar', t: 'Seu kit de links da Etapa 4', l: 'Metodologia, copiloto de vendas e ferramentas.',
+    v: linkGrid([['📗', 'Receita Previsível', 'livro (Drive)', 'https://drive.google.com/drive/u/1/folders/1cDTedhRgenXv9AO8Rt2sGyB88gV63oSj'], ['🎯', 'Exact Sales', 'pré-vendas', 'https://www.exactsales.com.br'], ['🎓', 'RD University', 'vendas e SDR', 'https://university.rdstation.com/start'], ['🧠', 'JARVIS', 'copiloto SDR · /jarvis', '/jarvis'], ['📞', 'Pipeline Apollo', '/pipeline', '/pipeline'], ['in', 'Sales Navigator', 'LinkedIn', 'https://www.linkedin.com/sales/'], ['▶️', 'S/4HANA Sales Approach', 'vídeo', 'https://www.youtube.com/watch?v=HvrIzogVbLw'], ['🎯', 'War Room', '/war-room', '/war-room'], ['📊', 'Curva ABC', '/curva-abc', '/curva-abc']]) }
+];
+const QUIZ4 = [
+  { q: 'Na Receita Previsível, quem prospecta e qualifica?', o: ['Closer', 'SDR', 'CS'], a: 1, w: 'O SDR prospecta e qualifica; o Closer fecha.' },
+  { q: 'Qual é o SLA mensal do Development Sales?', o: ['40 ligações + 200 e-mails', '10 ligações + 50 e-mails', '100 ligações + 1.000 e-mails'], a: 0, w: '40 ligações + 200 e-mails por mês.' },
+  { q: 'O que significa o “A” de BANT?', o: ['Atendimento', 'Autoridade: quem decide', 'Agenda'], a: 1, w: 'Budget, Authority, Need, Timing.' },
+  { q: 'Qual é o papel do CS?', o: ['Prospectar novos leads', 'Garantir resultado, reter e expandir', 'Emitir notas fiscais'], a: 1, w: 'CS retém e abre novas frentes de receita.' }
+];
+
+/* ======================= ETAPAS (dados do player) ======================= */
+const STAGE_DATA = {
+  e1: { n: 1, title: '🐘 Etapa 1 · Marca & Grupo', slides: SLIDES, quiz: QUIZ, badge: ['🐘', 'Guardião(ã) da Marca'], doneT: 'Você agora fala a língua da marca.' },
+  e2: { n: 2, title: '🚀 Etapa 2 · Estratégia & Demanda', slides: SLIDES2, quiz: QUIZ2, badge: ['🚀', 'Estrategista de Demanda'], doneT: 'Você entende de onde vem o pipeline.' },
+  e3: { n: 3, title: '🧪 Etapa 3 · SAP & Técnico', slides: SLIDES3, quiz: QUIZ3, badge: ['🧪', 'Fluente em SAP'], doneT: 'Agora dá para conversar com um CIO.' },
+  e4: { n: 4, title: '📞 Etapa 4 · Comercial', slides: SLIDES4, quiz: QUIZ4, badge: ['📞', 'Mestre do Pipeline'], doneT: 'Você sabe como o lead vira receita.' }
+};
+const ETAPAS = ['e1', 'e2', 'e3', 'e4'];
+ETAPAS.forEach(k => { S[k] = S[k] || { max: 0, done: false, score: 0 }; });
+S.ach = S.ach || {};
+
+/* ======================= ERP COINS + CONQUISTAS =======================
+   Crédito real no ledger erp_coins (POST /api/onboarding/conquista), 1x por
+   pessoa. Sem sessão SSO a trilha funciona, mas não credita. */
+const ACH = [
+  { k: 'kit', ico: '🎒', t: 'Kit Completo', d: 'Todos os acessos do Dia 1' },
+  { k: 'e1', ico: '🐘', t: 'Guardião(ã) da Marca', d: 'Etapa 1 concluída' },
+  { k: 'e2', ico: '🚀', t: 'Estrategista de Demanda', d: 'Etapa 2 concluída' },
+  { k: 'e3', ico: '🧪', t: 'Fluente em SAP', d: 'Etapa 3 concluída' },
+  { k: 'e4', ico: '📞', t: 'Mestre do Pipeline', d: 'Etapa 4 concluída' },
+  { k: 'trilha', ico: '🏆', t: 'Trilha Completa', d: 'Todas as conquistas acima' }
+];
+const C = { auth: null, saldo: 0, conq: [], val: {} };
+const has = k => C.conq.includes(k) || (C.auth !== true && !!S.ach[k]);
+function renderCoins(bump) {
+  const pill = $('#coinPill');
+  if (C.auth === true) { pill.hidden = false; pill.href = '/loja'; pill.innerHTML = `🪙 <b id="coinN">${C.saldo.toLocaleString('pt-BR')}</b> ERP Coins · ver loja ↗`; if (bump) { pill.classList.remove('bump'); void pill.offsetWidth; pill.classList.add('bump'); } }
+  else if (C.auth === false) { pill.hidden = false; pill.href = '/login'; pill.innerHTML = '🔐 Entre com o SSO para ganhar <b>ERP Coins</b>'; }
+  else pill.hidden = true;
+}
+function renderShelf() {
+  const n = ACH.filter(a => has(a.k)).length;
+  $('#achCount').textContent = `${n}/${ACH.length}`;
+  $('#achGrid').innerHTML = ACH.map((a, i) => `<div class="ach ${has(a.k) ? 'on' : ''}" style="--i:${i}"><span class="ai">${a.ico}</span><b>${a.t}</b><small>${a.d}</small><span class="val">${has(a.k) ? '✓ ' : '🔒 '}${C.val[a.k] ? '+' + C.val[a.k] + ' 🪙' : '🪙'}</span></div>`).join('');
+}
+async function syncCoins() {
+  try {
+    const r = await fetch('/api/onboarding/me', { credentials: 'same-origin' });
+    if (r.status === 401) C.auth = false;
+    else if (r.ok) { const j = await r.json(); C.auth = true; C.saldo = j.saldo || 0; C.conq = j.conquistas || []; C.val = j.valores || {}; }
+  } catch { C.auth = null; }
+  renderCoins(); renderShelf();
+  if (C.auth === true) {   // conquistas feitas antes do login (ou antes desta versão) — credita agora
+    if (ACCESS.every(a => S.access[a[0]]) && !C.conq.includes('kit')) claim('kit');
+    ETAPAS.forEach(k => { if (S[k].done && S[k].ans && !C.conq.includes(k)) claim(k, S[k].ans); });
+  }
+}
+const busy = {};
+async function claim(etapa, respostas) {
+  S.ach[etapa] = true; save(); renderShelf();
+  if (C.auth === false) return { auth: false };
+  if (busy[etapa]) return {}; busy[etapa] = true;
+  try {
+    const r = await fetch('/api/onboarding/conquista', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ etapa, respostas }) });
+    if (r.status === 401) { C.auth = false; renderCoins(); return { auth: false }; }
+    const j = await r.json(); if (!r.ok) return { error: j.error || 'erro' };
+    C.auth = true; C.saldo = j.saldo; C.conq = j.conquistas || []; C.val = j.valores || C.val;
+    (j.novas || []).forEach(k => achQueue.push(k)); runAch();
+    renderShelf(); return j;
+  } catch { return { error: 'rede' }; } finally { busy[etapa] = false; }
+}
+const achQueue = []; let achOn = false;
+function runAch() {
+  if (achOn || !achQueue.length) return; achOn = true;
+  const k = achQueue.shift(), a = ACH.find(x => x.k === k), v = C.val[k] || 0, pop = $('#achPop');
+  pop.innerHTML = `<span class="ai">${a.ico}</span><div><small>Conquista desbloqueada</small><b>${a.t}</b><span>+${v} ERP Coins 🪙</span></div>`;
+  pop.classList.add('on');
+  setTimeout(() => coinShower(pop), 450);
+  setTimeout(() => { renderCoins(true); countTo($('#coinN'), C.saldo, ''); }, 1300);
+  setTimeout(() => { pop.classList.remove('on'); setTimeout(() => { achOn = false; runAch(); }, 450); }, 3300);
+}
+function coinShower(from) {
+  if (reduce) return;
+  const r = from.getBoundingClientRect(), pill = $('#coinPill'), pr = pill.getBoundingClientRect(), visible = !player.classList.contains('on') && pr.top > 0 && pr.bottom < innerHeight;
+  for (let i = 0; i < 10; i++) {
+    const c = document.createElement('span'); c.className = 'coinfly'; c.textContent = '🪙';
+    const sx = r.left + 40 + Math.random() * (r.width - 80), sy = r.top + r.height / 2;
+    c.style.left = sx + 'px'; c.style.top = sy + 'px'; document.body.appendChild(c);
+    const tx = visible ? pr.left + 20 - sx : (Math.random() - .5) * 300, ty = visible ? pr.top + 6 - sy : -sy - 40;
+    setTimeout(() => { c.style.transform = `translate(${tx}px,${ty}px) scale(.6) rotate(${Math.random() * 360}deg)`; c.style.opacity = visible ? '.9' : '0'; }, 30 + i * 60);
+    setTimeout(() => c.remove(), 1300 + i * 60);
+  }
+}
+
 /* ======================= PLAYER ======================= */
 const player = $('#player'), stage = $('#stage');
-const P = { i: 0, mode: 'slides', qi: 0, score: 0, stop: null };
+const P = { k: 'e1', i: 0, mode: 'slides', qi: 0, score: 0, ans: [], stop: null };
+const D = () => STAGE_DATA[P.k];
 function stopViz() { if (P.stop) { try { P.stop(); } catch {} P.stop = null; } }
-function openPlayer() {
-  P.mode = 'slides'; P.i = S.e1.done ? 0 : Math.min(S.e1.max, SLIDES.length - 1);
-  $('#pTitle').textContent = '🐘 Etapa 1 · Marca & Grupo';
+function openPlayer(k) {
+  P.k = STAGE_DATA[k] ? k : 'e1';
+  const st = S[P.k], d = D();
+  P.mode = 'slides'; P.i = st.done ? 0 : Math.min(st.max, d.slides.length - 1);
+  $('#pTitle').textContent = d.title;
   player.classList.add('on'); document.body.style.overflow = 'hidden'; bgStop(true);
   render('next'); setTimeout(() => $('#pNext').focus(), 300);
 }
 function closePlayer() { stopViz(); player.classList.remove('on'); document.body.style.overflow = ''; bgStop(false); renderMap(); }
 $('#pClose').addEventListener('click', closePlayer);
 function segs() {
-  const n = SLIDES.length, cur = P.mode === 'slides' ? P.i : n;
-  $('#segs').innerHTML = Array.from({ length: n + 1 }, (_, k) => `<div class="seg ${k < cur ? 'done' : ''} ${k === cur ? 'cur' : ''} ${k === n ? 'quiz' : ''}"><i></i></div>`).join('');
+  const n = D().slides.length, cur = P.mode === 'slides' ? P.i : n;
+  $('#segs').innerHTML = Array.from({ length: n + 1 }, (_, k) => `<div class="seg ${k < cur || P.mode === 'done' ? 'done' : ''} ${k === cur ? 'cur' : ''} ${k === n ? 'quiz' : ''}"><i></i></div>`).join('');
 }
 function render(dir) {
   stopViz(); stage.className = 'stage dir-' + dir; stage.scrollTop = 0;
-  const s = SLIDES[P.i];
+  const SL = D().slides, s = SL[P.i];
   stage.innerHTML = `<div class="slide"><div class="s-txt">
     <div class="s-eyebrow st" style="--i:0">${s.e}</div><h2 class="st" style="--i:1">${s.t}</h2><p class="s-lead st" style="--i:2">${s.l}</p>
     ${s.b ? `<ul class="s-list">${s.b.map((b, k) => `<li class="st" style="--i:${k + 3}"><span>${b}</span></li>`).join('')}</ul>` : ''}
@@ -860,14 +1329,19 @@ function render(dir) {
   </div><div class="s-viz st" style="--i:1"></div></div>`;
   P.stop = s.v($('.s-viz', stage)) || null;
   $$('[data-count]', stage).forEach(el => setTimeout(() => countTo(el, +el.dataset.count, el.dataset.suf || ''), 400));
-  S.e1.max = Math.max(S.e1.max, P.i); save();
+  S[P.k].max = Math.max(S[P.k].max, P.i); save();
   segs();
   $('#pBot').style.display = '';
   $('#pPrev').disabled = P.i === 0;
-  $('#pCount').textContent = `${P.i + 1} / ${SLIDES.length}`;
-  $('#pNext').textContent = P.i === SLIDES.length - 1 ? 'Ir para o quiz →' : 'Próximo →';
+  $('#pCount').textContent = `${P.i + 1} / ${SL.length}`;
+  $('#pNext').textContent = P.i === SL.length - 1 ? 'Ir para o quiz →' : 'Próximo →';
 }
-function next() { if (P.mode !== 'slides') return; if (P.i < SLIDES.length - 1) { P.i++; render('next'); } else { S.e1.max = SLIDES.length; save(); P.mode = 'quiz'; P.qi = 0; P.score = 0; renderQuiz('next'); } }
+function next() {
+  if (P.mode !== 'slides') return;
+  const len = D().slides.length;
+  if (P.i < len - 1) { P.i++; render('next'); }
+  else { S[P.k].max = len; save(); P.mode = 'quiz'; P.qi = 0; P.score = 0; P.ans = []; renderQuiz('next'); }
+}
 function prev() { if (P.mode === 'slides' && P.i > 0) { P.i--; render('prev'); } }
 $('#pNext').addEventListener('click', next); $('#pPrev').addEventListener('click', prev);
 document.addEventListener('keydown', e => {
@@ -877,46 +1351,53 @@ document.addEventListener('keydown', e => {
 });
 let tx = null;
 stage.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
-stage.addEventListener('touchend', e => { if (tx === null) return; const dx = e.changedTouches[0].clientX - tx; if (Math.abs(dx) > 60 && !e.target.closest('canvas,.ip')) dx < 0 ? next() : prev(); tx = null; });
+stage.addEventListener('touchend', e => { if (tx === null) return; const dx = e.changedTouches[0].clientX - tx; if (Math.abs(dx) > 60 && !e.target.closest('canvas,.ip,.flip,.bl')) dx < 0 ? next() : prev(); tx = null; });
 
 function renderQuiz(dir) {
   stopViz(); stage.className = 'stage dir-' + dir; stage.scrollTop = 0; segs(); $('#pBot').style.display = 'none';
-  const q = QUIZ[P.qi];
-  stage.innerHTML = `<div class="qz"><div class="q-meta st" style="--i:0">Quiz · pergunta ${P.qi + 1} de ${QUIZ.length}</div><h2 class="st" style="--i:1">${q.q}</h2>
+  const QZ = D().quiz, q = QZ[P.qi];
+  stage.innerHTML = `<div class="qz"><div class="q-meta st" style="--i:0">Quiz · pergunta ${P.qi + 1} de ${QZ.length}</div><h2 class="st" style="--i:1">${q.q}</h2>
     <div class="q-opts">${q.o.map((o, j) => `<button class="q-opt st" style="--i:${j + 2}" data-j="${j}"><b>${'ABC'[j]}</b><span>${o}</span></button>`).join('')}</div>
-    <div class="q-fb" aria-live="polite"></div><button class="btn q-next" hidden>${P.qi < QUIZ.length - 1 ? 'Próxima pergunta →' : 'Ver resultado →'}</button></div>`;
+    <div class="q-fb" aria-live="polite"></div><button class="btn q-next" hidden>${P.qi < QZ.length - 1 ? 'Próxima pergunta →' : 'Ver resultado →'}</button></div>`;
   const opts = $('.q-opts', stage);
   $$('.q-opt', stage).forEach(b => b.addEventListener('click', () => {
     if (opts.classList.contains('locked')) return; opts.classList.add('locked');
-    const j = +b.dataset.j, ok = j === q.a; if (ok) P.score++;
+    const j = +b.dataset.j, ok = j === q.a; P.ans[P.qi] = j; if (ok) P.score++;
     b.classList.add(ok ? 'ok' : 'ko'); if (!ok) $$('.q-opt', stage)[q.a].classList.add('ok');
     if (ok) burst(b);
     $('.q-fb', stage).innerHTML = `<b>${ok ? '✓ Isso!' : 'Quase.'}</b> ${q.w}`;
     const nb = $('.q-next', stage); nb.hidden = false; nb.focus();
   }));
-  $('.q-next', stage).addEventListener('click', () => { if (P.qi < QUIZ.length - 1) { P.qi++; renderQuiz('next'); } else renderResult(); });
+  $('.q-next', stage).addEventListener('click', () => { if (P.qi < QZ.length - 1) { P.qi++; renderQuiz('next'); } else renderResult(); });
 }
 function renderResult() {
-  stage.className = 'stage dir-next'; P.mode = 'done';
-  const pass = P.score >= Math.ceil(QUIZ.length * .75);
-  $$('.seg').forEach(s => { s.classList.add('done'); });
-  if (pass) { S.e1.done = true; S.e1.score = Math.max(S.e1.score, P.score); save(); setTimeout(() => confetti(), 250); }
-  stage.innerHTML = pass ? `<div class="done-wrap"><div class="medal">🐘</div>
-      <div class="s-eyebrow st" style="--i:1">Etapa 1 concluída · ${P.score}/${QUIZ.length} no quiz</div>
-      <h2 class="st" style="--i:2">Você agora fala a língua da marca.</h2>
-      <p class="s-lead st" style="--i:3">Badge desbloqueado: <b>Guardião(ã) da Marca</b>. A Etapa 2 (Estratégia & Demanda) chega na próxima fase da trilha.</p>
-      <div class="cta-row st" style="--i:4"><button class="btn" data-a="map">Voltar à trilha</button><button class="btn ghost" data-a="review">Rever a etapa</button></div></div>`
+  stage.className = 'stage dir-next'; P.mode = 'done'; segs();
+  const d = D(), QZ = d.quiz, need = Math.ceil(QZ.length * .75), pass = P.score >= need;
+  const nxt = ETAPAS[ETAPAS.indexOf(P.k) + 1];
+  if (pass) { S[P.k].done = true; S[P.k].score = Math.max(S[P.k].score, P.score); S[P.k].ans = P.ans.slice(); save(); setTimeout(() => confetti(), 250); }
+  stage.innerHTML = pass ? `<div class="done-wrap"><div class="medal">${d.badge[0]}</div>
+      <div class="s-eyebrow st" style="--i:1">Etapa ${d.n} concluída · ${P.score}/${QZ.length} no quiz</div>
+      <h2 class="st" style="--i:2">${d.doneT}</h2>
+      <p class="s-lead st" style="--i:3">Conquista desbloqueada: <b>${d.badge[1]}</b>.</p>
+      <div class="claim st" style="--i:4" id="claimMsg">🪙 Registrando seus ERP Coins…</div>
+      <div class="cta-row st" style="--i:5">${nxt ? `<button class="btn" data-a="next">Ir para a Etapa ${d.n + 1} →</button>` : ''}<button class="btn ${nxt ? 'ghost' : ''}" data-a="map">Voltar à trilha</button><button class="btn ghost" data-a="review">Rever a etapa</button></div></div>`
     : `<div class="done-wrap"><div class="medal" style="filter:grayscale(.6)">🤔</div>
-      <div class="s-eyebrow st" style="--i:1">${P.score}/${QUIZ.length} no quiz</div>
+      <div class="s-eyebrow st" style="--i:1">${P.score}/${QZ.length} no quiz</div>
       <h2 class="st" style="--i:2">Faltou pouco!</h2>
-      <p class="s-lead st" style="--i:3">Acerte pelo menos ${Math.ceil(QUIZ.length * .75)} de ${QUIZ.length} para concluir a etapa.</p>
+      <p class="s-lead st" style="--i:3">Acerte pelo menos ${need} de ${QZ.length} para concluir a etapa e ganhar os coins.</p>
       <div class="cta-row st" style="--i:4"><button class="btn" data-a="retry">Tentar de novo</button><button class="btn ghost" data-a="review">Rever os slides</button></div></div>`;
   $$('[data-a]', stage).forEach(b => b.addEventListener('click', () => {
     const a = b.dataset.a;
     if (a === 'map') closePlayer();
+    if (a === 'next') { stopViz(); openPlayer(nxt); }
     if (a === 'review') { P.mode = 'slides'; P.i = 0; render('prev'); }
-    if (a === 'retry') { P.mode = 'quiz'; P.qi = 0; P.score = 0; renderQuiz('next'); }
+    if (a === 'retry') { P.mode = 'quiz'; P.qi = 0; P.score = 0; P.ans = []; renderQuiz('next'); }
   }));
+  if (pass) { const k = P.k; claim(k, P.ans.slice()).then(j => { const m = $('#claimMsg'); if (!m) return;
+    if (j.auth === false) m.innerHTML = '🔐 <a href="/login">Entre com o SSO</a> para transformar esta conquista em ERP Coins.';
+    else if (j.error) m.textContent = '⚠️ Não consegui registrar os coins agora. Eles entram na próxima visita ao mapa.';
+    else if ((j.novas || []).includes(k)) m.textContent = `🪙 +${(j.novas || []).reduce((s, x) => s + (C.val[x] || 0), 0)} ERP Coins creditados!`;
+    else m.textContent = '🪙 Os coins desta etapa já tinham sido creditados.'; }); }
 }
 
 /* ======================= CONFETE ======================= */
@@ -942,6 +1423,7 @@ function burst(el) { const r = el ? el.getBoundingClientRect() : null; confetti(
 
 /* ======================= BOOT ======================= */
 renderMap();
+syncCoins();
 })();
 </script>
 </body>

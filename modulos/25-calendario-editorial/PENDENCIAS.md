@@ -1,6 +1,6 @@
 # Pendências — Módulo 25 · Calendário Editorial
 
-## 🔴 Fase 2 — Graph API (bloqueado por TI)
+## 🟢 Fase 2 — Graph API (permissão liberada 02/out/2026 · falta implementar)
 
 **O que falta:** o app do Azure (o MESMO do SSO) precisa da permissão de **APLICATIVO**
 `Files.Read.All` (ou `Sites.Read.All`) + **admin consent**. Mesma pessoa que aprovou o consent

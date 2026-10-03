@@ -14,7 +14,7 @@
 | `20-aeo-geo/` | AEO/SEO/GEO — Visibilidade em IA (`/aeo-geo`) | 🟢 v0.1 (diagnóstico AEO Grader + plano de ação + dashboard) |
 | `24-blog-converter/` | Blog Converter — artigo → template HTML do blog (brand · `/blog-converter`) | ✅ v3.0 (IA via Gemini grátis do Office · seleção de componentes · docx/pdf no navegador) |
 | `25-calendario-editorial/` | Calendário Editorial — planilha do marketing em 3 telas (`/editorial/*`, Intelligence + Brand) | ✅ v1.0 Fase 1 (parse 3 abas · resync) · ⏳ Fase 2 Graph aguarda TI |
-| `26-onboarding/` | Onboarding de Marketing — trilha em fases com modo foco e animações (`/onboarding`) | ✅ v2.0 · Fase 1 de 4 |
+| `26-onboarding/` | Onboarding de Marketing — trilha com modo foco, animações e ERP Coins (`/onboarding`) | ✅ v2.1 · 4 etapas |
 
 ## Módulos sem pasta própria (documentados em `docs/MODULES.md`)
 
