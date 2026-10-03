@@ -7,7 +7,7 @@
 | Arquivo | Papel |
 |---|---|
 | `public/area-intelligence.html` | Página (vanilla, tokens do DESIGN.md, animações JS) |
-| `views/admin-intelligence.html` | Painel do tracking — **fora de `public/`** (nem o HTML é servido a quem não é o dono) |
+| `private/admin-intelligence.html` | Painel do tracking — **fora de `public/`** (nem o HTML é servido a quem não é o dono) |
 | `routes/analytics.js` | Beacon `kind='intel'`, `GET /api/analytics/owner`, `GET /api/admin/analytics/intel(/user)`, `GET /admin/intelligence` |
 | `server.js` | `GET /area/intelligence` → página dedicada (antes do `/area/:id` genérico) |
 | `public/office-nav.js` | Link "👁️ Tracking · Intelligence" só pro dono + aba Intelligence ativa na rota |

@@ -21,7 +21,7 @@
 
 ## Área Intelligence (Módulo 27, 03/out/2026)
 - O mesmo beacon recebe `{kind:'intel', steps:[...]}` (lote até 40) → `analytics_events` com `kind='intel'`, `path='/area/intelligence'`, passo em `meta` e, nos passos `tempo.<seção>.<seg>`, o tempo em `dur_ms`.
-- `GET /api/analytics/owner` → `{owner}` (decide se o link do painel aparece). `GET /api/admin/analytics/intel?days=&eu=` e `/intel/user?email=` (owner). Painel: `/admin/intelligence` (HTML em `views/`).
+- `GET /api/analytics/owner` → `{owner}` (decide se o link do painel aparece). `GET /api/admin/analytics/intel?days=&eu=` e `/intel/user?email=` (owner). Painel: `/admin/intelligence` (HTML em `private/`).
 - Eventos `intel` não entram nas contagens de visitas/sessões do report geral.
 
 ## Acesso

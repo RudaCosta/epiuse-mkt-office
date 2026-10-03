@@ -486,7 +486,7 @@ router.get('/admin/analytics', requireOwner, (req, res) => {
 });
 
 // ── ÁREA INTELLIGENCE — quem viu o quê (Módulo 27) ───────────────────────────
-// Só o dono. A página do painel fica FORA de public/ (views/) pra nem o HTML
+// Só o dono. A página do painel fica FORA de public/ (private/) pra nem o HTML
 // ser servido pelo express.static a quem não é o dono.
 router.get('/api/analytics/owner', (req, res) => {
   res.set('Cache-Control', 'no-store');
@@ -495,7 +495,7 @@ router.get('/api/analytics/owner', (req, res) => {
 
 router.get('/admin/intelligence', requireOwner, (req, res) => {
   res.set('Cache-Control', 'no-store');
-  res.sendFile(path.join(__dirname, '../views/admin-intelligence.html'));
+  res.sendFile(path.join(__dirname, '../private/admin-intelligence.html'));
 });
 
 // Agrega views (logPageView) + tempo (beacon office-nav) + passos 'intel'.
