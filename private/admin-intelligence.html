@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Tracking · Intelligence · EPI-USE Office</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/design-tokens.css">
+<script type="module" src="/office-nav.js"></script>
+<style>
+/* Módulo 27 — painel "quem viu o quê" da área Intelligence. Só o dono.
+   Arquivo fora de public/ (private/): servido apenas por GET /admin/intelligence. */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --t-bg: var(--color-neutral-dark-bg);
+  --t-surf: var(--color-neutral-dark-surface);
+  --t-glass: color-mix(in srgb, var(--color-neutral-dark-surface) 62%, transparent);
+  --t-line: var(--color-neutral-dark-border);
+  --t-line2: var(--color-neutral-dark-border-2);
+  --t-text: var(--color-neutral-dark-text);
+  --t-dim: var(--color-neutral-dark-text-dim);
+  --t-muted: var(--color-neutral-dark-text-muted);
+  --t-corn: var(--color-brand-cornflower-blue);
+  --t-steel: var(--color-brand-steel-blue);
+  --t-royal: var(--color-brand-royal-blue);
+  --t-svc: var(--color-brand-service-line-blue);
+  --t-red: var(--color-brand-red);
+  --t-teal: var(--color-spot-teal-green);
+  --t-yellow: var(--color-spot-canary-yellow);
+  --t-ok: var(--color-success-300);
+  --t-head: var(--type-headline-lg-font-family);
+  --t-body: var(--type-body-md-font-family);
+  --ease: cubic-bezier(.22,1,.36,1);
+  --spring: cubic-bezier(.34,1.56,.64,1);
+}
+[hidden]{display:none!important}
+body{background:var(--t-bg);color:var(--t-text);font-family:var(--t-body);line-height:1.55;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse 70% 50% at 100% 0%,color-mix(in srgb,var(--t-svc) 70%,transparent),transparent 60%),radial-gradient(ellipse 50% 40% at 0% 100%,color-mix(in srgb,var(--t-royal) 30%,transparent),transparent 60%)}
+h1,h2,h3{font-family:var(--t-head);line-height:1.15}
+a{color:var(--t-corn)}
+button{font:inherit;color:inherit}
+.wrap{position:relative;max-width:1240px;margin:0 auto;padding:34px 16px 70px}
+.num{font-family:var(--t-head);font-variant-numeric:tabular-nums}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font:700 12px/1 var(--t-head);letter-spacing:.16em;text-transform:uppercase;color:var(--t-corn);margin-bottom:12px}
+.eyebrow::before{content:'';width:22px;height:2px;background:var(--t-red);border-radius:2px}
+.top{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:flex-end;margin-bottom:24px}
+.top h1{font-size:clamp(26px,4vw,40px);font-weight:900}
+.top p{color:var(--t-dim);margin-top:6px;font-size:14.5px}
+.lock{display:inline-flex;gap:6px;align-items:center;font:700 11px var(--t-head);color:var(--t-yellow);border:1px solid color-mix(in srgb,var(--t-yellow) 40%,transparent);padding:4px 10px;border-radius:var(--rounded-full);margin-left:8px;vertical-align:middle}
+.ctl{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.seg{display:inline-flex;padding:4px;border-radius:var(--rounded-full);background:var(--t-glass);border:1px solid var(--t-line);gap:4px}
+.seg button{appearance:none;border:0;background:none;cursor:pointer;padding:7px 13px;border-radius:var(--rounded-full);font:700 13px var(--t-head);color:var(--t-dim)}
+.seg button.on{background:var(--t-royal);color:var(--t-text)}
+.tg{display:inline-flex;gap:8px;align-items:center;font-size:13px;color:var(--t-dim);cursor:pointer;padding:8px 12px;border-radius:var(--rounded-full);border:1px solid var(--t-line);background:var(--t-glass)}
+.tg input{accent-color:var(--t-corn)}
+.btn{appearance:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:var(--rounded-full);font:700 13px var(--t-head);background:var(--t-glass);border:1px solid var(--t-line);color:var(--t-text);text-decoration:none;transition:border-color .25s,transform .3s var(--spring)}
+.btn:hover{border-color:var(--t-corn);transform:translateY(-2px)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+.kpi{padding:16px;border-radius:var(--rounded-lg);background:var(--t-glass);border:1px solid var(--t-line);position:relative;overflow:hidden;animation:up .6s var(--ease) both;animation-delay:calc(var(--i)*60ms)}
+.kpi::after{content:'';position:absolute;left:0;right:0;top:0;height:2px;background:linear-gradient(90deg,var(--t-corn),transparent)}
+.kpi b{display:block;font:900 28px/1.1 var(--t-head)}
+.kpi span{font-size:12px;color:var(--t-dim)}
+@keyframes up{from{opacity:0;transform:translateY(12px)}}
+.grid{display:grid;grid-template-columns:1.25fr 1fr;gap:16px;margin-bottom:16px}
+.card{background:var(--t-glass);border:1px solid var(--t-line);border-radius:var(--rounded-xl);padding:20px;backdrop-filter:blur(12px);animation:up .6s var(--ease) both}
+.card h2{font-size:16px;font-weight:900;margin-bottom:4px}
+.card .sub{font-size:12.5px;color:var(--t-muted);margin-bottom:14px}
+.bars{display:flex;flex-direction:column;gap:9px}
+.hb{display:grid;grid-template-columns:minmax(110px,200px) 1fr 110px;gap:12px;align-items:center;font-size:13px}
+.hb .l{color:var(--t-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hb .t{height:10px;border-radius:10px;background:var(--t-line2);overflow:hidden}
+.hb .t i{display:block;height:100%;width:0;border-radius:10px;background:linear-gradient(90deg,var(--t-steel),var(--t-corn));animation:grow 1.2s var(--ease) forwards;animation-delay:calc(var(--k)*50ms)}
+@keyframes grow{to{width:var(--w)}}
+.hb .n{text-align:right;font-size:12px;color:var(--t-muted)}
+.hb .n b{color:var(--t-text);font-family:var(--t-head)}
+.cols{display:flex;align-items:flex-end;gap:3px;height:120px;border-bottom:1px solid var(--t-line);margin-top:8px}
+.cols i{flex:1;min-width:2px;border-radius:4px 4px 1px 1px;background:linear-gradient(180deg,var(--t-corn),var(--t-svc));transform-origin:bottom;animation:gy .9s var(--ease) both;animation-delay:calc(var(--k)*15ms)}
+.cols i:hover{background:var(--t-teal)}
+@keyframes gy{from{transform:scaleY(0)}}
+.axis{display:flex;justify-content:space-between;font-size:10.5px;color:var(--t-muted);margin-top:6px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{font:700 10.5px var(--t-head);letter-spacing:.1em;text-transform:uppercase;color:var(--t-muted);text-align:left;padding:10px 10px;border-bottom:1px solid var(--t-line);white-space:nowrap}
+td{padding:11px 10px;border-bottom:1px solid var(--t-line2);vertical-align:top}
+tbody tr{cursor:pointer;transition:background .2s}
+tbody tr:hover{background:color-mix(in srgb,var(--t-corn) 8%,transparent)}
+.pn b{display:block}
+.pn small{color:var(--t-muted);font-size:11.5px}
+.role{font-size:11px;padding:2px 8px;border-radius:var(--rounded-full);background:color-mix(in srgb,var(--t-muted) 16%,transparent);color:var(--t-dim);white-space:nowrap}
+.sx{display:flex;flex-wrap:wrap;gap:4px}
+.sx span{font-size:11px;padding:2px 7px;border-radius:6px;background:color-mix(in srgb,var(--t-corn) 14%,transparent);color:var(--t-dim);white-space:nowrap}
+.sx span.t{background:color-mix(in srgb,var(--t-teal) 18%,transparent)}
+.scr{display:inline-block;width:56px;height:6px;border-radius:6px;background:var(--t-line2);overflow:hidden;vertical-align:middle;margin-right:6px}
+.scr i{display:block;height:100%;background:linear-gradient(90deg,var(--t-corn),var(--t-teal))}
+.tbl{overflow-x:auto;margin:0 -6px;padding:0 6px}
+.feed{display:flex;flex-direction:column;max-height:520px;overflow:auto}
+.fd{display:grid;grid-template-columns:70px 1fr;gap:10px;padding:9px 4px;border-bottom:1px solid var(--t-line2);font-size:13px}
+.fd .w{font-size:11px;color:var(--t-muted);font-family:var(--t-head)}
+.fd b{font-weight:700}
+.fd span{color:var(--t-dim)}
+.empty{padding:26px;text-align:center;color:var(--t-muted);font-size:13.5px}
+.deny{max-width:520px;margin:12vh auto;text-align:center}
+.deny h1{font-size:30px;margin-bottom:10px}
+.deny p{color:var(--t-dim)}
+.scrim{position:fixed;inset:0;z-index:890;background:color-mix(in srgb,var(--t-bg) 60%,transparent);backdrop-filter:blur(4px);opacity:0;visibility:hidden;transition:.35s}
+.scrim.on{opacity:1;visibility:visible}
+.drawer{position:fixed;top:0;right:0;z-index:900;width:min(520px,100%);height:100%;display:flex;flex-direction:column;background:var(--t-surf);border-left:1px solid var(--t-line);transform:translateX(105%);transition:transform .5s var(--ease)}
+.drawer.on{transform:none}
+.dr-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:20px 22px 14px;border-bottom:1px solid var(--t-line)}
+.dr-head h3{font-size:19px}
+.dr-head small{display:block;color:var(--t-muted);font-size:12px;font-family:var(--t-body);font-weight:400}
+.x{appearance:none;flex:0 0 38px;width:38px;height:38px;border-radius:50%;border:1px solid var(--t-line);background:transparent;cursor:pointer;font-size:18px;transition:transform .3s var(--spring)}
+.x:hover{transform:rotate(90deg)}
+.dr-body{flex:1;overflow:auto;padding:16px 22px 40px}
+.tl{position:relative;padding-left:22px}
+.tl::before{content:'';position:absolute;left:6px;top:6px;bottom:6px;width:2px;background:var(--t-line)}
+.tl .ev{position:relative;padding:7px 0 7px;font-size:13px;animation:up .4s var(--ease) both}
+.tl .ev::before{content:'';position:absolute;left:-20px;top:13px;width:10px;height:10px;border-radius:50%;background:var(--t-bg);border:2px solid var(--c,var(--t-corn))}
+.tl .ev .w{font-size:11px;color:var(--t-muted);font-family:var(--t-head)}
+.tl .day{font:900 12px var(--t-head);letter-spacing:.08em;text-transform:uppercase;color:var(--t-corn);margin:14px 0 4px -22px}
+@media (max-width:900px){.grid{grid-template-columns:1fr}.hb{grid-template-columns:100px 1fr 90px}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<office-nav></office-nav>
+<main class="wrap" id="app">
+  <div class="top">
+    <div>
+      <div class="eyebrow">Tracking · Área Intelligence</div>
+      <h1>Quem viu o quê <span class="lock">🔒 só você vê</span></h1>
+      <p>Visitas, tempo, seções vistas, profundidade de scroll e cliques em <a href="/area/intelligence">/area/intelligence</a>.</p>
+    </div>
+    <div class="ctl">
+      <div class="seg" id="days">
+        <button data-d="7">7d</button><button data-d="30" class="on">30d</button><button data-d="90">90d</button><button data-d="365">1 ano</button>
+      </div>
+      <label class="tg"><input type="checkbox" id="eu"> incluir meus acessos</label>
+      <button class="btn" id="csv">⬇ CSV</button>
+    </div>
+  </div>
+  <div class="kpis" id="kpis"></div>
+  <div class="grid">
+    <div class="card"><h2>👀 O que foi visto</h2><p class="sub">Pessoas que chegaram a ver cada seção (≥30% dela na tela) e tempo médio por pessoa</p><div class="bars" id="secs"></div></div>
+    <div class="card"><h2>📜 Até onde rolaram</h2><p class="sub">Pessoas por profundidade máxima de scroll</p><div class="bars" id="scroll"></div>
+      <h2 style="margin-top:22px">📅 Visitas por dia</h2><div id="porDia"></div></div>
+  </div>
+  <div class="grid">
+    <div class="card"><h2>🔧 Ferramentas abertas</h2><p class="sub">Cliques nos atalhos da área</p><div class="bars" id="tools"></div></div>
+    <div class="card"><h2>🖱️ Interações</h2><p class="sub">Detalhes de fontes, achados, filtros e gráficos</p><div class="bars" id="acoes"></div></div>
+  </div>
+  <div class="card" style="margin-bottom:16px"><h2>👥 Pessoas</h2><p class="sub">Clique numa linha pra ver o passo a passo da pessoa</p><div class="tbl" id="pessoas"></div></div>
+  <div class="card"><h2>⚡ Atividade recente</h2><p class="sub">Últimos 200 eventos</p><div class="feed" id="feed"></div></div>
+</main>
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="drTitle">
+  <div class="dr-head"><h3 id="drTitle"></h3><button class="x" id="drClose" aria-label="Fechar">✕</button></div>
+  <div class="dr-body" id="drBody"></div>
+</aside>
+<script>
+(() => {
+'use strict';
+const $ = (q, el = document) => el.querySelector(q);
+const $$ = (q, el = document) => [...el.querySelectorAll(q)];
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmt = n => Number(n || 0).toLocaleString('pt-BR');
+const dur = ms => { const s = Math.round((ms || 0) / 1000); if (s < 60) return s + 's'; const m = Math.floor(s / 60); if (m < 60) return m + 'min ' + (s % 60 ? (s % 60) + 's' : ''); return Math.floor(m / 60) + 'h ' + (m % 60) + 'min'; };
+const when = ts => ts ? new Date(ts).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—';
+const hora = ts => new Date(ts).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+const dia = ts => new Date(ts).toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short' });
+const slug = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/^\/+/, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'x';
+
+// Mesma ordem/ids das seções de public/area-intelligence.html (data-sec)
+const SECS = [
+  ['hero', '✨ Abertura'], ['fluxo', '01 · Fontes do dado'], ['metas', '02 · Metas'], ['saude', '03 · Saúde da base'],
+  ['atribuicao', '04 · Atribuição'], ['pipeline', '05 · Deals no CRM'], ['audiencia', '06 · Audiência'],
+  ['projetos', '07 · Projetos'], ['ferramentas', '08 · Ferramentas'], ['agente', '09 · Agente']
+];
+const SECL = Object.fromEntries(SECS);
+const NODE = { ga4: 'Site · GA4', rd: 'RD Station', zoho: 'Zoho CRM', apollo: 'Apollo' };
+let TOOLS = {};
+function acaoLabel(id) {
+  const [k, ...r] = String(id).split('.'), v = r.join('.');
+  if (k === 'node') return '🔎 Detalhes da fonte · ' + (NODE[v] || v);
+  if (k === 'achado') return '🩺 Abriu achado · ' + v.replace(/-/g, ' ');
+  if (k === 'origem') return '🎯 Destacou origem · ' + v.replace(/-/g, ' ');
+  if (k === 'tab') return '🎛️ Filtro · ' + v.replace('deals-', 'deals ').replace('all', 'todos');
+  if (k === 'grafico') return '📈 Explorou gráfico · ' + v;
+  if (k === 'cta') return '👆 Botão do topo · ' + (v === 'fluxo' ? 'ver fontes' : v);
+  if (k === 'agente') return '🤖 Abriu workspace do agente';
+  if (k === 'tool') return TOOLS[v] || ('🔧 ' + v);
+  if (k === 'sec') return '👀 Viu · ' + (SECL[v] || v);
+  if (k === 'scroll') return '📜 Rolou até ' + v + '%';
+  if (k === 'view') return '🚪 Abriu a página';
+  return id;
+}
+
+let DAYS = 30, DATA = null;
+async function j(u) { const r = await fetch(u, { credentials: 'same-origin', cache: 'no-store' }); if (r.status === 403) throw new Error('403'); return r.json(); }
+
+async function load() {
+  try {
+    DATA = await j(`/api/admin/analytics/intel?days=${DAYS}&eu=${$('#eu').checked ? 1 : 0}`);
+  } catch (e) {
+    $('#app').innerHTML = '<div class="deny"><h1>🔒 Acesso restrito</h1><p>Este painel é exclusivo do dono do Office.</p></div>';
+    return;
+  }
+  render(DATA);
+}
+
+function bars(el, rows, empty) {
+  el.innerHTML = rows.length ? rows.map((r, k) => `<div class="hb" title="${esc(r.l)}"><span class="l">${esc(r.l)}</span><span class="t"><i style="--w:${Math.max(r.v > 0 ? 2 : 0, r.p).toFixed(1)}%;--k:${k}"></i></span><span class="n">${r.n}</span></div>`).join('')
+    : `<div class="empty">${empty}</div>`;
+}
+
+function render(d) {
+  const r = d.resumo;
+  const K = [
+    ['👥', r.pessoas, 'pessoas'], ['🚪', r.visitas, 'visitas'], ['⏱️', dur(r.tempo_medio_ms), 'tempo médio por visita'],
+    ['⌛', dur(r.tempo_ms), 'tempo total'], ['🔧', r.cliques_ferramentas, 'cliques em ferramentas'], ['🖱️', r.interacoes, 'interações'],
+  ];
+  if (r.anon) K.push(['👤', r.anon, 'visitas sem login']);
+  $('#kpis').innerHTML = K.map(([e, v, l], i) => `<div class="kpi" style="--i:${i}"><b class="num">${typeof v === 'number' ? fmt(v) : esc(v)}</b><span>${e} ${l}</span></div>`).join('');
+
+  const base = Math.max(1, r.pessoas);
+  const sx = Object.fromEntries((d.secoes || []).map(s => [s.id, s]));
+  bars($('#secs'), SECS.map(([id, l]) => { const s = sx[id] || { pessoas: 0, tempo_ms: 0 }; return { l, v: s.pessoas, p: s.pessoas * 100 / base, n: `<b>${fmt(s.pessoas)}</b> · ${s.pessoas ? dur(s.tempo_ms / s.pessoas) : '—'}` }; }), 'Ninguém viu ainda.');
+  bars($('#scroll'), (d.scroll || []).map(s => ({ l: `até ${s.n}%`, v: s.pessoas, p: s.pessoas * 100 / base, n: `<b>${fmt(s.pessoas)}</b> pessoa${s.pessoas === 1 ? '' : 's'}` })), '—');
+  bars($('#tools'), (d.ferramentas || []).map(t => ({ l: TOOLS[t.id] || t.id, v: t.cliques, p: t.cliques * 100 / Math.max(1, d.ferramentas[0].cliques), n: `<b>${fmt(t.cliques)}</b> · ${fmt(t.pessoas)} pess.` })), 'Nenhuma ferramenta aberta no período.');
+  bars($('#acoes'), (d.acoes || []).slice(0, 14).map(a => ({ l: acaoLabel(a.id), v: a.vezes, p: a.vezes * 100 / Math.max(1, d.acoes[0].vezes), n: `<b>${fmt(a.vezes)}</b> · ${fmt(a.pessoas)} pess.` })), 'Nenhuma interação no período.');
+
+  // visitas por dia (preenche dias vazios)
+  const pd = d.porDia || [];
+  if (pd.length) {
+    const DAY = 86400000, end = Math.floor(Date.now() / DAY) * DAY, start = end - (DAYS - 1) * DAY, m = Object.fromEntries(pd.map(x => [x.dia, x.n]));
+    const serie = []; for (let t = start; t <= end; t += DAY) serie.push([t, m[t] || 0]);
+    const mx = Math.max(...serie.map(s => s[1]), 1);
+    $('#porDia').innerHTML = `<div class="cols">${serie.map(([t, n], k) => `<i style="height:${Math.max(n ? 4 : 1, n * 100 / mx)}%;--k:${k}" title="${dia(t)}: ${n} visita${n === 1 ? '' : 's'}"></i>`).join('')}</div>
+      <div class="axis"><span>${dia(start)}</span><span>${dia(end)}</span></div>`;
+  } else $('#porDia').innerHTML = '<div class="empty">Sem visitas no período.</div>';
+
+  const ps = d.pessoas || [];
+  $('#pessoas').innerHTML = ps.length ? `<table><thead><tr><th>Pessoa</th><th>Área</th><th>Visitas</th><th>Tempo</th><th>Seções vistas</th><th>Ferramentas</th><th>Scroll</th><th>Último acesso</th></tr></thead><tbody>
+    ${ps.map(p => {
+      const secs = SECS.filter(([id]) => id in (p.secoes || {})).map(([id, l]) => `<span title="${esc(l)} · ${dur(p.secoes[id])}">${esc(l.replace(/^[\d·\s✨]+/, ''))}</span>`).join('');
+      const tools = Object.keys(p.ferramentas || {}).map(id => `<span class="t">${esc(TOOLS[id] || id)}</span>`).join('');
+      return `<tr data-email="${esc(p.email)}"><td class="pn"><b>${esc(p.nome || p.email.split('@')[0])}</b><small>${esc(p.email)}</small></td>
+        <td>${p.role ? `<span class="role">${esc(p.role)}</span>` : '—'}</td><td class="num">${fmt(p.visitas)}</td><td>${dur(p.tempo_ms)}</td>
+        <td><div class="sx">${secs || '<small style="color:var(--t-muted)">—</small>'}</div></td><td><div class="sx">${tools || '<small style="color:var(--t-muted)">—</small>'}</div></td>
+        <td><span class="scr"><i style="width:${p.scroll}%"></i></span>${p.scroll}%</td><td>${when(p.ultimo)}</td></tr>`;
+    }).join('')}</tbody></table>` : '<div class="empty">Ninguém acessou a área no período.</div>';
+  $$('#pessoas tbody tr').forEach(tr => tr.addEventListener('click', () => openPerson(tr.dataset.email)));
+
+  $('#feed').innerHTML = (d.recente || []).length ? d.recente.map(e => `<div class="fd"><span class="w">${when(e.ts)}</span><div><b>${esc(e.nome || (e.email === 'anon' ? 'sem login' : e.email.split('@')[0]))}</b> <span>${esc(acaoLabel(e.meta))}</span></div></div>`).join('')
+    : '<div class="empty">Sem atividade no período.</div>';
+}
+
+// Passo a passo de uma pessoa
+const drawer = $('#drawer'), scrim = $('#scrim');
+function closeDr() { drawer.classList.remove('on'); scrim.classList.remove('on'); drawer.setAttribute('aria-hidden', 'true'); }
+$('#drClose').addEventListener('click', closeDr); scrim.addEventListener('click', closeDr);
+addEventListener('keydown', e => { if (e.key === 'Escape') closeDr(); });
+async function openPerson(email) {
+  $('#drTitle').innerHTML = `${esc(email)}<small>carregando…</small>`; $('#drBody').innerHTML = '';
+  drawer.classList.add('on'); scrim.classList.add('on'); drawer.setAttribute('aria-hidden', 'false');
+  let d; try { d = await j('/api/admin/analytics/intel/user?email=' + encodeURIComponent(email)); } catch { return; }
+  $('#drTitle').innerHTML = `${esc(d.meta.name || email)}<small>${esc(email)}${d.meta.role ? ' · ' + esc(d.meta.role) : ''} · histórico completo</small>`;
+  let lastDay = '';
+  const COL = { view: 'var(--t-yellow)', dur: 'var(--t-teal)', tool: 'var(--t-ok)', sec: 'var(--t-corn)' };
+  $('#drBody').innerHTML = d.passos.length ? `<div class="tl">${d.passos.map((p, i) => {
+      const dd = dia(p.ts), head = dd !== lastDay ? `<div class="day">${dd}</div>` : ''; lastDay = dd;
+      let txt, c;
+      if (p.kind === 'view') { txt = '🚪 Abriu a página'; c = COL.view; }
+      else if (p.kind === 'dur') { txt = `⏱️ Ficou ${dur(p.dur_ms)} na página`; c = COL.dur; }
+      else if (/^tempo\./.test(p.meta)) { const id = p.meta.split('.')[1]; txt = `⏳ ${dur(p.dur_ms)} em ${SECL[id] || id}`; c = COL.dur; }
+      else { txt = acaoLabel(p.meta); c = /^tool\./.test(p.meta) ? COL.tool : COL.sec; }
+      return `${head}<div class="ev" style="--c:${c};animation-delay:${Math.min(i, 30) * 20}ms"><span class="w">${hora(p.ts)}</span> · ${esc(txt)}</div>`;
+    }).join('')}</div>` : '<div class="empty">Sem eventos.</div>';
+}
+
+// CSV (pessoas do período atual)
+$('#csv').addEventListener('click', () => {
+  if (!DATA) return;
+  const q = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+  const iso = ts => ts ? new Date(ts).toISOString().slice(0, 16).replace('T', ' ') : '';
+  const rows = [['email', 'nome', 'area', 'visitas', 'sessoes', 'tempo_s', 'secoes_vistas', 'ferramentas', 'scroll_max', 'primeiro', 'ultimo']]
+    .concat(DATA.pessoas.map(p => [p.email, p.nome, p.role, p.visitas, p.sessoes, Math.round(p.tempo_ms / 1000),
+      Object.keys(p.secoes || {}).join(' '), Object.keys(p.ferramentas || {}).join(' '), p.scroll, iso(p.primeiro), iso(p.ultimo)]));
+  const blob = new Blob(['﻿' + rows.map(r => r.map(q).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `tracking-intelligence-${DAYS}d.csv`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+});
+
+$$('#days button').forEach(b => b.addEventListener('click', () => { $$('#days button').forEach(x => x.classList.toggle('on', x === b)); DAYS = +b.dataset.d; load(); }));
+$('#eu').addEventListener('change', load);
+
+// Rótulos das ferramentas vêm do próprio areas.json (mesmo slug do href usado no beacon)
+fetch('/api/areas.json', { cache: 'no-store' }).then(r => r.json()).then(a => {
+  const it = (a.areas || []).find(x => x.id === 'intelligence') || {};
+  (it.ferramentas || []).forEach(t => { TOOLS[slug(t.href)] = (t.icon ? t.icon + ' ' : '') + t.label; });
+}).catch(() => {}).finally(load);
+})();
+</script>
+</body>
+</html>

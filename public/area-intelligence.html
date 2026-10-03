@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Marketing Intelligence & CRM · EPI-USE Office</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/design-tokens.css">
+<script type="module" src="/office-nav.js"></script>
+<script type="module" src="/office-footer.js"></script>
+<style>
+/* Módulo 27 — Área Intelligence. Mesma linguagem do /onboarding.
+   Só tokens do DESIGN.md (regra 8); transparências via color-mix. */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --i-bg: var(--color-neutral-dark-bg);
+  --i-surf: var(--color-neutral-dark-surface);
+  --i-surf2: var(--color-neutral-dark-surface-2);
+  --i-glass: color-mix(in srgb, var(--color-neutral-dark-surface) 62%, transparent);
+  --i-line: var(--color-neutral-dark-border);
+  --i-line2: var(--color-neutral-dark-border-2);
+  --i-text: var(--color-neutral-dark-text);
+  --i-dim: var(--color-neutral-dark-text-dim);
+  --i-muted: var(--color-neutral-dark-text-muted);
+  --i-corn: var(--color-brand-cornflower-blue);
+  --i-steel: var(--color-brand-steel-blue);
+  --i-royal: var(--color-brand-royal-blue);
+  --i-slate: var(--color-brand-dark-slate-blue);
+  --i-svc: var(--color-brand-service-line-blue);
+  --i-red: var(--color-brand-red);
+  --i-ok: var(--color-success-500);
+  --i-ok2: var(--color-success-300);
+  --i-warn: var(--color-warning-500);
+  --i-bad: var(--color-danger-300);
+  --i-teal: var(--color-spot-teal-green);
+  --i-azure: var(--color-spot-azure-blue);
+  --i-yellow: var(--color-spot-canary-yellow);
+  --i-ai: var(--color-spot-ai-services-blue);
+  --i-french: var(--color-spot-french-blue);
+  --i-head: var(--type-headline-lg-font-family);
+  --i-body: var(--type-body-md-font-family);
+  --i-mono: var(--type-code-md-font-family);
+  --ease: cubic-bezier(.22,1,.36,1);
+  --spring: cubic-bezier(.34,1.56,.64,1);
+}
+html{scroll-behavior:smooth}
+body{background:var(--i-bg);color:var(--i-text);font-family:var(--i-body);line-height:1.6;overflow-x:hidden}
+h1,h2,h3{font-family:var(--i-head);line-height:1.12;letter-spacing:-.015em}
+a{color:var(--i-corn)}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit}
+.wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 16px}
+.num{font-family:var(--i-head);font-variant-numeric:tabular-nums}
+
+/* ---------- FUNDO VIVO: rede de dados ---------- */
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.blob{position:absolute;border-radius:50%;filter:blur(90px);opacity:.45;animation:drift 22s ease-in-out infinite alternate}
+.b1{width:540px;height:540px;background:var(--i-svc);top:-180px;right:-140px}
+.b2{width:460px;height:460px;background:var(--i-royal);bottom:-200px;left:-120px;animation-delay:-8s;opacity:.28}
+.b3{width:240px;height:240px;background:var(--i-teal);top:45%;left:48%;opacity:.10;animation-duration:30s}
+@keyframes drift{to{transform:translate(-70px,60px) scale(1.15)}}
+#net{position:absolute;inset:0;width:100%;height:100%}
+
+/* ---------- REVEAL ---------- */
+.rv{opacity:0;transform:translateY(26px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
+.rv.in{opacity:1;transform:none}
+.rv.d1{transition-delay:.08s}.rv.d2{transition-delay:.16s}.rv.d3{transition-delay:.24s}.rv.d4{transition-delay:.32s}
+
+/* ---------- HERO ---------- */
+.hero{display:grid;grid-template-columns:1fr auto;gap:40px;align-items:center;padding:60px 0 10px}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font:700 12px/1 var(--i-head);letter-spacing:.16em;text-transform:uppercase;color:var(--i-corn);margin-bottom:16px}
+.eyebrow::before{content:'';width:22px;height:2px;background:var(--i-red);border-radius:2px}
+.hero h1{font-size:clamp(34px,6vw,62px);font-weight:900;margin-bottom:16px}
+.grad{background:linear-gradient(92deg,var(--i-text) 10%,var(--i-corn) 60%,var(--i-teal) 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p.lead{font-size:18px;color:var(--i-dim);max-width:620px}
+.who{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:22px}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:var(--rounded-full);background:var(--i-glass);border:1px solid var(--i-line);font-size:13px;color:var(--i-dim);text-decoration:none;backdrop-filter:blur(8px);transition:border-color .25s,transform .3s var(--spring)}
+a.chip:hover{border-color:var(--i-corn);transform:translateY(-2px)}
+.chip .av{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font:900 11px var(--i-head);background:linear-gradient(135deg,var(--i-royal),var(--i-svc));color:var(--i-text)}
+.chip .dot{width:8px;height:8px;border-radius:50%;background:var(--i-ok);animation:ping 2s infinite}
+.chip.owner{border-color:color-mix(in srgb,var(--i-yellow) 45%,transparent);color:var(--i-text)}
+.chip.owner .dot{background:var(--i-yellow);animation-name:pingY}
+@keyframes ping{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--i-ok) 70%,transparent)}100%{box-shadow:0 0 0 12px transparent}}
+@keyframes pingY{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--i-yellow) 70%,transparent)}100%{box-shadow:0 0 0 12px transparent}}
+.cta-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+.btn{appearance:none;border:0;cursor:pointer;display:inline-flex;align-items:center;gap:10px;padding:13px 22px;border-radius:var(--rounded-full);font:700 15px var(--i-head);background:var(--i-red);color:var(--i-text);text-decoration:none;box-shadow:0 10px 30px -10px var(--i-red);transition:transform .25s var(--spring)}
+.btn:hover{transform:translateY(-2px) scale(1.02)}
+.btn.ghost{background:var(--i-glass);border:1px solid var(--i-line);box-shadow:none;backdrop-filter:blur(8px)}
+.btn.ghost:hover{border-color:var(--i-corn)}
+.ring{position:relative;width:200px;height:200px}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring .tr{fill:none;stroke:var(--i-line);stroke-width:10}
+.ring .fg{fill:none;stroke:url(#rg);stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset 1.8s var(--ease) .3s}
+.ring .orbit{fill:none;stroke:var(--i-line2);stroke-width:1;stroke-dasharray:2 6}
+.ring-c{position:absolute;inset:0;display:grid;place-content:center;text-align:center;padding:0 26px}
+.ring-c b{font:900 44px/1 var(--i-head)}
+.ring-c span{font-size:11px;color:var(--i-muted);letter-spacing:.08em;text-transform:uppercase;margin-top:6px;line-height:1.35}
+.ring-cap{font-size:12px;color:var(--i-muted);text-align:center;margin-top:8px;max-width:200px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:38px 0 0}
+.stat{padding:18px 18px 16px;border-radius:var(--rounded-lg);background:var(--i-glass);border:1px solid var(--i-line);backdrop-filter:blur(10px);position:relative;overflow:hidden}
+.stat::after{content:'';position:absolute;left:0;right:0;top:0;height:2px;background:linear-gradient(90deg,var(--i-corn),transparent)}
+.stat b{display:block;font:900 30px/1.1 var(--i-head)}
+.stat span{display:block;font-size:12.5px;color:var(--i-dim);margin-top:4px}
+.stat small{display:block;font-size:11px;color:var(--i-muted);margin-top:8px}
+@media (max-width:860px){.hero{grid-template-columns:1fr;padding-top:36px}.ring{width:160px;height:160px;order:-1;justify-self:start}.ring-c b{font-size:34px}.ring-cap{text-align:left}.stats{grid-template-columns:repeat(2,1fr)}}
+
+/* ---------- SEÇÕES ---------- */
+.sec{padding:84px 0 0;scroll-margin-top:70px}
+.sec-h{max-width:760px;margin-bottom:28px}
+.sec-h .eyebrow{margin-bottom:12px}
+.sec-h h2{font-size:clamp(26px,3.6vw,38px);font-weight:900}
+.sec-h p{color:var(--i-dim);margin-top:10px;font-size:16px}
+.card{background:var(--i-glass);border:1px solid var(--i-line);border-radius:var(--rounded-xl);padding:22px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.src{font-size:11.5px;color:var(--i-muted);margin-top:12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.fr{display:inline-flex;align-items:center;gap:6px;font:700 11px var(--i-head);padding:3px 9px;border-radius:var(--rounded-full);border:1px solid var(--i-line)}
+.fr::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
+.fr.ok{color:var(--i-ok2)}.fr.warn{color:var(--i-yellow)}.fr.old{color:var(--i-warn)}.fr.none{color:var(--i-muted)}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:var(--rounded-full);background:color-mix(in srgb,var(--i-muted) 14%,transparent);color:var(--i-dim)}
+.pend{color:var(--i-muted);font-size:13px}
+
+/* ---------- 01 · HUB DE FONTES ---------- */
+.hub{position:relative;display:grid;grid-template-columns:1fr minmax(180px,.8fr) 1fr;grid-template-areas:"ga . zo" ". c ." "rd . ap";gap:26px 30px;padding:10px 0}
+.hub svg.links{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.hub .ln{fill:none;stroke:color-mix(in srgb,var(--i-corn) 45%,transparent);stroke-width:2;stroke-dasharray:3 9;animation:flow 1.6s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-24}}
+.src-node{position:relative;z-index:1;appearance:none;cursor:pointer;text-align:left;padding:18px 18px 16px;border-radius:var(--rounded-xl);background:var(--i-glass);border:1px solid var(--i-line);backdrop-filter:blur(12px);transition:transform .35s var(--spring),border-color .3s,box-shadow .3s}
+.src-node:hover{transform:translateY(-4px);border-color:var(--c);box-shadow:0 18px 40px -20px var(--c)}
+.src-node .sn-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.src-node .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:20px;background:color-mix(in srgb,var(--c) 22%,transparent);border:1px solid color-mix(in srgb,var(--c) 45%,transparent)}
+.src-node .nm{font:900 15px/1.2 var(--i-head)}
+.src-node .rl{font-size:11.5px;color:var(--i-muted)}
+.src-node b.v{display:block;font:900 28px/1.1 var(--i-head);color:var(--i-text)}
+.src-node .vl{font-size:12.5px;color:var(--i-dim)}
+.src-node .more{font:700 11.5px var(--i-head);color:var(--c);margin-top:10px;display:inline-block}
+.hub-c{grid-area:c;z-index:1;align-self:center;justify-self:center;width:180px;height:180px;border-radius:50%;display:grid;place-content:center;text-align:center;padding:16px;background:radial-gradient(circle at 30% 25%,var(--i-royal),var(--i-svc) 55%,var(--i-bg));border:2px solid var(--i-corn);box-shadow:0 0 0 10px color-mix(in srgb,var(--i-corn) 8%,transparent),0 30px 60px -24px var(--i-corn);position:relative}
+.hub-c::before,.hub-c::after{content:'';position:absolute;inset:-2px;border-radius:50%;border:2px solid var(--i-corn);animation:halo 3s var(--ease) infinite}
+.hub-c::after{animation-delay:1.5s}
+@keyframes halo{from{transform:scale(1);opacity:.7}to{transform:scale(1.5);opacity:0}}
+.hub-c .e{font-size:34px;line-height:1}
+.hub-c b{font:900 15px/1.2 var(--i-head);margin-top:6px}
+.hub-c span{font-size:11px;color:var(--i-dim);margin-top:4px;line-height:1.35}
+@media (max-width:760px){
+  .hub{grid-template-columns:1fr 1fr;grid-template-areas:"ga zo" "c c" "rd ap";gap:18px 14px}
+  .hub-c{width:150px;height:150px}
+  .src-node{padding:14px}.src-node b.v{font-size:22px}.src-node .ic{width:34px;height:34px;font-size:17px}
+}
+
+/* ---------- 02 · METAS (gauges) ---------- */
+.goals{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.goal{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px}
+.gauge{position:relative;width:150px;height:150px}
+.gauge svg{width:100%;height:100%;transform:rotate(135deg)}
+.gauge .tr{fill:none;stroke:var(--i-line);stroke-width:9;stroke-linecap:round}
+.gauge .fg{fill:none;stroke-width:9;stroke-linecap:round;transition:stroke-dashoffset 1.8s var(--ease) .2s}
+.gauge .gc{position:absolute;inset:0;display:grid;place-content:center}
+.gauge .gc b{font:900 30px/1 var(--i-head)}
+.gauge .gc span{font-size:11px;color:var(--i-muted);margin-top:4px}
+.goal h3{font-size:14px;font-weight:900;margin-top:2px}
+.goal .gv{font-size:13px;color:var(--i-dim)}
+.goal .gv b{color:var(--i-text);font-family:var(--i-head)}
+.st{display:inline-flex;gap:6px;align-items:center;font:700 11.5px var(--i-head);padding:4px 10px;border-radius:var(--rounded-full);border:1px solid var(--i-line)}
+.st.ok{color:var(--i-ok2)}.st.warn{color:var(--i-yellow)}.st.bad{color:var(--i-bad)}.st.pend{color:var(--i-muted)}
+@media (max-width:860px){.goals{grid-template-columns:repeat(2,1fr)}.gauge{width:124px;height:124px}.gauge .gc b{font-size:24px}}
+
+/* ---------- 03 · SAÚDE DA BASE ---------- */
+.health{display:grid;grid-template-columns:300px 1fr;gap:18px}
+.hp{display:flex;flex-direction:column;gap:18px}
+.mini{display:flex;gap:16px;align-items:center}
+.mini .gauge{width:96px;height:96px;flex:0 0 96px}
+.mini .gauge svg{transform:rotate(-90deg)}
+.mini .gauge .gc b{font-size:22px}
+.mini h4{font:900 15px/1.25 var(--i-head)}
+.mini p{font-size:12.5px;color:var(--i-dim)}
+.finds{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.find{appearance:none;text-align:left;cursor:pointer;padding:16px 16px 14px;border-radius:var(--rounded-lg);background:var(--i-glass);border:1px solid var(--i-line);transition:border-color .25s,transform .3s var(--spring)}
+.find:hover{transform:translateY(-3px);border-color:var(--sv)}
+.find .fh{display:flex;gap:10px;align-items:center;justify-content:space-between}
+.find .sv{font:700 10.5px var(--i-head);letter-spacing:.1em;text-transform:uppercase;color:var(--sv);display:inline-flex;gap:6px;align-items:center}
+.find .sv::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--sv);box-shadow:0 0 0 0 var(--sv);animation:pingS 2.4s infinite}
+@keyframes pingS{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--sv) 60%,transparent)}100%{box-shadow:0 0 0 10px transparent}}
+.find b.fv{font:900 26px/1 var(--i-head)}
+.find p{font-size:13px;color:var(--i-dim);margin-top:8px}
+.find .fa{max-height:0;overflow:hidden;transition:max-height .5s var(--ease),margin .5s var(--ease);font-size:12.5px;color:var(--i-text)}
+.find.open .fa{max-height:120px;margin-top:10px}
+.find .fa::before{content:'→ Ação: ';font-weight:700;color:var(--sv)}
+.find .tg{font-size:11px;color:var(--i-muted);margin-top:8px}
+.bars{display:flex;flex-direction:column;gap:9px}
+.hb{display:grid;grid-template-columns:minmax(120px,190px) 1fr 52px;gap:12px;align-items:center;font-size:12.5px}
+.hb .l{color:var(--i-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hb .t{height:10px;border-radius:10px;background:var(--i-line2);overflow:hidden}
+.hb .t i{display:block;height:100%;width:0;border-radius:10px;background:linear-gradient(90deg,var(--i-steel),var(--i-corn));transition:width 1.3s var(--ease)}
+.in .hb .t i{width:var(--w)}
+.hb.bad .t i{background:linear-gradient(90deg,var(--i-red),var(--i-bad))}
+.hb.dup .l::after{content:' ⚠';color:var(--i-yellow)}
+.hb .n{text-align:right;font-family:var(--i-head);font-weight:700}
+.stack{display:flex;height:18px;border-radius:18px;overflow:hidden;background:var(--i-line2);margin:12px 0 10px}
+.stack i{display:block;height:100%;width:0;transition:width 1.4s var(--ease)}
+.in .stack i{width:var(--w)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:12px;color:var(--i-dim)}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.legend span::before{content:'';width:10px;height:10px;border-radius:3px;background:var(--c)}
+.two{display:grid;grid-template-columns:1.2fr 1fr;gap:18px;margin-top:18px}
+.card h3{font-size:16px;font-weight:900;margin-bottom:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.card h3 .tag{font-family:var(--i-body);font-weight:700}
+@media (max-width:900px){.health,.two{grid-template-columns:1fr}.finds{grid-template-columns:1fr}.hb{grid-template-columns:110px 1fr 44px}}
+
+/* ---------- 04 · ATRIBUIÇÃO (donut) ---------- */
+.attr{display:grid;grid-template-columns:340px 1fr;gap:28px;align-items:center}
+.donut{position:relative;width:320px;height:320px;justify-self:center}
+.donut svg{width:100%;height:100%;transform:rotate(-90deg)}
+.donut .sl{fill:none;stroke-width:34;transition:stroke-dasharray 1.4s var(--ease),stroke-width .3s var(--spring),opacity .3s;cursor:pointer}
+.donut .sl.dim{opacity:.35}
+.donut .sl.hot{stroke-width:44}
+.donut .dc{position:absolute;inset:0;display:grid;place-content:center;text-align:center;pointer-events:none;padding:0 70px}
+.donut .dc b{font:900 38px/1 var(--i-head)}
+.donut .dc span{font-size:12px;color:var(--i-dim);margin-top:6px;line-height:1.35}
+.olist{display:flex;flex-direction:column;gap:6px}
+.orow{appearance:none;cursor:pointer;display:grid;grid-template-columns:14px 1fr auto 56px;gap:10px;align-items:center;padding:9px 12px;border-radius:12px;border:1px solid transparent;background:none;text-align:left;font-size:13.5px;transition:background .2s,border-color .2s}
+.orow:hover,.orow.hot{background:var(--i-glass);border-color:var(--i-line)}
+.orow i{width:12px;height:12px;border-radius:4px;background:var(--c)}
+.orow .ov{font-family:var(--i-head);font-weight:700}
+.orow .op{color:var(--i-muted);text-align:right;font-size:12.5px}
+.insight{margin-top:16px;padding:14px 16px;border-radius:14px;border:1px dashed var(--i-line);font-size:13.5px;color:var(--i-dim)}
+.insight b{color:var(--i-text)}
+@media (max-width:860px){.attr{grid-template-columns:1fr}.donut{width:260px;height:260px}.donut .dc{padding:0 56px}.donut .dc b{font-size:30px}}
+
+/* ---------- 05 · PIPELINE (deals) ---------- */
+.seg{display:inline-flex;padding:4px;border-radius:var(--rounded-full);background:var(--i-glass);border:1px solid var(--i-line);gap:4px;margin-bottom:16px}
+.seg button{appearance:none;border:0;background:none;cursor:pointer;padding:7px 14px;border-radius:var(--rounded-full);font:700 13px var(--i-head);color:var(--i-dim);transition:background .25s,color .25s}
+.seg button.on{background:var(--i-royal);color:var(--i-text)}
+.cols{display:flex;align-items:flex-end;gap:8px;height:200px;padding-top:24px;border-bottom:1px solid var(--i-line)}
+.col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;position:relative;min-width:0}
+.col i{display:block;width:100%;max-width:44px;border-radius:8px 8px 3px 3px;background:linear-gradient(180deg,var(--i-corn),var(--i-svc));transform:scaleY(0);transform-origin:bottom;transition:transform 1.1s var(--ease);transition-delay:calc(var(--k)*60ms)}
+.in .col i{transform:scaleY(1)}
+.col:hover i{background:linear-gradient(180deg,var(--i-teal),var(--i-svc))}
+.col .cv{font:700 11px var(--i-head);color:var(--i-dim);margin-bottom:4px}
+.col .cl{position:absolute;bottom:-22px;font-size:10.5px;color:var(--i-muted);white-space:nowrap}
+.deals-wrap{display:grid;grid-template-columns:1.5fr 1fr;gap:18px}
+.dk{display:flex;gap:22px;flex-wrap:wrap;margin-bottom:6px}
+.dk div b{display:block;font:900 30px/1.1 var(--i-head)}
+.dk div span{font-size:12px;color:var(--i-muted)}
+@media (max-width:900px){.deals-wrap{grid-template-columns:1fr}.cols{height:170px;gap:4px}.col .cl{font-size:9px}}
+
+/* ---------- 06 · AUDIÊNCIA ---------- */
+.aud{display:grid;grid-template-columns:1.6fr 1fr;gap:18px}
+.chart{position:relative}
+.chart svg{width:100%;height:220px;overflow:visible;display:block}
+.chart .ar{fill:url(#ag);opacity:0;transition:opacity 1.2s var(--ease) .6s}
+.chart .li{fill:none;stroke:url(#lg);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 2.2s var(--ease)}
+.in .chart .ar{opacity:1}.in .chart .li{stroke-dashoffset:0}
+.chart .gl{stroke:var(--i-line2);stroke-width:1}
+.chart .ax{font-size:10px;fill:var(--i-muted);font-family:var(--i-body)}
+.chart .cur{fill:var(--i-text);stroke:var(--i-corn);stroke-width:3;opacity:0;transition:opacity .2s}
+.chart .cx{stroke:var(--i-corn);stroke-width:1;stroke-dasharray:3 4;opacity:0;transition:opacity .2s}
+.chart.hov .cur,.chart.hov .cx{opacity:1}
+.tip{position:absolute;pointer-events:none;padding:7px 10px;border-radius:10px;background:var(--i-surf);border:1px solid var(--i-line);font-size:12px;white-space:nowrap;transform:translate(-50%,-120%);opacity:0;transition:opacity .2s}
+.chart.hov .tip{opacity:1}
+.tip b{font-family:var(--i-head)}
+.kv{display:flex;flex-direction:column;gap:14px}
+.kv div b{display:block;font:900 28px/1.1 var(--i-head)}
+.kv div span{font-size:12.5px;color:var(--i-dim)}
+.mom{font:700 12px var(--i-head)}
+.mom.up{color:var(--i-ok2)}.mom.down{color:var(--i-bad)}
+@media (max-width:900px){.aud{grid-template-columns:1fr}.chart svg{height:180px}}
+
+/* ---------- 07 · PROJETOS ---------- */
+.road{position:relative;display:flex;flex-direction:column;gap:14px;padding-left:46px}
+.road-track{position:absolute;left:19px;top:14px;bottom:14px;width:3px;border-radius:3px;background:var(--i-line)}
+.road-track i{display:block;width:100%;height:0;border-radius:3px;background:linear-gradient(var(--i-corn),var(--i-teal));transition:height 1.8s var(--ease) .2s}
+.in .road-track i{height:100%}
+.rp{position:relative;padding:16px 18px;border-radius:var(--rounded-lg);background:var(--i-glass);border:1px solid var(--i-line);display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.rp::before{content:'';position:absolute;left:-35px;top:50%;width:15px;height:15px;margin-top:-7.5px;border-radius:50%;background:var(--i-bg);border:3px solid var(--rc)}
+.rp.run::after{content:'';position:absolute;left:-37px;top:50%;width:19px;height:19px;margin-top:-9.5px;border-radius:50%;border:2px solid var(--rc);animation:halo 2.4s var(--ease) infinite}
+.rp b{font:900 15px var(--i-head)}
+.rp .rs{font:700 12px var(--i-head);color:var(--rc)}
+
+/* ---------- 08 · FERRAMENTAS ---------- */
+.tools{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;perspective:900px}
+.tool{--mx:50%;--my:50%;position:relative;display:flex;gap:14px;align-items:flex-start;padding:18px;border-radius:var(--rounded-xl);background:var(--i-glass);border:1px solid var(--i-line);text-decoration:none;color:var(--i-text);overflow:hidden;transform-style:preserve-3d;transition:transform .45s var(--ease),border-color .3s}
+.tool::before{content:'';position:absolute;inset:0;background:radial-gradient(240px circle at var(--mx) var(--my),color-mix(in srgb,var(--i-corn) 22%,transparent),transparent 60%);opacity:0;transition:opacity .3s;pointer-events:none}
+.tool:hover{border-color:var(--i-corn)}
+.tool:hover::before{opacity:1}
+.tool .ti{flex:0 0 46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:23px;background:color-mix(in srgb,var(--i-royal) 35%,transparent);border:1px solid var(--i-line);transform:translateZ(24px)}
+.tool b{display:block;font:900 15px/1.25 var(--i-head)}
+.tool p{font-size:12.5px;color:var(--i-dim);margin-top:4px;line-height:1.45}
+.tool .go{font:700 12px var(--i-head);color:var(--i-corn);margin-top:10px;display:inline-block;transition:transform .3s var(--spring)}
+.tool:hover .go{transform:translateX(4px)}
+
+/* ---------- 09 · AGENTE ---------- */
+.agent{display:flex;align-items:center;gap:18px;flex-wrap:wrap;justify-content:space-between}
+.agent .ag-l{display:flex;gap:14px;align-items:center}
+.agent .bot{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;font-size:28px;background:linear-gradient(135deg,var(--i-royal),var(--i-svc));animation:bob 3s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-5px) rotate(-3deg)}}
+.agent b{font:900 16px var(--i-head)}
+.agent p{font-size:13px;color:var(--i-dim)}
+.agent code{font-family:var(--i-mono);font-size:12px;color:var(--i-corn)}
+
+.foot-note{margin:70px 0 40px;padding:18px 20px;border-radius:var(--rounded-lg);border:1px dashed var(--i-line);font-size:12.5px;color:var(--i-muted)}
+.foot-note b{color:var(--i-dim)}
+
+/* ---------- DRAWER / TOAST ---------- */
+.scrim{position:fixed;inset:0;z-index:890;background:color-mix(in srgb,var(--i-bg) 60%,transparent);backdrop-filter:blur(4px);opacity:0;visibility:hidden;transition:.35s}
+.scrim.on{opacity:1;visibility:visible}
+.drawer{position:fixed;top:0;right:0;z-index:900;width:min(460px,100%);height:100%;display:flex;flex-direction:column;background:var(--i-surf);border-left:1px solid var(--i-line);transform:translateX(105%);transition:transform .5s var(--ease)}
+.drawer.on{transform:none}
+.dr-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:20px 22px 14px;border-bottom:1px solid var(--i-line)}
+.dr-head h3{font-size:21px}
+.x{appearance:none;flex:0 0 38px;width:38px;height:38px;border-radius:50%;border:1px solid var(--i-line);background:transparent;cursor:pointer;font-size:18px;transition:transform .3s var(--spring)}
+.x:hover{transform:rotate(90deg)}
+.dr-body{flex:1;overflow:auto;padding:18px 22px 40px}
+.dr-body > *{animation:up .5s var(--ease) both}
+@keyframes up{from{opacity:0;transform:translateY(12px)}}
+.dl{display:flex;flex-direction:column;gap:8px;margin:12px 0 18px}
+.dl div{display:flex;justify-content:space-between;gap:12px;padding:10px 12px;border-radius:12px;border:1px solid var(--i-line2);font-size:13.5px}
+.dl div span{color:var(--i-dim)}
+.dl div b{font-family:var(--i-head);text-align:right}
+.dr-body h4{font:900 13px var(--i-head);letter-spacing:.1em;text-transform:uppercase;color:var(--i-corn);margin:18px 0 8px}
+.dr-body ul{padding-left:18px;font-size:13.5px;color:var(--i-dim);display:flex;flex-direction:column;gap:6px}
+.dr-body p{font-size:13.5px;color:var(--i-dim)}
+.toast{position:fixed;left:50%;bottom:28px;z-index:1200;transform:translate(-50%,40px);opacity:0;padding:12px 18px;border-radius:var(--rounded-full);background:var(--i-surf);border:1px solid var(--i-line);font-weight:600;font-size:14px;transition:all .45s var(--spring);pointer-events:none}
+.toast.on{transform:translate(-50%,0);opacity:1}
+.skel{height:120px;border-radius:var(--rounded-lg);background:linear-gradient(90deg,var(--i-line2),var(--i-glass),var(--i-line2));background-size:200% 100%;animation:sk 1.4s linear infinite}
+@keyframes sk{to{background-position:-200% 0}}
+
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important;transition-delay:0s!important}}
+</style>
+</head>
+<body>
+<office-nav></office-nav>
+
+<div class="bg" aria-hidden="true"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><canvas id="net"></canvas></div>
+
+<main class="wrap">
+  <!-- HERO -->
+  <section class="hero" data-sec="hero">
+    <div>
+      <div class="eyebrow rv">Área · Marketing Intelligence &amp; CRM</div>
+      <h1 class="rv d1"><span class="grad">Do clique à receita,</span><br>com dado de verdade 🧠</h1>
+      <p class="lead rv d2" id="heroLead">CRM, atribuição, higiene de base e dashboards de funil — tudo lido direto das fontes.</p>
+      <div class="who rv d3" id="heroWho">
+        <span class="chip"><span class="av" id="donaAv">BY</span><span id="donaNm">Bruna Yamagami</span> · dona da área</span>
+        <a class="chip" href="/agentes/area-intelligence">🤖 agente da área</a>
+        <a class="chip owner" id="ownerChip" href="/admin/intelligence" hidden><span class="dot"></span><span id="ownerTxt">👁️ Quem viu esta página</span></a>
+      </div>
+      <div class="cta-row rv d4">
+        <a class="btn" href="#fluxo" data-act="cta.fluxo">▶ Ver as fontes do dado</a>
+        <a class="btn ghost" href="#ferramentas" data-act="cta.ferramentas">🔧 Ferramentas</a>
+      </div>
+    </div>
+    <div class="rv d2">
+      <div class="ring" aria-label="Leads com origem preenchida">
+        <svg viewBox="0 0 120 120"><defs><linearGradient id="rg" x1="0" x2="1"><stop offset="0" style="stop-color:var(--i-corn)"/><stop offset="1" style="stop-color:var(--i-teal)"/></linearGradient></defs>
+          <circle class="orbit" cx="60" cy="60" r="58"/><circle class="tr" cx="60" cy="60" r="48"/><circle class="fg" id="ringFg" cx="60" cy="60" r="48" stroke-dasharray="301.6" stroke-dashoffset="301.6"/></svg>
+        <div class="ring-c"><b id="ringPct">—</b><span>dos leads com<br>origem rastreável</span></div>
+      </div>
+      <p class="ring-cap" id="ringCap">Atribuição · Zoho CRM</p>
+    </div>
+  </section>
+  <div class="stats" id="heroStats"></div>
+
+  <!-- 01 FONTES -->
+  <section class="sec" id="fluxo" data-sec="fluxo">
+    <div class="sec-h rv"><div class="eyebrow">01 · Fontes do dado</div><h2>Quatro fontes, uma visão do funil</h2>
+      <p>Site atrai, RD converte, Zoho qualifica e fecha, Apollo prospecta. Cada fonte mostra quando foi atualizada pela última vez — dado parado é o primeiro achado de Intelligence.</p></div>
+    <div class="hub rv" id="hub">
+      <svg class="links" id="hubSvg"></svg>
+      <div class="hub-c"><div class="e">🧠</div><b>Visão única</b><span>chaves: URL + UTM · e-mail</span></div>
+    </div>
+  </section>
+
+  <!-- 02 METAS -->
+  <section class="sec" id="metas" data-sec="metas">
+    <div class="sec-h rv"><div class="eyebrow">02 · Metas da área</div><h2>Onde estamos contra a meta</h2>
+      <p>Cada anel enche até o percentual real atingido. Meta sem fonte conectada fica marcada como pendente — nada de número inventado.</p></div>
+    <div class="goals card rv" id="goals"></div>
+  </section>
+
+  <!-- 03 SAÚDE -->
+  <section class="sec" id="saude" data-sec="saude">
+    <div class="sec-h rv"><div class="eyebrow">03 · Saúde da base</div><h2>Como está a base de leads no Zoho</h2>
+      <p>Base suja quebra atribuição, scoring e previsibilidade. Clique em cada achado pra ver a ação recomendada.</p></div>
+    <div id="saudeBox"><div class="skel"></div></div>
+  </section>
+
+  <!-- 04 ATRIBUIÇÃO -->
+  <section class="sec" id="atribuicao" data-sec="atribuicao">
+    <div class="sec-h rv"><div class="eyebrow">04 · Atribuição</div><h2>De onde vêm os leads</h2>
+      <p>Origem (Lead Source) de toda a base do Zoho. Passe o mouse em uma fatia ou na lista pra destacar.</p></div>
+    <div class="card" id="attrBox"><div class="skel"></div></div>
+  </section>
+
+  <!-- 05 PIPELINE -->
+  <section class="sec" id="pipeline" data-sec="pipeline">
+    <div class="sec-h rv"><div class="eyebrow">05 · Oportunidades no CRM</div><h2>Deals criados no Zoho, mês a mês</h2>
+      <p>Quantidade de oportunidades por mês de criação e por solução. Valores em R$ ficam na visão executiva.</p></div>
+    <div class="card" id="dealsBox"><div class="skel"></div></div>
+  </section>
+
+  <!-- 06 AUDIÊNCIA -->
+  <section class="sec" id="audiencia" data-sec="audiencia">
+    <div class="sec-h rv"><div class="eyebrow">06 · Audiência</div><h2>Quem alimenta o topo do funil</h2>
+      <p>Seguidores da página da EPI-USE Brasil no LinkedIn e tráfego do site (GA4).</p></div>
+    <div class="aud" id="audBox"><div class="skel"></div></div>
+  </section>
+
+  <!-- 07 PROJETOS -->
+  <section class="sec" id="projetos" data-sec="projetos">
+    <div class="sec-h rv"><div class="eyebrow">07 · Projetos</div><h2>O que a área está construindo</h2></div>
+    <div class="road rv" id="road"></div>
+  </section>
+
+  <!-- 08 FERRAMENTAS -->
+  <section class="sec" id="ferramentas" data-sec="ferramentas">
+    <div class="sec-h rv"><div class="eyebrow">08 · Ferramentas</div><h2>Atalhos do dia a dia</h2></div>
+    <div class="tools rv" id="tools"></div>
+  </section>
+
+  <!-- 09 AGENTE -->
+  <section class="sec" id="agente" data-sec="agente">
+    <div class="card agent rv" id="agentBox">
+      <div class="ag-l"><div class="bot">🤖</div><div><b>Agente da área</b><p><code>area-intelligence</code> · cuida do contexto, números e projetos de Intelligence</p></div></div>
+      <a class="btn ghost" href="/agentes/area-intelligence" data-act="agente.abrir">Abrir workspace →</a>
+    </div>
+  </section>
+
+  <p class="foot-note rv" id="footNote"><b>Regra do Office:</b> todos os números desta página vêm das fontes indicadas em cada bloco. O que ainda não tem integração aparece como <b>⏳ aguarda integração</b>, e cada fonte mostra a data do último dado.</p>
+</main>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="drTitle">
+  <div class="dr-head"><h3 id="drTitle"></h3><button class="x" id="drClose" aria-label="Fechar">✕</button></div>
+  <div class="dr-body" id="drBody"></div>
+</aside>
+<div class="toast" id="toast" role="status"></div>
+
+<office-footer></office-footer>
+
+<script>
+(() => {
+'use strict';
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $ = (q, el = document) => el.querySelector(q);
+const $$ = (q, el = document) => [...el.querySelectorAll(q)];
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const K = {
+  bg: css('--color-neutral-dark-bg'), text: css('--color-neutral-dark-text'), dim: css('--color-neutral-dark-text-dim'),
+  corn: css('--color-brand-cornflower-blue'), steel: css('--color-brand-steel-blue'), teal: css('--color-spot-teal-green')
+};
+const rgba = (hex, a) => { const h = (hex || '#000').replace('#', ''); const n = parseInt(h.length === 3 ? h.split('').map(x => x + x).join('') : h, 16); return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`; };
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const num = v => (v == null || v === '' || isNaN(Number(v))) ? null : Number(v);
+const fmt = v => num(v) == null ? '—' : num(v).toLocaleString('pt-BR');
+const pctOf = (a, b) => (num(a) != null && num(b)) ? Math.round(num(a) * 100 / num(b)) : null;
+const MES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+const mesLbl = ym => { const [y, m] = String(ym).split('-'); return MES[+m - 1] ? MES[+m - 1] + '/' + String(y).slice(2) : String(ym); };
+const toDate = s => { if (!s) return null; const d = new Date(/^\d{4}-\d{2}-\d{2}$/.test(s) ? s + 'T12:00:00' : String(s).replace(' ', 'T')); return isNaN(d) ? null : d; };
+const ddmmm = d => d ? `${String(d.getDate()).padStart(2, '0')}/${MES[d.getMonth()]}${d.getFullYear() !== new Date().getFullYear() ? '/' + String(d.getFullYear()).slice(2) : ''}` : '';
+// Frescor da fonte (regra 7: dado parado é dito, nunca escondido)
+function fresh(s) {
+  const d = toDate(s);
+  if (!d) return { cls: 'none', txt: 'sem data de atualização' };
+  const dias = Math.floor((Date.now() - d) / 86400000);
+  if (dias <= 7) return { cls: 'ok', txt: dias <= 0 ? 'atualizado hoje' : `atualizado há ${dias}d` };
+  if (dias <= 30) return { cls: 'warn', txt: `atualizado em ${ddmmm(d)}` };
+  return { cls: 'old', txt: `parado desde ${ddmmm(d)}` };
+}
+const frTag = s => { const f = fresh(s); return `<span class="fr ${f.cls}">${esc(f.txt)}</span>`; };
+// Série mensal: frescor pelo mês do último ponto (sem inventar dia)
+function freshMes(ym) {
+  if (!ym) return { cls: 'none', txt: 'sem data' };
+  const [y, m] = String(ym).split('-').map(Number), now = new Date();
+  const lag = (now.getFullYear() - y) * 12 + (now.getMonth() + 1 - m);
+  return { cls: lag <= 1 ? 'ok' : lag <= 2 ? 'warn' : 'old', txt: `dado até ${mesLbl(ym)}` };
+}
+const frMes = ym => { const f = freshMes(ym); return `<span class="fr ${f.cls}">${esc(f.txt)}</span>`; };
+async function j(u) { try { const r = await fetch(u, { credentials: 'same-origin', cache: 'no-store' }); return r.ok ? await r.json() : null; } catch { return null; } }
+let toastT;
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 2600); }
+
+/* ======================= RASTREAMENTO (quem viu o quê) =======================
+   Beacon do Office (POST /api/analytics/track, kind='intel', em lote). Quem
+   abriu a página e o tempo total já são gravados pelo servidor/office-nav.
+   Aqui: seções vistas, tempo em cada seção, profundidade de scroll e cliques.
+   Painel: /admin/intelligence (só o dono). */
+const TQ = [];
+let tqT = 0;
+function send(steps) {
+  try {
+    const body = JSON.stringify({ kind: 'intel', steps });
+    if (navigator.sendBeacon && navigator.sendBeacon('/api/analytics/track', new Blob([body], { type: 'application/json' }))) return;
+    fetch('/api/analytics/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body, keepalive: true, credentials: 'same-origin' }).catch(() => {});
+  } catch {}
+}
+function flush() { clearTimeout(tqT); while (TQ.length) send(TQ.splice(0, 30)); }
+function track(step) { TQ.push(step); clearTimeout(tqT); tqT = setTimeout(flush, 1500); }
+const SEEN = new Set(), DW = {}, VIS = new Map();   // seção → ms acumulado / início visível
+function dwellStart(id) { if (!VIS.has(id) && !document.hidden) VIS.set(id, performance.now()); }
+function dwellStop(id) { if (VIS.has(id)) { DW[id] = (DW[id] || 0) + (performance.now() - VIS.get(id)); VIS.delete(id); } }
+function dwellDump() {
+  [...VIS.keys()].forEach(dwellStop);
+  Object.keys(DW).forEach(id => { const s = Math.round(DW[id] / 1000); if (s >= 2) track(`tempo.${id}.${s}`); delete DW[id]; });
+  flush();
+}
+const secObs = new IntersectionObserver(es => es.forEach(e => {
+  const id = e.target.dataset.sec;
+  if (e.isIntersecting && e.intersectionRatio >= .3) {
+    if (!SEEN.has(id)) { SEEN.add(id); track('sec.' + id); }
+    dwellStart(id);
+  } else dwellStop(id);
+}), { threshold: [0, .3, .6] });
+$$('[data-sec]').forEach(s => secObs.observe(s));
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) dwellDump();
+  else $$('[data-sec]').forEach(s => { const r = s.getBoundingClientRect(); if (r.top < innerHeight * .7 && r.bottom > innerHeight * .3) dwellStart(s.dataset.sec); });
+});
+addEventListener('pagehide', dwellDump);
+const SCR = new Set();
+let scrRaf = 0;
+addEventListener('scroll', () => {
+  if (scrRaf) return;
+  scrRaf = requestAnimationFrame(() => {
+    scrRaf = 0;
+    const h = document.documentElement.scrollHeight - innerHeight;
+    const p = h > 0 ? (scrollY / h) * 100 : 100;
+    [25, 50, 75, 100].forEach(n => { if (p >= (n === 100 ? 97 : n) && !SCR.has(n)) { SCR.add(n); track('scroll.' + n); } });
+  });
+}, { passive: true });
+document.addEventListener('click', e => {
+  const a = e.target.closest('[data-act]');
+  if (!a) return;
+  track(a.dataset.act);
+  if (a.matches('a[href]') && !a.getAttribute('href').startsWith('#')) dwellDump();
+});
+const slug = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/^\/+/, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'x';
+
+/* ======================= FUNDO: rede de dados ======================= */
+(() => {
+  const c = $('#net'), x = c.getContext('2d'); let W, H, P = [], pulses = [];
+  const fit = () => { const d = Math.min(2, devicePixelRatio || 1); W = innerWidth; H = innerHeight; c.width = W * d; c.height = H * d; x.setTransform(d, 0, 0, d, 0, 0);
+    P = Array.from({ length: Math.min(90, Math.round(W * H / 18000)) }, () => ({ x: Math.random() * W, y: Math.random() * H, vx: (Math.random() - .5) * .25, vy: (Math.random() - .5) * .25, r: Math.random() * 1.6 + .6 })); };
+  fit(); addEventListener('resize', fit);
+  const R = 140;
+  const draw = () => {
+    x.clearRect(0, 0, W, H);
+    const links = [];
+    for (let i = 0; i < P.length; i++) for (let k = i + 1; k < P.length; k++) {
+      const a = P[i], b = P[k], d = Math.hypot(a.x - b.x, a.y - b.y);
+      if (d < R) { links.push([a, b]); x.strokeStyle = rgba(K.corn, .16 * (1 - d / R)); x.lineWidth = 1; x.beginPath(); x.moveTo(a.x, a.y); x.lineTo(b.x, b.y); x.stroke(); }
+    }
+    P.forEach(p => { x.fillStyle = rgba(K.dim, .55); x.beginPath(); x.arc(p.x, p.y, p.r, 0, 7); x.fill(); });
+    if (links.length && pulses.length < 6 && Math.random() < .05) { const [a, b] = links[Math.floor(Math.random() * links.length)]; pulses.push({ a, b, t: 0 }); }
+    pulses = pulses.filter(q => {
+      q.t += .018; const px = q.a.x + (q.b.x - q.a.x) * q.t, py = q.a.y + (q.b.y - q.a.y) * q.t;
+      x.fillStyle = rgba(K.teal, .9 * Math.sin(q.t * Math.PI)); x.beginPath(); x.arc(px, py, 2.4, 0, 7); x.fill();
+      return q.t < 1;
+    });
+  };
+  const step = () => { P.forEach(p => { p.x += p.vx; p.y += p.vy; if (p.x < -20) p.x = W + 20; if (p.x > W + 20) p.x = -20; if (p.y < -20) p.y = H + 20; if (p.y > H + 20) p.y = -20; }); };
+  const loop = () => { if (!document.hidden) { step(); draw(); } requestAnimationFrame(loop); };
+  if (reduce) draw(); else requestAnimationFrame(loop);
+})();
+
+/* ======================= REVEAL + CONTADORES ======================= */
+function countTo(el) {
+  const to = Number(el.dataset.count), suf = el.dataset.suf || '';
+  if (isNaN(to)) return;
+  if (reduce) { el.textContent = to.toLocaleString('pt-BR') + suf; return; }
+  const t0 = performance.now(), dur = 1500, ease = k => 1 - Math.pow(1 - k, 3);
+  const f = n => { const k = Math.min(1, (n - t0) / dur); el.textContent = Math.round(to * ease(k)).toLocaleString('pt-BR') + suf; if (k < 1) requestAnimationFrame(f); };
+  requestAnimationFrame(f);
+}
+function animateIn(el) {
+  const once = (q, fn) => $$(q, el).forEach(c => { if (c.dataset.done) return; c.dataset.done = 1; fn(c); });
+  once('[data-count]', countTo);
+  once('[data-dash]', c => { c.style.strokeDashoffset = c.dataset.dash; });
+  once('[data-da]', c => { c.style.strokeDasharray = c.dataset.da; });
+}
+const revObs = new IntersectionObserver(es => es.forEach(e => {
+  if (!e.isIntersecting) return;
+  const el = e.target; el.classList.add('in'); revObs.unobserve(el);
+  animateIn(el);
+}), { threshold: .15 });
+const watch = root => $$('.rv', root).concat(root.classList && root.classList.contains('rv') ? [root] : []).forEach(el => { if (!el.classList.contains('in')) revObs.observe(el); });
+
+/* ======================= DRAWER ======================= */
+const drawer = $('#drawer'), scrim = $('#scrim');
+let lastFocus = null;
+function openDrawer(title, html) {
+  lastFocus = document.activeElement;
+  $('#drTitle').textContent = title; $('#drBody').innerHTML = html;
+  drawer.classList.add('on'); scrim.classList.add('on'); drawer.setAttribute('aria-hidden', 'false'); $('#drClose').focus();
+}
+function closeDrawer() { drawer.classList.remove('on'); scrim.classList.remove('on'); drawer.setAttribute('aria-hidden', 'true'); if (lastFocus) lastFocus.focus(); }
+$('#drClose').addEventListener('click', closeDrawer); scrim.addEventListener('click', closeDrawer);
+addEventListener('keydown', e => { if (e.key === 'Escape' && drawer.classList.contains('on')) closeDrawer(); });
+
+/* ======================= DADOS ======================= */
+const D = {};
+async function load() {
+  const [ar, pl, zl, zd, ga, li, ag] = await Promise.all([
+    j('/api/areas.json'), j('/api/pipeline'), j('/api/zoho-leads-snapshot.json'),
+    j('/api/zoho/pipeline?source=all'), j('/api/ga4-snapshot.json'), j('/api/linkedin/historical'), j('/api/agentes/_counters')
+  ]);
+  D.area = ((ar && ar.areas) || []).find(a => a.id === 'intelligence') || {};
+  D.pl = pl && pl.contatos_total != null ? pl : null;
+  D.zl = zl && zl.base_total ? zl : null;
+  D.zd = zd && !zd.error ? zd : null;
+  D.li = li;
+  D.ag = ag && ag['area-intelligence'];
+  // GA4: último mês FECHADO antes da coleta. O mês da coleta é parcial e a
+  // variação dele compara 30 dias com poucos dias (ex.: +762%) — não mostramos.
+  if (ga && ga.meses) {
+    const ref = (ga.atualizado_em || '').slice(0, 7), ks = Object.keys(ga.meses).sort();
+    const k = ks.filter(m => m < ref).pop() || ks.pop();
+    D.ga = k ? { ...ga.meses[k], mes: k, atualizado_em: ga.atualizado_em } : null;
+  }
+}
+
+/* ---------- HERO ---------- */
+function renderHero() {
+  const a = D.area;
+  if (a.foco) $('#heroLead').textContent = a.foco + '.';
+  if (a.dona) { $('#donaNm').textContent = a.dona; $('#donaAv').textContent = a.dona.split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase(); }
+  // Anel: % de leads com origem preenchida (atribuição) — Zoho
+  const zl = D.zl;
+  if (zl) {
+    const sem = ((zl.origens || []).find(o => /sem origem/i.test(o.origem)) || {}).valor || 0;
+    const p = pctOf(zl.base_total - sem, zl.base_total);
+    const C = 301.6;
+    $('#ringPct').dataset.count = p; $('#ringPct').dataset.suf = '%';
+    $('#ringFg').dataset.dash = (C * (1 - p / 100)).toFixed(1);
+    $('#ringCap').innerHTML = `${fmt(zl.base_total - sem)} de ${fmt(zl.base_total)} leads · Zoho CRM<br>${frTag(zl._meta && zl._meta.gerado_em)}`;
+  } else {
+    $('#ringCap').innerHTML = '⏳ Aguarda integração Zoho CRM';
+  }
+  const pl = D.pl, sm = (D.li && D.li.serie_mensal) || [], liLast = [...sm].reverse().find(m => m.total_seguidores != null);
+  const stats = [
+    { v: pl && pl.contatos_total, l: 'contatos na base', s: 'Apollo', d: pl && pl.ultima_sync },
+    { v: pl && pl.contas_total, l: 'empresas mapeadas', s: 'Apollo', d: pl && pl.ultima_sync },
+    { v: D.zl && D.zl.base_total, l: 'leads no CRM', s: 'Zoho CRM', d: D.zl && D.zl._meta && D.zl._meta.gerado_em },
+    { v: liLast && liLast.total_seguidores, l: 'seguidores no LinkedIn', s: 'LinkedIn', ym: liLast && liLast.mes }
+  ];
+  $('#heroStats').innerHTML = stats.map((s, i) => `<div class="stat rv d${i + 1}">
+      <b class="num" ${num(s.v) != null ? `data-count="${num(s.v)}"` : ''}>${num(s.v) != null ? '0' : '⏳'}</b>
+      <span>${esc(s.l)}</span><small>${esc(s.s)} · ${num(s.v) != null ? esc(s.ym ? freshMes(s.ym).txt : fresh(s.d).txt) : 'aguarda integração'}</small></div>`).join('');
+}
+
+/* ---------- 01 · HUB DE FONTES ---------- */
+const NODES = [];
+function renderHub() {
+  const ga = D.ga, pl = D.pl, zl = D.zl, zd = D.zd;
+  const momTxt = v => v == null ? '' : `${v > 0 ? '+' : ''}${Math.round(v)}% vs período anterior`;
+  const defs = [
+    { id: 'ga4', area: 'ga', ic: '🌐', nm: 'Site · GA4', rl: 'atrai', c: 'var(--i-azure)',
+      v: ga && ga.usuarios, vl: ga ? 'usuários em ' + mesLbl(ga.mes) : '', d: ga && ga.atualizado_em,
+      det: ga ? [['Mês', mesLbl(ga.mes)], ['Usuários', fmt(ga.usuarios)], ['Sessões', fmt(ga.sessoes)], ['Visualizações', fmt(ga.visualizacoes)], ['Duração média', ga.duracao_sessao_s != null ? ga.duracao_sessao_s + 's' : '—'], ['Variação usuários', momTxt(ga.usuarios_mom_pct) || '—']] : [],
+      top: ga && ga.top_pages ? ga.top_pages.slice(0, 5).map(p => `${p.path} · ${fmt(p.visualizacoes)} views`) : [],
+      gap: ['Coleta do GA4 parada: rodar de novo o ga4_fetch.js e confirmar a tag no tema HubSpot novo.', 'HubSpot CMS ainda sem token (Private App com escopo de analytics).'] },
+    { id: 'rd', area: 'rd', ic: '📨', nm: 'RD Station', rl: 'converte', c: 'var(--i-teal)',
+      v: null, vl: '', d: null, rdLoad: true },
+    { id: 'zoho', area: 'zo', ic: '🧲', nm: 'Zoho CRM', rl: 'qualifica e fecha', c: 'var(--i-corn)',
+      v: zl && zl.base_total, vl: 'leads na base' + (zd && zd.total_deals ? ` · ${fmt(zd.total_deals)} deals` : ''), d: zl && zl._meta && zl._meta.gerado_em,
+      det: zl ? [['Leads na base', fmt(zl.base_total)], ['Deals sincronizados', zd ? fmt(zd.total_deals) : '⏳'], ['Último sync de deals', zd && zd.last_sync ? ddmmm(toDate(zd.last_sync)) : '—'], ['Carteira SDR (taxonomia nova)', fmt(zl.kanban_sdr && zl.kanban_sdr.total)]] : [],
+      top: [], gap: ['Leads: sync manual via MCP Zoho (scripts/sync/sync_zoho_leads.js).', 'Confirmar como o lead passa do RD pro Zoho (nativo, Zapier ou manual).'] },
+    { id: 'apollo', area: 'ap', ic: '🎯', nm: 'Apollo', rl: 'prospecta', c: 'var(--i-warn)',
+      v: pl && pl.contatos_total, vl: `contatos · ${fmt(pl && pl.contas_total)} empresas`, d: pl && pl.ultima_sync,
+      det: pl ? [['Contatos', fmt(pl.contatos_total)], ['Empresas', fmt(pl.contas_total)], ['Sequências ativas', `${fmt(pl.sequencias_ativas)} de ${fmt(pl.sequencias_total)}`]] : [],
+      top: pl && pl.contatos_obs ? [pl.contatos_obs] : [], gap: ['Leads enriquecidos/mês ainda sem medição (Apollo enrichment).'] }
+  ];
+  const hub = $('#hub');
+  defs.forEach(n => {
+    const b = document.createElement('button');
+    b.className = 'src-node'; b.style.gridArea = n.area; b.style.setProperty('--c', n.c); b.dataset.node = n.id;
+    b.innerHTML = `<div class="sn-top"><span class="ic">${n.ic}</span><span><span class="nm">${esc(n.nm)}</span><br><span class="rl">${esc(n.rl)}</span></span></div>
+      <b class="v num" id="nv-${n.id}">${num(n.v) != null ? fmt(n.v) : '⏳'}</b><span class="vl" id="nl-${n.id}">${esc(n.vl || 'aguarda integração')}</span>
+      <div class="src" id="nf-${n.id}">${n.d || n.v != null ? frTag(n.d) : '<span class="fr none">sem dado</span>'}</div><span class="more">detalhes →</span>`;
+    b.addEventListener('click', () => { track('node.' + n.id); openNode(n); });
+    hub.appendChild(b); NODES.push(n);
+  });
+  // RD: snapshot próprio (não tem rota de leitura própria; o arquivo é estático)
+  j('/api/rd-snapshot.json').then(rd => {
+    const n = defs[1];
+    if (!rd) { n.det = []; n.gap = ['Sem snapshot do RD Station.']; return; }
+    n.v = rd.workflows && rd.workflows.ativos; n.d = rd.atualizado_em;
+    n.vl = `automações ativas · ${fmt(rd.landing_pages && rd.landing_pages.publicadas)} LPs no ar`;
+    n.det = [['Automações ativas', `${fmt(rd.workflows && rd.workflows.ativos)} de ${fmt(rd.workflows && rd.workflows.total)}`], ['Landing pages publicadas', fmt(rd.landing_pages && rd.landing_pages.publicadas)], ['Segmentações', fmt(rd.segmentations && rd.segmentations.total)], ['E-mails enviados (total)', fmt(rd.emails && rd.emails.total_enviados)]];
+    n.top = (rd.errors || []).map(e => `Erro no último sync (${e.src}): ${String(e.erro).slice(0, 60)}…`);
+    n.gap = ['Refazer o OAuth do RD (node scripts/integrations/rd_fetch.js exchange <code>).', 'Lead scoring/MQL ainda não chega no Office.'];
+    $('#nv-rd').textContent = fmt(n.v); $('#nl-rd').textContent = n.vl; $('#nf-rd').innerHTML = frTag(n.d);
+    requestAnimationFrame(drawHub);
+  });
+  requestAnimationFrame(drawHub);
+  if (window.ResizeObserver) new ResizeObserver(() => requestAnimationFrame(drawHub)).observe(hub);
+  else addEventListener('resize', () => requestAnimationFrame(drawHub));
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => requestAnimationFrame(drawHub));
+}
+function openNode(n) {
+  const rows = (n.det || []).map(([k, v]) => `<div><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join('');
+  openDrawer(`${n.ic} ${n.nm}`, `
+    <p>${frTag(n.d)}</p>
+    ${rows ? `<div class="dl">${rows}</div>` : '<p class="pend" style="margin-top:12px">⏳ Aguarda integração.</p>'}
+    ${n.top && n.top.length ? `<h4>Destaques</h4><ul>${n.top.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}
+    ${n.gap && n.gap.length ? `<h4>O que falta pra visão única</h4><ul>${n.gap.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}`);
+}
+// Linhas animadas + partículas indo de cada fonte até o centro
+let hubParts = [], hubRaf = 0, hubOn = false;
+function drawHub() {
+  const hub = $('#hub'), svg = $('#hubSvg'), c = $('.hub-c', hub);
+  if (!hub || !c) return;
+  const hr = hub.getBoundingClientRect(), cr = c.getBoundingClientRect();
+  const cx = cr.left - hr.left + cr.width / 2, cy = cr.top - hr.top + cr.height / 2;
+  svg.setAttribute('viewBox', `0 0 ${hr.width} ${hr.height}`);
+  svg.innerHTML = $$('.src-node', hub).map(b => {
+    const r = b.getBoundingClientRect(), x = r.left - hr.left + r.width / 2, y = r.top - hr.top + r.height / 2;
+    const mx = (x + cx) / 2 + (y - cy) * .12, my = (y + cy) / 2 - (x - cx) * .12;
+    return `<path class="ln" id="ln-${b.dataset.node}" d="M${x.toFixed(1)} ${y.toFixed(1)} Q${mx.toFixed(1)} ${my.toFixed(1)} ${cx.toFixed(1)} ${cy.toFixed(1)}"/>`;
+  }).join('') + '<g id="hubDots"></g>';
+  hubParts = [];
+}
+function hubLoop() {
+  const g = $('#hubDots');
+  if (!g || !hubOn || document.hidden) { hubRaf = requestAnimationFrame(hubLoop); return; }
+  const paths = $$('.ln', $('#hubSvg'));
+  if (paths.length && hubParts.length < paths.length * 3 && Math.random() < .06) {
+    const p = paths[Math.floor(Math.random() * paths.length)];
+    const node = NODES.find(n => 'ln-' + n.id === p.id);
+    hubParts.push({ p, L: p.getTotalLength(), t: 0, c: node ? node.c : 'var(--i-corn)', el: null });
+  }
+  hubParts = hubParts.filter(q => {
+    q.t += .009;
+    if (!q.el) { q.el = document.createElementNS('http://www.w3.org/2000/svg', 'circle'); q.el.setAttribute('r', '4'); q.el.style.fill = q.c; q.el.style.filter = 'drop-shadow(0 0 6px ' + q.c + ')'; g.appendChild(q.el); }
+    const pt = q.p.getPointAtLength(q.t * q.L);
+    q.el.setAttribute('cx', pt.x); q.el.setAttribute('cy', pt.y); q.el.style.opacity = Math.sin(q.t * Math.PI);
+    if (q.t >= 1) { q.el.remove(); return false; }
+    return true;
+  });
+  hubRaf = requestAnimationFrame(hubLoop);
+}
+if (!reduce) {
+  new IntersectionObserver(es => es.forEach(e => { hubOn = e.isIntersecting; })).observe($('#hub'));
+  hubRaf = requestAnimationFrame(hubLoop);
+}
+
+/* ---------- 02 · METAS ---------- */
+const PEND_FONTE = { 'leads enriquecidos/mês': 'Apollo (enrichment)', 'mqls qualificados': 'RD Station (lead scoring)' };
+function gaugeSvg(p, color, big) {
+  // arco de 270°; r=50 → C=314.16, visível 235.6
+  const C = 314.16, V = 235.62, off = p == null ? V : V * (1 - Math.min(100, p) / 100);
+  return `<svg viewBox="0 0 120 120"><circle class="tr" cx="60" cy="60" r="50" stroke-dasharray="${V} ${C}"/>
+    <circle class="fg" cx="60" cy="60" r="50" style="stroke:${color}" stroke-dasharray="${V} ${C}" stroke-dashoffset="${V}" data-dash="${off.toFixed(1)}"/></svg>`;
+}
+function renderGoals() {
+  const f = D.area.funil || [];
+  if (!f.length) { $('#goals').innerHTML = '<p class="pend">Nenhuma meta cadastrada.</p>'; return; }
+  $('#goals').innerHTML = f.map(s => {
+    const v = num(s.valor), m = num(s.meta), p = pctOf(v, m);
+    let st = '<span class="st pend">⏳ aguarda integração</span>', color = 'var(--i-muted)';
+    if (p != null) {
+      if (p >= 100) { st = '<span class="st ok">✅ meta batida</span>'; color = 'var(--i-ok)'; }
+      else if (p >= 75) { st = `<span class="st ok">🟢 no caminho</span>`; color = 'var(--i-ok)'; }
+      else if (p >= 50) { st = `<span class="st warn">🟡 atrás</span>`; color = 'var(--i-yellow)'; }
+      else { st = `<span class="st bad">🔴 longe</span>`; color = 'var(--i-red)'; }
+    }
+    const pf = PEND_FONTE[String(s.estagio || '').toLowerCase()];
+    return `<div class="goal">
+      <div class="gauge">${gaugeSvg(p, color)}<div class="gc"><b class="num" ${p != null ? `data-count="${p}" data-suf="%"` : ''}>${p != null ? '0%' : '⏳'}</b><span>${p != null ? 'da meta' : 'sem fonte'}</span></div></div>
+      <h3>${esc(s.estagio)}</h3>
+      <div class="gv">${v != null ? `<b>${fmt(v)}</b>` : '—'}${m ? ` / ${fmt(m)}` : ''}</div>
+      ${st}
+      <div class="src">${s._live ? `<span class="tag">🔗 ${esc(s._live)}</span>` : v == null && pf ? `<span class="tag">⏳ ${esc(pf)}</span>` : s.fonte ? `<span class="tag">🔗 ${esc(s.fonte)}</span>` : ''}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ---------- 03 · SAÚDE DA BASE ---------- */
+function renderSaude() {
+  const zl = D.zl, box = $('#saudeBox');
+  if (!zl) { box.innerHTML = '<div class="card"><p class="pend">⏳ Aguarda integração Zoho CRM (snapshot de leads).</p></div>'; return; }
+  const total = zl.base_total;
+  const semStatus = ((zl.status_base_completa || []).find(s => /sem status/i.test(s.status)) || {}).valor || 0;
+  const semOrigem = ((zl.origens || []).find(o => /sem origem/i.test(o.origem)) || {}).valor || 0;
+  const pS = pctOf(total - semStatus, total), pO = pctOf(total - semOrigem, total);
+  const nova = (zl.carteiras || []).filter(c => c.taxonomia === 'nova').reduce((a, c) => a + c.valor, 0);
+  const pN = pctOf(nova, total);
+  const C = 314.16;
+  const mini = (p, color, t, d) => `<div class="mini"><div class="gauge"><svg viewBox="0 0 120 120"><circle class="tr" cx="60" cy="60" r="50"/><circle class="fg" cx="60" cy="60" r="50" style="stroke:${color}" stroke-dasharray="${C}" stroke-dashoffset="${C}" data-dash="${(C * (1 - p / 100)).toFixed(1)}"/></svg>
+    <div class="gc"><b class="num" data-count="${p}" data-suf="%">0%</b></div></div><div><h4>${t}</h4><p>${d}</p></div></div>`;
+  const SV = { alta: 'var(--i-bad)', media: 'var(--i-yellow)', baixa: 'var(--i-ok2)' };
+  const finds = (zl.higiene && zl.higiene.achados) || [];
+  const dupSet = new Set(['Pré-Qualificação', 'Pré-qualificado', 'Desqualificado', 'Desqualificado / Encerramento', 'Possivel', 'possivel cliente']);
+  const st = zl.status_base_completa || [], maxS = Math.max(...st.map(s => s.valor), 1);
+  const CC = ['var(--i-corn)', 'var(--i-steel)', 'var(--i-royal)', 'var(--i-slate)'];
+  const cart = (zl.carteiras || []).map((c, i) => ({ ...c, c: c.taxonomia === 'nova' ? 'var(--i-teal)' : CC[i % CC.length] })).sort((a, b) => (a.taxonomia === 'nova' ? -1 : 1));
+  box.innerHTML = `
+    <div class="health">
+      <div class="card hp rv">
+        ${mini(pS, 'var(--i-corn)', 'Base com status definido', `${fmt(total - semStatus)} de ${fmt(total)} leads`)}
+        ${mini(pO, 'var(--i-teal)', 'Base com origem preenchida', `${fmt(total - semOrigem)} de ${fmt(total)} leads`)}
+        ${mini(pN, 'var(--i-yellow)', 'Na taxonomia nova do SDR', `${fmt(nova)} de ${fmt(total)} leads`)}
+        <div class="src">Zoho CRM · Leads ${frTag(zl._meta && zl._meta.gerado_em)}</div>
+      </div>
+      <div class="finds">${finds.map((f, i) => `<button class="find rv d${(i % 4) + 1}" style="--sv:${SV[f.severidade] || 'var(--i-corn)'}" data-find="${esc(f.id)}" aria-expanded="false">
+          <div class="fh"><span class="sv">severidade ${esc(f.severidade)}</span><b class="fv num" data-count="${num(f.valor) || 0}">0</b></div>
+          <p>${esc(f.texto)}</p><div class="fa">${esc(f.acao)}</div><div class="tg">clique pra ver a ação</div></button>`).join('')}</div>
+    </div>
+    <div class="two">
+      <div class="card rv"><h3>Status dos leads <span class="tag">⚠ = status duplicado</span></h3>
+        <div class="bars">${st.map(s => `<div class="hb ${/sem status/i.test(s.status) ? 'bad' : ''} ${dupSet.has(s.status) ? 'dup' : ''}"><span class="l" title="${esc(s.status)}">${esc(s.status)}</span><span class="t"><i style="--w:${Math.max(1.5, s.valor * 100 / maxS).toFixed(1)}%"></i></span><span class="n">${fmt(s.valor)}</span></div>`).join('')}</div>
+      </div>
+      <div class="card rv"><h3>Carteiras · taxonomia nova × legado</h3>
+        <div class="stack">${cart.map(c => `<i style="--w:${(c.valor * 100 / total).toFixed(2)}%;background:${c.c}" title="${esc(c.owner)}: ${fmt(c.valor)}"></i>`).join('')}</div>
+        <div class="legend">${cart.map(c => `<span style="--c:${c.c}">${esc(c.owner)} · <b class="num">${fmt(c.valor)}</b> <span class="tag">${esc(c.taxonomia)}</span></span>`).join('')}</div>
+        ${zl.kanban_sdr ? `<h3 style="margin-top:22px">${esc(zl.kanban_sdr.titulo)}</h3>
+          <div class="bars">${(zl.kanban_sdr.etapas || []).map(e => `<div class="hb"><span class="l">${esc(e.etapa)}</span><span class="t"><i style="--w:${(e.valor * 100 / Math.max(1, zl.kanban_sdr.total)).toFixed(1)}%${e.tipo === 'ganho' ? ';background:var(--i-ok)' : e.tipo === 'saida' ? ';background:var(--i-muted)' : ''}"></i></span><span class="n">${fmt(e.valor)}</span></div>`).join('')}</div>` : ''}
+      </div>
+    </div>`;
+  $$('.find', box).forEach(b => b.addEventListener('click', () => {
+    const open = b.classList.toggle('open'); b.setAttribute('aria-expanded', open);
+    $('.tg', b).textContent = open ? 'clique pra recolher' : 'clique pra ver a ação';
+    if (open) track('achado.' + slug(b.dataset.find));
+  }));
+  watch(box);
+}
+
+/* ---------- 04 · ATRIBUIÇÃO ---------- */
+const PAL = ['var(--i-corn)', 'var(--i-teal)', 'var(--i-azure)', 'var(--i-ok)', 'var(--i-warn)', 'var(--i-yellow)', 'var(--i-steel)', 'var(--i-ai)', 'var(--i-french)', 'var(--i-royal)'];
+function renderAttr() {
+  const zl = D.zl, box = $('#attrBox');
+  if (!zl || !(zl.origens || []).length) { box.innerHTML = '<p class="pend">⏳ Aguarda integração Zoho CRM (Lead Source).</p>'; return; }
+  const total = zl.base_total;
+  let ci = 0;
+  const os = zl.origens.map(o => ({ ...o, sem: /sem origem/i.test(o.origem) })).map(o => ({ ...o, c: o.sem ? 'color-mix(in srgb,var(--i-muted) 38%,transparent)' : PAL[ci++ % PAL.length], p: o.valor * 100 / total }));
+  const r = 120, C = 2 * Math.PI * r; let acc = 0;
+  const arcs = os.map((o, i) => { const len = Math.max(0, C * o.valor / total - 2); const s = `<circle class="sl" data-i="${i}" cx="160" cy="160" r="${r}" style="stroke:${o.c}" stroke-dasharray="0 ${C.toFixed(1)}" data-da="${len.toFixed(1)} ${(C - len).toFixed(1)}" stroke-dashoffset="${(-acc).toFixed(1)}"><title>${esc(o.origem)}: ${fmt(o.valor)}</title></circle>`; acc += C * o.valor / total; return s; }).join('');
+  const conhecidas = os.filter(o => !o.sem), top = conhecidas[0];
+  const semO = os.find(o => o.sem);
+  box.innerHTML = `<div class="attr rv">
+      <div class="donut"><svg viewBox="0 0 320 320">${arcs}</svg><div class="dc"><b class="num" id="dcV" data-count="${total}">0</b><span id="dcL">leads na base</span></div></div>
+      <div><div class="olist">${os.map((o, i) => `<button class="orow" data-i="${i}" style="--c:${o.c}"><i></i><span>${esc(o.origem)}</span><span class="ov">${fmt(o.valor)}</span><span class="op">${o.p.toFixed(1).replace('.', ',')}%</span></button>`).join('')}</div>
+        <div class="insight">${top ? `Maior origem identificada: <b>${esc(top.origem)}</b> (${top.p.toFixed(0)}%). ` : ''}${semO ? ` <b>${fmt(semO.valor)}</b> leads (${semO.p.toFixed(0)}%) não têm origem — esses não entram em nenhuma atribuição.` : ''}</div>
+        <div class="src">Zoho CRM · Lead Source ${frTag(zl._meta && zl._meta.gerado_em)}</div></div>
+    </div>`;
+  const hot = i => {
+    $$('.sl', box).forEach(s => { s.classList.toggle('hot', i != null && +s.dataset.i === i); s.classList.toggle('dim', i != null && +s.dataset.i !== i); });
+    $$('.orow', box).forEach(s => s.classList.toggle('hot', i != null && +s.dataset.i === i));
+    if (i == null) { $('#dcV').textContent = fmt(total); $('#dcL').textContent = 'leads na base'; }
+    else { $('#dcV').textContent = os[i].p.toFixed(0) + '%'; $('#dcL').textContent = os[i].origem; }
+  };
+  let hovT = 0, lastHov = null;
+  $$('.sl, .orow', box).forEach(el => {
+    el.addEventListener('mouseenter', () => { const i = +el.dataset.i; hot(i); clearTimeout(hovT); hovT = setTimeout(() => { if (lastHov !== i) { lastHov = i; track('origem.' + slug(os[i].origem)); } }, 900); });
+    el.addEventListener('mouseleave', () => { hot(null); clearTimeout(hovT); });
+    el.addEventListener('focus', () => hot(+el.dataset.i)); el.addEventListener('blur', () => hot(null));
+  });
+}
+
+/* ---------- 05 · DEALS ---------- */
+async function renderDeals(src) {
+  const box = $('#dealsBox');
+  const zd = src === 'all' || !src ? D.zd : await j('/api/zoho/pipeline?source=' + src);
+  if (!zd || !zd.total_deals) { box.innerHTML = (src && src !== 'all' ? segHtml(src) : '') + '<p class="pend">⏳ Aguarda sync dos deals do Zoho CRM.</p>'; bindSeg(); return; }
+  const byMes = Object.fromEntries((zd.por_mes || []).map(m => [m.mes, m.deals]));
+  const hoje = new Date(), meses = [];
+  for (let k = 11; k >= 0; k--) { const d = new Date(hoje.getFullYear(), hoje.getMonth() - k, 1), ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; meses.push({ mes: ym, deals: byMes[ym] || 0 }); }
+  const maxM = Math.max(...meses.map(m => m.deals), 1);
+  const sol = (zd.por_solution || []).slice(0, 7), maxS = Math.max(...sol.map(s => s.deals), 1);
+  const ult12 = meses.reduce((a, m) => a + m.deals, 0);
+  box.innerHTML = `${segHtml(src || 'all')}
+    <div class="rv"><div class="deals-wrap">
+      <div>
+        <div class="dk"><div><b class="num" data-count="${zd.total_deals}">0</b><span>deals no CRM${src === 'mkt' ? ' · origem MKT' : src === 'sdr' ? ' · origem SDR' : ''}</span></div>
+          <div><b class="num" data-count="${ult12}">0</b><span>criados nos últimos 12 meses</span></div></div>
+        ${meses.length ? `<div class="cols">${meses.map((m, k) => `<div class="col" title="${mesLbl(m.mes)}: ${m.deals} deals"><span class="cv">${m.deals}</span><i style="--k:${k};height:${Math.max(3, m.deals * 100 / maxM).toFixed(1)}%"></i><span class="cl">${mesLbl(m.mes)}</span></div>`).join('')}</div>` : '<p class="pend">Sem deals no período.</p>'}
+      </div>
+      <div><h3 style="font-size:14px;margin-bottom:12px">Por solução</h3>
+        <div class="bars">${sol.map(s => `<div class="hb"><span class="l" title="${esc(s.solution)}">${esc(s.solution)}</span><span class="t"><i style="--w:${(s.deals * 100 / maxS).toFixed(1)}%"></i></span><span class="n">${fmt(s.deals)}</span></div>`).join('') || '<p class="pend">Sem solução preenchida.</p>'}</div>
+      </div>
+    </div>
+    <div class="src" style="margin-top:30px">Zoho CRM · Deals ${frTag(zd.last_sync)}</div></div>`;
+  bindSeg();
+  watch(box);
+}
+const segHtml = cur => `<div class="seg" role="tablist" aria-label="Origem dos deals">${[['all', 'Todos'], ['mkt', 'Origem MKT'], ['sdr', 'Origem SDR']].map(([k, l]) => `<button role="tab" aria-selected="${k === cur}" class="${k === cur ? 'on' : ''}" data-src="${k}">${l}</button>`).join('')}</div>`;
+function bindSeg() { $$('#dealsBox .seg button').forEach(b => b.addEventListener('click', () => { track('tab.deals-' + b.dataset.src); renderDeals(b.dataset.src); })); }
+
+/* ---------- 06 · AUDIÊNCIA ---------- */
+function renderAud() {
+  const box = $('#audBox'), sm = ((D.li && D.li.serie_mensal) || []).filter(m => num(m.total_seguidores) != null);
+  let chart = '<div class="card rv"><p class="pend">⏳ Aguarda histórico do LinkedIn.</p></div>';
+  if (sm.length > 1) {
+    const W = 640, H = 220, PL = 8, PR = 8, PT = 16, PB = 26;
+    const ys = sm.map(m => num(m.total_seguidores)), mn = Math.min(...ys), mx = Math.max(...ys), rg = (mx - mn) || 1;
+    const X = i => PL + i * (W - PL - PR) / (sm.length - 1), Y = v => PT + (H - PT - PB) * (1 - (v - mn) / rg);
+    const pts = sm.map((m, i) => [X(i), Y(num(m.total_seguidores))]);
+    let d = `M${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
+    for (let i = 1; i < pts.length; i++) { const [x0, y0] = pts[i - 1], [x1, y1] = pts[i], mxp = (x0 + x1) / 2; d += ` C${mxp.toFixed(1)} ${y0.toFixed(1)} ${mxp.toFixed(1)} ${y1.toFixed(1)} ${x1.toFixed(1)} ${y1.toFixed(1)}`; }
+    const area = `${d} L${pts[pts.length - 1][0].toFixed(1)} ${H - PB} L${pts[0][0].toFixed(1)} ${H - PB} Z`;
+    const grid = [0, .5, 1].map(k => `<line class="gl" x1="${PL}" x2="${W - PR}" y1="${(PT + (H - PT - PB) * k).toFixed(1)}" y2="${(PT + (H - PT - PB) * k).toFixed(1)}"/>`).join('');
+    const ax = sm.map((m, i) => (i === 0 || i === sm.length - 1 || i % 3 === 0) ? `<text class="ax" x="${X(i).toFixed(1)}" y="${H - 6}" text-anchor="${i === 0 ? 'start' : i === sm.length - 1 ? 'end' : 'middle'}">${mesLbl(m.mes)}</text>` : '').join('');
+    const first = ys[0], last = ys[ys.length - 1], novos = sm[sm.length - 1].novos;
+    chart = `<div class="card rv"><h3>🔗 Seguidores no LinkedIn <span class="tag">${sm.length} meses</span></h3>
+      <div class="chart" id="liChart"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+        <defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--i-corn);stop-opacity:.35"/><stop offset="1" style="stop-color:var(--i-corn);stop-opacity:0"/></linearGradient>
+        <linearGradient id="lg" x1="0" x2="1"><stop offset="0" style="stop-color:var(--i-steel)"/><stop offset="1" style="stop-color:var(--i-teal)"/></linearGradient></defs>
+        ${grid}<path class="ar" d="${area}"/><path class="li" d="${d}" pathLength="1"/>${ax}
+        <line class="cx" id="liCx" y1="${PT}" y2="${H - PB}"/><circle class="cur" id="liCur" r="6"/></svg><div class="tip" id="liTip"></div></div>
+      <div class="src">LinkedIn · ${fmt(first)} → <b class="num">${fmt(last)}</b> seguidores${novos != null ? ` · +${fmt(novos)} no último mês` : ''} ${frMes(sm[sm.length - 1].mes)}</div></div>`;
+    D._li = { sm, pts, W };
+  }
+  const ga = D.ga;
+  const mom = v => v == null ? '' : `<span class="mom ${v >= 0 ? 'up' : 'down'}">${v >= 0 ? '▲' : '▼'} ${Math.abs(Math.round(v))}%</span>`;
+  const gaCard = ga ? `<div class="card rv d2"><h3>🌐 Site · GA4 <span class="tag">${esc(mesLbl(ga.mes))}</span></h3><div class="kv">
+      <div><b class="num" data-count="${num(ga.usuarios) || 0}">0</b><span>usuários ${mom(ga.usuarios_mom_pct)}</span></div>
+      <div><b class="num" data-count="${num(ga.sessoes) || 0}">0</b><span>sessões ${mom(ga.sessoes_mom_pct)}</span></div>
+      <div><b class="num" data-count="${num(ga.visualizacoes) || 0}">0</b><span>visualizações ${mom(ga.visualizacoes_mom_pct)}</span></div></div>
+      <div class="src">variação vs período anterior · ${frTag(ga.atualizado_em)}</div></div>`
+    : '<div class="card rv d2"><p class="pend">⏳ Aguarda integração GA4.</p></div>';
+  box.innerHTML = chart + gaCard;
+  watch(box);
+  const ch = $('#liChart');
+  if (ch && D._li) {
+    const { sm, pts, W } = D._li, svg = $('svg', ch), tip = $('#liTip');
+    let hovSent = false;
+    const move = e => {
+      const r = svg.getBoundingClientRect(), xs = (e.clientX - r.left) / r.width * W;
+      let i = 0, best = Infinity; pts.forEach((p, k) => { const dd = Math.abs(p[0] - xs); if (dd < best) { best = dd; i = k; } });
+      const [x, y] = pts[i];
+      $('#liCur').setAttribute('cx', x); $('#liCur').setAttribute('cy', y); $('#liCx').setAttribute('x1', x); $('#liCx').setAttribute('x2', x);
+      tip.innerHTML = `${mesLbl(sm[i].mes)} · <b>${fmt(sm[i].total_seguidores)}</b>${sm[i].novos != null ? ` · +${fmt(sm[i].novos)}` : ''}`;
+      tip.style.left = (x / W * r.width) + 'px'; tip.style.top = (y / 220 * r.height) + 'px';
+      ch.classList.add('hov');
+      if (!hovSent) { hovSent = true; track('grafico.linkedin'); }
+    };
+    ch.addEventListener('pointermove', move); ch.addEventListener('pointerleave', () => ch.classList.remove('hov'));
+  }
+}
+
+/* ---------- 07 · PROJETOS ---------- */
+function renderRoad() {
+  const ps = D.area.projetos || [];
+  const sc = s => /andamento|rodando|ativo/i.test(s) ? ['run', 'var(--i-corn)'] : /feito|conclu|entregue/i.test(s) ? ['done', 'var(--i-ok)'] : ['plan', 'var(--i-muted)'];
+  $('#road').innerHTML = ps.length ? '<div class="road-track"><i></i></div>' + ps.map(p => { const [k, c] = sc(p.status || ''); return `<div class="rp ${k}" style="--rc:${c}"><b>${esc(p.nome)}</b><span class="rs">${k === 'run' ? '● ' : k === 'done' ? '✓ ' : '○ '}${esc(p.status)}</span></div>`; }).join('')
+    : '<p class="pend">Nenhum projeto cadastrado.</p>';
+}
+
+/* ---------- 08 · FERRAMENTAS ---------- */
+function renderTools() {
+  const ts = D.area.ferramentas || [];
+  const box = $('#tools');
+  box.innerHTML = ts.map(t => `<a class="tool" href="${esc(t.href)}" data-act="tool.${slug(t.href)}">
+      <span class="ti">${t.img ? `<img src="${esc(t.img)}" alt="" width="28" height="28">` : esc(t.icon || '🔗')}</span>
+      <span><b>${esc(t.label)}</b>${t.desc ? `<p>${esc(t.desc)}</p>` : ''}<span class="go">Abrir →</span></span></a>`).join('') || '<p class="pend">Nenhuma ferramenta cadastrada.</p>';
+  if (reduce || matchMedia('(hover: none)').matches) return;
+  $$('.tool', box).forEach(el => {
+    el.addEventListener('pointermove', e => {
+      const r = el.getBoundingClientRect(), px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
+      el.style.setProperty('--mx', px * 100 + '%'); el.style.setProperty('--my', py * 100 + '%');
+      el.style.transform = `rotateX(${((.5 - py) * 8).toFixed(2)}deg) rotateY(${((px - .5) * 10).toFixed(2)}deg) translateY(-3px)`;
+    });
+    el.addEventListener('pointerleave', () => { el.style.transform = ''; });
+  });
+}
+
+/* ---------- 09 · AGENTE ---------- */
+function renderAgent() {
+  const k = D.ag || {};
+  const p = $('#agentBox p');
+  if (k.inbox || k.outbox) p.insertAdjacentHTML('beforeend', ` · <b>📥 ${fmt(k.inbox || 0)}</b> no inbox · <b>📤 ${fmt(k.outbox || 0)}</b> no outbox`);
+}
+
+/* ---------- DONO: atalho pro painel de tracking (só ele vê) ---------- */
+async function ownerBar() {
+  const o = await j('/api/analytics/owner');
+  if (!o || !o.owner) return;
+  const chip = $('#ownerChip'); chip.hidden = false;
+  const r = await j('/api/admin/analytics/intel?days=30');
+  if (r && r.resumo) $('#ownerTxt').textContent = `👁️ ${r.resumo.pessoas} ${r.resumo.pessoas === 1 ? 'pessoa viu' : 'pessoas viram'} em 30 dias · painel`;
+}
+
+/* ======================= INIT ======================= */
+(async () => {
+  watch($('.hero'));
+  await load();
+  renderHero(); renderHub(); renderGoals(); renderSaude(); renderAttr(); renderDeals('all'); renderAud(); renderRoad(); renderTools(); renderAgent();
+  watch(document.body);
+  $$('.rv.in').forEach(animateIn);   // blocos já visíveis antes dos dados chegarem
+  ownerBar();
+})();
+})();
+</script>
+</body>
+</html>

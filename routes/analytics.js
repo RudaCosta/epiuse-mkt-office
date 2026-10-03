@@ -48,6 +48,20 @@ const _insOnb = db.prepare(
 );
 const ONB_STEP = /^[a-z0-9]+(?:\.[a-z0-9\/_-]+){0,5}$/;
 
+// ── Área Intelligence (Módulo 27) ────────────────────────────────────────────
+// Mesmo beacon: kind='intel', path='/area/intelligence' e o passo em `meta`.
+// Passos: 'sec.<id>' (seção apareceu na tela) · 'tempo.<id>.<seg>' (tempo na
+// seção, também em dur_ms) · 'scroll.<25|50|75|100>' · 'tool.<slug>' (abriu
+// ferramenta) · 'node.<id>' / 'achado.<id>' / 'tab.<id>' (interações).
+// O "quem abriu a página" já vem do logPageView (kind='view') e o tempo total
+// do beacon do office-nav (kind='dur'). Painel: /admin/intelligence (só o dono).
+const INTEL_PATH = '/area/intelligence';
+const INTEL_PATHS = [INTEL_PATH, INTEL_PATH + '/']; // com e sem barra final
+const INTEL_STEP = /^[a-z]+(?:\.[a-z0-9_-]{1,40}){1,3}$/;
+const _insIntel = db.prepare(
+  `INSERT INTO analytics_events (sid, email, path, kind, dur_ms, ua, ts, meta) VALUES (?,?,?,'intel',?,?,?,?)`
+);
+
 // Resumo por pessoa (lifetime): kit, etapas (telas vistas, quiz), certificado.
 function onbResumo() {
   let rows = [];
@@ -145,6 +159,20 @@ function logPageView(req, res, next) {
 router.post('/api/analytics/track', express.json({ limit: '2kb' }), (req, res) => {
   try {
     const b = req.body || {};
+    if (b.kind === 'intel') { // área Intelligence (Módulo 27) — aceita lote
+      const steps = (Array.isArray(b.steps) ? b.steps : [b.step]).slice(0, 40);
+      const sid = shortSid(req), em = sessionEmail(req), now = Date.now();
+      const ua = String(req.headers['user-agent'] || '').slice(0, 200);
+      let n = 0;
+      for (const raw of steps) {
+        const step = String(raw || '').slice(0, 80);
+        if (!INTEL_STEP.test(step)) continue;
+        const t = /^tempo\.[a-z0-9_-]+\.(\d{1,5})$/.exec(step); // tempo na seção (s)
+        const ms = t ? Math.min(6 * 3600, parseInt(t[1], 10)) * 1000 : 0;
+        _insIntel.run(sid, em, INTEL_PATH, ms, ua, now, step); n++;
+      }
+      return res.json({ ok: n > 0, n });
+    }
     if (b.kind === 'onb') {   // passo do onboarding (Módulo 26)
       const step = String(b.step || '').slice(0, 60);
       if (!ONB_STEP.test(step)) return res.json({ ok: false });
@@ -455,6 +483,144 @@ router.get('/api/admin/analytics/adocao', requireOwner, (req, res) => {
 // Página do report
 router.get('/admin/analytics', requireOwner, (req, res) => {
   res.sendFile(path.join(__dirname, '../public/admin-analytics.html'));
+});
+
+// ── ÁREA INTELLIGENCE — quem viu o quê (Módulo 27) ───────────────────────────
+// Só o dono. A página do painel fica FORA de public/ (private/) pra nem o HTML
+// ser servido pelo express.static a quem não é o dono.
+router.get('/api/analytics/owner', (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  res.json({ owner: sessionEmail(req) === OWNER_EMAIL });
+});
+
+router.get('/admin/intelligence', requireOwner, (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  res.sendFile(path.join(__dirname, '../private/admin-intelligence.html'));
+});
+
+// Agrega views (logPageView) + tempo (beacon office-nav) + passos 'intel'.
+// `eu=1` inclui os acessos do próprio dono (padrão: fora, pra não poluir).
+router.get('/api/admin/analytics/intel', requireOwner, (req, res) => {
+  try {
+    const days = Math.max(1, Math.min(365, parseInt(req.query.days, 10) || 30));
+    const since = Date.now() - days * 86400000;
+    const skip = req.query.eu === '1' ? '' : OWNER_EMAIL; // email ignorado ('' = ninguém)
+
+    const views = db.prepare(`SELECT email, sid, ts FROM analytics_events
+      WHERE kind='view' AND path IN (?,?) AND ts>=? AND email!=? ORDER BY ts ASC`).all(...INTEL_PATHS, since, skip);
+    const durs = db.prepare(`SELECT email, sid, dur_ms, ts FROM analytics_events
+      WHERE kind='dur' AND path IN (?,?) AND ts>=? AND email!=?`).all(...INTEL_PATHS, since, skip);
+    const steps = db.prepare(`SELECT email, sid, meta, dur_ms, ts FROM analytics_events
+      WHERE kind='intel' AND ts>=? AND email!=? ORDER BY ts ASC, id ASC`).all(since, skip);
+
+    let nomeDe = null;
+    try { nomeDe = db.prepare(`SELECT name, role FROM users WHERE email=?`); } catch (e) {}
+    const who = {};
+    const info = (email) => {
+      if (!who[email]) { const u = nomeDe ? nomeDe.get(email) : null; who[email] = { nome: (u && u.name) || '', role: (u && u.role) || null }; }
+      return who[email];
+    };
+
+    const P = {};   // por pessoa
+    const pes = (email) => P[email] || (P[email] = {
+      email, visitas: 0, sessoes: new Set(), tempo_ms: 0, primeiro: null, ultimo: null,
+      secoes: {}, ferramentas: {}, acoes: 0, scroll: 0,
+    });
+    const touch = (p, ts) => { if (p.primeiro == null || ts < p.primeiro) p.primeiro = ts; if (p.ultimo == null || ts > p.ultimo) p.ultimo = ts; };
+
+    const S = {};   // por seção
+    const sec = (id) => S[id] || (S[id] = { id, vistas: 0, pessoas: new Set(), tempo_ms: 0 });
+    const T = {};   // por ferramenta
+    const A = {};   // outras interações (node/achado/tab)
+    const scrollMax = {};
+    const porDia = {};
+    let anon = 0;
+
+    for (const v of views) {
+      const d = Math.floor(v.ts / 86400000) * 86400000; porDia[d] = (porDia[d] || 0) + 1;
+      if (v.email === 'anon') { anon++; continue; }
+      const p = pes(v.email); p.visitas++; p.sessoes.add(v.sid); touch(p, v.ts);
+    }
+    for (const d of durs) {
+      if (d.email === 'anon') continue;
+      const p = pes(d.email); p.tempo_ms += d.dur_ms || 0; touch(p, d.ts);
+    }
+    for (const s of steps) {
+      const parts = String(s.meta || '').split('.');
+      const k = parts[0], id = parts[1] || '';
+      const known = s.email !== 'anon';
+      const p = known ? pes(s.email) : null;
+      if (p) touch(p, s.ts);
+      if (k === 'sec') {
+        const x = sec(id); x.vistas++; if (known) { x.pessoas.add(s.email); p.secoes[id] = p.secoes[id] || 0; }
+      } else if (k === 'tempo') {
+        const x = sec(id); x.tempo_ms += s.dur_ms || 0;
+        if (p) p.secoes[id] = (p.secoes[id] || 0) + (s.dur_ms || 0);
+      } else if (k === 'scroll') {
+        const n = parseInt(id, 10) || 0;
+        if (known && n > (scrollMax[s.email] || 0)) scrollMax[s.email] = n;
+      } else if (k === 'tool') {
+        const x = T[id] || (T[id] = { id, cliques: 0, pessoas: new Set() });
+        x.cliques++; if (known) { x.pessoas.add(s.email); p.ferramentas[id] = (p.ferramentas[id] || 0) + 1; p.acoes++; }
+      } else {
+        const key = k + '.' + id;
+        const x = A[key] || (A[key] = { id: key, vezes: 0, pessoas: new Set() });
+        x.vezes++; if (known) { x.pessoas.add(s.email); p.acoes++; }
+      }
+    }
+
+    const pessoas = Object.values(P).map(p => ({
+      email: p.email, ...info(p.email),
+      visitas: p.visitas, sessoes: p.sessoes.size, tempo_ms: p.tempo_ms,
+      primeiro: p.primeiro, ultimo: p.ultimo,
+      secoes: p.secoes, ferramentas: p.ferramentas, acoes: p.acoes,
+      scroll: scrollMax[p.email] || 0,
+    })).sort((a, b) => (b.ultimo || 0) - (a.ultimo || 0));
+
+    const tempoTotal = durs.reduce((a, d) => a + (d.dur_ms || 0), 0);
+    const visitasComTempo = durs.filter(d => (d.dur_ms || 0) > 0).length;
+    const resumo = {
+      pessoas: pessoas.length,
+      visitas: views.length,
+      anon,
+      tempo_ms: tempoTotal,
+      tempo_medio_ms: visitasComTempo ? Math.round(tempoTotal / visitasComTempo) : 0,
+      cliques_ferramentas: Object.values(T).reduce((a, t) => a + t.cliques, 0),
+      interacoes: steps.filter(s => !/^(sec|tempo|scroll)\./.test(s.meta || '')).length,
+    };
+    const scrollFunil = [25, 50, 75, 100].map(n => ({ n, pessoas: Object.values(scrollMax).filter(v => v >= n).length }));
+
+    const recente = steps.filter(s => !/^tempo\./.test(s.meta || '')).map(s => ({ email: s.email, meta: s.meta, ts: s.ts }))
+      .concat(views.map(v => ({ email: v.email, meta: 'view', ts: v.ts })))
+      .sort((a, b) => b.ts - a.ts).slice(0, 200)
+      .map(r => ({ ...r, nome: r.email === 'anon' ? '' : info(r.email).nome }));
+
+    res.json({
+      days, owner: OWNER_EMAIL, incluindo_dono: !skip, gerado_em: Date.now(),
+      resumo,
+      secoes: Object.values(S).map(x => ({ id: x.id, vistas: x.vistas, pessoas: x.pessoas.size, tempo_ms: x.tempo_ms })),
+      ferramentas: Object.values(T).map(x => ({ id: x.id, cliques: x.cliques, pessoas: x.pessoas.size })).sort((a, b) => b.cliques - a.cliques),
+      acoes: Object.values(A).map(x => ({ id: x.id, vezes: x.vezes, pessoas: x.pessoas.size })).sort((a, b) => b.vezes - a.vezes),
+      scroll: scrollFunil,
+      porDia: Object.keys(porDia).map(Number).sort((a, b) => a - b).map(d => ({ dia: d, n: porDia[d] })),
+      pessoas, recente,
+    });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Passo a passo de UMA pessoa na área Intelligence (lifetime).
+router.get('/api/admin/analytics/intel/user', requireOwner, (req, res) => {
+  try {
+    const email = String(req.query.email || '').toLowerCase().trim();
+    if (!email) return res.status(400).json({ error: 'email_obrigatorio' });
+    let meta = null;
+    try { meta = db.prepare(`SELECT email, name, role FROM users WHERE email=?`).get(email); } catch (e) {}
+    const passos = db.prepare(`
+      SELECT kind, meta, dur_ms, ts FROM analytics_events
+      WHERE email=? AND ((kind IN ('view','dur') AND path IN (?,?)) OR kind='intel')
+      ORDER BY ts DESC, id DESC LIMIT 600`).all(email, ...INTEL_PATHS);
+    res.json({ email, meta: meta || { email, name: '', role: null }, passos });
+  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 // ── RESUMO SEMANAL (digest por e-mail) ────────────────────────────────────────
