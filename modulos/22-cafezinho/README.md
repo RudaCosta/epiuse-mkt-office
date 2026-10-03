@@ -1,8 +1,8 @@
 # Módulo 22 — ☕ Cafezinho (área pessoal do time)
 
-**Status:** ✅ construído (v0.87.0 · 14/ago/2026)
+**Status:** ✅ v2.0 · redesenho visual + tracking (03/out/2026) · v1 em 14/ago/2026 (v0.87.0)
 **Rota:** `/cafezinho` (qualquer pessoa logada, inclusive role `hub`)
-**Código:** `routes/cafezinho.js` · `public/cafezinho.html` · `public/api/cafezinho-seed.json`
+**Código:** `routes/cafezinho.js` · `public/cafezinho.html` · `public/api/cafezinho-seed.json` · `private/cafezinho-tracking.html`
 
 ## Por que existe
 
@@ -11,6 +11,30 @@ O Office inteiro é tela de trabalho. A única coisa "pessoal" que existia era o
 No papo quinzenal de café de 14/ago/2026 saiu um monte de folclore que não tinha onde morar: os signos do time, a Duda na Paris Fashion Week, a garrafa nova da Bruna toda semana, Suits como série em comum, "é proibido spoiler", eclipse em Leão e a descoberta de que todo mundo ali acredita em ET.
 
 O Cafezinho é o lugar disso. É o primeiro canto do Office sem KPI, sem funil e sem meta.
+
+## Experiência (v2 · mesma linguagem do `/onboarding`)
+
+| Seção | O que tem | Dado |
+|---|---|---|
+| Hero | xícara SVG animada (vapor, órbita com o folclore do seed); clique = frase real do time + chuva de emoji · contadores animados | feed real |
+| 👥 Quem senta à mesa | cartões 3D: inclinam no mouse, viram no clique (frente: avatar, signo, tags; verso: aniversário, série, item, lore, mesa do game) | team.json + perfis + seed + office-desks |
+| 🎂 Próximo parabéns | contagem regressiva + linha do ano (marcador "hoje") + agenda completa | `aniversario` do team.json |
+| 🔮 Roda do zodíaco | roda girando (pausa no hover), avatares no signo, clique mostra quem é de cada signo + barras por elemento | derivado do aniversário |
+| 🤝 Em comum | cards flutuantes que viram | `em_comum` do seed |
+| 📌 Mural | composer com pílulas de tipo, emojis rápidos, switch de spoiler, link opcional; filtros; reação otimista com animação; apagar em 2 cliques; painel lateral (termômetro, mais reagido, quem mais posta) | cafe_posts / cafe_reacoes |
+| ✏️ Meu cartão | gaveta lateral com pré-visualização ao vivo | cafe_perfil |
+
+Respeita `prefers-reduced-motion`. Nenhum número inventado: tudo sai de arquivo/tabela real.
+
+## 📊 Tracking (só o dono)
+
+- **Rota:** `/cafezinho/tracking` · API `GET /api/cafezinho/tracking?days=30&eu=0`.
+- **Quem vê:** só a sessão SSO `ruda.costa@epiuse.com.br` (`OWNER_EMAIL` do módulo 17). Sem fallback de editor token. Qualquer outra pessoa recebe **404** (nem a existência vaza).
+- **Link:** a URL vem no `feed` só pro dono (`painel`) e vira o botão "📊 Tracking do Cafezinho" no hero. Não está no menu nem no HTML público.
+- **HTML em `private/`:** fora do `express.static` de propósito — em `public/` ele seria servido em `/cafezinho-tracking.html` sem passar pelo gate.
+- **Fontes:** aberturas e tempo = `analytics_events` (módulo 17, histórico). "Viu o quê" = tabela nova `cafe_tracking`, gravada por `POST /api/cafezinho/track` (lote, e-mail sempre da sessão, whitelist de eventos).
+- **Eventos:** `card` (cartão ≥60% na tela por 1,2s) · `flip` · `post` (≥50% por 1,5s) · `spoiler` · `secao` · `reacao` · `link` · `filtro` · `signo` · `xicara` · `postou` · `perfil` · `comum`.
+- **Painel:** KPIs · aberturas por dia · heatmap dia×hora · funil de seções · tabela por pessoa (clique = timeline do que ela viu) · matriz "quem viu o cartão de quem" · por post: quem viu / abriu spoiler / não viu / reações · feed ao vivo (60s, sem re-animar).
 
 ## Como o time usa
 

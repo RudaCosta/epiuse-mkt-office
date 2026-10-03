@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Tracking do Cafezinho · EPI-USE Office</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/design-tokens.css">
+<script type="module" src="/office-nav.js"></script>
+<script type="module" src="/office-footer.js"></script>
+<style>
+/* Painel exclusivo do dono. Só tokens do DESIGN.md (regra 8). Servido de private/ (fora do express.static). */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --o-bg: var(--color-neutral-dark-bg);
+  --o-surf: var(--color-neutral-dark-surface);
+  --o-glass: color-mix(in srgb, var(--color-neutral-dark-surface) 62%, transparent);
+  --o-line: var(--color-neutral-dark-border);
+  --o-text: var(--color-neutral-dark-text);
+  --o-dim: var(--color-neutral-dark-text-dim);
+  --o-muted: var(--color-neutral-dark-text-muted);
+  --o-corn: var(--color-brand-cornflower-blue);
+  --o-royal: var(--color-brand-royal-blue);
+  --o-svc: var(--color-brand-service-line-blue);
+  --o-red: var(--color-brand-red);
+  --o-ok: var(--color-success-500);
+  --o-cafe: var(--color-warning-500);
+  --o-zod: var(--color-spot-pex-purple);
+  --o-head: var(--type-headline-lg-font-family);
+  --o-body: var(--type-body-md-font-family);
+  --ease: cubic-bezier(.22,1,.36,1);
+  --spring: cubic-bezier(.34,1.56,.64,1);
+}
+body{background:var(--o-bg);color:var(--o-text);font-family:var(--o-body);line-height:1.55;overflow-x:hidden}
+h1,h2,h3{font-family:var(--o-head);line-height:1.12;letter-spacing:-.015em}
+a{color:var(--o-corn)}
+button{font:inherit;color:inherit}
+.wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 16px 80px}
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.blob{position:absolute;border-radius:50%;filter:blur(90px);opacity:.35;animation:drift 22s ease-in-out infinite alternate}
+.b1{width:520px;height:520px;background:var(--o-svc);top:-160px;left:-120px}
+.b2{width:420px;height:420px;background:var(--o-zod);bottom:-180px;right:-100px;opacity:.16;animation-delay:-8s}
+@keyframes drift{to{transform:translate(80px,60px) scale(1.15)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+.hero{padding:48px 0 18px}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font:700 12px/1 var(--o-head);letter-spacing:.16em;text-transform:uppercase;color:var(--o-cafe);margin-bottom:14px}
+.eyebrow::before{content:'';width:22px;height:2px;background:var(--o-red);border-radius:2px}
+.hero h1{font-size:clamp(32px,5.4vw,56px);font-weight:900;margin-bottom:10px}
+.grad{background:linear-gradient(92deg,var(--o-text) 5%,var(--o-cafe) 95%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lock{display:inline-flex;gap:8px;align-items:center;padding:7px 14px;border-radius:var(--rounded-full);background:color-mix(in srgb,var(--o-zod) 16%,transparent);border:1px solid color-mix(in srgb,var(--o-zod) 55%,transparent);font:700 13px var(--o-head)}
+.ctrl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:20px}
+.chip{appearance:none;cursor:pointer;padding:8px 14px;border-radius:var(--rounded-full);border:1px solid var(--o-line);background:var(--o-glass);font:700 13px var(--o-head);transition:background .25s,border-color .25s}
+.chip.on{background:var(--o-royal);border-color:var(--o-corn)}
+.sw{display:inline-flex;gap:9px;align-items:center;cursor:pointer;font-size:13.5px;color:var(--o-dim);margin-left:6px;user-select:none}
+.sw input{position:absolute;opacity:0;pointer-events:none}
+.sw i{position:relative;width:38px;height:21px;border-radius:21px;background:var(--o-line);transition:background .3s}
+.sw i::after{content:'';position:absolute;top:3px;left:3px;width:15px;height:15px;border-radius:50%;background:var(--o-text);transition:transform .35s var(--spring)}
+.sw input:checked + i{background:var(--o-corn)}
+.sw input:checked + i::after{transform:translateX(17px)}
+.upd{margin-left:auto;font-size:12px;color:var(--o-muted)}
+.note{margin-top:14px;font-size:12.5px;color:var(--o-muted);border-left:2px solid var(--o-line);padding:4px 0 4px 12px;max-width:860px}
+
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:26px}
+@media (max-width:820px){.kpis{grid-template-columns:repeat(2,1fr)}}
+.kpi{padding:16px 18px;border-radius:20px;background:var(--o-glass);border:1px solid var(--o-line);backdrop-filter:blur(8px);opacity:0;animation:fadeUp .6s var(--ease) forwards;animation-delay:calc(var(--i)*.06s)}
+.kpi b{display:block;font:900 30px/1.05 var(--o-head)}
+.kpi span{font-size:12.5px;color:var(--o-muted)}
+.kpi em{display:block;font-style:normal;font-size:11.5px;color:var(--o-dim);margin-top:4px}
+
+.sec{margin-top:34px}
+.sec h2{font-size:clamp(20px,2.6vw,26px);font-weight:900;margin-bottom:4px}
+.sub{font-size:13.5px;color:var(--o-dim);margin-bottom:14px}
+.box{position:relative;padding:20px;border-radius:22px;border:1px solid var(--o-line);background:var(--o-glass);backdrop-filter:blur(8px)}
+.two{display:grid;grid-template-columns:1.3fr 1fr;gap:16px}
+@media (max-width:900px){.two{grid-template-columns:1fr}}
+
+/* Barras: série única, matiz única, ponta arredondada 4px, gap 2px */
+.bars{position:relative;height:200px;margin-left:30px}
+.bars svg{width:100%;height:100%;overflow:visible}
+.grid-l{stroke:var(--o-line);stroke-width:1;stroke-dasharray:2 4}
+.ax{font:600 10.5px var(--o-body);fill:var(--o-muted)}
+.bar{fill:var(--o-corn);transition:opacity .2s}
+.bar-hit{fill:transparent;cursor:default}
+.bars:hover .bar{opacity:.55}
+.bar.hl{opacity:1!important}
+.tt{position:fixed;z-index:1200;pointer-events:none;padding:8px 11px;border-radius:12px;background:var(--o-surf);border:1px solid var(--o-line);font-size:12.5px;color:var(--o-text);opacity:0;transform:translateY(4px);transition:opacity .15s,transform .15s;white-space:nowrap}
+.tt.on{opacity:1;transform:none}
+.tt b{font-family:var(--o-head)}
+
+/* Heatmap dia × hora (sequencial, matiz única) */
+.heat{display:grid;grid-template-columns:34px repeat(24,1fr);gap:2px;font-size:10px;color:var(--o-muted)}
+.hc{aspect-ratio:1;border-radius:4px;background:color-mix(in srgb,var(--o-corn) calc(var(--v)*100%),var(--o-line));opacity:0;animation:fadeUp .4s var(--ease) forwards;animation-delay:calc(var(--d)*4ms)}
+.hc.z{background:color-mix(in srgb,var(--o-line) 60%,transparent)}
+.hl-lab{display:flex;align-items:center}
+.hh{text-align:center}
+.legend{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:11.5px;color:var(--o-muted)}
+.legend i{width:120px;height:8px;border-radius:8px;background:linear-gradient(90deg,var(--o-line),var(--o-corn))}
+
+/* Funil de seções */
+.fn{display:grid;grid-template-columns:120px 1fr 64px;gap:10px;align-items:center;font-size:13.5px;margin-bottom:10px}
+.fn .tr{height:14px;border-radius:14px;background:var(--o-line);overflow:hidden}
+.fn .tr i{display:block;height:100%;width:0;border-radius:14px;background:var(--o-corn);transition:width 1.2s var(--ease)}
+.fn b{text-align:right;font:900 14px var(--o-head)}
+
+/* Tabela de pessoas */
+.tbl-w{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:780px}
+th{text-align:left;font:700 11px var(--o-head);letter-spacing:.08em;text-transform:uppercase;color:var(--o-muted);padding:8px 10px;border-bottom:1px solid var(--o-line);cursor:pointer;user-select:none;white-space:nowrap}
+th.num,td.num{text-align:right}
+th.s::after{content:' ↓'}
+td{padding:10px;border-bottom:1px solid color-mix(in srgb,var(--o-line) 60%,transparent)}
+tbody tr{cursor:pointer;transition:background .2s;opacity:0;animation:fadeUp .5s var(--ease) forwards;animation-delay:calc(var(--i)*.04s)}
+tbody tr:hover{background:color-mix(in srgb,var(--o-corn) 9%,transparent)}
+.who{display:flex;gap:10px;align-items:center}
+.av{flex:0 0 32px;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font:900 12px var(--o-head);background:linear-gradient(135deg,var(--o-royal),var(--o-svc));border:1px solid var(--o-line)}
+.who b{display:block;font-weight:700}
+.who small{color:var(--o-muted);font-size:11.5px}
+.mini{display:inline-block;height:6px;border-radius:6px;background:var(--o-corn);vertical-align:middle;margin-left:6px}
+
+/* Matriz quem viu o cartão de quem */
+.mx{overflow-x:auto}
+.mx table{min-width:520px}
+.mx th{cursor:default;text-align:center;letter-spacing:0;text-transform:none;font-size:12px}
+.mx td{text-align:center}
+.dot{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;font-size:12px}
+.dot.v{background:color-mix(in srgb,var(--o-corn) 35%,transparent);border:1px solid var(--o-corn)}
+.dot.f{background:var(--o-corn);color:var(--o-bg);font-weight:900}
+.dot.n{border:1px dashed var(--o-line)}
+.mx-leg{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--o-muted);margin-top:10px}
+.mx-leg span{display:inline-flex;gap:6px;align-items:center}
+
+/* Posts */
+.pst{padding:14px 16px;border-radius:18px;border:1px solid var(--o-line);background:color-mix(in srgb,var(--o-bg) 35%,transparent);margin-bottom:10px;opacity:0;animation:fadeUp .5s var(--ease) forwards;animation-delay:calc(var(--i)*.04s)}
+.pst-h{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;font-size:13px;color:var(--o-muted)}
+.pst-h b{color:var(--o-text);font-weight:700}
+.pst-t{font-size:14px;margin:6px 0 10px;word-break:break-word}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12.5px;color:var(--o-dim);margin-top:6px}
+.row > span:first-child{min-width:92px;font:700 11px var(--o-head);letter-spacing:.06em;text-transform:uppercase;color:var(--o-muted)}
+.pp{display:inline-flex;gap:6px;align-items:center;padding:3px 9px 3px 3px;border-radius:var(--rounded-full);border:1px solid var(--o-line);font-size:12px}
+.pp .av{flex-basis:20px;width:20px;height:20px;font-size:9px}
+.pp.miss{border-style:dashed;color:var(--o-muted)}
+.pp.miss .av{opacity:.5}
+
+/* Feed ao vivo */
+.feed{max-height:520px;overflow:auto;padding-right:4px}
+.ev{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid color-mix(in srgb,var(--o-line) 60%,transparent);font-size:13.5px;opacity:0;animation:fadeUp .4s var(--ease) forwards;animation-delay:calc(var(--i)*.02s)}
+.ev .av{flex-basis:28px;width:28px;height:28px;font-size:10px}
+.ev time{margin-left:auto;font-size:11.5px;color:var(--o-muted);white-space:nowrap}
+.ev .d{color:var(--o-dim)}
+.live{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--o-muted)}
+.live i{width:8px;height:8px;border-radius:50%;background:var(--o-ok);animation:ping 2s infinite}
+@keyframes ping{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--o-ok) 70%,transparent)}100%{box-shadow:0 0 0 10px transparent}}
+
+.vazio{padding:24px;text-align:center;color:var(--o-muted);font-size:13.5px}
+.scrim{position:fixed;inset:0;z-index:890;background:color-mix(in srgb,var(--o-bg) 60%,transparent);backdrop-filter:blur(4px);opacity:0;visibility:hidden;transition:.35s}
+.scrim.on{opacity:1;visibility:visible}
+.drawer{position:fixed;top:0;right:0;z-index:900;width:min(500px,100%);height:100%;display:flex;flex-direction:column;background:var(--o-surf);border-left:1px solid var(--o-line);transform:translateX(105%);transition:transform .5s var(--ease)}
+.drawer.on{transform:none}
+.dr-head{display:flex;align-items:center;gap:12px;padding:20px 22px 12px;border-bottom:1px solid var(--o-line)}
+.dr-head .av{flex-basis:44px;width:44px;height:44px;font-size:15px}
+.dr-head h3{font-size:20px}
+.dr-head small{color:var(--o-muted)}
+.x{appearance:none;margin-left:auto;width:38px;height:38px;border-radius:50%;border:1px solid var(--o-line);background:transparent;cursor:pointer;font-size:18px;transition:transform .3s var(--spring)}
+.x:hover{transform:rotate(90deg)}
+.dr-body{flex:1;overflow:auto;padding:14px 22px 40px}
+.day{font:700 11px var(--o-head);letter-spacing:.1em;text-transform:uppercase;color:var(--o-cafe);margin:14px 0 4px}
+.dr-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:6px}
+.dr-sum div{padding:10px;border-radius:14px;border:1px solid var(--o-line);text-align:center}
+.dr-sum b{display:block;font:900 20px var(--o-head)}
+.dr-sum span{font-size:11.5px;color:var(--o-muted)}
+/* refresh automático: re-render sem animação de entrada */
+.quiet .kpi,.quiet tbody tr,.quiet .pst,.quiet .ev,.quiet .hc{animation:none;opacity:1}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body data-route="cafezinho">
+<office-nav></office-nav>
+<div class="bg" aria-hidden="true"><div class="blob b1"></div><div class="blob b2"></div></div>
+
+<main class="wrap">
+  <section class="hero">
+    <div class="eyebrow">Tracking · Cafezinho</div>
+    <h1>Quem passou <span class="grad">pelo café</span></h1>
+    <span class="lock">🔒 Visível só pra você · <span id="owner"></span></span>
+    <div class="ctrl">
+      <button class="chip" data-days="7">7 dias</button>
+      <button class="chip on" data-days="30">30 dias</button>
+      <button class="chip" data-days="90">90 dias</button>
+      <button class="chip" data-days="365">1 ano</button>
+      <label class="sw"><input type="checkbox" id="eu"><i></i>Incluir meus acessos</label>
+      <button class="chip" id="refresh">↻ Atualizar</button>
+      <a class="chip" href="/cafezinho" style="text-decoration:none">☕ Voltar pro Cafezinho</a>
+      <span class="upd" id="upd"></span>
+    </div>
+    <p class="note" id="note"></p>
+  </section>
+  <div id="app"><div class="vazio">Carregando…</div></div>
+</main>
+
+<div class="tt" id="tt"></div>
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true"><div class="dr-head" id="drHead"></div><div class="dr-body" id="drBody"></div></aside>
+<office-footer></office-footer>
+
+<script>
+(() => {
+'use strict';
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $ = (q, el = document) => el.querySelector(q);
+const $$ = (q, el = document) => [...el.querySelectorAll(q)];
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+const ease = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+const slugify = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().split(' ')[0].replace(/[^a-z0-9]/g, '');
+
+const ST = { days: 30, eu: false, d: null, team: [], timer: 0 };
+const SECOES = [['time', '👥 Time'], ['niver', '🎂 Aniversários'], ['zodiaco', '🔮 Zodíaco'], ['comum', '🤝 Em comum'], ['mural', '📌 Mural']];
+const SEC_NOME = Object.fromEntries(SECOES);
+const SEMANA = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+
+const fmtDur = ms => { const s = Math.round((ms || 0) / 1000); if (s < 60) return `${s} s`; const m = Math.round(s / 60); if (m < 60) return `${m} min`; return `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, '0')}min`; };
+const ago = ts => { const s = (Date.now() - ts) / 1000; if (s < 60) return 'agora'; if (s < 3600) return `há ${Math.floor(s / 60)} min`; if (s < 86400) return `há ${Math.floor(s / 3600)} h`; if (s < 172800) return 'ontem'; return new Date(ts).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }); };
+const hora = ts => new Date(ts).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+const sqlTs = s => { const t = Date.parse(String(s).replace(' ', 'T') + 'Z'); return isNaN(t) ? 0 : t; };
+const nome = em => { const n = (ST.d.nomes || {})[em]; return (n && n.nome) || String(em).split('@')[0]; };
+const ini = em => nome(em).split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+const av = em => `<span class="av" title="${esc(nome(em))}">${esc(ini(em))}</span>`;
+const pp = (em, miss) => `<span class="pp${miss ? ' miss' : ''}">${av(em)}${esc(nome(em).split(' ')[0])}</span>`;
+function countUp(el, to, fmt) {
+  const f0 = v => fmt ? fmt(v) : Math.round(v).toLocaleString('pt-BR');
+  if (reduce || !to || ST.quiet) { el.textContent = f0(to); return; }
+  const t0 = performance.now();
+  const f = n => { const k = Math.min(1, (n - t0) / 1100); el.textContent = f0(to * ease(k)); if (k < 1) requestAnimationFrame(f); };
+  requestAnimationFrame(f);
+}
+const tt = $('#tt');
+function tip(e, html) { tt.innerHTML = html; tt.classList.add('on'); const x = Math.min(e.clientX + 14, innerWidth - tt.offsetWidth - 10); tt.style.left = x + 'px'; tt.style.top = (e.clientY - tt.offsetHeight - 12) + 'px'; }
+const untip = () => tt.classList.remove('on');
+
+/* ======================= CARGA ======================= */
+function carregar(silencioso) {
+  Promise.all([
+    fetch(`/api/cafezinho/tracking?days=${ST.days}&eu=${ST.eu ? 1 : 0}`, { credentials: 'same-origin' }).then(r => { if (!r.ok) throw new Error(r.status === 404 ? 'Acesso restrito ao dono.' : 'HTTP ' + r.status); return r.json(); }),
+    ST.team.length ? Promise.resolve(null) : fetch('/api/team.json').then(r => r.json()).catch(() => null)
+  ]).then(([d, team]) => {
+    if (team) {
+      (team.lideranca || []).forEach(p => ST.team.push({ slug: slugify(p.apelido || p.nome), nome: p.nome, ico: p.icon }));
+      (team.areas || []).forEach(a => { const r = a.responsavel || {}; ST.team.push({ slug: slugify(r.apelido || r.nome), nome: r.nome, ico: a.icon }); });
+    }
+    // Refresh automático só redesenha se chegou dado novo — e sem animar de novo.
+    const assin = x => x.views.length + ':' + x.trk.length + ':' + (x.posts || []).length;
+    const mudou = !ST.d || assin(ST.d) !== assin(d);
+    ST.quiet = !!silencioso; document.body.classList.toggle('quiet', ST.quiet);
+    ST.d = d; if (mudou || !silencioso) montar();
+    $('#upd').textContent = 'Atualizado às ' + hora(Date.now());
+  }).catch(e => { if (silencioso) return; $('#app').innerHTML = `<div class="box vazio">⚠️ ${esc(e.message)}</div>`; });
+}
+
+/* ======================= AGREGAÇÃO ======================= */
+function agrega() {
+  const d = ST.d, P = {};
+  const get = em => (P[em] = P[em] || { em, ab: 0, sids: new Set(), ms: 0, ult: 0, cards: new Set(), flips: new Set(), posts: new Set(), sp: new Set(), rx: 0, secs: new Set(), links: 0, ev: [] });
+  d.views.forEach(v => { const p = get(v.email); p.ab++; p.sids.add(v.sid); p.ult = Math.max(p.ult, v.ts); p.ev.push({ ev: 'open', ts: v.ts }); });
+  d.durs.forEach(x => { get(x.email).ms = x.ms || 0; });
+  d.trk.forEach(t => {
+    const p = get(t.email); p.ult = Math.max(p.ult, t.ts); p.ev.push(t);
+    if (t.ev === 'card') p.cards.add(t.alvo);
+    if (t.ev === 'flip') { p.flips.add(t.alvo); p.cards.add(t.alvo); }
+    if (t.ev === 'post') p.posts.add(t.alvo);
+    if (t.ev === 'spoiler') { p.sp.add(t.alvo); p.posts.add(t.alvo); }
+    if (t.ev === 'reacao') p.rx++;
+    if (t.ev === 'secao') p.secs.add(t.alvo);
+    if (t.ev === 'link') p.links++;
+  });
+  return Object.values(P);
+}
+function snippet(id) {
+  const p = (ST.d.posts || []).find(x => String(x.id) === String(id));
+  if (!p) return `post #${esc(id)} (apagado)`;
+  const t = String(p.texto); return `${esc(p.emoji || '')} “${esc(t.slice(0, 60))}${t.length > 60 ? '…' : ''}”${p.spoiler ? ' 🙈' : ''}`;
+}
+const cardNome = slug => { const t = ST.team.find(x => x.slug === slug); return t ? `${t.ico || ''} ${t.nome}` : slug; };
+function frase(e) {
+  switch (e.ev) {
+    case 'open': return '☕ abriu o Cafezinho';
+    case 'card': return `👀 viu o cartão de <b>${esc(cardNome(e.alvo))}</b>`;
+    case 'flip': return `🔄 virou o cartão de <b>${esc(cardNome(e.alvo))}</b>`;
+    case 'post': return `📖 viu o post ${snippet(e.alvo)}`;
+    case 'spoiler': return `🙈 abriu o spoiler ${snippet(e.alvo)}`;
+    case 'reacao': return `${esc(e.extra)} reagiu em ${snippet(e.alvo)}`;
+    case 'link': return `🔗 abriu o link de ${snippet(e.alvo)}`;
+    case 'secao': return `🧭 chegou em <b>${esc(SEC_NOME[e.alvo] || e.alvo)}</b>`;
+    case 'filtro': return `🔎 filtrou o mural: <b>${esc(e.alvo)}</b>`;
+    case 'signo': return `🔮 clicou em <b>${esc(e.alvo)}</b> na roda`;
+    case 'xicara': return '☕ clicou na xícara';
+    case 'postou': return `✍️ postou ${snippet(e.alvo)}`;
+    case 'perfil': return '✏️ editou o próprio cartão';
+    case 'comum': return `🤝 virou o card <b>${esc(e.alvo)}</b>`;
+    default: return esc(e.ev);
+  }
+}
+
+/* ======================= MONTAGEM ======================= */
+function montar() {
+  const d = ST.d, gente = agrega(), nPosts = (d.posts || []).length, nCards = ST.team.length;
+  $('#owner').textContent = d.owner;
+  const desde = d.tracking_desde ? new Date(d.tracking_desde).toLocaleDateString('pt-BR') : 'o próximo acesso';
+  $('#note').innerHTML = `Dados reais, sem amostra. <b>Aberturas e tempo</b> vêm do Analytics de Uso (server-side, histórico desde o módulo 17). <b>Cartões, posts, spoilers, seções e cliques</b> vêm do tracking do Cafezinho v2, ativo desde ${esc(desde)}. Uma visualização conta quando o item fica na tela por mais de ~1s.`;
+
+  const tot = (f) => gente.reduce((s, p) => s + f(p), 0);
+  const comTempo = gente.filter(p => p.ms > 0);
+  const K = [
+    ['Pessoas que abriram', gente.filter(p => p.ab).length, `de ${gente.length} com algum rastro`],
+    ['Aberturas', tot(p => p.ab), `${tot(p => p.sids.size)} sessões`],
+    ['Tempo total', tot(p => p.ms), 'tempo ativo na página', fmtDur],
+    ['Tempo médio/pessoa', comTempo.length ? tot(p => p.ms) / comTempo.length : 0, `${comTempo.length} pessoa(s) com tempo medido`, fmtDur],
+    ['Cartões vistos', tot(p => p.cards.size), `${tot(p => p.flips.size)} virados · ${nCards} no time`],
+    ['Posts vistos', tot(p => p.posts.size), `pares pessoa × post · ${nPosts} no mural`],
+    ['Spoilers abertos', tot(p => p.sp.size), 'cliques no borrado'],
+    ['Reações', tot(p => p.rx), `${tot(p => p.links)} link(s) abertos`]
+  ];
+  $('#app').innerHTML = `
+    <div class="kpis">${K.map((k, i) => `<div class="kpi" style="--i:${i}"><b data-k="${i}">0</b><span>${k[0]}</span><em>${esc(k[2])}</em></div>`).join('')}</div>
+    <div class="two sec">
+      <div><h2>Aberturas por ${ST.days > 90 ? 'semana' : 'dia'}</h2><p class="sub">Toda vez que alguém abriu /cafezinho no período.</p><div class="box"><div class="bars" id="bars"></div></div></div>
+      <div><h2>Até onde rolam</h2><p class="sub">% de quem tem rastro no v2 que chegou em cada seção.</p><div class="box" id="funil"></div></div>
+    </div>
+    <div class="sec"><h2>Quando o time abre o café</h2><p class="sub">Aberturas por dia da semana × hora (horário do seu navegador).</p><div class="box"><div class="heat" id="heat"></div><div class="legend">menos<i></i>mais</div></div></div>
+    <div class="sec"><h2>Quem acessou</h2><p class="sub">Clique numa pessoa pra ver tudo o que ela viu, em ordem. Clique no cabeçalho pra ordenar.</p><div class="box tbl-w" id="pessoas"></div></div>
+    <div class="sec"><h2>Quem viu o cartão de quem</h2><p class="sub">Linhas: quem olhou. Colunas: de quem é o cartão.</p><div class="box mx" id="matriz"></div></div>
+    <div class="two sec">
+      <div><h2>Quem viu cada post</h2><p class="sub">“Não viu” = abriu o Cafezinho depois do post e não passou por ele.</p><div id="posts"></div></div>
+      <div><h2>Atividade <span class="live"><i></i>ao vivo</span></h2><p class="sub">Atualiza a cada 60s enquanto a aba está aberta.</p><div class="box feed" id="feed"></div></div>
+    </div>`;
+  $$('[data-k]').forEach(b => { const k = K[+b.dataset.k]; countUp(b, k[1], k[3]); });
+  ST.gente = gente;
+  barras(); funil(gente); heat(); tabela('ult'); matriz(gente); posts(gente); feed(gente);
+}
+
+function barras() {
+  const d = ST.d, sem = ST.days > 90, n = sem ? Math.ceil(ST.days / 7) : ST.days, step = (sem ? 7 : 1) * 86400000;
+  const h = new Date(); h.setHours(0, 0, 0, 0); const fim = h.getTime() + 86400000, ini = fim - n * step;
+  const B = Array.from({ length: n }, (_, i) => ({ t: ini + i * step, v: 0 }));
+  d.views.forEach(v => { const i = Math.floor((v.ts - ini) / step); if (i >= 0 && i < n) B[i].v++; });
+  const box = $('#bars'), W = box.clientWidth, H = 200, max = Math.max(4, ...B.map(b => b.v)), top = Math.ceil(max / 4) * 4;
+  const bw = W / n, gap = Math.min(2, bw * .2), y = v => H - 22 - (v / top) * (H - 34);
+  const fmt = t => new Date(t).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+  let s = '';
+  [0, top / 2, top].forEach(g => { s += `<line class="grid-l" x1="0" x2="${W}" y1="${y(g)}" y2="${y(g)}"/><text class="ax" x="-8" y="${y(g) + 4}" text-anchor="end">${g}</text>`; });
+  B.forEach((b, i) => {
+    const x = i * bw + gap / 2, w = Math.max(1, bw - gap), hh = H - 22 - y(b.v);
+    // ponta superior arredondada (4px), base reta ancorada no eixo
+    const r = Math.min(4, w / 2, hh);
+    if (b.v) s += `<path class="bar" data-i="${i}" d="M${x},${H - 22}V${y(b.v) + r}Q${x},${y(b.v)} ${x + r},${y(b.v)}H${x + w - r}Q${x + w},${y(b.v)} ${x + w},${y(b.v) + r}V${H - 22}Z" style="${reduce || ST.quiet ? '' : `transform-origin:0 ${H - 22}px;transform:scaleY(0);transition:transform .9s ${i * 12}ms cubic-bezier(.22,1,.36,1)`}"/>`;
+    s += `<rect class="bar-hit" data-i="${i}" x="${i * bw}" y="0" width="${bw}" height="${H - 22}"/>`;
+  });
+  const lab = Math.max(1, Math.ceil(n / 6));
+  B.forEach((b, i) => { if (i % lab === 0) s += `<text class="ax" x="${i * bw + bw / 2}" y="${H - 6}" text-anchor="middle">${fmt(b.t)}</text>`; });
+  box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${s}</svg>`;
+  if (!reduce && !ST.quiet) requestAnimationFrame(() => requestAnimationFrame(() => $$('.bar', box).forEach(p => { p.style.transform = 'scaleY(1)'; })));
+  box.onmousemove = e => { const r = e.target.closest && e.target.closest('[data-i]'); $$('.bar', box).forEach(p => p.classList.toggle('hl', r && p.dataset.i === r.dataset.i));
+    if (!r) return untip(); const b = B[+r.dataset.i];
+    tip(e, `<b>${b.v}</b> abertura${b.v === 1 ? '' : 's'} · ${sem ? 'semana de ' : ''}${new Date(b.t).toLocaleDateString('pt-BR', { weekday: sem ? undefined : 'short', day: '2-digit', month: 'short' })}`); };
+  box.onmouseleave = () => { untip(); $$('.bar', box).forEach(p => p.classList.remove('hl')); };
+}
+function funil(gente) {
+  const base = gente.filter(p => p.ev.some(e => e.ev !== 'open')).length;
+  $('#funil').innerHTML = base ? SECOES.map(([k, l]) => { const n = gente.filter(p => p.secs.has(k)).length, pc = Math.round(n / base * 100);
+    return `<div class="fn"><span>${l}</span><div class="tr"><i data-w="${pc}"></i></div><b>${pc}%</b></div>`; }).join('') + `<p class="sub" style="margin:4px 0 0">Base: ${base} pessoa(s) com rastro no v2.</p>`
+    : '<div class="vazio">⏳ Sem rastro de seções ainda: começa a contar quando o time abrir a v2.</div>';
+  requestAnimationFrame(() => requestAnimationFrame(() => $$('.fn i').forEach(i => { i.style.width = i.dataset.w + '%'; })));
+}
+function heat() {
+  const M = Array.from({ length: 7 }, () => Array(24).fill(0));
+  ST.d.views.forEach(v => { const d = new Date(v.ts); M[d.getDay()][d.getHours()]++; });
+  const max = Math.max(1, ...M.flat());
+  let h = '<span></span>' + Array.from({ length: 24 }, (_, i) => `<span class="hh">${i % 3 === 0 ? i + 'h' : ''}</span>`).join('');
+  [1, 2, 3, 4, 5, 6, 0].forEach((dia, r) => { h += `<span class="hl-lab">${SEMANA[dia]}</span>`;
+    M[dia].forEach((v, c) => { h += `<span class="hc${v ? '' : ' z'}" style="--v:${(.15 + .85 * v / max).toFixed(2)};--d:${r * 24 + c}" data-h="${SEMANA[dia]}|${c}|${v}"></span>`; }); });
+  const el = $('#heat'); el.innerHTML = h;
+  el.onmousemove = e => { const c = e.target.dataset && e.target.dataset.h; if (!c) return untip(); const [dd, hh, v] = c.split('|');
+    tip(e, `<b>${v}</b> abertura${v === '1' ? '' : 's'} · ${dd} ${hh}h–${+hh + 1}h`); };
+  el.onmouseleave = untip;
+}
+function tabela(col) {
+  const nP = (ST.d.posts || []).length, nC = ST.team.length;
+  const cols = [['nome', 'Pessoa'], ['ab', 'Aberturas', 1], ['ses', 'Sessões', 1], ['ms', 'Tempo', 1], ['ult', 'Último acesso', 1], ['cards', 'Cartões', 1], ['posts', 'Posts', 1], ['sp', 'Spoilers', 1], ['rx', 'Reações', 1]];
+  const val = (p, k) => ({ nome: nome(p.em).toLowerCase(), ab: p.ab, ses: p.sids.size, ms: p.ms, ult: p.ult, cards: p.cards.size, posts: p.posts.size, sp: p.sp.size, rx: p.rx })[k];
+  const g = ST.gente.slice().sort((a, b) => col === 'nome' ? (val(a, col) < val(b, col) ? -1 : 1) : val(b, col) - val(a, col));
+  const maxMs = Math.max(1, ...g.map(p => p.ms));
+  $('#pessoas').innerHTML = g.length ? `<table><thead><tr>${cols.map(c => `<th class="${c[2] ? 'num' : ''}${c[0] === col ? ' s' : ''}" data-col="${c[0]}">${c[1]}</th>`).join('')}</tr></thead><tbody>
+    ${g.map((p, i) => `<tr style="--i:${i}" data-em="${esc(p.em)}"><td><div class="who">${av(p.em)}<div><b>${esc(nome(p.em))}</b><small>${esc(p.em)}</small></div></div></td>
+      <td class="num">${p.ab}</td><td class="num">${p.sids.size}</td><td class="num">${fmtDur(p.ms)}<span class="mini" style="width:${Math.round(p.ms / maxMs * 40)}px"></span></td>
+      <td class="num">${p.ult ? ago(p.ult) : '—'}</td><td class="num">${p.cards.size}/${nC}</td><td class="num">${p.posts.size}/${nP}</td><td class="num">${p.sp.size}</td><td class="num">${p.rx}</td></tr>`).join('')}
+    </tbody></table>` : '<div class="vazio">Ninguém abriu o Cafezinho nesse período.</div>';
+  $$('#pessoas th').forEach(th => th.onclick = () => tabela(th.dataset.col));
+  $$('#pessoas tbody tr').forEach(tr => tr.onclick = () => abrir(tr.dataset.em));
+}
+function matriz(gente) {
+  const vs = gente.filter(p => p.cards.size);
+  if (!vs.length || !ST.team.length) { $('#matriz').innerHTML = '<div class="vazio">⏳ Ninguém passou pelos cartões ainda no período.</div>'; return; }
+  $('#matriz').innerHTML = `<table><thead><tr><th style="text-align:left">Quem viu ↓ · cartão de →</th>${ST.team.map(t => `<th title="${esc(t.nome)}">${esc(t.ico || '')}<br>${esc(String(t.nome).split(' ')[0])}</th>`).join('')}</tr></thead><tbody>
+    ${vs.map((p, i) => `<tr style="--i:${i}" data-em="${esc(p.em)}"><td><div class="who">${av(p.em)}<b>${esc(nome(p.em))}</b></div></td>${ST.team.map(t =>
+      `<td>${p.flips.has(t.slug) ? '<span class="dot f" title="virou o cartão">↻</span>' : p.cards.has(t.slug) ? '<span class="dot v" title="viu"></span>' : '<span class="dot n" title="não viu"></span>'}</td>`).join('')}</tr>`).join('')}
+    </tbody></table><div class="mx-leg"><span><span class="dot f">↻</span> viu e virou</span><span><span class="dot v"></span> viu</span><span><span class="dot n"></span> não viu</span></div>`;
+  $$('#matriz tbody tr').forEach(tr => tr.onclick = () => abrir(tr.dataset.em));
+}
+function posts(gente) {
+  const ps = ST.d.posts || [], rx = ST.d.reacoes || [];
+  if (!ps.length) { $('#posts').innerHTML = '<div class="box vazio">Mural vazio.</div>'; return; }
+  $('#posts').innerHTML = ps.slice(0, 40).map((p, i) => {
+    const id = String(p.id), cria = sqlTs(p.created_at);
+    const viu = gente.filter(g => g.posts.has(id)), sp = gente.filter(g => g.sp.has(id));
+    const nao = gente.filter(g => !g.posts.has(id) && g.em !== p.email && g.ev.some(e => e.ev === 'open' && e.ts > cria));
+    const rs = rx.filter(r => String(r.post_id) === id);
+    return `<div class="pst" style="--i:${i}"><div class="pst-h"><b>${esc(p.autor || nome(p.email))}</b>· ${esc(p.tipo)} · ${cria ? ago(cria) : ''}${p.spoiler ? ' · 🙈 spoiler' : ''}</div>
+      <div class="pst-t">${esc(p.emoji || '')} ${esc(String(p.texto).slice(0, 160))}${String(p.texto).length > 160 ? '…' : ''}</div>
+      <div class="row"><span>Viu (${viu.length})</span>${viu.map(g => pp(g.em)).join('') || '<em>ninguém ainda</em>'}</div>
+      ${p.spoiler ? `<div class="row"><span>Abriu spoiler</span>${sp.map(g => pp(g.em)).join('') || '<em>ninguém</em>'}</div>` : ''}
+      ${nao.length ? `<div class="row"><span>Não viu</span>${nao.map(g => pp(g.em, true)).join('')}</div>` : ''}
+      ${rs.length ? `<div class="row"><span>Reações</span>${rs.map(r => `<span class="pp">${esc(r.emoji)} ${esc(nome(r.email).split(' ')[0])}</span>`).join('')}</div>` : ''}</div>`;
+  }).join('');
+}
+function feed(gente) {
+  const evs = gente.flatMap(p => p.ev.map(e => Object.assign({ em: p.em }, e))).sort((a, b) => b.ts - a.ts).slice(0, 80);
+  $('#feed').innerHTML = evs.length ? evs.map((e, i) => `<div class="ev" style="--i:${i}">${av(e.em)}<div><b>${esc(nome(e.em).split(' ')[0])}</b> <span class="d">${frase(e)}</span></div><time>${ago(e.ts)}</time></div>`).join('')
+    : '<div class="vazio">Sem atividade no período.</div>';
+}
+function abrir(em) {
+  const p = ST.gente.find(g => g.em === em); if (!p) return;
+  $('#drHead').innerHTML = `${av(em)}<div><h3>${esc(nome(em))}</h3><small>${esc(em)}</small></div><button class="x" id="drX" aria-label="Fechar">✕</button>`;
+  const evs = p.ev.slice().sort((a, b) => b.ts - a.ts);
+  let dia = '', h = `<div class="dr-sum"><div><b>${p.ab}</b><span>aberturas</span></div><div><b>${fmtDur(p.ms)}</b><span>tempo</span></div><div><b>${p.posts.size}</b><span>posts vistos</span></div></div>`;
+  evs.forEach((e, i) => { const dd = new Date(e.ts).toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
+    if (dd !== dia) { dia = dd; h += `<div class="day">${esc(dd)}</div>`; }
+    h += `<div class="ev" style="--i:${Math.min(i, 30)}"><div class="d">${frase(e)}</div><time>${hora(e.ts)}</time></div>`; });
+  $('#drBody').innerHTML = evs.length ? h : h + '<div class="vazio">Sem eventos no período.</div>';
+  $('#drawer').classList.add('on'); $('#scrim').classList.add('on'); $('#drawer').setAttribute('aria-hidden', 'false');
+  $('#drX').onclick = fechar;
+}
+function fechar() { $('#drawer').classList.remove('on'); $('#scrim').classList.remove('on'); $('#drawer').setAttribute('aria-hidden', 'true'); }
+$('#scrim').onclick = fechar;
+addEventListener('keydown', e => { if (e.key === 'Escape') fechar(); });
+
+/* ======================= CONTROLES ======================= */
+$$('[data-days]').forEach(b => b.onclick = () => { ST.days = +b.dataset.days; $$('[data-days]').forEach(x => x.classList.toggle('on', x === b)); carregar(); });
+$('#eu').onchange = e => { ST.eu = e.target.checked; carregar(); };
+$('#refresh').onclick = () => carregar();
+let rz = 0; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (ST.d) barras(); }, 200); });
+setInterval(() => { if (!document.hidden && !$('#drawer').classList.contains('on')) carregar(true); }, 60000);
+carregar();
+})();
+</script>
+</body>
+</html>
