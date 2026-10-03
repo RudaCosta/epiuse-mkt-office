@@ -86,15 +86,23 @@ function checkGEO({ titulo = '', corpo = '', tema_keyword = '' }) {
 }
 
 // ── CTA: sugere conteúdo de conversão por pilar/LOB ──────────────────────────
+// Cobre valores legados E slugs canônicos da taxonomia v1.1 (hcm, servicenow,
+// btm, erp, tech, cloud, ilab, ams, labs, institucional).
 function suggestCTA({ lob = '', pilar = '' } = {}) {
   const l = (lob + ' ' + pilar).toLowerCase();
-  if (/rh|hcm|successfactors|payroll|talent/.test(l))
+  if (/rh|hcm|successfactors|payroll|talent|qualtrics|wfs/.test(l))
     return { cta: 'Agende um diagnóstico de RH digital', destino: '/contato?origem=blog-rh' };
   if (/servicenow/.test(l))
     return { cta: 'Baixe o guia ServiceNow para o seu setor', destino: '/contato?origem=blog-servicenow' };
-  if (/signavio|processo/.test(l))
+  if (/signavio|processo|btm|leanix/.test(l))
     return { cta: 'Solicite um mapeamento de processos', destino: '/contato?origem=blog-processos' };
-  if (/erp|s\/4|btp|cloud/.test(l))
+  if (/ilab|teste|observabilidade/.test(l))
+    return { cta: 'Reduza o risco do seu go-live com automação de testes', destino: '/contato?origem=blog-ilab' };
+  if (/ams|sustenta/.test(l))
+    return { cta: 'Conheça o AMS multi-nível da EPI-USE', destino: '/contato?origem=blog-ams' };
+  if (/labs|prism|carve/.test(l))
+    return { cta: 'Fale com um especialista EPI-USE Labs', destino: '/contato?origem=blog-labs' };
+  if (/erp|s\/4|btp|cloud|tech|valcann|aws/.test(l))
     return { cta: 'Fale com um especialista SAP', destino: '/contato?origem=blog-erp' };
   return { cta: 'Fale com o time EPI-USE', destino: '/contato?origem=blog' };
 }
