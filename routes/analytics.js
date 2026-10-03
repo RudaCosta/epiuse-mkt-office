@@ -35,6 +35,49 @@ const _insEvent = db.prepare(
   `INSERT INTO analytics_events (sid, email, path, kind, dur_ms, ua, ts) VALUES (?,?,?,?,?,?,?)`
 );
 
+// ── Passos do Onboarding (Módulo 26) ─────────────────────────────────────────
+// Mesmo beacon e mesma tabela: kind='onb', path='/onboarding' e o passo em
+// `meta` (ex.: 'e2.slide.3/9', 'e2.quiz.q1.ok', 'e2.quiz.result.4/4.pass',
+// 'kit.acc.rd.on', 'cert.download'). Coluna adicionada sem perder dados.
+try {
+  const cols = db.prepare(`PRAGMA table_info(analytics_events)`).all().map(c => c.name);
+  if (!cols.includes('meta')) db.exec(`ALTER TABLE analytics_events ADD COLUMN meta TEXT`);
+} catch (e) { console.warn('[analytics] coluna meta:', e.message); }
+const _insOnb = db.prepare(
+  `INSERT INTO analytics_events (sid, email, path, kind, dur_ms, ua, ts, meta) VALUES (?,?,'/onboarding','onb',0,?,?,?)`
+);
+const ONB_STEP = /^[a-z0-9]+(?:\.[a-z0-9\/_-]+){0,5}$/;
+
+// Resumo por pessoa (lifetime): kit, etapas (telas vistas, quiz), certificado.
+function onbResumo() {
+  let rows = [];
+  try { rows = db.prepare(`SELECT email, meta, ts FROM analytics_events WHERE kind='onb' AND email!='anon' ORDER BY ts ASC, id ASC`).all(); }
+  catch (e) { return []; }
+  const by = {};
+  for (const r of rows) {
+    const p = by[r.email] || (by[r.email] = { email: r.email, kit: {}, etapas: {}, cert: {}, passos: 0, primeiro: r.ts, ultimo: r.ts, ultimo_passo: '' });
+    p.passos++; p.ultimo = r.ts; p.ultimo_passo = r.meta || '';
+    const s = String(r.meta || '').split('.');
+    if (s[0] === 'kit' && s[1] === 'acc' && s[2]) p.kit[s[2]] = s[3] === 'on';
+    else if (/^e[1-4]$/.test(s[0])) {
+      const e = p.etapas[s[0]] || (p.etapas[s[0]] = { telas: 0, total: 0, tentativas: 0, melhor: null, de: 0, aprovado: false });
+      if (s[1] === 'slide' && s[2]) { const [i, n] = s[2].split('/').map(Number); if (i > e.telas) e.telas = i; if (n) e.total = n; }
+      if (s[1] === 'quiz' && s[2] === 'result' && s[3]) {
+        const [sc, n] = s[3].split('/').map(Number); e.tentativas++; e.de = n || e.de;
+        if (e.melhor == null || sc > e.melhor) e.melhor = sc; if (s[4] === 'pass') e.aprovado = true;
+      }
+    } else if (s[0] === 'cert' && s[1]) p.cert[s.slice(1).join('.')] = r.ts;
+  }
+  const nomeDe = (() => { try { return db.prepare(`SELECT name FROM users WHERE email=?`); } catch (e) { return null; } })();
+  const conqDe = (() => { try { return db.prepare(`SELECT ref FROM erp_coins WHERE email=? AND evento='onboarding'`); } catch (e) { return null; } })();
+  return Object.values(by).map(p => ({
+    ...p,
+    kit: Object.values(p.kit).filter(Boolean).length,
+    nome: nomeDe ? ((nomeDe.get(p.email) || {}).name || '') : '',
+    conquistas: conqDe ? conqDe.all(p.email).map(x => x.ref) : [],
+  })).sort((a, b) => b.ultimo - a.ultimo);
+}
+
 // ── BACKFILL RETROATIVO (kind='login') ────────────────────────────────────────
 // O tracking de páginas só existe a partir do deploy do Módulo 17. Mas quem já
 // logou via SSO ANTES disso deixou rastro REAL na tabela users (azure_oid é
@@ -102,6 +145,12 @@ function logPageView(req, res, next) {
 router.post('/api/analytics/track', express.json({ limit: '2kb' }), (req, res) => {
   try {
     const b = req.body || {};
+    if (b.kind === 'onb') {   // passo do onboarding (Módulo 26)
+      const step = String(b.step || '').slice(0, 60);
+      if (!ONB_STEP.test(step)) return res.json({ ok: false });
+      _insOnb.run(shortSid(req), sessionEmail(req), String(req.headers['user-agent'] || '').slice(0, 200), Date.now(), step);
+      return res.json({ ok: true });
+    }
     let p = String(b.path || '/').slice(0, 200);
     if (!isTrackablePath(p)) return res.json({ ok: false });
     const dur = Math.max(0, Math.min(6 * 60 * 60 * 1000, parseInt(b.dur_ms, 10) || 0)); // cap 6h
@@ -188,7 +237,7 @@ router.get('/api/admin/analytics', requireOwner, (req, res) => {
     `).all(since);
     const porDia = porDiaRaw.map(r => ({ dia: r.dia * 86400000, n: r.n }));
 
-    res.json({ days, owner: OWNER_EMAIL, summary, usuarios, paginas, recente, porDia });
+    res.json({ days, owner: OWNER_EMAIL, summary, usuarios, paginas, recente, porDia, onboarding: onbResumo() });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -254,7 +303,11 @@ router.get('/api/admin/analytics/user', requireOwner, (req, res) => {
       coins_total = coins.reduce((a, r) => a + (r.coins || 0), 0);
     } catch (e) { /* tabela pode não existir em ambiente isolado */ }
 
-    res.json({ email, meta, days, resumo, paginas, sessoes, timeline, coins, coins_total });
+    // Onboarding passo a passo (lifetime) — Módulo 26
+    let onboarding = [];
+    try { onboarding = db.prepare(`SELECT meta, ts FROM analytics_events WHERE kind='onb' AND email=? ORDER BY ts DESC, id DESC LIMIT 400`).all(email); } catch (e) {}
+
+    res.json({ email, meta, days, resumo, paginas, sessoes, timeline, coins, coins_total, onboarding });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

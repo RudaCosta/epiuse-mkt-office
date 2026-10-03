@@ -969,11 +969,19 @@ const ONB_COINS = { kit: 50, e1: 100, e2: 100, e3: 100, e4: 100, trilha: 150 };
 const ONB_GABARITO = { e1: [1, 0, 1, 1], e2: [1, 1, 0, 1], e3: [1, 1, 1, 1], e4: [1, 0, 1, 1] };
 const onbConquistas = email => db.prepare(`SELECT ref FROM erp_coins WHERE email=? AND evento='onboarding'`).all(email).map(r => r.ref);
 const onbSaldo = email => db.prepare(`SELECT COALESCE(SUM(coins),0) n FROM erp_coins WHERE email=?`).get(email).n;
+// Certificado = existe a conquista 'trilha'. Nº derivado da linha do ledger
+// (estável e único); nome vem do SSO.
+const onbCert = (email, u) => {
+  const r = db.prepare(`SELECT id, created_at FROM erp_coins WHERE email=? AND evento='onboarding' AND ref='trilha'`).get(email);
+  if (!r) return null;
+  const ano = String(r.created_at || '').slice(0, 4) || String(new Date().getFullYear());
+  return { id: `EUBR-ONB-${ano}-${String(r.id).padStart(6, '0')}`, emitido_em: r.created_at, nome: (u && u.name) || email.split('@')[0] };
+};
 app.get('/api/onboarding/me', (req, res) => {
   const u = req.session && req.session.user;
   if (!u || !u.email) return res.status(401).json({ error: 'auth_required' });
   const email = String(u.email).toLowerCase();
-  try { res.json({ conquistas: onbConquistas(email), saldo: onbSaldo(email), valores: ONB_COINS }); }
+  try { res.json({ conquistas: onbConquistas(email), saldo: onbSaldo(email), valores: ONB_COINS, certificado: onbCert(email, u) }); }
   catch (e) { res.status(500).json({ error: e.message }); }
 });
 app.post('/api/onboarding/conquista', express.json({ limit: '2kb' }), (req, res) => {
@@ -995,7 +1003,7 @@ app.post('/api/onboarding/conquista', express.json({ limit: '2kb' }), (req, res)
     const tem = onbConquistas(email);
     if (['kit', 'e1', 'e2', 'e3', 'e4'].every(k => tem.includes(k)) && ins.run(email, 'onboarding', 'trilha', ONB_COINS.trilha).changes) novas.push('trilha');
     if (novas.length) console.log(`[onboarding] ${email} +${novas.join('+')}`);
-    res.json({ ok: true, novas, conquistas: onbConquistas(email), saldo: onbSaldo(email), valores: ONB_COINS });
+    res.json({ ok: true, novas, conquistas: onbConquistas(email), saldo: onbSaldo(email), valores: ONB_COINS, certificado: onbCert(email, u) });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

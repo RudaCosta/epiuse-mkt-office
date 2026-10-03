@@ -414,6 +414,32 @@ button{font:inherit;color:inherit}
 .comp-dims{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
 .comp-dims span{font:700 11px var(--o-head);letter-spacing:.08em;text-transform:uppercase;color:var(--o-muted);padding:4px 9px;border-radius:var(--rounded-full);border:1px dashed var(--o-line)}
 
+/* ---------- Certificado ---------- */
+.cert-cta{margin-top:18px;display:flex;flex-wrap:wrap;align-items:center;gap:18px;padding:20px 22px;border-radius:22px;border:1px dashed var(--o-line);background:var(--o-glass)}
+.cert-cta .cm{flex:0 0 64px;height:64px;border-radius:50%;display:grid;place-items:center;font-size:30px;background:var(--o-surf);border:2px solid var(--o-line);filter:grayscale(1) brightness(.6)}
+.cert-cta b{display:block;font:900 18px var(--o-head)}
+.cert-cta span{font-size:14px;color:var(--o-dim)}
+.cert-cta .btn{margin-left:auto}
+.cert-cta.on{border:1px solid color-mix(in srgb,var(--color-warning-500) 55%,transparent);box-shadow:0 18px 50px -24px var(--color-warning-500)}
+.cert-cta.on .cm{filter:none;border-color:var(--o-corn);animation:float 3s ease-in-out infinite alternate}
+.cert-modal{position:fixed;inset:0;z-index:1250;display:grid;place-items:center;padding:16px;background:color-mix(in srgb,var(--o-bg) 80%,transparent);backdrop-filter:blur(8px);opacity:0;visibility:hidden;transition:opacity .4s,visibility .4s}
+.cert-modal.on{opacity:1;visibility:visible}
+.cert-box{width:min(980px,100%);max-height:100%;overflow:auto;padding:20px;border-radius:26px;background:var(--o-surf);border:1px solid var(--o-line);transform:translateY(20px) scale(.97);transition:transform .5s var(--spring)}
+.cert-modal.on .cert-box{transform:none}
+.cert-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.cert-head h3{font-size:22px}
+.cert-prev{position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--o-line);background:var(--o-bg);aspect-ratio:2000/1414}
+.cert-prev canvas{display:block;width:100%;height:auto}
+.cert-prev .ld{position:absolute;inset:0;display:grid;place-items:center;color:var(--o-dim);font-size:14px}
+.cert-prev .ld[hidden]{display:none}
+.cert-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.cert-actions .btn{text-decoration:none}
+.cert-post{margin-top:14px;padding:14px;border-radius:16px;border:1px solid var(--o-line);background:var(--o-glass)}
+.cert-post ol{margin:0 0 10px 18px;font-size:13.5px;color:var(--o-dim)}
+.cert-post textarea{width:100%;min-height:150px;padding:12px;border-radius:12px;border:1px solid var(--o-line);background:var(--o-bg);color:var(--o-text);font:14px/1.5 var(--o-body);resize:vertical}
+.cert-post .row{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.cert-post .row .btn{text-decoration:none}
+
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important}}
 </style>
 </head>
@@ -452,6 +478,7 @@ button{font:inherit;color:inherit}
     <h2>Ganhe ERP Coins enquanto aprende 🪙</h2>
     <p class="sub">Cada conquista vale coins uma única vez, direto no seu saldo. Troque na <a href="/loja">Loja de Coins</a> e suba no <a href="/ranking">Ranking</a>.</p>
     <div class="ach-grid" id="achGrid"></div>
+    <div class="cert-cta" id="certCta"></div>
   </section>
 </main>
 
@@ -473,6 +500,22 @@ button{font:inherit;color:inherit}
   </div>
 </div>
 <canvas id="confetti"></canvas>
+<div class="cert-modal" id="certModal" role="dialog" aria-modal="true" aria-label="Certificado de conclusão" aria-hidden="true">
+  <div class="cert-box">
+    <div class="cert-head"><h3>🎓 Seu certificado</h3><button class="x" id="certClose" aria-label="Fechar">✕</button></div>
+    <div class="cert-prev"><canvas id="certCv"></canvas><div class="ld">Gerando certificado…</div></div>
+    <div class="cert-actions">
+      <button class="btn" id="certDl">⬇️ Baixar PNG</button>
+      <a class="btn ghost" id="certProfile" target="_blank" rel="noopener">in Adicionar ao perfil</a>
+      <button class="btn ghost" id="certPost">📣 Postar no LinkedIn</button>
+    </div>
+    <div class="cert-post" id="certPostBox" hidden>
+      <ol><li>O certificado foi baixado.</li><li>O texto abaixo foi copiado (edite à vontade).</li><li>No LinkedIn, cole o texto e anexe a imagem.</li></ol>
+      <textarea id="certText" aria-label="Texto do post"></textarea>
+      <div class="row"><button class="btn ghost" id="certCopy">📋 Copiar texto</button><a class="btn" id="certOpenLi" target="_blank" rel="noopener">Abrir o LinkedIn →</a></div>
+    </div>
+  </div>
+</div>
 <div class="achpop" id="achPop" role="status" aria-live="polite"></div>
 <div class="toast" id="toast" role="status"></div>
 
@@ -609,7 +652,7 @@ function renderMap() {
   $('#ringFg').style.strokeDashoffset = 314.16 * (1 - pct / 100);
   countTo($('#ringPct'), pct, '%');
   const kitOk = ACCESS.every(a => S.access[a[0]]), nk = ETAPAS.find(k => !S[k].done);
-  $('#ctaMain').textContent = nk ? (S[nk].max > 0 || nk !== 'e1' ? `▶ Continuar · Etapa ${STAGE_DATA[nk].n}` : '▶ Começar a trilha') : (kitOk ? '🏆 Trilha concluída' : '🎒 Completar o Kit Dia 1');
+  $('#ctaMain').textContent = nk ? (S[nk].max > 0 || nk !== 'e1' ? `▶ Continuar · Etapa ${STAGE_DATA[nk].n}` : '▶ Começar a trilha') : (kitOk ? '🎓 Meu certificado' : '🎒 Completar o Kit Dia 1');
   renderShelf();
   // nós entram animados: posiciona já (linha oculta) e anima quando assentarem
   requestAnimationFrame(() => drawPath('hide'));
@@ -659,7 +702,7 @@ function openStage(k) {
   if (k === 'd1') return openDrawer('kit');
   openPlayer(k);
 }
-$('#ctaMain').addEventListener('click', () => { const nk = ETAPAS.find(k => !S[k].done); if (nk) return openPlayer(nk); if (!ACCESS.every(a => S.access[a[0]])) return openDrawer('kit'); toast('🏆 Trilha completa! Confira suas conquistas abaixo.'); });
+$('#ctaMain').addEventListener('click', () => { const nk = ETAPAS.find(k => !S[k].done); if (nk) return openPlayer(nk); if (!ACCESS.every(a => S.access[a[0]])) return openDrawer('kit'); openCert(); });
 $('#ctaKit').addEventListener('click', () => openDrawer('kit'));
 
 /* ======================= DRAWER (Kit Dia 1 + Dicionário) ======================= */
@@ -668,6 +711,7 @@ let drMode = 'kit', drTab = 'acessos';
 function openDrawer(mode) {
   drMode = mode; drTab = mode === 'kit' ? (drTab === 'dict' ? 'acessos' : drTab) : 'dict';
   renderDrawer(); drawer.classList.add('on'); scrim.classList.add('on'); drawer.setAttribute('aria-hidden', 'false');
+  track(mode === 'kit' ? 'kit.open' : 'dict.open');
   setTimeout(() => (mode === 'dict' ? $('#dictQ') : $('#drClose'))?.focus(), 350);
 }
 function closeDrawer() { drawer.classList.remove('on'); scrim.classList.remove('on'); drawer.setAttribute('aria-hidden', 'true'); renderMap(); }
@@ -688,8 +732,9 @@ function renderDrawer() {
       <p class="note">🔐 Credenciais compartilhadas (cursos, contas de ferramenta) nunca ficam nesta página — peça ao Rudá por canal privado.</p>`;
     $$('#accList input').forEach(inp => inp.addEventListener('change', () => {
       S.access[inp.dataset.id] = inp.checked; save(); inp.closest('.chk').classList.toggle('on', inp.checked);
+      track(`kit.acc.${inp.dataset.id}.${inp.checked ? 'on' : 'off'}`);
       const m = ACCESS.filter(a => S.access[a[0]]).length; $('#accBar').style.width = m / ACCESS.length * 100 + '%';
-      if (m === ACCESS.length) { burst(); toast('🔑 Todos os acessos ok!'); claim('kit'); }
+      if (m === ACCESS.length) { burst(); toast('🔑 Todos os acessos ok!'); track('kit.complete'); claim('kit'); }
     }));
   } else if (drTab === 'time') {
     body.innerHTML = `<p style="color:var(--o-dim);font-size:14px;margin-bottom:6px">Saber <b>quem decide o quê</b> economiza dias de retrabalho.</p>` +
@@ -1238,7 +1283,7 @@ const ACH = [
   { k: 'e4', ico: '📞', t: 'Mestre do Pipeline', d: 'Etapa 4 concluída' },
   { k: 'trilha', ico: '🏆', t: 'Trilha Completa', d: 'Todas as conquistas acima' }
 ];
-const C = { auth: null, saldo: 0, conq: [], val: {} };
+const C = { auth: null, saldo: 0, conq: [], val: {}, cert: null };
 const has = k => C.conq.includes(k) || (C.auth !== true && !!S.ach[k]);
 function renderCoins(bump) {
   const pill = $('#coinPill');
@@ -1249,13 +1294,14 @@ function renderCoins(bump) {
 function renderShelf() {
   const n = ACH.filter(a => has(a.k)).length;
   $('#achCount').textContent = `${n}/${ACH.length}`;
+  renderCertCta();
   $('#achGrid').innerHTML = ACH.map((a, i) => `<div class="ach ${has(a.k) ? 'on' : ''}" style="--i:${i}"><span class="ai">${a.ico}</span><b>${a.t}</b><small>${a.d}</small><span class="val">${has(a.k) ? '✓ ' : '🔒 '}${C.val[a.k] ? '+' + C.val[a.k] + ' 🪙' : '🪙'}</span></div>`).join('');
 }
 async function syncCoins() {
   try {
     const r = await fetch('/api/onboarding/me', { credentials: 'same-origin' });
     if (r.status === 401) C.auth = false;
-    else if (r.ok) { const j = await r.json(); C.auth = true; C.saldo = j.saldo || 0; C.conq = j.conquistas || []; C.val = j.valores || {}; }
+    else if (r.ok) { const j = await r.json(); C.auth = true; C.saldo = j.saldo || 0; C.conq = j.conquistas || []; C.val = j.valores || {}; C.cert = j.certificado || null; }
   } catch { C.auth = null; }
   renderCoins(); renderShelf();
   if (C.auth === true) {   // conquistas feitas antes do login (ou antes desta versão) — credita agora
@@ -1272,7 +1318,7 @@ async function claim(etapa, respostas) {
     const r = await fetch('/api/onboarding/conquista', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ etapa, respostas }) });
     if (r.status === 401) { C.auth = false; renderCoins(); return { auth: false }; }
     const j = await r.json(); if (!r.ok) return { error: j.error || 'erro' };
-    C.auth = true; C.saldo = j.saldo; C.conq = j.conquistas || []; C.val = j.valores || C.val;
+    C.auth = true; C.saldo = j.saldo; C.conq = j.conquistas || []; C.val = j.valores || C.val; C.cert = j.certificado || C.cert;
     (j.novas || []).forEach(k => achQueue.push(k)); runAch();
     renderShelf(); return j;
   } catch { return { error: 'rede' }; } finally { busy[etapa] = false; }
@@ -1310,6 +1356,7 @@ function openPlayer(k) {
   const st = S[P.k], d = D();
   P.mode = 'slides'; P.i = st.done ? 0 : Math.min(st.max, d.slides.length - 1);
   $('#pTitle').textContent = d.title;
+  track(`${P.k}.start`);
   player.classList.add('on'); document.body.style.overflow = 'hidden'; bgStop(true);
   render('next'); setTimeout(() => $('#pNext').focus(), 300);
 }
@@ -1330,6 +1377,7 @@ function render(dir) {
   P.stop = s.v($('.s-viz', stage)) || null;
   $$('[data-count]', stage).forEach(el => setTimeout(() => countTo(el, +el.dataset.count, el.dataset.suf || ''), 400));
   S[P.k].max = Math.max(S[P.k].max, P.i); save();
+  track(`${P.k}.slide.${P.i + 1}/${SL.length}`);
   segs();
   $('#pBot').style.display = '';
   $('#pPrev').disabled = P.i === 0;
@@ -1345,7 +1393,7 @@ function next() {
 function prev() { if (P.mode === 'slides' && P.i > 0) { P.i--; render('prev'); } }
 $('#pNext').addEventListener('click', next); $('#pPrev').addEventListener('click', prev);
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { if (player.classList.contains('on')) closePlayer(); else if (drawer.classList.contains('on')) closeDrawer(); return; }
+  if (e.key === 'Escape') { if (certModal.classList.contains('on')) closeCert(); else if (player.classList.contains('on')) closePlayer(); else if (drawer.classList.contains('on')) closeDrawer(); return; }
   if (!player.classList.contains('on') || e.target.matches('input')) return;
   if (e.key === 'ArrowRight') next(); if (e.key === 'ArrowLeft') prev();
 });
@@ -1363,6 +1411,7 @@ function renderQuiz(dir) {
   $$('.q-opt', stage).forEach(b => b.addEventListener('click', () => {
     if (opts.classList.contains('locked')) return; opts.classList.add('locked');
     const j = +b.dataset.j, ok = j === q.a; P.ans[P.qi] = j; if (ok) P.score++;
+    track(`${P.k}.quiz.q${P.qi + 1}.${ok ? 'ok' : 'ko'}`);
     b.classList.add(ok ? 'ok' : 'ko'); if (!ok) $$('.q-opt', stage)[q.a].classList.add('ok');
     if (ok) burst(b);
     $('.q-fb', stage).innerHTML = `<b>${ok ? '✓ Isso!' : 'Quase.'}</b> ${q.w}`;
@@ -1374,6 +1423,7 @@ function renderResult() {
   stage.className = 'stage dir-next'; P.mode = 'done'; segs();
   const d = D(), QZ = d.quiz, need = Math.ceil(QZ.length * .75), pass = P.score >= need;
   const nxt = ETAPAS[ETAPAS.indexOf(P.k) + 1];
+  track(`${P.k}.quiz.result.${P.score}/${QZ.length}.${pass ? 'pass' : 'fail'}`);
   if (pass) { S[P.k].done = true; S[P.k].score = Math.max(S[P.k].score, P.score); S[P.k].ans = P.ans.slice(); save(); setTimeout(() => confetti(), 250); }
   stage.innerHTML = pass ? `<div class="done-wrap"><div class="medal">${d.badge[0]}</div>
       <div class="s-eyebrow st" style="--i:1">Etapa ${d.n} concluída · ${P.score}/${QZ.length} no quiz</div>
@@ -1397,7 +1447,138 @@ function renderResult() {
     if (j.auth === false) m.innerHTML = '🔐 <a href="/login">Entre com o SSO</a> para transformar esta conquista em ERP Coins.';
     else if (j.error) m.textContent = '⚠️ Não consegui registrar os coins agora. Eles entram na próxima visita ao mapa.';
     else if ((j.novas || []).includes(k)) m.textContent = `🪙 +${(j.novas || []).reduce((s, x) => s + (C.val[x] || 0), 0)} ERP Coins creditados!`;
-    else m.textContent = '🪙 Os coins desta etapa já tinham sido creditados.'; }); }
+    else m.textContent = '🪙 Os coins desta etapa já tinham sido creditados.';
+    if (j.certificado && (j.novas || []).includes('trilha')) { const row = $('.done-wrap .cta-row', stage); if (row) { row.insertAdjacentHTML('afterbegin', '<button class="btn" id="certFromDone">🎓 Emitir meu certificado</button>'); $('#certFromDone').addEventListener('click', () => { closePlayer(); openCert(); }); } } }); }
+}
+
+/* ======================= RASTREAMENTO DE PASSOS =======================
+   Cada passo vai para o beacon existente do Office (POST /api/analytics/track,
+   kind='onb') e aparece em /admin/analytics → "Onboarding — quem fez o quê". */
+function track(step) {
+  try {
+    const body = JSON.stringify({ kind: 'onb', step });
+    if (navigator.sendBeacon) navigator.sendBeacon('/api/analytics/track', new Blob([body], { type: 'application/json' }));
+    else fetch('/api/analytics/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body, keepalive: true, credentials: 'same-origin' });
+  } catch {}
+}
+
+/* ======================= CERTIFICADO =======================
+   Liberado com a conquista 'trilha' (verificada no servidor). Nº e nome vêm do
+   /api/onboarding/me. Link de verificação = a própria /onboarding. */
+const CERT_URL = 'https://office.epiuse.com.br/onboarding';
+const CERT_NAME = 'Onboarding de Marketing & RevOps';
+const certModal = $('#certModal');
+const loadImg = src => new Promise(ok => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => ok(null); i.src = src; });
+const certDate = d => { const t = Date.parse(String(d || '').replace(' ', 'T') + 'Z'); return isNaN(t) ? new Date() : new Date(t); };
+function renderCertCta() {
+  const el = $('#certCta'); if (!el) return;
+  const ok = C.auth === true && C.cert;
+  el.classList.toggle('on', !!ok);
+  el.innerHTML = ok
+    ? `<span class="cm">🎓</span><div><b>Seu certificado está pronto!</b><span>Baixe em alta resolução, adicione ao perfil ou poste no LinkedIn.</span></div><button class="btn" id="certOpen">🎓 Ver certificado</button>`
+    : `<span class="cm">🎓</span><div><b>Certificado de conclusão</b><span>${C.auth === false ? 'Entre com o SSO e complete a trilha para liberar o seu.' : 'Complete o Kit Dia 1 e as 4 etapas para liberar o seu (PNG + LinkedIn).'}</span></div>`;
+  const b = $('#certOpen'); if (b) b.addEventListener('click', openCert);
+}
+async function openCert() {
+  if (!(C.auth === true && C.cert)) return toast(C.auth === false ? '🔐 Entre com o SSO para emitir o certificado.' : '🎓 Complete a trilha para liberar o certificado.');
+  track('cert.view');
+  certModal.classList.add('on'); certModal.setAttribute('aria-hidden', 'false');
+  const cv = $('#certCv'); $('.cert-prev .ld').hidden = false;
+  await drawCert(cv, C.cert); $('.cert-prev .ld').hidden = true;
+  const dt = certDate(C.cert.emitido_em);
+  $('#certProfile').href = 'https://www.linkedin.com/profile/add?startTask=CERTIFICATION_NAME&name=' + encodeURIComponent(CERT_NAME) +
+    '&organizationName=' + encodeURIComponent('EPI-USE Brasil') + '&issueYear=' + dt.getFullYear() + '&issueMonth=' + (dt.getMonth() + 1) +
+    '&certUrl=' + encodeURIComponent(CERT_URL) + '&certId=' + encodeURIComponent(C.cert.id);
+  $('#certText').value = `🎓 Concluí a trilha de ${CERT_NAME} da EPI-USE Brasil!\n\nForam 4 etapas: Marca & Grupo · Estratégia & Demanda · SAP & Técnico · Comercial. Do Group Elephant à Receita Previsível, passando por S/4HANA, Clean Core e process mining.\n\nOrgulho extra: 1% da receita global do grupo vai para a ERP.ngo, que apoia a conservação de elefantes e rinocerontes na África 🐘\n\n#EPIUSEBrasil #SAP #Marketing #Onboarding`;
+  $('#certPostBox').hidden = true;
+  setTimeout(() => $('#certClose').focus(), 300);
+}
+function closeCert() { certModal.classList.remove('on'); certModal.setAttribute('aria-hidden', 'true'); }
+$('#certClose').addEventListener('click', closeCert);
+certModal.addEventListener('click', e => { if (e.target === certModal) closeCert(); });
+const certFile = () => 'certificado-onboarding-epiuse-' + (C.cert ? C.cert.id.toLowerCase() : 'eubr') + '.png';
+function certBlob() { return new Promise(ok => $('#certCv').toBlob(ok, 'image/png')); }
+async function downloadCert() {
+  const blob = await certBlob(); if (!blob) return;
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = certFile(); document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+}
+$('#certDl').addEventListener('click', () => { track('cert.download'); downloadCert(); toast('⬇️ Certificado baixado!'); });
+$('#certProfile').addEventListener('click', () => track('cert.linkedin.perfil'));
+$('#certPost').addEventListener('click', async () => {
+  const text = $('#certText').value;
+  // Celular: compartilhamento nativo já leva a imagem + texto para o app do LinkedIn
+  try {
+    const blob = await certBlob(), file = blob && new File([blob], certFile(), { type: 'image/png' });
+    if (file && navigator.canShare && navigator.canShare({ files: [file] }) && matchMedia('(pointer:coarse)').matches) {
+      await navigator.share({ files: [file], text, title: CERT_NAME }); track('cert.share'); return;
+    }
+  } catch (e) { if (e && e.name === 'AbortError') return; }
+  // Desktop: baixa a imagem, copia o texto e abre o LinkedIn com o post pré-preenchido
+  track('cert.linkedin.post');
+  await downloadCert();
+  try { await navigator.clipboard.writeText(text); } catch {}
+  $('#certOpenLi').href = 'https://www.linkedin.com/feed/?shareActive=true&text=' + encodeURIComponent(text);
+  $('#certPostBox').hidden = false;
+  toast('📋 Texto copiado e certificado baixado. Agora é só anexar a imagem no LinkedIn!');
+});
+$('#certCopy').addEventListener('click', async () => { try { await navigator.clipboard.writeText($('#certText').value); toast('📋 Texto copiado!'); track('cert.copy'); } catch { $('#certText').select(); } });
+$('#certOpenLi').addEventListener('click', () => track('cert.linkedin.abrir'));
+
+async function drawCert(cv, d) {
+  const W = 2000, H = 1414; cv.width = W; cv.height = H;
+  const x = cv.getContext('2d');
+  try { await Promise.all(['900 120px Lato', '700 40px Lato', '400 34px "Open Sans"', '600 30px "Open Sans"'].map(f => document.fonts.load(f))); } catch {}
+  const [logo, erp] = await Promise.all([loadImg('/assets/logos-epi-use/epi-use-logo-white.png'), loadImg('/assets/logos-erp-ngo/erp-logo-white.svg')]);
+  const T = (s, cx, cy, font, color, align = 'center', ls = 0) => { x.font = font; x.fillStyle = color; x.textAlign = align; x.textBaseline = 'middle'; if ('letterSpacing' in x) x.letterSpacing = ls + 'px'; x.fillText(s, cx, cy); if ('letterSpacing' in x) x.letterSpacing = '0px'; };
+  // fundo + brilhos
+  const bg = x.createLinearGradient(0, 0, W, H); bg.addColorStop(0, K.blue); bg.addColorStop(1, K.svc); x.fillStyle = bg; x.fillRect(0, 0, W, H);
+  [[260, 160, 900, K.royal, .5], [W - 160, H - 80, 800, K.corn, .25]].forEach(([cx, cy, r, c, a]) => { const g = x.createRadialGradient(cx, cy, 0, cx, cy, r); g.addColorStop(0, rgba(c, a)); g.addColorStop(1, rgba(c, 0)); x.fillStyle = g; x.fillRect(0, 0, W, H); });
+  // globo de pontos (decorativo)
+  for (let i = 0, N = 900; i < N; i++) { const y = 1 - (i / (N - 1)) * 2, r = Math.sqrt(1 - y * y), th = i * 2.39996, px = Math.cos(th) * r, pz = Math.sin(th) * r, dep = (pz + 1) / 2;
+    x.fillStyle = rgba(K.corn, .04 + dep * .16); x.beginPath(); x.arc(W - 300 + px * 330, 400 + y * 330, 1.2 + dep * 2.4, 0, 7); x.fill(); }
+  // moldura dupla + cantos em vermelho (acento)
+  const rr = (a, b, w, h, r) => { x.beginPath(); x.roundRect ? x.roundRect(a, b, w, h, r) : x.rect(a, b, w, h); };
+  x.strokeStyle = rgba(K.corn, .6); x.lineWidth = 3; rr(50, 50, W - 100, H - 100, 30); x.stroke();
+  x.strokeStyle = rgba(K.corn, .22); x.lineWidth = 1.5; rr(78, 78, W - 156, H - 156, 22); x.stroke();
+  x.strokeStyle = K.red; x.lineWidth = 6; x.lineCap = 'round';
+  [[50, 140, 50, 50, 140, 50], [W - 140, 50, W - 50, 50, W - 50, 140], [50, H - 140, 50, H - 50, 140, H - 50], [W - 140, H - 50, W - 50, H - 50, W - 50, H - 140]]
+    .forEach(([a, b, c, e, f, g]) => { x.beginPath(); x.moveTo(a, b); x.lineTo(c, e); x.lineTo(f, g); x.stroke(); });
+  // topo: logo + nº
+  if (logo) x.drawImage(logo, 140, 140, 380, 380 * logo.height / logo.width); else T('EPI-USE Brasil', 140, 180, '900 54px Lato', K.text, 'left');
+  T('CERTIFICADO Nº', W - 150, 162, '700 22px Lato', K.dim, 'right', 4);
+  T(d.id, W - 150, 200, '700 30px Lato', K.text, 'right', 1);
+  // corpo
+  T('CERTIFICADO DE CONCLUSÃO', W / 2, 380, '700 30px Lato', K.corn, 'center', 12);
+  T(CERT_NAME, W / 2, 462, '900 72px Lato', K.text);
+  T('Certificamos que', W / 2, 560, '400 34px "Open Sans"', K.dim);
+  let fs = 120; x.font = `900 ${fs}px Lato`; while (x.measureText(d.nome).width > 1480 && fs > 60) { fs -= 4; x.font = `900 ${fs}px Lato`; }
+  const ng = x.createLinearGradient(W / 2 - 600, 0, W / 2 + 600, 0); ng.addColorStop(0, K.text); ng.addColorStop(1, K.corn);
+  T(d.nome, W / 2, 680, `900 ${fs}px Lato`, ng);
+  x.fillStyle = K.red; rr(W / 2 - 80, 752, 160, 7, 4); x.fill();
+  T('concluiu as 4 etapas da trilha de onboarding da EPI-USE Brasil,', W / 2, 822, '400 32px "Open Sans"', K.dim);
+  T('com aprovação em todos os quizzes.', W / 2, 868, '400 32px "Open Sans"', K.dim);
+  // selos
+  const B5 = [['🎒', 'Kit Dia 1'], ['🐘', 'Marca & Grupo'], ['🚀', 'Estratégia'], ['🧪', 'SAP & Técnico'], ['📞', 'Comercial']];
+  B5.forEach(([e, l], i) => { const cx = W / 2 + (i - 2) * 230, cy = 985;
+    x.fillStyle = rgba(K.surf, .9); x.beginPath(); x.arc(cx, cy, 58, 0, 7); x.fill(); x.strokeStyle = K.corn; x.lineWidth = 3; x.stroke();
+    x.fillStyle = K.ok; x.beginPath(); x.arc(cx + 42, cy - 42, 17, 0, 7); x.fill(); T('✓', cx + 42, cy - 41, '900 20px Lato', K.blue);
+    T(e, cx, cy + 3, '52px sans-serif', K.text); T(l, cx, cy + 92, '700 24px Lato', K.text); });
+  // rodapé: data · assinatura · medalha
+  const dt = certDate(d.emitido_em).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
+  T('EMITIDO EM', 200, 1170, '700 20px Lato', K.dim, 'left', 4); T(dt, 200, 1208, '700 32px Lato', K.text, 'left');
+  x.strokeStyle = rgba(K.text, .5); x.lineWidth = 2; x.beginPath(); x.moveTo(W / 2 - 220, 1176); x.lineTo(W / 2 + 220, 1176); x.stroke();
+  T('Rudá Costa', W / 2, 1212, '700 30px Lato', K.text); T('Head RevOps & Marketing · EPI-USE Brasil', W / 2, 1250, '400 22px "Open Sans"', K.dim);
+  const mx = W - 290, my = 1140, ring = x.createConicGradient ? x.createConicGradient(0, mx, my) : null;
+  if (ring) { [K.corn, K.red, K.ok, K.corn].forEach((c, i) => ring.addColorStop(i / 3, c)); x.strokeStyle = ring; } else x.strokeStyle = K.corn;
+  x.lineWidth = 10; x.beginPath(); x.arc(mx, my, 84, 0, 7); x.stroke();
+  x.fillStyle = K.royal; x.beginPath(); x.arc(mx, my, 72, 0, 7); x.fill();
+  T('🏆', mx, my + 2, '64px sans-serif', K.text); T('TRILHA COMPLETA', mx, my + 112, '700 18px Lato', K.text, 'center', 3);
+  // faixa ERP.ngo + link
+  x.strokeStyle = rgba(K.corn, .22); x.lineWidth = 1.5; x.beginPath(); x.moveTo(140, 1290); x.lineTo(W - 140, 1290); x.stroke();
+  let ex = 140; if (erp) { const eh = 44, ew = eh * (erp.width / erp.height || 3); x.drawImage(erp, 140, 1300, ew, eh); ex = 140 + ew + 18; }
+  T('1% da receita global do Group Elephant apoia a ERP.ngo 🐘', ex, 1322, '400 22px "Open Sans"', K.dim, 'left');
+  T('office.epiuse.com.br/onboarding', W - 140, 1322, '700 22px Lato', K.corn, 'right');
 }
 
 /* ======================= CONFETE ======================= */

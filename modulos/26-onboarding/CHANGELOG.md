@@ -12,3 +12,7 @@
 - Etapas 2, 3 e 4 no formato v2 (22 telas novas + 3 quizzes) e destravadas para teste.
 - ERP Coins e conquistas: 6 conquistas (650 coins no total), crédito real no ledger, popup + chuva de moedas, saldo no hero.
 - Kit Dia 1: links do Multidados, SuccessFactors, Stratview (admin), Trello (board do marketing) e Coworking (novo).
+
+## v2.2 · 03/out/2026 — certificado + rastreamento
+- Certificado de conclusão (PNG 2000×1414) com download, "Adicionar ao perfil" do LinkedIn e post (nativo no celular).
+- Todos os passos rastreados no beacon/tabela do Módulo 17 e exibidos em `/admin/analytics` (tabela por pessoa + passo a passo na ficha). Sem página nova.
