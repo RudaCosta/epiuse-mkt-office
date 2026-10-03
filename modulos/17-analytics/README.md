@@ -14,6 +14,11 @@
 - **Quanto tempo:** o cliente (office-nav.js) acumula tempo *ativo* (desconta aba em background) e envia `dur_ms` via `sendBeacon` no `pagehide`/ocultar. Evento `kind='dur'`.
 - **Report:** `/admin/analytics` — resumo (usuários únicos, sessões, visitas, tempo total, anônimas), visitas/dia, tabela de usuários (tempo, sessões, visitas, páginas, último acesso), páginas mais acessadas (visitas, usuários, tempo médio) e atividade recente.
 
+## Onboarding (Módulo 26, 03/out/2026)
+- O mesmo beacon recebe `{kind:'onb', step}` → `analytics_events` com `kind='onb'`, `path='/onboarding'` e o passo na coluna `meta` (adicionada via `ALTER TABLE`, sem perder dados).
+- `GET /api/admin/analytics` devolve `onboarding` (resumo por pessoa, lifetime) e a ficha (`/user`) devolve `onboarding` (passo a passo). Painel: seção "🎓 Onboarding — quem fez o quê".
+- Eventos `onb` não entram nas contagens de visitas/sessões (que filtram `view`/`login`).
+
 ## Acesso
 Restrito a `ruda.costa@epiuse.com.br` (`requireOwner` — email da sessão SSO). Fallback por editor token (`?token=`/`X-Editor-Token`) para uso local/programático. Override do email: env `ANALYTICS_OWNER_EMAIL`.
 

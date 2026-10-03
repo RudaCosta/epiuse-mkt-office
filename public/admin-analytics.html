@@ -123,6 +123,14 @@
   <h2>Visitas por dia</h2>
   <div class="spark" id="spark"></div>
 
+  <h2>🎓 Onboarding — quem fez o quê</h2>
+  <div class="muted" style="margin:-4px 0 8px">Cada passo da trilha <a href="/onboarding" style="color:var(--color-brand-cornflower-blue)">/onboarding</a>: telas vistas, respostas do quiz, acessos do Kit Dia 1 e certificado. Histórico completo (não usa o filtro de período). 👆 Clique numa pessoa para ver o passo a passo.</div>
+  <div class="panel">
+    <table><thead><tr>
+      <th>Pessoa</th><th>Kit Dia 1</th><th>Etapa 1</th><th>Etapa 2</th><th>Etapa 3</th><th>Etapa 4</th><th>Certificado</th><th>Último passo</th>
+    </tr></thead><tbody id="tb-onb"><tr><td colspan="8" class="vazio">Carregando…</td></tr></tbody></table>
+  </div>
+
   <h2>Usuários</h2>
   <div class="muted" style="margin:-4px 0 8px">👆 Clique num usuário pra ver o detalhe completo. Quem logou antes do tracking existir aparece com <b>0 visitas</b> mas com o último acesso real (login SSO) — as páginas/tempo desse período não foram registrados na época.</div>
   <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap">
@@ -156,6 +164,8 @@
   <div class="cards" id="u-cards"></div>
   <h3>Conquistas &amp; ERP Coins</h3>
   <div class="panel"><table><thead><tr><th>Conquista</th><th>Referência</th><th class="num">Coins</th><th>Quando</th></tr></thead><tbody id="u-coins"></tbody></table></div>
+  <h3>🎓 Onboarding · passo a passo</h3>
+  <div class="panel"><table><thead><tr><th>Quando</th><th>Passo</th></tr></thead><tbody id="u-onb"></tbody></table></div>
   <h3>Páginas visitadas</h3>
   <div class="panel"><table><thead><tr><th>Página</th><th class="num">Visitas</th><th class="num">Tempo</th><th>Último</th></tr></thead><tbody id="u-pages"></tbody></table></div>
   <h3>Sessões</h3>
@@ -216,6 +226,8 @@
     var tok = ''; try { var t = localStorage.getItem('office.editorToken'); if (t) tok = '&token=' + encodeURIComponent(t); } catch(e){}
     document.getElementById('exp-csv').href = '/api/admin/analytics/export.csv?days=' + days + tok;
 
+    renderOnb(d.onboarding);
+
     var us = d.usuarios || [];
     document.getElementById('tb-users').innerHTML = us.length ? us.map(function(u){
       var nome = u.nome || u.email.split('@')[0];
@@ -247,6 +259,43 @@
       return '<tr><td class="muted">'+fmtWhen(r.ts)+'</td><td>'+esc(r.email)+'</td><td class="path">'+esc(r.path)+'</td></tr>';
     }).join('') : '<tr><td colspan="3" class="vazio">—</td></tr>';
   }
+  // ── Onboarding (Módulo 26): passos vêm de analytics_events kind='onb' ───────
+  var ONB_ACC = { rd:'RD Station', crm:'Zoho CRM', cms:'Site EUBR', str:'Site Stratview', sfsf:'SuccessFactors', nav:'Sales Navigator', canva:'Canva', trello:'Trello', cowork:'Coworking', suser:'SAP S-user', multi:'Multidados', office:'EPI-USE Office' };
+  var ONB_CERT = { 'view':'🎓 Abriu o certificado', 'download':'⬇️ Baixou o certificado', 'linkedin.perfil':'in Adicionou ao perfil do LinkedIn', 'linkedin.post':'📣 Preparou o post no LinkedIn', 'linkedin.abrir':'📣 Abriu o LinkedIn para postar', 'copy':'📋 Copiou o texto do post', 'share':'📲 Compartilhou pelo celular' };
+  function onbLabel(m){
+    var s = String(m||'').split('.'), n = /^e[1-4]$/.test(s[0]) ? 'Etapa '+s[0].slice(1) : '';
+    if (m==='kit.open') return '🎒 Abriu o Kit Dia 1';
+    if (m==='kit.complete') return '🎒 Completou o Kit Dia 1';
+    if (s[0]==='kit' && s[1]==='acc') return (s[3]==='on'?'🔑 Marcou o acesso: ':'↩️ Desmarcou o acesso: ')+(ONB_ACC[s[2]]||s[2]);
+    if (m==='dict.open') return '📖 Abriu o dicionário';
+    if (s[0]==='cert') return ONB_CERT[s.slice(1).join('.')] || ('🎓 '+m);
+    if (n && s[1]==='start') return '▶ Abriu a '+n;
+    if (n && s[1]==='slide') return n+' · tela '+s[2];
+    if (n && s[1]==='quiz' && s[2]==='result') return n+' · quiz '+s[3]+(s[4]==='pass'?' — ✅ aprovado':' — ❌ não passou');
+    if (n && s[1]==='quiz') return n+' · pergunta '+String(s[2]).replace('q','')+(s[3]==='ok'?' ✓ acertou':' ✗ errou');
+    return m;
+  }
+  function onbEtapa(e){
+    if (!e) return '<span class="muted">—</span>';
+    if (e.aprovado) return '✅ '+e.melhor+'/'+e.de+(e.tentativas>1?' <span class="muted">· '+e.tentativas+' tent.</span>':'');
+    var t = e.telas+'/'+(e.total||'?')+' telas';
+    return t+(e.tentativas?' <span class="muted">· quiz '+e.melhor+'/'+e.de+'</span>':'');
+  }
+  function renderOnb(list){
+    var tb = document.getElementById('tb-onb');
+    if (!list || !list.length) { tb.innerHTML = '<tr><td colspan="8" class="vazio">Ninguém começou o onboarding ainda.</td></tr>'; return; }
+    tb.innerHTML = list.map(function(p){
+      var nome = p.nome || p.email.split('@')[0], c = p.conquistas||[], ce = p.cert||{};
+      var kit = c.indexOf('kit')>=0 ? '✅ completo' : (p.kit ? p.kit+' acessos' : '<span class="muted">—</span>');
+      var cert = (ce['download']?'⬇️ ':'')+(ce['linkedin.perfil']?'in ':'')+((ce['linkedin.post']||ce['share'])?'📣 ':'');
+      cert = cert || (c.indexOf('trilha')>=0 ? '🏆 liberado' : '<span class="muted">—</span>');
+      return '<tr class="clickable" data-email="'+esc(p.email)+'">'+
+        '<td><div class="uname">'+esc(nome)+'</div><div class="uemail">'+esc(p.email)+'</div></td>'+
+        '<td>'+kit+'</td><td>'+onbEtapa(p.etapas.e1)+'</td><td>'+onbEtapa(p.etapas.e2)+'</td><td>'+onbEtapa(p.etapas.e3)+'</td><td>'+onbEtapa(p.etapas.e4)+'</td>'+
+        '<td>'+cert+'</td><td><div>'+esc(onbLabel(p.ultimo_passo))+'</div><div class="muted">'+fmtWhen(p.ultimo)+'</div></td></tr>';
+    }).join('');
+    Array.prototype.forEach.call(tb.querySelectorAll('tr.clickable'), function(tr){ tr.addEventListener('click', function(){ openUser(tr.dataset.email); }); });
+  }
   function card(n, l){ return '<div class="card"><div class="n">'+esc(n)+'</div><div class="l">'+esc(l)+'</div></div>'; }
 
   // ── Área (role) ────────────────────────────────────────────────────────────
@@ -277,7 +326,7 @@
   document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeUser(); });
 
   function openUser(email){
-    ['u-cards','u-coins','u-pages','u-sessions','u-timeline'].forEach(function(id){ document.getElementById(id).innerHTML=''; });
+    ['u-cards','u-coins','u-onb','u-pages','u-sessions','u-timeline'].forEach(function(id){ document.getElementById(id).innerHTML=''; });
     document.getElementById('u-title').textContent = 'Carregando…';
     umodal.classList.add('open');
     var days = document.getElementById('days').value;
@@ -301,6 +350,11 @@
       return '<tr><td>'+esc(conquistaLabel(c.evento,c.ref))+'</td><td class="muted">'+esc(c.ref||'—')+'</td>'+
         '<td class="num num-hi">+'+c.coins+'</td><td class="muted">'+esc(c.dia||(c.created_at||'').slice(0,10))+'</td></tr>';
     }).join('') : '<tr><td colspan="4" class="vazio">Nenhuma conquista ou coin ainda.</td></tr>';
+
+    var ob = d.onboarding||[];
+    document.getElementById('u-onb').innerHTML = ob.length ? ob.map(function(o){
+      return '<tr><td class="muted">'+fmtWhen(o.ts)+'</td><td>'+esc(onbLabel(o.meta))+'</td></tr>';
+    }).join('') : '<tr><td colspan="2" class="vazio">Ainda não começou o onboarding.</td></tr>';
 
     var pg = d.paginas||[];
     document.getElementById('u-pages').innerHTML = pg.length ? pg.map(function(p){
