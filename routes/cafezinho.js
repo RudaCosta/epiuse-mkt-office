@@ -26,6 +26,7 @@ const router = express.Router();
 const path = require('path');
 const { db } = require('../server-context');
 const { requireAdmin } = require('./users');
+const { OWNER_EMAIL } = require('./analytics');
 
 const TIPOS = ['meme', 'ideia', 'causo', 'serie'];
 const REACOES = ['☕', '😂', '🔥', '🛸', '💋'];
@@ -63,6 +64,20 @@ db.exec(`
     UNIQUE(post_id, email, emoji)
   );
   CREATE INDEX IF NOT EXISTS idx_cafe_reacoes_post ON cafe_reacoes(post_id);
+  -- Tracking granular do Cafezinho (v2): quem viu QUAL cartão, QUAL post, abriu
+  -- QUAL spoiler, chegou em QUAL seção. Aberturas e tempo de página já vêm do
+  -- analytics_events (módulo 17) — aqui fica só o "viu o quê".
+  CREATE TABLE IF NOT EXISTS cafe_tracking (
+    id     INTEGER PRIMARY KEY AUTOINCREMENT,
+    email  TEXT NOT NULL,
+    sid    TEXT DEFAULT '',
+    ev     TEXT NOT NULL,             -- ver TRACK_EVS
+    alvo   TEXT DEFAULT '',           -- slug do cartão, id do post, id da seção...
+    extra  TEXT DEFAULT '',           -- emoji da reação, filtro escolhido...
+    ts     INTEGER NOT NULL           -- epoch ms (relógio do servidor)
+  );
+  CREATE INDEX IF NOT EXISTS idx_cafe_trk_ts ON cafe_tracking(ts);
+  CREATE INDEX IF NOT EXISTS idx_cafe_trk_ev ON cafe_tracking(ev, alvo);
 `);
 
 function sessionUser(req) { return (req.session && req.session.user) || null; }
@@ -88,8 +103,10 @@ router.get('/api/cafezinho/feed', (req, res) => {
                                       COALESCE(u.role,'') role
                                FROM cafe_perfil p
                                LEFT JOIN users u ON u.email = p.email`).all();
-    const posts = db.prepare(`SELECT id, email, autor, tipo, texto, emoji, link, spoiler, pinned, created_at
-                              FROM cafe_posts ORDER BY pinned DESC, id DESC LIMIT 200`).all();
+    const posts = db.prepare(`SELECT p.id, p.email, p.autor, p.tipo, p.texto, p.emoji, p.link, p.spoiler,
+                                     p.pinned, p.created_at, COALESCE(u.role,'') role
+                              FROM cafe_posts p LEFT JOIN users u ON u.email = p.email
+                              ORDER BY p.pinned DESC, p.id DESC LIMIT 200`).all();
     const reacoes = db.prepare(`SELECT post_id, emoji, COUNT(*) n,
                                        SUM(CASE WHEN email=? THEN 1 ELSE 0 END) meu
                                 FROM cafe_reacoes GROUP BY post_id, emoji`).all(email);
@@ -104,7 +121,11 @@ router.get('/api/cafezinho/feed', (req, res) => {
       p.reacoes = porPost[p.id] || [];
     });
     res.json({
-      me: { email, nome: u.name || u.given || email, admin: !!u.admin, role: u.role || '' },
+      // owner liga o botão do painel de tracking — só existe pro dono.
+      me: { email, nome: u.name || u.given || email, admin: !!u.admin, role: u.role || '',
+            owner: email === OWNER_EMAIL },
+      // A URL do painel só sai daqui, e só pro dono — não fica no HTML/JS público.
+      painel: email === OWNER_EMAIL ? '/cafezinho/tracking' : null,
       reacoes_disponiveis: REACOES,
       tipos: TIPOS,
       perfis,
@@ -204,6 +225,85 @@ router.post('/api/cafezinho/pin/:id', requireAdmin, (req, res) => {
     db.prepare(`UPDATE cafe_posts SET pinned=? WHERE id=?`).run(novo, id);
     res.json({ ok: true, pinned: !!novo });
   } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ══ TRACKING ══════════════════════════════════════════════════════════════════
+// card    = cartão ficou ≥60% na tela por 1,2s   · flip   = virou o cartão
+// post    = post ficou ≥50% na tela por 1,5s     · spoiler = revelou o spoiler
+// secao   = rolou até a seção                    · reacao  = reagiu (extra=emoji)
+// link    = abriu o link do post                 · filtro  = filtrou o mural
+// signo   = clicou num signo da roda             · xicara  = clicou na xícara
+// postou / perfil = escreveu no mural / salvou o próprio cartão
+const TRACK_EVS = ['card', 'flip', 'post', 'spoiler', 'secao', 'reacao', 'link',
+                   'filtro', 'signo', 'xicara', 'postou', 'perfil', 'comum'];
+const _insTrack = db.prepare(`INSERT INTO cafe_tracking (email, sid, ev, alvo, extra, ts) VALUES (?,?,?,?,?,?)`);
+
+// Chega por fetch(keepalive) ou sendBeacon. E-mail vem SEMPRE da sessão.
+router.post('/api/cafezinho/track', express.json({ limit: '8kb' }), (req, res) => {
+  const u = sessionUser(req);
+  if (!u || !u.email) return res.status(401).json({ error: 'auth_required' });
+  const email = String(u.email).toLowerCase();
+  const evs = Array.isArray((req.body || {}).events) ? req.body.events.slice(0, 40) : [];
+  const sid = String(req.sessionID || '').slice(0, 40), now = Date.now();
+  let n = 0;
+  try {
+    db.transaction(() => {
+      evs.forEach(e => {
+        const ev = txt(e && e.ev, 12);
+        if (TRACK_EVS.indexOf(ev) < 0) return;
+        _insTrack.run(email, sid, ev, txt(e.alvo, 60), txt(e.extra, 60), now);
+        n++;
+      });
+    })();
+    res.json({ ok: true, n });
+  } catch (e) { res.status(200).json({ ok: false }); } // tracking nunca quebra a tela
+});
+
+// Gate do painel: SÓ o e-mail do dono na sessão SSO. Sem fallback de editor
+// token (pedido do Rudá: "somente o meu perfil"). Pra qualquer outro a rota
+// responde 404 — nem a existência do painel vaza.
+function soDono(req, res, next) {
+  const u = sessionUser(req);
+  if (u && String(u.email || '').toLowerCase() === OWNER_EMAIL) return next();
+  if (req.path.startsWith('/api/')) return res.status(404).json({ error: 'not_found' });
+  return res.status(404).send('Not found');
+}
+
+router.get('/api/cafezinho/tracking', soDono, (req, res) => {
+  try {
+    const days = Math.max(1, Math.min(365, parseInt(req.query.days, 10) || 30));
+    const since = Date.now() - days * 86400000;
+    const incluiEu = req.query.eu === '1';
+    // Sem os acessos do dono por padrão (toggle "Incluir meus acessos" no painel).
+    const semEu = incluiEu ? '' : ' AND email <> ?';
+    const p = incluiEu ? [since] : [since, OWNER_EMAIL];
+
+    // Aberturas + tempo: analytics_events (server-side, histórico desde o módulo 17).
+    const views = db.prepare(`SELECT email, sid, ts FROM analytics_events
+                              WHERE kind='view' AND path IN ('/cafezinho','/cafezinho/') AND email<>'anon' AND ts>=?${semEu}`).all(...p);
+    const durs  = db.prepare(`SELECT email, SUM(dur_ms) ms FROM analytics_events
+                              WHERE kind='dur' AND path IN ('/cafezinho','/cafezinho/') AND email<>'anon' AND ts>=?${semEu}
+                              GROUP BY email`).all(...p);
+    // "Viu o quê": cafe_tracking (client-side, começa na v2).
+    const trk = db.prepare(`SELECT email, ev, alvo, extra, ts FROM cafe_tracking
+                            WHERE ts>=?${semEu} ORDER BY ts`).all(...p);
+    const nomes = {};
+    db.prepare(`SELECT email, name, role FROM users`).all()
+      .forEach(r => { nomes[String(r.email).toLowerCase()] = { nome: r.name || '', role: r.role || '' }; });
+    const posts = db.prepare(`SELECT id, email, autor, tipo, texto, emoji, spoiler, created_at
+                              FROM cafe_posts ORDER BY id DESC LIMIT 200`).all();
+    const reacoes = db.prepare(`SELECT post_id, email, emoji FROM cafe_reacoes`).all();
+    const inicio = db.prepare(`SELECT MIN(ts) t FROM cafe_tracking`).get().t || null;
+
+    res.json({ days, owner: OWNER_EMAIL, inclui_eu: incluiEu, tracking_desde: inicio,
+               nomes, views, durs, trk, posts, reacoes });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// O HTML mora em private/ (fora do express.static): em public/ ele seria
+// servido em /cafezinho-tracking.html sem passar por este gate.
+router.get('/cafezinho/tracking', soDono, (req, res) => {
+  res.sendFile(path.join(__dirname, '../private/cafezinho-tracking.html'));
 });
 
 // ── Página ───────────────────────────────────────────────────────────────────
