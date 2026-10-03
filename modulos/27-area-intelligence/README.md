@@ -1,7 +1,7 @@
 # Módulo 27 — Área Intelligence (Marketing Intelligence & CRM)
 
-**Status:** ✅ v1.0 · página dedicada + rastreamento "quem viu o quê" (03/out/2026) · **Rota:** `/area/intelligence` · **Dona:** Bruna Yamagami
-**Propósito:** a área de Intelligence numa página visual (mesma linguagem do `/onboarding`), lida direto das fontes, com tracking de uso que só o Rudá vê.
+**Status:** ✅ v1.1 · página de trabalho + rastreamento "quem viu o quê" (03/out/2026) · **Rota:** `/area/intelligence` · **Dona:** Bruna Yamagami
+**Propósito:** página de **trabalho** da Bruna (atalhos, fila do que precisa de atenção, agente, números e dados), com o visual do `/onboarding` e tracking de uso que só o Rudá vê.
 
 ## Arquivos-chave
 | Arquivo | Papel |
@@ -14,24 +14,27 @@
 
 As outras áreas seguem no template genérico `public/area.html`.
 
-## Seções da página (e o `data-sec` usado no tracking)
-| # | `data-sec` | Conteúdo | Fonte |
+## Blocos da página (e o `data-sec` usado no tracking)
+| Bloco | `data-sec` | Conteúdo | Fonte |
 |---|---|---|---|
-| — | `hero` | Anel de atribuição (% leads com origem) + 4 números | Zoho Leads · Apollo · LinkedIn |
-| 01 | `fluxo` | Hub "4 fontes, 1 visão" com partículas e frescor de cada fonte; clique abre detalhes + o que falta | GA4 · RD · Zoho · Apollo |
-| 02 | `metas` | Gauges do funil de metas (`areas.json`) | `/api/areas.json` (overlay live) |
-| 03 | `saude` | % com status/origem/taxonomia nova, achados de higiene, status, carteiras, pipeline SDR | `zoho-leads-snapshot.json` |
-| 04 | `atribuicao` | Donut de Lead Source | `zoho-leads-snapshot.json` |
-| 05 | `pipeline` | Deals criados por mês (12 meses) e por solução, filtro Todos/MKT/SDR — **só contagem, sem R$** | `/api/zoho/pipeline` |
-| 06 | `audiencia` | Linha de seguidores LinkedIn + GA4 do último mês fechado | `/api/linkedin/historical` · `ga4-snapshot.json` |
-| 07 | `projetos` | Roadmap da área | `areas.json` |
-| 08 | `ferramentas` | Atalhos com tilt 3D | `areas.json` |
-| 09 | `agente` | Workspace do `area-intelligence` | `/api/agentes/_counters` |
+| Topo | `hero` | Dona, agente (📥/📤), chip do painel (só dono) e **frescor das 4 fontes** (clique abre detalhes) | GA4 · RD · Zoho · Apollo |
+| 🔧 Atalhos | `ferramentas` | **Ferramentas da área** + **Do dia a dia** (os mesmos atalhos da Home da Bruna) | `areas.json` · `personas.json` (persona com `area: intelligence`) |
+| 🩺 Precisa de atenção | `atencao` | Fila gerada dos dados: achados de higiene, fontes paradas, metas sem fonte. Some sozinho quando a fonte é corrigida | Zoho Leads · frescor das fontes · `areas.json` |
+| 🤖 Agente da área | `agente` | Últimos pedidos (inbox) e entregas (outbox) + workspace | `/api/agentes/area-intelligence/workspace` |
+| 📁 Projetos | `projetos` | Roadmap da área | `areas.json` |
+| 📊 Números & metas | `metas` | 4 números + gauges das metas | Apollo · Zoho · LinkedIn · `areas.json` |
+| 📈 Aba Saúde da base | `saude` | % com status/origem/taxonomia nova, status, carteiras, pipeline SDR | `zoho-leads-snapshot.json` |
+| 📈 Aba Atribuição | `atribuicao` | Donut de Lead Source | `zoho-leads-snapshot.json` |
+| 📈 Aba Deals | `pipeline` | Deals por mês (12m) e por solução, filtro Todos/MKT/SDR — **só contagem, sem R$** | `/api/zoho/pipeline` |
+| 📈 Aba Audiência | `audiencia` | Seguidores LinkedIn + GA4 do último mês fechado | `/api/linkedin/historical` · `ga4-snapshot.json` |
+| 📈 Aba Fontes | `fluxo` | Hub "4 fontes, 1 visão" com partículas | GA4 · RD · Zoho · Apollo |
+
+A aba aberta fica salva no navegador (`localStorage` `eubr-intel-aba`).
 
 ## Rastreamento (quem viu o quê)
 - **Abriu a página:** `logPageView` já grava `kind='view'` em `/area/intelligence`. **Tempo total:** beacon do office-nav (`kind='dur'`).
 - **Passos da página** (`kind='intel'`, coluna `meta`, enviados em lote por `sendBeacon`):
-  `sec.<id>` (seção ≥30% na tela) · `tempo.<id>.<seg>` (tempo em cada seção, também em `dur_ms`) · `scroll.25|50|75|100` · `tool.<slug-do-href>` · `node.<fonte>` · `achado.<id>` · `origem.<slug>` · `tab.deals-<all|mkt|sdr>` · `grafico.linkedin` · `cta.*` · `agente.abrir`.
+  `sec.<id>` (seção ≥30% na tela) · `tempo.<id>.<seg>` (tempo em cada seção, também em `dur_ms`) · `scroll.25|50|75|100` · `tool.<slug-do-href>` · `aba.<id>` · `atencao.<id>` · `node.<fonte>` · `origem.<slug>` · `tab.deals-<all|mkt|sdr>` · `grafico.linkedin` · `agente.<chip|inbox|outbox|abrir>` (v1.0 também gravava `achado.<id>` e `cta.*`).
 - **Painel:** `/admin/intelligence` — pessoas, visitas, tempo médio, "o que foi visto" por seção, scroll, ferramentas, interações, visitas/dia, tabela por pessoa (clique → passo a passo completo), atividade recente, CSV. Por padrão **exclui os acessos do próprio dono** (toggle "incluir meus acessos").
 
 ## Acesso
