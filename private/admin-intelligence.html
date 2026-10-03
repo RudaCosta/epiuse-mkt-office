@@ -172,10 +172,12 @@ const dia = ts => new Date(ts).toLocaleDateString('pt-BR', { weekday: 'short', d
 const slug = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/^\/+/, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'x';
 
 // Mesma ordem/ids das seções de public/area-intelligence.html (data-sec)
+// (v1.1: página de trabalho — blocos no topo, dados em abas; ids mantidos da v1.0)
 const SECS = [
-  ['hero', '✨ Abertura'], ['fluxo', '01 · Fontes do dado'], ['metas', '02 · Metas'], ['saude', '03 · Saúde da base'],
-  ['atribuicao', '04 · Atribuição'], ['pipeline', '05 · Deals no CRM'], ['audiencia', '06 · Audiência'],
-  ['projetos', '07 · Projetos'], ['ferramentas', '08 · Ferramentas'], ['agente', '09 · Agente']
+  ['hero', '🧠 Topo · fontes'], ['ferramentas', '🔧 Atalhos'], ['atencao', '🩺 Precisa de atenção'],
+  ['agente', '🤖 Agente da área'], ['projetos', '📁 Projetos'], ['metas', '📊 Números & metas'],
+  ['saude', '📈 Aba · Saúde da base'], ['atribuicao', '📈 Aba · Atribuição'], ['pipeline', '📈 Aba · Deals'],
+  ['audiencia', '📈 Aba · Audiência'], ['fluxo', '📈 Aba · Fontes']
 ];
 const SECL = Object.fromEntries(SECS);
 const NODE = { ga4: 'Site · GA4', rd: 'RD Station', zoho: 'Zoho CRM', apollo: 'Apollo' };
@@ -188,7 +190,9 @@ function acaoLabel(id) {
   if (k === 'tab') return '🎛️ Filtro · ' + v.replace('deals-', 'deals ').replace('all', 'todos');
   if (k === 'grafico') return '📈 Explorou gráfico · ' + v;
   if (k === 'cta') return '👆 Botão do topo · ' + (v === 'fluxo' ? 'ver fontes' : v);
-  if (k === 'agente') return '🤖 Abriu workspace do agente';
+  if (k === 'agente') return v === 'inbox' ? '🤖 Abriu pedido do agente' : v === 'outbox' ? '🤖 Abriu entrega do agente' : '🤖 Abriu workspace do agente';
+  if (k === 'aba') return '📈 Abriu aba · ' + ((SECL[v] || v).replace(/^📈 Aba · /, ''));
+  if (k === 'atencao') return '🩺 Clicou em pendência · ' + v.replace(/^(achado|fonte|meta)-/, '$1: ').replace(/-/g, ' ');
   if (k === 'tool') return TOOLS[v] || ('🔧 ' + v);
   if (k === 'sec') return '👀 Viu · ' + (SECL[v] || v);
   if (k === 'scroll') return '📜 Rolou até ' + v + '%';
@@ -294,11 +298,13 @@ $('#csv').addEventListener('click', () => {
 $$('#days button').forEach(b => b.addEventListener('click', () => { $$('#days button').forEach(x => x.classList.toggle('on', x === b)); DAYS = +b.dataset.d; load(); }));
 $('#eu').addEventListener('change', load);
 
-// Rótulos das ferramentas vêm do próprio areas.json (mesmo slug do href usado no beacon)
-fetch('/api/areas.json', { cache: 'no-store' }).then(r => r.json()).then(a => {
+// Rótulos dos atalhos: areas.json (ferramentas) + personas.json (dia a dia da dona) — mesmo slug do href do beacon
+const getJ = u => fetch(u, { cache: 'no-store' }).then(r => r.json()).catch(() => ({}));
+Promise.all([getJ('/api/areas.json'), getJ('/api/personas.json')]).then(([a, pe]) => {
   const it = (a.areas || []).find(x => x.id === 'intelligence') || {};
-  (it.ferramentas || []).forEach(t => { TOOLS[slug(t.href)] = (t.icon ? t.icon + ' ' : '') + t.label; });
-}).catch(() => {}).finally(load);
+  const p = Object.values((pe && pe.personas) || {}).find(x => x.area === 'intelligence') || {};
+  (p.quick || []).concat(it.ferramentas || []).forEach(t => { if (t.href) TOOLS[slug(t.href)] = (t.icon ? t.icon + ' ' : '') + t.label; });
+}).finally(load);
 })();
 </script>
 </body>
