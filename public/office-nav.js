@@ -288,6 +288,7 @@ class OfficeNav extends HTMLElement {
     if (path.startsWith('/artigos') || path.startsWith('/jornadas')) return 'artigos';
     if (path.startsWith('/metas')) return 'metas';
     if (path.startsWith('/pipeline')) return 'pipeline';
+    if (path.startsWith('/area/intelligence')) return 'intelligence';
     if (path.startsWith('/hub')) return 'hub-mkt';
     if (path.startsWith('/changelog')) return 'changelog';
     return '';
@@ -398,6 +399,10 @@ class OfficeNav extends HTMLElement {
     if ((this._sso && String(this._sso.email || '').toLowerCase()) === 'ruda.costa@epiuse.com.br') {
       if (grpA && !grpA.links.some(l => l.href === '/admin/analytics')) {
         grpA.links.push({ label: '📊 Analytics de Uso', href: '/admin/analytics' });
+      }
+      // Tracking da área Intelligence (quem viu o quê) — também só o dono.
+      if (grpA && !grpA.links.some(l => l.href === '/admin/intelligence')) {
+        grpA.links.push({ label: '👁️ Tracking · Intelligence', href: '/admin/intelligence' });
       }
     }
     // UTM & Links Rastreados — todo o time de Marketing.

@@ -2124,6 +2124,10 @@ const AREA_PATH = path.join(__dirname, 'public/area.html');
 const DIRETORIA_HTML = path.join(__dirname, 'public/diretoria.html');
 app.get('/area/diretoria', (req, res) => res.sendFile(DIRETORIA_HTML));
 app.get('/diretoria',      (req, res) => res.redirect('/area/diretoria'));
+// Área Intelligence (Bruna) — página dedicada com animações + tracking de quem viu
+// o quê (Módulo 27). Painel do tracking: /admin/intelligence (só o dono).
+const INTEL_HTML = path.join(__dirname, 'public/area-intelligence.html');
+app.get('/area/intelligence', (req, res) => res.sendFile(INTEL_HTML));
 app.get('/area', (req, res) => res.sendFile(AREA_PATH));
 app.get('/area/:id', (req, res) => res.sendFile(AREA_PATH));
 

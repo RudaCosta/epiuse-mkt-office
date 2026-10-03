@@ -19,6 +19,11 @@
 - `GET /api/admin/analytics` devolve `onboarding` (resumo por pessoa, lifetime) e a ficha (`/user`) devolve `onboarding` (passo a passo). Painel: seção "🎓 Onboarding — quem fez o quê".
 - Eventos `onb` não entram nas contagens de visitas/sessões (que filtram `view`/`login`).
 
+## Área Intelligence (Módulo 27, 03/out/2026)
+- O mesmo beacon recebe `{kind:'intel', steps:[...]}` (lote até 40) → `analytics_events` com `kind='intel'`, `path='/area/intelligence'`, passo em `meta` e, nos passos `tempo.<seção>.<seg>`, o tempo em `dur_ms`.
+- `GET /api/analytics/owner` → `{owner}` (decide se o link do painel aparece). `GET /api/admin/analytics/intel?days=&eu=` e `/intel/user?email=` (owner). Painel: `/admin/intelligence` (HTML em `views/`).
+- Eventos `intel` não entram nas contagens de visitas/sessões do report geral.
+
 ## Acesso
 Restrito a `ruda.costa@epiuse.com.br` (`requireOwner` — email da sessão SSO). Fallback por editor token (`?token=`/`X-Editor-Token`) para uso local/programático. Override do email: env `ANALYTICS_OWNER_EMAIL`.
 
