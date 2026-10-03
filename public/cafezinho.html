@@ -300,6 +300,7 @@ button{font:inherit;color:inherit}
 .xoxo i{display:inline-block;width:2px;height:1em;margin-left:3px;vertical-align:-3px;background:var(--o-red);animation:blink 1s steps(2) infinite}
 @keyframes blink{50%{opacity:0}}
 .rodape p{font-size:12.5px;color:var(--o-muted);margin-top:8px}
+.rodape .lgpd{max-width:560px;margin:14px auto 0;font-size:11.5px;opacity:.85}
 
 /* ---------- GATE / DRAWER / TOAST / PARTÍCULAS ---------- */
 .gate{max-width:480px;margin:30px auto 80px;text-align:center}
@@ -613,7 +614,8 @@ function montar() {
         <p class="sub">Meme, ideia, causo ou série. Spoiler vai borrado: regra número 1 do café.</p></div>
       <div class="mural"><div><div id="composer"></div><div class="filters" id="filters"></div><div id="posts"></div></div><aside class="side" id="side"></aside></div>
     </section>
-    <div class="rodape"><div class="xoxo" id="xoxo"></div><p>Feito pro papo quinzenal · <a href="/memes">museu de memes</a></p></div>`;
+    <div class="rodape"><div class="xoxo" id="xoxo"></div><p>Feito pro papo quinzenal · <a href="/memes">museu de memes</a></p>
+      <p class="lgpd">ℹ️ Transparência (LGPD): o Office registra os acessos a esta página e o que é visualizado nela (cartões, posts, spoilers e reações), para uso interno do time de Marketing.</p></div>`;
   $$('.reveal').forEach(el => revealIO.observe(el));
   renderHero(); renderTeam(); renderNiver(); renderZod(); renderComum(); renderComposer(); renderMural();
   watch($$('.sec-head[data-sec]'), 'secao', 'data-sec', 1, 800);

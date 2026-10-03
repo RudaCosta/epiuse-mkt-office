@@ -6,6 +6,7 @@
 - **Gate estrito, 404 em vez de 403.** Pedido explícito: só o perfil do Rudá. Sem fallback de editor token. 404 esconde que o painel existe.
 - **URL do painel só sai do servidor** (`feed.painel` pro dono). Nem menu, nem HTML/JS público.
 - **HTML do painel em `private/`**, fora do `express.static`.
+- **Aviso de transparência (LGPD) no rodapé** da página — aprovado pelo Rudá em 03/out/2026. Diz o que é registrado, sem expor o painel.
 - **Meus acessos fora por padrão** no painel (toggle "Incluir meus acessos").
 
 ## 03/out/2026 · Visual
