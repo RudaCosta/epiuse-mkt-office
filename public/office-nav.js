@@ -339,6 +339,17 @@ class OfficeNav extends HTMLElement {
     const THEME_LABEL = { 'epiuse-light': 'EPI-USE · claro', 'epiuse-dark': 'EPI-USE · escuro', 'atlas-light': 'nova · claro', 'atlas-dark': 'nova · escuro', dark: 'escuro', light: 'claro', armory: 'armory', elephant: 'elephant', aurora: 'aurora', 'liquid-glass': 'liquid glass' };
     const themeIcon = THEME_ICON[theme] || '☾';
 
+    // Bandeiras de idioma — renderizadas na barra (desktop) e no menu 👤 (mobile ≤420px)
+    const langCode = getLangCode();
+    const langFlagsHtml = [
+      ['pt','Português','<svg viewBox="0 0 28 20" width="22" height="16"><rect width="28" height="20" fill="#009b3a"/><polygon points="14,2.5 25.5,10 14,17.5 2.5,10" fill="#fedf00"/><circle cx="14" cy="10" r="4.2" fill="#002776"/></svg>'],
+      ['en','English','<svg viewBox="0 0 28 20" width="22" height="16"><rect width="28" height="20" fill="#fff"/><g fill="#b22234"><rect width="28" height="1.54"/><rect y="3.08" width="28" height="1.54"/><rect y="6.15" width="28" height="1.54"/><rect y="9.23" width="28" height="1.54"/><rect y="12.31" width="28" height="1.54"/><rect y="15.38" width="28" height="1.54"/><rect y="18.46" width="28" height="1.54"/></g><rect width="12" height="10.77" fill="#3c3b6e"/></svg>'],
+      ['es','Español','<svg viewBox="0 0 28 20" width="22" height="16"><rect width="28" height="20" fill="#c60b1e"/><rect y="5" width="28" height="10" fill="#ffc400"/></svg>']
+    ].map(([code,name,svg]) => {
+      const active = langCode === code;
+      return `<button class="lang-flag ${active ? 'active' : ''}" data-lang="${code}" title="${name}" aria-label="${name}" aria-pressed="${active}" type="button">${svg}</button>`;
+    }).join('');
+
     // Agrupa e distribui os itens em 3 colunas lógicas
     const col1Items = [];
     const col2Items = [];
@@ -699,9 +710,11 @@ class OfficeNav extends HTMLElement {
         }
 
         @media (max-width: 720px) {
+          /* Ancorado na .nav-bar (ver .overflow-wrap static no bloco mobile) → ocupa a largura toda sem vazar */
           .overflow-menu {
-            width: calc(100vw - 20px);
-            right: -60px;
+            width: auto;
+            left: var(--space-sm, 8px);
+            right: var(--space-sm, 8px);
           }
           .overflow-menu.open {
             grid-template-columns: 1fr;
@@ -840,11 +853,23 @@ class OfficeNav extends HTMLElement {
           background: transparent;
           border: none;
           width: 100%;
+          box-sizing: border-box; /* <a> com width:100% + padding vazava 20px do menu */
           text-align: left;
           font-family: inherit;
         }
         .user-menu .um-item:hover { background: var(--nav-hover-bg); }
         .user-menu .um-item .ic { font-size: 13px; opacity: 0.85; }
+        /* Idioma dentro do menu 👤 — só aparece no mobile (≤420px), quando as bandeiras saem da barra */
+        .user-menu .um-lang {
+          display: none;
+          align-items: center;
+          gap: var(--space-sm, 8px);
+          padding: 6px 10px;
+          font-size: 12px;
+          color: var(--nav-text);
+        }
+        .user-menu .um-lang .ic { font-size: 13px; opacity: 0.85; }
+        .user-menu .um-lang .lang-select { margin-left: auto; }
         .user-wrap { position: relative; }
         .theme-wrap { position: relative; }
         .theme-dropdown {
@@ -940,7 +965,28 @@ class OfficeNav extends HTMLElement {
           .login-btn .login-label { display: none; }
           .login-btn { padding: 6px 10px; }
           .ctrl-btn .kbd { display: none; }
-          .bell-panel, .user-menu { width: 92vw; right: -8px; }
+          /* Sem tabs, os controles vão pra direita da barra */
+          .controls { margin-left: auto; }
+          /* Dropdowns posicionados pela .nav-bar (não pelo botão) — nunca saem da tela */
+          .bell-wrap, .theme-wrap, .user-wrap, .overflow-wrap { position: static; }
+          .bell-panel, .user-menu, .theme-dropdown { right: var(--space-sm, 8px); }
+          .bell-panel, .user-menu { width: min(92vw, 360px); box-sizing: border-box; }
+        }
+
+        /* Celular (≤420px): a barra tem que caber sem rolagem horizontal.
+           Bandeiras de idioma saem da barra e vão pro menu 👤; botões encolhem. */
+        @media (max-width: 420px) {
+          .nav-bar { padding: 0 var(--space-sm, 8px); gap: var(--space-xs, 4px); }
+          .logo { padding: 5px var(--space-xs, 4px); }
+          .controls > .lang-select { display: none; }
+          .user-menu .um-lang { display: flex; }
+          .ctrl-btn, .hamburger { padding: 6px var(--space-sm, 8px); }
+          .bell-btn { padding: 5px 7px; }
+          .user-chip { padding: 5px 9px; }
+        }
+        /* Telas muito estreitas (≤360px): versão sai da barra (segue no menu 👤 → Changelog) */
+        @media (max-width: 360px) {
+          .ver-chip { display: none; }
         }
       </style>
 
@@ -965,16 +1011,7 @@ class OfficeNav extends HTMLElement {
         </div>
 
         <div class="controls">
-          <div class="lang-select" role="group" aria-label="Idioma / Language / Idioma">
-            ${[
-              ['pt','Português','<svg viewBox="0 0 28 20" width="22" height="16"><rect width="28" height="20" fill="#009b3a"/><polygon points="14,2.5 25.5,10 14,17.5 2.5,10" fill="#fedf00"/><circle cx="14" cy="10" r="4.2" fill="#002776"/></svg>'],
-              ['en','English','<svg viewBox="0 0 28 20" width="22" height="16"><rect width="28" height="20" fill="#fff"/><g fill="#b22234"><rect width="28" height="1.54"/><rect y="3.08" width="28" height="1.54"/><rect y="6.15" width="28" height="1.54"/><rect y="9.23" width="28" height="1.54"/><rect y="12.31" width="28" height="1.54"/><rect y="15.38" width="28" height="1.54"/><rect y="18.46" width="28" height="1.54"/></g><rect width="12" height="10.77" fill="#3c3b6e"/></svg>'],
-              ['es','Español','<svg viewBox="0 0 28 20" width="22" height="16"><rect width="28" height="20" fill="#c60b1e"/><rect y="5" width="28" height="10" fill="#ffc400"/></svg>']
-            ].map(([code,name,svg]) => {
-              const active = (typeof getLangCode === 'function' ? getLangCode() : 'pt') === code;
-              return `<button class="lang-flag ${active ? 'active' : ''}" data-lang="${code}" title="${name}" aria-label="${name}" aria-pressed="${active}" type="button">${svg}</button>`;
-            }).join('')}
-          </div>
+          <div class="lang-select" role="group" aria-label="Idioma / Language / Idioma">${langFlagsHtml}</div>
           <div class="bell-wrap">
             <button class="bell-btn" id="bell-btn" type="button" title="Notificações" aria-label="Notificações">🔔<span class="bell-badge" id="bell-badge" style="display:none">0</span></button>
             <div class="bell-panel" id="bell-panel" role="menu">
@@ -1003,6 +1040,7 @@ class OfficeNav extends HTMLElement {
                 <div class="um-name">👤 ${user}</div>
                 <div class="um-sub">${this._sso && this._sso.email ? this._sso.email + ' · 🔒 SSO' : 'EPI-USE Office · ' + OFFICE_NAV_VERSION}</div>
               </div>
+              <div class="um-lang" role="group" aria-label="Idioma / Language / Idioma"><span class="ic">🌐</span>Idioma<span class="lang-select">${langFlagsHtml}</span></div>
               ${this._sso && this._sso.name ? '' : '<button class="um-item" id="um-rename" type="button"><span class="ic">✏️</span>Trocar nome de exibição</button>'}
               <button class="um-item" id="um-theme" type="button"><span class="ic">${themeIcon}</span>Tema: ${THEME_LABEL[theme]||'escuro'}</button>
               ${this._authed ? '<a class="um-item" href="/escolher-visao"><span class="ic">🔀</span>Trocar visualização</a>' : ''}
