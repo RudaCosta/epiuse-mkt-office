@@ -73,6 +73,8 @@ Em qualquer sessão nova, faça **NA ORDEM**:
 
 12. **Repo vive em `C:\epiuse-mkt-office\` (NÃO mais no Google Drive)** (30/mai/2026 · v0.7.1) — código + vault no git (GitHub `RudaCosta/epiuse-mkt-office`), em disco LOCAL. Drive (`G:\Meu Drive\Claude MKT EUBR\`) virou SÓ backup legado + arquivos-fonte (brand PDFs, planilhas xls/docx, PPTs que o app lê). **Editar SEMPRE em `C:\epiuse-mkt-office\`** — editar no Drive sofre clobber do sync (causou o caos de versionamento). Multi-máquina via `git clone`/`git pull`. node_modules nativos em `C:\Users\Ruds\.epiuse-optimizer`.
 
+13. **Permissões — toda rota nova precisa de regra** (04/out/2026 · Módulo 13 v2) — o Office **nega por padrão**: `routes/acesso.js` decide página, API e arquivo de `public/` antes de qualquer rota. Criou rota, página ou JSON em `public/api/`? **Adicione a linha em `REGRAS`** (qual área abre) e rode `node scripts/tests/acesso-cobertura.js` — sem regra, só o super admin (Rudá) consegue abrir, e o time vê "sem acesso". Super admin é por **e-mail** (`SUPER_ADMIN_EMAILS`), nunca por papel. Editor token é credencial de máquina: só em `/api/*`, só no header, **nunca em HTML** (o repositório é público).
+
 ---
 
 ## 📋 Slash commands disponíveis

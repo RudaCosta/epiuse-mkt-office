@@ -9,3 +9,14 @@
 - **`requireAuth` segue seguro por design:** só bloqueia quando `SSO_ENABLED` (env `AZURE_*` presentes). Logo, ligar `SSO_ENFORCE=true` no repo NÃO derruba prod — só passa a exigir login depois que as credenciais entram no Railway.
 - **Persona resolvida do DB** (via `/api/auth/status`), com o mapa `emails` de `personas.json` virando fallback legado.
 - **Não deletar** registros de usuário — desativação via flag `active` (pedido do Rudá: "não delete, vamos apenas solicitar").
+
+## 04/out/2026 — Permissões v2 (remodelagem completa)
+
+- **Uma camada central, nega por padrão** (`routes/acesso.js`), substituindo enforcement de páginas + hub-lock + guards avulsos. _Rationale:_ auditoria achou o `express.static` servindo todo HTML/JSON sem login, 112 APIs sem guard (pipeline do Zoho, gerações de IA, PII de brindes) e qualquer papel enxergando a área de todos. Guard por rota não escala com várias sessões criando rotas em paralelo.
+- **Revoga a decisão de 29/jun "enforcement só em páginas".** O motivo dela (não quebrar syncs por token) é atendido de outro jeito: o token passa a camada em `/api/*` pelo header.
+- **Cada um vê a própria área + ferramentas comuns do time.** Diretoria só a página dela; **só o Rudá vê todas as áreas** (decisão Rudá, 04/out: "pra todas áreas, diretoria não, somente eu mesmo").
+- **Super admin por identidade, não por papel.** `head` atribuído a outra pessoa dá só o time; o painel recusa dar `head` a quem não é super admin e recusa rebaixar/desativar o super admin (trancaria o Office).
+- **Áreas extras concedidas pelo super admin**, por pessoa, em vez de criar papéis novos pra cada combinação.
+- **Brand cobre Conteúdo** (`/area/brand` libera também quem é de conteúdo): o pipeline de conteúdo mora na página de Brand (`/content-pipeline` redireciona pra lá).
+- **Teste de cobertura versionado** (`scripts/tests/acesso-cobertura.js`) em vez de confiar na memória: toda rota e todo arquivo de `public/` tem que casar com uma regra explícita.
+

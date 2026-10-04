@@ -3,147 +3,291 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Usuários & Perfis · EPI-USE Office</title>
+<title>Permissões · EPI-USE Office</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/design-tokens.css">
 <script src="/office-nav.js" defer></script>
 <style>
-  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  body{background:#060e1a;color:#e2e8f0;font-family:'Poppins',system-ui,sans-serif;font-size:14px;line-height:1.5;min-height:100vh}
-  .wrap{max-width:1080px;margin:0 auto;padding:28px 18px 80px}
-  h1{font-size:22px;font-weight:700;margin-bottom:4px}
-  .sub{color:#94a3b8;font-size:13px;margin-bottom:24px}
-  .panel{background:rgba(13,30,54,.6);border:1px solid rgba(37,99,235,.2);border-radius:12px;padding:18px;margin-bottom:20px}
-  .panel h2{font-size:14px;font-weight:600;margin-bottom:12px;color:#cbd5e1}
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.06)}
-  th{color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-weight:600}
-  tr:hover td{background:rgba(255,255,255,.02)}
-  .role-chip{display:inline-block;font-size:11px;font-weight:600;padding:2px 9px;border-radius:10px;background:rgba(96,165,250,.14);color:#93c5fd;border:1px solid rgba(96,165,250,.3)}
-  .role-chip.hub{background:rgba(148,163,184,.12);color:#cbd5e1;border-color:rgba(148,163,184,.3)}
-  .role-chip.head{background:rgba(206,24,30,.14);color:#fda4af;border-color:rgba(206,24,30,.35)}
-  .inactive{opacity:.45}
-  .btn{background:rgba(37,99,235,.18);border:1px solid rgba(96,165,250,.5);color:#dbeafe;font-size:12px;padding:6px 12px;border-radius:7px;cursor:pointer;font-family:inherit;font-weight:600}
-  .btn:hover{background:rgba(37,99,235,.3)}
-  .btn.ghost{background:transparent;border-color:rgba(148,163,184,.3);color:#94a3b8}
-  .grid-form{display:grid;grid-template-columns:1.6fr 1.3fr 1.2fr auto auto;gap:10px;align-items:end}
-  label{display:block;font-size:11px;color:#94a3b8;margin-bottom:4px;font-weight:600}
-  input,select{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.25);color:#e2e8f0;padding:8px 10px;border-radius:7px;font-family:inherit;font-size:13px}
-  input:focus,select:focus{outline:none;border-color:#60a5fa}
-  .msg{font-size:12px;margin-top:10px;min-height:16px}
-  .msg.ok{color:#34d399}.msg.err{color:#f87171}
-  .hint{font-size:12px;color:#64748b;margin-top:10px}
-  .hint code{background:rgba(255,255,255,.06);padding:1px 5px;border-radius:4px}
-  @media(max-width:720px){.grid-form{grid-template-columns:1fr}}
+  /* Só tokens do design system (Regra 8). Tema escuro segue o data-theme do Office. */
+  :root {
+    --pm-bg: var(--color-neutral-light-bg);
+    --pm-surface: var(--color-neutral-light-surface);
+    --pm-surface-2: var(--color-neutral-light-surface-2);
+    --pm-border: var(--color-neutral-light-border);
+    --pm-text: var(--color-neutral-light-text);
+    --pm-muted: var(--color-neutral-light-text-muted);
+    --pm-dim: var(--color-neutral-light-text-dim);
+    --pm-accent: var(--color-brand-deep-blue);
+    --pm-accent-soft: var(--color-primary-50);
+    --pm-on-accent: var(--color-neutral-light-surface);
+  }
+  :root[data-theme$="dark"], :root[data-theme="dark"], :root[data-theme="armory"],
+  :root[data-theme="aurora"], :root[data-theme="elephant"], :root[data-theme="liquid-glass"] {
+    --pm-bg: var(--color-neutral-dark-bg);
+    --pm-surface: var(--color-neutral-dark-surface);
+    --pm-surface-2: var(--color-neutral-dark-surface-2);
+    --pm-border: var(--color-neutral-dark-border);
+    --pm-text: var(--color-neutral-dark-text);
+    --pm-muted: var(--color-neutral-dark-text-muted);
+    --pm-dim: var(--color-neutral-dark-text-dim);
+    --pm-accent: var(--color-primary-300);
+    --pm-accent-soft: var(--color-neutral-dark-surface-2);
+    --pm-on-accent: var(--color-neutral-dark-bg);
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  button { font: inherit; }
+  /* Fundo: o tema do Office (office-nav) pinta o body em todas as páginas. */
+  body { margin: 0; color: var(--pm-text);
+         font-family: 'Open Sans', Calibri, Verdana, sans-serif; font-size: 14px; line-height: 1.5; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 32px 16px 80px; }
+  h1, h2 { font-family: Lato, Calibri, sans-serif; margin: 0; }
+  h1 { font-size: 26px; font-weight: 900; color: var(--pm-accent); }
+  .sub { color: var(--pm-muted); margin: 6px 0 28px; max-width: 640px; }
+
+  .card { background: var(--pm-surface); border: 1px solid var(--pm-border);
+          border-radius: var(--rounded-lg); box-shadow: var(--elevation-sm); }
+  .add { padding: 20px; margin-bottom: 24px; }
+  .add h2 { font-size: 15px; font-weight: 700; margin-bottom: 14px; }
+  .add-grid { display: grid; grid-template-columns: 1.5fr 1.2fr 1fr auto; gap: 10px; align-items: end; }
+  label { display: block; font-size: 12px; font-weight: 600; color: var(--pm-muted); margin-bottom: 4px; }
+  input, select { width: 100%; padding: 9px 11px; border-radius: var(--rounded-md); font: inherit;
+                  background: var(--pm-bg); color: var(--pm-text); border: 1px solid var(--pm-border); }
+  input:focus, select:focus { outline: 2px solid var(--pm-accent); outline-offset: 1px; }
+  .btn { padding: 9px 16px; border-radius: var(--rounded-md); border: 0; cursor: pointer; font: 700 13px Lato, Calibri, sans-serif;
+         background: var(--pm-accent); color: var(--pm-on-accent); white-space: nowrap; }
+  .btn:disabled { opacity: .5; cursor: default; }
+
+  .bar { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  .bar input { flex: 1; min-width: 200px; }
+  .bar select { width: auto; }
+
+  .lista { overflow: hidden; }
+  .pessoa { border-top: 1px solid var(--pm-border); }
+  .pessoa:first-child { border-top: 0; }
+  .linha { display: grid; grid-template-columns: minmax(200px, 1.2fr) 200px 1.6fr 110px; gap: 16px;
+           align-items: center; padding: 14px 20px; }
+  .pessoa.inativa { opacity: .5; }
+  .quem b { display: block; font-family: Lato, Calibri, sans-serif; }
+  .quem span { font-size: 12px; color: var(--pm-muted); word-break: break-all; }
+  .areas { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .area { font-size: 12px; padding: 3px 10px; border-radius: var(--rounded-full); font-weight: 600;
+          background: var(--pm-accent-soft); color: var(--pm-accent); border: 1px solid transparent; }
+  .area.extra { background: transparent; border-color: var(--pm-accent); }
+  .mais { min-height: 0; font-size: 12px; padding: 3px 10px; border-radius: var(--rounded-full); cursor: pointer;
+          background: transparent; color: var(--pm-muted); border: 1px dashed var(--pm-border); }
+  .mais:hover, .mais[aria-expanded="true"] { color: var(--pm-accent); border-color: var(--pm-accent); }
+  .painel { padding: 4px 20px 18px; }
+  .painel p { margin: 0 0 10px; font-size: 12px; color: var(--pm-muted); }
+  .opcoes { display: flex; flex-wrap: wrap; gap: 8px; }
+  .opcao { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: var(--rounded-md);
+           border: 1px solid var(--pm-border); cursor: pointer; font-size: 13px; background: var(--pm-surface-2); color: var(--pm-text); }
+  .opcao[aria-pressed="true"] { border-color: var(--pm-accent); }
+  .opcao .tick { width: 14px; height: 14px; border-radius: 4px; border: 1.5px solid var(--pm-border); display: inline-grid; place-items: center; font-size: 10px; }
+  .opcao[aria-pressed="true"] .tick { background: var(--pm-accent); border-color: var(--pm-accent); color: var(--pm-on-accent); }
+  .estado { display: flex; align-items: center; gap: 8px; justify-content: flex-end; font-size: 12px; color: var(--pm-muted); }
+  /* min-height 0: o polish-pro.css impõe 44px em todo botão (alvo de toque). */
+  .toggle { min-height: 0; width: 38px; height: 22px; padding: 0; flex: none; border-radius: 11px; border: 0; cursor: pointer; position: relative;
+            background: var(--pm-border); }
+  .toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%;
+                   background: var(--pm-surface); transition: left .15s; }
+  .toggle[aria-checked="true"] { background: var(--pm-accent); }
+  .toggle[aria-checked="true"]::after { left: 19px; }
+  .trava { font-size: 12px; color: var(--pm-muted); }
+  .salvo { font-size: 12px; color: var(--pm-accent); min-height: 18px; }
+
+  .legenda { margin-top: 28px; padding: 18px 20px; }
+  .legenda h2 { font-size: 14px; font-weight: 700; margin-bottom: 10px; }
+  .legenda dl { display: grid; grid-template-columns: 200px 1fr; gap: 6px 16px; margin: 0; font-size: 13px; }
+  .legenda dt { font-weight: 600; }
+  .legenda dd { margin: 0; color: var(--pm-muted); }
+  .msg { font-size: 13px; margin-top: 10px; min-height: 18px; }
+  .vazio { padding: 28px; text-align: center; color: var(--pm-muted); }
+
+  @media (max-width: 760px) {
+    .add-grid { grid-template-columns: 1fr; }
+    .linha { grid-template-columns: 1fr; gap: 10px; }
+    .estado { justify-content: flex-start; }
+    .legenda dl { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body data-route="admin-usuarios">
 <office-nav></office-nav>
-<div class="wrap">
-  <h1>👥 Usuários &amp; Perfis</h1>
-  <div class="sub">Quem loga via SSO Microsoft e qual visão (role) cada pessoa recebe. Quem não está aqui entra como <b>hub</b> e cai no Marketing Hub.</div>
+<main class="wrap">
+  <h1>Permissões</h1>
+  <p class="sub">Quem vê o quê no Office. Cada papel abre as áreas do próprio time; as áreas extras você concede com um clique. Só você enxerga esta tela.</p>
 
-  <div class="panel">
-    <h2>➕ Adicionar / atualizar pessoa</h2>
-    <div class="grid-form">
-      <div><label>E-mail (@epiuse)</label><input id="f-email" type="email" placeholder="nome.sobrenome@epiuse.com.br"></div>
-      <div><label>Nome</label><input id="f-name" type="text" placeholder="Nome completo"></div>
-      <div><label>Role / Perfil</label><select id="f-role"></select></div>
-      <div><label>Ativo</label><select id="f-active"><option value="1">Sim</option><option value="0">Não</option></select></div>
-      <div><button class="btn" id="f-save">Salvar</button></div>
+  <section class="card add">
+    <h2>Adicionar pessoa</h2>
+    <div class="add-grid">
+      <div><label for="n-email">E-mail @epiuse</label><input id="n-email" type="email" placeholder="nome.sobrenome@epiuse.com.br" autocomplete="off"></div>
+      <div><label for="n-nome">Nome</label><input id="n-nome" type="text" placeholder="Nome completo" autocomplete="off"></div>
+      <div><label for="n-papel">Papel</label><select id="n-papel"></select></div>
+      <div><button class="btn" id="n-salvar" type="button">Adicionar</button></div>
     </div>
-    <div class="msg" id="form-msg"></div>
-  </div>
+    <div class="msg" id="n-msg" role="status"></div>
+  </section>
 
-  <div class="panel">
-    <h2>📋 Cadastrados</h2>
-    <table>
-      <thead><tr><th>E-mail</th><th>Nome</th><th>Role</th><th>Persona</th><th>Ativo</th><th></th></tr></thead>
-      <tbody id="rows"><tr><td colspan="6" style="color:#64748b">Carregando…</td></tr></tbody>
-    </table>
-    <div class="hint" id="hint"></div>
+  <div class="bar">
+    <input id="busca" type="search" placeholder="Buscar por nome ou e-mail" aria-label="Buscar pessoa">
+    <select id="filtro" aria-label="Filtrar por papel"><option value="">Todos os papéis</option></select>
   </div>
-</div>
+  <section class="card lista" id="lista" aria-live="polite"><div class="vazio">Carregando…</div></section>
+
+  <section class="card legenda">
+    <h2>O que cada área abre</h2>
+    <dl id="legenda"></dl>
+  </section>
+</main>
 
 <script>
-// Token de editor (fallback quando não há sessão 'head' — ex: teste local sem SSO).
-// Passar via ?token=... uma vez; fica salvo em localStorage.
-(function(){
-  var u = new URL(location.href);
-  var t = u.searchParams.get('token');
-  if (t) { try { localStorage.setItem('office.editorToken', t); } catch(e){} }
-})();
-function authHeaders(extra){
-  var h = Object.assign({}, extra || {});
-  try { var t = localStorage.getItem('office.editorToken'); if (t) h['X-Editor-Token'] = t; } catch(e){}
-  return h;
-}
-var ROLE_CONFIG = {};
-function chip(role){
-  var cls = role === 'head' ? 'head' : (role === 'hub' ? 'hub' : '');
-  return '<span class="role-chip '+cls+'">'+role+'</span>';
-}
-async function load(){
-  try {
-    var r = await fetch('/api/admin/users', { headers: authHeaders() });
-    if (r.status === 403 || r.status === 401) {
-      document.getElementById('rows').innerHTML = '<tr><td colspan="6" style="color:#f87171">Sem permissão. Logue como Rudá (head) ou adicione <code>?token=SEU_EDITOR_TOKEN</code> na URL.</td></tr>';
+(function () {
+  'use strict';
+  // Rótulos em português dos papéis (o id técnico fica só no valor do select).
+  var PAPEL = {
+    head: 'Super admin', intelligence: 'Intelligence & CRM', growth: 'Growth', field: 'Field Marketing',
+    pipeline: 'Biz Dev', brand: 'Brand Experience', conteudo: 'Conteúdo', 'country-manager': 'Diretoria · Country Manager',
+    diretoria: 'Diretoria', voice: 'EPI-USE Voice', hub: 'Colaborador'
+  };
+  var D = null;            // resposta de /api/admin/users
+  var $ = function (id) { return document.getElementById(id); };
+  // Tudo que vem do banco passa por aqui antes de virar HTML.
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function extras(u) { try { var a = JSON.parse(u.areas_extra || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
+  function ehSuper(u) { return D.super_admins.indexOf(String(u.email).toLowerCase()) !== -1; }
+
+  function opcoesPapel(sel, incluirHead) {
+    return D.roles.filter(function (r) { return incluirHead || r !== 'head'; }).map(function (r) {
+      return '<option value="' + esc(r) + '"' + (r === sel ? ' selected' : '') + '>' + esc(PAPEL[r] || r) + '</option>';
+    }).join('');
+  }
+
+  function linha(u) {
+    var sup = ehSuper(u);
+    var base = (D.role_areas[u.role] || []).filter(function (a) { return a !== 'logado'; });
+    var ext = extras(u).filter(function (a) { return base.indexOf(a) === -1; });
+    var nome = function (a) { return (D.areas[a] && D.areas[a].nome) || a; };
+    var chips = sup ? '<span class="area">Todas as áreas</span>'
+      : (base.length ? base.map(function (a) { return '<span class="area" title="Vem do papel">' + esc(nome(a)) + '</span>'; }).join('')
+                     : '<span class="area" title="Vem do papel">Só o Hub</span>') +
+        ext.map(function (a) { return '<span class="area extra" title="Concedida por você">' + esc(nome(a)) + '</span>'; }).join('') +
+        '<button type="button" class="mais" data-abrir aria-expanded="false">Áreas extras</button>';
+    var opcoes = sup ? '' : D.concediveis.filter(function (a) { return base.indexOf(a) === -1; }).map(function (a) {
+      var on = ext.indexOf(a) !== -1;
+      return '<button type="button" class="opcao" data-area="' + esc(a) + '" aria-pressed="' + on + '">' +
+             '<span class="tick" aria-hidden="true">' + (on ? '✓' : '') + '</span>' + esc(nome(a)) + '</button>';
+    }).join('');
+    return '<div class="pessoa' + (u.active ? '' : ' inativa') + '" data-email="' + esc(u.email) + '">' +
+      '<div class="linha">' +
+        '<div class="quem"><b>' + esc(u.name || u.email.split('@')[0]) + '</b><span>' + esc(u.email) + '</span>' +
+          '<div class="salvo" data-salvo></div></div>' +
+        (sup ? '<div class="trava">' + esc(PAPEL.head) + '</div>'
+             : '<select data-papel aria-label="Papel">' + opcoesPapel(u.role, u.role === 'head') + '</select>') +
+        '<div class="areas">' + chips + '</div>' +
+        (sup ? '<div class="estado trava">sempre ativo</div>'
+             : '<div class="estado"><span>' + (u.active ? 'Ativo' : 'Inativo') + '</span>' +
+               '<button type="button" class="toggle" data-ativo role="switch" aria-checked="' + (!!u.active) + '" aria-label="Ativo"></button></div>') +
+      '</div>' +
+      (sup ? '' : '<div class="painel" hidden><p>Além do que o papel já dá, liberar também:</p><div class="opcoes">' + opcoes + '</div></div>') +
+    '</div>';
+  }
+
+  var abertos = {};
+  function render() {
+    var q = $('busca').value.trim().toLowerCase(), f = $('filtro').value;
+    var lista = D.users.filter(function (u) {
+      return (!f || u.role === f) && (!q || (u.email + ' ' + (u.name || '')).toLowerCase().indexOf(q) !== -1);
+    });
+    // Super admin primeiro, depois ativos, depois por nome.
+    lista.sort(function (a, b) {
+      return (ehSuper(b) - ehSuper(a)) || (b.active - a.active) || String(a.name || a.email).localeCompare(String(b.name || b.email));
+    });
+    $('lista').innerHTML = lista.length ? lista.map(linha).join('') : '<div class="vazio">Ninguém encontrado.</div>';
+    Object.keys(abertos).forEach(function (email) {
+      var row = document.querySelector('.pessoa[data-email="' + CSS.escape(email) + '"]');
+      if (row) { row.querySelector('.painel').hidden = false; row.querySelector('[data-abrir]').setAttribute('aria-expanded', 'true'); }
+    });
+  }
+
+  async function salvar(email, patch, linhaEl) {
+    var aviso = linhaEl && linhaEl.querySelector('[data-salvo]');
+    try {
+      var r = await fetch('/api/admin/users/' + encodeURIComponent(email), {
+        method: 'PUT', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(patch)
+      });
+      var d = await r.json();
+      if (!d.success) throw new Error(d.error || 'erro');
+      var i = D.users.findIndex(function (u) { return u.email === email; });
+      if (i !== -1) D.users[i] = d.user;
+      render();
+      var novo = document.querySelector('.pessoa[data-email="' + CSS.escape(email) + '"] [data-salvo]');
+      if (novo) { novo.textContent = 'Salvo — vale no próximo clique da pessoa'; setTimeout(function () { novo.textContent = ''; }, 3500); }
+    } catch (e) { if (aviso) aviso.textContent = 'Não salvou: ' + e.message; }
+  }
+
+  $('lista').addEventListener('click', function (ev) {
+    var el = ev.target.closest('button'); if (!el) return;
+    var row = el.closest('.pessoa'); var email = row.dataset.email;
+    var u = D.users.find(function (x) { return x.email === email; });
+    if (el.hasAttribute('data-abrir')) {
+      var painel = row.querySelector('.painel'); painel.hidden = !painel.hidden;
+      el.setAttribute('aria-expanded', String(!painel.hidden));
+      if (painel.hidden) delete abertos[email]; else abertos[email] = 1;
       return;
     }
-    var d = await r.json();
-    ROLE_CONFIG = d.role_config || {};
-    // popula select de roles
-    var sel = document.getElementById('f-role');
-    sel.innerHTML = (d.roles || []).map(function(role){
-      var p = (ROLE_CONFIG[role] && ROLE_CONFIG[role].persona) || '';
-      return '<option value="'+role+'">'+role+(p?' → '+p:'')+'</option>';
-    }).join('');
-    renderRows(d.users || []);
-    document.getElementById('hint').innerHTML = 'Roles disponíveis: ' + (d.roles||[]).map(function(x){return '<code>'+x+'</code>';}).join(' ');
-  } catch(e){
-    document.getElementById('rows').innerHTML = '<tr><td colspan="6" style="color:#f87171">Erro: '+e.message+'</td></tr>';
-  }
-}
-function renderRows(users){
-  var tb = document.getElementById('rows');
-  if (!users.length){ tb.innerHTML = '<tr><td colspan="6" style="color:#64748b">Ninguém cadastrado ainda.</td></tr>'; return; }
-  tb.innerHTML = users.map(function(u){
-    var persona = u.persona || ((ROLE_CONFIG[u.role]||{}).persona) || '—';
-    return '<tr class="'+(u.active?'':'inactive')+'">'+
-      '<td>'+u.email+'</td>'+
-      '<td>'+(u.name||'—')+'</td>'+
-      '<td>'+chip(u.role)+'</td>'+
-      '<td>'+persona+'</td>'+
-      '<td>'+(u.active?'✅':'⏸️')+'</td>'+
-      '<td><button class="btn ghost" data-email="'+u.email+'" data-name="'+(u.name||'')+'" data-role="'+u.role+'" data-active="'+u.active+'">Editar</button></td>'+
-    '</tr>';
-  }).join('');
-  tb.querySelectorAll('button[data-email]').forEach(function(b){
-    b.addEventListener('click', function(){
-      document.getElementById('f-email').value = b.dataset.email;
-      document.getElementById('f-name').value = b.dataset.name;
-      document.getElementById('f-role').value = b.dataset.role;
-      document.getElementById('f-active').value = b.dataset.active;
-      window.scrollTo({top:0,behavior:'smooth'});
-    });
+    if (el.dataset.area) {
+      var ext = extras(u), a = el.dataset.area, i = ext.indexOf(a);
+      if (i === -1) ext.push(a); else ext.splice(i, 1);
+      salvar(email, { areas_extra: ext }, row);
+    } else if (el.hasAttribute('data-ativo')) {
+      salvar(email, { active: !u.active }, row);
+    }
   });
-}
-document.getElementById('f-save').addEventListener('click', async function(){
-  var msg = document.getElementById('form-msg');
-  var body = {
-    email: document.getElementById('f-email').value.trim(),
-    name: document.getElementById('f-name').value.trim(),
-    role: document.getElementById('f-role').value,
-    active: document.getElementById('f-active').value === '1'
-  };
-  if (!body.email || body.email.indexOf('@') < 0){ msg.className='msg err'; msg.textContent='E-mail inválido.'; return; }
-  try {
-    var r = await fetch('/api/admin/users', { method:'POST', headers: authHeaders({'Content-Type':'application/json'}), body: JSON.stringify(body) });
-    var d = await r.json();
-    if (d.success){ msg.className='msg ok'; msg.textContent='Salvo: '+d.user.email+' → '+d.user.role; load(); }
-    else { msg.className='msg err'; msg.textContent='Erro: '+(d.error||'desconhecido'); }
-  } catch(e){ msg.className='msg err'; msg.textContent='Erro: '+e.message; }
-});
-load();
+  $('lista').addEventListener('change', function (ev) {
+    if (!ev.target.matches('[data-papel]')) return;
+    var row = ev.target.closest('.pessoa');
+    salvar(row.dataset.email, { role: ev.target.value }, row);
+  });
+  $('busca').addEventListener('input', render);
+  $('filtro').addEventListener('change', render);
+
+  $('n-salvar').addEventListener('click', async function () {
+    var msg = $('n-msg');
+    var body = { email: $('n-email').value.trim().toLowerCase(), name: $('n-nome').value.trim(), role: $('n-papel').value, active: true };
+    if (!/^[^@\s]+@[^@\s]+$/.test(body.email)) { msg.textContent = 'E-mail inválido.'; return; }
+    if (D.users.some(function (u) { return u.email === body.email; })) { msg.textContent = 'Essa pessoa já está na lista — ajuste direto na linha dela.'; return; }
+    this.disabled = true;
+    try {
+      var r = await fetch('/api/admin/users', { method: 'POST', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      var d = await r.json();
+      if (!d.success) throw new Error(d.error || 'erro');
+      D.users.push(d.user); render();
+      msg.textContent = (d.user.name || d.user.email) + ' adicionada como ' + (PAPEL[d.user.role] || d.user.role) + '.';
+      $('n-email').value = ''; $('n-nome').value = '';
+    } catch (e) { msg.textContent = 'Não salvou: ' + e.message; }
+    this.disabled = false;
+  });
+
+  async function carregar() {
+    try {
+      var r = await fetch('/api/admin/users', { credentials: 'same-origin' });
+      if (!r.ok) { $('lista').innerHTML = '<div class="vazio">Esta tela é só do super admin.</div>'; return; }
+      D = await r.json();
+      D.super_admins = (D.super_admins || []).map(function (e) { return String(e).toLowerCase(); });
+      $('n-papel').innerHTML = opcoesPapel('hub', false);
+      $('filtro').innerHTML = '<option value="">Todos os papéis</option>' + D.roles.map(function (r) {
+        return '<option value="' + esc(r) + '">' + esc(PAPEL[r] || r) + '</option>'; }).join('');
+      $('legenda').innerHTML = Object.keys(D.areas).filter(function (a) { return a !== 'publico'; }).map(function (a) {
+        return '<dt>' + esc(D.areas[a].nome) + '</dt><dd>' + esc(D.areas[a].desc) + '</dd>'; }).join('');
+      render();
+    } catch (e) { $('lista').innerHTML = '<div class="vazio">Não consegui carregar: ' + esc(e.message) + '</div>'; }
+  }
+  carregar();
+})();
 </script>
 </body>
 </html>

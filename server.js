@@ -613,6 +613,11 @@ const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 // Trust proxy 1 hop pra Railway (rate limit reconhece IP real)
 app.set('trust proxy', 1);
 
+// ── PERMISSÕES (Módulo 13 v2) ────────────────────────────────────────────────
+// Sessão + autorização montadas ANTES de qualquer rota e do express.static: toda
+// página, API e arquivo de public/ passa por routes/acesso.js. Nega por padrão.
+require('./routes/acesso').montar(app, express);
+
 // ── /api/areas.json — overlay de valores LIVE em serve-time (fonte unica, v0.52) ──
 // Registrado ANTES do express.static p/ sobrepor o arquivo estatico.
 // Sobrepoe: seguidores (linkedin-routine) + contatos/empresas (apollo pipeline-snapshot).
@@ -743,105 +748,17 @@ app.get('/api/voices.json', (req, res) => {
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json({ limit: '4mb' })); // 4mb cobre syncs grandes (SAP 4 ME 705 projetos ~370KB)
 
-// ── SSO MICROSOFT & SESSÃO (ECC Security Guidelines) ─────────────────────────
-const session = IS_LOCAL_DEV ? require(localModules + '/express-session') : require('express-session');
-const { ACTIVE_SESSION_SECRET, SSO_ENABLED, SSO_REDIRECT, SSO_DOMAINS, msalClient } = require('./server-context');
-
-let sessionStore;
-try {
-  const SQLiteStore = (IS_LOCAL_DEV ? require(localModules + '/connect-sqlite3') : require('connect-sqlite3'))(session);
-  sessionStore = new SQLiteStore({ db: 'sessions.sqlite', dir: DB_DIR });
-} catch(e){ console.warn('[sso] connect-sqlite3 ausente, usando MemoryStore:', e.message); sessionStore = undefined; }
-
-app.use(session({
-  name: 'eubr.sid',
-  secret: ACTIVE_SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  store: sessionStore,
-  cookie: { httpOnly: true, sameSite: 'lax', secure: !IS_LOCAL_DEV, maxAge: 1000 * 60 * 60 * 24 * 7 }
-}));
-
+const { SSO_ENABLED, SSO_REDIRECT, SSO_DOMAINS } = require('./server-context');
 if (SSO_ENABLED) {
   console.log('[sso] Microsoft SSO ATIVO · redirect=' + SSO_REDIRECT + ' · dominios=' + SSO_DOMAINS.join(','));
 } else {
   console.log('[sso] Microsoft SSO inativo (faltam credenciais ou modulo)');
 }
-
-// ── RE-HIDRATAÇÃO DE ROLE/PERSONA A PARTIR DO BANCO ───────────────────────────
-// O login (routes/auth.js) grava role/persona/admin na SESSÃO. Sem isto, uma
-// mudança no /admin/usuarios só valeria depois da pessoa deslogar e relogar
-// (a sessão viva mantém o role antigo). Aqui, a cada navegação de página,
-// relemos a linha do usuário no SQLite e sincronizamos a sessão — assim um
-// cadastro/edição de perfil passa a valer no PRÓXIMO carregamento, sem relogin.
-// Barato: 1 SELECT por PK (email) só em rotas dinâmicas (assets estáticos já
-// foram servidos por express.static acima e não chegam aqui). Seguro: se a
-// leitura falhar/retornar nulo (erro transitório ou usuário removido), NÃO
-// mexe na sessão — evita rebaixar o head por um erro momentâneo de DB.
-const { getUserByEmail: _rhGetUser, profileFor: _rhProfileFor } = require('./routes/users');
-app.use((req, res, next) => {
-  try {
-    const u = req.session && req.session.user;
-    if (u && u.email) {
-      const row = _rhGetUser(u.email);
-      if (row) {
-        const prof = _rhProfileFor(row);
-        if (u.role !== prof.role || u.persona !== prof.persona || u.admin !== prof.admin) {
-          u.role = prof.role;
-          u.persona = prof.persona;
-          u.admin = prof.admin;
-        }
-      }
-    }
-  } catch (_e) { /* nunca quebra a request por causa disto */ }
-  next();
-});
-
-// ── ENFORCEMENT GLOBAL (SSO_ENFORCE) ──────────────────────────────────────────
-// Exige login nas PÁGINAS (navegação humana) quando SSO_ENFORCE=true E o SSO
-// estiver configurado (env AZURE_*). requireAuth (server-context) já é seguro:
-// sem as credenciais ele deixa passar — então em prod o acesso só tranca depois
-// das env vars entrarem no Railway (migração segura). Assets estáticos já foram
-// servidos por express.static acima e não chegam aqui.
-//
-// Escopo: só páginas. As rotas /api/* NÃO passam por aqui — cada uma tem seu
-// próprio guard (requireAuth em cases/inbound, requireEditorToken nos syncs,
-// requireAdmin no admin). Isso preserva os fluxos server-to-server por
-// X-Editor-Token (ex: resync-railway-all) mesmo com enforcement ligado.
-// Allowlist abaixo evita loop no fluxo de login.
-const ENFORCE_PUBLIC = ['/login', '/auth/login', '/auth/callback', '/auth/logout', '/auth/rd-callback'];
-app.use((req, res, next) => {
-  if (req.path.startsWith('/api/')) return next();
-  if (req.path.startsWith('/go/')) return next(); // link rastreado UTM — público (clicker externo não loga)
-  if (ENFORCE_PUBLIC.includes(req.path)) return next();
-  return requireAuth(req, res, next);
-});
-
-// ── HARD-LOCK DO COLABORADOR (role 'hub') ─────────────────────────────────────
-// Quem não é do time de marketing nem country manager (role 'hub') só acessa o
-// Marketing Hub (+ o game do colaborador). Qualquer outra PÁGINA -> redirect /hub.
-// Time de MKT, head e country-manager/diretoria NÃO são afetados.
-// APIs (/api/*) e /auth/* passam (o /hub e /game-hub precisam de /api/auth/status).
-// Páginas que o colaborador (role hub) PODE acessar: o hub, o game dele, e os
-// destinos do menu de acesso rápido do portal. O resto do Office segue bloqueado.
-const HUB_LOCK_PAGES = new Set([
-  '/hub', '/game', '/game-hub', '/login', '/escolher-visao', '/brand', '/onboarding',
-  '/design', '/erp-impacto', '/seja-voice', '/artigos', '/optimizer',
-  '/optimizer-v3', '/voices/optimizer-v3',
-  '/campanhas', '/brindes', '/hub/brindes', '/hub/solicitacao-brindes',
-  '/hub/solicitar-brindes', '/meus-links', '/loja', '/ranking',
-  '/voices/pautas', '/voices/pauta', '/cafezinho'
-]);
-// nota: '/game' passa pelo lock só pra rota fazer o redirect por role → /game-hub.
-app.use((req, res, next) => {
-  if (req.path.startsWith('/api/') || req.path.startsWith('/auth/') || req.path.startsWith('/go/')) return next();
-  const u = req.session && req.session.user;
-  if (u && u.role === 'hub' && !HUB_LOCK_PAGES.has(req.path)) return res.redirect('/hub');
-  next();
-});
+// Sessão, re-hidratação de papel, exigência de login e trava do visitante agora
+// vivem em routes/acesso.js (montado lá em cima, antes de qualquer rota).
 
 // ── ANALYTICS DE USO (Módulo 15) — log de navegação de página ─────────────────
-// Roda após session/enforce/hub-lock: só loga páginas que o usuário realmente
+// Roda após a camada de permissões: só loga páginas que o usuário realmente
 // alcançou, já com o email da sessão resolvido. O tempo na página vem do beacon
 // do cliente (office-nav.js → POST /api/analytics/track). Report: /admin/analytics.
 const analyticsRouter = require('./routes/analytics');
@@ -3404,12 +3321,17 @@ app.get('/api/alerts', (req, res) => {
   try {
     const voicesPath = path.join(__dirname, 'public/api/voices.json');
     const voices = JSON.parse(fs0.readFileSync(voicesPath, 'utf8'));
-    const alertas = [...(voices.alertas || [])];
+    // Alertas do programa Voices (quem está sem postar etc.) são do time de MKT.
+    // Colaborador, Voice e Diretoria recebem só os pessoais (status do resgate…).
+    const acesso = require('./routes/acesso');
+    const doTime = acesso.ehSuperAdmin(req.session && req.session.user)
+      || acesso.areasDoUsuario(req.session && req.session.user).includes('time');
+    const alertas = doTime ? [...(voices.alertas || [])] : [];
 
     // Adiciona alertas derivados de runtime
     const now = Date.now();
     const D14 = 14 * 24 * 3600 * 1000;
-    try {
+    if (doTime) try {
       const recentPosts = db.prepare("SELECT voice_id, MAX(captured_at) AS last_at FROM posts GROUP BY voice_id").all();
       const voicesAtivos = (voices.voices || []).filter(v => v.status !== 'inativo');
       for (const v of voicesAtivos) {
@@ -3423,7 +3345,7 @@ app.get('/api/alerts', (req, res) => {
     // 🔔 Alertas pessoais por sessão (v0.82.0) — dados reais, direto do SQLite.
     try {
       const su = req.session && req.session.user;
-      if (su && su.role === 'head') {
+      if (su && require('./routes/users').isSuperAdmin(req)) {
         const pend = db.prepare(`SELECT COUNT(*) n FROM coin_redemptions WHERE status='pendente'`).get().n;
         if (pend > 0) alertas.unshift({ tipo: 'action', msg: `🎁 ${pend} resgate(s) da Loja aguardando sua decisão`, href: '/admin/coins' });
         const novas = db.prepare(`SELECT COUNT(*) n FROM recruitment_applications WHERE COALESCE(status,'novo')='novo'`).get().n;
@@ -4211,10 +4133,13 @@ app.get('/api/relatorio/download-pptx', (req, res) => {
                 '--mes', mes, '--output', tempFile, '--base-url', baseUrl];
   console.log(`[relatorio] gerando PPTX de ${mes}`);
 
-  execFile(PYBIN, args, { timeout: 180000 }, (error, stdout, stderr) => {
+  // O gerador lê /api/relatorio/snapshot deste mesmo servidor. Sem sessão, ele se
+  // autentica com o token de máquina — passado por ambiente, nunca pela URL.
+  const envPy = { ...process.env, OFFICE_EDITOR_TOKEN: ACTIVE_EDITOR_TOKEN };
+  execFile(PYBIN, args, { timeout: 180000, env: envPy }, (error, stdout, stderr) => {
     if (error) {
       // Detalhe (stderr, caminho do interpretador) fica só no log do servidor.
-      console.error(`[relatorio] erro ao gerar PPTX: ${error.message}\n${stderr || ''}`);
+      console.error(`[relatorio] erro ao gerar PPTX: ${error.message}\n${stderr || ''}${stdout || ''}`);
       return res.status(500).json({ success: false, error: 'Erro ao gerar o PowerPoint.' });
     }
     

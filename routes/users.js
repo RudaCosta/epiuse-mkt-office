@@ -18,6 +18,9 @@ function isSuperAdmin(req) {
   const e = req.session && req.session.user && req.session.user.email;
   return !!e && SUPER_ADMINS.has(String(e).toLowerCase());
 }
+// Áreas além das do papel, concedidas pelo super admin (JSON array de ids).
+try { db.exec(`ALTER TABLE users ADD COLUMN areas_extra TEXT DEFAULT '[]'`); } catch (_e) { /* já existe */ }
+
 function requireSuperAdmin(req, res, next) {
   if (isSuperAdmin(req)) return next();
   // Na máquina local (Windows, sem SSO) não há sessão: o token ainda serve lá.
@@ -83,7 +86,9 @@ function profileFor(user) {
   const role = (user && user.active !== 0 && user.role) || DEFAULT_ROLE;
   const cfg = resolveRoleConfig(role);
   const persona = (user && user.persona) || cfg.persona;
-  return { role, persona, landing: cfg.landing, admin: !!cfg.admin };
+  // admin (menu e alertas de administração) só pro super admin, nunca pelo papel.
+  const admin = !!cfg.admin && !!user && SUPER_ADMINS.has(String(user.email || '').toLowerCase());
+  return { role, persona, landing: cfg.landing, admin };
 }
 
 // Landing de acordo com a visualização escolhida (office|game).
@@ -126,19 +131,24 @@ function requireRole(...roles) {
   };
 }
 
-// Admin guard: passa se for 'head' na sessão OU se trouxer editor token válido.
+// Admin guard: super admin (por e-mail) OU editor token válido.
 function requireAdmin(req, res, next) {
-  const role = req.session && req.session.user && req.session.user.role;
-  if (role === 'head') return next();
+  if (isSuperAdmin(req)) return next();
   return requireEditorToken(req, res, next);
 }
 
-// Guard da Visão Executiva (CMO): head (Rudá) OU country-manager (Roberto) na
-// sessão, OU editor token válido (uso local/programático).
+// Guard da Visão Executiva: super admin, Diretoria (country-manager e diretoria)
+// OU editor token válido (uso local/programático).
 function requireExec(req, res, next) {
   const role = req.session && req.session.user && req.session.user.role;
-  if (role === 'head' || role === 'country-manager') return next();
+  if (isSuperAdmin(req) || role === 'country-manager' || role === 'diretoria') return next();
   return requireEditorToken(req, res, next);
+}
+
+// Só ids de área conhecidos e concedíveis entram (admin nunca é concedível).
+function limparAreas(v) {
+  const ok = require('./acesso').AREAS_CONCEDIVEIS;
+  return [...new Set((Array.isArray(v) ? v : []).filter(x => ok.includes(x)))];
 }
 
 // ── Página admin ──────────────────────────────────────────────────────────────
@@ -150,7 +160,11 @@ router.get('/admin/usuarios', requireSuperAdmin, (req, res) => {
 router.get('/api/admin/users', requireSuperAdmin, (req, res) => {
   try {
     const rows = db.prepare('SELECT * FROM users ORDER BY role, email').all();
-    res.json({ roles: ROLES, role_config: ROLE_CONFIG, users: rows });
+    const ac = require('./acesso');
+    res.set('Cache-Control', 'no-store');
+    res.json({ roles: ROLES, role_config: ROLE_CONFIG, users: rows,
+               areas: ac.AREAS, role_areas: ac.ROLE_AREAS, concediveis: ac.AREAS_CONCEDIVEIS,
+               super_admins: [...SUPER_ADMINS] });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -161,16 +175,18 @@ router.post('/api/admin/users', requireSuperAdmin, express.json(), (req, res) =>
     const email = String(b.email || '').trim().toLowerCase();
     if (!email || !email.includes('@')) return res.status(400).json({ error: 'email_invalido' });
     const role = ROLES.includes(b.role) ? b.role : DEFAULT_ROLE;
+    if (role === 'head' && !SUPER_ADMINS.has(email)) return res.status(400).json({ error: 'head_so_super_admin' });
     const name = (b.name || '').trim();
     const persona = (b.persona || '').trim();
     const active = b.active === false || b.active === 0 ? 0 : 1;
+    const extras = JSON.stringify(limparAreas(b.areas_extra));
     const exists = getUserByEmail(email);
     if (exists) {
-      db.prepare(`UPDATE users SET name=?, role=?, persona=?, active=?, updated_at=datetime('now') WHERE email=?`)
-        .run(name || exists.name, role, persona, active, email);
+      db.prepare(`UPDATE users SET name=?, role=?, persona=?, active=?, areas_extra=?, updated_at=datetime('now') WHERE email=?`)
+        .run(name || exists.name, role, persona, active, extras, email);
     } else {
-      db.prepare(`INSERT INTO users (email, name, role, persona, active) VALUES (?,?,?,?,?)`)
-        .run(email, name, role, persona, active);
+      db.prepare(`INSERT INTO users (email, name, role, persona, active, areas_extra) VALUES (?,?,?,?,?,?)`)
+        .run(email, name, role, persona, active, extras);
     }
     res.json({ success: true, user: getUserByEmail(email) });
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -184,11 +200,17 @@ router.put('/api/admin/users/:email', requireSuperAdmin, express.json(), (req, r
     if (!u) return res.status(404).json({ error: 'nao_encontrado' });
     const b = req.body || {};
     const role = ROLES.includes(b.role) ? b.role : u.role;
+    if (role === 'head' && !SUPER_ADMINS.has(email)) return res.status(400).json({ error: 'head_so_super_admin' });
+    // O super admin não se rebaixa nem se desativa pelo painel: trancaria o Office.
+    if (SUPER_ADMINS.has(email) && (role !== 'head' || b.active === false || b.active === 0)) {
+      return res.status(400).json({ error: 'super_admin_protegido' });
+    }
     const name = b.name !== undefined ? String(b.name).trim() : u.name;
     const persona = b.persona !== undefined ? String(b.persona).trim() : u.persona;
     const active = b.active !== undefined ? (b.active ? 1 : 0) : u.active;
-    db.prepare(`UPDATE users SET name=?, role=?, persona=?, active=?, updated_at=datetime('now') WHERE email=?`)
-      .run(name, role, persona, active, email);
+    const extras = b.areas_extra !== undefined ? JSON.stringify(limparAreas(b.areas_extra)) : (u.areas_extra || '[]');
+    db.prepare(`UPDATE users SET name=?, role=?, persona=?, active=?, areas_extra=?, updated_at=datetime('now') WHERE email=?`)
+      .run(name, role, persona, active, extras, email);
     res.json({ success: true, user: getUserByEmail(email) });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
