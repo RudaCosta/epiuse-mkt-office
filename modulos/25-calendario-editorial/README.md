@@ -1,6 +1,6 @@
 # Módulo 25 — Calendário Editorial
 
-**Status:** ✅ v1.0 (Fase 1 — dados semeados) · ⏳ Fase 2 (Graph) aguarda TI
+**Status:** ✅ v1.1 · Fase 2 ligada: em produção o servidor lê a planilha da nuvem (Graph) no boot e a cada 6h — `EDITORIAL_AUTO=0` desliga
 **Rotas:** `/editorial/insights` · `/editorial/calendario` · `/editorial/pautas`
 **Dona do dado:** Bruna Yamagami (Intelligence) + Duda (Brand) — aparece nas 2 áreas
 **Criado:** 30/set/2026

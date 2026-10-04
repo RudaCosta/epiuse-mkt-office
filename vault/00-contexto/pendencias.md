@@ -33,6 +33,10 @@ _Nada bloqueado no momento (02/out/2026)._
 
 ## 🟢 PENDENTE DE EXECUÇÃO (não-bloqueado, dá pra fazer quando quiser)
 
+### ⭐ Validar calendário editorial automático (Módulo 30 · 04/out/2026)
+- **O quê:** depois do próximo deploy, abrir `/area/brand` e conferir a barra "Ao vivo": `Calendário editorial · nuvem · há Xh` = o servidor está lendo a planilha do OneDrive sozinho (Graph, a cada 6h). Se aparecer "falhou", o motivo está em "Precisa de atenção" (403 = permissão do app no Azure; 404 = link `EDITORIAL_SHARE_URL` mudou).
+- **Sem isso:** o bloco do calendário vira link pro `/editorial/calendario` (nunca mostra calendário velho).
+
 ### ⭐ APOLLO_API_KEY no Railway (Módulo 29 · 04/out/2026)
 - **O quê:** confirmar que a variável `APOLLO_API_KEY` existe no Railway (a mesma do `.env` local). Com ela o servidor busca o Apollo sozinho a cada 6h e a área `/area/pipeline` mostra máquina de outbound, sequências e metas. Sem ela, a página avisa "Apollo sem chave" e esconde esses números.
 - **Como checar:** abrir `/area/pipeline` — a barra "Ao vivo" mostra `Apollo · atualizado há Xh` quando está ok.

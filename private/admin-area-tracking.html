@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="/design-tokens.css">
 <script type="module" src="/office-nav.js"></script>
 <style>
-/* Módulos 27/28/29 — painel "quem viu o quê" das áreas (Intelligence, Eventos, Pipeline). Só o dono.
+/* Módulos 27/28/29/30 — painel "quem viu o quê" das áreas (Intelligence, Eventos, Pipeline, Brand). Só o dono.
    Arquivo fora de public/ (private/): servido apenas por GET /admin/<area>. */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -207,12 +207,27 @@ const AREAS = {
     ],
     nodes: { apollo: 'Apollo (auto 6h)', jarvis: 'JARVIS (ao vivo)', zoho: 'Zoho CRM (link)', metas: 'Planilha de metas (link)' },
   },
+  brand: {
+    kind: 'brand', area: 'brand', nome: 'Brand Experience / Voices', page: '/area/brand',
+    acoesSub: 'Voices abertos, etapas da esteira de pautas, cases, calendário, cores copiadas e fontes',
+    secs: [
+      ['hero', '✨ Topo · constelação dos Voices'], ['ferramentas', '🔧 Atalhos'], ['atencao', '🩺 Precisa de atenção'],
+      ['agente', '🤖 Agente da área'], ['projetos', '📁 Projetos'], ['metas', '📊 Números & metas'],
+      ['voices', '🎙️ Voices'], ['esteira', '📝 Esteira de pautas'], ['alcance', '📈 Alcance dos links'],
+      ['inscricoes', '🙋 Inscrições'], ['cases', '🤝 Cases'], ['calendario', '🗓️ Calendário editorial'],
+      ['marca', '🎨 Marca viva'], ['fontes', '🔌 Fontes · dentro e fora']
+    ],
+    nodes: { voices: 'Voices & pautas (ao vivo)', links: 'Links rastreados (ao vivo)', inscricoes: 'Inscrições /seja-voice (ao vivo)',
+      cases: 'Cases (sync diário)', calendario: 'Calendário editorial (Graph 6h)', marca: 'Design System (DESIGN.md)',
+      ssi: 'SSI / perfil dos Voices (link)', linkedin: 'LinkedIn da empresa (link)', duda: 'Calendário da Duda (link)', relatorio: 'Report mensal (link)' },
+  },
 };
 const A = AREAS[location.pathname.replace(/\/+$/, '').split('/').pop()] || AREAS.intelligence;
 const SECS = A.secs;
 const SECL = Object.fromEntries(SECS);
 const NODE = A.nodes;
-let TOOLS = {}, EVT = {}, SEQ = {}, CALL = {};
+let TOOLS = {}, EVT = {}, SEQ = {}, CALL = {}, VOI = {}, PAU = {};
+const ETAPA = { enviada: 'Enviada', em_revisao: 'Em revisão', ajustes_pedidos: 'Ajustes pedidos', aprovada_voice: 'Aguardando OK da Duda', liberada: 'Liberada', publicada: 'Publicada' };
 const DORT = { dor: 'dores', objecao: 'objeções', gatilho: 'gatilhos', sinal: 'sinais', pergunta_vencedora: 'perguntas que abriram' };
 function acaoLabel(id) {
   const [k, ...r] = String(id).split('.'), v = r.join('.');
@@ -250,6 +265,16 @@ function acaoLabel(id) {
   if (k === 'flow') return '🚀 Etapa da máquina · ' + v;
   if (k === 'fora') return '↗ Abriu fonte de fora · ' + (NODE[v] || v);
   if (k === 'refresh') return '🔄 Pediu atualização · ' + v;
+  if (k === 'voice') return '🎙️ Abriu Voice · ' + (VOI[v] || v.replace(/-/g, ' '));
+  if (k === 'vaga') return '🪑 Abriu vaga aberta #' + v;
+  if (k === 'etapa') return '📝 Etapa da esteira · ' + (ETAPA[v] || v);
+  if (k === 'pauta') return '📄 Abriu pauta · ' + (PAU[v] || '#' + v);
+  if (k === 'insc') return '🙋 Inscrições · ' + v.replace(/[-_]/g, ' ');
+  if (k === 'case') return '🤝 Cases · ' + v.replace(/-/g, ' ');
+  if (k === 'caselob') return '🏷️ Cases por LOB · ' + v.replace(/-/g, ' ');
+  if (k === 'cal') return '🗓️ Calendário · ' + v;
+  if (k === 'cor') return '🎨 Copiou cor · ' + v.replace(/-/g, ' ');
+  if (k === 'top') return '🏆 Ranking de cliques · ' + (VOI[v] || v.replace(/-/g, ' '));
   if (k === 'tool') return TOOLS[v] || ('🔧 ' + v);
   if (k === 'sec') return '👀 Viu · ' + (SECL[v] || v);
   if (k === 'scroll') return '📜 Rolou até ' + v + '%';
@@ -363,8 +388,11 @@ $('#eu').addEventListener('change', load);
 const getJ = u => fetch(u, { cache: 'no-store' }).then(r => r.json()).catch(() => ({}));
 // Eventos: nome legível a partir do mesmo slug que a página usa (regiao-mes-nome)
 // Pipeline: nome das sequências (id do Apollo) e empresa das calls do JARVIS
+// Brand: nome dos Voices (slug) e título das pautas (id)
 Promise.all([getJ('/api/areas.json'), getJ('/api/personas.json'), A.kind === 'eventos' ? getJ('/api/events.json') : {},
-  A.kind === 'pipeline' ? getJ('/api/area/pipeline') : {}]).then(([a, pe, ev, pl]) => {
+  A.kind === 'pipeline' ? getJ('/api/area/pipeline') : {}, A.kind === 'brand' ? getJ('/api/area/brand') : {}]).then(([a, pe, ev, pl, br]) => {
+  (((br && br.voices) || {}).voices || []).forEach(v => { VOI[String(v.id).slice(0, 40)] = v.nome; });
+  (((br && br.pautas) || {}).abertas || []).concat(((br && br.pautas) || {}).eventos || []).forEach(p => { const id = p.id || p.pauta_id; if (id) PAU[id] = p.titulo; });
   const ad = pl && pl.apollo && pl.apollo.dados;
   ((ad && ad.sequencias) || []).forEach(q => { SEQ[q.id] = q.nome; });
   (((pl && pl.jarvis) || {}).recentes || []).forEach(c => { CALL[c.id] = `#${c.id} · ${c.empresa || c.prospect || 'sem empresa'}`; });
