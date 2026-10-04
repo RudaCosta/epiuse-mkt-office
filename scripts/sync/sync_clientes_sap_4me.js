@@ -25,7 +25,7 @@ const XLSX = require(_localModules ? path.join(_localModules, 'xlsx') : 'xlsx');
 const fs   = require('fs');
 const os   = require('os');
 
-const EDITOR_TOKEN = process.env.EDITOR_TOKEN || 'eubr-voices-edit-2026';
+const EDITOR_TOKEN = require('../lib/editor-token')();
 const DRY_RUN = process.argv.includes('--dry-run');
 const TARGET = process.argv.includes('--target')
   ? process.argv[process.argv.indexOf('--target') + 1]

@@ -5,7 +5,9 @@ $ErrorActionPreference = 'SilentlyContinue'
 $root = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 if (-not (Test-Path "$root\server.js")) { $root = 'C:\epiuse-mkt-office' }
 $RAILWAY = 'https://epiuse-voices-optimizer.up.railway.app'
-$token = 'eubr-voices-edit-2026'
+. "$PSScriptRoot\..\lib\EditorToken.ps1"
+$token = Get-EditorToken
+if (-not $token) { Write-Host "EDITOR_TOKEN nao encontrado (env ou .env em ~\.epiuse-optimizer). Abortando."; exit 1 }
 $log = "$root\logs\resync-railway.log"
 $dir = Split-Path $log -Parent
 if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir | Out-Null }

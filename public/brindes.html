@@ -482,7 +482,7 @@
                         <h3 class="font-bold text-gray-900 text-lg" id="tableTitle"><i class="fas fa-list-ul mr-2 text-primary"></i> Fila de Produção</h3>
                         <div class="flex gap-2 items-center">
                             <button onclick="exportToExcel()" class="text-xs bg-[#107c41] hover:bg-[#0c5e31] text-white py-2 px-4 rounded-lg font-bold transition-all shadow-sm"><i class="fas fa-file-excel mr-1"></i> XLSX</button>
-                            <a href="/api/brindes/export-csv?token=MKt123" download class="text-xs bg-primary hover:bg-blue-900 text-white py-2 px-4 rounded-lg font-bold transition-all shadow-sm inline-flex items-center gap-1"><i class="fas fa-file-csv"></i> CSV</a>
+                            <a href="/api/brindes/export-csv" download class="text-xs bg-primary hover:bg-blue-900 text-white py-2 px-4 rounded-lg font-bold transition-all shadow-sm inline-flex items-center gap-1"><i class="fas fa-file-csv"></i> CSV</a>
                         </div>
                     </div>
                     <div class="overflow-x-auto max-h-[600px] bg-white">
@@ -509,12 +509,8 @@
     <!-- Modal Login Admin -->
     <div id="loginModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl p-8 w-full max-w-sm shadow-2xl">
-            <h3 class="text-xl font-black text-primary mb-6">Acesso Admin</h3>
-            <div class="space-y-4 mb-6">
-                <input type="email" id="adminUser" placeholder="E-mail" class="input-premium w-full px-4 py-3 rounded-xl outline-none">
-                <input type="password" id="adminPass" placeholder="Senha" class="input-premium w-full px-4 py-3 rounded-xl outline-none">
-            </div>
-            <div id="loginError" class="hidden text-secondary text-sm font-bold mb-4 bg-red-50 p-3 rounded-xl">Credenciais inválidas.</div>
+            <h3 class="text-xl font-black text-primary mb-3">Painel do Marketing</h3>
+            <p class="text-sm text-gray-600 mb-6">A fila de brindes é restrita ao time de Marketing. Entre com a sua conta Microsoft da EPI-USE.</p>
             <div class="flex gap-3">
                 <button onclick="closeLogin()" class="flex-1 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200">Cancelar</button>
                 <button onclick="tryLogin()" class="flex-1 py-3 bg-primary text-white rounded-xl font-bold hover:bg-blue-900">Entrar</button>
@@ -540,13 +536,12 @@
     <script>
     // ── STORAGE (SQLite via API + cache local) ─────────────────────────
     let _cache = null;
-    const ADMIN_TOKEN = 'MKt123';
 
     function dbLoad() { return _cache || []; }
 
     async function dbFetchAll() {
         try {
-            const r = await fetch('/api/brindes', { headers: { 'Authorization': `Bearer ${ADMIN_TOKEN}` } });
+            const r = await fetch('/api/brindes', { credentials: 'same-origin' });
             if (!r.ok) throw new Error(r.status);
             const serverData = await r.json();
             if (serverData.length > 0) {
@@ -572,7 +567,7 @@
 
     async function dbUpdate(id, patch) {
         try {
-            await fetch(`/api/brindes/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${ADMIN_TOKEN}` }, body: JSON.stringify(patch) });
+            await fetch(`/api/brindes/${id}`, { method: 'PATCH', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(patch) });
         } catch (e) { console.error('[brindes] PATCH falhou:', e); }
         if (_cache) {
             const idx = _cache.findIndex(r => r.id === id);
@@ -669,8 +664,9 @@
         const initials = nome ? nome.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase() : 'EU';
         document.getElementById('nav-user-initials').innerText = initials;
 
-        // Admin panel: visível só para o time (role !== 'hub' e role existe)
-        if (role && role !== 'hub') {
+        // Admin panel: só o time de Marketing — mesma lista que o servidor exige
+        // em /api/brindes (a checagem aqui é só de UI; quem protege é o servidor).
+        if (['head','intelligence','growth','field','pipeline','brand','conteudo'].indexOf(role) !== -1) {
             window.isAdminAuthenticated = true;
             document.getElementById('btnAdmin').classList.remove('hidden');
         }
@@ -1010,11 +1006,10 @@
         else document.getElementById('loginModal').classList.remove('hidden');
     };
     window.closeLogin = () => document.getElementById('loginModal').classList.add('hidden');
+    // O painel é liberado pela conta Microsoft (SSO), não por senha digitada aqui:
+    // uma senha conferida no navegador fica legível no código-fonte da página.
     window.tryLogin = () => {
-        const user = document.getElementById('adminUser').value.trim().toLowerCase();
-        const pass = document.getElementById('adminPass').value.trim();
-        if (user === 'marketing@epiuse.com.br' && pass === 'MKt123') { window.isAdminAuthenticated = true; window.closeLogin(); window.switchView('admin'); }
-        else document.getElementById('loginError').classList.remove('hidden');
+        window.location.href = '/login?returnTo=' + encodeURIComponent('/hub/brindes/painel-admin');
     };
     window.logoutAdmin = () => { window.isAdminAuthenticated = false; window.switchView('form'); };
 

@@ -65,10 +65,28 @@ if (!SESSION_SECRET) {
 }
 const ACTIVE_SESSION_SECRET = SESSION_SECRET || crypto.randomBytes(32).toString('hex');
 
+// Comparação em tempo constante: `!==` responde mais rápido quanto antes o
+// primeiro caractere diverge, o que deixa adivinhar o token por tempo.
+function tokenConfere(t) {
+  if (typeof t !== 'string' || !t) return false;
+  const a = Buffer.from(t), b = Buffer.from(ACTIVE_EDITOR_TOKEN);
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+}
+
 function requireEditorToken(req, res, next) {
   const t = req.query.token || req.headers['x-editor-token'];
-  if (t !== ACTIVE_EDITOR_TOKEN) return res.status(401).json({ success: false, error: 'Token inválido' });
+  if (!tokenConfere(t)) return res.status(401).json({ success: false, error: 'Token inválido' });
   next();
+}
+
+// Escrita feita pelas PÁGINAS do Office: autoriza pela sessão do time de
+// Marketing. O editor token continua aceito, mas é credencial de MÁQUINA (scripts
+// de sync) — nunca pode estar embutido em HTML, que qualquer um lê no navegador.
+const MKT_ROLES = new Set(['head', 'intelligence', 'growth', 'field', 'pipeline', 'brand', 'conteudo']);
+function requireMktOuToken(req, res, next) {
+  const role = req.session && req.session.user && req.session.user.role;
+  if (MKT_ROLES.has(role)) return next();
+  return requireEditorToken(req, res, next);
 }
 
 // ── PATHS DE DADOS ────────────────────────────────────────────────────────────
@@ -136,6 +154,8 @@ module.exports = {
   ACTIVE_EDITOR_TOKEN,
   ACTIVE_SESSION_SECRET,
   requireEditorToken,
+  requireMktOuToken,
+  MKT_ROLES,
   requireAuth,
   client,
   resend,
