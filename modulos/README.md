@@ -18,6 +18,7 @@
 | `26-onboarding/` | Onboarding de Marketing — trilha com modo foco, animações e ERP Coins (`/onboarding`) | ✅ v2.2 · certificado + rastreamento |
 | `27-area-intelligence/` | Área Intelligence — página de trabalho da Bruna (atalhos, fila de atenção, dados em abas) + tracking "quem viu o quê" só do dono (`/area/intelligence`, `/admin/intelligence`) | ✅ v1.1 |
 | `28-area-eventos/` | Área Eventos — página visual do Field Marketing (contagem regressiva, calendário BR+LATAM animado, MDF, ROI) + tracking "quem viu o quê" só do dono (`/area/eventos`, `/admin/eventos`) | ✅ v1.0 |
+| `29-area-pipeline/` | Área Pipeline / Biz Dev — só fontes automáticas: Apollo com refresh no servidor (máquina de outbound animada, sequências, ritmo) + voz do campo do JARVIS; Zoho virou link · tracking "quem viu o quê" só do dono (`/area/pipeline`, `/admin/pipeline`) | ✅ v1.0 |
 
 ## Módulos sem pasta própria (documentados em `docs/MODULES.md`)
 

@@ -60,7 +60,7 @@ Registradas por `scripts/lifecycle/install-task.ps1` (sem admin). Rodam via `run
 | `EPI-USE-Office-Health` | A cada 5 min | `office-health.ps1` | Auto-restart se `/api/health` cair |
 | `EPI-USE-Office-Calendar-Sync` | Diário ~07:15 | `run-calendar-sync.ps1` | Calendário Duda + Redatoria → prod, e Rax agendado → xlsx Duda |
 | `EPI-USE-Office-Cases-Sync` | Diário | `run-cases-sync.ps1` | Cases do Roberto → prod |
-| `EPI-USE-Apollo-Sync` | Diário | `run-apollo-sync.ps1` | Snapshot do pipeline Apollo |
+| `EPI-USE-Apollo-Sync` | Diário | `run-apollo-sync.ps1` | Regrava o `pipeline-snapshot.json` (fallback). Em prod o Apollo já é buscado pelo servidor a cada 6h (Módulo 29) |
 | `EPI-USE-Office-LinkedIn-Sync` | Diário | `run-linkedin-sync.ps1` | Métricas LinkedIn |
 | `EPI-USE-Office-LinkedIn-Routine` | Periódico | `run-linkedin-routine.ps1` | Rotina de seguidores LinkedIn |
 | `EPI-USE-Ideias-Xlsx-Sync` | Diário | `run-ideias-xlsx-sync.ps1` | Mural de Ideias → xlsx OneDrive |

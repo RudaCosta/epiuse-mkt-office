@@ -33,6 +33,10 @@ _Nada bloqueado no momento (02/out/2026)._
 
 ## 🟢 PENDENTE DE EXECUÇÃO (não-bloqueado, dá pra fazer quando quiser)
 
+### ⭐ APOLLO_API_KEY no Railway (Módulo 29 · 04/out/2026)
+- **O quê:** confirmar que a variável `APOLLO_API_KEY` existe no Railway (a mesma do `.env` local). Com ela o servidor busca o Apollo sozinho a cada 6h e a área `/area/pipeline` mostra máquina de outbound, sequências e metas. Sem ela, a página avisa "Apollo sem chave" e esconde esses números.
+- **Como checar:** abrir `/area/pipeline` — a barra "Ao vivo" mostra `Apollo · atualizado há Xh` quando está ok.
+
 ### ⭐ resync-railway-all.ps1 (workaround D1) — usar após CADA push até montar volume
 - `powershell -ExecutionPolicy Bypass -File scripts/lifecycle/resync-railway-all.ps1`
 - Re-sincroniza os 4 datasets de uma vez (cases · SAP 4 ME · calendar Duda · Redatoria). Some quando D1 (volume) for feito.

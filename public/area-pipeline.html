@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Biz Dev · Pipeline · EPI-USE Office</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/design-tokens.css">
+<script type="module" src="/office-nav.js"></script>
+<script type="module" src="/office-footer.js"></script>
+<style>
+/* Módulo 29 — Área Pipeline / Biz Dev. Mesma linguagem dos Módulos 27/28.
+   Só tokens do DESIGN.md (regra 8); transparências via color-mix. */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --p-bg: var(--color-neutral-dark-bg);
+  --p-surf: var(--color-neutral-dark-surface);
+  --p-glass: color-mix(in srgb, var(--color-neutral-dark-surface) 62%, transparent);
+  --p-line: var(--color-neutral-dark-border);
+  --p-line2: var(--color-neutral-dark-border-2);
+  --p-text: var(--color-neutral-dark-text);
+  --p-dim: var(--color-neutral-dark-text-dim);
+  --p-muted: var(--color-neutral-dark-text-muted);
+  --p-corn: var(--color-brand-cornflower-blue);
+  --p-steel: var(--color-brand-steel-blue);
+  --p-royal: var(--color-brand-royal-blue);
+  --p-svc: var(--color-brand-service-line-blue);
+  --p-red: var(--color-brand-red);
+  --p-ok: var(--color-success-500);
+  --p-ok2: var(--color-success-300);
+  --p-warn: var(--color-warning-500);
+  --p-bad: var(--color-danger-300);
+  --p-teal: var(--color-spot-teal-green);
+  --p-azure: var(--color-spot-azure-blue);
+  --p-yellow: var(--color-spot-canary-yellow);
+  --p-orange: var(--color-spot-aws-orange);
+  --p-green: var(--color-spot-servicenow-green);
+  --p-other: color-mix(in srgb, var(--color-brand-stone-gray) 42%, transparent);
+  --p-head: var(--type-headline-lg-font-family);
+  --p-body: var(--type-body-md-font-family);
+  --p-mono: var(--type-code-md-font-family);
+  --ease: cubic-bezier(.22,1,.36,1);
+  --spring: cubic-bezier(.34,1.56,.64,1);
+}
+html{scroll-behavior:smooth}
+body{background:var(--p-bg);color:var(--p-text);font-family:var(--p-body);line-height:1.6;overflow-x:hidden}
+h1,h2,h3{font-family:var(--p-head);line-height:1.12;letter-spacing:-.015em}
+a{color:var(--p-corn)}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit}
+.wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 16px}
+.num{font-family:var(--p-head);font-variant-numeric:tabular-nums}
+
+/* ---------- FUNDO VIVO: fluxo de dados ---------- */
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.blob{position:absolute;border-radius:50%;filter:blur(90px);opacity:.42;animation:drift 22s ease-in-out infinite alternate}
+.b1{width:520px;height:520px;background:var(--p-svc);top:-180px;right:-140px}
+.b2{width:460px;height:460px;background:var(--p-royal);bottom:-200px;left:-120px;animation-delay:-8s;opacity:.28}
+.b3{width:240px;height:240px;background:var(--p-teal);top:45%;left:40%;opacity:.05;animation-duration:30s}
+@keyframes drift{to{transform:translate(-70px,60px) scale(1.15)}}
+#streams{position:absolute;inset:0;width:100%;height:100%}
+
+/* ---------- REVEAL ---------- */
+.rv{opacity:0;transform:translateY(26px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
+.rv.in{opacity:1;transform:none}
+.rv.d1{transition-delay:.08s}.rv.d2{transition-delay:.16s}.rv.d3{transition-delay:.24s}.rv.d4{transition-delay:.32s}
+
+/* ---------- BASE ---------- */
+.card{background:var(--p-glass);border:1px solid var(--p-line);border-radius:var(--rounded-xl);padding:22px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.card h3{font-size:16px;font-weight:900;margin-bottom:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.src{font-size:11.5px;color:var(--p-muted);margin-top:12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.fr{display:inline-flex;align-items:center;gap:6px;font:700 11px var(--p-head);padding:3px 9px;border-radius:var(--rounded-full);border:1px solid var(--p-line)}
+.fr::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
+.fr.ok{color:var(--p-ok2)}.fr.warn{color:var(--p-yellow)}.fr.old{color:var(--p-warn)}.fr.none{color:var(--p-muted)}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:var(--rounded-full);background:color-mix(in srgb,var(--p-muted) 14%,transparent);color:var(--p-dim)}
+.ia{display:inline-block;font-size:11px;padding:3px 9px;border-radius:var(--rounded-full);border:1px dashed var(--p-line);color:var(--p-muted)}
+.pend{color:var(--p-muted);font-size:13px}
+
+/* ---------- TOPO ---------- */
+.top{display:grid;grid-template-columns:1fr auto;gap:16px 24px;align-items:center;margin-top:24px;padding:20px 22px;position:relative;overflow:hidden}
+.top::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(var(--p-red),var(--p-corn))}
+.top-id{display:flex;gap:16px;align-items:center;min-width:0}
+.top-ic{flex:0 0 56px;height:56px;border-radius:18px;display:grid;place-items:center;font-size:28px;background:radial-gradient(circle at 30% 25%,var(--p-royal),var(--p-svc) 60%,var(--p-bg));border:1px solid var(--p-line);animation:bob 4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-4px) rotate(-3deg)}}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font:700 11px/1 var(--p-head);letter-spacing:.16em;text-transform:uppercase;color:var(--p-corn);margin-bottom:8px}
+.eyebrow::before{content:'';width:18px;height:2px;background:var(--p-red);border-radius:2px}
+.top h1{font-size:clamp(22px,3vw,30px);font-weight:900}
+.top .foco{font-size:13.5px;color:var(--p-dim);margin-top:4px}
+.who{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:7px 13px;border-radius:var(--rounded-full);background:var(--p-glass);border:1px solid var(--p-line);font-size:13px;color:var(--p-dim);text-decoration:none;backdrop-filter:blur(8px);transition:border-color .25s,transform .3s var(--spring)}
+a.chip:hover{border-color:var(--p-corn);transform:translateY(-2px)}
+.chip .av{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font:900 11px var(--p-head);background:linear-gradient(135deg,var(--p-royal),var(--p-svc));color:var(--p-text)}
+.chip b{color:var(--p-text);font-family:var(--p-head)}
+.chip .dot{width:8px;height:8px;border-radius:50%;background:var(--p-ok);animation:ping 2s infinite}
+.chip.owner{border-color:color-mix(in srgb,var(--p-yellow) 45%,transparent);color:var(--p-text)}
+.chip.owner .dot{background:var(--p-yellow);animation-name:pingY}
+@keyframes ping{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--p-ok) 70%,transparent)}100%{box-shadow:0 0 0 12px transparent}}
+@keyframes pingY{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--p-yellow) 70%,transparent)}100%{box-shadow:0 0 0 12px transparent}}
+@keyframes pingO{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--p-warn) 70%,transparent)}100%{box-shadow:0 0 0 9px transparent}}
+@keyframes pingT{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--p-teal) 70%,transparent)}100%{box-shadow:0 0 0 12px transparent}}
+
+/* barra "ao vivo" */
+.live{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding-top:14px;border-top:1px solid var(--p-line2)}
+.live > span{font:700 11px var(--p-head);letter-spacing:.12em;text-transform:uppercase;color:var(--p-muted);margin-right:4px}
+.sp{appearance:none;cursor:pointer;display:inline-flex;gap:8px;align-items:center;padding:6px 12px;border-radius:var(--rounded-full);border:1px solid var(--p-line);background:var(--p-glass);font-size:12.5px;color:var(--p-dim);transition:border-color .25s,transform .3s var(--spring);text-decoration:none}
+.sp:hover{border-color:var(--p-corn);transform:translateY(-2px)}
+.sp i{width:8px;height:8px;border-radius:50%;background:var(--p-muted)}
+.sp.ok i{background:var(--p-ok);animation:ping 2.2s infinite}.sp.warn i{background:var(--p-yellow)}.sp.old i{background:var(--p-warn);animation:pingO 2s infinite}
+.sp.out{border-style:dashed}
+.sp b{color:var(--p-text);font-weight:600}
+.rf{appearance:none;cursor:pointer;display:inline-flex;gap:7px;align-items:center;padding:6px 13px;border-radius:var(--rounded-full);border:1px solid var(--p-line);background:color-mix(in srgb,var(--p-royal) 50%,transparent);font:700 12.5px var(--p-head);transition:transform .3s var(--spring),border-color .25s}
+.rf:hover{transform:translateY(-2px);border-color:var(--p-corn)}
+.rf .ic{display:inline-block}
+.rf.busy .ic{animation:spin 1s linear infinite}
+.rf[disabled]{opacity:.55;cursor:not-allowed;transform:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ---------- MÁQUINA DE OUTBOUND ---------- */
+.machine{grid-column:1/-1;position:relative;padding:18px 16px 16px;border-radius:var(--rounded-lg);background:linear-gradient(120deg,color-mix(in srgb,var(--p-royal) 34%,transparent),color-mix(in srgb,var(--p-svc) 26%,transparent));border:1px solid var(--p-line);overflow:hidden}
+.machine::after{content:'';position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,color-mix(in srgb,var(--p-text) 8%,transparent) 50%,transparent 65%);transform:translateX(-100%);animation:shine 7s var(--ease) infinite 1.5s;pointer-events:none}
+@keyframes shine{30%,100%{transform:translateX(100%)}}
+.m-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.m-k{font:700 11px var(--p-head);letter-spacing:.14em;text-transform:uppercase;color:var(--p-teal);display:flex;align-items:center;gap:8px}
+.m-k i{width:8px;height:8px;border-radius:50%;background:var(--p-teal);animation:pingT 2s infinite}
+.m-h small{font-size:12px;color:var(--p-muted)}
+.m-row{position:relative;display:flex;align-items:stretch;gap:0}
+#flowCv{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.mn{appearance:none;cursor:pointer;position:relative;z-index:1;flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;padding:14px 8px 12px;border-radius:var(--rounded-lg);background:color-mix(in srgb,var(--p-bg) 62%,transparent);border:1px solid var(--p-line);transition:transform .35s var(--spring),border-color .25s,box-shadow .3s}
+.mn:hover{transform:translateY(-4px);border-color:var(--c)}
+.mn .ic{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-size:20px;background:color-mix(in srgb,var(--c) 18%,transparent);border:2px solid var(--c);transition:transform .25s var(--spring)}
+.mn.hit .ic{transform:scale(1.14)}
+.mn .mt{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0}
+.mn b{font:900 clamp(18px,2.3vw,26px)/1.05 var(--p-head);font-variant-numeric:tabular-nums}
+.mn span{font-size:11.5px;color:var(--p-dim);line-height:1.3}
+.mc{position:relative;z-index:1;flex:0 0 62px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font:900 12px var(--p-head);color:var(--p-text);text-align:center}
+.mc small{font:400 10px var(--p-body);color:var(--p-muted)}
+.m-foot{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px 16px;font-size:12px;color:var(--p-muted)}
+.m-foot b{color:var(--p-dim);font-family:var(--p-head)}
+.m-off{position:relative;z-index:1;display:flex;gap:16px;align-items:center;padding:6px 2px;font-size:13.5px;color:var(--p-dim)}
+.m-off .e{font-size:34px;animation:bob 4s ease-in-out infinite}
+@media (max-width:760px){
+  .top{grid-template-columns:1fr;padding:16px}.who{justify-content:flex-start}.top-ic{flex-basis:46px;height:46px;font-size:23px}.top .foco{display:none}
+  .live{gap:6px}.sp{padding:5px 10px;font-size:11.5px}
+  .m-row{flex-direction:column}
+  .mn{flex-direction:row;text-align:left;gap:12px;padding:10px 12px}
+  .mn .ic{flex:0 0 38px;width:38px;height:38px;font-size:17px}
+  .mn .mt{align-items:flex-start}
+  .mc{flex:0 0 34px;flex-direction:row;gap:6px}
+}
+
+/* ---------- BLOCOS ---------- */
+.blk{margin-top:30px;scroll-margin-top:70px}
+.blk-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.blk-h h2{font-size:19px;font-weight:900}
+.blk-h .hint{font-size:12px;color:var(--p-muted)}
+.cnt{display:inline-grid;place-items:center;min-width:22px;height:22px;padding:0 7px;border-radius:var(--rounded-full);font:900 12px var(--p-head);background:var(--p-red);color:var(--p-text)}
+
+/* ---------- ATALHOS ---------- */
+.grp-l{font:700 11px var(--p-head);letter-spacing:.12em;text-transform:uppercase;color:var(--p-muted);margin:12px 0 8px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:10px;perspective:900px}
+.tile{--mx:50%;--my:50%;position:relative;display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:var(--rounded-lg);background:var(--p-glass);border:1px solid var(--p-line);text-decoration:none;color:var(--p-text);overflow:hidden;backdrop-filter:blur(10px);transition:transform .4s var(--ease),border-color .25s;animation:tin .6s var(--ease) both;animation-delay:calc(var(--k)*40ms)}
+@keyframes tin{from{opacity:0;transform:translateY(10px) scale(.98)}}
+.tile::before{content:'';position:absolute;inset:0;background:radial-gradient(200px circle at var(--mx) var(--my),color-mix(in srgb,var(--p-corn) 22%,transparent),transparent 60%);opacity:0;transition:opacity .3s;pointer-events:none}
+.tile:hover{border-color:var(--p-corn)}
+.tile:hover::before{opacity:1}
+.tile.ext{border-style:dashed}
+.tile .ti{flex:0 0 38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:19px;background:color-mix(in srgb,var(--p-royal) 35%,transparent);border:1px solid var(--p-line);transition:transform .35s var(--spring)}
+.tile:hover .ti{transform:scale(1.1) rotate(-6deg)}
+.tiles.dia .ti{background:color-mix(in srgb,var(--p-teal) 24%,transparent)}
+.tile b{display:block;font:900 13.5px/1.25 var(--p-head)}
+.tile small{font-size:11.5px;color:var(--p-muted);line-height:1.35;margin-top:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* ---------- FILA DE TRABALHO ---------- */
+.work{display:grid;grid-template-columns:1.4fr 1fr;grid-template-areas:"todo ag" "todo pj";grid-template-rows:auto 1fr;gap:14px;margin-top:30px;align-items:start}
+.work .wk-todo{grid-area:todo}.work #agente{grid-area:ag}.work #projetos{grid-area:pj}
+.work .card{padding:18px}
+.work h2{font-size:16px;font-weight:900;margin-bottom:4px;display:flex;gap:8px;align-items:center}
+.work .sub{font-size:12px;color:var(--p-muted);margin-bottom:12px}
+.todo{display:flex;flex-direction:column;gap:6px}
+.td{appearance:none;cursor:pointer;text-align:left;width:100%;display:grid;grid-template-columns:10px 1fr auto;gap:10px;align-items:start;padding:10px 12px;border-radius:12px;border:1px solid var(--p-line2);background:none;transition:background .2s,border-color .2s,transform .3s var(--spring)}
+.td:hover{background:var(--p-glass);border-color:var(--sv);transform:translateX(3px)}
+.td > i{width:9px;height:9px;border-radius:50%;background:var(--sv);margin-top:6px}
+.td b{font-size:13px;font-weight:600;display:block;line-height:1.4}
+.td small{display:block;font-size:12px;color:var(--p-muted);margin-top:3px}
+.td .go{font:700 11.5px var(--p-head);color:var(--p-corn);white-space:nowrap;margin-top:2px}
+.more-btn{appearance:none;border:0;background:none;cursor:pointer;font:700 12px var(--p-head);color:var(--p-corn);padding:8px 2px 0}
+.ag{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.agr{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:9px 10px;border-radius:12px;border:1px solid var(--p-line2);text-decoration:none;color:var(--p-text);font-size:13px;transition:border-color .2s,transform .3s var(--spring)}
+.agr:hover{border-color:var(--p-corn);transform:translateX(3px)}
+.agr .tp{font:700 10px var(--p-mono);padding:2px 7px;border-radius:6px;white-space:nowrap}
+.agr .tp.in{background:color-mix(in srgb,var(--p-yellow) 16%,transparent);color:var(--p-yellow)}
+.agr .tp.out{background:color-mix(in srgb,var(--p-ok) 16%,transparent);color:var(--p-ok2)}
+.agr .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.agr .wh{font-size:11px;color:var(--p-muted);font-family:var(--p-head);white-space:nowrap}
+.lnk{display:inline-block;margin-top:12px;font:700 12px var(--p-head);color:var(--p-corn);text-decoration:none}
+.lnk:hover{text-decoration:underline}
+.road{position:relative;display:flex;flex-direction:column;gap:8px;padding-left:30px;margin-top:8px}
+.road-track{position:absolute;left:10px;top:12px;bottom:12px;width:2px;border-radius:2px;background:var(--p-line)}
+.road-track i{display:block;width:100%;height:0;border-radius:2px;background:linear-gradient(var(--p-corn),var(--p-teal));transition:height 1.8s var(--ease) .2s}
+.in .road-track i{height:100%}
+.rp{position:relative;padding:10px 12px;border-radius:12px;border:1px solid var(--p-line2);display:flex;flex-direction:column;gap:2px}
+.rp::before{content:'';position:absolute;left:-26px;top:50%;width:12px;height:12px;margin-top:-6px;border-radius:50%;background:var(--p-bg);border:3px solid var(--rc)}
+.rp b{font:700 13.5px var(--p-head)}
+.rp .rs{font:700 11.5px var(--p-head);color:var(--rc)}
+@media (max-width:820px){.work{grid-template-columns:1fr;grid-template-rows:none;grid-template-areas:"todo" "ag" "pj"}}
+
+/* ---------- NÚMEROS & METAS ---------- */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.stat{padding:16px 16px 14px;border-radius:var(--rounded-lg);background:var(--p-glass);border:1px solid var(--p-line);backdrop-filter:blur(10px);position:relative;overflow:hidden}
+.stat::after{content:'';position:absolute;left:0;right:0;top:0;height:2px;background:linear-gradient(90deg,var(--p-corn),transparent)}
+.stat b{display:block;font:900 26px/1.1 var(--p-head)}
+.stat span{display:block;font-size:12.5px;color:var(--p-dim);margin-top:4px}
+.stat small{display:block;font-size:11px;color:var(--p-muted);margin-top:6px}
+.goals{display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:12px;margin-top:12px}
+.goal{display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:var(--rounded-lg);background:var(--p-glass);border:1px solid var(--p-line);text-decoration:none;color:var(--p-text)}
+a.goal{border-style:dashed;transition:border-color .2s,transform .3s var(--spring)}
+a.goal:hover{border-color:var(--p-corn);transform:translateY(-2px)}
+.gauge{position:relative;width:78px;height:78px;flex:0 0 78px}
+.gauge svg{width:100%;height:100%;transform:rotate(135deg)}
+.gauge .tr{fill:none;stroke:var(--p-line);stroke-width:10;stroke-linecap:round}
+.gauge .fg{fill:none;stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset 1.8s var(--ease) .2s}
+.gauge .gc{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+.gauge .gc b{font:900 18px/1 var(--p-head)}
+.goal h3{font-size:13px;font-weight:900;line-height:1.3}
+.goal .gv{font-size:12.5px;color:var(--p-dim);margin:2px 0 6px}
+.goal .gv b{color:var(--p-text);font-family:var(--p-head)}
+.goal .gn{display:block;font-size:11px;color:var(--p-muted);margin-top:4px;line-height:1.35}
+.st{display:inline-flex;gap:6px;align-items:center;font:700 11px var(--p-head);padding:3px 9px;border-radius:var(--rounded-full);border:1px solid var(--p-line)}
+.st.ok{color:var(--p-ok2)}.st.warn{color:var(--p-yellow)}.st.bad{color:var(--p-bad)}.st.pend{color:var(--p-muted)}
+@media (max-width:900px){.stats{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:520px){.goals{grid-template-columns:1fr}.stat b{font-size:22px}}
+
+/* ---------- SEQUÊNCIAS ---------- */
+.ctl{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 12px}
+.seg{display:inline-flex;padding:4px;border-radius:var(--rounded-full);background:var(--p-glass);border:1px solid var(--p-line);gap:4px;max-width:100%;overflow-x:auto}
+.seg button{flex:0 0 auto;appearance:none;border:0;background:none;cursor:pointer;padding:7px 13px;border-radius:var(--rounded-full);font:700 12.5px var(--p-head);color:var(--p-dim);white-space:nowrap;transition:background .25s,color .25s}
+.seg button.on{background:var(--p-royal);color:var(--p-text)}
+.seg button small{font-weight:400;color:var(--p-muted);margin-left:3px}
+.fchip{display:inline-flex;gap:6px;align-items:center;font-size:12.5px;padding:5px 6px 5px 12px;border-radius:var(--rounded-full);border:1px solid var(--p-corn);color:var(--p-text)}
+.fchip button{appearance:none;border:0;background:color-mix(in srgb,var(--p-corn) 22%,transparent);width:20px;height:20px;border-radius:50%;cursor:pointer;font-size:11px}
+.seqs{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
+.sq{appearance:none;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:10px;padding:16px;border-radius:var(--rounded-lg);background:var(--p-glass);border:1px solid var(--p-line);backdrop-filter:blur(10px);position:relative;overflow:hidden;animation:pop .55s var(--spring) both;animation-delay:calc(var(--k)*45ms);transition:transform .35s var(--spring),border-color .25s}
+@keyframes pop{from{opacity:0;transform:translateY(10px) scale(.97)}}
+.sq:hover{transform:translateY(-4px);border-color:var(--p-corn)}
+.sq::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--sc)}
+.sq-h{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.sq-h b{font:900 14px/1.3 var(--p-head);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pill{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;font:700 10.5px var(--p-head);letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:var(--rounded-full);border:1px solid var(--p-line);color:var(--p-dim);white-space:nowrap}
+.pill i{width:7px;height:7px;border-radius:50%;background:var(--p-muted)}
+.pill.on{color:var(--p-ok2);border-color:color-mix(in srgb,var(--p-ok) 50%,transparent)}
+.pill.on i{background:var(--p-ok);animation:ping 2s infinite}
+.steps{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.steps span{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:8px;font-size:12px;background:color-mix(in srgb,var(--c) 20%,transparent);border:1px solid color-mix(in srgb,var(--c) 50%,transparent)}
+.steps em{font-style:normal;font-size:11px;color:var(--p-muted);margin-left:4px}
+.mini{display:flex;flex-direction:column;gap:5px}
+.mb{display:grid;grid-template-columns:74px 1fr 46px;gap:8px;align-items:center;font-size:11.5px;color:var(--p-dim)}
+.mb .t{height:8px;border-radius:0 4px 4px 0;background:var(--p-line2);overflow:hidden}
+.mb .t i{display:block;height:100%;width:0;border-radius:0 4px 4px 0;background:var(--c,var(--p-corn));transition:width 1.2s var(--ease);transition-delay:calc(var(--k)*90ms)}
+.in .mb .t i,.mb.go .t i{width:var(--w)}
+.mb b{text-align:right;font-family:var(--p-head);color:var(--p-text)}
+.sq-f{display:flex;flex-wrap:wrap;gap:6px;font-size:11.5px;color:var(--p-muted)}
+.flag{font:700 10.5px var(--p-head);padding:2px 8px;border-radius:var(--rounded-full);border:1px solid color-mix(in srgb,var(--fc) 55%,transparent);color:var(--fc)}
+.seq-more{margin-top:12px;text-align:center}
+
+/* ---------- RITMO & CANAIS ---------- */
+.two{display:grid;grid-template-columns:1.25fr 1fr;gap:16px}
+.cols{position:relative;display:flex;align-items:flex-end;gap:3px;height:150px;border-bottom:1px solid var(--p-line);padding-top:8px}
+.cols .c{flex:1;min-width:3px;display:flex;flex-direction:column-reverse;gap:1px;height:100%;cursor:default}
+.cols .c i{display:block;border-radius:3px 3px 1px 1px;transform-origin:bottom;transform:scaleY(0);transition:transform .9s var(--ease);transition-delay:calc(var(--k)*18ms)}
+.in .cols .c i{transform:scaleY(1)}
+.cols .c i.a{background:linear-gradient(180deg,var(--p-corn),var(--p-svc))}
+.cols .c i.b{background:var(--p-teal)}
+.cols .c:hover i.a{background:var(--p-azure)}
+.axis{display:flex;justify-content:space-between;font-size:10.5px;color:var(--p-muted);margin-top:6px}
+.lg{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--p-dim);margin-top:10px}
+.lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.tip{position:fixed;pointer-events:none;padding:7px 10px;border-radius:10px;background:var(--p-surf);border:1px solid var(--p-line);font-size:12px;white-space:nowrap;transform:translate(-50%,-120%);opacity:0;transition:opacity .15s;z-index:1300}
+.tip.on{opacity:1}
+.tip b{font-family:var(--p-head)}
+.donut-w{display:grid;grid-template-columns:190px 1fr;gap:18px;align-items:center}
+.donut{position:relative;width:190px;height:190px}
+.donut svg{width:100%;height:100%;transform:rotate(-90deg)}
+.donut .sl{fill:none;stroke-width:24;stroke-dasharray:0 440;transition:stroke-dasharray 1.4s var(--ease),stroke-width .3s var(--spring),opacity .3s;cursor:pointer}
+.donut .sl.dim{opacity:.3}
+.donut .sl.hot{stroke-width:32}
+.donut .dc{position:absolute;inset:0;display:grid;place-content:center;text-align:center;pointer-events:none;padding:0 40px}
+.donut .dc b{font:900 30px/1 var(--p-head)}
+.donut .dc span{font-size:11.5px;color:var(--p-dim);margin-top:6px;line-height:1.3}
+.olist{display:flex;flex-direction:column;gap:4px}
+.orow{appearance:none;cursor:pointer;display:grid;grid-template-columns:12px 1fr auto 40px;gap:10px;align-items:center;padding:7px 10px;border-radius:10px;border:1px solid transparent;background:none;text-align:left;font-size:13px;transition:background .2s,border-color .2s}
+.orow:hover,.orow.hot,.orow.on{background:var(--p-glass);border-color:var(--p-line)}
+.orow i{width:12px;height:12px;border-radius:4px;background:var(--c)}
+.orow .ov{font-family:var(--p-head);font-weight:700}
+.orow .op{color:var(--p-muted);text-align:right;font-size:12px}
+@media (max-width:900px){.two{grid-template-columns:1fr}}
+@media (max-width:520px){.donut-w{grid-template-columns:1fr}.donut{justify-self:center}}
+
+/* ---------- ESTÁGIOS ---------- */
+.bars{display:flex;flex-direction:column;gap:9px}
+.hb{appearance:none;border:0;background:none;cursor:pointer;width:100%;text-align:left;display:grid;grid-template-columns:minmax(110px,170px) 1fr 70px;gap:12px;align-items:center;font-size:13px;padding:3px 4px;border-radius:8px;transition:background .2s}
+.hb:hover{background:color-mix(in srgb,var(--p-corn) 10%,transparent)}
+.hb .l{color:var(--p-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hb .t{height:12px;border-radius:0 4px 4px 0;background:var(--p-line2);overflow:hidden}
+.hb .t i{display:block;height:100%;width:0;border-radius:0 4px 4px 0;background:var(--c,linear-gradient(90deg,var(--p-steel),var(--p-corn)));transition:width 1.3s var(--ease);transition-delay:calc(var(--k)*60ms)}
+.in .hb .t i{width:var(--w)}
+.hb .n{text-align:right;font-family:var(--p-head);font-weight:700}
+
+/* ---------- VOZ DO CAMPO (JARVIS) ---------- */
+.field{display:grid;grid-template-columns:1fr 1.15fr;gap:16px}
+.mk{display:grid;grid-template-columns:repeat(2,1fr);gap:12px 18px;margin-bottom:16px}
+.mk div b{display:block;font:900 24px/1.1 var(--p-head)}
+.mk div span{font-size:12px;color:var(--p-muted)}
+.mk .dl{font:700 11px var(--p-head);margin-left:6px}
+.mk .dl.up{color:var(--p-ok2)}.mk .dl.dn{color:var(--p-warn)}
+.thermo{height:8px;border-radius:8px;background:linear-gradient(90deg,var(--p-azure),var(--p-yellow),var(--p-red));position:relative;margin-top:8px}
+.thermo s{position:absolute;top:-4px;width:4px;height:16px;border-radius:2px;background:var(--p-text);left:0;transition:left 1.6s var(--ease) .3s;box-shadow:0 0 0 2px var(--p-bg)}
+.in .thermo s{left:var(--t)}
+.wk-cols{display:flex;align-items:flex-end;gap:5px;height:90px;border-bottom:1px solid var(--p-line);margin-top:6px}
+.wk-cols i{flex:1;border-radius:4px 4px 1px 1px;background:linear-gradient(180deg,var(--p-teal),var(--p-svc));transform-origin:bottom;transform:scaleY(0);transition:transform .9s var(--spring);transition-delay:calc(var(--k)*50ms);position:relative}
+.in .wk-cols i{transform:scaleY(1)}
+.wk-cols i.cur{background:linear-gradient(180deg,var(--p-yellow),var(--p-svc))}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.tabs button{appearance:none;cursor:pointer;padding:6px 12px;border-radius:var(--rounded-full);border:1px solid var(--p-line2);background:none;font:700 12px var(--p-head);color:var(--p-dim);transition:all .2s}
+.tabs button.on{border-color:var(--p-teal);background:color-mix(in srgb,var(--p-teal) 16%,transparent);color:var(--p-text)}
+.tabs button small{font-weight:400;color:var(--p-muted)}
+.voz{display:flex;flex-direction:column;gap:6px;min-height:120px}
+.vz{display:grid;grid-template-columns:1fr 54px;gap:10px;align-items:center;padding:8px 10px;border-radius:10px;border:1px solid var(--p-line2);font-size:13px;animation:pop .45s var(--spring) both;animation-delay:calc(var(--k)*40ms);position:relative;overflow:hidden}
+.vz::before{content:'';position:absolute;left:0;top:0;bottom:0;width:var(--w);background:color-mix(in srgb,var(--p-teal) 12%,transparent);z-index:0}
+.vz span,.vz b{position:relative;z-index:1}
+.vz b{text-align:right;font:900 12px var(--p-head);color:var(--p-teal)}
+.calls{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.cl{appearance:none;cursor:pointer;text-align:left;display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:9px 10px;border-radius:12px;border:1px solid var(--p-line2);background:none;font-size:13px;transition:border-color .2s,transform .3s var(--spring)}
+.cl:hover{border-color:var(--p-teal);transform:translateX(3px)}
+.cl .tq{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font:900 11px var(--p-head);background:conic-gradient(var(--tc) calc(var(--tp)*1%),var(--p-line2) 0);position:relative}
+.cl .tq::after{content:attr(data-v);position:absolute;inset:4px;border-radius:50%;display:grid;place-items:center;background:var(--p-surf)}
+.cl .nm b{display:block;font:700 13px/1.3 var(--p-head);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cl .nm small{display:block;font-size:11.5px;color:var(--p-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cl .wh{font-size:11px;color:var(--p-muted);font-family:var(--p-head);white-space:nowrap}
+.cl .nm{min-width:0}
+.sub2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+@media (max-width:900px){.field,.sub2{grid-template-columns:1fr}}
+
+/* ---------- FONTES ---------- */
+.src2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.srcl{display:flex;flex-direction:column;gap:8px}
+.sr{appearance:none;cursor:pointer;text-align:left;display:grid;grid-template-columns:40px 1fr auto;gap:12px;align-items:center;padding:12px 14px;border-radius:var(--rounded-lg);border:1px solid var(--p-line);background:var(--p-glass);text-decoration:none;color:var(--p-text);transition:border-color .2s,transform .3s var(--spring)}
+.sr:hover{border-color:var(--p-corn);transform:translateX(3px)}
+.sr.out{border-style:dashed}
+.sr .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:19px;background:color-mix(in srgb,var(--p-royal) 35%,transparent)}
+.sr b{display:block;font:900 13.5px var(--p-head)}
+.sr small{display:block;font-size:12px;color:var(--p-muted);line-height:1.4;margin-top:2px}
+.sr .go{font:700 11.5px var(--p-head);color:var(--p-corn);white-space:nowrap}
+@media (max-width:900px){.src2{grid-template-columns:1fr}}
+
+.empty-st{display:flex;gap:16px;align-items:center;padding:18px;border-radius:var(--rounded-lg);border:1px dashed var(--p-line);font-size:13.5px;color:var(--p-dim)}
+.empty-st .e{font-size:34px;animation:bob 4s ease-in-out infinite}
+.btn{appearance:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:var(--rounded-full);font:700 13px var(--p-head);background:var(--p-royal);border:1px solid var(--p-line);color:var(--p-text);text-decoration:none;transition:transform .3s var(--spring),box-shadow .3s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px -12px var(--p-corn)}
+.foot-note{margin:40px 0 40px;padding:14px 18px;border-radius:var(--rounded-lg);border:1px dashed var(--p-line);font-size:12px;color:var(--p-muted)}
+.foot-note b{color:var(--p-dim)}
+
+/* ---------- DRAWER / TOAST ---------- */
+.scrim{position:fixed;inset:0;z-index:890;background:color-mix(in srgb,var(--p-bg) 60%,transparent);backdrop-filter:blur(4px);opacity:0;visibility:hidden;transition:.35s}
+.scrim.on{opacity:1;visibility:visible}
+.drawer{position:fixed;top:0;right:0;z-index:900;width:min(480px,100%);height:100%;display:flex;flex-direction:column;background:var(--p-surf);border-left:1px solid var(--p-line);transform:translateX(105%);transition:transform .5s var(--ease)}
+.drawer.on{transform:none}
+.dr-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:20px 22px 14px;border-bottom:1px solid var(--p-line)}
+.dr-head h3{font-size:19px;line-height:1.25}
+.x{appearance:none;flex:0 0 38px;width:38px;height:38px;border-radius:50%;border:1px solid var(--p-line);background:transparent;cursor:pointer;font-size:18px;transition:transform .3s var(--spring)}
+.x:hover{transform:rotate(90deg)}
+.dr-body{flex:1;overflow:auto;padding:18px 22px 40px}
+.dr-body > *{animation:up .5s var(--ease) both}
+@keyframes up{from{opacity:0;transform:translateY(12px)}}
+.dl{display:flex;flex-direction:column;gap:8px;margin:12px 0 18px}
+.dl div{display:flex;justify-content:space-between;gap:12px;padding:10px 12px;border-radius:12px;border:1px solid var(--p-line2);font-size:13.5px}
+.dl div span{color:var(--p-dim)}
+.dl div b{font-family:var(--p-head);text-align:right}
+.dr-body h4{font:900 13px var(--p-head);letter-spacing:.1em;text-transform:uppercase;color:var(--p-corn);margin:18px 0 8px}
+.dr-body ul{padding-left:18px;font-size:13.5px;color:var(--p-dim);display:flex;flex-direction:column;gap:6px}
+.dr-body p{font-size:13.5px;color:var(--p-dim)}
+.dr-tags{display:flex;flex-wrap:wrap;gap:6px}
+.tl{position:relative;padding-left:26px;display:flex;flex-direction:column;gap:6px}
+.tl::before{content:'';position:absolute;left:12px;top:10px;bottom:10px;width:2px;background:var(--p-line)}
+.tl .s{position:relative;display:flex;justify-content:space-between;gap:10px;padding:8px 10px;border-radius:10px;border:1px solid var(--p-line2);font-size:13px;animation:up .45s var(--ease) both;animation-delay:calc(var(--k)*60ms)}
+.tl .s::before{content:'';position:absolute;left:-19px;top:50%;width:10px;height:10px;margin-top:-5px;border-radius:50%;background:var(--p-bg);border:2px solid var(--c)}
+.tl .s small{color:var(--p-muted);white-space:nowrap}
+.toast{position:fixed;left:50%;bottom:28px;z-index:1200;transform:translate(-50%,40px);opacity:0;padding:12px 18px;border-radius:var(--rounded-full);background:var(--p-surf);border:1px solid var(--p-line);font-weight:600;font-size:14px;transition:all .45s var(--spring);pointer-events:none;max-width:calc(100% - 32px)}
+.toast.on{transform:translate(-50%,0);opacity:1}
+.skel{height:120px;border-radius:var(--rounded-lg);background:linear-gradient(90deg,var(--p-line2),var(--p-glass),var(--p-line2));background-size:200% 100%;animation:sk 1.4s linear infinite}
+@keyframes sk{to{background-position:-200% 0}}
+
+@media (max-width:600px){.tiles{grid-template-columns:1fr 1fr;gap:8px}.tile{padding:10px;gap:9px}.tile small{display:none}.tile .ti{flex-basis:32px;height:32px;font-size:16px}.tile b{font-size:12.5px}.hb{grid-template-columns:96px 1fr 56px}.seqs{grid-template-columns:1fr}.mk{grid-template-columns:1fr 1fr}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important;transition-delay:0s!important}}
+</style>
+</head>
+<body>
+<office-nav></office-nav>
+
+<div class="bg" aria-hidden="true"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><canvas id="streams"></canvas></div>
+
+<main class="wrap">
+  <!-- TOPO + MÁQUINA DE OUTBOUND -->
+  <section class="top card rv" data-sec="hero">
+    <div class="top-id">
+      <span class="top-ic" aria-hidden="true">📞</span>
+      <div><div class="eyebrow">Área · Biz Dev</div><h1>Development Sales &amp; Pipeline</h1>
+        <p class="foco" id="topFoco">Outbound via Apollo.io, prospecção C-Level e a voz do campo que o JARVIS captura nas calls.</p></div>
+    </div>
+    <div class="who">
+      <span class="chip"><span class="av" id="donaAv">ME</span><span id="donaNm">Marlison Estrela</span></span>
+      <a class="chip" id="agChip" href="/agentes/area-pipeline" data-act="agente.chip">🤖 agente da área</a>
+      <a class="chip owner" id="ownerChip" href="/admin/pipeline" hidden><span class="dot"></span><span id="ownerTxt">👁️ Quem viu esta página</span></a>
+    </div>
+    <div class="machine" id="machine"><div class="skel" style="height:130px"></div></div>
+    <div class="live" id="live"><span>Ao vivo</span></div>
+  </section>
+
+  <!-- ATALHOS -->
+  <section class="blk" id="ferramentas" data-sec="ferramentas">
+    <div class="blk-h"><h2>🔧 Atalhos</h2><span class="hint">tracejado = abre fora do Office</span></div>
+    <div class="grp-l">Ferramentas da área</div>
+    <div class="tiles" id="tilesArea"></div>
+    <div class="grp-l" id="grpDia">Do dia a dia</div>
+    <div class="tiles dia" id="tilesDia"></div>
+  </section>
+
+  <!-- FILA DE TRABALHO -->
+  <div class="work">
+    <section class="card wk-todo rv" id="atencao" data-sec="atencao">
+      <h2>🩺 Precisa de atenção <span class="cnt" id="todoCnt">0</span></h2>
+      <p class="sub">Gerado a partir dos dados do Apollo e do JARVIS: some sozinho quando for resolvido.</p>
+      <div class="todo" id="todo"><div class="skel"></div></div>
+    </section>
+    <section class="card rv d1" id="agente" data-sec="agente">
+      <h2>🤖 Agente da área</h2>
+      <p class="sub">Pedidos e entregas do <code>area-pipeline</code></p>
+      <div id="agList"><div class="skel"></div></div>
+    </section>
+    <section class="card rv d2" id="projetos" data-sec="projetos">
+      <h2>📁 Projetos</h2>
+      <div class="road" id="road"></div>
+    </section>
+  </div>
+
+  <!-- NÚMEROS & METAS -->
+  <section class="blk" id="metas" data-sec="metas">
+    <div class="blk-h"><h2>📊 Números &amp; metas</h2><span class="hint" id="metasHint"></span></div>
+    <div class="stats" id="stats"></div>
+    <div class="goals" id="goals"></div>
+  </section>
+
+  <!-- SEQUÊNCIAS -->
+  <section class="blk" id="sequencias" data-sec="sequencias">
+    <div class="blk-h"><h2>📨 Sequências</h2><span class="hint" id="seqHint"></span></div>
+    <div class="ctl">
+      <div class="seg" id="seqFil" role="group" aria-label="Filtrar sequências"></div>
+      <div class="seg" id="seqOrd" role="group" aria-label="Ordenar sequências">
+        <button data-o="respostas" class="on">Mais respostas</button><button data-o="entregues">Mais entregues</button><button data-o="taxa">Taxa de resposta</button><button data-o="recentes">Mais recentes</button>
+      </div>
+      <span id="seqChip"></span>
+    </div>
+    <div class="seqs" id="seqs"><div class="skel"></div></div>
+    <div class="seq-more" id="seqMore"></div>
+  </section>
+
+  <!-- RITMO & CANAIS -->
+  <section class="blk" id="ritmo" data-sec="ritmo">
+    <div class="blk-h"><h2>📈 Ritmo &amp; canais</h2><span class="hint">clique num canal pra filtrar as sequências</span></div>
+    <div class="two">
+      <div class="card rv"><h3>⚡ Envios por dia</h3><div id="ritmoBox"><div class="skel"></div></div></div>
+      <div class="card rv d1"><h3>📡 Mix de canais <span class="tag">passos das sequências ativas</span></h3><div class="donut-w" id="canais"></div></div>
+    </div>
+  </section>
+
+  <!-- ESTÁGIOS -->
+  <section class="blk" id="estagios" data-sec="estagios" hidden>
+    <div class="blk-h"><h2>🪜 Estágios da base</h2><span class="hint">contatos por estágio no Apollo</span></div>
+    <div class="card rv"><div class="bars" id="estBars"></div><p class="src" id="estSrc"></p></div>
+  </section>
+
+  <!-- VOZ DO CAMPO -->
+  <section class="blk" id="campo" data-sec="campo">
+    <div class="blk-h"><h2>🎧 Voz do campo</h2><span class="hint" id="campoHint">calls salvas no JARVIS</span></div>
+    <div class="field" id="campoBox"><div class="skel"></div></div>
+  </section>
+
+  <!-- FONTES -->
+  <section class="blk" id="fontes" data-sec="fontes">
+    <div class="blk-h"><h2>🔌 Fontes</h2><span class="hint">aqui dentro só entra o que atualiza sozinho</span></div>
+    <div class="src2">
+      <div class="card rv"><h3>✅ Dentro · atualização automática</h3><div class="srcl" id="srcIn"></div></div>
+      <div class="card rv d1"><h3>↗ Fora · sync manual (abre na fonte)</h3><div class="srcl" id="srcOut"></div></div>
+    </div>
+  </section>
+
+  <p class="foot-note"><b>Regra do Office:</b> todo número aqui vem da fonte indicada, com a hora do último dado. Fontes que dependem de sync manual saíram da página e viraram links. O que é extraído por IA das calls aparece como <b>🤖 revisar</b>.</p>
+</main>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="drTitle">
+  <div class="dr-head"><h3 id="drTitle"></h3><button class="x" id="drClose" aria-label="Fechar">✕</button></div>
+  <div class="dr-body" id="drBody"></div>
+</aside>
+<div class="toast" id="toast" role="status"></div>
+<div class="tip" id="tip"></div>
+
+<office-footer></office-footer>
+
+<script>
+(() => {
+'use strict';
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $ = (q, el = document) => el.querySelector(q);
+const $$ = (q, el = document) => [...el.querySelectorAll(q)];
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const K = {
+  corn: css('--color-brand-cornflower-blue'), steel: css('--color-brand-steel-blue'), teal: css('--color-spot-teal-green'),
+  yellow: css('--color-spot-canary-yellow'), azure: css('--color-spot-azure-blue'), green: css('--color-spot-servicenow-green'),
+  orange: css('--color-spot-aws-orange'), stone: css('--color-brand-stone-gray'), red: css('--color-brand-red')
+};
+const rgba = (hex, a) => { const h = (hex || '#000').replace('#', ''); const n = parseInt(h.length === 3 ? h.split('').map(x => x + x).join('') : h, 16); return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`; };
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const num = v => (v == null || v === '' || isNaN(Number(v))) ? null : Number(v);
+const fmt = v => num(v) == null ? '—' : num(v).toLocaleString('pt-BR');
+const pct = (v, d = 1) => num(v) == null ? '—' : (v * 100).toLocaleString('pt-BR', { maximumFractionDigits: d }) + '%';
+const MES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+// SQLite grava 'YYYY-MM-DD HH:MM:SS' em UTC; ISO já vem com Z
+const toDate = s => { if (!s) return null; let x = String(s); if (/^\d{4}-\d{2}-\d{2}$/.test(x)) x += 'T12:00:00'; else if (/^\d{4}-\d{2}-\d{2} \d/.test(x)) x = x.replace(' ', 'T') + 'Z'; const d = new Date(x); return isNaN(d) ? null : d; };
+const ddmmm = d => d ? `${String(d.getDate()).padStart(2, '0')}/${MES[d.getMonth()]}${d.getFullYear() !== new Date().getFullYear() ? '/' + String(d.getFullYear()).slice(2) : ''}` : '';
+const DAY = 86400000;
+function ago(s) {
+  const d = toDate(s); if (!d) return '—';
+  const m = Math.round((Date.now() - d) / 60000);
+  if (m < 1) return 'agora'; if (m < 60) return `há ${m} min`;
+  const h = Math.floor(m / 60); if (h < 24) return `há ${h}h`;
+  const dd = Math.floor(h / 24); return dd <= 30 ? `há ${dd}d` : `em ${ddmmm(d)}`;
+}
+const durTxt = ms => { const m = Math.max(0, Math.round(ms / 60000)); const h = Math.floor(m / 60); return h ? `${h}h ${String(m % 60).padStart(2, '0')}min` : `${m} min`; };
+async function j(u, opt) { try { const r = await fetch(u, Object.assign({ credentials: 'same-origin', cache: 'no-store' }, opt)); return r.ok ? await r.json() : (opt ? await r.json().catch(() => ({ error: 'HTTP ' + r.status })) : null); } catch { return null; } }
+let toastT;
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 3200); }
+const slug = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/^\/+/, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'x';
+const APOLLO_SEQ = id => `https://app.apollo.io/#/sequences/${encodeURIComponent(id)}`;
+
+/* ======================= RASTREAMENTO (quem viu o quê) =======================
+   Beacon do Office (POST /api/analytics/track, kind='pipeline', em lote). Quem
+   abriu a página e o tempo total já são gravados pelo servidor/office-nav.
+   Aqui: seções vistas, tempo em cada seção, scroll e cada clique (data-act).
+   Painel: /admin/pipeline (só o dono). */
+const TQ = [];
+let tqT = 0;
+function send(steps) {
+  try {
+    const body = JSON.stringify({ kind: 'pipeline', steps });
+    if (navigator.sendBeacon && navigator.sendBeacon('/api/analytics/track', new Blob([body], { type: 'application/json' }))) return;
+    fetch('/api/analytics/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body, keepalive: true, credentials: 'same-origin' }).catch(() => {});
+  } catch {}
+}
+function flush() { clearTimeout(tqT); while (TQ.length) send(TQ.splice(0, 30)); }
+function track(step) { TQ.push(step); clearTimeout(tqT); tqT = setTimeout(flush, 1500); }
+const SEEN = new Set(), DW = {}, VIS = new Map();
+function dwellStart(id) { if (!VIS.has(id) && !document.hidden) VIS.set(id, performance.now()); }
+function dwellStop(id) { if (VIS.has(id)) { DW[id] = (DW[id] || 0) + (performance.now() - VIS.get(id)); VIS.delete(id); } }
+function dwellDump() {
+  [...VIS.keys()].forEach(dwellStop);
+  Object.keys(DW).forEach(id => { const s = Math.round(DW[id] / 1000); if (s >= 2) track(`tempo.${id}.${s}`); delete DW[id]; });
+  flush();
+}
+const secObs = new IntersectionObserver(es => es.forEach(e => {
+  const id = e.target.dataset.sec;
+  if (e.isIntersecting && e.intersectionRatio >= .3) {
+    if (!SEEN.has(id)) { SEEN.add(id); track('sec.' + id); }
+    dwellStart(id);
+  } else dwellStop(id);
+}), { threshold: [0, .3, .6] });
+$$('[data-sec]').forEach(s => secObs.observe(s));
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) dwellDump();
+  else $$('[data-sec]').forEach(s => { const r = s.getBoundingClientRect(); if (r.top < innerHeight * .7 && r.bottom > innerHeight * .3) dwellStart(s.dataset.sec); });
+});
+addEventListener('pagehide', dwellDump);
+const SCR = new Set();
+let scrRaf = 0;
+addEventListener('scroll', () => {
+  if (scrRaf) return;
+  scrRaf = requestAnimationFrame(() => {
+    scrRaf = 0;
+    const h = document.documentElement.scrollHeight - innerHeight;
+    const p = h > 0 ? (scrollY / h) * 100 : 100;
+    [25, 50, 75, 100].forEach(n => { if (p >= (n === 100 ? 97 : n) && !SCR.has(n)) { SCR.add(n); track('scroll.' + n); } });
+  });
+}, { passive: true });
+document.addEventListener('click', e => {
+  const a = e.target.closest('[data-act]');
+  if (!a) return;
+  track(a.dataset.act);
+  if (a.matches('a[href]') && !a.getAttribute('href').startsWith('#')) dwellDump();
+});
+
+/* ======================= FUNDO: fluxo de dados ======================= */
+(() => {
+  const c = $('#streams'), x = c.getContext('2d'); let W, H, P = [];
+  const COLS = [K.corn, K.teal, K.azure, K.steel];
+  const mk = (rand) => ({ x: rand ? Math.random() * W : -20, y: 0, lane: Math.floor(Math.random() * 7), v: Math.random() * 1.1 + .35, l: Math.random() * 26 + 10, a: Math.random() * .4 + .15, c: COLS[Math.floor(Math.random() * COLS.length)], w: Math.random() * 6.28 });
+  const fit = () => { const d = Math.min(2, devicePixelRatio || 1); W = innerWidth; H = innerHeight; c.width = W * d; c.height = H * d; x.setTransform(d, 0, 0, d, 0, 0); P = Array.from({ length: Math.min(60, Math.round(W * H / 24000)) }, () => mk(true)); };
+  fit(); addEventListener('resize', fit);
+  let t = 0;
+  const laneY = (p) => H * (.12 + p.lane * .125) + Math.sin(t * .6 + p.w + p.x / 260) * 18;
+  const draw = () => {
+    x.clearRect(0, 0, W, H);
+    x.globalCompositeOperation = 'lighter';
+    P.forEach(p => {
+      const y = laneY(p);
+      const g = x.createLinearGradient(p.x - p.l, y, p.x, y);
+      g.addColorStop(0, rgba(p.c, 0)); g.addColorStop(1, rgba(p.c, p.a));
+      x.strokeStyle = g; x.lineWidth = 2; x.lineCap = 'round';
+      x.beginPath(); x.moveTo(p.x - p.l, y); x.lineTo(p.x, y); x.stroke();
+      x.fillStyle = rgba(p.c, Math.min(1, p.a + .25)); x.beginPath(); x.arc(p.x, y, 1.8, 0, 7); x.fill();
+    });
+    x.globalCompositeOperation = 'source-over';
+  };
+  const step = () => { t += .016; P.forEach((p, i) => { p.x += p.v; if (p.x - p.l > W + 10) P[i] = mk(false); }); };
+  const loop = () => { if (!document.hidden) { step(); draw(); } requestAnimationFrame(loop); };
+  if (reduce) draw(); else requestAnimationFrame(loop);
+})();
+
+/* ======================= REVEAL + CONTADORES ======================= */
+function countTo(el) {
+  const to = Number(el.dataset.count), suf = el.dataset.suf || '', dec = Number(el.dataset.dec || 0);
+  if (isNaN(to)) return;
+  const f0 = v => v.toLocaleString('pt-BR', { minimumFractionDigits: dec, maximumFractionDigits: dec }) + suf;
+  if (reduce) { el.textContent = f0(to); return; }
+  const t0 = performance.now(), dur = 1500, ease = k => 1 - Math.pow(1 - k, 3);
+  const f = n => { const k = Math.min(1, (n - t0) / dur); el.textContent = f0(dec ? to * ease(k) : Math.round(to * ease(k))); if (k < 1) requestAnimationFrame(f); };
+  requestAnimationFrame(f);
+}
+function animateIn(el) {
+  const once = (q, fn) => $$(q, el).forEach(c => { if (c.dataset.done) return; c.dataset.done = 1; fn(c); });
+  once('[data-count]', countTo);
+  once('[data-dash]', c => { c.style.strokeDashoffset = c.dataset.dash; });
+  once('[data-da]', c => { c.style.strokeDasharray = c.dataset.da; });
+}
+const revObs = new IntersectionObserver(es => es.forEach(e => {
+  if (!e.isIntersecting) return;
+  const el = e.target; el.classList.add('in'); revObs.unobserve(el);
+  animateIn(el);
+}), { threshold: .15 });
+const watch = root => $$('.rv', root).concat(root.classList && root.classList.contains('rv') ? [root] : []).forEach(el => { if (!el.classList.contains('in')) revObs.observe(el); else animateIn(el); });
+
+/* ======================= DRAWER ======================= */
+const drawer = $('#drawer'), scrim = $('#scrim');
+let lastFocus = null;
+function openDrawer(title, html) {
+  lastFocus = document.activeElement;
+  $('#drTitle').textContent = title; $('#drBody').innerHTML = html;
+  drawer.classList.add('on'); scrim.classList.add('on'); drawer.setAttribute('aria-hidden', 'false'); $('#drClose').focus();
+}
+function closeDrawer() { drawer.classList.remove('on'); scrim.classList.remove('on'); drawer.setAttribute('aria-hidden', 'true'); if (lastFocus) lastFocus.focus(); }
+$('#drClose').addEventListener('click', closeDrawer); scrim.addEventListener('click', closeDrawer);
+addEventListener('keydown', e => { if (e.key === 'Escape' && drawer.classList.contains('on')) closeDrawer(); });
+
+/* ======================= CANAIS: cor fixa por canal (nunca pelo ranking) ======================= */
+const CANAL = {
+  email_auto: { l: 'E-mail automático', i: '📧', v: '--p-corn' },
+  email_manual: { l: 'E-mail manual', i: '📝', v: '--p-azure' },
+  ligacao: { l: 'Ligação', i: '📞', v: '--p-yellow' },
+  linkedin: { l: 'LinkedIn', i: '💼', v: '--p-teal' },
+  tarefa: { l: 'Tarefa', i: '📋', v: '--p-green' },
+  outro: { l: 'Outro', i: '•', v: '--p-other' },
+};
+const CANAL_ORDER = Object.keys(CANAL);
+function canalDe(tipo) {
+  const t = String(tipo || '');
+  if (t === 'auto_email') return 'email_auto';
+  if (t === 'manual_email') return 'email_manual';
+  if (t === 'call' || t === 'phone_call') return 'ligacao';
+  if (t.startsWith('linkedin')) return 'linkedin';
+  if (t === 'action_item' || t === 'task') return 'tarefa';
+  return 'outro';
+}
+const PASSO = { auto_email: 'E-mail automático', manual_email: 'E-mail manual', call: 'Ligação', action_item: 'Tarefa',
+  linkedin_step_connect: 'LinkedIn · convite', linkedin_step_message: 'LinkedIn · mensagem', linkedin_step_view_profile: 'LinkedIn · ver perfil', linkedin_step_interact_post: 'LinkedIn · interagir em post' };
+const cVar = k => `var(${(CANAL[k] || CANAL.outro).v})`;
+
+/* ======================= DADOS ======================= */
+const D = {};
+async function load() {
+  const [ar, pl, ag, pe, ws, mt] = await Promise.all([
+    j('/api/areas.json'), j('/api/area/pipeline'), j('/api/agentes/_counters'), j('/api/personas.json'),
+    j('/api/agentes/area-pipeline/workspace'), j('/api/metas-fy26.json')
+  ]);
+  D.area = ((ar && ar.areas) || []).find(a => a.id === 'pipeline') || {};
+  D.pl = pl && pl.success ? pl : null;
+  D.ap = D.pl ? D.pl.apollo : null;
+  D.a = D.ap && D.ap.dados ? D.ap.dados : null;          // snapshot vivo do Apollo
+  D.hist = (D.ap && D.ap.hist) || [];
+  D.jv = D.pl && D.pl.jarvis && D.pl.jarvis.disponivel ? D.pl.jarvis : null;
+  D.ag = ag && ag['area-pipeline'];
+  D.ws = ws && !ws.error ? ws : null;
+  const p = Object.values((pe && pe.personas) || {}).find(x => x.area === 'pipeline');
+  D.quick = (p && p.quick) || [];
+  D.metasP = ((mt && mt.metas) || []).filter(m => /marlison/i.test(m.responsavel || ''));
+  D.seqs = (D.a && D.a.sequencias || []).filter(s => !s.arquivada);
+}
+const metaFunil = re => { const f = (D.area.funil || []).find(s => re.test(s.estagio || '')); return f ? num(f.meta) : null; };
+const metaPessoa = re => { const m = D.metasP.find(x => re.test(x.label || '')); return m ? num(m.valor) : null; };
+
+// Histórico diário (apollo_hist) → variação numa janela de N dias
+function janela(campo, dias) {
+  const h = D.hist.filter(r => num(r[campo]) != null);
+  if (h.length < 2) return null;
+  const last = h[h.length - 1], lastD = toDate(last.dia);
+  const alvo = new Date(lastD.getTime() - dias * DAY);
+  let base = h[0];
+  for (const r of h) { if (toDate(r.dia) <= alvo) base = r; }
+  const span = Math.round((lastD - toDate(base.dia)) / DAY);
+  if (span < 1) return null;
+  return { v: Math.max(0, last[campo] - base[campo]), dias: Math.min(span, dias), desde: base.dia };
+}
+
+/* ---------- STATUS DAS FONTES ---------- */
+function apolloFresh() {
+  const ap = D.ap;
+  if (!ap) return { cls: 'none', txt: 'indisponível' };
+  if (ap.status === 'sem-chave') return { cls: 'old', txt: 'sem chave no servidor' };
+  if (ap.status === 'erro') return { cls: 'old', txt: 'falhou no último refresh' };
+  if (ap.status === 'aguardando') return { cls: 'warn', txt: 'primeiro refresh a caminho' };
+  if (ap.status === 'parado') return { cls: 'old', txt: `parado desde ${ddmmm(toDate(ap.ultima_sync_ts))}` };
+  return { cls: 'ok', txt: `atualizado ${ago(ap.ultima_sync_ts)}` };
+}
+function jarvisFresh() {
+  const jv = D.jv;
+  if (!jv) return { cls: 'none', txt: 'indisponível' };
+  if (!jv.total_calls) return { cls: 'warn', txt: 'ao vivo · nenhuma call ainda' };
+  return { cls: 'ok', txt: `ao vivo · última call ${ago(jv.ultima_call)}` };
+}
+const SRC = {
+  apollo: () => ({ ic: '🚀', nm: 'Apollo', f: apolloFresh(),
+    det: D.a ? [['Como atualiza', `servidor busca na API a cada ${D.ap.intervalo_h}h`], ['Último refresh', ago(D.ap.ultima_sync_ts)], ['Próximo', D.ap.proxima_ts ? 'em ' + durTxt(toDate(D.ap.proxima_ts) - Date.now()) : '—'], ['Contatos na base', fmt(D.a.contatos_total)], ['Contas', fmt(D.a.contas_total)], ['Sequências', `${fmt(D.a.sequencias_ativas)} ativas de ${fmt(D.a.sequencias_total)}`], ['Histórico diário desde', D.hist.length ? ddmmm(toDate(D.hist[0].dia)) : '—']] : [],
+    gap: D.ap && D.ap.status === 'sem-chave' ? ['Cadastrar APOLLO_API_KEY nas variáveis do Railway (a mesma do .env local). O servidor passa a buscar sozinho a cada 6h.']
+      : D.ap && D.ap.erro ? [`Último erro: ${D.ap.erro}`, 'Conferir se a APOLLO_API_KEY do Railway segue válida.'] : [],
+    link: 'https://app.apollo.io/#/sequences' }),
+  jarvis: () => ({ ic: '🧠', nm: 'JARVIS', f: jarvisFresh(),
+    det: D.jv ? [['Como atualiza', 'cada call salva no /jarvis ou ingerida do Zoho/3CX'], ['Calls na memória', fmt(D.jv.total_calls)], ['Aprendizados extraídos', fmt(D.jv.total_aprendizados)], ['Calls nos últimos 30 dias', fmt(D.jv.calls_30d)]] : [],
+    gap: [], link: '/jarvis' }),
+};
+function openNode(id) {
+  const n = SRC[id] && SRC[id](); if (!n) return;
+  track('node.' + id);
+  const rows = (n.det || []).map(([k, v]) => `<div><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join('');
+  openDrawer(`${n.ic} ${n.nm}`, `
+    <p><span class="fr ${n.f.cls}">${esc(n.f.txt)}</span></p>
+    ${rows ? `<div class="dl">${rows}</div>` : '<p class="pend" style="margin-top:12px">⏳ Sem dado automático ainda.</p>'}
+    ${n.gap && n.gap.length ? `<h4>O que falta</h4><ul>${n.gap.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}
+    <p style="margin-top:16px"><a class="btn" href="${esc(n.link)}"${/^https?:/.test(n.link) ? ' target="_blank" rel="noopener"' : ''} data-act="fora.${id}">Abrir ${esc(n.nm)} ${/^https?:/.test(n.link) ? '↗' : '→'}</a></p>`);
+}
+
+/* ---------- TOPO ---------- */
+function renderTop() {
+  const a = D.area;
+  if (a.foco) $('#topFoco').textContent = a.foco;
+  if (a.dona) { $('#donaNm').textContent = a.dona; $('#donaAv').textContent = a.dona.split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase(); }
+  const k = D.ag || {};
+  if (k.inbox || k.outbox) $('#agChip').insertAdjacentHTML('beforeend', ` · <b>📥 ${fmt(k.inbox || 0)}</b> <b>📤 ${fmt(k.outbox || 0)}</b>`);
+}
+let liveT = 0;
+function renderLive() {
+  const af = apolloFresh(), jf = jarvisFresh();
+  const prox = D.ap && D.ap.proxima_ts && D.ap.status === 'ok' ? `<span class="sp" style="cursor:default" title="Refresh automático do Apollo no servidor">⏱️ próximo refresh <b id="nextRf">em ${esc(durTxt(toDate(D.ap.proxima_ts) - Date.now()))}</b></span>` : '';
+  $('#live').innerHTML = `<span>Ao vivo</span>
+    <button class="sp ${af.cls}" data-node="apollo"><i></i>Apollo · <b>${esc(af.txt)}</b></button>
+    <button class="sp ${jf.cls}" data-node="jarvis"><i></i>JARVIS · <b>${esc(jf.txt)}</b></button>
+    ${prox}
+    ${D.ap && D.ap.chave ? '<button class="rf" id="rfBtn" data-act="refresh.apollo"><span class="ic">🔄</span> Atualizar agora</button>' : ''}
+    <a class="sp out" href="https://crm.zoho.com/crm/" target="_blank" rel="noopener" data-act="fora.zoho">💼 Zoho CRM ↗</a>`;
+  $$('#live [data-node]').forEach(b => b.addEventListener('click', () => openNode(b.dataset.node)));
+  const rb = $('#rfBtn'); if (rb) rb.addEventListener('click', refreshNow);
+  clearInterval(liveT);
+  liveT = setInterval(() => { const el = $('#nextRf'); if (el && D.ap && D.ap.proxima_ts) el.textContent = 'em ' + durTxt(toDate(D.ap.proxima_ts) - Date.now()); }, 30000);
+}
+async function refreshNow() {
+  const b = $('#rfBtn'); if (!b || b.disabled) return;
+  b.disabled = true; b.classList.add('busy'); b.lastChild.textContent = ' Buscando no Apollo…';
+  const r = await j('/api/area/pipeline/refresh', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+  if (r && r.success) { toast('✅ Apollo atualizado agora'); await load(); renderData(); }
+  else { toast('⚠️ ' + ((r && r.error) || 'Não deu pra atualizar agora')); b.disabled = false; b.classList.remove('busy'); b.lastChild.textContent = ' Atualizar agora'; }
+}
+
+/* ---------- MÁQUINA DE OUTBOUND (canvas com partículas entre as etapas) ---------- */
+let MACH = null;
+function renderMachine() {
+  const box = $('#machine');
+  const a = D.a, t = a && a.totais;
+  if (!a || !t) {
+    const ap = D.ap;
+    const why = !ap ? 'Não deu pra ler os dados agora.' : ap.status === 'sem-chave' ? 'O servidor ainda não tem a APOLLO_API_KEY — sem ela não há atualização automática, então os números do Apollo ficam fora desta página.' : ap.status === 'erro' ? `O último refresh falhou (${ap.erro || 'erro'}).` : 'O primeiro refresh automático está a caminho.';
+    box.innerHTML = `<div class="m-off"><span class="e">🛰️</span><div><b style="color:var(--p-text)">Máquina de outbound aguardando o Apollo</b><br>${esc(why)}
+      <p style="margin-top:10px"><a class="btn" href="https://app.apollo.io/#/sequences" target="_blank" rel="noopener" data-act="fora.apollo">Abrir o Apollo ↗</a></p></div></div>`;
+    MACH = null; return;
+  }
+  const ST = [
+    { id: 'base', ic: '👥', l: 'contatos na base', v: a.contatos_total, c: K.steel },
+    { id: 'entregues', ic: '📬', l: 'receberam e-mail', v: t.entregues, c: K.corn },
+    { id: 'abertos', ic: '👀', l: 'abriram', v: t.abertos, c: K.azure },
+    { id: 'respostas', ic: '💬', l: 'responderam', v: t.respondidos, c: K.teal },
+    { id: 'reunioes', ic: '🤝', l: 'reuniões marcadas', v: t.reunioes, c: K.yellow },
+  ];
+  const conv = i => (num(ST[i].v) && num(ST[i + 1].v) != null) ? ST[i + 1].v / ST[i].v : null;
+  const ctxt = r => r == null ? '—' : r >= .1 ? Math.round(r * 100) + '%' : (r * 100).toLocaleString('pt-BR', { maximumFractionDigits: 2 }) + '%';
+  box.innerHTML = `
+    <div class="m-h"><div class="m-k"><i></i>Máquina de outbound · Apollo</div><small>soma de todas as sequências · contatos únicos</small></div>
+    <div class="m-row" id="mRow"><canvas id="flowCv"></canvas>
+      ${ST.map((s, i) => `${i ? `<div class="mc" aria-hidden="true">${ctxt(conv(i - 1))}<small>avançam</small></div>` : ''}
+        <button class="mn" data-i="${i}" data-act="flow.${s.id}" style="--c:${s.c}"><span class="ic">${s.ic}</span><span class="mt"><b class="num" data-count="${num(s.v) || 0}">0</b><span>${esc(s.l)}</span></span></button>`).join('')}
+    </div>
+    <div class="m-foot"><span>Sequências: <b>${fmt(a.sequencias_ativas)} ativas</b> de ${fmt(a.sequencias_total)}</span><span>Contas mapeadas: <b>${fmt(a.contas_total)}</b></span><span>Taxa de resposta: <b>${t.entregues ? pct(t.respondidos / t.entregues) : '—'}</b></span><span>Bounces: <b>${fmt(t.bounces)}</b></span></div>`;
+  animateIn(box);
+  $$('.mn', box).forEach(b => b.addEventListener('click', () => {
+    const s = ST[+b.dataset.i];
+    if (s.id === 'base') return openNode('apollo');
+    $('#sequencias').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
+    setOrder(s.id === 'entregues' ? 'entregues' : 'respostas');
+  }));
+  MACH = { ST, conv, P: [], last: 0 };
+  machineLayout();
+}
+function machineLayout() {
+  if (!MACH) return;
+  const row = $('#mRow'), cv = $('#flowCv'); if (!row || !cv) return;
+  const r = row.getBoundingClientRect(), d = Math.min(2, devicePixelRatio || 1);
+  cv.width = r.width * d; cv.height = r.height * d; cv.getContext('2d').setTransform(d, 0, 0, d, 0, 0);
+  MACH.W = r.width; MACH.H = r.height;
+  MACH.pts = $$('.mn', row).map(n => { const q = n.getBoundingClientRect(); return { x: q.left - r.left + q.width / 2, y: q.top - r.top + q.height / 2, el: n }; });
+}
+addEventListener('resize', () => { clearTimeout(machineLayout._t); machineLayout._t = setTimeout(machineLayout, 150); });
+(() => {
+  const loop = (now) => {
+    requestAnimationFrame(loop);
+    if (!MACH || !MACH.pts || document.hidden) return;
+    const cv = $('#flowCv'); if (!cv) return;
+    const x = cv.getContext('2d');
+    // nascimento: ritmo pelo tamanho da base (log)
+    const base = num(MACH.ST[0].v) || 0;
+    const every = Math.max(90, 520 - Math.log10(base + 10) * 80);
+    if (!reduce && now - MACH.last > every && MACH.P.length < 70) { MACH.last = now; MACH.P.push({ seg: 0, k: 0, v: .006 + Math.random() * .006, off: (Math.random() - .5) * 14, drop: false, a: 1 }); }
+    x.clearRect(0, 0, MACH.W, MACH.H);
+    x.globalCompositeOperation = 'lighter';
+    // trilhos
+    for (let i = 0; i < MACH.pts.length - 1; i++) {
+      const p = MACH.pts[i], q = MACH.pts[i + 1];
+      const g = x.createLinearGradient(p.x, p.y, q.x, q.y);
+      g.addColorStop(0, rgba(MACH.ST[i].c, .35)); g.addColorStop(1, rgba(MACH.ST[i + 1].c, .35));
+      x.strokeStyle = g; x.lineWidth = 2; x.setLineDash([4, 6]); x.lineDashOffset = -now / 40;
+      x.beginPath(); x.moveTo(p.x, p.y); x.lineTo(q.x, q.y); x.stroke();
+    }
+    x.setLineDash([]);
+    MACH.P = MACH.P.filter(o => {
+      const p = MACH.pts[o.seg], q = MACH.pts[o.seg + 1];
+      if (!q) return false;
+      if (o.drop) { o.a -= .025; o.dy = (o.dy || 0) + .25; } else o.k += o.v;
+      const vert = Math.abs(q.y - p.y) > Math.abs(q.x - p.x);
+      const px = p.x + (q.x - p.x) * o.k + (vert ? o.off : 0) + (o.drop && vert ? o.dy * 2 : 0);
+      const py = p.y + (q.y - p.y) * o.k + (vert ? 0 : o.off) + (o.drop && !vert ? o.dy : 0);
+      const col = MACH.ST[o.seg + (o.k > .5 ? 1 : 0)].c;
+      x.fillStyle = rgba(col, .85 * Math.max(0, o.a)); x.beginPath(); x.arc(px, py, 3, 0, 7); x.fill();
+      x.fillStyle = rgba(col, .18 * Math.max(0, o.a)); x.beginPath(); x.arc(px, py, 8, 0, 7); x.fill();
+      if (o.drop) return o.a > 0;
+      // no meio do trilho: decide se avança (taxa real da etapa, com piso visual) ou "vaza"
+      if (!o.tested && o.k > .55) { o.tested = true; const r = MACH.conv(o.seg); if (Math.random() > Math.max(.22, Math.min(1, r == null ? 0 : r * 6))) o.drop = true; }
+      if (o.k >= 1) {
+        const el = q.el; el.classList.add('hit'); clearTimeout(el._h); el._h = setTimeout(() => el.classList.remove('hit'), 180);
+        if (o.seg + 2 >= MACH.pts.length) return false;
+        o.seg++; o.k = 0; o.tested = false;
+      }
+      return true;
+    });
+    x.globalCompositeOperation = 'source-over';
+  };
+  requestAnimationFrame(loop);
+})();
+
+/* ---------- ATALHOS ---------- */
+const isExt = h => /^https?:/i.test(h || '');
+const tileHtml = (t, k) => `<a class="tile${isExt(t.href) ? ' ext' : ''}" href="${esc(t.href)}" data-act="tool.${slug(t.href)}" style="--k:${k}"${isExt(t.href) ? ' target="_blank" rel="noopener"' : ''}>
+    <span class="ti">${t.img ? `<img src="${esc(t.img)}" alt="" width="22" height="22">` : esc(t.icon || '🔗')}</span>
+    <span><b>${esc(t.label)}${isExt(t.href) ? ' ↗' : ''}</b>${t.desc ? `<small>${esc(t.desc)}</small>` : ''}</span></a>`;
+function renderAtalhos() {
+  const self = h => /^\/(area\/)?pipeline\/?$/.test(h || '');
+  const area = (D.area.ferramentas || []).filter(t => t.href && !self(t.href)), seen = new Set(area.map(t => t.href));
+  const dia = D.quick.filter(q => q.href && !q.modal && !seen.has(q.href) && !self(q.href));
+  $('#tilesArea').innerHTML = area.map(tileHtml).join('') || '<p class="pend">Nenhuma ferramenta cadastrada.</p>';
+  $('#tilesDia').innerHTML = dia.map((t, k) => tileHtml(t, k + area.length)).join('');
+  $('#grpDia').hidden = $('#tilesDia').hidden = !dia.length;
+  if (reduce || matchMedia('(hover: none)').matches) return;
+  $$('.tile').forEach(el => {
+    el.addEventListener('pointermove', e => {
+      const r = el.getBoundingClientRect(), px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
+      el.style.setProperty('--mx', px * 100 + '%'); el.style.setProperty('--my', py * 100 + '%');
+      el.style.transform = `rotateX(${((.5 - py) * 8).toFixed(2)}deg) rotateY(${((px - .5) * 10).toFixed(2)}deg) translateY(-2px)`;
+    });
+    el.addEventListener('pointerleave', () => { el.style.transform = ''; });
+  });
+}
+
+/* ---------- PRECISA DE ATENÇÃO (derivado dos dados) ---------- */
+const SEV = { alta: ['var(--p-bad)', 0], media: ['var(--p-yellow)', 1], baixa: ['var(--p-steel)', 2] };
+let TODO = [], todoAll = false;
+function renderTodo() {
+  const it = [], ap = D.ap;
+  if (!ap) it.push({ id: 'fonte-apollo', sev: 'alta', t: 'Não deu pra ler os dados do Apollo agora', a: 'Recarregar a página; se continuar, ver os logs do servidor.', node: 'apollo', go: 'detalhes' });
+  else if (ap.status === 'sem-chave') it.push({ id: 'fonte-apollo-chave', sev: 'alta', t: 'Apollo sem atualização automática: falta a APOLLO_API_KEY no servidor', a: 'Cadastrar a chave nas variáveis do Railway. Até lá os números do Apollo ficam fora da página.', node: 'apollo', go: 'detalhes' });
+  else if (ap.status === 'erro') it.push({ id: 'fonte-apollo-erro', sev: 'alta', t: `Refresh do Apollo falhou: ${ap.erro || 'erro'}`, a: 'Conferir se a APOLLO_API_KEY segue válida.', node: 'apollo', go: 'detalhes' });
+  else if (ap.status === 'parado') it.push({ id: 'fonte-apollo-parado', sev: 'alta', t: `Apollo parado desde ${ddmmm(toDate(ap.ultima_sync_ts))}`, a: ap.erro ? `Último erro: ${ap.erro}` : 'O refresh de 6h não rodou — ver logs do servidor.', node: 'apollo', go: 'detalhes' });
+  const ativas = D.seqs.filter(s => s.ativa);
+  ativas.filter(s => s.fraca).forEach(s => it.push({ id: 'seq-fraca-' + s.id, sev: 'alta', t: `“${s.nome}” marcada com desempenho fraco pelo Apollo`, a: 'Revisar assunto, copy e público da sequência.', seq: s.id, go: 'sequência' }));
+  ativas.filter(s => s.entregues >= 20 && s.taxa_bounce >= .05).forEach(s => it.push({ id: 'seq-bounce-' + s.id, sev: 'alta', t: `Bounce de ${pct(s.taxa_bounce)} em “${s.nome}”`, a: 'Risco de reputação do domínio: limpar e-mails inválidos antes de seguir.', seq: s.id, go: 'sequência' }));
+  ativas.filter(s => s.tarefas_atrasadas > 0).forEach(s => it.push({ id: 'seq-tarefas-' + s.id, sev: 'media', t: `${fmt(s.tarefas_atrasadas)} tarefa${s.tarefas_atrasadas === 1 ? '' : 's'} manual${s.tarefas_atrasadas === 1 ? '' : 'is'} atrasada${s.tarefas_atrasadas === 1 ? '' : 's'} em “${s.nome}”`, a: 'Ligações, LinkedIn ou e-mails manuais esperando no Apollo.', seq: s.id, go: 'sequência' }));
+  ativas.filter(s => !s.entregues && !s.agendados && s.criada_em && (Date.now() - toDate(s.criada_em)) > 7 * DAY).forEach(s => it.push({ id: 'seq-parada-' + s.id, sev: 'media', t: `“${s.nome}” está ativa, mas sem nenhum envio`, a: 'Adicionar contatos ou pausar a sequência.', seq: s.id, go: 'sequência' }));
+  ativas.filter(s => s.passos_fracos > 0 && !s.fraca).forEach(s => it.push({ id: 'seq-passos-' + s.id, sev: 'baixa', t: `${fmt(s.passos_fracos)} passo${s.passos_fracos === 1 ? '' : 's'} abaixo da média em “${s.nome}”`, a: 'O Apollo sinaliza toques com desempenho baixo.', seq: s.id, go: 'sequência' }));
+  const jv = D.jv;
+  if (jv && jv.total_calls && jv.ultima_call && (Date.now() - toDate(jv.ultima_call)) > 14 * DAY) it.push({ id: 'jarvis-parado', sev: 'media', t: `Nenhuma call nova no JARVIS desde ${ddmmm(toDate(jv.ultima_call))}`, a: 'Usar o JARVIS nas calls (ou checar o webhook Zoho/3CX).', scroll: 'campo', go: 'voz do campo' });
+  if (jv && !jv.total_calls) it.push({ id: 'jarvis-vazio', sev: 'baixa', t: 'JARVIS ainda sem calls salvas', a: 'Cada call salva alimenta a voz do campo desta página.', scroll: 'campo', go: 'voz do campo' });
+  TODO = it.sort((a, b) => (SEV[a.sev] || SEV.baixa)[1] - (SEV[b.sev] || SEV.baixa)[1]);
+  drawTodo();
+}
+function drawTodo() {
+  const box = $('#todo'), MAX = 6, list = todoAll ? TODO : TODO.slice(0, MAX);
+  $('#todoCnt').textContent = TODO.length;
+  box.innerHTML = TODO.length ? list.map((x, i) => `<button class="td" data-i="${i}" style="--sv:${(SEV[x.sev] || SEV.baixa)[0]}"><i></i>
+      <span><b>${esc(x.t)}</b>${x.a ? `<small>→ ${esc(x.a)}</small>` : ''}</span><span class="go">${esc(x.go)} →</span></button>`).join('')
+      + (TODO.length > MAX ? `<button class="more-btn" id="todoMore">${todoAll ? 'mostrar menos' : `ver todos (${TODO.length})`}</button>` : '')
+    : '<p class="pend">✅ Nada pendente nos dados agora.</p>';
+  $$('.td', box).forEach(b => b.addEventListener('click', () => {
+    const x = list[+b.dataset.i];
+    track('atencao.' + slug(x.id));
+    if (x.node) openNode(x.node);
+    else if (x.seq) openSeq(x.seq);
+    else if (x.scroll) $('#' + x.scroll).scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
+  }));
+  const m = $('#todoMore'); if (m) m.addEventListener('click', () => { todoAll = !todoAll; drawTodo(); });
+}
+
+/* ---------- AGENTE + PROJETOS ---------- */
+function renderAgent() {
+  const ws = D.ws, box = $('#agList');
+  if (!ws) { box.innerHTML = '<p class="pend">Agente sem workspace ainda.</p><a class="lnk" href="/agentes/area-pipeline" data-act="agente.abrir">Abrir agente →</a>'; return; }
+  const nome = s => { const n = String(s).replace(/^\d{4}-\d{2}-\d{2}-/, '').replace(/\.md$/, '').replace(/-/g, ' '); return n.charAt(0).toUpperCase() + n.slice(1); };
+  const quando = d => { const x = new Date(d); return isNaN(x) ? '' : ddmmm(x); };
+  const rows = (ws.inbox || []).slice(0, 4).map(x => [x, 'in']).concat((ws.outbox || []).slice(0, 4).map(x => [x, 'out']));
+  box.innerHTML = (rows.length ? `<div class="ag">${rows.map(([x, t]) => `<a class="agr" href="/agentes/area-pipeline" data-act="agente.${t === 'in' ? 'inbox' : 'outbox'}" title="${esc(x.nome)}">
+      <span class="tp ${t}">${t === 'in' ? '📥 pedido' : '📤 entrega'}</span><span class="nm">${esc(nome(x.nome))}</span><span class="wh">${quando(x.modificado)}</span></a>`).join('')}</div>`
+    : '<p class="pend">📭 Sem pedidos nem entregas no momento.</p>')
+    + '<a class="lnk" href="/agentes/area-pipeline" data-act="agente.abrir">Abrir workspace completo →</a>';
+}
+function renderRoad() {
+  const ps = D.area.projetos || [];
+  const sc = s => /andamento|rodando|ativo/i.test(s) ? ['run', 'var(--p-corn)'] : /feito|conclu|entregue/i.test(s) ? ['done', 'var(--p-ok)'] : ['plan', 'var(--p-muted)'];
+  $('#road').innerHTML = ps.length ? '<div class="road-track"><i></i></div>' + ps.map(p => { const [k, c] = sc(p.status || ''); return `<div class="rp ${k}" style="--rc:${c}"><b>${esc(p.nome)}</b><span class="rs">${k === 'run' ? '● ' : k === 'done' ? '✓ ' : '○ '}${esc(p.status)}</span></div>`; }).join('')
+    : '<p class="pend">Nenhum projeto cadastrado.</p>';
+}
+
+/* ---------- NÚMEROS ---------- */
+function renderStats() {
+  const a = D.a;
+  if (!a) { $('#stats').innerHTML = '<p class="pend">⏳ Números do Apollo entram aqui assim que o refresh automático rodar no servidor.</p>'; $('#metasHint').textContent = ''; return; }
+  const t = a.totais || {}, f = apolloFresh().txt;
+  const c7 = janela('contatos', 7), k7 = janela('contas', 7);
+  const stats = [
+    { v: a.contatos_total, l: 'contatos na base do Apollo', s: c7 ? `+${fmt(c7.v)} em ${c7.dias}d` : 'inclui importados' },
+    { v: a.contas_total, l: 'contas mapeadas', s: k7 ? `+${fmt(k7.v)} em ${k7.dias}d` : (a.top_contas || []).slice(0, 2).join(' · ') },
+    { v: a.sequencias_ativas, l: `sequências ativas (de ${fmt(a.sequencias_total)})`, s: `${fmt(D.seqs.filter(s => s.ativa && s.entregues).length)} com envio` },
+    { v: t.entregues ? Math.round(t.respondidos * 1000 / t.entregues) / 10 : null, l: 'taxa de resposta', s: `${fmt(t.respondidos)} respostas de ${fmt(t.entregues)}`, suf: '%', dec: 1 },
+  ];
+  $('#stats').innerHTML = stats.map((s, i) => `<div class="stat rv d${i + 1}">
+      <b class="num" ${s.v != null ? `data-count="${s.v}" data-suf="${s.suf || ''}" data-dec="${s.dec || 0}"` : ''}>${s.v != null ? '0' : '—'}</b><span>${esc(s.l)}</span><small>${esc(s.s)} · ${esc(f)}</small></div>`).join('');
+  $('#metasHint').innerHTML = `Apollo · ${esc(f)}`;
+}
+
+/* ---------- METAS (só as que têm realizado automático) ---------- */
+function gaugeSvg(p, color) {
+  const C = 314.16, V = 235.62, off = p == null ? V : V * (1 - Math.min(100, p) / 100);
+  return `<svg viewBox="0 0 120 120"><circle class="tr" cx="60" cy="60" r="50" stroke-dasharray="${V} ${C}"/>
+    ${p == null ? '' : `<circle class="fg" cx="60" cy="60" r="50" style="stroke:${color}" stroke-dasharray="${V} ${C}" stroke-dashoffset="${V}" data-dash="${off.toFixed(1)}"/>`}</svg>`;
+}
+function renderGoals() {
+  const a = D.a;
+  const G = [];
+  const hist0 = D.hist.length ? ddmmm(toDate(D.hist[0].dia)) : null;
+  const pend = hist0 ? `⏳ acumulando histórico desde ${hist0}` : '⏳ histórico começa no 1º refresh automático';
+  const fromWin = (campo, dias, meta) => {
+    const w = janela(campo, dias);
+    if (!w) return { v: null, meta, nota: pend };
+    if (w.dias < dias) {
+      const mp = meta != null ? Math.round(meta * w.dias / dias) : null;
+      return { v: w.v, meta: mp, nota: `⚠️ Estimativa — meta proporcional a ${w.dias} de ${dias} dias` };
+    }
+    return { v: w.v, meta, nota: `últimos ${dias} dias` };
+  };
+  if (a) {
+    G.push({ t: 'Sequências ativas', v: a.sequencias_ativas, meta: metaFunil(/sequ[eê]ncias ativas/i), nota: 'agora, no Apollo' });
+    G.push({ t: 'E-mails entregues (30d)', ...fromWin('entregues', 30, metaFunil(/e-?mails enviados/i)) });
+    G.push({ t: 'Reuniões marcadas (30d)', ...fromWin('reunioes', 30, metaFunil(/reuni/i)), extra: 'marcadas nas sequências do Apollo' });
+    G.push({ t: 'Contas novas no Apollo (7d)', ...fromWin('contas', 7, metaPessoa(/contas perfiladas/i)) });
+  }
+  const goal = (s, i) => {
+    const v = num(s.v), m = num(s.meta), p = v != null && m ? Math.round(v * 100 / m) : null;
+    let st = '<span class="st pend">⏳ aguardando</span>', color = 'var(--p-muted)';
+    if (p != null) {
+      if (p >= 100) { st = '<span class="st ok">✅ meta batida</span>'; color = 'var(--p-ok)'; }
+      else if (p >= 75) { st = '<span class="st ok">🟢 no caminho</span>'; color = 'var(--p-ok)'; }
+      else if (p >= 50) { st = '<span class="st warn">🟡 atrás</span>'; color = 'var(--p-yellow)'; }
+      else { st = '<span class="st bad">🔴 longe</span>'; color = 'var(--p-red)'; }
+    } else if (v != null && !m) st = '<span class="st pend">sem meta</span>';
+    return `<div class="goal rv d${(i % 4) + 1}">
+      <div class="gauge">${gaugeSvg(p, color)}<div class="gc"><b class="num" ${p != null ? `data-count="${p}" data-suf="%"` : ''}>${p != null ? '0%' : '⏳'}</b></div></div>
+      <div><h3>${esc(s.t)}</h3><div class="gv">${v != null ? `<b>${fmt(v)}</b>` : '—'}${m ? ` / ${fmt(m)}` : ''}</div>${st}<span class="gn">${esc(s.nota || '')}${s.extra ? ' · ' + esc(s.extra) : ''}</span></div>
+    </div>`;
+  };
+  // Oportunidades e vendas vivem no Zoho (sync manual) → card-link, sem número
+  const fora = `<a class="goal rv d4" href="https://crm.zoho.com/crm/" target="_blank" rel="noopener" data-act="fora.zoho">
+      <div class="gauge"><div class="gc"><b>↗</b></div>${gaugeSvg(null)}</div>
+      <div><h3>Oportunidades &amp; vendas</h3><div class="gv">metas ${fmt(metaFunil(/oportunidades/i))} opps · ${fmt(metaFunil(/vendas/i))} vendas</div><span class="st pend">↗ abrir no Zoho</span><span class="gn">CRM com sync manual — fica fora desta página</span></div></a>`;
+  $('#goals').innerHTML = (G.length ? G.map(goal).join('') : '<p class="pend">⏳ Metas com realizado automático entram junto com o Apollo.</p>') + fora;
+}
+
+/* ---------- SEQUÊNCIAS ---------- */
+let FIL = 'ativas', ORD = 'respostas', CANAL_F = null, SEQ_ALL = false;
+const ORDS = {
+  respostas: (p, q) => (q.respondidos - p.respondidos) || (q.entregues - p.entregues),
+  entregues: (p, q) => q.entregues - p.entregues,
+  taxa: (p, q) => ((q.entregues >= 10 ? q.taxa_resposta : -1) - (p.entregues >= 10 ? p.taxa_resposta : -1)) || (q.entregues - p.entregues),
+  recentes: (p, q) => (toDate(q.criada_em) || 0) - (toDate(p.criada_em) || 0),
+};
+const seqCanais = s => [...new Set((s.passos || []).map(x => canalDe(x.tipo)))];
+function setOrder(o) { ORD = o; $$('#seqOrd button').forEach(b => b.classList.toggle('on', b.dataset.o === o)); drawSeqs(); }
+function renderSeqControls() {
+  const n = { ativas: D.seqs.filter(s => s.ativa).length, pausadas: D.seqs.filter(s => !s.ativa).length, todas: D.seqs.length };
+  $('#seqFil').innerHTML = [['ativas', '● Ativas'], ['pausadas', '❚❚ Pausadas'], ['todas', 'Todas']].map(([k, l]) => `<button data-f="${k}" class="${FIL === k ? 'on' : ''}">${l}<small>${n[k]}</small></button>`).join('');
+  $$('#seqFil button').forEach(b => b.addEventListener('click', () => { FIL = b.dataset.f; track('filtro.' + FIL); $$('#seqFil button').forEach(x => x.classList.toggle('on', x === b)); SEQ_ALL = false; drawSeqs(); }));
+}
+function drawSeqs() {
+  const box = $('#seqs');
+  if (!D.a) { box.innerHTML = `<div class="empty-st" style="grid-column:1/-1"><span class="e">📨</span><div>As sequências aparecem aqui quando o Apollo estiver com refresh automático no servidor.<p style="margin-top:10px"><a class="btn" href="https://app.apollo.io/#/sequences" target="_blank" rel="noopener" data-act="fora.apollo">Ver sequências no Apollo ↗</a></p></div></div>`; $('#seqMore').innerHTML = ''; $('#seqHint').textContent = ''; return; }
+  let L = D.seqs.filter(s => FIL === 'todas' || (FIL === 'ativas' ? s.ativa : !s.ativa));
+  if (CANAL_F) L = L.filter(s => seqCanais(s).includes(CANAL_F));
+  L = L.slice().sort(ORDS[ORD]);
+  $('#seqChip').innerHTML = CANAL_F ? `<span class="fchip">${esc(CANAL[CANAL_F].i)} ${esc(CANAL[CANAL_F].l)}<button aria-label="Limpar filtro de canal">✕</button></span>` : '';
+  const fc = $('#seqChip button'); if (fc) fc.addEventListener('click', () => { CANAL_F = null; drawSeqs(); drawDonutState(); });
+  const MAX = 9, show = SEQ_ALL ? L : L.slice(0, MAX);
+  const mxE = Math.max(1, ...L.map(s => s.entregues));
+  box.innerHTML = show.length ? show.map((s, k) => {
+    const st = (s.passos || []).slice(0, 9).map(p => { const c = canalDe(p.tipo); return `<span style="--c:${cVar(c)}" title="${esc(PASSO[p.tipo] || p.tipo)}">${CANAL[c].i}</span>`; }).join('');
+    const bar = (l, v, base, kk, c) => `<div class="mb"><span>${l}</span><span class="t"><i style="--w:${base ? Math.max(v ? 3 : 0, v * 100 / base).toFixed(1) : 0}%;--k:${kk};--c:${c}"></i></span><b>${fmt(v)}</b></div>`;
+    const flags = [s.fraca ? '<span class="flag" style="--fc:var(--p-bad)">⚠️ fraca</span>' : '',
+      s.entregues >= 20 && s.taxa_bounce >= .05 ? `<span class="flag" style="--fc:var(--p-bad)">🧱 bounce ${pct(s.taxa_bounce)}</span>` : '',
+      s.tarefas_atrasadas ? `<span class="flag" style="--fc:var(--p-yellow)">⏰ ${s.tarefas_atrasadas} atrasada${s.tarefas_atrasadas === 1 ? '' : 's'}</span>` : ''].join('');
+    return `<button class="sq" data-seq="${esc(s.id)}" data-act="seq.${esc(s.id)}" style="--k:${k};--sc:${s.ativa ? 'var(--p-ok)' : 'var(--p-muted)'}">
+      <div class="sq-h"><b>${esc(s.nome)}</b><span class="pill${s.ativa ? ' on' : ''}"><i></i>${s.ativa ? 'ativa' : 'pausada'}</span></div>
+      <div class="steps">${st}<em>${fmt((s.passos || []).length)} passo${(s.passos || []).length === 1 ? '' : 's'}</em></div>
+      <div class="mini">${bar('entregues', s.entregues, mxE, 0, 'var(--p-corn)')}${bar('abertos', s.abertos, s.entregues, 1, 'var(--p-azure)')}${bar('respostas', s.respondidos, s.entregues, 2, 'var(--p-teal)')}${bar('reuniões', s.reunioes, s.entregues, 3, 'var(--p-yellow)')}</div>
+      <div class="sq-f">${s.entregues ? `<span>💬 ${pct(s.taxa_resposta)} resposta</span><span>👀 ${pct(s.taxa_abertura)} abertura</span>` : '<span>sem envios ainda</span>'}${s.dono ? `<span>· ${esc(s.dono)}</span>` : ''}${flags}</div>
+    </button>`;
+  }).join('') : `<p class="pend" style="grid-column:1/-1">Nenhuma sequência ${FIL === 'ativas' ? 'ativa' : FIL === 'pausadas' ? 'pausada' : ''}${CANAL_F ? ' com ' + CANAL[CANAL_F].l : ''}.</p>`;
+  $$('.sq', box).forEach(b => b.addEventListener('click', () => openSeq(b.dataset.seq)));
+  // barras animam quando o card entra
+  requestAnimationFrame(() => requestAnimationFrame(() => $$('.mb', box).forEach(m => m.classList.add('go'))));
+  $('#seqMore').innerHTML = L.length > MAX ? `<button class="more-btn" id="seqAll">${SEQ_ALL ? 'mostrar menos' : `ver todas (${L.length})`}</button>` : '';
+  const sa = $('#seqAll'); if (sa) sa.addEventListener('click', () => { SEQ_ALL = !SEQ_ALL; drawSeqs(); });
+  $('#seqHint').innerHTML = `Apollo · ${esc(apolloFresh().txt)}`;
+}
+function openSeq(id) {
+  const s = D.seqs.find(x => x.id === id); if (!s) return;
+  let acc = 0;
+  const tl = (s.passos || []).map((p, k) => { acc += num(p.espera) || 0; const c = canalDe(p.tipo); return `<div class="s" style="--c:${cVar(c)};--k:${k}"><span>${CANAL[c].i} ${esc(PASSO[p.tipo] || p.tipo)}</span><small>${k === 0 ? 'início' : `+${fmt(p.espera)} ${p.modo === 'minute' ? 'min' : p.modo === 'hour' ? 'h' : 'dia' + ((num(p.espera) || 0) === 1 ? '' : 's')}`}</small></div>`; }).join('');
+  const rows = [['Status', s.ativa ? '● ativa' : '❚❚ pausada'], ['Dono', s.dono || '—'], ['Criada em', s.criada_em ? ddmmm(toDate(s.criada_em)) : '—'], ['Último uso', s.usada_em ? ago(s.usada_em) : '—'],
+    ['Entregues', fmt(s.entregues)], ['Abertos', `${fmt(s.abertos)} · ${pct(s.taxa_abertura)}`], ['Respostas', `${fmt(s.respondidos)} · ${pct(s.taxa_resposta)}`], ['Cliques', `${fmt(s.cliques)} · ${pct(s.taxa_clique)}`],
+    ['Reuniões marcadas', fmt(s.reunioes)], ['Bounces', `${fmt(s.bounces)} · ${pct(s.taxa_bounce)}`], ['Descadastros', fmt(s.descadastros)], ['Agendados (ainda não enviados)', fmt(s.agendados)], ['Tarefas manuais atrasadas', fmt(s.tarefas_atrasadas)]];
+  openDrawer(`📨 ${s.nome}`, `
+    <div class="dr-tags"><span class="tag">${s.ativa ? '● ativa' : '❚❚ pausada'}</span>${s.fraca ? '<span class="tag">⚠️ desempenho fraco (Apollo)</span>' : ''}${seqCanais(s).map(c => `<span class="tag">${CANAL[c].i} ${esc(CANAL[c].l)}</span>`).join('')}</div>
+    <div class="dl">${rows.map(([k, v]) => `<div><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join('')}</div>
+    ${tl ? `<h4>Cadência (${fmt(s.passos.length)} passos)</h4><div class="tl">${tl}</div>` : ''}
+    <p style="margin-top:18px"><a class="btn" href="${APOLLO_SEQ(s.id)}" target="_blank" rel="noopener" data-act="fora.apollo">Abrir no Apollo ↗</a></p>
+    <p class="src">Apollo · ${esc(apolloFresh().txt)} · contatos únicos por métrica</p>`);
+}
+
+/* ---------- RITMO (histórico diário) ---------- */
+const tip = $('#tip');
+function renderRitmo() {
+  const box = $('#ritmoBox'), h = D.hist;
+  if (!D.a) { box.innerHTML = '<p class="pend">⏳ Entra junto com o refresh automático do Apollo.</p>'; return; }
+  const S = [];
+  for (let i = 1; i < h.length; i++) {
+    const gap = Math.max(1, Math.round((toDate(h[i].dia) - toDate(h[i - 1].dia)) / DAY));
+    S.push({ dia: h[i].dia, gap, e: Math.max(0, (h[i].entregues || 0) - (h[i - 1].entregues || 0)), r: Math.max(0, (h[i].respondidos || 0) - (h[i - 1].respondidos || 0)) });
+  }
+  if (!S.length) {
+    box.innerHTML = `<div class="empty-st"><span class="e">📈</span><div><b style="color:var(--p-text)">O ritmo diário nasce do histórico automático.</b><br>${h.length ? `1º registro em ${esc(ddmmm(toDate(h[0].dia)))}.` : 'O 1º registro entra no próximo refresh.'} A cada dia o servidor guarda um retrato do Apollo e as barras aparecem a partir do 2º dia.</div></div>`;
+    return;
+  }
+  const L = S.slice(-30), mx = Math.max(1, ...L.map(s => s.e + s.r));
+  const totE = L.reduce((a, s) => a + s.e, 0), totR = L.reduce((a, s) => a + s.r, 0), dias = L.reduce((a, s) => a + s.gap, 0);
+  box.innerHTML = `<div class="mk" style="grid-template-columns:repeat(3,1fr)"><div><b class="num" data-count="${totE}">0</b><span>entregues em ${dias} dia${dias === 1 ? '' : 's'}</span></div>
+      <div><b class="num" data-count="${Math.round(totE / Math.max(1, dias))}">0</b><span>por dia (média) · meta ${fmt(metaPessoa(/e-?mails personalizados/i))}/dia</span></div>
+      <div><b class="num" data-count="${totR}">0</b><span>respostas no período</span></div></div>
+    <div class="cols" id="cols">${L.map((s, k) => `<div class="c" data-k="${k}"><i class="a" style="height:${(s.e * 100 / mx).toFixed(1)}%;--k:${k}"></i>${s.r ? `<i class="b" style="height:${Math.max(2, s.r * 100 / mx).toFixed(1)}%;--k:${k}"></i>` : ''}</div>`).join('')}</div>
+    <div class="axis"><span>${esc(ddmmm(toDate(L[0].dia)))}</span><span>${esc(ddmmm(toDate(L[L.length - 1].dia)))}</span></div>
+    <div class="lg"><span><i style="background:var(--p-corn)"></i>e-mails entregues</span><span><i style="background:var(--p-teal)"></i>respostas</span></div>
+    <p class="src">Diferença diária dos totais do Apollo (histórico automático do servidor)</p>`;
+  $$('#cols .c').forEach(c => {
+    const s = L[+c.dataset.k];
+    c.addEventListener('pointerenter', () => { const r = c.getBoundingClientRect(); tip.innerHTML = `<b>${esc(ddmmm(toDate(s.dia)))}</b>${s.gap > 1 ? ` (${s.gap} dias)` : ''} · ${fmt(s.e)} entregues · ${fmt(s.r)} respostas`; tip.style.left = (r.left + r.width / 2) + 'px'; tip.style.top = r.top + 'px'; tip.classList.add('on'); });
+    c.addEventListener('pointerleave', () => tip.classList.remove('on'));
+  });
+  watch(box.closest('.card'));
+}
+
+/* ---------- MIX DE CANAIS (donut) ---------- */
+function renderCanais() {
+  const box = $('#canais');
+  const at = D.seqs.filter(s => s.ativa);
+  const cnt = {}; at.forEach(s => (s.passos || []).forEach(p => { const c = canalDe(p.tipo); cnt[c] = (cnt[c] || 0) + 1; }));
+  const rows = CANAL_ORDER.filter(k => cnt[k]).map(k => [k, cnt[k]]);
+  const T = rows.reduce((a, r) => a + r[1], 0);
+  if (!T) { box.innerHTML = `<p class="pend" style="grid-column:1/-1">${D.a ? 'Nenhuma sequência ativa com passos.' : '⏳ Entra junto com o Apollo.'}</p>`; return; }
+  const C = 2 * Math.PI * 70; let off = 0;
+  const sl = rows.map(([k, v]) => { const len = v / T * C, s = `<circle class="sl" data-c="${k}" cx="95" cy="95" r="70" style="stroke:${cVar(k)}" stroke-dashoffset="${(-off).toFixed(2)}" data-da="${len.toFixed(2)} ${(C - len).toFixed(2)}"/>`; off += len; return s; }).join('');
+  box.innerHTML = `<div class="donut"><svg viewBox="0 0 190 190">${sl}</svg><div class="dc"><b class="num" data-count="${T}">0</b><span>passos em ${fmt(at.length)} sequências ativas</span></div></div>
+    <div class="olist">${rows.map(([k, v]) => `<button class="orow" data-c="${k}"><i style="--c:${cVar(k)}"></i><span>${CANAL[k].i} ${esc(CANAL[k].l)}</span><span class="ov">${fmt(v)}</span><span class="op">${Math.round(v * 100 / T)}%</span></button>`).join('')}</div>`;
+  const pick = k => { CANAL_F = CANAL_F === k ? null : k; track('canal.' + k); if (CANAL_F && FIL !== 'ativas') { FIL = 'ativas'; renderSeqControls(); } SEQ_ALL = false; drawSeqs(); drawDonutState(); if (CANAL_F) $('#sequencias').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' }); };
+  const hot = k => { $$('.sl', box).forEach(s => s.classList.toggle('hot', s.dataset.c === k)); $$('.orow', box).forEach(r => r.classList.toggle('hot', r.dataset.c === k)); };
+  $$('[data-c]', box).forEach(el => {
+    el.addEventListener('pointerenter', () => hot(el.dataset.c)); el.addEventListener('pointerleave', () => hot(null));
+    el.addEventListener('click', () => pick(el.dataset.c));
+  });
+  watch(box.closest('.card'));
+}
+function drawDonutState() {
+  $$('#canais .sl').forEach(s => s.classList.toggle('dim', !!CANAL_F && s.dataset.c !== CANAL_F));
+  $$('#canais .orow').forEach(r => r.classList.toggle('on', r.dataset.c === CANAL_F));
+}
+
+/* ---------- ESTÁGIOS DA BASE (opcional: depende da permissão da chave) ---------- */
+function renderEstagios() {
+  const est = D.a && D.a.estagios, sec = $('#estagios');
+  if (!est || !est.length) { sec.hidden = true; return; }
+  sec.hidden = false;
+  const mx = Math.max(1, ...est.map(e => num(e.contatos) || 0));
+  const col = c => /succe/i.test(c || '') ? 'var(--p-ok)' : /fail/i.test(c || '') ? 'var(--p-bad)' : /progress/i.test(c || '') ? 'var(--p-corn)' : 'var(--p-steel)';
+  $('#estBars').innerHTML = est.map((e, k) => `<button class="hb" data-act="estagio.${slug(e.nome)}" title="${esc(e.nome)}"><span class="l">${esc(e.nome)}</span><span class="t"><i style="--w:${((num(e.contatos) || 0) * 100 / mx).toFixed(1)}%;--k:${k};--c:${col(e.categoria)}"></i></span><span class="n">${fmt(e.contatos)}</span></button>`).join('');
+  $('#estSrc').innerHTML = `Apollo · ${esc(apolloFresh().txt)} · verde = sucesso · vermelho = descartado`;
+  watch(sec);
+}
+
+/* ---------- VOZ DO CAMPO (JARVIS) ---------- */
+const DORT = [['dor', '😣 Dores'], ['objecao', '🛑 Objeções'], ['gatilho', '⚡ Gatilhos'], ['sinal', '📡 Sinais'], ['pergunta_vencedora', '🗝️ Perguntas que abriram']];
+let DT = 'dor';
+const tempCor = v => v == null ? 'var(--p-muted)' : v >= 70 ? 'var(--p-red)' : v >= 40 ? 'var(--p-yellow)' : 'var(--p-azure)';
+function renderCampo() {
+  const box = $('#campoBox'), jv = D.jv;
+  if (!jv) { box.innerHTML = '<p class="pend">⏳ Memória do JARVIS indisponível agora.</p>'; return; }
+  $('#campoHint').innerHTML = `JARVIS · ${esc(jarvisFresh().txt)}`;
+  if (!jv.total_calls) {
+    box.innerHTML = `<div class="empty-st" style="grid-column:1/-1"><span class="e">🎧</span><div><b style="color:var(--p-text)">Nenhuma call salva no JARVIS ainda.</b><br>Cada call salva (ou ingerida do Zoho/3CX) vira dores, objeções e gatilhos aqui — automático.
+      <p style="margin-top:12px"><a class="btn" href="/jarvis" data-act="tool.jarvis">Abrir o JARVIS →</a></p></div></div>`;
+    return;
+  }
+  // calls por semana (12 semanas, a última = esta)
+  const W = Array(12).fill(0), now = Date.now();
+  (jv.datas_84d || []).forEach(s => { const d = toDate(s); if (!d) return; const w = Math.floor((now - d) / (7 * DAY)); if (w >= 0 && w < 12) W[11 - w]++; });
+  const mw = Math.max(1, ...W);
+  const dlt = jv.calls_30d - jv.calls_30d_anterior;
+  const temp = jv.temperatura_media_30d;
+  const aprT = DORT.map(([k, l]) => [k, l, (jv.aprendizados[k] || []).length]).filter(x => x[2]);
+  if (aprT.length && !aprT.some(x => x[0] === DT)) DT = aprT[0][0];
+  const barsL = (rows, key) => { const m = Math.max(1, ...rows.map(r => r.n)); return rows.map((r, k) => `<div class="hb" style="cursor:default"><span class="l" title="${esc(r[key])}">${esc(r[key])}</span><span class="t"><i style="--w:${(r.n * 100 / m).toFixed(1)}%;--k:${k}"></i></span><span class="n">${fmt(r.n)}</span></div>`).join(''); };
+  box.innerHTML = `
+    <div class="card rv">
+      <h3>📞 Ritmo de calls</h3>
+      <div class="mk">
+        <div><b class="num" data-count="${jv.calls_30d}">0</b><span>calls em 30 dias${jv.calls_30d_anterior || jv.calls_30d ? `<span class="dl ${dlt >= 0 ? 'up' : 'dn'}">${dlt >= 0 ? '▲' : '▼'} ${fmt(Math.abs(dlt))} vs 30d antes</span>` : ''}</span></div>
+        <div><b class="num" data-count="${jv.total_calls}">0</b><span>calls na memória · ${fmt(jv.total_aprendizados)} aprendizados</span></div>
+        <div><b>${jv.duracao_media_30d != null ? durTxt(jv.duracao_media_30d * 1000) : '—'}</b><span>duração média (30d)</span></div>
+        <div><b>${temp != null ? fmt(temp) + '°' : '—'}</b><span>temperatura média (30d)</span>${temp != null ? `<div class="thermo" style="--t:${Math.max(0, Math.min(100, temp))}%"><s></s></div>` : ''}</div>
+      </div>
+      <div class="wk-cols" title="calls por semana">${W.map((n, k) => `<i class="${k === 11 ? 'cur' : ''}" style="height:${n ? Math.max(6, n * 100 / mw) : 2}%;--k:${k}" title="${n} call${n === 1 ? '' : 's'}"></i>`).join('')}</div>
+      <div class="axis"><span>há 12 semanas</span><span>esta semana</span></div>
+      <div class="sub2">
+        <div><h3 style="font-size:13.5px;margin-bottom:10px">👤 Quem fez (90d)</h3><div class="bars">${barsL(jv.por_sdr.map(r => ({ quem: r.quem === 'zoho-webhook' ? 'Zoho / 3CX (auto)' : r.quem, n: r.n })), 'quem') || '<p class="pend">—</p>'}</div></div>
+        <div><h3 style="font-size:13.5px;margin-bottom:10px">🎯 Por LOB (90d)</h3><div class="bars">${barsL(jv.por_lob, 'lob') || '<p class="pend">—</p>'}</div></div>
+      </div>
+    </div>
+    <div class="card rv d1">
+      <h3>🧠 O que o cliente disse <span class="ia">🤖 extraído por IA das calls reais — revisar</span></h3>
+      ${aprT.length ? `<div class="tabs" id="dtabs">${aprT.map(([k, l, n]) => `<button data-t="${k}" class="${k === DT ? 'on' : ''}">${l} <small>${n}</small></button>`).join('')}</div><div class="voz" id="voz"></div>`
+        : '<p class="pend">Calls salvas ainda sem aprendizados extraídos.</p>'}
+      <h3 style="margin-top:18px">🕑 Últimas calls</h3>
+      <div class="calls">${(jv.recentes || []).map(c => `<button class="cl" data-call="${c.id}" data-act="call.${c.id}"><span class="tq" data-v="${c.temperatura != null ? c.temperatura : '–'}" style="--tp:${c.temperatura || 0};--tc:${tempCor(c.temperatura)}" title="temperatura"></span>
+          <span class="nm"><b>${esc(c.empresa || c.prospect || 'Sem empresa')}</b><small>${esc([c.prospect && c.empresa ? c.prospect : '', c.lob, c.fonte_audio === 'zoho-3cx' ? 'Zoho/3CX' : '', c.apr ? c.apr + ' aprendizados' : ''].filter(Boolean).join(' · ') || '—')}</small></span>
+          <span class="wh">${esc(ago(c.criado_em))}</span></button>`).join('')}</div>
+      <a class="lnk" href="/jarvis" data-act="tool.jarvis">Abrir o JARVIS →</a>
+    </div>`;
+  const drawVoz = () => {
+    const L = jv.aprendizados[DT] || [], mx = Math.max(1, ...L.map(x => x.freq));
+    $('#voz').innerHTML = L.map((x, k) => `<div class="vz" style="--k:${k};--w:${(x.freq * 100 / mx).toFixed(0)}%"><span>${esc(x.texto)}</span><b>${x.freq}×</b></div>`).join('');
+  };
+  if (aprT.length) {
+    drawVoz();
+    $$('#dtabs button').forEach(b => b.addEventListener('click', () => { DT = b.dataset.t; track('campo.' + DT); $$('#dtabs button').forEach(x => x.classList.toggle('on', x === b)); drawVoz(); }));
+  }
+  $$('.cl', box).forEach(b => b.addEventListener('click', () => openCall(+b.dataset.call)));
+  watch(box);
+}
+async function openCall(id) {
+  const c = (D.jv.recentes || []).find(x => x.id === id); if (!c) return;
+  openDrawer(`🎧 ${c.empresa || c.prospect || 'Call #' + id}`, '<div class="skel"></div>');
+  const det = await j('/api/jarvis/call/' + id);
+  const dc = (det && det.call) || {};
+  const apr = dc.aprendizados || [];
+  const grp = {}; apr.forEach(a => (grp[a.tipo] = grp[a.tipo] || []).push(a.texto));
+  const rows = [['Quando', ago(c.criado_em)], ['Prospect', c.prospect || '—'], ['LOB', c.lob || '—'], ['Duração', c.duracao_seg ? durTxt(c.duracao_seg * 1000) : '—'], ['Temperatura', c.temperatura != null ? c.temperatura + '°' : '—'], ['Origem', c.fonte_audio === 'zoho-3cx' ? 'Zoho / 3CX (automático)' : 'JARVIS ao vivo']];
+  const resumo = dc.resumo || c.resumo;
+  $('#drBody').innerHTML = `
+    <div class="dl">${rows.map(([k, v]) => `<div><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join('')}</div>
+    ${resumo ? `<h4>Resumo <span class="ia">🤖 revisar</span></h4><p>${esc(resumo)}</p>` : ''}
+    ${DORT.filter(([k]) => grp[k]).map(([k, l]) => `<h4>${l}</h4><ul>${grp[k].map(t => `<li>${esc(t)}</li>`).join('')}</ul>`).join('')}
+    <p style="margin-top:18px"><a class="btn" href="/jarvis" data-act="tool.jarvis">Abrir no JARVIS →</a></p>`;
+}
+
+/* ---------- FONTES: dentro (auto) × fora (link) ---------- */
+function renderFontes() {
+  const af = apolloFresh(), jf = jarvisFresh();
+  $('#srcIn').innerHTML = `
+    <button class="sr" data-node="apollo"><span class="ic">🚀</span><span><b>Apollo · <span class="fr ${af.cls}">${esc(af.txt)}</span></b><small>O servidor busca contatos, contas e sequências na API a cada 6h e guarda 1 retrato por dia (base do ritmo e das metas de 7/30 dias).</small></span><span class="go">detalhes →</span></button>
+    <button class="sr" data-node="jarvis"><span class="ic">🧠</span><span><b>JARVIS · <span class="fr ${jf.cls}">${esc(jf.txt)}</span></b><small>Memória viva: cada call salva no /jarvis ou ingerida do Zoho/3CX entra na hora, com dores e objeções extraídas.</small></span><span class="go">detalhes →</span></button>
+    <div class="sr" style="cursor:default"><span class="ic">👁️</span><span><b>Uso desta página</b><small>Visitas, seções vistas e cliques são registrados pelo Office (painel só do dono).</small></span><span></span></div>`;
+  const OUT = [
+    { id: 'zoho', ic: '💼', nm: 'Zoho CRM · deals, oportunidades e R$', d: 'Sync depende de uma sessão do Claude (MCP). Sem atualização automática, saiu da página.', href: 'https://crm.zoho.com/crm/' },
+    { id: 'curva', ic: '📊', nm: 'Curva ABC das contas', d: 'Cruza Zoho + Cases + SAP 4ME. Continua no módulo próprio.', href: '/curva-abc' },
+    { id: 'metas', ic: '🎯', nm: 'Metas da equipe (planilha)', d: 'Metas vêm da planilha; aqui só aparecem as que têm realizado automático.', href: '/metas' },
+    { id: 'relatorio', ic: '📈', nm: 'Relatório mensal (outreach)', d: 'Consolidado do mês, gerado à parte.', href: '/relatorio' },
+  ];
+  $('#srcOut').innerHTML = OUT.map(o => `<a class="sr out" href="${esc(o.href)}" data-act="fora.${o.id}"${isExt(o.href) ? ' target="_blank" rel="noopener"' : ''}><span class="ic">${o.ic}</span><span><b>${esc(o.nm)}</b><small>${esc(o.d)}</small></span><span class="go">${isExt(o.href) ? 'abrir ↗' : 'abrir →'}</span></a>`).join('');
+  $$('#srcIn [data-node]').forEach(b => b.addEventListener('click', () => openNode(b.dataset.node)));
+}
+
+/* ---------- DONO: atalho pro painel de tracking (só ele vê) ---------- */
+async function ownerBar() {
+  const o = await j('/api/analytics/owner');
+  if (!o || !o.owner) return;
+  $('#ownerChip').hidden = false;
+  const r = await j('/api/admin/analytics/pipeline?days=30');
+  if (r && r.resumo) $('#ownerTxt').textContent = `👁️ ${r.resumo.pessoas} ${r.resumo.pessoas === 1 ? 'pessoa viu' : 'pessoas viram'} em 30 dias · painel`;
+}
+
+/* ======================= INIT ======================= */
+function renderData() {
+  renderLive(); renderMachine(); renderTodo(); renderStats(); renderGoals();
+  renderSeqControls(); drawSeqs(); renderRitmo(); renderCanais(); renderEstagios(); renderCampo(); renderFontes();
+  watch(document.body);
+}
+$$('#seqOrd button').forEach(b => b.addEventListener('click', () => { track('ordem.' + b.dataset.o); setOrder(b.dataset.o); }));
+(async () => {
+  watch($('.top'));
+  await load();
+  renderTop(); renderAtalhos(); renderAgent(); renderRoad();
+  renderData();
+  $$('.rv.in').forEach(animateIn);
+  ownerBar();
+})();
+})();
+</script>
+</body>
+</html>
