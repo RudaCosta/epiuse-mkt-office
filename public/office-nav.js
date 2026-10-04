@@ -174,7 +174,7 @@ const OFFICE_NAV_OVERFLOW = [
 
   { section: '📞 Biz Dev' },
   { label: '🤖 JARVIS — Copiloto SDR',   href: '/jarvis' },
-  { label: '📞 Pipeline (Apollo/Zoho)',  href: '/pipeline' },
+  { label: '📞 Biz Dev / Pipeline',  href: '/area/pipeline' },
 
   { section: '📊 Reports & Análises' },
   { label: '🔗 LinkedIn Intelligence',   href: '/linkedin' },
@@ -290,6 +290,7 @@ class OfficeNav extends HTMLElement {
     if (path.startsWith('/pipeline')) return 'pipeline';
     if (path.startsWith('/area/intelligence')) return 'intelligence';
     if (path.startsWith('/area/eventos')) return 'area-eventos';
+    if (path.startsWith('/area/pipeline')) return 'area-pipeline';
     if (path.startsWith('/hub')) return 'hub-mkt';
     if (path.startsWith('/changelog')) return 'changelog';
     return '';
@@ -419,6 +420,10 @@ class OfficeNav extends HTMLElement {
       // Tracking da área Eventos (quem viu o quê) — também só o dono.
       if (grpA && !grpA.links.some(l => l.href === '/admin/eventos')) {
         grpA.links.push({ label: '👁️ Tracking · Eventos', href: '/admin/eventos' });
+      }
+      // Tracking da área Pipeline / Biz Dev (quem viu o quê) — também só o dono.
+      if (grpA && !grpA.links.some(l => l.href === '/admin/pipeline')) {
+        grpA.links.push({ label: '👁️ Tracking · Pipeline', href: '/admin/pipeline' });
       }
     }
     // UTM & Links Rastreados — todo o time de Marketing.

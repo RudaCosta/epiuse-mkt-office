@@ -48,7 +48,7 @@ const _insOnb = db.prepare(
 );
 const ONB_STEP = /^[a-z0-9]+(?:\.[a-z0-9\/_-]+){0,5}$/;
 
-// ── Áreas com "quem viu o quê" (Módulo 27 Intelligence · Módulo 28 Eventos) ──
+// ── Áreas com "quem viu o quê" (Módulos 27 Intelligence · 28 Eventos · 29 Pipeline) ──
 // Mesmo beacon: kind=<chave da área>, path=<página> e o passo em `meta`.
 // Passos: 'sec.<id>' (seção apareceu na tela) · 'tempo.<id>.<seg>' (tempo na
 // seção, também em dur_ms) · 'scroll.<25|50|75|100>' · 'tool.<slug>' (abriu
@@ -58,6 +58,7 @@ const ONB_STEP = /^[a-z0-9]+(?:\.[a-z0-9\/_-]+){0,5}$/;
 const AREA_TRACK = {
   intel:   { path: '/area/intelligence', painel: '/admin/intelligence' },
   eventos: { path: '/area/eventos',      painel: '/admin/eventos' },
+  pipeline:{ path: '/area/pipeline',     painel: '/admin/pipeline' },
 };
 const AREA_KINDS = Object.keys(AREA_TRACK);
 const AREA_RE = AREA_KINDS.join('|');
@@ -396,7 +397,7 @@ const ADOCAO_FEATURES = [
   { path: '/game',           label: '🎮 Game (MKT)' },
   { path: '/game-hub',       label: '🎮 Game (Colaborador)' },
   { path: '/jarvis',         label: '🤖 JARVIS' },
-  { path: '/pipeline',       label: '📞 Pipeline' },
+  { path: '/area/pipeline',  label: '📞 Biz Dev / Pipeline' },
   { path: '/area/eventos',   label: '📍 Field Marketing & Eventos' },
   { path: '/admin/utm',      label: '🔗 UTM & Links (admin)' },
   { path: '/relatorio',      label: '📈 Relatório Mensal' },

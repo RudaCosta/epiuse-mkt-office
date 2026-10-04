@@ -625,7 +625,8 @@ app.get('/api/areas.json', (req, res) => {
     const areas = readJSON('areas.json');
     if (!areas) return res.status(404).json({ error: 'areas.json nao encontrado' });
     const rt = readJSON('linkedin-routine.json');
-    const pl = readJSON('pipeline-snapshot.json');
+    // Apollo: dado vivo do refresh no servidor (Módulo 29); sem ele, o JSON estático
+    const pl = require('./routes/area-pipeline').apolloSnapshot() || readJSON('pipeline-snapshot.json');
     const seguidores = rt && rt.seguidores_atual != null ? rt.seguidores_atual : null;
     const contatos = pl && pl.contatos_total != null ? pl.contatos_total : null;
     const contas = pl && pl.contas_total != null ? pl.contas_total : null;
@@ -2139,6 +2140,11 @@ app.get('/area/intelligence', (req, res) => res.sendFile(INTEL_HTML));
 // o quê (Módulo 28). Painel do tracking: /admin/eventos (só o dono).
 const EVENTOS_HTML = path.join(__dirname, 'public/area-eventos.html');
 app.get('/area/eventos', (req, res) => res.sendFile(EVENTOS_HTML));
+// Área Pipeline / Biz Dev (Marlison) — página dedicada só com fontes automáticas
+// (Apollo refresh no servidor + JARVIS ao vivo) + tracking (Módulo 29).
+// Painel do tracking: /admin/pipeline (só o dono). APIs em routes/area-pipeline.js.
+const PIPELINE_HTML = path.join(__dirname, 'public/area-pipeline.html');
+app.get('/area/pipeline', (req, res) => res.sendFile(PIPELINE_HTML));
 app.get('/area', (req, res) => res.sendFile(AREA_PATH));
 app.get('/area/:id', (req, res) => res.sendFile(AREA_PATH));
 
@@ -3543,7 +3549,8 @@ app.get('/metas/fy26', (req, res) => res.redirect(301, '/metas-fy27'));
 app.get('/metas/fy27', (req, res) => res.redirect(301, '/metas-fy27'));
 app.get('/design', (req, res) => res.sendFile(path.join(__dirname, 'public/design.html')));
 app.get('/erp-impacto', (req, res) => res.sendFile(path.join(__dirname, 'public/erp-impacto.html')));
-app.get('/pipeline',  (req, res) => res.sendFile(path.join(__dirname, 'public/pipeline.html')));
+// Tela antiga (Apollo estático + Zoho de sync manual) absorvida pela área (Módulo 29).
+app.get('/pipeline',  (req, res) => res.redirect(302, '/area/pipeline'));
 
 // ════════════════════════════════════════════════════════════════════════════
 // v0.5.0 ENDPOINTS — Artigos · LinkedIn historical · Jornadas · Relatório · Projeções
@@ -4416,10 +4423,11 @@ app.get(['/api/metas/fy26', '/api/metas/fy27'], (req, res) => {
   });
 });
 
-// GET /api/pipeline — dados REAIS do Apollo (snapshot via MCP, gravado em pipeline-snapshot.json)
-// Sync diário headless = TODO (precisa Apollo REST API Key + cron). Hoje: snapshot manual real.
+// GET /api/pipeline — dados REAIS do Apollo. Preferência: refresh automático no
+// servidor (routes/area-pipeline.js, a cada 6h); fallback: pipeline-snapshot.json.
 app.get('/api/pipeline', (req, res) => {
-  const snap = _readJSON(path.join(__dirname, 'public/api/pipeline-snapshot.json'), null);
+  const snap = require('./routes/area-pipeline').apolloSnapshot()
+    || _readJSON(path.join(__dirname, 'public/api/pipeline-snapshot.json'), null);
   if (!snap) {
     return res.json({ success: true, fonte: 'sem snapshot ainda', contatos_total: null, sequencias_total: null, ultima_sync: null });
   }
@@ -6383,6 +6391,7 @@ app.use('/', require('./routes/comunicados')); // Modulo 21 -- fila de comunicad
 app.use('/', require('./routes/cafezinho')); // Módulo 22 — Cafezinho (área pessoal do time)
 app.use('/', require('./routes/horas'));      // Módulo 23 — Banco de Horas MKT
 app.use('/', require('./routes/editorial'));  // Módulo 25 — Calendário Editorial (planilha marketing, 3 abas)
+app.use('/', require('./routes/area-pipeline')); // Módulo 29 — Área Pipeline (Apollo auto + JARVIS)
 
 // Saida de pessoa do time: roda aqui, no fim do boot, porque precisa das
 // tabelas de TODOS os modulos (as do Cafezinho, por exemplo, so existem

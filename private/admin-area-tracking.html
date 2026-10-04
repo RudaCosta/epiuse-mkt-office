@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="/design-tokens.css">
 <script type="module" src="/office-nav.js"></script>
 <style>
-/* Módulos 27/28 — painel "quem viu o quê" das áreas (Intelligence, Eventos). Só o dono.
+/* Módulos 27/28/29 — painel "quem viu o quê" das áreas (Intelligence, Eventos, Pipeline). Só o dono.
    Arquivo fora de public/ (private/): servido apenas por GET /admin/<area>. */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -196,12 +196,24 @@ const AREAS = {
     ],
     nodes: { events: 'Calendário LATAM (SharePoint)', field: 'Field Marketing (Office)', mdf: 'SAP Development Funds' },
   },
+  pipeline: {
+    kind: 'pipeline', area: 'pipeline', nome: 'Biz Dev / Pipeline', page: '/area/pipeline',
+    acoesSub: 'Sequências abertas, filtros, calls do JARVIS, fontes e atualização do Apollo',
+    secs: [
+      ['hero', '🚀 Topo · máquina de outbound'], ['ferramentas', '🔧 Atalhos'], ['atencao', '🩺 Precisa de atenção'],
+      ['agente', '🤖 Agente da área'], ['projetos', '📁 Projetos'], ['metas', '📊 Números & metas'],
+      ['sequencias', '📨 Sequências'], ['ritmo', '📈 Ritmo & canais'], ['estagios', '🪜 Estágios da base'],
+      ['campo', '🎧 Voz do campo (JARVIS)'], ['fontes', '🔌 Fontes · dentro e fora']
+    ],
+    nodes: { apollo: 'Apollo (auto 6h)', jarvis: 'JARVIS (ao vivo)', zoho: 'Zoho CRM (link)', metas: 'Planilha de metas (link)' },
+  },
 };
 const A = AREAS[location.pathname.replace(/\/+$/, '').split('/').pop()] || AREAS.intelligence;
 const SECS = A.secs;
 const SECL = Object.fromEntries(SECS);
 const NODE = A.nodes;
-let TOOLS = {}, EVT = {};
+let TOOLS = {}, EVT = {}, SEQ = {}, CALL = {};
+const DORT = { dor: 'dores', objecao: 'objeções', gatilho: 'gatilhos', sinal: 'sinais', pergunta_vencedora: 'perguntas que abriram' };
 function acaoLabel(id) {
   const [k, ...r] = String(id).split('.'), v = r.join('.');
   if (k === 'node') return '🔎 Detalhes da fonte · ' + (NODE[v] || v);
@@ -228,6 +240,16 @@ function acaoLabel(id) {
   if (k === 'mes') return '🗓️ Abriu mês · ' + v;
   if (k === 'status') return '🚦 Filtro de status · ' + v.replace(/-/g, ' ');
   if (k === 'mdf') return '💶 MDF · ' + v.replace(/-/g, ' ');
+  if (k === 'seq') return '📨 Abriu sequência · ' + (SEQ[v] || v);
+  if (k === 'filtro') return '🎛️ Filtro de sequências · ' + v;
+  if (k === 'ordem') return '↕️ Ordenou sequências por · ' + v;
+  if (k === 'call') return '🎧 Abriu call · ' + (CALL[v] || '#' + v);
+  if (k === 'campo') return '🧠 Voz do campo · ' + (DORT[v] || v);
+  if (k === 'estagio') return '🪜 Estágio da base · ' + v.replace(/-/g, ' ');
+  if (k === 'canal') return '📡 Canal · ' + v.replace(/_/g, ' ');
+  if (k === 'flow') return '🚀 Etapa da máquina · ' + v;
+  if (k === 'fora') return '↗ Abriu fonte de fora · ' + (NODE[v] || v);
+  if (k === 'refresh') return '🔄 Pediu atualização · ' + v;
   if (k === 'tool') return TOOLS[v] || ('🔧 ' + v);
   if (k === 'sec') return '👀 Viu · ' + (SECL[v] || v);
   if (k === 'scroll') return '📜 Rolou até ' + v + '%';
@@ -340,7 +362,12 @@ $('#eu').addEventListener('change', load);
 // Rótulos dos atalhos: areas.json (ferramentas) + personas.json (dia a dia da dona) — mesmo slug do href do beacon
 const getJ = u => fetch(u, { cache: 'no-store' }).then(r => r.json()).catch(() => ({}));
 // Eventos: nome legível a partir do mesmo slug que a página usa (regiao-mes-nome)
-Promise.all([getJ('/api/areas.json'), getJ('/api/personas.json'), A.kind === 'eventos' ? getJ('/api/events.json') : {}]).then(([a, pe, ev]) => {
+// Pipeline: nome das sequências (id do Apollo) e empresa das calls do JARVIS
+Promise.all([getJ('/api/areas.json'), getJ('/api/personas.json'), A.kind === 'eventos' ? getJ('/api/events.json') : {},
+  A.kind === 'pipeline' ? getJ('/api/area/pipeline') : {}]).then(([a, pe, ev, pl]) => {
+  const ad = pl && pl.apollo && pl.apollo.dados;
+  ((ad && ad.sequencias) || []).forEach(q => { SEQ[q.id] = q.nome; });
+  (((pl && pl.jarvis) || {}).recentes || []).forEach(c => { CALL[c.id] = `#${c.id} · ${c.empresa || c.prospect || 'sem empresa'}`; });
   const it = (a.areas || []).find(x => x.id === A.area) || {};
   const p = Object.values((pe && pe.personas) || {}).find(x => x.area === A.area) || {};
   (p.quick || []).concat(it.ferramentas || []).forEach(t => { if (t.href) TOOLS[slug(t.href)] = (t.icon ? t.icon + ' ' : '') + t.label; });
