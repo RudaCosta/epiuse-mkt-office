@@ -60,7 +60,7 @@ process.on('unhandledRejection', (reason) => {
 });
 
 // ── EDITOR AUTH E CONTEXTO COMPARTILHADO ───────────────────────────────────────
-const { ACTIVE_EDITOR_TOKEN, requireEditorToken, requireAuth } = require('./server-context');
+const { ACTIVE_EDITOR_TOKEN, requireEditorToken, requireMktOuToken, requireAuth } = require('./server-context');
 const EDITOR_TOKEN = ACTIVE_EDITOR_TOKEN;
 
 // ── PATHS DE DADOS ────────────────────────────────────────────────────────────
@@ -1174,17 +1174,25 @@ app.post('/api/brindes', (req, res) => {
 });
 
 app.get('/api/brindes', (req, res) => {
-  const auth = (req.headers.authorization || '');
-  if (!auth.includes('MKt123') && req.query.token !== 'MKt123') return res.status(401).json({ error: 'nao autorizado' });
+  if (!brindesAutorizado(req)) return res.status(401).json({ error: 'nao autorizado' });
   try {
     const rows = db.prepare('SELECT data FROM brindes_requests ORDER BY created_at DESC').all();
     res.json(rows.map(r => { try { return JSON.parse(r.data); } catch { return null; } }).filter(Boolean));
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// A fila de brindes guarda dado pessoal (nome, e-mail, cliente, código de
+// projeto, endereço de entrega). Antes a "senha" ficava no HTML público e era
+// conferida no navegador — qualquer um que abrisse o código-fonte exportava a
+// planilha. Agora quem autoriza é a sessão: só o time de Marketing logado.
+const BRINDES_ROLES = new Set(['head', 'intelligence', 'growth', 'field', 'pipeline', 'brand', 'conteudo']);
+function brindesAutorizado(req) {
+  const role = req.session && req.session.user && req.session.user.role;
+  return BRINDES_ROLES.has(role);
+}
+
 app.get('/api/brindes/export-csv', (req, res) => {
-  const auth = (req.headers.authorization || '');
-  if (!auth.includes('MKt123') && req.query.token !== 'MKt123') return res.status(401).json({ error: 'nao autorizado' });
+  if (!brindesAutorizado(req)) return res.status(401).json({ error: 'nao autorizado' });
   try {
     const rows = db.prepare('SELECT data, created_at FROM brindes_requests ORDER BY created_at DESC').all();
     const records = rows.map(r => { try { return JSON.parse(r.data); } catch { return null; } }).filter(Boolean);
@@ -1198,8 +1206,7 @@ app.get('/api/brindes/export-csv', (req, res) => {
 });
 
 app.patch('/api/brindes/:id', (req, res) => {
-  const auth = (req.headers.authorization || '');
-  if (!auth.includes('MKt123') && req.query.token !== 'MKt123') return res.status(401).json({ error: 'nao autorizado' });
+  if (!brindesAutorizado(req)) return res.status(401).json({ error: 'nao autorizado' });
   try {
     const row = db.prepare('SELECT data FROM brindes_requests WHERE id = ?').get(req.params.id);
     if (!row) return res.status(404).json({ error: 'nao encontrado' });
@@ -2899,7 +2906,7 @@ app.get('/api/field-marketing', (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.post('/api/field-marketing/:id', requireEditorToken, (req, res) => {
+app.post('/api/field-marketing/:id', requireMktOuToken, (req, res) => {
   try {
     const id = req.params.id;
     const b = req.body || {};
@@ -2959,7 +2966,7 @@ app.get('/api/content', (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.post('/api/content', requireEditorToken, (req, res) => {
+app.post('/api/content', requireMktOuToken, (req, res) => {
   try {
     const b = req.body || {};
     if (!b.titulo) return res.status(400).json({ success: false, error: 'titulo obrigatório.' });
@@ -3004,7 +3011,7 @@ app.post('/api/content', requireEditorToken, (req, res) => {
   } catch (e) { res.status(500).json({ success: false, error: e.message }); }
 });
 
-app.put('/api/content/:id', requireEditorToken, (req, res) => {
+app.put('/api/content/:id', requireMktOuToken, (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     const ex = db.prepare('SELECT * FROM content_pipeline WHERE id = ?').get(id);
@@ -3048,7 +3055,7 @@ app.put('/api/content/:id', requireEditorToken, (req, res) => {
   } catch (e) { res.status(500).json({ success: false, error: e.message }); }
 });
 
-app.post('/api/content/:id/seo-check', requireEditorToken, (req, res) => {
+app.post('/api/content/:id/seo-check', requireMktOuToken, (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     const it = db.prepare('SELECT * FROM content_pipeline WHERE id = ?').get(id);
@@ -3063,7 +3070,7 @@ app.post('/api/content/:id/seo-check', requireEditorToken, (req, res) => {
   } catch (e) { res.status(500).json({ success: false, error: e.message }); }
 });
 
-app.delete('/api/content/:id', requireEditorToken, (req, res) => {
+app.delete('/api/content/:id', requireMktOuToken, (req, res) => {
   try {
     const id = parseInt(req.params.id,10);
     const ex = db.prepare('SELECT external_id FROM content_pipeline WHERE id = ?').get(id);
@@ -3296,7 +3303,7 @@ Retorne APENAS JSON válido, sem texto antes/depois:
 });
 
 // Importa itens fonte=redatoria do editorial_calendar pro pipeline (estado 'recebido')
-app.post('/api/content/import-redatoria', requireEditorToken, (req, res) => {
+app.post('/api/content/import-redatoria', requireMktOuToken, (req, res) => {
   try {
     const posts = db.prepare("SELECT * FROM editorial_calendar WHERE fonte = 'redatoria'").all();
     const existing = new Set(db.prepare("SELECT external_id FROM content_pipeline WHERE external_id IS NOT NULL").all().map(r => r.external_id));
@@ -4167,8 +4174,17 @@ app.get('/api/rd/performance', (req, res) => {
 
 // GET /api/relatorio/download-pptx?mes=YYYY-MM — executa scripts/relatorio/gerar_pptx.py e retorna o arquivo gerado
 app.get('/api/relatorio/download-pptx', (req, res) => {
-  const mes = req.query.mes || new Date().toISOString().slice(0, 7);
-  const { exec } = require('child_process');
+  // Gera arquivo rodando Python: só pra quem está logado (anônimo não dispara
+  // processo no servidor).
+  if (!(req.session && req.session.user)) return res.status(401).json({ success: false, error: 'auth_required' });
+  // `mes` vai pra linha de comando do Python: só AAAA-MM passa, e o processo
+  // roda via execFile, com os argumentos separados — nunca montado como texto
+  // de shell.
+  const mes = String(req.query.mes || new Date().toISOString().slice(0, 7));
+  if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(mes)) {
+    return res.status(400).json({ success: false, error: 'mes inválido — use AAAA-MM' });
+  }
+  const { execFile } = require('child_process');
   const os = require('os');
   const tempFile = path.join(os.tmpdir(), `EPI-USE_Marketing_Report_${mes}_${Date.now()}.pptx`);
   
@@ -4176,19 +4192,15 @@ app.get('/api/relatorio/download-pptx', (req, res) => {
   const baseUrl = `http://localhost:${port}`;
   
   const PYBIN = process.env.PYTHON_BIN || (process.platform === 'win32' ? 'python' : 'python3');
-  const cmd = `${PYBIN} "${path.join(__dirname, 'scripts/relatorio/gerar_pptx.py')}" --mes "${mes}" --output "${tempFile}" --base-url "${baseUrl}"`;
-  
-  console.log(`[relatorio] executando comando: ${cmd}`);
-  
-  exec(cmd, (error, stdout, stderr) => {
+  const args = [path.join(__dirname, 'scripts/relatorio/gerar_pptx.py'),
+                '--mes', mes, '--output', tempFile, '--base-url', baseUrl];
+  console.log(`[relatorio] gerando PPTX de ${mes}`);
+
+  execFile(PYBIN, args, { timeout: 180000 }, (error, stdout, stderr) => {
     if (error) {
-      console.error(`[relatorio] erro ao gerar PPTX: ${error.message}`);
-      return res.status(500).json({ 
-        success: false, 
-        error: `Erro ao gerar PowerPoint. Python + python-pptx instalados no servidor? (interpretador: ${PYBIN})`,
-        details: error.message, 
-        stderr 
-      });
+      // Detalhe (stderr, caminho do interpretador) fica só no log do servidor.
+      console.error(`[relatorio] erro ao gerar PPTX: ${error.message}\n${stderr || ''}`);
+      return res.status(500).json({ success: false, error: 'Erro ao gerar o PowerPoint.' });
     }
     
     if (fs.existsSync(tempFile)) {

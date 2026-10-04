@@ -370,7 +370,6 @@ const LOB_VAR = { Cross: '--f-azure', ERP: '--f-orange', Branding: '--f-teal', H
 const lobColor = l => `var(${LOB_VAR[l] || '--f-other'})`;
 const STATUS = [['planejamento', '📝', 'Planejamento'], ['pre-evento', '🧭', 'Pré-evento'], ['live', '🔴', 'Ao vivo'], ['pos-evento', '📥', 'Pós-evento'], ['concluido', '✅', 'Concluído']];
 const STL = Object.fromEntries(STATUS.map(s => [s[0], s]));
-const TOKEN = 'eubr-voices-edit-2026';
 
 /* ======================= FUNDO + CONFETE ======================= */
 const FX = {};
@@ -588,10 +587,12 @@ function renderKanban(list) {
 /* ---------- SALVAR ---------- */
 async function post(e, body) {
   const r = await fetch('/api/field-marketing/' + encodeURIComponent(e.event_id), {
-    method: 'POST', headers: { 'Content-Type': 'application/json', 'x-editor-token': TOKEN },
+    // autoriza pela sessão do time de Marketing (hotfix 0.91.1: token não fica mais no HTML)
+    method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ nome: e.nome, lob: e.lob, pais: e.pais, data_evento: e.data_evento, ...body }),
   });
   const j = await r.json().catch(() => ({}));
+  if (r.status === 401 || r.status === 403) throw new Error('entre com a conta Microsoft do time de Marketing pra salvar');
   if (!r.ok || !j.success) throw new Error(j.error || ('HTTP ' + r.status));
 }
 async function moveStatus(id, st) {
