@@ -26,7 +26,7 @@ const fs   = require('fs');
 
 const XLSX_PATH   = path.join(__dirname, '../../vault/00-contexto/conteudo/cronograma-redatoria-2025.xlsx');
 const OFFICE_URL  = process.env.OFFICE_URL || 'http://localhost:3000';
-const EDITOR_TOKEN = process.env.EDITOR_TOKEN || 'eubr-voices-edit-2026';
+const EDITOR_TOKEN = require('../lib/editor-token')();
 const DRY_RUN     = process.argv.includes('--dry-run');
 
 // Abas 2026 no arquivo

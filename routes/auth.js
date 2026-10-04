@@ -26,11 +26,21 @@ router.get('/api/auth/status', (req, res) => {
   });
 });
 
+// returnTo só pode ser caminho DESTE site. Sem isso, /auth/login?returnTo=https://site-falso
+// devolvia a pessoa, já logada e confiante, pra uma página de phishing.
+// Barra dupla (//host) e barra invertida (/\host) também são URL externa pro navegador.
+function returnToSeguro(v) {
+  const s = String(v || '');
+  if (!s.startsWith('/') || s.startsWith('//') || s.startsWith('/\\')) return '/';
+  if (/[\r\n]/.test(s)) return '/';
+  return s;
+}
+
 // Inicia fluxo de login do Azure AD
 router.get('/auth/login', async (req, res) => {
   if (!SSO_ENABLED) return res.status(503).send('SSO Microsoft não configurado neste ambiente.');
   try {
-    req.session.returnTo = req.query.returnTo || '/';
+    req.session.returnTo = returnToSeguro(req.query.returnTo);
     const url = await msalClient.getAuthCodeUrl({ 
       scopes: SSO_SCOPES, 
       redirectUri: SSO_REDIRECT, 
@@ -79,7 +89,7 @@ router.get('/auth/callback', async (req, res) => {
     //  1. returnTo explícito (usuário pediu uma rota específica) sempre vence.
     //  2. Senão, se ainda não escolheu visualização (office|game) → tela /escolher-visao.
     //  3. Senão, vai pro landing da visualização preferida (default_view).
-    const returnTo = req.session.returnTo;
+    const returnTo = returnToSeguro(req.session.returnTo);
     const explicit = returnTo && returnTo !== '/';
     delete req.session.returnTo;
     const wantedView = (dbUser && dbUser.default_view) || '';

@@ -2099,7 +2099,6 @@
 <office-footer></office-footer>
 
 <script>
-  const TOKEN = 'eubr-voices-edit-2026';
 
   function playChime() {
     try {
@@ -3141,12 +3140,11 @@
     }
 
     try {
+      // Autentica pela sessão do time de Marketing (cookie), não por token no HTML.
       const res = await fetch('/api/content', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-editor-token': TOKEN
-        },
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
       const r = await res.json();

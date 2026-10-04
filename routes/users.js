@@ -6,7 +6,25 @@
 const express = require('express');
 const router = express.Router();
 const path = require('path');
-const { db, requireEditorToken } = require('../server-context');
+const { db, requireEditorToken, IS_LOCAL_DEV } = require('../server-context');
+
+// Super admin: atrelado à IDENTIDADE, não ao papel. Promover alguém a 'head' no
+// painel não dá a essa pessoa poder sobre as permissões dos outros — e o editor
+// token (credencial de máquina) também não: com ele, qualquer um que o tivesse
+// criava contas e mudava papéis.
+const SUPER_ADMINS = new Set(String(process.env.SUPER_ADMIN_EMAILS || 'ruda.costa@epiuse.com.br')
+  .split(',').map(s => s.trim().toLowerCase()).filter(Boolean));
+function isSuperAdmin(req) {
+  const e = req.session && req.session.user && req.session.user.email;
+  return !!e && SUPER_ADMINS.has(String(e).toLowerCase());
+}
+function requireSuperAdmin(req, res, next) {
+  if (isSuperAdmin(req)) return next();
+  // Na máquina local (Windows, sem SSO) não há sessão: o token ainda serve lá.
+  if (IS_LOCAL_DEV) return requireEditorToken(req, res, next);
+  if (req.path.startsWith('/api/')) return res.status(403).json({ error: 'forbidden' });
+  return res.status(403).send('Acesso restrito.');
+}
 
 // role -> { persona (home), landing }. persona casa com os ids de personas.json.
 // Quem não está cadastrado entra como 'hub' e cai no Marketing Hub central.
@@ -124,12 +142,12 @@ function requireExec(req, res, next) {
 }
 
 // ── Página admin ──────────────────────────────────────────────────────────────
-router.get('/admin/usuarios', requireAdmin, (req, res) => {
+router.get('/admin/usuarios', requireSuperAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, '../public/admin-usuarios.html'));
 });
 
 // ── API CRUD ────────────────────────────────────────────────────────────────
-router.get('/api/admin/users', requireAdmin, (req, res) => {
+router.get('/api/admin/users', requireSuperAdmin, (req, res) => {
   try {
     const rows = db.prepare('SELECT * FROM users ORDER BY role, email').all();
     res.json({ roles: ROLES, role_config: ROLE_CONFIG, users: rows });
@@ -137,7 +155,7 @@ router.get('/api/admin/users', requireAdmin, (req, res) => {
 });
 
 // Cria ou atualiza (upsert) um usuário pelo email.
-router.post('/api/admin/users', requireAdmin, express.json(), (req, res) => {
+router.post('/api/admin/users', requireSuperAdmin, express.json(), (req, res) => {
   try {
     const b = req.body || {};
     const email = String(b.email || '').trim().toLowerCase();
@@ -159,7 +177,7 @@ router.post('/api/admin/users', requireAdmin, express.json(), (req, res) => {
 });
 
 // Atualiza campos de um usuário existente.
-router.put('/api/admin/users/:email', requireAdmin, express.json(), (req, res) => {
+router.put('/api/admin/users/:email', requireSuperAdmin, express.json(), (req, res) => {
   try {
     const email = String(req.params.email || '').trim().toLowerCase();
     const u = getUserByEmail(email);
@@ -188,3 +206,6 @@ module.exports.setUserView = setUserView;
 module.exports.requireRole = requireRole;
 module.exports.requireAdmin = requireAdmin;
 module.exports.requireExec = requireExec;
+module.exports.requireSuperAdmin = requireSuperAdmin;
+module.exports.isSuperAdmin = isSuperAdmin;
+module.exports.SUPER_ADMINS = SUPER_ADMINS;

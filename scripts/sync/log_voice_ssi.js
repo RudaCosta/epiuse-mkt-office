@@ -25,7 +25,7 @@ const body = {
   nota: flag('nota', ''),
 };
 const target = flag('target', 'all');
-const TOKEN = process.env.EDITOR_TOKEN || 'eubr-voices-edit-2026';
+const TOKEN = require('../lib/editor-token')();
 const URLS = {
   local: 'http://localhost:3000',
   railway: 'https://epiuse-voices-optimizer.up.railway.app',

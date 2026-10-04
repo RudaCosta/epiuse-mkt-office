@@ -27,7 +27,7 @@ require(_dotenvPath).config({ path: require('path').join(__dirname, '../../.env'
 
 const path   = require('path');
 const OFFICE_URL   = process.env.OFFICE_URL || 'http://localhost:3000';
-const EDITOR_TOKEN = process.env.EDITOR_TOKEN || 'eubr-voices-edit-2026';
+const EDITOR_TOKEN = require('../lib/editor-token')();
 const DRY_RUN      = process.argv.includes('--dry-run');
 const FROM_FILE    = process.argv.includes('--from-file')
   ? process.argv[process.argv.indexOf('--from-file') + 1]

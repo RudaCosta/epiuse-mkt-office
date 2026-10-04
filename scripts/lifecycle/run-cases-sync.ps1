@@ -53,7 +53,9 @@ if (-not (Test-Path $tmp) -or (Get-Item $tmp).Length -lt 50) {
 Add-Content $log ("[" + $ts + "] payload OK: " + (Get-Item $tmp).Length + " bytes")
 
 # ── 2. DEFINE TARGETS ─────────────────────────────────────────────────────────
-$token = 'eubr-voices-edit-2026'
+. "$PSScriptRoot\..\lib\EditorToken.ps1"
+$token = Get-EditorToken
+if (-not $token) { Write-Host "EDITOR_TOKEN nao encontrado (env ou .env em ~\.epiuse-optimizer). Abortando."; exit 1 }
 
 $targets = @()
 
