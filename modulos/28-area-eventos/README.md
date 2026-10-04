@@ -6,7 +6,7 @@
 ## Arquivos-chave
 | Arquivo | Papel |
 |---|---|
-| `public/area-eventos.html` | Página (vanilla, tokens do DESIGN.md, animações JS: palco com refletores, confete, contadores, contagem regressiva, letreiro) |
+| `public/area-eventos.html` | Página (vanilla, tokens do DESIGN.md, animações JS: palco com luzes subindo, confete, contadores, contagem regressiva, letreiro) |
 | `private/admin-area-tracking.html` | Painel do tracking — **um HTML para todas as áreas** (`/admin/intelligence` e `/admin/eventos`), fora de `public/` |
 | `routes/analytics.js` | `AREA_TRACK` (config por área), beacon `kind='eventos'`, `GET /api/admin/analytics/eventos(/user)`, `GET /admin/eventos` |
 | `server.js` | `GET /area/eventos` → página dedicada (antes do `/area/:id` genérico) |

@@ -53,7 +53,7 @@ button{font:inherit;color:inherit}
 .wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 16px}
 .num{font-family:var(--e-head);font-variant-numeric:tabular-nums}
 
-/* ---------- FUNDO VIVO: palco (refletores + luzes subindo) ---------- */
+/* ---------- FUNDO VIVO: palco (luzes subindo) ---------- */
 .bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
 .blob{position:absolute;border-radius:50%;filter:blur(90px);opacity:.45;animation:drift 22s ease-in-out infinite alternate}
 .b1{width:540px;height:540px;background:var(--e-svc);top:-180px;left:-140px}
@@ -534,7 +534,7 @@ const $ = (q, el = document) => el.querySelector(q);
 const $$ = (q, el = document) => [...el.querySelectorAll(q)];
 const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 const K = {
-  dim: css('--color-neutral-dark-text-dim'), corn: css('--color-brand-cornflower-blue'), steel: css('--color-brand-steel-blue'),
+  dim: css('--color-neutral-dark-text-dim'), corn: css('--color-brand-cornflower-blue'),
   teal: css('--color-spot-teal-green'), yellow: css('--color-spot-canary-yellow'), azure: css('--color-spot-azure-blue'),
   orange: css('--color-spot-aws-orange'), stone: css('--color-brand-stone-gray')
 };
@@ -620,7 +620,7 @@ document.addEventListener('click', e => {
   if (a.matches('a[href]') && !a.getAttribute('href').startsWith('#')) dwellDump();
 });
 
-/* ======================= FUNDO: palco ======================= */
+/* ======================= FUNDO: palco (luzes subindo + confete) ======================= */
 const FX = { burst: null };
 (() => {
   const c = $('#stage'), x = c.getContext('2d'); let W, H, P = [], C = [];
@@ -634,18 +634,9 @@ const FX = { burst: null };
     for (let i = 0; i < 70; i++) { const a = Math.random() * 6.28, s = Math.random() * 6 + 2; C.push({ x: bx, y: by, vx: Math.cos(a) * s, vy: Math.sin(a) * s - 3, r: Math.random() * 3 + 2, rot: Math.random() * 6.28, vr: (Math.random() - .5) * .3, c: COLS[i % COLS.length], t: 0 }); }
   };
   let t = 0;
-  const beam = (ox, ang, col) => {
-    const L = H * 1.25, sp = .16;
-    const g = x.createLinearGradient(ox, 0, ox + Math.sin(ang) * L, Math.cos(ang) * L);
-    g.addColorStop(0, rgba(col, .16)); g.addColorStop(1, rgba(col, 0));
-    x.fillStyle = g; x.beginPath(); x.moveTo(ox, -10);
-    x.lineTo(ox + Math.sin(ang - sp) * L, Math.cos(ang - sp) * L); x.lineTo(ox + Math.sin(ang + sp) * L, Math.cos(ang + sp) * L); x.closePath(); x.fill();
-  };
   const draw = () => {
     x.clearRect(0, 0, W, H);
     x.globalCompositeOperation = 'lighter';
-    beam(W * .18, Math.sin(t * .35) * .45 - .1, K.corn);
-    beam(W * .82, Math.sin(t * .3 + 2) * .45 + .1, K.steel);
     P.forEach(p => { const fl = .6 + .4 * Math.sin(t * 2 + p.w); x.fillStyle = rgba(p.c, p.a * fl); x.beginPath(); x.arc(p.x, p.y, p.r, 0, 7); x.fill(); });
     x.globalCompositeOperation = 'source-over';
     C = C.filter(q => {

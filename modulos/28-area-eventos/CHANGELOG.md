@@ -7,3 +7,6 @@
 - Fila "Precisa de atenção" com o que tem prazo: claims do MDF vencendo/vencidos, captura pós-evento faltando, briefing faltando.
 - Tracking "quem viu o quê" (`kind='eventos'`) + painel owner-only `/admin/eventos`.
 - Tracking generalizado: `AREA_TRACK` em `routes/analytics.js` e um único painel `private/admin-area-tracking.html` (ex-`admin-intelligence.html`) para Intelligence e Eventos.
+
+## v1.0.1 · 04/out/2026
+- Fundo sem os dois refletores (feixes de luz que varriam a tela), a pedido do Rudá. Ficam as luzes subindo e o confete.
