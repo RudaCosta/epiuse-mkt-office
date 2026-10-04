@@ -11,4 +11,6 @@
 - **Briefing vazio é salvo como `{}`:** campos em branco e tarefas desmarcadas são removidos antes do POST, pra `tem_briefing` refletir conteúdo real.
 - **Marcar tarefa não redesenha a lista:** contadores atualizam no lugar, mantendo foco do teclado e rolagem.
 - **Kanban salva na hora** (otimista, com reversão se o POST falhar); no celular o status muda dentro do evento.
+- **v1.2 — uma página só:** visão e operação na mesma tela evitam o que aconteceu com a tela antiga do Field (ninguém atualizava status nem captura). Clique em qualquer evento (radar, contagem, linha do ano, meses, kanban, ROI, fila de atenção) abre o mesmo editor, na aba que faz sentido (briefing pelo radar, pós-evento pelo ROI).
+- **Kanban:** próximos primeiro na coluna; "sem captura" só pra eventos BR (mesma regra da fila de atenção).
 

@@ -2477,7 +2477,7 @@ app.post('/api/metas', requireEditorToken, (req, res) => {
 // ── MODULE G · CASES & CS HUB (Modularizado em routes/cases.js) ───────────────
 
 // ── MODULE F · INBOUND ENGINE (Modularizado em routes/inbound.js) ──────────────
-app.get('/field-marketing', (req, res) => res.sendFile(path.join(__dirname, 'public/field-marketing.html')));
+app.get('/field-marketing', (req, res) => res.redirect(301, '/area/eventos#calendario')); // v1.2: uma página só (Módulo 28)
 // ── MODULE 20 · AEO/SEO/GEO (visibilidade em IA) ─────────────────────────────
 app.get(['/aeo-geo', '/aeo', '/geo', '/seo'], (req, res) => res.sendFile(path.join(__dirname, 'public/aeo-geo.html')));
 app.get('/content-pipeline', (req, res) => res.redirect(301, '/area/brand'));

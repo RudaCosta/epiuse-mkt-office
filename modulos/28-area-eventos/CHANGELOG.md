@@ -18,3 +18,9 @@
 - API `GET /api/field-marketing` passa a devolver `briefing`, `brindes` e `atualizado_em`.
 - `/area/eventos` usa a data confirmada no Field quando houver.
 
+## v1.2 · 04/out/2026 — uma página só
+- Pedido Rudá: "de preferência uma página só". A operação do Field (radar, kanban, editor com briefing/checklist, brindes, pós-evento) foi pra dentro da `/area/eventos`.
+- `/field-marketing` vira redirect 301 → `/area/eventos#calendario`; `public/field-marketing.html` removida. Links do nav, Home (personas), game, onboarding e relatório de adoção apontam pra área.
+- Salvar usa a sessão do time de Marketing (hotfix 0.91.1), com mensagem pedindo login quando falta.
+- Painel `/admin/eventos` com rótulos das novas ações (editor, kanban, busca).
+

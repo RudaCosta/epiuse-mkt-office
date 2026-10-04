@@ -397,7 +397,7 @@ const ADOCAO_FEATURES = [
   { path: '/game-hub',       label: '🎮 Game (Colaborador)' },
   { path: '/jarvis',         label: '🤖 JARVIS' },
   { path: '/pipeline',       label: '📞 Pipeline' },
-  { path: '/field-marketing',label: '📍 Field Marketing' },
+  { path: '/area/eventos',   label: '📍 Field Marketing & Eventos' },
   { path: '/admin/utm',      label: '🔗 UTM & Links (admin)' },
   { path: '/relatorio',      label: '📈 Relatório Mensal' },
 ];

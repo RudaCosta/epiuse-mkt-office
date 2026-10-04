@@ -181,7 +181,7 @@ const OFFICE_NAV_OVERFLOW = [
   { label: '🔎 AEO / SEO / GEO (IA)',    href: '/aeo-geo' },
   { label: '📈 Relatório Mensal',        href: '/relatorio' },
   { label: '🗂️ Área de Clientes',        href: '/area-clientes' },
-  { label: '📣 Field Marketing',         href: '/field-marketing' },
+  { label: '📣 Field Marketing & Eventos', href: '/area/eventos' },
   { label: '✍️ Pipeline de Conteúdo',     href: '/content-pipeline' },
   { label: '🗺️ Jornadas de Compra',      href: '/jornadas' },
   { label: '📚 Artigos do Blog',         href: '/artigos' },
@@ -290,7 +290,6 @@ class OfficeNav extends HTMLElement {
     if (path.startsWith('/pipeline')) return 'pipeline';
     if (path.startsWith('/area/intelligence')) return 'intelligence';
     if (path.startsWith('/area/eventos')) return 'area-eventos';
-    if (path.startsWith('/field-marketing')) return 'field-marketing';
     if (path.startsWith('/hub')) return 'hub-mkt';
     if (path.startsWith('/changelog')) return 'changelog';
     return '';
@@ -302,7 +301,7 @@ class OfficeNav extends HTMLElement {
     if (r.startsWith('inbound')) return 'brand';
     if (r === 'painel' || r === 'voices' || r === 'raccoon' || r === 'blog-converter') return 'brand';
     if (r === 'area-growth' || r === 'growth') return 'intelligence';
-    if (r === 'area-eventos' || r === 'area-field' || r === 'eventos' || r === 'field-marketing') return 'field';
+    if (r === 'area-eventos' || r === 'area-field' || r === 'eventos') return 'field';
     if (r === 'artigos' || r === 'jornadas' || r === 'area-conteudo') return 'brand';
     if (r === 'hub-mkt') return 'hub';
     if (r === 'relatorio') return 'relatorio';

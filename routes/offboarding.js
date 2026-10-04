@@ -4,7 +4,7 @@
 // Por que existe: quando alguém sai, o nome fica espalhado pelo banco de PROD —
 // responsável de evento, autor de ideia, autor de pauta, cartão do Cafezinho,
 // registro de acesso. Trocar só os JSONs do repo não resolve: quem assume a
-// cadeira abre /field-marketing e continua vendo o nome de quem saiu em cada
+// cadeira abre /area/eventos e continua vendo o nome de quem saiu em cada
 // evento. Além de desconfortável, é dado errado (a pessoa não responde mais).
 //
 // Por que por VARIÁVEL DE AMBIENTE e não no código: pra não deixar o nome de
