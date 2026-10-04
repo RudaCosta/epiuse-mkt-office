@@ -173,7 +173,7 @@ O servidor é gerenciado por **Tarefas Agendadas do Windows** (substituiu PM2 em
 
 | Serviço | Status | Dados |
 |---|---|---|
-| Apollo.io | ✅ Ativo | pipeline-snapshot.json (sync diário) |
+| Apollo.io | ✅ Ativo | refresh no servidor a cada 6h (`routes/area-pipeline.js`, `APOLLO_API_KEY`) · fallback `pipeline-snapshot.json` |
 | Anthropic Claude | ✅ Ativo | Profile Optimizer, Cowork |
 | Resend | ✅ Ativo | E-mails transacionais |
 | Google Analytics 4 | ⏳ Pendente | OAuth configurado, sync não finalizado |
