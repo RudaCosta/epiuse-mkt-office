@@ -289,6 +289,7 @@ class OfficeNav extends HTMLElement {
     if (path.startsWith('/metas')) return 'metas';
     if (path.startsWith('/pipeline')) return 'pipeline';
     if (path.startsWith('/area/intelligence')) return 'intelligence';
+    if (path.startsWith('/area/eventos')) return 'area-eventos';
     if (path.startsWith('/hub')) return 'hub-mkt';
     if (path.startsWith('/changelog')) return 'changelog';
     return '';
@@ -403,6 +404,10 @@ class OfficeNav extends HTMLElement {
       // Tracking da área Intelligence (quem viu o quê) — também só o dono.
       if (grpA && !grpA.links.some(l => l.href === '/admin/intelligence')) {
         grpA.links.push({ label: '👁️ Tracking · Intelligence', href: '/admin/intelligence' });
+      }
+      // Tracking da área Eventos (quem viu o quê) — também só o dono.
+      if (grpA && !grpA.links.some(l => l.href === '/admin/eventos')) {
+        grpA.links.push({ label: '👁️ Tracking · Eventos', href: '/admin/eventos' });
       }
     }
     // UTM & Links Rastreados — todo o time de Marketing.

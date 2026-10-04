@@ -17,6 +17,7 @@
 | `25-calendario-editorial/` | Calendário Editorial — planilha do marketing em 3 telas (`/editorial/*`, Intelligence + Brand) | ✅ v1.0 Fase 1 (parse 3 abas · resync) · ⏳ Fase 2 Graph aguarda TI |
 | `26-onboarding/` | Onboarding de Marketing — trilha com modo foco, animações e ERP Coins (`/onboarding`) | ✅ v2.2 · certificado + rastreamento |
 | `27-area-intelligence/` | Área Intelligence — página de trabalho da Bruna (atalhos, fila de atenção, dados em abas) + tracking "quem viu o quê" só do dono (`/area/intelligence`, `/admin/intelligence`) | ✅ v1.1 |
+| `28-area-eventos/` | Área Eventos — página visual do Field Marketing (contagem regressiva, calendário BR+LATAM animado, MDF, ROI) + tracking "quem viu o quê" só do dono (`/area/eventos`, `/admin/eventos`) | ✅ v1.0 |
 
 ## Módulos sem pasta própria (documentados em `docs/MODULES.md`)
 

@@ -2128,6 +2128,10 @@ app.get('/diretoria',      (req, res) => res.redirect('/area/diretoria'));
 // o quê (Módulo 27). Painel do tracking: /admin/intelligence (só o dono).
 const INTEL_HTML = path.join(__dirname, 'public/area-intelligence.html');
 app.get('/area/intelligence', (req, res) => res.sendFile(INTEL_HTML));
+// Área Eventos (Gabrielle) — página dedicada com animações + tracking de quem viu
+// o quê (Módulo 28). Painel do tracking: /admin/eventos (só o dono).
+const EVENTOS_HTML = path.join(__dirname, 'public/area-eventos.html');
+app.get('/area/eventos', (req, res) => res.sendFile(EVENTOS_HTML));
 app.get('/area', (req, res) => res.sendFile(AREA_PATH));
 app.get('/area/:id', (req, res) => res.sendFile(AREA_PATH));
 
