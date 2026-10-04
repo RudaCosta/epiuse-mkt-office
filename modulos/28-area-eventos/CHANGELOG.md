@@ -10,3 +10,11 @@
 
 ## v1.0.1 · 04/out/2026
 - Fundo sem os dois refletores (feixes de luz que varriam a tela), a pedido do Rudá. Ficam as luzes subindo e o confete.
+
+## v1.1 · 04/out/2026 — Field Marketing v2
+- `/field-marketing` reescrita na linguagem da área (tokens do DESIGN.md, Lato/Open Sans; sai Inter e as cores hex fixas).
+- Radar dos próximos eventos, busca e filtros, linha do tempo por mês e kanban com arrastar-e-soltar.
+- Editor em abas: briefing com checklist persistido (56 tarefas com vencimento, D-Day, planos B), brindes e pós-evento com funil e custo por lead.
+- API `GET /api/field-marketing` passa a devolver `briefing`, `brindes` e `atualizado_em`.
+- `/area/eventos` usa a data confirmada no Field quando houver.
+

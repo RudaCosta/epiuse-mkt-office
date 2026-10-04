@@ -290,6 +290,7 @@ class OfficeNav extends HTMLElement {
     if (path.startsWith('/pipeline')) return 'pipeline';
     if (path.startsWith('/area/intelligence')) return 'intelligence';
     if (path.startsWith('/area/eventos')) return 'area-eventos';
+    if (path.startsWith('/field-marketing')) return 'field-marketing';
     if (path.startsWith('/hub')) return 'hub-mkt';
     if (path.startsWith('/changelog')) return 'changelog';
     return '';
@@ -301,7 +302,7 @@ class OfficeNav extends HTMLElement {
     if (r.startsWith('inbound')) return 'brand';
     if (r === 'painel' || r === 'voices' || r === 'raccoon' || r === 'blog-converter') return 'brand';
     if (r === 'area-growth' || r === 'growth') return 'intelligence';
-    if (r === 'area-eventos' || r === 'area-field' || r === 'eventos') return 'field';
+    if (r === 'area-eventos' || r === 'area-field' || r === 'eventos' || r === 'field-marketing') return 'field';
     if (r === 'artigos' || r === 'jornadas' || r === 'area-conteudo') return 'brand';
     if (r === 'hub-mkt') return 'hub';
     if (r === 'relatorio') return 'relatorio';

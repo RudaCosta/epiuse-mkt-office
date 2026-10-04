@@ -730,12 +730,14 @@ function buildEvents() {
   EVS = [];
   Object.entries(D.ev.abas).forEach(([reg, ab]) => (ab.eventos || []).forEach(e => {
     const [a, b] = String(e.d || '').split('-').map(n => parseInt(n, 10));
-    const start = e.m && a ? new Date(ano, e.m - 1, a) : null;
-    const end = start ? new Date(ano, e.m - 1, b || a, 23, 59, 59) : null;
     const f = fmBy[`${reg}|${e.m}|${e.n}`] || null;
+    // data confirmada no Field Marketing (Office) vence a do calendário — cobre os "a confirmar"
+    const fd = f && /^(\d{4})-(\d{2})-(\d{2})/.exec(f.data_evento || '');
+    const start = fd ? new Date(+fd[1], +fd[2] - 1, +fd[3]) : e.m && a ? new Date(ano, e.m - 1, a) : null;
+    const end = start ? new Date(start.getFullYear(), start.getMonth(), start.getDate() + (a && b ? b - a : 0), 23, 59, 59) : null;
     const cap = (f && f.captura) || {};
     const x = {
-      id: slug(`${reg}-${e.m}-${e.n}`), reg, m: e.m, d: e.d, n: e.n, lob: e.lob || '—', who: e.who || '', pais: e.country || '', flag: e.flag || '',
+      id: slug(`${reg}-${e.m}-${e.n}`), reg, m: start ? start.getMonth() + 1 : e.m, d: e.d, n: e.n, lob: e.lob || '—', who: e.who || '', pais: e.country || '', flag: e.flag || '',
       local: e.local || (f && f.local) || '', start, end, f, status: (f && f.status) || 'planejamento',
       cap: (num(cap.leads) || num(cap.deals) || num(cap.qualificados)) ? cap : null,
     };
@@ -746,7 +748,7 @@ function buildEvents() {
   EVS.sort((p, q) => (p.m - q.m) || ((p.start ? p.start.getDate() : 99) - (q.start ? q.start.getDate() : 99)));
   EVM = Object.fromEntries(EVS.map(e => [e.id, e]));
 }
-const dataTxt = e => e.start ? (e.d.includes('-') ? `${e.d.replace('-', '–')}/${MES[e.m - 1]}` : ddmmm(e.start)) : `${MES[e.m - 1]} · data a confirmar`;
+const dataTxt = e => e.start ? (e.end && e.end.getDate() !== e.start.getDate() ? `${ddmmm(e.start)}–${ddmmm(e.end)}` : ddmmm(e.start)) : `${MES[e.m - 1]} · data a confirmar`;
 const upcoming = () => EVS.filter(e => !e.past);
 
 /* ---------- FONTES ---------- */
@@ -1070,7 +1072,7 @@ function renderRiver() {
       <div class="mo-h"><b>${mn.toUpperCase()}</b>${cls === 'cur' ? '<span class="here">você está aqui</span>' : ''}<span class="n">${all.length}</span></div>
       <div class="mo-bar">${LOB_ORDER.filter(l => byLob[l]).map(l => `<i style="--c:${lobColor(l)};--w:calc(${(byLob[l] * 100 / all.length).toFixed(1)}% - 2px)" title="${esc(l)}: ${byLob[l]}"></i>`).join('')}</div>
       <div class="evs">${all.length ? all.map((e, k) => `<button class="ev${e.past ? ' done' : ''}" data-ev="${e.id}" style="--c:${lobColor(e.lob)};--k:${k}" title="${esc(e.n)} · ${esc(e.lob)}">
-          <i></i><span class="d${e.start ? '' : ' tbc'}">${e.start ? esc(e.d.replace('-', '–')) : 'a conf.'}</span><span class="n">${esc(e.n)}</span><span class="f">${esc(e.flag)}</span></button>`).join('')
+          <i></i><span class="d${e.start ? '' : ' tbc'}">${e.start ? e.start.getDate() + (e.end.getDate() !== e.start.getDate() ? '–' + e.end.getDate() : '') : 'a conf.'}</span><span class="n">${esc(e.n)}</span><span class="f">${esc(e.flag)}</span></button>`).join('')
         : '<div class="empty">Nada neste mês com esse filtro.</div>'}</div>
     </div>`;
   }).join('');

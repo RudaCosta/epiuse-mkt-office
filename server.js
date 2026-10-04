@@ -2862,14 +2862,17 @@ app.get('/api/field-marketing', (req, res) => {
         const id = _slugifyEvent(aba, ev);
         const e = enrich[id] || {};
         let captura = {}; try { captura = JSON.parse(e.captura_json || '{}'); } catch {}
+        let briefing = {}; try { briefing = JSON.parse(e.briefing_json || '{}'); } catch {}
+        let brindes = []; try { brindes = JSON.parse(e.brindes_json || '[]'); } catch {}
         lista.push({
           event_id: id, regiao: aba, nome: ev.n, lob: ev.lob, who: ev.who,
           pais: ev.country, flag: ev.flag, mes: ev.m, dia: ev.d,
           data_evento: e.data_evento || _eventISO(ev, ano),
           status: e.status || 'planejamento',
-          local: e.local || '', responsavel: e.responsavel || '', porte: e.porte || '',
+          local: e.local || ev.local || '', responsavel: e.responsavel || '', porte: e.porte || '',
           orcamento: e.orcamento || 0, captura,
           tem_briefing: !!(e.briefing_json && e.briefing_json !== '{}'),
+          briefing, brindes, atualizado_em: e.updated_at || null,
         });
       }
     }
