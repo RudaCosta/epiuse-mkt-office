@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="robots" content="noindex,nofollow">
-<title>Tracking · Intelligence · EPI-USE Office</title>
+<title>Tracking de área · EPI-USE Office</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/design-tokens.css">
 <script type="module" src="/office-nav.js"></script>
 <style>
-/* Módulo 27 — painel "quem viu o quê" da área Intelligence. Só o dono.
-   Arquivo fora de public/ (private/): servido apenas por GET /admin/intelligence. */
+/* Módulos 27/28 — painel "quem viu o quê" das áreas (Intelligence, Eventos). Só o dono.
+   Arquivo fora de public/ (private/): servido apenas por GET /admin/<area>. */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --t-bg: var(--color-neutral-dark-bg);
@@ -128,9 +128,9 @@ tbody tr:hover{background:color-mix(in srgb,var(--t-corn) 8%,transparent)}
 <main class="wrap" id="app">
   <div class="top">
     <div>
-      <div class="eyebrow">Tracking · Área Intelligence</div>
+      <div class="eyebrow" id="eyebrow">Tracking · Área</div>
       <h1>Quem viu o quê <span class="lock">🔒 só você vê</span></h1>
-      <p>Visitas, tempo, seções vistas, profundidade de scroll e cliques em <a href="/area/intelligence">/area/intelligence</a>.</p>
+      <p>Visitas, tempo, seções vistas, profundidade de scroll e cliques em <a id="pgLink" href="/"></a>.</p>
     </div>
     <div class="ctl">
       <div class="seg" id="days">
@@ -148,7 +148,7 @@ tbody tr:hover{background:color-mix(in srgb,var(--t-corn) 8%,transparent)}
   </div>
   <div class="grid">
     <div class="card"><h2>🔧 Ferramentas abertas</h2><p class="sub">Cliques nos atalhos da área</p><div class="bars" id="tools"></div></div>
-    <div class="card"><h2>🖱️ Interações</h2><p class="sub">Detalhes de fontes, achados, filtros e gráficos</p><div class="bars" id="acoes"></div></div>
+    <div class="card"><h2>🖱️ Interações</h2><p class="sub" id="acoesSub">Detalhes, filtros e gráficos</p><div class="bars" id="acoes"></div></div>
   </div>
   <div class="card" style="margin-bottom:16px"><h2>👥 Pessoas</h2><p class="sub">Clique numa linha pra ver o passo a passo da pessoa</p><div class="tbl" id="pessoas"></div></div>
   <div class="card"><h2>⚡ Atividade recente</h2><p class="sub">Últimos 200 eventos</p><div class="feed" id="feed"></div></div>
@@ -171,17 +171,37 @@ const hora = ts => new Date(ts).toLocaleTimeString('pt-BR', { hour: '2-digit', m
 const dia = ts => new Date(ts).toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short' });
 const slug = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/^\/+/, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'x';
 
-// Mesma ordem/ids das seções de public/area-intelligence.html (data-sec)
-// (v1.1: página de trabalho — blocos no topo, dados em abas; ids mantidos da v1.0)
-const SECS = [
-  ['hero', '🧠 Topo · fontes'], ['ferramentas', '🔧 Atalhos'], ['atencao', '🩺 Precisa de atenção'],
-  ['agente', '🤖 Agente da área'], ['projetos', '📁 Projetos'], ['metas', '📊 Números & metas'],
-  ['saude', '📈 Aba · Saúde da base'], ['atribuicao', '📈 Aba · Atribuição'], ['pipeline', '📈 Aba · Deals'],
-  ['audiencia', '📈 Aba · Audiência'], ['fluxo', '📈 Aba · Fontes']
-];
+// Uma config por área. Mesma ordem/ids das seções da página (data-sec).
+const AREAS = {
+  intelligence: {
+    kind: 'intel', area: 'intelligence', nome: 'Intelligence', page: '/area/intelligence',
+    acoesSub: 'Detalhes de fontes, achados, filtros e gráficos',
+    // (v1.1: página de trabalho — blocos no topo, dados em abas; ids mantidos da v1.0)
+    secs: [
+      ['hero', '🧠 Topo · fontes'], ['ferramentas', '🔧 Atalhos'], ['atencao', '🩺 Precisa de atenção'],
+      ['agente', '🤖 Agente da área'], ['projetos', '📁 Projetos'], ['metas', '📊 Números & metas'],
+      ['saude', '📈 Aba · Saúde da base'], ['atribuicao', '📈 Aba · Atribuição'], ['pipeline', '📈 Aba · Deals'],
+      ['audiencia', '📈 Aba · Audiência'], ['fluxo', '📈 Aba · Fontes']
+    ],
+    nodes: { ga4: 'Site · GA4', rd: 'RD Station', zoho: 'Zoho CRM', apollo: 'Apollo' },
+  },
+  eventos: {
+    kind: 'eventos', area: 'eventos', nome: 'Field Marketing & Eventos', page: '/area/eventos',
+    acoesSub: 'Eventos abertos, filtros, contagem regressiva, fontes e MDF',
+    secs: [
+      ['hero', '📅 Topo · próximo evento'], ['ferramentas', '🔧 Atalhos'], ['atencao', '🩺 Precisa de atenção'],
+      ['agente', '🤖 Agente da área'], ['projetos', '📁 Projetos'], ['metas', '📊 Números & metas'],
+      ['calendario', '🗓️ Calendário do ano'], ['mapa', '🌎 Onde estamos · LOBs'], ['status', '🚦 Status dos eventos'],
+      ['mdf', '💶 SAP Development Funds'], ['roi', '🧾 Pós-evento · ROI']
+    ],
+    nodes: { events: 'Calendário LATAM (SharePoint)', field: 'Field Marketing (Office)', mdf: 'SAP Development Funds' },
+  },
+};
+const A = AREAS[location.pathname.replace(/\/+$/, '').split('/').pop()] || AREAS.intelligence;
+const SECS = A.secs;
 const SECL = Object.fromEntries(SECS);
-const NODE = { ga4: 'Site · GA4', rd: 'RD Station', zoho: 'Zoho CRM', apollo: 'Apollo' };
-let TOOLS = {};
+const NODE = A.nodes;
+let TOOLS = {}, EVT = {};
 function acaoLabel(id) {
   const [k, ...r] = String(id).split('.'), v = r.join('.');
   if (k === 'node') return '🔎 Detalhes da fonte · ' + (NODE[v] || v);
@@ -192,20 +212,32 @@ function acaoLabel(id) {
   if (k === 'cta') return '👆 Botão do topo · ' + (v === 'fluxo' ? 'ver fontes' : v);
   if (k === 'agente') return v === 'inbox' ? '🤖 Abriu pedido do agente' : v === 'outbox' ? '🤖 Abriu entrega do agente' : '🤖 Abriu workspace do agente';
   if (k === 'aba') return '📈 Abriu aba · ' + ((SECL[v] || v).replace(/^📈 Aba · /, ''));
-  if (k === 'atencao') return '🩺 Clicou em pendência · ' + v.replace(/^(achado|fonte|meta)-/, '$1: ').replace(/-/g, ' ');
+  if (k === 'atencao') return '🩺 Clicou em pendência · ' + v.replace(/^(achado|fonte|meta|evento|captura)-/, '$1: ').replace(/-/g, ' ');
+  if (k === 'evento') return '🎪 Abriu evento · ' + (EVT[v] || v.replace(/-/g, ' '));
+  if (k === 'proximo') return '⏳ Clicou no próximo evento · ' + (EVT[v] || v.replace(/-/g, ' '));
+  if (k === 'regiao') return '🌎 Filtro de região · ' + v;
+  if (k === 'lob') return '🎨 Filtro de LOB · ' + v.toUpperCase();
+  if (k === 'pais') return '📍 Filtro de país · ' + v.toUpperCase();
+  if (k === 'mes') return '🗓️ Abriu mês · ' + v;
+  if (k === 'status') return '🚦 Filtro de status · ' + v.replace(/-/g, ' ');
+  if (k === 'mdf') return '💶 MDF · ' + v.replace(/-/g, ' ');
   if (k === 'tool') return TOOLS[v] || ('🔧 ' + v);
   if (k === 'sec') return '👀 Viu · ' + (SECL[v] || v);
   if (k === 'scroll') return '📜 Rolou até ' + v + '%';
   if (k === 'view') return '🚪 Abriu a página';
   return id;
 }
+document.title = `Tracking · ${A.nome} · EPI-USE Office`;
+$('#eyebrow').textContent = `Tracking · Área ${A.nome}`;
+$('#pgLink').href = A.page; $('#pgLink').textContent = A.page;
+$('#acoesSub').textContent = A.acoesSub;
 
 let DAYS = 30, DATA = null;
 async function j(u) { const r = await fetch(u, { credentials: 'same-origin', cache: 'no-store' }); if (r.status === 403) throw new Error('403'); return r.json(); }
 
 async function load() {
   try {
-    DATA = await j(`/api/admin/analytics/intel?days=${DAYS}&eu=${$('#eu').checked ? 1 : 0}`);
+    DATA = await j(`/api/admin/analytics/${A.kind}?days=${DAYS}&eu=${$('#eu').checked ? 1 : 0}`);
   } catch (e) {
     $('#app').innerHTML = '<div class="deny"><h1>🔒 Acesso restrito</h1><p>Este painel é exclusivo do dono do Office.</p></div>';
     return;
@@ -268,7 +300,7 @@ addEventListener('keydown', e => { if (e.key === 'Escape') closeDr(); });
 async function openPerson(email) {
   $('#drTitle').innerHTML = `${esc(email)}<small>carregando…</small>`; $('#drBody').innerHTML = '';
   drawer.classList.add('on'); scrim.classList.add('on'); drawer.setAttribute('aria-hidden', 'false');
-  let d; try { d = await j('/api/admin/analytics/intel/user?email=' + encodeURIComponent(email)); } catch { return; }
+  let d; try { d = await j(`/api/admin/analytics/${A.kind}/user?email=` + encodeURIComponent(email)); } catch { return; }
   $('#drTitle').innerHTML = `${esc(d.meta.name || email)}<small>${esc(email)}${d.meta.role ? ' · ' + esc(d.meta.role) : ''} · histórico completo</small>`;
   let lastDay = '';
   const COL = { view: 'var(--t-yellow)', dur: 'var(--t-teal)', tool: 'var(--t-ok)', sec: 'var(--t-corn)' };
@@ -292,7 +324,7 @@ $('#csv').addEventListener('click', () => {
     .concat(DATA.pessoas.map(p => [p.email, p.nome, p.role, p.visitas, p.sessoes, Math.round(p.tempo_ms / 1000),
       Object.keys(p.secoes || {}).join(' '), Object.keys(p.ferramentas || {}).join(' '), p.scroll, iso(p.primeiro), iso(p.ultimo)]));
   const blob = new Blob(['﻿' + rows.map(r => r.map(q).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `tracking-intelligence-${DAYS}d.csv`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `tracking-${A.area}-${DAYS}d.csv`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 });
 
 $$('#days button').forEach(b => b.addEventListener('click', () => { $$('#days button').forEach(x => x.classList.toggle('on', x === b)); DAYS = +b.dataset.d; load(); }));
@@ -300,10 +332,12 @@ $('#eu').addEventListener('change', load);
 
 // Rótulos dos atalhos: areas.json (ferramentas) + personas.json (dia a dia da dona) — mesmo slug do href do beacon
 const getJ = u => fetch(u, { cache: 'no-store' }).then(r => r.json()).catch(() => ({}));
-Promise.all([getJ('/api/areas.json'), getJ('/api/personas.json')]).then(([a, pe]) => {
-  const it = (a.areas || []).find(x => x.id === 'intelligence') || {};
-  const p = Object.values((pe && pe.personas) || {}).find(x => x.area === 'intelligence') || {};
+// Eventos: nome legível a partir do mesmo slug que a página usa (regiao-mes-nome)
+Promise.all([getJ('/api/areas.json'), getJ('/api/personas.json'), A.kind === 'eventos' ? getJ('/api/events.json') : {}]).then(([a, pe, ev]) => {
+  const it = (a.areas || []).find(x => x.id === A.area) || {};
+  const p = Object.values((pe && pe.personas) || {}).find(x => x.area === A.area) || {};
   (p.quick || []).concat(it.ferramentas || []).forEach(t => { if (t.href) TOOLS[slug(t.href)] = (t.icon ? t.icon + ' ' : '') + t.label; });
+  Object.entries((ev && ev.abas) || {}).forEach(([reg, ab]) => (ab.eventos || []).forEach(e => { EVT[slug(`${reg}-${e.m}-${e.n}`)] = `${e.flag || ''} ${e.n}`.trim(); }));
 }).finally(load);
 })();
 </script>
