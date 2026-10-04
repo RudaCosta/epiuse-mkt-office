@@ -291,6 +291,7 @@ class OfficeNav extends HTMLElement {
     if (path.startsWith('/area/intelligence')) return 'intelligence';
     if (path.startsWith('/area/eventos')) return 'area-eventos';
     if (path.startsWith('/area/pipeline')) return 'area-pipeline';
+    if (path.startsWith('/area/brand')) return 'area-brand';
     if (path.startsWith('/hub')) return 'hub-mkt';
     if (path.startsWith('/changelog')) return 'changelog';
     return '';
@@ -424,6 +425,10 @@ class OfficeNav extends HTMLElement {
       // Tracking da área Pipeline / Biz Dev (quem viu o quê) — também só o dono.
       if (grpA && !grpA.links.some(l => l.href === '/admin/pipeline')) {
         grpA.links.push({ label: '👁️ Tracking · Pipeline', href: '/admin/pipeline' });
+      }
+      // Tracking da área Brand Experience / Voices (quem viu o quê) — também só o dono.
+      if (grpA && !grpA.links.some(l => l.href === '/admin/brand')) {
+        grpA.links.push({ label: '👁️ Tracking · Brand', href: '/admin/brand' });
       }
     }
     // UTM & Links Rastreados — todo o time de Marketing.

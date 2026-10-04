@@ -678,8 +678,8 @@ app.get('/api/areas.json', (req, res) => {
       });
       if (a.id === 'brand') items.forEach(f => {
         const l = (f.estagio || f.label || '').toLowerCase();
-        if (l === 'posts/mês' && postsCount != null) { f.valor = postsCount; f._live = 'linkedin-routine'; n++; }
-        else if (l === 'cases publicáveis' && casesCount != null) { f.valor = casesCount; f._live = 'cs_clientes'; n++; }
+        // posts/mês saiu daqui: linkedin-routine conta posts da página da empresa, não dos Voices (Módulo 30)
+        if (l === 'cases publicáveis' && casesCount != null) { f.valor = casesCount; f._live = 'cs_clientes'; n++; }
       });
     });
     areas._overlay = { aplicado_em: new Date().toISOString(), live_count: n, seguidores, contatos, contas, eventos_total: evTotal, eventos_exec: evPast, reunioes, posts_mes: postsCount, oportunidades: zohoOpps, cases: casesCount };
@@ -2145,6 +2145,11 @@ app.get('/area/eventos', (req, res) => res.sendFile(EVENTOS_HTML));
 // Painel do tracking: /admin/pipeline (só o dono). APIs em routes/area-pipeline.js.
 const PIPELINE_HTML = path.join(__dirname, 'public/area-pipeline.html');
 app.get('/area/pipeline', (req, res) => res.sendFile(PIPELINE_HTML));
+// Área Brand Experience / Voices (Duda) — página dedicada só com fontes automáticas
+// (Voices, pautas, links, inscrições, Cases diário, calendário via Graph) + tracking
+// (Módulo 30). Painel do tracking: /admin/brand (só o dono). API em routes/area-brand.js.
+const BRAND_HTML = path.join(__dirname, 'public/area-brand.html');
+app.get('/area/brand', (req, res) => res.sendFile(BRAND_HTML));
 app.get('/area', (req, res) => res.sendFile(AREA_PATH));
 app.get('/area/:id', (req, res) => res.sendFile(AREA_PATH));
 
@@ -6392,6 +6397,7 @@ app.use('/', require('./routes/cafezinho')); // Módulo 22 — Cafezinho (área 
 app.use('/', require('./routes/horas'));      // Módulo 23 — Banco de Horas MKT
 app.use('/', require('./routes/editorial'));  // Módulo 25 — Calendário Editorial (planilha marketing, 3 abas)
 app.use('/', require('./routes/area-pipeline')); // Módulo 29 — Área Pipeline (Apollo auto + JARVIS)
+app.use('/', require('./routes/area-brand'));    // Módulo 30 — Área Brand (Voices · pautas · Cases · calendário)
 
 // Saida de pessoa do time: roda aqui, no fim do boot, porque precisa das
 // tabelas de TODOS os modulos (as do Cafezinho, por exemplo, so existem

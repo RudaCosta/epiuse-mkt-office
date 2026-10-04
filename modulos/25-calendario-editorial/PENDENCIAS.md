@@ -1,22 +1,14 @@
 # Pendências — Módulo 25 · Calendário Editorial
 
-## 🟢 Fase 2 — Graph API (permissão liberada 02/out/2026 · falta implementar)
+## ✅ Fase 2 — Graph API ligada no servidor (04/out/2026)
 
-**O que falta:** o app do Azure (o MESMO do SSO) precisa da permissão de **APLICATIVO**
-`Files.Read.All` (ou `Sites.Read.All`) + **admin consent**. Mesma pessoa que aprovou o consent
-do SSO faz — ~2 min no Azure Portal (App registrations → o app do Office → API permissions →
-Microsoft Graph → Application permissions → Files.Read.All → Grant admin consent).
+Permissão liberada em 02/out; desde a v1.1 o servidor lê a planilha da nuvem no boot e a cada 6h
+(`routes/editorial.js`). **Falta só validar em prod** depois do deploy: a área `/area/brand` mostra
+`Calendário editorial · nuvem · há Xh` na barra "Ao vivo"; erro aparece em "Precisa de atenção".
 
-**Depois de liberado:**
-1. Confirmar `.env` do Office tem `EDITORIAL_SHARE_URL` (default já é o link da planilha atual).
-2. Testar: `node scripts/integrations/graph_fetch.js` (baixa da nuvem).
-3. Ligar o resync na nuvem: setar `EDITORIAL_USE_GRAPH=1` no `.env` OU chamar
-   `POST /api/editorial/resync?graph=1`.
-4. (Opcional) Cron diário — Tarefa Windows chamando `sync_calendario_editorial.js --graph`.
-
-**Enquanto não sai:** Fase 1 funciona — o resync lê a cópia local
-(`vault/00-contexto/conteudo/calendario-editorial-marketing.xlsx`). Pra atualizar hoje, é preciso
-substituir essa cópia (ou apontar `XLSX_PATHS[0]` pra um OneDrive sincronizado).
+- Se der 403: conferir `Files.Read.All` (aplicativo) + admin consent no app do Azure.
+- Se der 404: o link mudou → atualizar `EDITORIAL_SHARE_URL` no Railway.
+- Desligar sem deploy: `EDITORIAL_AUTO=0`.
 
 ## 🟡 Melhorias (não-bloqueadas)
 - Filtros na tela de calendário (LOB / formato / status).
