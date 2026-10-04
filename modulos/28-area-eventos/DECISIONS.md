@@ -7,3 +7,10 @@
 - **Cores de LOB fixas por LOB, nunca pelo ranking:** 6 spot colors do Brand Guide (Cross, ERP, Branding, HCM, BTM, BTP) + "Outros" (Cloud, Institucional, WFS, SN). Ordem validada com o `validate_palette` do dataviz no fundo escuro (CVD e contraste ok). Luminosidade/croma das spot colors ficam fora da faixa ideal por serem do guia (regra 8), então o nome da LOB aparece sempre em texto ao lado da cor.
 - **MDF com valores em €:** a tela `/development-funds` já é aberta ao time; o dado é o mesmo. Data do snapshot lida do JSON de origem (o endpoint não devolve).
 - **`mes.<mmm>` só conta rolagem feita pela pessoa** (ponteiro/roda/toque/teclado/setas), não o posicionamento automático no mês atual.
+- **Field v2 — atraso só depois de iniciar o briefing:** o template tem 56 tarefas pensadas pra evento proprietário; em evento de terceiros (ASUG, SAP) nem todas se aplicam. Sem nenhuma tarefa marcada, o card diz "briefing não iniciado" em vez de "21 tarefas atrasadas".
+- **Briefing vazio é salvo como `{}`:** campos em branco e tarefas desmarcadas são removidos antes do POST, pra `tem_briefing` refletir conteúdo real.
+- **Marcar tarefa não redesenha a lista:** contadores atualizam no lugar, mantendo foco do teclado e rolagem.
+- **Kanban salva na hora** (otimista, com reversão se o POST falhar); no celular o status muda dentro do evento.
+- **v1.2 — uma página só:** visão e operação na mesma tela evitam o que aconteceu com a tela antiga do Field (ninguém atualizava status nem captura). Clique em qualquer evento (radar, contagem, linha do ano, meses, kanban, ROI, fila de atenção) abre o mesmo editor, na aba que faz sentido (briefing pelo radar, pós-evento pelo ROI).
+- **Kanban:** próximos primeiro na coluna; "sem captura" só pra eventos BR (mesma regra da fila de atenção).
+

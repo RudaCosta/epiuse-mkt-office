@@ -181,7 +181,7 @@ const OFFICE_NAV_OVERFLOW = [
   { label: '🔎 AEO / SEO / GEO (IA)',    href: '/aeo-geo' },
   { label: '📈 Relatório Mensal',        href: '/relatorio' },
   { label: '🗂️ Área de Clientes',        href: '/area-clientes' },
-  { label: '📣 Field Marketing',         href: '/field-marketing' },
+  { label: '📣 Field Marketing & Eventos', href: '/area/eventos' },
   { label: '✍️ Pipeline de Conteúdo',     href: '/content-pipeline' },
   { label: '🗺️ Jornadas de Compra',      href: '/jornadas' },
   { label: '📚 Artigos do Blog',         href: '/artigos' },

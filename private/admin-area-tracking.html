@@ -187,11 +187,11 @@ const AREAS = {
   },
   eventos: {
     kind: 'eventos', area: 'eventos', nome: 'Field Marketing & Eventos', page: '/area/eventos',
-    acoesSub: 'Eventos abertos, filtros, contagem regressiva, fontes e MDF',
+    acoesSub: 'Eventos abertos e editados, kanban, filtros, contagem regressiva, fontes e MDF',
     secs: [
-      ['hero', '📅 Topo · próximo evento'], ['ferramentas', '🔧 Atalhos'], ['atencao', '🩺 Precisa de atenção'],
+      ['hero', '📅 Topo · próximo evento'], ['ferramentas', '🔧 Atalhos'], ['radar', '🎯 No radar'], ['atencao', '🩺 Precisa de atenção'],
       ['agente', '🤖 Agente da área'], ['projetos', '📁 Projetos'], ['metas', '📊 Números & metas'],
-      ['calendario', '🗓️ Calendário do ano'], ['mapa', '🌎 Onde estamos · LOBs'], ['status', '🚦 Status dos eventos'],
+      ['calendario', '🗓️ Calendário & eventos'], ['mapa', '🌎 Onde estamos · LOBs'], ['status', '🚦 Status dos eventos'],
       ['mdf', '💶 SAP Development Funds'], ['roi', '🧾 Pós-evento · ROI']
     ],
     nodes: { events: 'Calendário LATAM (SharePoint)', field: 'Field Marketing (Office)', mdf: 'SAP Development Funds' },
@@ -227,6 +227,13 @@ function acaoLabel(id) {
   if (k === 'atencao') return '🩺 Clicou em pendência · ' + v.replace(/^(achado|fonte|meta|evento|captura)-/, '$1: ').replace(/-/g, ' ');
   if (k === 'evento') return '🎪 Abriu evento · ' + (EVT[v] || v.replace(/-/g, ' '));
   if (k === 'proximo') return '⏳ Clicou no próximo evento · ' + (EVT[v] || v.replace(/-/g, ' '));
+  if (k === 'radar') return '🎯 Abriu do radar · ' + (EVT[v] || v.replace(/-/g, ' '));
+  if (k === 'roi') return '🧾 Abriu do ROI · ' + (EVT[v] || v.replace(/-/g, ' '));
+  if (k === 'editor') return '✏️ Editor · aba ' + ({ dados: 'Dados', brief: 'Briefing', brindes: 'Brindes', pos: 'Pós-evento', pdf: 'baixou PDF do briefing' }[v] || v);
+  if (k === 'salvou') return '💾 Salvou evento · aba ' + ({ dados: 'Dados', brief: 'Briefing', brindes: 'Brindes', pos: 'Pós-evento' }[v] || v);
+  if (k === 'kanban') return '🗂️ Moveu no kanban → ' + v.replace(/-/g, ' ');
+  if (k === 'visao') return '👁️ Visão do calendário · ' + v;
+  if (k === 'busca') return '🔎 Usou a busca';
   if (k === 'regiao') return '🌎 Filtro de região · ' + v;
   if (k === 'lob') return '🎨 Filtro de LOB · ' + v.toUpperCase();
   if (k === 'pais') return '📍 Filtro de país · ' + v.toUpperCase();
