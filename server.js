@@ -991,6 +991,9 @@ app.post('/api/onboarding/conquista', express.json({ limit: '2kb' }), (req, res)
   const email = String(u.email).toLowerCase();
   const etapa = String((req.body || {}).etapa || '');
   if (!ONB_COINS[etapa] || etapa === 'trilha') return res.status(400).json({ error: 'etapa_invalida' });
+  // Trilha progressiva: e2..e4 exigem a conquista da etapa anterior
+  const ordem = ['e1', 'e2', 'e3', 'e4'], idx = ordem.indexOf(etapa);
+  if (idx > 0 && !onbConquistas(email).includes(ordem[idx - 1])) return res.status(400).json({ error: 'etapa_bloqueada' });
   const key = ONB_GABARITO[etapa];
   if (key) {
     const resp = Array.isArray((req.body || {}).respostas) ? req.body.respostas : [];
