@@ -6,7 +6,11 @@
 
 ## 🔴 BLOQUEADO POR TERCEIROS — Rudá precisa acompanhar
 
-_Nada bloqueado no momento (02/out/2026)._
+### 🔒 Segurança — fechar depois do hotfix 0.91.1 e das Permissões v2 (04/out/2026)
+- ✅ `EDITOR_TOKEN` trocado no Railway (Rudá, 04/out) — o token antigo vazou no repo público e em 3 páginas.
+- 🔴 **Pôr o mesmo `EDITOR_TOKEN` novo no `.env` local** (`C:\Users\Ruds\.epiuse-optimizer\.env`). Sem isso os syncs agendados (cases, calendário, SAP 4 ME) levam 401.
+- 🟡 **Tornar o repositório GitHub privado.** O token antigo, a senha antiga dos brindes e a vault (clientes, estratégia, aniversários) seguem no histórico público do git. Railway funciona com repo privado.
+- 🟡 Depois do deploy das Permissões v2: conferir com 1 pessoa de cada área que a home e a área dela abrem (o teste automático cobriu, mas é a primeira vez com SSO real).
 
 ## ✅ RESOLVIDOS 02/out/2026 (confirmação Rudá: "b2 e b3 ok")
 - **B2 · Brand Guide 2026** — confirmado como versão final. DESIGN.md v4.0 segue valendo, sem re-diff. Segue em aberto, não-bloqueante: o tema “EPI-USE · claro” fica com fundo escuro nas telas com rota (`body[data-route]` do office-nav.js vence o tema; `home.css` tem cards escuros fixos).

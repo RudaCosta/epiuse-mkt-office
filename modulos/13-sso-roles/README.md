@@ -10,8 +10,28 @@
 1. **Login** (`routes/auth.js` → `/auth/callback`): valida domínio → `upsertUser()` na tabela `users` → resolve `role → persona + landing` → grava em `req.session.user`.
 2. **Landing por role** (`server.js` rota `/`): se `role === 'hub'` → redireciona pra `/hub` (Marketing Hub). Senão serve a home, personalizada pela persona.
 3. **Persona da home** (`public/js/home.js` `getPersonaId`): usa a `persona` vinda de `/api/auth/status` (fonte = DB). Fallback: mapa `emails` de `personas.json` → `visitante`.
-4. **Enforcement** (`server.js`): `app.use` global exige login nas **páginas** quando `SSO_ENFORCE=true` e SSO configurado. **Rotas `/api/*` não passam por aqui** — cada uma tem seu guard (`requireAuth` / `requireEditorToken` / `requireAdmin`), preservando fluxos server-to-server por token.
-5. **Admin** (`/admin/usuarios`, `public/admin-usuarios.html` + `/api/admin/users`): Rudá (role `head`) cadastra/edita quem é o quê. Guard: sessão `head` **ou** `X-Editor-Token`.
+4. **Permissões** (`routes/acesso.js`, v2 — 04/out/2026): UMA camada, montada antes de qualquer rota e do `express.static`, decide página, API e arquivo de `public/`. **Nega por padrão.** Detalhes na seção abaixo.
+5. **Tela de Permissões** (`/admin/usuarios`): só o **super admin** (por e-mail, `SUPER_ADMIN_EMAILS`, padrão `ruda.costa@epiuse.com.br`). Papel `head` não basta e o editor token não serve.
+
+## Permissões v2 — como funciona
+
+- **Papel → áreas** (`ROLE_AREAS`): cada papel abre `logado` (Hub, Cafezinho, Loja…), `time` (ferramentas comuns do MKT) e a área do próprio time. Diretoria vê só a página dela; Voice vê só as pautas; Colaborador (`hub`) só o que é de colaborador.
+- **Caminho → áreas** (`REGRAS`): lista ordenada, a primeira que casa decide. `/x`, `/x/*`, `:param`, `METODO /x`. `/pagina.html` cai na regra de `/pagina` (antes o `.html` direto furava o guard da rota limpa).
+- **Super admin** passa em tudo. Só ele recebe o `personas.json` inteiro e vê o "Ver como".
+- **Áreas extras por pessoa** (`users.areas_extra`): concedidas na tela de Permissões. `admin` nunca é concedível. Valem no próximo clique (re-hidratação por request), sem relogar.
+- **Editor token**: credencial de máquina. Passa a camada só em `/api/*` e só pelo header `X-Editor-Token` (não pela URL); o guard da rota decide. Não gerencia usuários.
+- **Menu e home** (`office-nav.js`, `js/home.js`) leem `/api/acesso/me` e escondem o que a pessoa não abre. O servidor barra do mesmo jeito — o front só limpa a tela.
+- **Sem acesso**: API → 401/403 JSON; página → `/login` (anônimo), `/hub` (colaborador), landing do papel (na raiz) ou `private/sem-acesso.html`.
+
+### ⚠️ Rota ou página nova = regra nova
+
+Toda rota nova, página nova ou JSON novo em `public/api/` precisa de linha em `REGRAS`. Sem isso, só o super admin abre. Conferir com:
+
+```
+node scripts/tests/acesso-cobertura.js
+```
+
+Sai com erro listando o que está sem regra.
 
 ## Mapa role → persona → landing
 
@@ -20,7 +40,7 @@
 | `head` | ruda | / |
 | `intelligence` | bruna | / |
 | `growth` | gui | / |
-| `field` | isabela | / |
+| `field` | field (área) | / |
 | `pipeline` | marlison | / |
 | `brand` | duda | / |
 | `conteudo` | conteudo (Lisiane) | / |

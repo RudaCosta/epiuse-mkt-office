@@ -32,8 +32,9 @@ db.exec(`CREATE TABLE IF NOT EXISTS hour_notifications (
 )`);
 
 // ── HELPERS ──────────────────────────────────────────────────────────────────
+// Painel do time inteiro: só o super admin (por e-mail), não qualquer 'head'.
 function isHead(req) {
-  return req.session?.user?.role === 'head';
+  return require('./users').isSuperAdmin(req);
 }
 
 function getEmail(req) {

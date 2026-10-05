@@ -13,6 +13,7 @@ Uso:
 import argparse, json, urllib.request, urllib.error
 from pathlib import Path
 from datetime import datetime
+import os
 import sys
 
 try:
@@ -56,8 +57,15 @@ def get_layout(prs, name, fallback_idx=6):
 
 def fetch_snapshot(mes, base_url="http://localhost:3000"):
     url = f"{base_url}/api/relatorio/snapshot?mes={mes}"
+    # Rodando dentro do servidor (download do /relatorio), não há sessão: o
+    # servidor repassa o token de máquina por ambiente. Rodando à mão, vale o
+    # EDITOR_TOKEN do ambiente.
+    req = urllib.request.Request(url)
+    token = os.environ.get("OFFICE_EDITOR_TOKEN") or os.environ.get("EDITOR_TOKEN")
+    if token:
+        req.add_header("X-Editor-Token", token)
     try:
-        with urllib.request.urlopen(url, timeout=30) as r:
+        with urllib.request.urlopen(req, timeout=30) as r:
             return json.loads(r.read().decode("utf-8"))
     except urllib.error.URLError as e:
         print(f"ERRO: não conseguiu acessar {url}. Office tá rodando? ({e})")

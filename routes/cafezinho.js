@@ -184,7 +184,7 @@ router.delete('/api/cafezinho/post/:id', (req, res) => {
   try {
     const post = db.prepare(`SELECT email FROM cafe_posts WHERE id=?`).get(id);
     if (!post) return res.status(404).json({ error: 'nao_encontrado' });
-    const ehAdmin = u.role === 'head' || !!u.admin;
+    const ehAdmin = require('./users').isSuperAdmin(req);
     if (String(post.email).toLowerCase() !== email && !ehAdmin) {
       return res.status(403).json({ error: 'nao_e_seu' });
     }

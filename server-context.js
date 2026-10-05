@@ -155,6 +155,7 @@ module.exports = {
   ACTIVE_SESSION_SECRET,
   requireEditorToken,
   requireMktOuToken,
+  tokenConfere,
   MKT_ROLES,
   requireAuth,
   client,

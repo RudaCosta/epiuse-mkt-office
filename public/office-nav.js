@@ -141,7 +141,13 @@ const OFFICE_NAV_TABS = [
   { id: 'pipeline',     label: 'Biz Dev',          icon: '📞', href: '/area/pipeline',     matches: ['area-pipeline','pipeline'] },
   { id: 'brand',        label: 'Brand Experience', icon: '🎨', href: '/area/brand',        matches: ['area-brand','voices','inbound','cases','painel','optimizer','area-conteudo','artigos','jornadas','raccoon','blog-converter','editorial-calendario','editorial-pautas'] },
   { id: 'metas',        label: 'Metas FY27',       icon: '🎯', href: '/metas-fy27',        matches: ['metas','metas-fy26','metas-fy27'] },
-  { id: 'relatorio',    label: 'Relatório Mensal', icon: '📊', href: '/relatorio',         matches: ['relatorio'] }
+  { id: 'relatorio',    label: 'Relatório Mensal', icon: '📊', href: '/relatorio',         matches: ['relatorio'] },
+  // Abas da própria área: só pra quem é dela. O super admin já chega nessas áreas
+  // pelas abas acima (Intelligence cobre Growth; Brand cobre Conteúdo) — não
+  // aparecem pra ele, pra não poluir o menu.
+  { id: 'growth',       label: 'Growth',           icon: '🚀', href: '/area/growth',       matches: ['area-growth'],   propria: 'growth' },
+  { id: 'conteudo',     label: 'Conteúdo',         icon: '✍️', href: '/area/conteudo',     matches: ['area-conteudo'], propria: 'conteudo' },
+  { id: 'diretoria',    label: 'Diretoria',        icon: '🏛️', href: '/area/diretoria',    matches: ['diretoria'],     propria: 'diretoria' }
 ];
 
 // Breadcrumbs por rota — aparece sutil abaixo do nav em rotas profundas
@@ -225,6 +231,16 @@ const OFFICE_NAV_INACTIVE = [
 // Fonte única para o /changelog listar os inativos
 try { window.OFFICE_NAV_INACTIVE = OFFICE_NAV_INACTIVE; window.OFFICE_NAV_OVERFLOW = OFFICE_NAV_OVERFLOW; } catch (e) {}
 
+// Casa um caminho com uma regra de routes/acesso.js ('/x', '/x/*', ':param').
+// Mesma lógica do servidor: o menu só esconde; quem barra de verdade é o servidor.
+function officeNavCasa(padrao, p) {
+  const curinga = padrao.endsWith('/*');
+  const base = curinga ? padrao.slice(0, -2) : padrao;
+  const corpo = base.split('/').map(seg =>
+    seg.startsWith(':') ? '[^/]+' : seg.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('/');
+  return new RegExp('^' + corpo + (curinga ? '(?:/.*)?' : '') + '/?$').test(p);
+}
+
 class OfficeNav extends HTMLElement {
   constructor() {
     super();
@@ -248,6 +264,26 @@ class OfficeNav extends HTMLElement {
   }
 
   // SSO Microsoft: se autenticado, fixa nome+email do Entra ID (não editável)
+  // Só aparece no menu o que a pessoa pode abrir (regras vindas de /api/acesso/me).
+  // Sem login ou antes de carregar, mostra tudo — o servidor barra do mesmo jeito.
+  podeVer(href) {
+    const a = this._acesso;
+    if (!a || !a.autenticado || a.superAdmin || !href || /^https?:/.test(href)) return true;
+    const p = href.split('?')[0].split('#')[0];
+    for (const [padrao, areas] of (a.regras || [])) {
+      if (officeNavCasa(padrao, p)) return areas.some(x => x === 'publico' || a.areas.includes(x));
+    }
+    return false;
+  }
+
+  podeVerAba(t) {
+    if (!t.propria) return this.podeVer(t.href);
+    const a = this._acesso;
+    // Aba da própria área: só pra quem TEM essa área (Brand acessa Conteúdo, mas
+    // já chega lá pela aba Brand — não precisa de outra).
+    return !!(a && a.autenticado && !a.superAdmin && (a.areas || []).includes(t.propria));
+  }
+
   async loadSSO() {
     try {
       const d = await fetch('/api/auth/status').then(r => r.json());
@@ -261,8 +297,11 @@ class OfficeNav extends HTMLElement {
         try { if (this._role === 'hub') this.setAttribute('data-hublock', '1'); else this.removeAttribute('data-hublock'); } catch {}
         try { if (this._sso.name) localStorage.setItem('office.user', this._sso.name); } catch {}
       }
-      // Re-renderiza quando o SSO está ligado: mostra "Entrar" (deslogado) ou nome real (logado).
-      if (this._ssoEnabled) { this.render(); this.hookEvents(); }
+      if (this._authed) {
+        try { this._acesso = await fetch('/api/acesso/me', { credentials: 'same-origin' }).then(r => r.ok ? r.json() : null); } catch {}
+      }
+      // Re-renderiza quando o SSO está ligado ou as permissões chegaram.
+      if (this._ssoEnabled || this._acesso) { this.render(); this.hookEvents(); }
     } catch {}
   }
 
@@ -381,7 +420,8 @@ class OfficeNav extends HTMLElement {
     });
 
     const renderColumn = (groups) => {
-      return groups.map(g => `
+      return groups.map(g => ({ ...g, links: g.links.filter(it => this.podeVer(it.href)) }))
+        .filter(g => g.links.length).map(g => `
         <div class="overflow-group">
           <div class="overflow-section">${g.section}</div>
           ${g.links.map(it => {
@@ -392,11 +432,12 @@ class OfficeNav extends HTMLElement {
       `).join('');
     };
 
-    // Admin de usuários/perfis — só aparece pro 'head' (Rudá) logado via SSO.
-    if (this._role === 'head') {
+    // Administração — só o super admin (vem de /api/acesso/me).
+    const souSuper = !!(this._acesso && this._acesso.superAdmin);
+    if (souSuper) {
       const grp = col1Items.find(g => g.section === '🤖 Escritório Virtual');
       if (grp && !grp.links.some(l => l.href === '/admin/usuarios')) {
-        grp.links.push({ label: '👥 Usuários & Perfis', href: '/admin/usuarios' });
+        grp.links.push({ label: '🔐 Permissões', href: '/admin/usuarios' });
       }
       if (grp && !grp.links.some(l => l.href === '/admin/inscricoes')) {
         grp.links.push({ label: '🎙️ Inscrições Voices', href: '/admin/inscricoes' });
@@ -409,8 +450,8 @@ class OfficeNav extends HTMLElement {
       }
     }
     const grpA = col1Items.find(g => g.section === '🤖 Escritório Virtual');
-    // Analytics de uso — exclusivo do dono (ruda.costa@epiuse.com.br).
-    if ((this._sso && String(this._sso.email || '').toLowerCase()) === 'ruda.costa@epiuse.com.br') {
+    // Analytics de uso e tracking das áreas — só o super admin.
+    if (souSuper) {
       if (grpA && !grpA.links.some(l => l.href === '/admin/analytics')) {
         grpA.links.push({ label: '📊 Analytics de Uso', href: '/admin/analytics' });
       }
@@ -1016,7 +1057,7 @@ class OfficeNav extends HTMLElement {
         <button class="hamburger" id="hamburger-btn" type="button" aria-label="Menu" title="Menu">☰</button>
 
         <div class="tabs" role="tablist">
-          ${OFFICE_NAV_TABS.map(t => {
+          ${OFFICE_NAV_TABS.filter(t => this.podeVerAba(t)).map(t => {
             const isActive = t.id === activeTab;
             return `<a class="tab ${isActive ? 'active' : ''}" href="${t.href}" data-tab="${t.id}" role="tab" aria-selected="${isActive}">
               <span class="tab-ico">${t.icon}</span>
@@ -1077,7 +1118,7 @@ class OfficeNav extends HTMLElement {
       </nav>
 
       <div class="mobile-tabs" id="mobile-tabs" role="menu">
-        ${OFFICE_NAV_TABS.map(t => {
+        ${OFFICE_NAV_TABS.filter(t => this.podeVerAba(t)).map(t => {
           const isActive = t.id === activeTab;
           return `<a class="tab ${isActive ? 'active' : ''}" href="${t.href}"><span class="tab-ico">${t.icon}</span><span>${t.label}</span></a>`;
         }).join('')}
@@ -1782,7 +1823,20 @@ function applyTheme(theme) {
       background: linear-gradient(to bottom, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.04) 70%, transparent 100%) !important;
     }
 
-    :root[data-theme="liquid-glass"] a { color: #ffffff !important; text-decoration: underline !important; }
+    /* Sublinhado só em link no meio do texto (parágrafo, definição, citação),
+       onde ele separa link de texto comum. Botão, aba, card e item de menu —
+       links com cara de botão — ficam sem: o sublinhado neles só suja a tela.
+       Link com classe é componente (btn, lnk, chip…), não texto: também fica sem. */
+    a { text-decoration: none; }
+    p a:not([class]), dd a:not([class]), blockquote a:not([class]), .prose a:not([class]) {
+      text-decoration: underline; text-underline-offset: 2px;
+    }
+
+    :root[data-theme="liquid-glass"] a { color: #ffffff !important; text-decoration: none !important; }
+    :root[data-theme="liquid-glass"] p a:not([class]), :root[data-theme="liquid-glass"] dd a:not([class]),
+    :root[data-theme="liquid-glass"] blockquote a:not([class]), :root[data-theme="liquid-glass"] .prose a:not([class]) {
+      text-decoration: underline !important; text-underline-offset: 2px;
+    }
     :root[data-theme="liquid-glass"] a:hover { color: rgba(255, 255, 255, 0.8) !important; }
     :root[data-theme="liquid-glass"] .chip-online {
       background: rgba(255, 255, 255, 0.08) !important;

@@ -168,17 +168,45 @@
     return AREAS;
   }
 
+  // ── Permissões: a home só mostra o que a pessoa pode abrir ────────────────
+  // Regras vêm de /api/acesso/me (mesmas do servidor). Sem login ou se falhar,
+  // mostra tudo — quem barra de verdade é o servidor.
+  let ACESSO = null, acessoP = null;
+  function loadAcesso() {
+    if (!acessoP) acessoP = fetch('/api/acesso/me', { credentials: 'same-origin' })
+      .then(r => r.ok ? r.json() : null).then(d => (ACESSO = d)).catch(() => null);
+    return acessoP;
+  }
+  function casa(padrao, p) {
+    const curinga = padrao.endsWith('/*');
+    const base = curinga ? padrao.slice(0, -2) : padrao;
+    const corpo = base.split('/').map(seg =>
+      seg.startsWith(':') ? '[^/]+' : seg.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('/');
+    return new RegExp('^' + corpo + (curinga ? '(?:/.*)?' : '') + '/?$').test(p);
+  }
+  function pode(href) {
+    const a = ACESSO;
+    if (!a || !a.autenticado || a.superAdmin || !href || /^https?:/.test(href)) return true;
+    const p = String(href).split('?')[0].split('#')[0];
+    for (const [padrao, areas] of (a.regras || [])) {
+      if (casa(padrao, p)) return areas.some(x => x === 'publico' || a.areas.includes(x));
+    }
+    return false;
+  }
+
   function areaLinks(a) {
     // ferramentas (com ícone/desc) + subabas que ainda não apareceram — dedup por href
     const seen = new Set(); const out = [];
     for (const f of (a.ferramentas || [])) if (f.href && !seen.has(f.href)) { seen.add(f.href); out.push(f); }
     for (const s of (a.subabas || [])) if (s.href && !seen.has(s.href)) { seen.add(s.href); out.push({ icon: '↗', ...s }); }
-    return out;
+    return out.filter(l => pode(l.href));
   }
 
   async function renderAreas() {
     const target = $('areas-grid'); if (!target) return;
-    const areas = (await loadAreas()).slice();
+    await loadAcesso();
+    // Só as áreas que a pessoa pode abrir (o super admin vê todas).
+    const areas = (await loadAreas()).filter(a => pode('/area/' + a.id));
     if (!areas.length) { target.innerHTML = '<p class="hx-empty">Não consegui carregar as áreas agora.</p>'; return; }
     if (MINHA_AREA) areas.sort((x, y) => (y.id === MINHA_AREA) - (x.id === MINHA_AREA));
     target.innerHTML = areas.map(a => {
@@ -216,7 +244,7 @@
     const grupos = []; let cur = null;
     for (const it of nav) {
       if (it.section) { cur = { titulo: it.section, itens: [] }; grupos.push(cur); continue; }
-      if (!cur || !it.href || jaTem.has(it.href)) continue;
+      if (!cur || !it.href || jaTem.has(it.href) || !pode(it.href)) continue;
       cur.itens.push(it);
     }
     const html = grupos.filter(g => g.itens.length).map(g => `
@@ -608,7 +636,8 @@
 
   // ── Atalhos por persona (personas.json → quick[] | quick_default[]) ──
   function renderQuick(p) {
-    const items = (p && p.quick && p.quick.length) ? p.quick : (PERSONAS?.quick_default || []);
+    const items = ((p && p.quick && p.quick.length) ? p.quick : (PERSONAS?.quick_default || []))
+      .filter(it => it.modal || pode(it.href));
     const box = document.querySelector('.hx-quick');
     if (!box) return;
     box.innerHTML = items.map(it => {
@@ -626,6 +655,7 @@
   }
 
   async function initPersonas() {
+    await loadAcesso();
     try {
       PERSONAS = await fetch('/api/personas.json').then(r => r.json());
     } catch (e) { PERSONAS = null; }
@@ -633,7 +663,9 @@
     let currentEmail = null;
     try { const st = await fetch('/api/auth/status').then(r => r.json()); currentEmail = (st && st.user && st.user.email || '').toLowerCase() || null; } catch {}
     const sel = $('persona-select');
-    if (sel && PERSONAS) {
+    // "Ver como" só faz sentido com mais de uma persona — e só o super admin
+    // recebe as outras (o servidor manda pra cada um apenas a própria).
+    if (sel && PERSONAS && Object.keys(PERSONAS.personas || {}).length > 1) {
       sel.innerHTML = Object.entries(PERSONAS.personas).map(([id, p]) =>
         `<option value="${esc(id)}" ${id === pid ? 'selected' : ''}>${esc(p.icon)} Ver como: ${esc(p.nome)}</option>`).join('');
       sel.addEventListener('change', () => {

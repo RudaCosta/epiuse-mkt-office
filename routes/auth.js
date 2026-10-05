@@ -75,6 +75,11 @@ router.get('/auth/callback', async (req, res) => {
     // upsert no DB de users + resolve role/persona/landing
     const dbUser = upsertUser({ email, name, oid });
     const prof = profileFor(dbUser);
+    // Sessão NOVA no login: um id de sessão plantado antes (fixação de sessão)
+    // não vira sessão autenticada. returnTo é lido antes, senão se perde.
+    const returnToSalvo = req.session.returnTo;
+    await new Promise((ok, falha) => req.session.regenerate(e => e ? falha(e) : ok()));
+    req.session.returnTo = returnToSalvo;
     req.session.user = {
       email,
       name,
