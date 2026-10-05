@@ -458,7 +458,7 @@ button{font:inherit;color:inherit}
         <button class="btn" id="ctaMain">▶ Começar a trilha</button>
         <button class="btn ghost" id="ctaKit">🎒 Kit Dia 1</button>
       </div>
-      <div class="phase-pill"><i></i> 4 etapas liberadas</div><a class="coin-pill" id="coinPill" hidden></a>
+      <div class="phase-pill"><i></i> Etapas liberadas em sequência</div><a class="coin-pill" id="coinPill" hidden></a>
     </div>
     <div class="ring" aria-label="Progresso da trilha">
       <svg viewBox="0 0 120 120"><defs><linearGradient id="rg" x1="0" x2="1"><stop offset="0" style="stop-color:var(--o-corn)"/><stop offset="1" style="stop-color:var(--o-ok)"/></linearGradient></defs>
@@ -633,6 +633,9 @@ function stageStatus(st) {
     return n === ACCESS.length ? { cls: 'done', pill: '✓ Completo', badge: '✓' } : { cls: '', pill: n ? `${n}/${ACCESS.length} acessos` : '▶ Abrir kit', badge: '' }; }
   const e = S[st.k];
   if (e.done) return { cls: 'done', pill: '✓ Concluída', badge: '✓' };
+  // Progressiva: cada etapa só abre depois da anterior (o Kit Dia 1 não bloqueia)
+  const prev = ETAPAS[ETAPAS.indexOf(st.k) - 1];
+  if (prev && !(S[prev].done || C.conq.includes(prev))) return { cls: 'lock', pill: `🔒 Conclua a Etapa ${ETAPAS.indexOf(st.k)}`, badge: '🔒' };
   return { cls: '', pill: e.max > 0 ? '▶ Continuar' : '▶ Começar', badge: '' };
 }
 function progress() {
@@ -698,7 +701,7 @@ function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.ad
 
 function openStage(k) {
   const st = STAGES.find(s => s.k === k);
-  if (st.phase > 1) return toast(`🔒 A ${st.kick} (${st.t}) chega na Fase ${st.phase} da trilha.`);
+  if (stageStatus(st).cls === 'lock') return toast(`🔒 Conclua a Etapa ${ETAPAS.indexOf(k)} para liberar a ${st.kick}.`);
   if (k === 'd1') return openDrawer('kit');
   openPlayer(k);
 }
@@ -1303,10 +1306,10 @@ async function syncCoins() {
     if (r.status === 401) C.auth = false;
     else if (r.ok) { const j = await r.json(); C.auth = true; C.saldo = j.saldo || 0; C.conq = j.conquistas || []; C.val = j.valores || {}; C.cert = j.certificado || null; }
   } catch { C.auth = null; }
-  renderCoins(); renderShelf();
+  renderCoins(); renderMap();
   if (C.auth === true) {   // conquistas feitas antes do login (ou antes desta versão) — credita agora
     if (ACCESS.every(a => S.access[a[0]]) && !C.conq.includes('kit')) claim('kit');
-    ETAPAS.forEach(k => { if (S[k].done && S[k].ans && !C.conq.includes(k)) claim(k, S[k].ans); });
+    (async () => { for (const k of ETAPAS) if (S[k].done && S[k].ans && !C.conq.includes(k)) await claim(k, S[k].ans); })();   // em ordem: o server exige a etapa anterior
   }
 }
 const busy = {};

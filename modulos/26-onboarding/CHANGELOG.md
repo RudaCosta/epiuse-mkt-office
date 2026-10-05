@@ -16,3 +16,7 @@
 ## v2.2 · 03/out/2026 — certificado + rastreamento
 - Certificado de conclusão (PNG 2000×1414) com download, "Adicionar ao perfil" do LinkedIn e post (nativo no celular).
 - Todos os passos rastreados no beacon/tabela do Módulo 17 e exibidos em `/admin/analytics` (tabela por pessoa + passo a passo na ficha). Sem página nova.
+
+## v2.3 · 05/out/2026 — trilha progressiva
+- Chegada da Gabi: etapas voltam a ser progressivas (cada uma abre só após a anterior; Kit Dia 1 não bloqueia).
+- Server recusa coins de etapa fora de ordem (`etapa_bloqueada`); créditos retroativos rodam em sequência.

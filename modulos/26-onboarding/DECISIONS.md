@@ -15,3 +15,4 @@
 - **v2.2 (03/out):** "não crie novas" → rastreamento reaproveita beacon, tabela e painel do Módulo 17; certificado sai da própria `/onboarding`, que também é o link de verificação.
 - **Certificado assinado por "Rudá Costa · Head RevOps & Marketing"** (dono da área). Sem assinatura manuscrita simulada.
 - **Post no LinkedIn é sempre manual** (regra "nunca publicar automaticamente"): só pré-preenchemos o texto; a pessoa revisa e publica.
+- **v2.3 (05/out):** etapas **progressivas** (pedido Rudá com a chegada da Gabi). Trava no mapa + no server (`etapa_bloqueada`). O Kit Dia 1 fica livre porque depende de TI liberar acessos.
