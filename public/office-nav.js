@@ -1823,7 +1823,20 @@ function applyTheme(theme) {
       background: linear-gradient(to bottom, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.04) 70%, transparent 100%) !important;
     }
 
-    :root[data-theme="liquid-glass"] a { color: #ffffff !important; text-decoration: underline !important; }
+    /* Sublinhado só em link no meio do texto (parágrafo, definição, citação),
+       onde ele separa link de texto comum. Botão, aba, card e item de menu —
+       links com cara de botão — ficam sem: o sublinhado neles só suja a tela.
+       Link com classe é componente (btn, lnk, chip…), não texto: também fica sem. */
+    a { text-decoration: none; }
+    p a:not([class]), dd a:not([class]), blockquote a:not([class]), .prose a:not([class]) {
+      text-decoration: underline; text-underline-offset: 2px;
+    }
+
+    :root[data-theme="liquid-glass"] a { color: #ffffff !important; text-decoration: none !important; }
+    :root[data-theme="liquid-glass"] p a:not([class]), :root[data-theme="liquid-glass"] dd a:not([class]),
+    :root[data-theme="liquid-glass"] blockquote a:not([class]), :root[data-theme="liquid-glass"] .prose a:not([class]) {
+      text-decoration: underline !important; text-underline-offset: 2px;
+    }
     :root[data-theme="liquid-glass"] a:hover { color: rgba(255, 255, 255, 0.8) !important; }
     :root[data-theme="liquid-glass"] .chip-online {
       background: rgba(255, 255, 255, 0.08) !important;

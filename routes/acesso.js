@@ -138,14 +138,15 @@ const REGRAS = [
   ['/api/field-marketing', EVE], ['/api/field-marketing/*', EVE], ['GET /api/field-template.json', EVE],
 
   // ── Biz Dev / Pipeline ────────────────────────────────────────────────────
-  ['/area/pipeline', PIP], ['/jarvis', PIP], ['/api/jarvis/*', PIP],
+  ['/area/pipeline', PIP], ['/api/area/pipeline', PIP], ['/api/area/pipeline/*', PIP],
+  ['/jarvis', PIP], ['/api/jarvis/*', PIP],
   ['/pipeline', [PIP, INT]],
   ['/curva-abc', PIP], ['/api/curva-abc/*', PIP],
   ['/area-clientes', PIP], ['/clientes-sap-4me', PIP], ['/api/area-clientes/*', PIP],
 
   // ── Brand Experience / Conteúdo ───────────────────────────────────────────
   // O pipeline de conteúdo mora dentro da página de Brand (/content-pipeline redireciona pra lá).
-  ['/area/brand', [BRA, CON]], ['/area/conteudo', [CON, BRA]],
+  ['/area/brand', [BRA, CON]], ['/api/area/brand', [BRA, CON]], ['/area/conteudo', [CON, BRA]],
   ['/voices', BRA], ['/voices/painel', BRA], ['/painel', BRA],
   ['/raccoon', BRA], ['/api/raccoon/*', BRA], ['/cases', BRA], ['/blog-converter', BRA],
   ['/api/blog-converter/*', BRA], ['/optimizer-v2', BRA], ['/inbound/*', BRA],
@@ -197,6 +198,7 @@ const REGRAS = [
   ['/admin-analytics', ADM], ['/admin-coins', ADM], ['/admin-comunicados', ADM],
   ['/admin-inscricoes', ADM], ['/admin-usuarios', ADM], ['/admin-utm', ADM],
   ['/agente', ADM], ['/area-eventos', ADM], ['/area-intelligence', ADM], ['/artigos-generator', ADM],
+  ['/area-brand', ADM], ['/area-pipeline', ADM],
   ['/home', ADM], ['/loja-coins', ADM], ['/office', ADM], ['/voices-pauta', ADM], ['/voices-pautas', ADM],
 ];
 
