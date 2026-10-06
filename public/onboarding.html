@@ -117,9 +117,9 @@ button{font:inherit;color:inherit}
 .toast.on{transform:translate(-50%,0);opacity:1}
 .fab{position:fixed;right:20px;bottom:20px;z-index:60;display:flex;align-items:center;gap:8px;padding:12px 18px;border-radius:var(--rounded-full);border:1px solid var(--o-line);background:var(--o-glass);backdrop-filter:blur(12px);cursor:pointer;font:700 14px var(--o-head);transition:transform .3s var(--spring)}
 .fab:hover{transform:translateY(-3px)}
-.scrim{position:fixed;inset:0;z-index:890;background:color-mix(in srgb,var(--o-bg) 60%,transparent);backdrop-filter:blur(4px);opacity:0;visibility:hidden;transition:.35s}
+.scrim{position:fixed;inset:0;z-index:1140;background:color-mix(in srgb,var(--o-bg) 60%,transparent);backdrop-filter:blur(4px);opacity:0;visibility:hidden;transition:.35s}
 .scrim.on{opacity:1;visibility:visible}
-.drawer{position:fixed;top:0;right:0;z-index:900;width:min(460px,100%);height:100%;display:flex;flex-direction:column;background:var(--o-surf);border-left:1px solid var(--o-line);transform:translateX(105%);transition:transform .5s var(--ease)}
+.drawer{position:fixed;top:0;right:0;z-index:1150;width:min(460px,100%);height:100%;display:flex;flex-direction:column;background:var(--o-surf);border-left:1px solid var(--o-line);transform:translateX(105%);transition:transform .5s var(--ease)}
 .drawer.on{transform:none}
 .dr-head{display:flex;align-items:center;justify-content:space-between;padding:20px 22px 12px}
 .dr-head h3{font-size:22px}
@@ -440,6 +440,21 @@ button{font:inherit;color:inherit}
 .cert-post .row{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
 .cert-post .row .btn{text-decoration:none}
 
+/* Materiais por etapa + slide institucional */
+.res-g{margin-bottom:18px}
+.res-g h4{font:700 12px var(--o-head);letter-spacing:.12em;text-transform:uppercase;color:var(--o-corn);margin-bottom:8px}
+.res-g .lk{margin-bottom:8px}
+.p-res{appearance:none;cursor:pointer;padding:9px 14px;border-radius:var(--rounded-full);border:1px solid var(--o-line);background:var(--o-glass);font:700 13px var(--o-head);white-space:nowrap;transition:border-color .3s}
+.p-res:hover{border-color:var(--o-corn)}
+.inst{display:grid;gap:14px}
+.yt{position:relative;aspect-ratio:16/9;border-radius:18px;overflow:hidden;border:1px solid var(--o-line);background:var(--o-bg)}
+.yt iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.ppt{display:flex;align-items:center;gap:14px;padding:16px;border-radius:18px;border:1px solid var(--o-line);background:var(--o-glass);text-decoration:none;color:var(--o-text);transition:border-color .3s,transform .3s var(--spring)}
+.ppt:hover{border-color:var(--o-corn);transform:translateY(-3px)}
+.ppt .e{font-size:34px}
+.ppt b{display:block;font:900 16px var(--o-head)}
+.ppt small{font-size:12.5px;color:var(--o-muted)}
+@media (max-width:600px){.p-res span{display:none}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important}}
 </style>
 </head>
@@ -457,6 +472,7 @@ button{font:inherit;color:inherit}
       <div class="cta-row">
         <button class="btn" id="ctaMain">▶ Começar a trilha</button>
         <button class="btn ghost" id="ctaKit">🎒 Kit Dia 1</button>
+        <button class="btn ghost" id="ctaRes">📚 Materiais</button>
       </div>
       <div class="phase-pill"><i></i> Etapas liberadas em sequência</div><a class="coin-pill" id="coinPill" hidden></a>
     </div>
@@ -491,7 +507,7 @@ button{font:inherit;color:inherit}
 </aside>
 
 <div class="player" id="player" role="dialog" aria-modal="true" aria-label="Etapa da trilha">
-  <div class="p-top"><span class="p-title" id="pTitle"></span><div class="segs" id="segs"></div><button class="x" id="pClose" aria-label="Sair da etapa">✕</button></div>
+  <div class="p-top"><span class="p-title" id="pTitle"></span><div class="segs" id="segs"></div><button class="p-res" id="pRes" aria-label="Materiais da etapa">📚<span> Materiais</span></button><button class="x" id="pClose" aria-label="Sair da etapa">✕</button></div>
   <div class="stage" id="stage"></div>
   <div class="p-bot" id="pBot">
     <button class="btn ghost" id="pPrev">← Voltar</button>
@@ -597,6 +613,25 @@ const DICT = [
   ['TBT','Throwback Thursday: post de memória às quintas.'],['UTM','Parâmetros no link que rastreiam a origem do tráfego.'],
   ['Voices','Programa de especialistas embaixadores no LinkedIn.']
 ];
+/* Treinamentos e links para conhecer mais, por etapa (fonte: lista do Rudá, 06/out) */
+const PPT_INST = 'https://epiusebr-my.sharepoint.com/:p:/g/personal/ti_brasil_epiuse_com_br/IQBaP8g8tmhHR4MX4nfjkdB7ARyHXh-8Ydl7_aSxJB02Ud0?e=zBMCfw';
+const RES = {
+  e1: [['🏢 Apresentação institucional', [['📊', 'Apresentação institucional EPI-USE Brasil', 'PowerPoint no SharePoint · login Microsoft', PPT_INST]]],
+       ['🐘 ERP.ngo', [['📰', 'O que nossos clientes fizeram pelo nosso ERP em 2022', 'artigo · epiuse.com.br', 'https://www.epiuse.com.br/artigo/o-que-nossos-clientes-fizeram-pelo-nosso-erp-em-2022'], ['📰', 'ERP: exemplo de Human Centered Design (HCD)', 'artigo · epiuse.com.br', 'https://www.epiuse.com.br/artigo/erp-exemplo-de-human-centered-design-hcd'], ['📰', 'O que nossos clientes fizeram pelo nosso ERP em 2020', 'artigo · epiuse.com.br', 'https://www.epiuse.com.br/artigo/o-que-nossos-clientes-fizeram-pelo-nosso-erp-em-2020'], ['🦏', 'erp.ngo', 'site oficial', 'https://www.erp.ngo'], ['📊', 'Impacto ERP.ngo', '/erp-impacto', '/erp-impacto']]],
+       ['▶️ SAP e o ERP', [['▶️', 'SAP e o ERP', 'vídeo · YouTube', 'https://www.youtube.com/watch?v=BntjvxRet4I']]],
+       ['🎨 Marca', [['🌐', 'epiuse.com.br', 'site EPI-USE Brasil', 'https://www.epiuse.com.br'], ['🐘', 'groupelephant.com', 'site da holding', 'https://www.groupelephant.com'], ['📕', 'Brand Guide 2026', 'PDF no Drive', 'https://drive.google.com/file/d/1TuOfKEr2SXG24MFpjdnXaeW3s2pYK56c/view'], ['🎨', 'Brand assets', '/brand', '/brand']]]],
+  e2: [['📧 Inbound Marketing', [['📧', 'Curso de Marketing Digital', 'RD Station · gratuito', 'https://materiais.resultadosdigitais.com.br/agradecimento-curso-de-marketing-digital-gratuito'], ['🎓', 'RD University', 'trilhas de inbound', 'https://university.rdstation.com/start'], ['⚙️', 'Cursos RD Station', 'a ferramenta', 'https://university.rdstation.com/cursos?busca=rd+station']]],
+       ['🔒 LGPD', [['🔒', 'Conheça a LGPD', 'RD Station', 'https://ajuda.rdstation.com/s/article/Conhe%C3%A7a-a-Lei-Geral-de-Prote%C3%A7%C3%A3o-de-Dados?language=pt_BR'], ['🔒', 'LGPD na prática', 'RD Station', 'https://ajuda.rdstation.com/s/article/Lei-Geral-de-Prote%C3%A7%C3%A3o-de-Dados-LGPD?language=pt_BR']]],
+       ['📅 Eventos & SAP', [['🎁', 'Partner Benefits Catalog', 'SAP PBC', 'https://partnerbenefitscatalog.sap.com'], ['📄', 'Guia MDF', 'Partner Edge', 'https://partneredge.sap.com/en/library/assets/partnership/dgl/25/92/SAP1242592.html'], ['🤝', 'Social Selling Concierge', 'PBC', 'https://partnerbenefitscatalog.sap.com/Partner-Benefits-Catalog/Marketing-Excellence/Social-Selling-Concierge/p/1000895'], ['🌱', 'NNN4Growth', 'PBC', 'https://partnerbenefitscatalog.sap.com/Partner-Benefits-Catalog/Marketing-Excellence/NNN4Growth/p/1000929'], ['📦', 'Intro to Marketing Services', 'PBC', 'https://partnerbenefitscatalog.sap.com/Partner-Benefits-Catalog/Marketing-Agency-Packages/Intro-to-Marketing-Services/p/1000612']]],
+       ['🏢 No Office', [['📊', 'Report mensal', '/relatorio', '/relatorio'], ['📅', 'Field Marketing', '/field-marketing', '/field-marketing'], ['🏭', 'Pipeline de conteúdo', '/content-pipeline', '/content-pipeline'], ['📋', 'Trello do marketing', 'Atividades de Marketing', 'https://trello.com/b/M6xLnTcT/atividades-de-marketing-mise-en-place']]]],
+  e3: [['🧪 SAP & ERP', [['▶️', 'SAP e o ERP', 'vídeo', 'https://www.youtube.com/watch?v=BntjvxRet4I'], ['▶️', 'S/4HANA', 'vídeo', 'https://www.youtube.com/watch?v=HvrIzogVbLw'], ['▶️', 'ServiceNow', 'vídeo', 'https://www.youtube.com/watch?v=_3dtG69n9CQ'], ['▶️', 'Process mining (1)', 'vídeo', 'https://www.youtube.com/watch?v=tvRE2HXIQ0Y'], ['▶️', 'Process mining (2)', 'vídeo', 'https://www.youtube.com/watch?v=QT4N4V1xKWY'], ['🎓', 'SAP Learning', 'trilhas gratuitas', 'https://learning.sap.com'], ['👤', 'SAP for Me', 'exige S-user', 'https://me.sap.com']]],
+       ['🔎 SEO & SEM', [['🔎', 'O que é SEO', 'Rock Content', 'https://rockcontent.com/br/blog/o-que-e-seo/'], ['💲', 'O que é SEM', 'RD Station', 'https://resultadosdigitais.com.br/marketing/o-que-e-sem/'], ['⚖️', 'SEO ou SEM: qual a diferença', 'Semrush', 'https://pt.semrush.com/blog/seo-ou-sem-qual-e-a-diferenca']]],
+       ['🎨 Design', [['🎨', 'Design Gráfico', 'FIAP · Eu Capacito', 'https://www.eucapacito.com.br/cursos/design-grafico/'], ['📘', 'Livro: Design para quem não é designer', 'Google Drive', 'https://drive.google.com/drive/u/1/folders/1cDTedhRgenXv9AO8Rt2sGyB88gV63oSj']]],
+       ['🚀 Growth & cursos livres', [['🚀', 'Curso de Growth Hacking', 'Crehana · login com o Rudá', 'https://www.crehana.com/clases/v2/10260/player/36309/'], ['🎓', '20 cursos gratuitos FIAP', 'tecnologia e negócios', 'https://www.fiap.com.br/2022/06/06/fiap-disponibilza-20-cursos-gratuitos-nas-areas-de-tecnologia-e-negocios/'], ['🎓', 'Eu Capacito', 'cursos gratuitos', 'https://eucapacito.com.br/']]]],
+  e4: [['📗 Outbound', [['📗', 'Receita Previsível', 'livro · Google Drive', 'https://drive.google.com/drive/u/1/folders/1cDTedhRgenXv9AO8Rt2sGyB88gV63oSj'], ['🎯', 'Exact Sales', 'pré-vendas', 'https://www.exactsales.com.br'], ['🎓', 'RD University', 'vendas e SDR', 'https://university.rdstation.com/start']]],
+       ['🤝 Venda SAP', [['▶️', 'S/4HANA Sales Approach', 'vídeo', 'https://www.youtube.com/watch?v=HvrIzogVbLw']]],
+       ['🏢 No Office', [['🧠', 'JARVIS', 'copiloto SDR · /jarvis', '/jarvis'], ['📞', 'Pipeline Apollo', '/pipeline', '/pipeline'], ['in', 'Sales Navigator', 'LinkedIn', 'https://www.linkedin.com/sales/']]]]
+};
 const STAGES = [
   { k: 'd1', kick: 'Comece aqui', t: 'Kit Dia 1', s: 'Acessos · time · rotina', ico: '🎒', phase: 1 },
   { k: 'e1', kick: 'Etapa 1', t: 'Marca & Grupo', s: 'EPI-USE · Group Elephant · ERP.ngo', ico: '🐘', phase: 1 },
@@ -712,17 +747,21 @@ $('#ctaKit').addEventListener('click', () => openDrawer('kit'));
 const drawer = $('#drawer'), scrim = $('#scrim');
 let drMode = 'kit', drTab = 'acessos';
 function openDrawer(mode) {
-  drMode = mode; drTab = mode === 'kit' ? (drTab === 'dict' ? 'acessos' : drTab) : 'dict';
+  drMode = mode;
+  if (mode === 'kit') drTab = ['acessos', 'time', 'rotina'].includes(drTab) ? drTab : 'acessos';
+  else if (mode === 'res') drTab = RES[arguments[1]] ? arguments[1] : (RES[drTab] ? drTab : 'e1');
+  else drTab = 'dict';
   renderDrawer(); drawer.classList.add('on'); scrim.classList.add('on'); drawer.setAttribute('aria-hidden', 'false');
-  track(mode === 'kit' ? 'kit.open' : 'dict.open');
+  track(mode === 'kit' ? 'kit.open' : mode === 'res' ? `${drTab}.res.open` : 'dict.open');
   setTimeout(() => (mode === 'dict' ? $('#dictQ') : $('#drClose'))?.focus(), 350);
 }
 function closeDrawer() { drawer.classList.remove('on'); scrim.classList.remove('on'); drawer.setAttribute('aria-hidden', 'true'); renderMap(); }
 $('#drClose').addEventListener('click', closeDrawer); scrim.addEventListener('click', closeDrawer);
 $('#fabDict').addEventListener('click', () => openDrawer('dict'));
+$('#ctaRes').addEventListener('click', () => openDrawer('res', ETAPAS.find(k => !S[k].done) || 'e1'));
 function renderDrawer() {
-  $('#drTitle').textContent = drMode === 'kit' ? '🎒 Kit Dia 1' : '📖 Dicionário';
-  const tabs = drMode === 'kit' ? [['acessos', '🔑 Acessos'], ['time', '👥 Time'], ['rotina', '🏠 Rotina']] : [];
+  $('#drTitle').textContent = drMode === 'kit' ? '🎒 Kit Dia 1' : drMode === 'res' ? '📚 Treinamentos e links' : '📖 Dicionário';
+  const tabs = drMode === 'kit' ? [['acessos', '🔑 Acessos'], ['time', '👥 Time'], ['rotina', '🏠 Rotina']] : drMode === 'res' ? [['e1', 'Etapa 1'], ['e2', 'Etapa 2'], ['e3', 'Etapa 3'], ['e4', 'Etapa 4']] : [];
   $('#drTabs').style.display = tabs.length ? '' : 'none';
   $('#drTabs').innerHTML = tabs.map(([k, l]) => `<button class="tab ${k === drTab ? 'on' : ''}" data-t="${k}">${l}</button>`).join('');
   $$('.tab').forEach(b => b.addEventListener('click', () => { drTab = b.dataset.t; renderDrawer(); }));
@@ -743,6 +782,12 @@ function renderDrawer() {
     body.innerHTML = `<p style="color:var(--o-dim);font-size:14px;margin-bottom:6px">Saber <b>quem decide o quê</b> economiza dias de retrabalho.</p>` +
       TEAM.map(([i, n, a, p], k) => `<div class="person" style="animation-delay:${k * 50}ms"><span class="av">${i}</span><div><b>${n}</b><span>${a}</span><em>Procure para: ${p}</em></div></div>`).join('') +
       `<p class="note">Organograma do time comercial: <span class="tag">⏳ a preencher</span></p>`;
+  } else if (drMode === 'res') {
+    const st = STAGES.find(x => x.k === drTab);
+    body.innerHTML = `<p style="color:var(--o-dim);font-size:14px;margin-bottom:14px">${st.ico} <b>${st.t}</b> · treinamentos e links para conhecer mais. Abrem em nova aba.</p>` +
+      RES[drTab].map(([g, L]) => `<div class="res-g"><h4>${g}</h4>${L.map(([e, t, s2, h], i) => `<a class="lk" style="--i:${i}" href="${h}" target="_blank" rel="noopener" data-res="${drTab}"><span class="e">${e}</span><span>${t}<small>${s2}</small></span></a>`).join('')}</div>`).join('') +
+      `<p class="note">🔐 Cursos com login compartilhado: peça o acesso ao Rudá (nunca fica nesta página).</p>`;
+    $$('a[data-res]', body).forEach((a, i) => a.addEventListener('click', () => track(`${drTab}.res.link${i + 1}`)));
   } else if (drTab === 'rotina') {
     body.innerHTML = TIPS.map(([e, t], k) => `<div class="tip" style="animation-delay:${k * 60}ms"><span>${e}</span><p>${t}</p></div>`).join('');
   } else {
@@ -914,9 +959,18 @@ function vizBrand(el) {
   </div>`;
 }
 
+/* ---- Apresentação institucional + vídeo SAP e o ERP ---- */
+function vizInst(el) {
+  el.classList.add('auto');
+  el.innerHTML = `<div class="inst"><a class="ppt" href="${PPT_INST}" target="_blank" rel="noopener"><span class="e">📊</span><span><b>Apresentação institucional EPI-USE Brasil</b><small>PowerPoint · SharePoint (login Microsoft) · abre em nova aba ↗</small></span></a>
+    <div class="yt"><iframe src="https://www.youtube-nocookie.com/embed/BntjvxRet4I" title="SAP e o ERP" loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+    <p class="src">▶️ Vídeo: SAP e o ERP (YouTube)</p></div>`;
+  $('.ppt', el).addEventListener('click', () => track('e1.res.ppt'));
+}
+
 /* ---- 10. Links da etapa ---- */
 function vizLinks(el) {
-  const L = [['🌐', 'epiuse.com.br', 'site EPI-USE Brasil', 'https://www.epiuse.com.br'], ['🐘', 'groupelephant.com', 'site da holding', 'https://www.groupelephant.com'], ['🦏', 'erp.ngo', 'site oficial', 'https://www.erp.ngo'], ['📊', 'Impacto ERP.ngo', '/erp-impacto', '/erp-impacto'], ['🎨', 'Brand assets', '/brand', '/brand'], ['📕', 'Brand Guide 2026', 'PDF no Drive', 'https://drive.google.com/file/d/1TuOfKEr2SXG24MFpjdnXaeW3s2pYK56c/view'], ['🎯', 'Metas FY27', '/metas-fy27', '/metas-fy27'], ['🎙️', 'Seja um Voice', '/seja-voice', '/seja-voice']];
+  const L = [['📊', 'Apresentação institucional', 'SharePoint · login Microsoft', PPT_INST], ['▶️', 'SAP e o ERP', 'vídeo', 'https://www.youtube.com/watch?v=BntjvxRet4I'], ['🌐', 'epiuse.com.br', 'site EPI-USE Brasil', 'https://www.epiuse.com.br'], ['🐘', 'groupelephant.com', 'site da holding', 'https://www.groupelephant.com'], ['🦏', 'erp.ngo', 'site oficial', 'https://www.erp.ngo'], ['📊', 'Impacto ERP.ngo', '/erp-impacto', '/erp-impacto'], ['🎨', 'Brand assets', '/brand', '/brand'], ['📕', 'Brand Guide 2026', 'PDF no Drive', 'https://drive.google.com/file/d/1TuOfKEr2SXG24MFpjdnXaeW3s2pYK56c/view'], ['🎯', 'Metas FY27', '/metas-fy27', '/metas-fy27'], ['🎙️', 'Seja um Voice', '/seja-voice', '/seja-voice']];
   return linkGrid(L)(el);
 }
 
@@ -924,6 +978,7 @@ function vizLinks(el) {
 const SLIDES = [
   { e: 'Etapa 1 · Marca & Grupo', t: 'Bem-vindo(a) ao Group Elephant 🐘', l: 'A EPI-USE nasceu na África do Sul e hoje é uma das 20+ marcas do Group Elephant. Antes de qualquer campanha, você precisa saber de onde viemos.',
     x: `<div class="kpis"><div class="kpi"><b data-count="4200" data-suf="+">0</b><span>pessoas</span></div><div class="kpi"><b data-count="42">0</b><span>países</span></div><div class="kpi"><b data-count="2000" data-suf="+">0</b><span>clientes corporativos</span></div><div class="kpi"><b data-count="1800" data-suf="+">0</b><span>organizações com software licenciado</span></div></div><p class="src">Fonte: template institucional oficial EPI-USE (jan/2026).</p>`, v: vizGlobe },
+  { e: 'Apresentação institucional', t: 'Comece pela nossa apresentação', l: 'A apresentação oficial da EPI-USE Brasil resume quem somos, o que vendemos e para quem. Depois, assista ao vídeo para entender o que é a SAP e o ERP.', b: ['A apresentação abre no SharePoint com seu login Microsoft EPI-USE', 'Todos os links da etapa ficam em <b>📚 Materiais</b>, no topo'], v: vizInst },
   { e: 'Nossa história', t: 'Uma história que começa em 1983', l: 'De um projeto de folha de pagamento na Universidade de Pretória a parceira global da SAP.', b: ['SAP Gold Partner', 'Mais de 40 anos de parceria com a SAP'], v: vizTimeline },
   { e: 'O grupo', t: 'Um grupo, mais de 20 marcas', l: 'O <b>Group Elephant</b> é a holding. Cada marca tem uma especialidade.', b: ['<b>Azul</b>: marcas com foco SAP', '<b>Azul-ardósia</b>: outras tecnologias', '<b>Vermelho</b>: ERP.ngo, o braço social'], v: vizOrbit },
   { e: 'No Brasil', t: 'E aqui no Brasil?', l: 'Somos a consultoria SAP especializada em <b>HCM/Payroll</b>, evoluindo para a <b>EPI-USE 5.0</b>: transformação empresarial, não só SAP.',
@@ -1365,6 +1420,7 @@ function openPlayer(k) {
 }
 function closePlayer() { stopViz(); player.classList.remove('on'); document.body.style.overflow = ''; bgStop(false); renderMap(); }
 $('#pClose').addEventListener('click', closePlayer);
+$('#pRes').addEventListener('click', () => openDrawer('res', P.k));
 function segs() {
   const n = D().slides.length, cur = P.mode === 'slides' ? P.i : n;
   $('#segs').innerHTML = Array.from({ length: n + 1 }, (_, k) => `<div class="seg ${k < cur || P.mode === 'done' ? 'done' : ''} ${k === cur ? 'cur' : ''} ${k === n ? 'quiz' : ''}"><i></i></div>`).join('');
@@ -1396,8 +1452,8 @@ function next() {
 function prev() { if (P.mode === 'slides' && P.i > 0) { P.i--; render('prev'); } }
 $('#pNext').addEventListener('click', next); $('#pPrev').addEventListener('click', prev);
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { if (certModal.classList.contains('on')) closeCert(); else if (player.classList.contains('on')) closePlayer(); else if (drawer.classList.contains('on')) closeDrawer(); return; }
-  if (!player.classList.contains('on') || e.target.matches('input')) return;
+  if (e.key === 'Escape') { if (certModal.classList.contains('on')) closeCert(); else if (drawer.classList.contains('on')) closeDrawer(); else if (player.classList.contains('on')) closePlayer(); return; }
+  if (!player.classList.contains('on') || drawer.classList.contains('on') || e.target.matches('input')) return;
   if (e.key === 'ArrowRight') next(); if (e.key === 'ArrowLeft') prev();
 });
 let tx = null;

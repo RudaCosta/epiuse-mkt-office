@@ -20,3 +20,8 @@
 ## v2.3 · 05/out/2026 — trilha progressiva
 - Chegada da Gabi: etapas voltam a ser progressivas (cada uma abre só após a anterior; Kit Dia 1 não bloqueia).
 - Server recusa coins de etapa fora de ordem (`etapa_bloqueada`); créditos retroativos rodam em sequência.
+
+## v2.4 · 06/out/2026 — materiais por etapa
+- Etapa 1 ganha slide "Apresentação institucional" (PPT no SharePoint + vídeo "SAP e o ERP" embutido) → 11 telas.
+- Painel **📚 Materiais** (treinamentos e links para conhecer mais) por etapa: botão no topo do modo foco e na home. Lista do Rudá distribuída: E1 institucional/ERP.ngo/marca · E2 inbound/LGPD/MDF-PBC · E3 SAP + SEO/SEM/design/growth/FIAP · E4 outbound/venda SAP.
+- Cliques nos materiais entram no rastreamento (`eN.res.open`, `eN.res.linkK`, `e1.res.ppt`). Login compartilhado (Crehana) segue fora da página.
