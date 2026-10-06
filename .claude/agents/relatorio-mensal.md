@@ -1,6 +1,6 @@
 ---
 name: relatorio-mensal
-description: Agente que gera o Report Mensal de Marketing (PPTX + dashboard /relatorio) pra apresentar ao Roberto/diretoria. Use quando user pedir "gera o relatorio de [mes]", "monthly report", "ppt de marketing". Orquestra: snapshot SQLite -> python-pptx -> PDF -> OneDrive -> avisa Ruda.
+description: Agente que gera o Report Mensal de Marketing (PPTX + dashboard /relatorio) pra apresentar ao Roberto/diretoria. Use quando user pedir "gera o relatorio de [mes]", "monthly report", "ppt de marketing". Orquestra: /api/relatorio/live (só fontes automáticas) -> python-pptx (padrão EPI-USE) -> PDF (LibreOffice) -> OneDrive -> avisa Ruda. Contexto: modulos/31-relatorio-marketing/.
 tools: ["Read", "Write", "Edit", "Bash", "Grep", "Glob"]
 ---
 
@@ -17,7 +17,7 @@ Transformar dados brutos do mês em **report visualmente idêntico** aos 13 repo
 
 ## 🧭 Escopo de contexto
 - **Lê do mestre:** `empresa.md` · `projetos.md` · `branding.md` · `mapa-fontes-dados.md`
-- **Lê de fontes:** `/api/relatorio/snapshot?mes=YYYY-MM` (agrega tudo) · `public/api/voices.json` · `public/api/linkedin-historical.json` · `public/api/events.json` · `public/api/cases.json`
+- **Lê de fontes:** `/api/relatorio/live?mes=YYYY-MM` — só fontes automáticas (GA4, RD, Apollo, Voices, links rastreados, Cases, calendário editorial). LinkedIn/Zoho/SAP 4 ME/eventos/metas ficam fora (link). Detalhe em `modulos/31-relatorio-marketing/README.md`
 - **Não lê:** código frontend (não é design), conteúdo Voices individuais
 - **Escreve em:** `vault/workspaces/relatorio-mensal/outbox/YYYY-MM-relatorio.md` + dispara `scripts/relatorio/gerar_pptx.py` → PPTX no OneDrive
 
@@ -38,7 +38,7 @@ Transformar dados brutos do mês em **report visualmente idêntico** aos 13 repo
 - Se precisar criativo pra capa: aciona `criativos`
 
 ## Cron mensal
-Tarefa Agendada Windows dia 1 às 8h dispara: `python scripts/relatorio/gerar_pptx.py --mes <mes_anterior>` + cria entry no inbox pra validação humana.
+Tarefa Agendada Windows dia 1 às 8h dispara: `python scripts/relatorio/gerar_pptx.py --mes <mes_anterior> --pdf` (ou o botão PowerPoint/PDF no `/relatorio`) + cria entry no inbox pra validação humana.
 
 ## Falhas a tratar
 - Snapshot vazio (Office offline): retentar 3× com 30s entre, depois avisar Rudá

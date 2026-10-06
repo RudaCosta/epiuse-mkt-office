@@ -15,33 +15,23 @@ Se o user não especificou, peça: "qual mês? (formato YYYY-MM, ex: 2026-05 pra
 - python-pptx instalado (`pip show python-pptx`) — se não, `pip install python-pptx`
 - OneDrive sincronizado (path: `C:/Users/Ruds/OneDrive - EPI USE BRASIL.../MARKETING/Reports/Relatorio MKT`)
 
-## 3. Coletar snapshot
-- `curl http://localhost:3000/api/relatorio/snapshot?mes=YYYY-MM` — agrega Cases, Voices, LinkedIn historical, eventos, KPIs digitais
-- Validar: número de seguidores LinkedIn não é null · Cases tem ao menos 1 publicado · Eventos do mês listados
+## 3. Coletar os dados (só fontes automáticas)
+- `curl -H "X-Editor-Token: $EDITOR_TOKEN" http://localhost:3000/api/relatorio/live?mes=YYYY-MM`
+- Fontes: GA4 (por mês) · RD Station (foto diária) · Apollo (`apollo_hist`) · Voices/pautas · links rastreados · Cases · calendário editorial. LinkedIn, Zoho, SAP 4 ME, eventos e metas **não entram** (viraram link) — ver `modulos/31-relatorio-marketing/README.md`.
+- Conferir `fontes.dentro[].status`: o que não estiver `ok` sai do deck e aparece em "Fontes e método".
 
-## 4. Gerar o PPTX
+## 4. Gerar PPTX + PDF
 ```bash
-python C:/epiuse-mkt-office/scripts/relatorio/gerar_pptx.py --mes YYYY-MM
+python C:/epiuse-mkt-office/scripts/relatorio/gerar_pptx.py --mes YYYY-MM --pdf
 ```
-Saída padrão: `OneDrive/MARKETING/Reports/Relatorio MKT/2026/NN - EPI-USE _ Marketing 2026 - Mes.pptx`
+Ou direto no `/relatorio` → botões **PowerPoint** / **PDF** (servidor gera, sem PC).
+Saída local padrão: `OneDrive/MARKETING/Reports/Relatorio MKT/AAAA/NN - EPI-USE _ Marketing AAAA - Mes (auto).pptx`
 
 ## 5. Validar visualmente
-Pedir pro user abrir e conferir:
-- Capa correta
-- KPIs digitais (4 colunas: Site · LinkedIn · Instagram · E-mail) com MoM%
-- LinkedIn: total + novos + newsletter
-- Conteúdo: temas + colaboradores + engajamento
-- Eventos: próximos do mês + cobertura
-- EPI-USE Voices: ativos + posts
-- Next Steps
+Capa · agenda · resumo (5 números + destaques) · Site · E-mail & base · Outbound · Voices & links · calendário · Cases · Fontes e método · encerramento. Padrão do PPT EPI-USE (Brand Guide 2026); com o template oficial enviado no `/relatorio`, usa o mestre da marca.
 
-## 6. Marcar dados pendentes
-Quando algum KPI cair em "—" ou null, **etiqueta clara**:
-- ⏳ aguarda integração X (GA4, Instagram, RD, etc)
-- 🟡 manual atualizado em DD/MM
-- 🟢 fonte real automatizada
-
-(Regra 7 — NO FAKE DATA. Nunca inventar número.)
+## 6. Dados pendentes
+Nada inventado (regra 7): fonte sem dado → slide sai; mês aberto → "parcial"; RD/Apollo sem histórico do mês → "posição em DD/MM".
 
 ## 7. Avisar Rudá
 Mensagem padrão: "✅ Relatório de [Mês] gerado em `[path]`. Validar visualmente antes de enviar pra diretoria. Pendências: [lista]."
@@ -54,6 +44,7 @@ Mensagem padrão: "✅ Relatório de [Mês] gerado em `[path]`. Validar visualme
 Tarefa Agendada Windows dia 1 de cada mês às 8h roda esta skill com `--mes` calculado (mês anterior).
 
 ## Falhas comuns
-- snapshot retorna 500 → /api/relatorio/snapshot pediu mês fora do range histórico
-- pptx não abre → faltou python-pptx OU template-base não está em scripts/relatorio/
+- `/api/relatorio/live` aceita os últimos 12 meses; fora disso cai no último mês fechado
+- pptx não abre → faltou python-pptx (`pip install -r scripts/relatorio/requirements.txt`)
+- PDF não sai → falta LibreOffice (Impress) na máquina
 - OneDrive desconectado → salva em `tmp/` e avisa

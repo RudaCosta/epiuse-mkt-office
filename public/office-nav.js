@@ -299,6 +299,10 @@ class OfficeNav extends HTMLElement {
       }
       if (this._authed) {
         try { this._acesso = await fetch('/api/acesso/me', { credentials: 'same-origin' }).then(r => r.ok ? r.json() : null); } catch {}
+        // Dono do Office (e-mail do ANALYTICS_OWNER): só ele vê o tracking do Relatório.
+        if (this._acesso && this._acesso.superAdmin) {
+          try { this._owner = !!(await fetch('/api/analytics/owner', { credentials: 'same-origin' }).then(r => r.ok ? r.json() : null) || {}).owner; } catch {}
+        }
       }
       // Re-renderiza quando o SSO está ligado ou as permissões chegaram.
       if (this._ssoEnabled || this._acesso) { this.render(); this.hookEvents(); }
@@ -471,6 +475,10 @@ class OfficeNav extends HTMLElement {
       if (grpA && !grpA.links.some(l => l.href === '/admin/brand')) {
         grpA.links.push({ label: '👁️ Tracking · Brand', href: '/admin/brand' });
       }
+    }
+    // Tracking do Relatório (quem viu o quê, quem baixou PPT/PDF) — só o e-mail do dono.
+    if (this._owner && grpA && !grpA.links.some(l => l.href === '/admin/relatorio')) {
+      grpA.links.push({ label: '👁️ Tracking · Relatório', href: '/admin/relatorio' });
     }
     // UTM & Links Rastreados — todo o time de Marketing.
     const MKT_ROLES = ['head', 'intelligence', 'growth', 'field', 'pipeline', 'brand', 'conteudo'];
