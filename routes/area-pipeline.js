@@ -263,3 +263,4 @@ router.post('/api/area/pipeline/refresh', requireAuth, semHub, async (req, res) 
 module.exports = router;
 module.exports.apolloSnapshot = apolloSnapshot;
 module.exports.buildSnapshot = buildSnapshot;
+module.exports.apolloStatus = apolloStatus;   // Módulo 31 (Metas FY27) mostra o frescor do Apollo

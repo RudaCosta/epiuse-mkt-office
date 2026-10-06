@@ -299,6 +299,10 @@ class OfficeNav extends HTMLElement {
       }
       if (this._authed) {
         try { this._acesso = await fetch('/api/acesso/me', { credentials: 'same-origin' }).then(r => r.ok ? r.json() : null); } catch {}
+        // Dono do tracking (e-mail exato, não o papel): só ele vê o link do painel de Metas FY27.
+        if (this._acesso && this._acesso.superAdmin) {
+          try { this._dono = !!(await fetch('/api/analytics/owner', { credentials: 'same-origin' }).then(r => r.ok ? r.json() : {})).owner; } catch {}
+        }
       }
       // Re-renderiza quando o SSO está ligado ou as permissões chegaram.
       if (this._ssoEnabled || this._acesso) { this.render(); this.hookEvents(); }
@@ -470,6 +474,10 @@ class OfficeNav extends HTMLElement {
       // Tracking da área Brand Experience / Voices (quem viu o quê) — também só o dono.
       if (grpA && !grpA.links.some(l => l.href === '/admin/brand')) {
         grpA.links.push({ label: '👁️ Tracking · Brand', href: '/admin/brand' });
+      }
+      // Tracking das Metas FY27 — só o dono (ruda.costa@epiuse.com.br), conferido por e-mail.
+      if (this._dono && grpA && !grpA.links.some(l => l.href === '/admin/metas')) {
+        grpA.links.push({ label: '👁️ Tracking · Metas FY27', href: '/admin/metas' });
       }
     }
     // UTM & Links Rastreados — todo o time de Marketing.

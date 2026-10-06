@@ -48,7 +48,7 @@ const _insOnb = db.prepare(
 );
 const ONB_STEP = /^[a-z0-9]+(?:\.[a-z0-9\/_-]+){0,5}$/;
 
-// ── Áreas com "quem viu o quê" (Módulos 27 Intelligence · 28 Eventos · 29 Pipeline · 30 Brand) ──
+// ── Áreas com "quem viu o quê" (Módulos 27 Intelligence · 28 Eventos · 29 Pipeline · 30 Brand · 31 Metas FY27) ──
 // Mesmo beacon: kind=<chave da área>, path=<página> e o passo em `meta`.
 // Passos: 'sec.<id>' (seção apareceu na tela) · 'tempo.<id>.<seg>' (tempo na
 // seção, também em dur_ms) · 'scroll.<25|50|75|100>' · 'tool.<slug>' (abriu
@@ -60,6 +60,7 @@ const AREA_TRACK = {
   eventos: { path: '/area/eventos',      painel: '/admin/eventos' },
   pipeline:{ path: '/area/pipeline',     painel: '/admin/pipeline' },
   brand:   { path: '/area/brand',        painel: '/admin/brand' },
+  metas:   { path: '/metas-fy27',         painel: '/admin/metas' },   // Módulo 31 — placar FY27
 };
 const AREA_KINDS = Object.keys(AREA_TRACK);
 const AREA_RE = AREA_KINDS.join('|');
@@ -401,6 +402,7 @@ const ADOCAO_FEATURES = [
   { path: '/area/pipeline',  label: '📞 Biz Dev / Pipeline' },
   { path: '/area/eventos',   label: '📍 Field Marketing & Eventos' },
   { path: '/area/brand',     label: '🎨 Brand Experience / Voices' },
+  { path: '/metas-fy27',     label: '🎯 Metas FY27' },
   { path: '/admin/utm',      label: '🔗 UTM & Links (admin)' },
   { path: '/relatorio',      label: '📈 Relatório Mensal' },
 ];

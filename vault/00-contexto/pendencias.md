@@ -37,6 +37,11 @@
 
 ## 🟢 PENDENTE DE EXECUÇÃO (não-bloqueado, dá pra fazer quando quiser)
 
+### ⭐ Validar o placar Metas FY27 (Módulo 31 · 06/out/2026)
+- **O quê:** depois do deploy, abrir `/metas-fy27` e conferir a barra "Ao vivo": Apollo e GA4 com "atualizado há Xh". GA4 "parado" = falta `GA4_PROPERTY_ID`/credencial no Railway.
+- **Decidir 2 premissas:** "Tráfego (site) 15.000" = sessões/mês no GA4? "Pautas 25" = por mês? Se não, ajustar rótulo/alvo no `areas.json` (hoje marcadas `⚠️ Estimativa — premissa`).
+- **Pedir pra Gabrielle** mover os eventos já realizados no kanban (pós-evento/concluído) e registrar a captura de leads — o placar de eventos conta só o que está no kanban.
+
 ### ⭐ Validar calendário editorial automático (Módulo 30 · 04/out/2026)
 - **O quê:** depois do próximo deploy, abrir `/area/brand` e conferir a barra "Ao vivo": `Calendário editorial · nuvem · há Xh` = o servidor está lendo a planilha do OneDrive sozinho (Graph, a cada 6h). Se aparecer "falhou", o motivo está em "Precisa de atenção" (403 = permissão do app no Azure; 404 = link `EDITORIAL_SHARE_URL` mudou).
 - **Sem isso:** o bloco do calendário vira link pro `/editorial/calendario` (nunca mostra calendário velho).
