@@ -1,6 +1,6 @@
 {
-  "current": "0.92.0",
-  "atualizado_em": "04/out/2026",
+  "current": "0.93.0",
+  "atualizado_em": "06/out/2026",
   "next": [
     {
       "version": "0.53.0",
@@ -54,9 +54,24 @@
   ],
   "releases": [
     {
+      "version": "0.93.0",
+      "date": "06/out/2026",
+      "status": "current",
+      "path": "/relatorio",
+      "title": "📊 Relatório de Marketing ao vivo + PPT e PDF no padrão EPI-USE",
+      "summary": "O /relatorio foi refeito: só entra o que se atualiza sozinho, em uma página animada, e o mês sai em PowerPoint e PDF no padrão do PPT da EPI-USE.",
+      "highlights": [
+        "Só fontes automáticas: site (GA4), e-mail e base (RD Station), outbound (Apollo), Voices, links rastreados, Cases e calendário editorial. LinkedIn, Zoho, SAP 4 ME, eventos e metas viraram link; canais RD estáticos e outreach parado saíram.",
+        "Página nova com seletor de 12 meses, status ao vivo de cada fonte, pulso do mês com contadores, fluxo 'do alcance à conversa', gráficos animados e drawers.",
+        "Botões PowerPoint e PDF: capa, agenda, um slide por fonte com gráficos editáveis, fontes e método e encerramento — Brand Guide 2026 (Deep Blue, Verdana, rodapé Group Elephant).",
+        "GA4 corrigido: a busca antiga às vezes gravava o mês anterior no lugar do atual. Agora cada mês é buscado de novo e guardado no banco.",
+        "Tracking de quem viu o quê e de quem baixou o PPT/PDF, com painel e link no menu só pro dono."
+      ]
+    },
+    {
       "version": "0.92.0",
       "date": "04/out/2026",
-      "status": "current",
+      "status": "released",
       "path": "/admin/usuarios",
       "title": "🔐 Permissões: cada um vê a própria área",
       "summary": "Remodelagem completa de quem acessa o quê no Office. Cada pessoa abre a área do próprio time e as ferramentas comuns do Marketing; o resto some do menu.",
@@ -91,7 +106,13 @@
       "status": "released",
       "title": "📅 Calendário Editorial — planilha do marketing sincronizada no Office (Intelligence + Brand)",
       "summary": "Nova área (módulo 25) que espelha a planilha de Calendário Editorial do OneDrive do marketing em 3 telas: 💡 Insights (performance de conteúdo LinkedIn — formato, tema e melhor dia, base 214 posts/365 dias), 📅 Calendário (planejamento semana a semana) e 📝 Sugestão de Pautas (backlog por editoria). Cards aparecem nas áreas Intelligence (Bruna) e Brand (Duda), com botão 🔄 Resync em cada tela. Fase 1: dados da planilha semeados. Fase 2 (pendente TI): leitura ao vivo da nuvem via Microsoft Graph (mesmo app do SSO).",
-      "highlights": ["3 telas em /editorial/insights · /editorial/calendario · /editorial/pautas", "Botão Resync (🔄) em cada tela — sincroniza da planilha", "40 posts (ago→out/26), 3 tabelas de insights e 7 pautas parseados", "Cards nas áreas Intelligence e Brand", "Fase 2: Graph API (client-credentials) aguarda permissão Files.Read.All da TI"]
+      "highlights": [
+        "3 telas em /editorial/insights · /editorial/calendario · /editorial/pautas",
+        "Botão Resync (🔄) em cada tela — sincroniza da planilha",
+        "40 posts (ago→out/26), 3 tabelas de insights e 7 pautas parseados",
+        "Cards nas áreas Intelligence e Brand",
+        "Fase 2: Graph API (client-credentials) aguarda permissão Files.Read.All da TI"
+      ]
     },
     {
       "version": "0.90.0",
@@ -99,7 +120,13 @@
       "status": "previous",
       "title": "📝 Blog Converter — artigos pro template visual do blog (HubSpot)",
       "summary": "Nova área em Brand Experience (extensão do Raccoon, módulo separado). Cole um artigo ou suba .docx/.pdf e a IA monta o template HTML visual padronizado do blog EPI-USE (inline styles, pronto pro editor do HubSpot), escolhendo cards, fluxo, callouts, badge, resumo e FAQ por seção, e gerando os metadados de SEO. O conversor tem versionamento próprio (badge na tela) — hoje v3.0, rodando no Gemini gratuito do próprio Office (o mesmo do gerador Stratview).",
-      "highlights": ["Página /blog-converter: texto colado, .docx ou .pdf (extração no navegador)", "IA via Gemini do Office (grátis, mesma chave do Stratview) — seleção de componente por seção", "Preview + código copiável + SEO (título/meta/slug/keywords)", "Mini-guia HubSpot + biblioteca de blocos para ajuste manual", "Versão própria do módulo (v3.0) — não altera a versão global do Office"]
+      "highlights": [
+        "Página /blog-converter: texto colado, .docx ou .pdf (extração no navegador)",
+        "IA via Gemini do Office (grátis, mesma chave do Stratview) — seleção de componente por seção",
+        "Preview + código copiável + SEO (título/meta/slug/keywords)",
+        "Mini-guia HubSpot + biblioteca de blocos para ajuste manual",
+        "Versão própria do módulo (v3.0) — não altera a versão global do Office"
+      ]
     },
     {
       "version": "0.89.2",
@@ -137,7 +164,12 @@
       "status": "released",
       "title": "⏰ Banco de Horas MKT — controle interno de horas extras/a menos",
       "summary": "Novo módulo para o time registrar horas a mais (+) ou a menos (-), com saldo acumulativo por pessoa. Visibilidade pessoal via SSO (head vê painel do time inteiro). Notifica Rudá via email quando alguém ultrapassa +8h. Card de saldo na home + atalho nos acessos rápidos.",
-      "highlights": ["Página /horas com form + histórico", "Painel do time (head only)", "Email automático a cada +8h acumuladas", "Card saldo no Daily Digest da home"]
+      "highlights": [
+        "Página /horas com form + histórico",
+        "Painel do time (head only)",
+        "Email automático a cada +8h acumuladas",
+        "Card saldo no Daily Digest da home"
+      ]
     },
     {
       "version": "0.88.3",

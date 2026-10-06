@@ -60,6 +60,7 @@ const AREA_TRACK = {
   eventos: { path: '/area/eventos',      painel: '/admin/eventos' },
   pipeline:{ path: '/area/pipeline',     painel: '/admin/pipeline' },
   brand:   { path: '/area/brand',        painel: '/admin/brand' },
+  relatorio:{ path: '/relatorio',        painel: '/admin/relatorio' },   // Módulo 31 (export PPT/PDF gravado pelo servidor)
 };
 const AREA_KINDS = Object.keys(AREA_TRACK);
 const AREA_RE = AREA_KINDS.join('|');

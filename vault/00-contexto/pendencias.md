@@ -12,6 +12,10 @@
 - 🟡 **Tornar o repositório GitHub privado.** O token antigo, a senha antiga dos brindes e a vault (clientes, estratégia, aniversários) seguem no histórico público do git. Railway funciona com repo privado.
 - 🟡 Depois do deploy das Permissões v2: conferir com 1 pessoa de cada área que a home e a área dela abrem (o teste automático cobriu, mas é a primeira vez com SSO real).
 
+### 📊 Relatório ao vivo (Módulo 31 · 06/out/2026)
+- 🟡 **Confirmar se a tag do GA4 está no site novo (HubSpot CMS, ago/2026).** Se não estiver, os visitantes do `/relatorio` subnotificam desde ago — alternativa é ligar o HubSpot CMS Analytics (`HUBSPOT_TOKEN`).
+- 🟡 **(Opcional) Subir o template oficial `.pptx`** no `/relatorio` (rodapé do bloco Exportar, só você vê). Sem ele o PPT sai no padrão do Brand Guide 2026.
+
 ## ✅ RESOLVIDOS 02/out/2026 (confirmação Rudá: "b2 e b3 ok")
 - **B2 · Brand Guide 2026** — confirmado como versão final. DESIGN.md v4.0 segue valendo, sem re-diff. Segue em aberto, não-bloqueante: o tema “EPI-USE · claro” fica com fundo escuro nas telas com rota (`body[data-route]` do office-nav.js vence o tema; `home.css` tem cards escuros fixos).
 - **B3 · Graph API `Files.Read.All`** — permissão liberada. **Fase 2 do Calendário Editorial desbloqueada**; falta só implementar a leitura direto da nuvem (ver `modulos/25-calendario-editorial/PENDENCIAS.md`).

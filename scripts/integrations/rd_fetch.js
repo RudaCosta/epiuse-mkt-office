@@ -213,11 +213,21 @@ async function fetchRD() {
       const d = e.send_at || e.sent_at || e.updated_at || e.created_at || '';
       return ((e.status || '').toLowerCase() === 'finished') && d.startsWith(ymNow);
     });
+    // Enviados por mês (AAAA-MM) na página lida — base do histórico mensal do
+    // relatório (Módulo 31). Amostra = itens lidos; total = o que a conta tem.
+    const porMes = {};
+    items.forEach(e => {
+      if ((e.status || '').toLowerCase() !== 'finished') return;
+      const d = String(e.send_at || e.sent_at || e.updated_at || e.created_at || '').slice(0, 7);
+      if (/^\d{4}-\d{2}$/.test(d)) porMes[d] = (porMes[d] || 0) + 1;
+    });
     out.emails = {
       total: em.total ?? items.length,
       total_enviados: sent.length,
       enviados_mes_atual: enviadosNoMes.length,
       mes_atual: ymNow,
+      enviados_por_mes: porMes,
+      amostra: items.length,
       lista_recente: items.slice(0, 10).map(e => ({
         id: e.id, name: e.name, status: e.status, send_at: e.send_at, created_at: e.created_at,
       })),

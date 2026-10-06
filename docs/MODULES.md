@@ -10,7 +10,7 @@
 | # | Módulo | Página(s) | Status | Responsável |
 |---|---|---|---|---|
 | 00 | [Design System](#00-design-system) | `/design` | ✅ Ativo | Rudá / Duda |
-| 01 | [Relatório Mensal](#01-relatório-mensal) | `/relatorio` | ✅ Ativo | Rudá |
+| 01 | [Relatório Mensal → Módulo 31](#01-relatório-mensal--módulo-31) | `/relatorio` | ✅ v2.0 | Rudá |
 | 02 | [Voices Optimizer](#02-voices-optimizer) | `/optimizer`, `/optimizer-v2` | ✅ Ativo | Rudá / Duda |
 | 03 | [Metas FY26](#03-metas-fy26) | `/metas` | ✅ Ativo | Rudá |
 | 04 | [Artigos Blog](#04-artigos-blog) | `/artigos` | ✅ Ativo | Rudá / Gui |
@@ -42,20 +42,14 @@ Design System interno baseado no Brand Guide EPI-USE V1.1.
 
 ---
 
-## 01 Relatório Mensal
+## 01 Relatório Mensal → Módulo 31
 
-**Pasta:** `scripts/relatorio/`
-**Página:** `/relatorio`
+**Pasta:** `modulos/31-relatorio-marketing/` (contexto completo) · `scripts/relatorio/` (gerador)
+**Página:** `/relatorio` · **Tracking:** `/admin/relatorio` (só o dono)
 
-Relatório consolidado mensal com KPIs de todas as áreas.
+Relatório de Marketing ao vivo: só fontes automáticas (GA4 por mês, RD com foto diária, Apollo, Voices, links rastreados, Cases, calendário editorial). LinkedIn, Zoho, SAP 4 ME, eventos e metas viraram link.
 
-**Fontes de dados:**
-- Apollo (pipeline, contatos) → real
-- LinkedIn (seguidores) → real (manual)
-- Artigos publicados → real (sync)
-- Eventos → ⏳ aguarda integração
-
-**Output:** Visualização web + exportação PPTX (`scripts/relatorio/gerar_pptx.py`)
+**Output:** página animada + exportação **PPTX no padrão EPI-USE** e **PDF** (`/api/relatorio/export`).
 
 ---
 

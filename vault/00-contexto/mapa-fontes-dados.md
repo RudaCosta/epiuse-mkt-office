@@ -4,7 +4,25 @@
 > Este documento é a **fonte da verdade** do que tá real e o que falta integrar.
 > Atualizar TODA vez que rolar nova integração ou novo dado entrar no Office.
 
-**Última atualização:** 25/set/2026
+**Última atualização:** 06/out/2026
+
+---
+
+## 🆕 `/relatorio` só com fontes automáticas (06/out/2026 · Módulo 31)
+
+| Dado no `/relatorio` | Fonte | Estado | Mecanismo |
+|---|---|---|---|
+| Site: visitantes · páginas vistas · sessões · tempo · top páginas (13 meses) | GA4 Data API | 🟢 AUTO | servidor busca boot + 12h, guarda cada mês no SQLite. **Bug corrigido:** fetch antigo trocava meses (jul=ago, set=out, fev=mar, mai=jun no snapshot) — meses v1 não entram |
+| Base de leads · funil (leads/LQ/oportunidades/clientes) · automações · LPs · disparos/mês | RD Station API | 🟢 AUTO | refresh diário + foto diária `relatorio_rd_hist` (histórico mensal começa 06/out) |
+| Outbound do mês: entregues · abertos · respostas · reuniões · sequências | Apollo API | 🟢 AUTO | refresh 6h + `apollo_hist` (mês = fim do mês − fim do anterior) |
+| Posts dos Voices · pautas · inscrições | Office (Módulo 20 + `/seja-voice`) | 🟢 AO VIVO | tabelas do próprio Office |
+| Cliques nos links rastreados (sem robôs) | Office (Módulo 18) | 🟢 AO VIVO | `utm_clicks` |
+| Cases (status, LOB, NPS) | Customer Success | 🟢 AUTO (PC) | sync diário 07:00 · frescor na tela |
+| Calendário editorial do mês | planilha via Graph | 🟢 AUTO | só entra com sync ok < 26h |
+| LinkedIn da empresa, Zoho, SAP 4 ME, eventos, metas | — | ↗ LINK | saíram do relatório (sync manual) |
+| Canais RD (`rd-canais.json`), outreach estático, Instagram, KPIs digitados dos reports antigos | — | ✂️ CORTADO | estático / tinha modo "simulado" |
+
+⚠️ **Confirmar:** o site migrou pro HubSpot CMS em ago/2026 — se a tag do GA4 não estiver nas páginas novas, o GA4 subnotifica a partir de ago. Alternativa: HubSpot CMS Analytics (Private App `HUBSPOT_TOKEN`).
 
 ---
 
