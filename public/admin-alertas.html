@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Alertas e Relatórios · Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/design-tokens.css">
+<script type="module" src="/office-nav.js"></script>
+<style>
+/* Módulo 31 — configuração dos alertas e e-mails. Só tokens do DESIGN.md. */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --p-bg: var(--color-neutral-dark-bg);
+  --p-surf: var(--color-neutral-dark-surface);
+  --p-surf2: var(--color-neutral-dark-surface-2);
+  --p-line: var(--color-neutral-dark-border);
+  --p-text: var(--color-neutral-dark-text);
+  --p-dim: var(--color-neutral-dark-text-dim);
+  --p-muted: var(--color-neutral-dark-text-muted);
+  --p-accent: var(--color-brand-cornflower-blue);
+  --p-crit: var(--color-danger-500);
+  --p-bad: var(--color-danger-300);
+  --p-imp: var(--color-warning-500);
+  --p-info: var(--color-info-500);
+  --p-ok: var(--color-success-500);
+  --p-head: var(--type-headline-lg-font-family);
+  --p-body: var(--type-body-md-font-family);
+  --p-mono: var(--type-code-md-font-family);
+}
+body{background:var(--p-bg);color:var(--p-text);font-family:var(--p-body);line-height:1.55;overflow-x:hidden}
+.wrap{max-width:1000px;margin:0 auto;padding:28px 16px 80px}
+h1{font-family:var(--p-head);font-size:26px;font-weight:900}
+.sub{color:var(--p-dim);font-size:14px;margin:6px 0 18px;max-width:72ch}
+h2{font-family:var(--p-head);font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:.07em;color:var(--p-dim);margin:28px 0 10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.e{background:var(--p-surf);border:1px solid var(--p-line);border-radius:var(--rounded-lg);padding:11px 14px;font-size:12px;color:var(--p-dim)}
+.e b{display:block;font-size:13.5px;color:var(--p-text);margin-top:2px;word-break:break-word}
+.e.ok b{color:var(--p-ok)} .e.no b{color:var(--p-bad)}
+.box{background:var(--p-surf);border:1px solid var(--p-line);border-radius:var(--rounded-lg);padding:16px}
+.canal{display:grid;grid-template-columns:190px 1fr;gap:10px 16px;align-items:start;padding:12px 0;border-bottom:1px solid var(--p-line)}
+.canal:last-of-type{border-bottom:0}
+.canal .nm{font-weight:800}
+.canal .nm small{display:block;font-weight:400;color:var(--p-dim);font-size:12px}
+input[type=text],input[type=email],input[type=month],select{width:100%;background:var(--p-bg);color:var(--p-text);border:1px solid var(--p-line);border-radius:var(--rounded-md);padding:8px 10px;font:inherit;font-size:13px}
+label.ck{display:flex;gap:7px;align-items:center;font-size:13px;cursor:pointer;margin-bottom:6px}
+.hint{font-size:11.5px;color:var(--p-muted);margin-top:4px}
+.btn{background:transparent;border:1px solid var(--p-line);color:var(--p-text);border-radius:var(--rounded-md);padding:8px 13px;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;gap:6px;align-items:center}
+.btn:hover{border-color:var(--p-accent);color:var(--p-accent)}
+.btn.pri{background:var(--color-brand-deep-blue);border-color:var(--p-accent)}
+.btn:disabled{opacity:.45;cursor:default}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.msg{font-size:12.5px;margin-top:8px;min-height:17px}
+.msg.ok{color:var(--p-ok)} .msg.err{color:var(--p-bad)}
+.prev{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
+.prev .box h3{font-family:var(--p-head);font-size:15px;margin-bottom:4px}
+.prev .box p{font-size:12.5px;color:var(--p-dim);margin-bottom:10px}
+.prev .box .row+.row{margin-top:8px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;color:var(--p-muted);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.05em;padding:6px 8px;border-bottom:1px solid var(--p-line)}
+td{padding:7px 8px;border-bottom:1px solid var(--p-line);vertical-align:top}
+.tbl{overflow-x:auto;background:var(--p-surf);border:1px solid var(--p-line);border-radius:var(--rounded-lg)}
+.niv{font-weight:800;font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+.niv.critico{color:var(--p-crit)} .niv.importante{color:var(--p-imp)} .niv.info{color:var(--p-info)}
+.st-enviado{color:var(--p-ok);font-weight:700} .st-falhou{color:var(--p-bad);font-weight:700} .st-pulado{color:var(--p-muted);font-weight:700}
+.err{font-family:var(--p-mono);font-size:11px;color:var(--p-bad);word-break:break-word}
+.nota{font-size:12.5px;color:var(--p-dim);border-left:2px solid var(--p-line);padding-left:12px;margin-top:14px;max-width:76ch}
+.nota code{font-family:var(--p-mono);font-size:11.5px}
+@media (max-width:640px){ .canal{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<office-nav></office-nav>
+<main class="wrap">
+  <h1>⚙️ Alertas e relatórios por e-mail</h1>
+  <p class="sub">O que o Office monitora, quem recebe o quê e quando. Os alertas saem de dado real. Sem dado, a regra simplesmente não dispara.</p>
+
+  <div class="grid" id="estado"></div>
+
+  <h2>Quem recebe</h2>
+  <form class="box" id="form">
+    <div class="canal">
+      <div class="nm">🔴 Alertas críticos<small>Na hora, dia útil 8h–19h, 1x por ocorrência</small></div>
+      <div><label class="ck"><input type="checkbox" name="critico.ativo"> ligado</label>
+        <input type="text" name="critico.para" placeholder="e-mails separados por vírgula"></div>
+    </div>
+    <div class="canal">
+      <div class="nm">📬 Relatório semanal<small>Toda segunda, 8h</small></div>
+      <div><label class="ck"><input type="checkbox" name="semanal.ativo"> ligado</label>
+        <input type="text" name="semanal.para" placeholder="e-mails separados por vírgula"></div>
+    </div>
+    <div class="canal">
+      <div class="nm">📊 Relatório mensal<small>1º dia útil do mês, 9h</small></div>
+      <div><label class="ck"><input type="checkbox" name="mensal.ativo"> ligado</label>
+        <input type="text" name="mensal.para" placeholder="e-mails separados por vírgula"></div>
+    </div>
+    <div class="canal">
+      <div class="nm">👥 Donas das áreas<small>Cada uma recebe só a parte dela</small></div>
+      <div><label class="ck"><input type="checkbox" name="donas.criticos"> recebem os alertas críticos da própria área</label>
+        <label class="ck"><input type="checkbox" name="donas.semanal"> recebem o relatório semanal da própria área</label>
+        <div class="hint" id="donas"></div></div>
+    </div>
+    <div class="row" style="margin-top:12px"><button class="btn pri" type="submit">Salvar</button><span class="msg" id="f-msg"></span></div>
+  </form>
+
+  <h2>Prévia e envio na hora</h2>
+  <div class="prev">
+    <div class="box"><h3>📬 Semanal</h3><p>A versão completa ou a de uma área (como a dona receberia).</p>
+      <div class="row"><select id="p-area"><option value="">Completa (todas as áreas)</option></select></div>
+      <div class="row"><button class="btn" type="button" data-prev="semanal">Ver prévia</button><button class="btn" type="button" data-env="semanal">Enviar pra mim</button></div></div>
+    <div class="box"><h3>📊 Mensal</h3><p>Fechamento de um mês, com os números do /relatorio.</p>
+      <div class="row"><input type="month" id="p-mes"></div>
+      <div class="row"><button class="btn" type="button" data-prev="mensal">Ver prévia</button><button class="btn" type="button" data-env="mensal">Enviar pra mim</button></div></div>
+    <div class="box"><h3>🔴 Crítico</h3><p>Os críticos abertos agora, no formato do e-mail.</p>
+      <div class="row"><button class="btn" type="button" data-prev="critico">Ver prévia</button><button class="btn" type="button" data-env="critico">Enviar pra mim</button></div></div>
+  </div>
+  <div class="row" style="margin-top:10px"><input type="email" id="p-para" placeholder="enviar pra outro e-mail (opcional, precisa estar liberado)" style="max-width:420px"></div>
+  <div class="msg" id="p-msg"></div>
+
+  <h2>Abertos agora <button class="btn" type="button" id="b-varrer" style="margin-left:8px">Rodar varredura</button></h2>
+  <div class="tbl"><table><thead><tr><th>Nível</th><th>Alerta</th><th>Área</th><th>Desde</th><th>E-mail</th></tr></thead><tbody id="abertos"></tbody></table></div>
+
+  <h2>O que é monitorado</h2>
+  <div class="tbl"><table><thead><tr><th>Regra</th><th>Quando dispara</th><th>Nível</th><th>Áreas</th><th>Abertos</th></tr></thead><tbody id="regras"></tbody></table></div>
+
+  <h2>Saúde das fontes</h2>
+  <div class="tbl"><table><thead><tr><th>Fonte</th><th>Status</th><th>Detalhe</th></tr></thead><tbody id="fontes"></tbody></table></div>
+
+  <h2>Últimos e-mails do Office</h2>
+  <div class="tbl"><table><thead><tr><th>Quando</th><th>Tipo</th><th>Para</th><th>Assunto</th><th>Status</th></tr></thead><tbody id="envios"></tbody></table></div>
+
+  <p class="nota">Com o domínio <code>epiuse.com.br</code> ainda não verificado na Resend, ela só entrega no e-mail <b>dono da conta</b>. Para chegar no time, verificar o domínio (SPF/DKIM) e apontar <code>FROM_EMAIL</code> pra ele. Endereços fora do domínio só passam se estiverem em <code>COMUNICADOS_EMAILS_EXTRA</code>. No Office local (PC do Rudá) o envio automático fica desligado de propósito, pra não duplicar com o servidor.</p>
+</main>
+
+<script>
+(function () {
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+  var NIV = { critico: '🔴 Crítico', importante: '🟡 Importante', info: '🔵 Para saber' };
+  var ST = { ok: '🟢 ok', atencao: '🟡 atenção', parado: '🔴 parado', desligado: '⚪ desligado' };
+  var form = document.getElementById('form');
+  function fmt(s) {
+    if (!s) return '—';
+    var d = new Date(String(s).indexOf('T') > 0 ? s : String(s).replace(' ', 'T') + 'Z');
+    if (isNaN(d)) return esc(s);
+    return d.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+  }
+  function msg(id, ok, t) { var el = document.getElementById(id); el.className = 'msg ' + (ok ? 'ok' : 'err'); el.textContent = t; }
+  var mesPadrao = (function () { var d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - 1); return d.toISOString().slice(0, 7); })();
+  document.getElementById('p-mes').value = mesPadrao;
+
+  function render(d) {
+    var em = d.email || {}, ag = d.agenda || {};
+    var e = function (cls, lbl, val) { return '<div class="e ' + cls + '">' + lbl + '<b>' + val + '</b></div>'; };
+    document.getElementById('estado').innerHTML =
+      e(d.envio_automatico ? 'ok' : 'no', 'Envio automático', d.envio_automatico ? 'ligado' : (d.ambiente_local ? 'desligado (Office local)' : 'desligado')) +
+      e(em.configurado ? 'ok' : 'no', 'Chave da Resend', em.configurado ? 'configurada' : 'AUSENTE: nada sai') +
+      e('', 'Remetente', esc((em.remetentes || [em.from]).join(' → '))) +
+      e(em.ultimo_ok ? 'ok' : '', 'Último e-mail entregue', em.ultimo_ok ? fmt(em.ultimo_ok) + ' · ' + esc(em.ultimo_ok_tipo) : 'nenhum ainda') +
+      e(em.ultima_falha ? 'no' : 'ok', 'Última falha', em.ultima_falha ? fmt(em.ultima_falha.ts) + '<div class="err">' + esc(em.ultima_falha.erro) + '</div>' : 'nenhuma') +
+      e('', 'Próximo semanal', esc(ag.semanal) + (ag.ultimo_semanal ? '<div class="hint">último: ' + esc(ag.ultimo_semanal) + '</div>' : '')) +
+      e('', 'Próximo mensal', esc(ag.mensal) + (ag.ultimo_mensal ? '<div class="hint">último: ' + esc(ag.ultimo_mensal) + '</div>' : '')) +
+      e('', 'Última varredura', fmt(d.varredura && d.varredura.ultima));
+
+    var c = d.config;
+    ['critico', 'semanal', 'mensal'].forEach(function (k) {
+      form.elements[k + '.ativo'].checked = !!c[k].ativo;
+      form.elements[k + '.para'].value = (c[k].para || []).join(', ');
+    });
+    form.elements['donas.criticos'].checked = !!c.donas.criticos;
+    form.elements['donas.semanal'].checked = !!c.donas.semanal;
+    document.getElementById('donas').innerHTML = (d.donas || []).length
+      ? 'Encontradas pelo papel em Permissões: ' + d.donas.map(function (x) { return esc(x.nome || x.email) + ' (' + esc(x.area_label) + ')'; }).join(' · ')
+      : 'Nenhuma dona com e-mail liberado encontrada em Permissões.';
+    var areas = {}; (d.donas || []).forEach(function (x) { areas[x.area] = x.area_label; });
+    var sel = document.getElementById('p-area');
+    if (sel.options.length === 1) ['intelligence', 'growth', 'eventos', 'pipeline', 'brand', 'conteudo'].forEach(function (a) {
+      var o = document.createElement('option'); o.value = a; o.textContent = 'Só ' + (areas[a] || a); sel.appendChild(o);
+    });
+
+    document.getElementById('abertos').innerHTML = (d.abertos || []).length ? d.abertos.map(function (a) {
+      return '<tr><td><span class="niv ' + esc(a.nivel) + '">' + NIV[a.nivel] + '</span></td><td><b>' + esc(a.titulo) + '</b><div class="hint">' + esc(a.detalhe) + '</div></td>' +
+        '<td>' + esc((a.areas || []).join(', ')) + '</td><td>' + fmt(a.aberto_em) + '</td><td>' + (a.email_em ? fmt(a.email_em) : '—') + '</td></tr>';
+    }).join('') : '<tr><td colspan="5">✅ Nenhum alerta aberto.</td></tr>';
+
+    document.getElementById('regras').innerHTML = (d.regras || []).map(function (r) {
+      return '<tr><td><b>' + esc(r.nome) + '</b><div class="hint">' + esc(r.id) + '</div>' + (r.erro ? '<div class="err">regra falhou: ' + esc(r.erro) + '</div>' : '') + '</td>' +
+        '<td>' + esc(r.quando) + '</td><td><span class="niv ' + esc(r.nivel) + '">' + NIV[r.nivel] + '</span></td><td>' + esc(r.areas.join(', ')) + '</td><td>' + r.abertos + '</td></tr>';
+    }).join('');
+
+    document.getElementById('fontes').innerHTML = (d.fontes || []).map(function (f) {
+      return '<tr><td><b>' + esc(f.nome) + '</b></td><td>' + (ST[f.status] || esc(f.status)) + '</td><td>' + esc(f.detalhe) + '</td></tr>';
+    }).join('');
+
+    document.getElementById('envios').innerHTML = (d.envios || []).length ? d.envios.map(function (x) {
+      return '<tr><td>' + fmt(x.ts) + '</td><td>' + esc(x.tipo) + '</td><td>' + esc(x.para) + '</td><td>' + esc(x.assunto) + '</td>' +
+        '<td><span class="st-' + esc(x.status) + '">' + esc(x.status) + '</span>' + (x.erro ? '<div class="err">' + esc(x.erro) + '</div>' : '') + '</td></tr>';
+    }).join('') : '<tr><td colspan="5">Nenhum e-mail registrado ainda.</td></tr>';
+  }
+
+  function carregar() {
+    return fetch('/api/admin/alertas', { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(render)
+      .catch(function () { document.getElementById('estado').innerHTML = '<div class="e no">Erro<b>não foi possível carregar</b></div>'; });
+  }
+
+  form.addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    var lista = function (v) { return String(v || '').split(/[,;\s]+/).map(function (s) { return s.trim(); }).filter(Boolean); };
+    var body = { donas: { criticos: form.elements['donas.criticos'].checked, semanal: form.elements['donas.semanal'].checked } };
+    ['critico', 'semanal', 'mensal'].forEach(function (k) { body[k] = { ativo: form.elements[k + '.ativo'].checked, para: lista(form.elements[k + '.para'].value) }; });
+    fetch('/api/admin/alertas/config', { method: 'PUT', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      .then(function (r) { return r.json(); }).then(function (j) {
+        if (j.success) { msg('f-msg', true, 'Salvo.'); carregar(); } else msg('f-msg', false, (j.erros || [j.error || 'erro']).join(' · '));
+      }).catch(function () { msg('f-msg', false, 'Falha de rede.'); });
+  });
+
+  document.querySelectorAll('[data-prev]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var t = b.dataset.prev, q = '';
+      if (t === 'semanal' && document.getElementById('p-area').value) q = '?area=' + encodeURIComponent(document.getElementById('p-area').value);
+      if (t === 'mensal') q = '?mes=' + encodeURIComponent(document.getElementById('p-mes').value || mesPadrao);
+      window.open('/api/admin/alertas/preview/' + t + q, '_blank', 'noopener');
+    });
+  });
+  document.querySelectorAll('[data-env]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var t = b.dataset.env, para = document.getElementById('p-para').value.trim() || 'eu';
+      b.disabled = true; msg('p-msg', true, 'Enviando…');
+      fetch('/api/admin/alertas/enviar/' + t, { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ para: para, mes: document.getElementById('p-mes').value || mesPadrao }) })
+        .then(function (r) { return r.json(); }).then(function (j) {
+          var rs = j.resultados || [];
+          if (j.success) msg('p-msg', true, '✅ Enviado pra ' + rs.filter(function (x) { return x.ok; }).map(function (x) { return x.para; }).join(', ') + '.');
+          else msg('p-msg', false, '❌ ' + (j.error || rs.map(function (x) { return x.para + ': ' + (x.erro || 'falhou'); }).join(' · ')));
+          carregar();
+        }).catch(function () { msg('p-msg', false, 'Falha de rede.'); }).finally(function () { b.disabled = false; });
+    });
+  });
+  document.getElementById('b-varrer').addEventListener('click', function (ev) {
+    var b = ev.currentTarget; b.disabled = true;
+    fetch('/api/admin/alertas/varrer', { method: 'POST', credentials: 'same-origin' }).then(carregar).finally(function () { b.disabled = false; });
+  });
+  carregar();
+})();
+</script>
+</body>
+</html>

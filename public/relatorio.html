@@ -1087,8 +1087,11 @@ async function inicializarSelect() {
   ].join('');
   sel.innerHTML = fyOpts + meses.map(m => `<option value="${m}">${m}</option>`).join('');
   const ultimoMes = meses[meses.length - 1] || new Date().toISOString().slice(0, 7);
-  sel.value = ultimoMes;
-  carregar(ultimoMes);
+  // ?mes=AAAA-MM (link do relatório mensal por e-mail) abre direto naquele mês
+  const pedido = new URLSearchParams(location.search).get('mes');
+  const inicial = (pedido && meses.includes(pedido)) ? pedido : ultimoMes;
+  sel.value = inicial;
+  carregar(inicial);
 }
 
 function setMes(m) { carregar(m); }

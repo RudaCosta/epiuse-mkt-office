@@ -851,26 +851,38 @@ class OfficeNav extends HTMLElement {
           font-family: 'JetBrains Mono', monospace;
           display: flex; justify-content: space-between; align-items: center;
         }
+        /* Alertas (Módulo 31): nível pela cor da borda, não lido = ponto + negrito */
+        .bell-panel .bp-acts { display: flex; gap: 10px; align-items: center; }
+        .bell-panel .bp-acts button, .bell-panel .bp-acts a {
+          background: none; border: 0; padding: 0; cursor: pointer; font: inherit;
+          font-size: 10px; letter-spacing: .04em; text-transform: none; color: var(--nav-accent); text-decoration: none;
+        }
+        .bell-panel .bp-acts button:hover, .bell-panel .bp-acts a:hover { text-decoration: underline; }
         .bell-panel .bp-item {
-          padding: 10px 14px;
+          display: flex; align-items: flex-start; gap: 6px;
+          padding: 9px 10px 9px 12px;
           font-size: 12px;
           color: var(--nav-text);
           border-bottom: 1px solid rgba(255,255,255,0.04);
-          display: block;
-          text-decoration: none;
+          border-left: 3px solid transparent;
         }
         .bell-panel .bp-item:hover { background: var(--nav-hover-bg); }
-        .bell-panel .bp-item.empty { color: var(--nav-muted); font-style: italic; cursor: default; }
-        .bell-panel .bp-item .bp-tag {
-          font-family: 'JetBrains Mono', monospace;
-          font-size: 9px;
-          padding: 1px 5px;
-          border-radius: 3px;
-          margin-right: 6px;
-          letter-spacing: 0.06em;
+        .bell-panel .bp-item.empty { color: var(--nav-muted); font-style: italic; cursor: default; border-left-color: transparent; display: block; }
+        .bell-panel .bp-item.n-critico { border-left-color: var(--color-danger-500, #CE181E); }
+        .bell-panel .bp-item.n-importante { border-left-color: var(--color-warning-500, #f89921); }
+        .bell-panel .bp-item.n-info { border-left-color: var(--color-info-500, #0980bb); }
+        .bell-panel .bp-link { flex: 1; min-width: 0; color: inherit; text-decoration: none; display: block; }
+        .bell-panel .bp-meta { display: block; font-size: 10px; color: var(--nav-muted); margin-bottom: 2px; }
+        .bell-panel .bp-tit { display: block; line-height: 1.35; }
+        .bell-panel .bp-item.unread .bp-tit { font-weight: 700; }
+        .bell-panel .bp-item.unread .bp-meta::after { content: ' ●'; color: var(--nav-accent); }
+        .bell-panel .bp-x {
+          background: none; border: 0; color: var(--nav-muted); cursor: pointer;
+          font-size: 12px; line-height: 1; padding: 2px 4px; border-radius: 4px; flex-shrink: 0;
         }
-        .bp-tag.warn { background: rgba(251,191,36,0.18); color: #fbbf24; }
-        .bp-tag.info { background: rgba(96,165,250,0.18); color: #60a5fa; }
+        .bell-panel .bp-x:hover { color: var(--nav-text); background: var(--nav-hover-bg); }
+        .bell-panel .bp-foot { padding: 8px 12px; font-size: 10.5px; color: var(--nav-muted); }
+        .bell-badge.warn { background: var(--color-warning-500, #f89921); }
 
         /* ── User dropdown real (substitui prompt()) ── */
         .user-menu {
@@ -1069,9 +1081,9 @@ class OfficeNav extends HTMLElement {
         <div class="controls">
           <div class="lang-select" role="group" aria-label="Idioma / Language / Idioma">${langFlagsHtml}</div>
           <div class="bell-wrap">
-            <button class="bell-btn" id="bell-btn" type="button" title="Notificações" aria-label="Notificações">🔔<span class="bell-badge" id="bell-badge" style="display:none">0</span></button>
+            <button class="bell-btn" id="bell-btn" type="button" title="Alertas" aria-label="Alertas">🔔<span class="bell-badge" id="bell-badge" style="display:none">0</span></button>
             <div class="bell-panel" id="bell-panel" role="menu">
-              <div class="bp-head"><span>Notificações</span><a href="/area/brand" style="color:var(--nav-accent);text-decoration:none;font-size:10px">Ver tudo →</a></div>
+              <div class="bp-head"><span>Alertas</span><span class="bp-acts"><button type="button" id="bp-lertudo">Marcar tudo como lido</button><a href="/alertas">Ver tudo →</a></span></div>
               <div id="bell-items"><div class="bp-item empty">Carregando…</div></div>
             </div>
           </div>
@@ -1183,8 +1195,11 @@ class OfficeNav extends HTMLElement {
       e.stopPropagation();
       const isOpen = bellPanel.classList.contains('open');
       closeAll();
-      if (!isOpen) bellPanel.classList.add('open');
+      if (!isOpen) { bellPanel.classList.add('open'); this.loadAlerts(); }
     });
+    // Clique dentro do painel (lido/silenciar) não fecha o painel
+    bellPanel?.addEventListener('click', (e) => e.stopPropagation());
+    $('bp-lertudo')?.addEventListener('click', () => this.marcarLidos({ todos: true }));
 
     hamburgerBtn?.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -1282,32 +1297,68 @@ class OfficeNav extends HTMLElement {
     applyTheme(this.getTheme());
   }
 
+  // ── Alertas (Módulo 31) ──────────────────────────────────────────────────
+  // Badge = crítico/importante ainda não lidos. Clicar num alerta marca como
+  // lido e abre onde se resolve; ✕ silencia por 7 dias (só pra você).
   async loadAlerts() {
     const items = this.shadowRoot.getElementById('bell-items');
     const badge = this.shadowRoot.getElementById('bell-badge');
     if (!items) return;
+    if (!this._alertTimer) {
+      // Atualiza sozinho a cada 5 min enquanto a aba está visível
+      this._alertTimer = setInterval(() => { if (!document.hidden) this.loadAlerts(); }, 5 * 60 * 1000);
+    }
+    const esc = (x) => String(x == null ? '' : x).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const idade = (iso) => {
+      if (!iso) return '';
+      const t = Date.parse(String(iso).includes('T') ? iso : String(iso).replace(' ', 'T') + 'Z');
+      if (isNaN(t)) return '';
+      const h = Math.floor((Date.now() - t) / 3600000);
+      return h < 1 ? 'agora' : h < 48 ? `há ${h}h` : `há ${Math.floor(h / 24)}d`;
+    };
+    const NIV = { critico: '🔴 Crítico', importante: '🟡 Importante', info: '🔵 Para saber' };
     try {
-      const res = await fetch('/api/alerts');
+      const res = await fetch('/api/alerts', { credentials: 'same-origin' });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const data = await res.json();
       const alerts = data.alertas || [];
-      if (alerts.length === 0) {
-        items.innerHTML = '<div class="bp-item empty">Nenhum alerta no momento.</div>';
-        badge.style.display = 'none';
+      const naoLidos = data.nao_lidos || 0;
+      badge.textContent = naoLidos > 9 ? '9+' : String(naoLidos);
+      badge.style.display = naoLidos ? 'inline-flex' : 'none';
+      badge.classList.toggle('warn', !alerts.some(a => a.nivel === 'critico' && !a.lido));
+      if (!alerts.length) {
+        items.innerHTML = '<div class="bp-item empty">✅ Nada pendente pra você agora.</div>';
         return;
       }
-      badge.textContent = alerts.length > 9 ? '9+' : String(alerts.length);
-      badge.style.display = 'inline-flex';
-      items.innerHTML = alerts.slice(0, 10).map(a => {
-        const tagCls = a.tipo === 'warn' ? 'warn' : 'info';
-        const tagLbl = a.tipo === 'action' ? '🔥' : (a.tipo === 'warn' ? '⚠' : 'i');
-        const href = a.href || '/area/brand';
-        return `<a class="bp-item" href="${href}"><span class="bp-tag ${tagCls}">${tagLbl}</span>${(a.msg || '').slice(0, 140)}</a>`;
-      }).join('');
+      items.innerHTML = alerts.slice(0, 12).map(a => `
+        <div class="bp-item n-${esc(a.nivel)}${a.lido ? '' : ' unread'}">
+          <a class="bp-link" href="${esc(a.href || '/alertas')}" data-id="${esc(a.id)}" title="${esc(a.detalhe || a.titulo)}">
+            <span class="bp-meta">${NIV[a.nivel] || ''}${a.area_label ? ' · ' + esc(a.area_label) : ''}${a.desde ? ' · ' + idade(a.desde) : ''}</span>
+            <span class="bp-tit">${esc(String(a.titulo || '').slice(0, 140))}</span>
+          </a>
+          <button class="bp-x" type="button" data-id="${esc(a.id)}" title="Silenciar por 7 dias" aria-label="Silenciar por 7 dias">✕</button>
+        </div>`).join('') +
+        (alerts.length > 12 ? `<div class="bp-foot">+ ${alerts.length - 12} na central de alertas</div>` : '');
+      items.querySelectorAll('.bp-link').forEach(el => el.addEventListener('click', () => this.marcarLidos({ ids: [el.dataset.id] })));
+      items.querySelectorAll('.bp-x').forEach(el => el.addEventListener('click', async () => {
+        el.disabled = true;
+        try {
+          await fetch('/api/alerts/silenciar', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: el.dataset.id, dias: 7 }) });
+        } catch (e) { /* recarrega igual */ }
+        this.loadAlerts();
+      }));
     } catch (e) {
-      items.innerHTML = '<div class="bp-item empty">Não foi possível carregar alertas.</div>';
+      items.innerHTML = '<div class="bp-item empty">Não foi possível carregar os alertas.</div>';
       badge.style.display = 'none';
     }
+  }
+
+  async marcarLidos(body) {
+    try {
+      // keepalive: o clique num alerta navega na hora e o POST precisa sobreviver
+      await fetch('/api/alerts/lidos', { method: 'POST', credentials: 'same-origin', keepalive: true, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    } catch (e) { /* sem rede: segue */ }
+    if (body.todos) this.loadAlerts();
   }
 }
 

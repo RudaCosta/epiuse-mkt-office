@@ -6,10 +6,10 @@
 // ════════════════════════════════════════════════════════════════════════════
 const express = require('express');
 const router = express.Router();
-const { db, resend, requireAuth } = require('../server-context');
+const { db, requireAuth } = require('../server-context');
+const mailer = require('./email');   // remetente com fallback + log (Módulo 31)
 
-const NOTIFY_EMAIL = process.env.NOTIFY_EMAIL || 'ruda.costa@epiuse.com.br';
-const FROM_EMAIL   = process.env.FROM_EMAIL   || 'voices@resend.dev';
+const NOTIFY_EMAIL = mailer.NOTIFY_EMAIL;
 const THRESHOLD_H  = 8;
 
 // ── SCHEMA ───────────────────────────────────────────────────────────────────
@@ -64,40 +64,29 @@ async function checkAndNotify(email, name) {
 
   db.prepare('INSERT OR IGNORE INTO hour_notifications (user_email, threshold) VALUES (?, ?)').run(email, bucket);
 
-  if (!resend) {
-    console.log(`[horas] notificação pulada (sem Resend): ${name} atingiu +${saldo}h`);
-    return;
-  }
-
-  try {
-    const displayName = name || email.split('@')[0];
-    await resend.emails.send({
-      from: FROM_EMAIL,
-      to: NOTIFY_EMAIL,
-      subject: `⏰ Banco de Horas — ${displayName} atingiu +${saldo.toFixed(1)}h acumuladas`,
-      html: `
-        <div style="font-family:system-ui,sans-serif;max-width:500px;margin:0 auto;padding:24px">
-          <h2 style="color:#001844;margin:0 0 16px">⏰ Alerta de Banco de Horas</h2>
-          <p style="font-size:15px;line-height:1.6;color:#333">
-            <strong>${displayName}</strong> (${email}) atingiu
-            <strong style="color:#cd1543">+${saldo.toFixed(1)}h</strong> acumuladas
-            no banco de horas.
-          </p>
-          <p style="font-size:13px;color:#666;margin-top:16px">
-            Threshold: a cada +${THRESHOLD_H}h acumuladas.<br>
-            <a href="${process.env.BASE_URL || 'http://localhost:3000'}/horas" style="color:#001844">
-              Ver painel completo →
-            </a>
-          </p>
-          <hr style="border:none;border-top:1px solid #eee;margin:20px 0">
-          <p style="font-size:11px;color:#999">EPI-USE Office · Banco de Horas MKT</p>
-        </div>
-      `
-    });
-    console.log(`[horas] email enviado: ${name} atingiu +${saldo}h → ${NOTIFY_EMAIL}`);
-  } catch (e) {
-    console.warn('[horas] falha ao enviar email:', e.message);
-  }
+  const displayName = name || email.split('@')[0];
+  await mailer.enviar({
+    tipo: 'horas', para: NOTIFY_EMAIL,
+    assunto: `⏰ Banco de Horas — ${displayName} atingiu +${saldo.toFixed(1)}h acumuladas`,
+    html: `
+      <div style="font-family:system-ui,sans-serif;max-width:500px;margin:0 auto;padding:24px">
+        <h2 style="color:#001844;margin:0 0 16px">⏰ Alerta de Banco de Horas</h2>
+        <p style="font-size:15px;line-height:1.6;color:#333">
+          <strong>${displayName}</strong> (${email}) atingiu
+          <strong style="color:#CE181E">+${saldo.toFixed(1)}h</strong> acumuladas
+          no banco de horas.
+        </p>
+        <p style="font-size:13px;color:#666;margin-top:16px">
+          Threshold: a cada +${THRESHOLD_H}h acumuladas.<br>
+          <a href="${mailer.OFFICE_URL}/horas" style="color:#001844">
+            Ver painel completo →
+          </a>
+        </p>
+        <hr style="border:none;border-top:1px solid #eee;margin:20px 0">
+        <p style="font-size:11px;color:#999">EPI-USE Office · Banco de Horas MKT</p>
+      </div>
+    `
+  });
 }
 
 // ── PAGE ─────────────────────────────────────────────────────────────────────

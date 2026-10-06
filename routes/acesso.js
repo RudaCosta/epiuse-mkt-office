@@ -90,6 +90,7 @@ const REGRAS = [
   ['/api/relatorio/ga4-refresh', ADM], ['/api/relatorio/ga4-refresh-fy', ADM], ['/api/relatorio/rd-refresh', ADM],
 
   // ── Colaborador logado (inclui visitante) ─────────────────────────────────
+  ['/alertas', L],                    // central de alertas (Módulo 31)
   ['/hub', L], ['/hub/brindes', L], ['/hub/solicitacao-brindes', L], ['/hub/solicitar-brindes', L],
   ['/brindes', L], ['/game', L], ['/game-hub', L], ['/escolher-visao', L], ['/brand', L],
   ['/onboarding', L], ['/design', L], ['/erp-impacto', L], ['/seja-voice', L], ['/artigos', L],
@@ -176,7 +177,8 @@ const REGRAS = [
   ['/api/linkedin/historical', T], ['/api/linkedin/followers', T],
   ['/api/metas', T], ['/api/metas/*', T], ['/api/ideias', T], ['/api/ideias/*', T],
   ['/api/sprints', T], ['/api/sprints-pm.xlsx', T], ['/api/pendencias', T],
-  ['GET /api/alerts', L],                     // pessoais pra todos; os do programa só pro time (filtro na rota)
+  // Alertas (Módulo 31): cada um vê os das áreas que abre — filtro na rota
+  ['GET /api/alerts', L], ['POST /api/alerts/lidos', L], ['POST /api/alerts/silenciar', L],
   ['/api/planilhas', T], ['/api/planilhas/*', T], ['/api/workflows', T], ['/api/workflows/*', T],
   ['/api/cowork/*', T], ['GET /api/posts', T], ['/api/freshness', T],
   ['/api/horas', T], ['/api/horas/*', T], ['/api/design-tokens.json', L],
@@ -195,7 +197,7 @@ const REGRAS = [
   ['/img/*', P],
   // HTML que só é servido pela rota limpa. Antes, /admin-usuarios.html abria
   // direto pelo express.static e furava o guard de /admin/usuarios.
-  ['/admin-analytics', ADM], ['/admin-coins', ADM], ['/admin-comunicados', ADM],
+  ['/admin-alertas', ADM], ['/admin-analytics', ADM], ['/admin-coins', ADM], ['/admin-comunicados', ADM],
   ['/admin-inscricoes', ADM], ['/admin-usuarios', ADM], ['/admin-utm', ADM],
   ['/agente', ADM], ['/area-eventos', ADM], ['/area-intelligence', ADM], ['/artigos-generator', ADM],
   ['/area-brand', ADM], ['/area-pipeline', ADM],

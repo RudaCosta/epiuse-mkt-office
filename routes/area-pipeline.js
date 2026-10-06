@@ -263,3 +263,6 @@ router.post('/api/area/pipeline/refresh', requireAuth, semHub, async (req, res) 
 module.exports = router;
 module.exports.apolloSnapshot = apolloSnapshot;
 module.exports.buildSnapshot = buildSnapshot;
+// Motor de alertas (Módulo 31): status da integração + sequências com detalhe.
+module.exports.apolloStatusAtual = () => apolloStatus(readBlob());
+module.exports.apolloSequencias = () => { const s = readBlob(); return (s && s.sequencias) || []; };
