@@ -107,6 +107,7 @@ const REGRAS = [
   ['/api/voices/optimizer-v3/*', L], ['/api/optimizer-v3/*', L],
   ['GET /api/voices/:slug/optimizer-input', L], ['GET /api/voices/:slug/ssi', L],
   ['GET /api/campanhas-ativas.json', L], ['GET /api/changelog.json', L], ['GET /api/team.json', L],
+  ['GET /api/hub/resumo', L],         // Marketing Hub (Módulo 35): lista branca, sem dado de vendas/CRM
   ['GET /api/office-desks.json', L], ['GET /api/events.json', L], ['GET /api/datas-especiais-2026.json', L],
   ['GET /api/voices.json', L], ['GET /api/cafezinho-seed.json', L],
   ['GET /api/kit-voice-template.md', L], ['GET /api/kit-voice-template-v2.md', L],
@@ -374,6 +375,45 @@ function montar(app, express) {
       res.set('Cache-Control', 'no-store');
       res.json({ quick_default: full.quick_default || [], personas: { [pid]: full.personas[pid] } });
     } catch (e) { res.status(500).json({ error: 'personas_indisponivel' }); }
+  });
+
+  // 7) team.json e changelog.json abrem pra todo colaborador (Cafezinho, Game e
+  // rodapé usam), mas carregam coisa só do time de Marketing: meta e SLA de cada
+  // área (calls/e-mails do SDR, KPI de CRM) e notas de versão com número de lead,
+  // oportunidade e integração de CRM. Quem não tem a área 'time' recebe só os
+  // campos que essas telas usam. Lista branca: campo novo no arquivo não vaza.
+  const doTime = (u) => ehSuperAdmin(u) || areasDoUsuario(u).includes('time');
+  const lerApi = (f) => JSON.parse(require('fs').readFileSync(path.join(PUBLIC_DIR, 'api', f), 'utf8'));
+  const so = (o, campos) => { const r = {}; for (const k of campos) if (o && o[k] !== undefined) r[k] = o[k]; return r; };
+  const PESSOA = ['id', 'nome', 'cargo', 'icon', 'aniversario', 'mesa_itens', 'papel'];
+  app.get('/api/team.json', (req, res, next) => {
+    const u = req.session && req.session.user;
+    if (doTime(u) || (LOCAL_ABERTO && !u)) return next();   // arquivo inteiro (express.static)
+    try {
+      const t = lerApi('team.json');
+      const pessoas = (l) => (Array.isArray(l) ? l : []).map(p => so(p, PESSOA));
+      res.set('Cache-Control', 'no-store');
+      res.json({
+        atualizado_em: t.atualizado_em,
+        lideranca: pessoas(t.lideranca),
+        areas: (t.areas || []).map(a => ({
+          ...so(a, ['id', 'nome', 'icon', 'color', 'color_bg', 'foco']),
+          responsavel: so(a.responsavel, ['nome', 'aniversario', 'mesa_itens', 'avatar_grad']),
+        })),
+        parceiros_externos: pessoas(t.parceiros_externos),
+        supervisao_executiva: pessoas(t.supervisao_executiva),
+      });
+    } catch (e) { res.status(500).json({ error: 'team_indisponivel' }); }
+  });
+  app.get('/api/changelog.json', (req, res, next) => {
+    const u = req.session && req.session.user;
+    if (doTime(u) || (LOCAL_ABERTO && !u)) return next();
+    try {
+      const c = lerApi('changelog.json');
+      res.set('Cache-Control', 'no-store');
+      res.json({ current: c.current, atualizado_em: c.atualizado_em,
+        releases: (c.releases || []).map(r => so(r, ['version', 'date', 'status'])) });
+    } catch (e) { res.status(500).json({ error: 'changelog_indisponivel' }); }
   });
 }
 

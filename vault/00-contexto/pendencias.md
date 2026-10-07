@@ -20,6 +20,11 @@
 - 🟡 **Verificar o domínio `epiuse.com.br` na Resend** (SPF/DKIM) e setar `FROM_EMAIL` no Railway. Sem isso a Resend só entrega no e-mail dono da conta, e nenhum e-mail do Office (alertas, relatórios, inscrição, brindes, Loja) chega no time. Até lá: colocar o e-mail dono da conta em `COMUNICADOS_EMAILS_EXTRA` e na lista dos canais em `/admin/alertas`.
 - 🟡 Depois do deploy: em `/admin/alertas`, clicar em "Enviar pra mim" no semanal e no mensal e conferir se chegaram. Decidir se as donas das áreas recebem os críticos e o semanal da própria área (está desligado).
 
+### 🏢 Marketing Hub novo (Módulo 35 · 07/out/2026)
+- 🟡 **Revisar com a Duda os textos "Fale com X sobre"** do `/hub` (seção "Pra quem eu peço?") — 🤖 escritos com IA no lugar da descrição interna das áreas, que citava ferramentas de CRM. Ficam em `routes/hub.js` (`FALE_SOBRE`).
+- 🟡 Depois do deploy: abrir `/hub` com um colaborador (papel `hub`) e conferir que o chip "👁️ Quem viu o quê" **não** aparece; com você, conferir que aparece e abre `/admin/hub`.
+- ℹ️ A senha antiga do gate do Hub (`mktepiuse2026`) saiu do HTML, mas segue no histórico do git → mais um motivo pra tornar o repositório privado (item acima).
+
 ## ✅ RESOLVIDOS 02/out/2026 (confirmação Rudá: "b2 e b3 ok")
 - **B2 · Brand Guide 2026** — confirmado como versão final. DESIGN.md v4.0 segue valendo, sem re-diff. Segue em aberto, não-bloqueante: o tema “EPI-USE · claro” fica com fundo escuro nas telas com rota (`body[data-route]` do office-nav.js vence o tema; `home.css` tem cards escuros fixos).
 - **B3 · Graph API `Files.Read.All`** — permissão liberada. **Fase 2 do Calendário Editorial desbloqueada**; falta só implementar a leitura direto da nuvem (ver `modulos/25-calendario-editorial/PENDENCIAS.md`).

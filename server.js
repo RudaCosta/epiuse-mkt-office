@@ -6075,6 +6075,7 @@ app.use('/', require('./routes/area-pipeline')); // Módulo 29 — Área Pipelin
 app.use('/', require('./routes/area-brand'));    // Módulo 30 — Área Brand (Voices · pautas · Cases · calendário)
 app.use('/', require('./routes/relatorio'));     // Módulo 31 — Relatório de Marketing ao vivo (só fontes automáticas + PPT/PDF)
 app.use('/', require('./routes/metas-fy27'));    // Módulo 33 — Metas FY27 (placar ao vivo: Apollo · Office · GA4 do Relatório)
+app.use('/', require('./routes/hub'));           // Módulo 35 — Marketing Hub v2 (resumo em lista branca pra empresa toda)
 // Módulo 34 — Central de Alertas & Relatórios (sino, /alertas, /admin/alertas,
 // e-mail de crítico, relatório semanal e mensal). Recebe as fontes de fora em vez
 // de duplicar lógica: a lista de eventos daqui e o relatório do mês do Módulo 31

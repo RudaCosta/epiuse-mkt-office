@@ -489,6 +489,10 @@ class OfficeNav extends HTMLElement {
     if (this._owner && grpA && !grpA.links.some(l => l.href === '/admin/metas')) {
       grpA.links.push({ label: '👁️ Tracking · Metas FY27', href: '/admin/metas' });
     }
+    // Tracking do Marketing Hub (empresa toda) — também só o e-mail do dono (Módulo 35).
+    if (this._owner && grpA && !grpA.links.some(l => l.href === '/admin/hub')) {
+      grpA.links.push({ label: '👁️ Tracking · Marketing Hub', href: '/admin/hub' });
+    }
     // UTM & Links Rastreados — todo o time de Marketing.
     const MKT_ROLES = ['head', 'intelligence', 'growth', 'field', 'pipeline', 'brand', 'conteudo'];
     if (grpA && MKT_ROLES.includes(this._role) && !grpA.links.some(l => l.href === '/admin/utm')) {
