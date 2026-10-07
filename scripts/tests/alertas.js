@@ -284,6 +284,57 @@ const estado = (id) => db.prepare('SELECT * FROM alertas_estado WHERE id=?').get
   ok(rArea.success && enviados[0] && /Brand Experience/.test(enviados[0].html) && !/Apollo sem atualizar/.test(enviados[0].html), 'semanal com área = versão da Brand (sem alertas de outras áreas)');
   ok(rTudo.success && enviados[1] && /Apollo sem atualizar/.test(enviados[1].html), 'semanal sem área = versão completa');
 
+  console.log('\n10) relatórios: período e fonte certos');
+  const relx = require(path.join(ROOT, 'routes/alertas-relatorios'));
+  // rel-2: estorno de resgate negado não é coin distribuído
+  db.prepare(`INSERT INTO erp_coins (email, evento, ref, coins) VALUES ('c@epiuse.com.br','estorno','resgate:9',100)`).run();
+  db.prepare(`INSERT INTO erp_coins (email, evento, ref, coins) VALUES ('c@epiuse.com.br','share','s:1',10)`).run();
+  const mv = relx.movimento(Date.now() - 864e5, Date.now() + 1000, null);
+  ok(mv.coins === 10, 'coins distribuídos não somam estorno (' + mv.coins + ')');
+  // rel-3: semanal conta como o /relatorio (pauta publicada + tracker, 1 por URL sem query)
+  const ontem = new Date(Date.now() - 864e5).toISOString();
+  db.prepare(`INSERT INTO voice_pautas (voice_id, voice_nome, titulo, estado, post_url, publicado_em) VALUES ('anderson-costa','Anderson','Via pauta','publicada','https://li/feed/9',?)`).run(ontem.slice(0, 10));
+  db.prepare(`INSERT INTO posts (voice_id, post_url, captured_at) VALUES ('anderson-costa','https://li/feed/8?utm_source=x',?)`).run(ontem);
+  db.prepare(`INSERT INTO posts (voice_id, post_url, captured_at) VALUES ('anderson-costa','https://li/feed/8/',?)`).run(ontem);
+  const lista10 = require(path.join(ROOT, 'routes/relatorio')).postsVoices();
+  const janela = [Date.now() - 2 * 864e5, Date.now() + 1000];
+  const esperado = lista10.filter(p => p.t >= janela[0] && p.t < janela[1]).length;
+  ok(relx.postsNovos(janela[0], janela[1]) === esperado && esperado >= 2, `posts do semanal = lista do /relatorio (${esperado}, pauta + tracker sem duplicar)`);
+  // rel-5: semana fechada seg 00h → seg 00h BRT; evento de hoje não "aconteceu"
+  const seg8h = Date.UTC(2026, 9, 12, 11);   // segunda 12/10/2026 08:00 BRT
+  const j = relx.janelaSemana(seg8h);
+  ok(new Date(j.ini - 3 * 36e5).toISOString().startsWith('2026-10-05T00') && new Date(j.fim - 3 * 36e5).toISOString().startsWith('2026-10-12T00'), 'janela = 05/10 00h a 12/10 00h (BRT)');
+  const evFn = () => ({ lista: [{ event_id: 'h', regiao: 'brasil', nome: 'Evento de hoje', data_evento: '2026-10-12' }, { event_id: 'p', regiao: 'brasil', nome: 'Evento passado', data_evento: '2026-10-05' }] });
+  const semA = relx.dadosSemanal({ agora: seg8h, eventosFn: evFn }).atual.eventos_realizados.map(e => e.event_id);
+  const semB = relx.dadosSemanal({ agora: seg8h + 7 * 864e5, eventosFn: evFn }).atual.eventos_realizados.map(e => e.event_id);
+  ok(semA.join() === 'p' && semB.join() === 'h', 'evento entra uma vez, na semana em que aconteceu (não no dia do envio)');
+  // rel-1: base do RD sem foto no mês = ⏳ com a data; com foto = "posição em"
+  const comRef = (tipo, dia) => () => ({ email: { disponivel: true, base_leads: 7100, base_delta: null, referencia: { tipo, dia } } });
+  alertas.registrar('relatorio', comRef('atual', '2026-10-07'));
+  const m1 = alertas.montarMensal('2026-09').html;
+  ok(/histórico do RD ainda não cobre setembro\/2026/.test(m1) && /hoje \(07\/10\): 7\.100/.test(m1), 'RD sem histórico no mês → ⏳ com a data da foto');
+  alertas.registrar('relatorio', comRef('fim-do-mes', '2026-09-30'));
+  ok(/posição em 30\/09/.test(alertas.montarMensal('2026-09').html), 'RD com foto do mês → "posição em 30/09"');
+  // rel-4: mês antes do rastreio = ⏳, não 0
+  const desde = db.prepare(`SELECT value FROM app_blobs WHERE key='alertas.rastreio_desde'`).get();
+  const mAntes = alertas.montarMensal('2026-01').html;
+  ok(!!desde && /rastreio de alertas começou em/.test(mAntes), 'mês antes do rastreio → ⏳ "rastreio começou em"');
+
+  // REG-1: crítico de área sem dona e lista vazia não fica marcado como avisado
+  db.prepare(`UPDATE users SET active=0 WHERE role='brand'`).run();
+  alertas._interno.salvarConfig({ critico: { ativo: true, para: [] }, donas: { criticos: true } });
+  db.prepare(`UPDATE cs_clientes SET synced_at=?`).run(isoDiasAtras(8));                       // cases crítico (brand, sem dona)
+  db.prepare(`INSERT OR REPLACE INTO app_blobs (key, value) VALUES ('apollo.pipeline', ?)`).run(JSON.stringify({ ultima_sync_ts: new Date(Date.now() - 30 * 36e5).toISOString(), sequencias: [] }));
+  alertas.varrer();
+  db.prepare(`UPDATE alertas_estado SET email_em=NULL WHERE nivel='critico'`).run();
+  const envs = [], enviarOrig2 = mailer.enviar;
+  mailer.enviar = async (o) => { envs.push(o); return { ok: true }; };
+  await alertas.despacharCriticos({ forcar: true });
+  mailer.enviar = enviarOrig2;
+  const em = (id) => db.prepare(`SELECT email_em FROM alertas_estado WHERE id=?`).get(id).email_em;
+  ok(envs.length === 1 && !!em('fonte.apollo') && !em('fonte.cases'), 'só o crítico que chegou a alguém (Apollo → dona do Pipeline) fica marcado; Cases fica pendente');
+  db.prepare(`UPDATE users SET active=1 WHERE role='brand'`).run();
+
   console.log(falhas ? `\n✗ ${falhas} falha(s)` : '\n✓ tudo certo');
   try { fs.rmSync(DATA, { recursive: true, force: true }); } catch (_) {}
   process.exit(falhas ? 1 : 0);
