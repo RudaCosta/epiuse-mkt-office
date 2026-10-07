@@ -6279,7 +6279,7 @@ app.use('/', require('./routes/loja')); // Módulo 19 — Loja de ERP Coins (/lo
 app.use('/', require('./routes/voices-pipeline')); // Módulo 20 — pipeline de validação/publicação dos Voices
 app.use('/', require('./routes/comunicados')); // Modulo 21 -- fila de comunicados por e-mail
 app.use('/', require('./routes/cafezinho')); // Módulo 22 — Cafezinho (área pessoal do time)
-app.use('/', require('./routes/horas'));      // Módulo 23 — Banco de Horas MKT
+app.use('/', require('./routes/horas'));      // Módulo 32 — Banco de Horas MKT
 app.use('/', require('./routes/editorial'));  // Módulo 25 — Calendário Editorial (planilha marketing, 3 abas)
 app.use('/', require('./routes/area-pipeline')); // Módulo 29 — Área Pipeline (Apollo auto + JARVIS)
 app.use('/', require('./routes/area-brand'));    // Módulo 30 — Área Brand (Voices · pautas · Cases · calendário)
