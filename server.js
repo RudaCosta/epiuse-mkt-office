@@ -3473,7 +3473,7 @@ app.get('/escolher-visao', (req, res) => res.sendFile(path.join(__dirname, 'publ
 app.get('/relatorio', (req, res) => res.sendFile(path.join(__dirname, 'public/relatorio.html')));
 app.get('/artigos',   (req, res) => res.sendFile(path.join(__dirname, 'public/artigos.html')));
 app.get('/jornadas',  (req, res) => res.sendFile(path.join(__dirname, 'public/jornadas.html')));
-// Placar FY27 (Módulo 31) substitui a página FY26; a antiga está em /_versoes-office/.
+// Placar FY27 (Módulo 33) substitui a página FY26; a antiga está em /_versoes-office/.
 app.get('/metas-fy26', (req, res) => res.redirect(301, '/metas-fy27'));
 app.get('/metas-fy27', (req, res) => res.sendFile(path.join(__dirname, 'public/metas-fy27.html')));
 app.get('/metas/fy26', (req, res) => res.redirect(301, '/metas-fy27'));
@@ -4109,50 +4109,7 @@ app.get('/api/rd/performance', (req, res) => {
   }
 });
 
-// GET /api/relatorio/download-pptx?mes=YYYY-MM — executa scripts/relatorio/gerar_pptx.py e retorna o arquivo gerado
-app.get('/api/relatorio/download-pptx', (req, res) => {
-  // Gera arquivo rodando Python: só pra quem está logado (anônimo não dispara
-  // processo no servidor).
-  if (!(req.session && req.session.user)) return res.status(401).json({ success: false, error: 'auth_required' });
-  // `mes` vai pra linha de comando do Python: só AAAA-MM passa, e o processo
-  // roda via execFile, com os argumentos separados — nunca montado como texto
-  // de shell.
-  const mes = String(req.query.mes || new Date().toISOString().slice(0, 7));
-  if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(mes)) {
-    return res.status(400).json({ success: false, error: 'mes inválido — use AAAA-MM' });
-  }
-  const { execFile } = require('child_process');
-  const os = require('os');
-  const tempFile = path.join(os.tmpdir(), `EPI-USE_Marketing_Report_${mes}_${Date.now()}.pptx`);
-  
-  const port = process.env.PORT || 3000;
-  const baseUrl = `http://localhost:${port}`;
-  
-  const PYBIN = process.env.PYTHON_BIN || (process.platform === 'win32' ? 'python' : 'python3');
-  const args = [path.join(__dirname, 'scripts/relatorio/gerar_pptx.py'),
-                '--mes', mes, '--output', tempFile, '--base-url', baseUrl];
-  console.log(`[relatorio] gerando PPTX de ${mes}`);
-
-  // O gerador lê /api/relatorio/snapshot deste mesmo servidor. Sem sessão, ele se
-  // autentica com o token de máquina — passado por ambiente, nunca pela URL.
-  const envPy = { ...process.env, OFFICE_EDITOR_TOKEN: ACTIVE_EDITOR_TOKEN };
-  execFile(PYBIN, args, { timeout: 180000, env: envPy }, (error, stdout, stderr) => {
-    if (error) {
-      // Detalhe (stderr, caminho do interpretador) fica só no log do servidor.
-      console.error(`[relatorio] erro ao gerar PPTX: ${error.message}\n${stderr || ''}${stdout || ''}`);
-      return res.status(500).json({ success: false, error: 'Erro ao gerar o PowerPoint.' });
-    }
-    
-    if (fs.existsSync(tempFile)) {
-      res.download(tempFile, `EPI-USE_Marketing_Report_${mes}.pptx`, (err) => {
-        if (err) console.error(`[relatorio] erro no download: ${err.message}`);
-        try { fs.unlinkSync(tempFile); } catch {}
-      });
-    } else {
-      res.status(500).json({ success: false, error: 'Arquivo PowerPoint não foi criado pelo script.' });
-    }
-  });
-});
+// Exportação PPTX/PDF do relatório: routes/relatorio.js (Módulo 31) — /api/relatorio/export.
 
 // POST /api/relatorio/ga4-refresh?mes=YYYY-MM — dispara fetch real do GA4 e atualiza snapshot
 // Protegido por EDITOR_TOKEN. Usado manualmente ou por cron diário.
@@ -4204,7 +4161,7 @@ function _gerarAlertas(linkedin, atual, anterior) {
 }
 
 
-// /api/metas/fy26|fy27 saiu (Módulo 31): cruzava "realizado" de JSONs estáticos
+// /api/metas/fy26|fy27 saiu (Módulo 33): cruzava "realizado" de JSONs estáticos
 // (outreach, LinkedIn, events) e chumbava o DDF. O placar FY27 vive em
 // routes/metas-fy27.js (GET /api/metas/fy27/placar) só com fontes automáticas.
 
@@ -6174,11 +6131,12 @@ app.use('/', require('./routes/loja')); // Módulo 19 — Loja de ERP Coins (/lo
 app.use('/', require('./routes/voices-pipeline')); // Módulo 20 — pipeline de validação/publicação dos Voices
 app.use('/', require('./routes/comunicados')); // Modulo 21 -- fila de comunicados por e-mail
 app.use('/', require('./routes/cafezinho')); // Módulo 22 — Cafezinho (área pessoal do time)
-app.use('/', require('./routes/horas'));      // Módulo 23 — Banco de Horas MKT
+app.use('/', require('./routes/horas'));      // Módulo 32 — Banco de Horas MKT
 app.use('/', require('./routes/editorial'));  // Módulo 25 — Calendário Editorial (planilha marketing, 3 abas)
 app.use('/', require('./routes/area-pipeline')); // Módulo 29 — Área Pipeline (Apollo auto + JARVIS)
 app.use('/', require('./routes/area-brand'));    // Módulo 30 — Área Brand (Voices · pautas · Cases · calendário)
-app.use('/', require('./routes/metas-fy27'));    // Módulo 31 — Metas FY27 (placar ao vivo: Apollo · Office · GA4)
+app.use('/', require('./routes/relatorio'));     // Módulo 31 — Relatório de Marketing ao vivo (só fontes automáticas + PPT/PDF)
+app.use('/', require('./routes/metas-fy27'));    // Módulo 33 — Metas FY27 (placar ao vivo: Apollo · Office · GA4 do Relatório)
 
 // Saida de pessoa do time: roda aqui, no fim do boot, porque precisa das
 // tabelas de TODOS os modulos (as do Cafezinho, por exemplo, so existem

@@ -1,4 +1,4 @@
-# Módulo 31 — Metas FY27 · placar ao vivo
+# Módulo 33 — Metas FY27 · placar ao vivo
 
 **Status:** ✅ v1.0 · placar só com fontes automáticas + tracking "quem viu o quê" só do dono (06/out/2026) · **Rota:** `/metas-fy27` · **Dono:** Rudá Costa
 **Propósito:** uma página com todas as metas do time de Marketing no FY27 (jul/26 → jun/27). Meta com fonte que se atualiza sozinha entra no placar com número; meta sem fonte automática fica listada com o link de onde é medida. Nada chumbado (regra 7).
@@ -7,7 +7,8 @@
 | Arquivo | Papel |
 |---|---|
 | `public/metas-fy27.html` | Página (vanilla, tokens do DESIGN.md, animações JS: faíscas subindo no fundo, anéis por área + relógio do ano fiscal, contadores, gauges com marca de "hoje", sparklines, corrida até a meta, acordeão das metas de fora, fluxo das fontes, drawers) |
-| `routes/metas-fy27.js` | `GET /api/metas/fy27/placar` — monta o placar (metas vivas, metas de fora, o que saiu, fontes) + completa os meses do FY27 no cache do GA4 (boot + 24h) |
+| `routes/metas-fy27.js` | `GET /api/metas/fy27/placar` — monta o placar (metas vivas, metas de fora, o que saiu, fontes) |
+| `routes/relatorio.js` (Módulo 31) | Exporta `ga4Resumo()`: o placar lê o mesmo cache do GA4 do Relatório (SQLite, boot + 12h, só busca corrigida `fetch_v ≥ 2`) |
 | `routes/area-pipeline.js` | Exporta `apolloStatus` (frescor do Apollo) |
 | `routes/area-brand.js` | Exporta `voicesResumo` (Voices e posts ao vivo) |
 | `routes/analytics.js` | `AREA_TRACK.metas` → beacon `kind='metas'`, `GET /api/admin/analytics/metas(/user)`, `GET /admin/metas` |
@@ -15,7 +16,6 @@
 | `public/office-nav.js` | Link "👁️ Tracking · Metas FY27" só quando `/api/analytics/owner` diz que é o dono (e-mail, não papel) |
 | `server.js` | Registra a rota; `/metas-fy26` → 301 `/metas-fy27`; endpoint antigo `/api/metas/fy26\|fy27` removido |
 | `public/_versoes-office/metas-fy27-v1.html` · `metas-fy26-v1.html` | Páginas antigas arquivadas (só super admin) — só referência visual: chamavam o endpoint removido e não carregam dados |
-| `scripts/integrations/ga4_fetch.js` | Busca do GA4: linhas casadas pelo nome do período (corrigido) e `refreshFY` que só carimba quando algo veio da API |
 
 ## Metas no placar (realizado automático)
 | Área | Meta | Alvo vem de | Realizado | Fonte |
@@ -31,10 +31,10 @@
 | Brand | Voices no programa | funil (5) | `voicesResumo()` | Office |
 | Brand | Voices ativos (30d) | funil (5) | Voice com ≥1 post em 30d | Office |
 | Brand | Posts dos Voices (30d) | funil (40/mês) | URLs publicadas (pauta + tracker) | Office |
-| Conteúdo | Tráfego do site | funil (15.000) | sessões GA4 do último mês fechado (tag do GA4 está no HubSpot CMS — confirmado 07/out) · `⚠️ premissa: sessões/mês` | GA4 diário |
+| Conteúdo | Tráfego do site | funil (15.000) | sessões GA4 do último mês fechado (tag do GA4 está no HubSpot CMS — confirmado 07/out) · `⚠️ premissa: sessões/mês` | GA4 12h (cache do Relatório) |
 | Conteúdo | Pautas da Redatoria (30d) | funil (25) | `content_pipeline` criadas em 30d, sem importação em lote nem Rax (IA) · `⚠️ premissa: mensal` | Office |
 
-**GA4 no placar:** só meses buscados pelo servidor já com a correção das linhas (`linhas_por_nome`) e, pra "mês fechado", buscados ≥1 dia depois do fim do mês. GA4 sem atualizar >30h ou sem chave = `⏳ aguardando` (o `ga4-snapshot.json` do git não vale como número ao vivo).
+**GA4 no placar:** o cache do Relatório (só `fetch_v ≥ 2`, "mês fechado" = buscado depois do fim do mês, regra do Módulo 31). GA4 sem atualizar >30h, com erro ou sem chave = `⏳ aguardando` — nunca número velho.
 **Apollo parado:** as metas de janela ganham `⚠️ Apollo sem atualizar — contagem até dd/mm`.
 
 **Status** = % contra o esperado hoje: metas de janela/estoque esperam 100%; metas do FY esperam o % do FY já passado (marca branca no gauge, barra "hoje" na corrida). ≥100% da meta = batida · ≥100% do ritmo = acima do ritmo · ≥75% = no ritmo · ≥50% = atrás · resto = longe.

@@ -177,7 +177,8 @@ O servidor é gerenciado por **Tarefas Agendadas do Windows** (substituiu PM2 em
 | Microsoft Graph | ✅ Ativo | planilha do Calendário Editorial lida no servidor a cada 6h (`routes/editorial.js`, app do SSO + `Files.Read.All`) |
 | Anthropic Claude | ✅ Ativo | Profile Optimizer, Cowork |
 | Resend | ✅ Ativo | E-mails transacionais |
-| Google Analytics 4 | ✅ Ativo | refresh diário do mês corrente (`server.js`) + meses do FY27 completados no boot e a cada 24h (`routes/metas-fy27.js`) |
+| Google Analytics 4 | ✅ Ativo | Data API no servidor: mês atual 1x/dia (`server.js`) + 13 meses por mês a cada 12h, guardados no SQLite (`routes/relatorio.js`) · o placar `/metas-fy27` lê o mesmo cache |
+| LibreOffice (Impress headless) | ✅ Ativo | converte o PPTX do relatório em PDF (`/api/relatorio/export`, imagem Docker) |
 | LinkedIn API | ⏳ Pendente | Seguidores, engajamento |
 | Zoho CRM | ⏳ Pendente | Pipeline CRM → dashboard |
 

@@ -1,6 +1,6 @@
 {
-  "current": "0.93.0",
-  "atualizado_em": "06/out/2026",
+  "current": "0.95.0",
+  "atualizado_em": "07/out/2026",
   "next": [
     {
       "version": "0.53.0",
@@ -54,20 +54,48 @@
   ],
   "releases": [
     {
-      "version": "0.93.0",
-      "date": "06/out/2026",
+      "version": "0.95.0",
+      "date": "07/out/2026",
       "status": "current",
       "path": "/metas-fy27",
       "title": "🎯 Metas FY27: placar ao vivo",
       "summary": "A página de metas foi refeita. Só entra número que se atualiza sozinho; meta sem fonte automática fica com o link de onde é medida.",
       "highlights": [
-        "13 metas com número ao vivo: Apollo (a cada 6h), Office (Voices, posts, kanban e captura dos eventos, pautas) e Google Analytics (diário).",
+        "13 metas com número ao vivo: Apollo (a cada 6h), Office (Voices, posts, kanban e captura dos eventos, pautas) e Google Analytics (o mesmo dado do Relatório, a cada 12h).",
         "Anéis por área com o relógio do ano fiscal, cards com gauge, contador e minigráfico, e uma corrida até a meta com a marca de onde cada meta deveria estar hoje.",
         "Clique numa meta pra ver o gráfico, como o número é calculado, de onde vem a meta e quando a fonte atualizou.",
         "58 metas sem fonte automática ficam por área, com link pro Zoho, LinkedIn, RD, HubSpot, Canva e outras. Regras de processo, prazos vencidos e repetidas saíram da página (seguem na planilha).",
-        "Corrigido o Google Analytics: com dois períodos ele gravava o maior entre o mês e o anterior. Os números de site do Relatório Mensal passam a ser os certos depois da atualização.",
         "Saiu o número chumbado do DDF e os 'realizados' que vinham de arquivos parados.",
-        "Rastreamento de quem viu o quê, com painel e link no menu só pro Rudá."
+        "Rastreamento de quem viu o quê, com painel e link no menu só pro Rudá. O registro do rastreamento ficou mais seguro em todas as áreas."
+      ]
+    },
+    {
+      "version": "0.94.0",
+      "date": "06/out/2026",
+      "status": "released",
+      "path": "/horas",
+      "title": "⏰ Banco de Horas novo + atalhos no menu, na home e no Ctrl+K",
+      "summary": "O /horas foi refeito na linguagem do Cafezinho e do Onboarding: registrar leva 5 segundos e o saldo aparece num anel animado. Atalhos em todo o Office.",
+      "highlights": [
+        "Registro em chips: fiquei a mais / saí mais cedo, 30 min a 8h, hoje/ontem, categoria e motivo, com prévia do saldo depois do registro.",
+        "Gráfico dos últimos 6 meses, histórico por mês com saldo corrido, editar e apagar com Desfazer, CSV do próprio histórico.",
+        "Painel do time só pro super admin (decidido pelo servidor), com alerta de +8h e CSV do time; e-mail ao Rudá a cada +8h continua.",
+        "Atalhos: Seus atalhos da home com o saldo, menu do Office, menu do usuário e Ctrl/⌘+K, que agora abre pelo teclado em qualquer página."
+      ]
+    },
+    {
+      "version": "0.93.0",
+      "date": "06/out/2026",
+      "status": "previous",
+      "path": "/relatorio",
+      "title": "📊 Relatório de Marketing ao vivo + PPT e PDF no padrão EPI-USE",
+      "summary": "O /relatorio foi refeito: só entra o que se atualiza sozinho, em uma página animada, e o mês sai em PowerPoint e PDF no padrão do PPT da EPI-USE.",
+      "highlights": [
+        "Só fontes automáticas: site (GA4), e-mail e base (RD Station), outbound (Apollo), Voices, links rastreados, Cases e calendário editorial. LinkedIn, Zoho, SAP 4 ME, eventos e metas viraram link; canais RD estáticos e outreach parado saíram.",
+        "Página nova com seletor de 12 meses, status ao vivo de cada fonte, pulso do mês com contadores, fluxo 'do alcance à conversa', gráficos animados e drawers.",
+        "Botões PowerPoint e PDF: capa, agenda, um slide por fonte com gráficos editáveis, fontes e método e encerramento — Brand Guide 2026 (Deep Blue, Verdana, rodapé Group Elephant).",
+        "GA4 corrigido: a busca antiga às vezes gravava o mês anterior no lugar do atual. Agora cada mês é buscado de novo e guardado no banco.",
+        "Tracking de quem viu o quê e de quem baixou o PPT/PDF, com painel e link no menu só pro dono."
       ]
     },
     {
@@ -108,7 +136,13 @@
       "status": "released",
       "title": "📅 Calendário Editorial — planilha do marketing sincronizada no Office (Intelligence + Brand)",
       "summary": "Nova área (módulo 25) que espelha a planilha de Calendário Editorial do OneDrive do marketing em 3 telas: 💡 Insights (performance de conteúdo LinkedIn — formato, tema e melhor dia, base 214 posts/365 dias), 📅 Calendário (planejamento semana a semana) e 📝 Sugestão de Pautas (backlog por editoria). Cards aparecem nas áreas Intelligence (Bruna) e Brand (Duda), com botão 🔄 Resync em cada tela. Fase 1: dados da planilha semeados. Fase 2 (pendente TI): leitura ao vivo da nuvem via Microsoft Graph (mesmo app do SSO).",
-      "highlights": ["3 telas em /editorial/insights · /editorial/calendario · /editorial/pautas", "Botão Resync (🔄) em cada tela — sincroniza da planilha", "40 posts (ago→out/26), 3 tabelas de insights e 7 pautas parseados", "Cards nas áreas Intelligence e Brand", "Fase 2: Graph API (client-credentials) aguarda permissão Files.Read.All da TI"]
+      "highlights": [
+        "3 telas em /editorial/insights · /editorial/calendario · /editorial/pautas",
+        "Botão Resync (🔄) em cada tela — sincroniza da planilha",
+        "40 posts (ago→out/26), 3 tabelas de insights e 7 pautas parseados",
+        "Cards nas áreas Intelligence e Brand",
+        "Fase 2: Graph API (client-credentials) aguarda permissão Files.Read.All da TI"
+      ]
     },
     {
       "version": "0.90.0",
@@ -116,7 +150,13 @@
       "status": "previous",
       "title": "📝 Blog Converter — artigos pro template visual do blog (HubSpot)",
       "summary": "Nova área em Brand Experience (extensão do Raccoon, módulo separado). Cole um artigo ou suba .docx/.pdf e a IA monta o template HTML visual padronizado do blog EPI-USE (inline styles, pronto pro editor do HubSpot), escolhendo cards, fluxo, callouts, badge, resumo e FAQ por seção, e gerando os metadados de SEO. O conversor tem versionamento próprio (badge na tela) — hoje v3.0, rodando no Gemini gratuito do próprio Office (o mesmo do gerador Stratview).",
-      "highlights": ["Página /blog-converter: texto colado, .docx ou .pdf (extração no navegador)", "IA via Gemini do Office (grátis, mesma chave do Stratview) — seleção de componente por seção", "Preview + código copiável + SEO (título/meta/slug/keywords)", "Mini-guia HubSpot + biblioteca de blocos para ajuste manual", "Versão própria do módulo (v3.0) — não altera a versão global do Office"]
+      "highlights": [
+        "Página /blog-converter: texto colado, .docx ou .pdf (extração no navegador)",
+        "IA via Gemini do Office (grátis, mesma chave do Stratview) — seleção de componente por seção",
+        "Preview + código copiável + SEO (título/meta/slug/keywords)",
+        "Mini-guia HubSpot + biblioteca de blocos para ajuste manual",
+        "Versão própria do módulo (v3.0) — não altera a versão global do Office"
+      ]
     },
     {
       "version": "0.89.2",
@@ -154,7 +194,12 @@
       "status": "released",
       "title": "⏰ Banco de Horas MKT — controle interno de horas extras/a menos",
       "summary": "Novo módulo para o time registrar horas a mais (+) ou a menos (-), com saldo acumulativo por pessoa. Visibilidade pessoal via SSO (head vê painel do time inteiro). Notifica Rudá via email quando alguém ultrapassa +8h. Card de saldo na home + atalho nos acessos rápidos.",
-      "highlights": ["Página /horas com form + histórico", "Painel do time (head only)", "Email automático a cada +8h acumuladas", "Card saldo no Daily Digest da home"]
+      "highlights": [
+        "Página /horas com form + histórico",
+        "Painel do time (head only)",
+        "Email automático a cada +8h acumuladas",
+        "Card saldo no Daily Digest da home"
+      ]
     },
     {
       "version": "0.88.3",

@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="/design-tokens.css">
 <script type="module" src="/office-nav.js"></script>
 <style>
-/* Módulos 27/28/29/30/31 — painel "quem viu o quê" das áreas (Intelligence, Eventos, Pipeline, Brand) e das Metas FY27. Só o dono.
+/* Módulos 27–31 e 33 — painel "quem viu o quê" das áreas (Intelligence, Eventos, Pipeline, Brand), do Relatório e das Metas FY27. Só o dono.
    Arquivo fora de public/ (private/): servido apenas por GET /admin/<area>. */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -221,6 +221,22 @@ const AREAS = {
       cases: 'Cases (sync diário)', calendario: 'Calendário editorial (Graph 6h)', marca: 'Design System (DESIGN.md)',
       ssi: 'SSI / perfil dos Voices (link)', linkedin: 'LinkedIn da empresa (link)', duda: 'Calendário da Duda (link)', relatorio: 'Report mensal (link)' },
   },
+  // Módulo 31 — Relatório de Marketing (/relatorio). Downloads PPT/PDF são gravados pelo servidor (export.<fmt>.<mes>).
+  relatorio: {
+    kind: 'relatorio', area: 'relatorio', nome: 'Relatório de Marketing', page: '/relatorio',
+    acoesSub: 'Meses abertos, downloads de PPT/PDF, números e fontes clicados',
+    secs: [
+      ['hero', '📊 Topo · mês e downloads'], ['pulso', '✨ Pulso do mês'], ['jornada', '🌊 Do alcance à conversa'],
+      ['site', '🌐 Site · GA4'], ['email', '📬 E-mail & base · RD'], ['outbound', '🚀 Outbound · Apollo'],
+      ['voices', '🎙️ Voices & links'], ['editorial', '🗓️ Calendário editorial'], ['cases', '🤝 Cases'],
+      ['fontes', '🔌 Fontes · dentro e fora'], ['exportar', '⬇️ Exportar']
+    ],
+    // node.<id> = detalhe de fonte de dentro · fora.<id> = link de fora (mesmo nome, prefixo diferente no rótulo)
+    nodes: { ga4: 'Site · GA4 (auto 12h)', rd: 'RD Station (auto diário)', apollo: 'Apollo (auto 6h)', voices: 'Voices (ao vivo)',
+      links: 'Links rastreados (ao vivo)', cases: 'Cases', editorial: 'Calendário editorial',
+      linkedin: 'LinkedIn da empresa', zoho: 'Zoho CRM', eventos: 'Eventos', sap4me: 'SAP 4 ME',
+      metas: 'Metas FY27', brand: 'Área Brand', pipeline: 'Área Pipeline' },
+  },
   metas: {
     kind: 'metas', area: 'metas', nome: 'Metas FY27', page: '/metas-fy27',
     acoesSub: 'Metas abertas, filtros de área e status, anéis, metas de fora e fontes',
@@ -228,7 +244,7 @@ const AREAS = {
       ['hero', '🎯 Topo · anéis por área'], ['placar', '🏁 Placar ao vivo'], ['corrida', '🏃 Corrida das áreas'],
       ['fora', '↗ Fora do automático'], ['fontes', '🔌 Fontes · dentro e fora']
     ],
-    nodes: { apollo: 'Apollo (auto 6h)', office: 'Office (ao vivo)', ga4: 'GA4 (diário)' },
+    nodes: { apollo: 'Apollo (auto 6h)', office: 'Office (ao vivo)', ga4: 'GA4 (auto 12h)' },
     // 'fora.<id>' = link pra onde a meta é medida (Apollo aqui é o app, não a fonte automática)
     fora: { apollo: 'Apollo (app)', zoho: 'Zoho CRM', linkedin: 'LinkedIn da empresa', rd: 'RD Station', hubspot: 'HubSpot',
       site: 'Blog / Artigos', eventos: 'Área Field Marketing', df: 'SAP Development Funds', canva: 'Canva' },
@@ -244,6 +260,13 @@ const DORT = { dor: 'dores', objecao: 'objeções', gatilho: 'gatilhos', sinal: 
 function acaoLabel(id) {
   const [k, ...r] = String(id).split('.'), v = r.join('.');
   if (k === 'node') return '🔎 Detalhes da fonte · ' + (NODE[v] || v);
+  if (k === 'export') { const [f, m] = v.split('.'); return `⬇️ Baixou ${f === 'pdf' ? 'PDF' : 'PowerPoint'}` + (m ? ' · ' + m : ''); }
+  if (k === 'kpi') return '🔢 Clicou no número · ' + v.replace(/-/g, ' ');
+  if (k === 'funil') return '🧲 Etapa do funil · ' + v.replace(/-/g, ' ');
+  if (k === 'pagina') return '🔝 Página do site · ' + v.replace(/-/g, ' ');
+  if (k === 'campanha') return '🎯 Campanha · ' + v.replace(/-/g, ' ');
+  if (k === 'formato') return '🗂️ Formato · ' + v.replace(/-/g, ' ');
+  if (k === 'dia') return '🗓️ Dia do mês · ' + v;
   if (k === 'achado') return '🩺 Abriu achado · ' + v.replace(/-/g, ' ');
   if (k === 'origem') return '🎯 Destacou origem · ' + v.replace(/-/g, ' ');
   if (k === 'tab') return '🎛️ Filtro · ' + v.replace('deals-', 'deals ').replace('all', 'todos');
@@ -301,7 +324,7 @@ function acaoLabel(id) {
   return id;
 }
 document.title = `Tracking · ${A.nome} · EPI-USE Office`;
-$('#eyebrow').textContent = `Tracking · ${A.kind === 'metas' ? '' : 'Área '}${A.nome}`;
+$('#eyebrow').textContent = A.area === 'relatorio' ? 'Tracking · Relatório' : A.kind === 'metas' ? 'Tracking · Metas FY27' : `Tracking · Área ${A.nome}`;
 $('#pgLink').href = A.page; $('#pgLink').textContent = A.page;
 $('#acoesSub').textContent = A.acoesSub;
 

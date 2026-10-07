@@ -1,12 +1,12 @@
-// ── MÓDULO 31 · METAS FY27 — placar ao vivo ─────────────────────────────────
+// ── MÓDULO 33 · METAS FY27 — placar ao vivo ─────────────────────────────────
 // /metas-fy27 só mostra "realizado" quando a fonte se atualiza SOZINHA em prod:
 //   • Apollo  — refresh no servidor a cada 6h (routes/area-pipeline.js) +
 //               histórico diário (apollo_hist) para as janelas de 7/30 dias.
 //   • Office  — o que o time faz dentro do Office entra na hora: Voices e
 //               posts (Módulo 30), kanban e captura dos eventos (Field
 //               Marketing), pautas da Redatoria (content_pipeline).
-//   • GA4     — refresh diário do mês corrente (server.js) + os meses do FY27
-//               que faltarem, buscados aqui (boot + 24h).
+//   • GA4     — o mesmo cache por mês do Relatório (Módulo 31: SQLite, boot +
+//               12h, só busca corrigida fetch_v ≥ 2).
 // A META vem da planilha da equipe (metas-fy26.json, que hoje carrega o FY27)
 // e do funil de cada área (areas.json). Sem fonte automática, a meta vira
 // link para onde é medida. Regras de processo, cabeçalhos e prazos vencidos
@@ -20,7 +20,6 @@ const { db, requireAuth } = require('../server-context');
 
 const API = (f) => path.join(__dirname, '../public/api', f);
 const DAY = 86400000;
-const GA4_STALE_MS = 30 * 60 * 60 * 1000; // refresh diário → >30h sem atualizar = parado
 
 const all = (sql, ...a) => { try { return db.prepare(sql).all(...a); } catch (_) { return []; } };
 const one = (sql, ...a) => { try { return db.prepare(sql).get(...a) || {}; } catch (_) { return {}; } };
@@ -106,53 +105,17 @@ function serieHist(hist, campo, modo, dias = 30) {
   return pts;
 }
 
-// ── GA4 (meses do FY completos, refresh diário do mês corrente fica no server.js) ──
+// ── GA4 · mesmo cache do Relatório (Módulo 31: SQLite, boot + 12h, só fetch_v ≥ 2) ──
 const mesAnterior = () => { const d = new Date(); d.setUTCDate(1); d.setUTCMonth(d.getUTCMonth() - 1); return d.toISOString().slice(0, 7); };
-const inicioMesSeguinte = (k) => Date.UTC(+k.slice(0, 4), +k.slice(5, 7), 1);
 function ga4Dados() {
-  const s = lerJSON('ga4-snapshot.json');
-  const todos = (s && s.meses) || {};
-  // Só meses que o servidor buscou já com a correção das linhas (linhas_por_nome).
-  // O arquivo do git (recriado a cada deploy) traz meses antigos com o bug e sem frescor.
-  const meses = {};
-  Object.keys(todos).forEach(k => { const m = todos[k]; if (m && m.sessoes != null && m.linhas_por_nome) meses[k] = m; });
-  const keys = Object.keys(meses).sort();
   const atual = new Date().toISOString().slice(0, 7);
-  // "Fechado" = buscado pelo menos 1 dia depois que o mês acabou (dia completo + processamento do GA4)
-  const fechados = keys.filter(k => k < atual && (ms(meses[k].atualizado_em) || 0) >= inicioMesSeguinte(k) + DAY);
-  // Frescor pelo dado mais novo de fato buscado (o carimbo global não prova que a busca deu certo)
-  const t = keys.reduce((mx, k) => Math.max(mx, ms(meses[k].atualizado_em) || 0), 0) || null;
-  let status = 'ok';
-  if (!keys.length) status = process.env.GA4_PROPERTY_ID ? 'aguardando' : 'sem-chave';
-  else if (!t || Date.now() - t > GA4_STALE_MS) status = 'parado';
-  return { meses, keys, fechados, atual, status, ultima_sync_ts: t ? new Date(t).toISOString() : null };
-}
-const GA4 = { running: false };
-async function ga4CompletaFY() {
-  if (!process.env.GA4_PROPERTY_ID || GA4.running) return;
-  GA4.running = true;
-  const ga = require('../scripts/integrations/ga4_fetch.js');
-  try {
-    // FY26 também: rebusca os meses gravados com o bug das linhas (o /relatorio lê esses meses).
-    for (const fy of [26, 27]) {
-      const r = await ga.refreshFY(fy);
-      console.log(`[metas-fy27] GA4 FY${fy} — ${r.meses_obtidos.length} mês(es) ok${r.erros.length ? ` · ${r.erros.length} erro(s): ${r.erros[0].erro}` : ''}`);
-    }
-    // Mês que acabou: a última gravação dele foi no último dia, ainda incompleto.
-    // Rebusca até ter uma cópia feita 2 dias depois da virada.
-    const ant = mesAnterior(), fim = inicioMesSeguinte(ant);
-    const m = ((ga.readSnapshot() || {}).meses || {})[ant];
-    if (Date.now() >= fim + DAY && (!m || !m.linhas_por_nome || (ms(m.atualizado_em) || 0) < fim + 2 * DAY)) {
-      await ga.refreshAndCache(ant);
-      console.log(`[metas-fy27] GA4 ${ant} rebuscado (mês fechado)`);
-    }
-  } catch (e) { console.warn('[metas-fy27] GA4 falhou:', e.message); }
-  finally { GA4.running = false; }
-}
-if (process.env.GA4_PROPERTY_ID) {
-  // public/api é recriado a cada deploy: sem isso só o mês corrente voltava pro cache.
-  // 3 min depois do boot e, a partir daí, a cada 24h — defasado do refresh diário do server.js.
-  setTimeout(() => { ga4CompletaFY(); setInterval(ga4CompletaFY, 24 * 60 * 60 * 1000).unref(); }, 3 * 60 * 1000).unref();
+  let r = null;
+  try { r = require('./relatorio').ga4Resumo(); } catch (e) { console.warn('[metas-fy27] GA4 do relatório:', e.message); }
+  if (!r) return { meses: {}, keys: [], fechados: [], atual, status: 'aguardando', ultima_sync_ts: null };
+  const keys = Object.keys(r.meses).filter(k => r.meses[k] && r.meses[k].sessoes != null).sort();
+  // "Fechado" = buscado depois que o mês terminou (regra do Relatório)
+  const fechados = keys.filter(k => k < atual && r.fechado(r.meses[k]));
+  return { meses: r.meses, keys, fechados, atual, status: r.status, ultima_sync_ts: r.ultima_ok_ts, erro: r.erro || null };
 }
 
 // ── EVENTOS (kanban + captura pós-evento, gravados no Office) ───────────────
@@ -324,11 +287,11 @@ function metasVivas(ctx) {
     valor: ult ? ga4.meses[ult].sessoes : null, alvo: funil('conteudo', /tr[aá]fego/i), alvo_fonte: F_FUNIL,
     // Tag do GA4 está no site novo (HubSpot CMS) — confirmado pelo Rudá em 07/out/2026
     etiqueta: '⚠️ Estimativa — premissa: a meta de tráfego é lida como sessões por mês (GA4)',
-    nota: !ga4ok ? (ga4.status === 'parado' ? `⏳ GA4 sem atualizar desde ${(ga4.ultima_sync_ts || '').slice(0, 10).split('-').reverse().join('/')}` : '⏳ aguardando o primeiro refresh do GA4')
+    nota: !ga4ok ? (ga4.status === 'parado' ? `⏳ GA4 sem atualizar desde ${(ga4.ultima_sync_ts || '').slice(0, 10).split('-').reverse().join('/')}` : ga4.status === 'erro' ? '⏳ GA4 falhou na última busca' : ga4.status === 'sem-chave' ? '⏳ GA4 sem credencial no servidor' : '⏳ aguardando o primeiro refresh do GA4')
       : !ult ? '⏳ aguardando o GA4 fechar o primeiro mês'
       : ult === anterior ? `último mês fechado${mAtual ? ` · ${mesTxt(ga4.atual)} até agora: ${Number(mAtual.sessoes).toLocaleString('pt-BR')}` : ''}`
       : `⚠️ o cache do GA4 ainda não tem ${mesTxt(anterior)} — mostrando ${mesTxt(ult)}`,
-    como: 'Sessões do site no último mês fechado, pelo GA4 (refresh diário no servidor). Só entram meses buscados pelo servidor depois que o mês acabou.',
+    como: 'Sessões do site no último mês fechado, pelo GA4 — o mesmo cache do Relatório de Marketing (servidor busca a cada 12h). Só entram meses buscados depois que o mês acabou.',
     serie: { tipo: 'barras', rotulo: 'sessões por mês', alvo: true, pontos: g12 } });
   M.push({ id: 'conteudo-pautas', area: 'conteudo', titulo: 'Pautas da Redatoria', unidade: 'pautas', janela: '30 dias', fonte: 'office',
     valor: pautas.d30, alvo: funil('conteudo', /^pautas$/i), alvo_fonte: F_FUNIL,
@@ -432,7 +395,7 @@ function fontes(ap, ga4, ev, voices) {
     dentro: [
       { id: 'apollo', nome: 'Apollo', ic: '📨', modo: 'refresh no servidor a cada 6h', status: ap.status.status, ultima_ts: ap.status.ultima_sync_ts, erro: ap.status.erro || null },
       { id: 'office', nome: 'Office (ao vivo)', ic: '🏢', modo: 'Voices, posts, kanban de eventos, captura e pautas — entram na hora', status: 'ok', ultima_ts: ev.ultima },
-      { id: 'ga4', nome: 'Google Analytics 4', ic: '📈', modo: 'refresh diário no servidor', status: ga4.status, ultima_ts: ga4.ultima_sync_ts },
+      { id: 'ga4', nome: 'Google Analytics 4', ic: '📈', modo: 'servidor busca a cada 12h (mesmo dado do Relatório)', status: ga4.status, ultima_ts: ga4.ultima_sync_ts, erro: ga4.erro },
     ],
     fora: Object.entries(ONDE).map(([id, o]) => ({ id, ...o })),
   };
