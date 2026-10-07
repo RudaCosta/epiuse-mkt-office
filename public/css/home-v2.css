@@ -136,6 +136,12 @@ html body.hx[data-route] {
   transition: transform .18s var(--hx-ease), border-color .18s var(--hx-ease), box-shadow .18s var(--hx-ease);
 }
 .hx-quick a:hover { transform: translateY(-2px); border-color: var(--hx-accent); box-shadow: var(--elevation-md); }
+.hx-q-badge {
+  margin-left: auto; padding: 2px 9px; border-radius: var(--rounded-full); font-size: 12px; font-weight: 800;
+  background: color-mix(in srgb, var(--hx-accent) 14%, transparent);
+}
+.hx-q-badge.pos { color: var(--color-success-300); background: color-mix(in srgb, var(--color-success-500) 16%, transparent); }
+.hx-q-badge.neg { color: var(--color-danger-300); background: color-mix(in srgb, var(--color-danger-500) 16%, transparent); }
 .hx-q-ico {
   display: grid; place-items: center; width: 34px; height: 34px; flex: none; font-size: 17px;
   border-radius: var(--rounded-md); background: color-mix(in srgb, var(--hx-accent) 16%, transparent);

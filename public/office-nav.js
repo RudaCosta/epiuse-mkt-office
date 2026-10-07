@@ -8,7 +8,7 @@
 // Fonte ÚNICA da verdade: public/api/changelog.json#current via /api/version
 // Fallback hardcoded usado SÓ se fetch falhar (offline, etc).
 // Sincronização automática — não editar manualmente, basta bumpar changelog.json.
-let OFFICE_NAV_VERSION = '0.91.0';
+let OFFICE_NAV_VERSION = '0.94.0';
 // Promise compartilhada — nav + footer reaproveitam o mesmo fetch
 window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/version')
   .then(r => r.ok ? r.json() : null)
@@ -177,6 +177,7 @@ const OFFICE_NAV_OVERFLOW = [
   { label: '🏢 Marketing Hub (portal)',  href: '/hub' },
   { label: '📣 Campanhas em jogo',       href: '/campanhas' },
   { label: '💡 Mural de Ideias',         href: '/ideias' },
+  { label: '⏰ Banco de Horas',          href: '/horas' },
 
   { section: '📞 Biz Dev' },
   { label: '🤖 JARVIS — Copiloto SDR',   href: '/jarvis' },
@@ -299,6 +300,14 @@ class OfficeNav extends HTMLElement {
       }
       if (this._authed) {
         try { this._acesso = await fetch('/api/acesso/me', { credentials: 'same-origin' }).then(r => r.ok ? r.json() : null); } catch {}
+        // Dono do Office (e-mail do ANALYTICS_OWNER): só ele vê o tracking do Relatório.
+        // Banco de Horas: saldo no menu do usuário (só quem pode abrir /horas).
+        if (this._acesso && this.podeVer('/horas')) {
+          try { const h = await fetch('/api/horas/saldo', { credentials: 'same-origin' }).then(r => r.ok ? r.json() : null); if (h) this._horas = h.meu; } catch {}
+        }
+        if (this._acesso && this._acesso.superAdmin) {
+          try { this._owner = !!(await fetch('/api/analytics/owner', { credentials: 'same-origin' }).then(r => r.ok ? r.json() : null) || {}).owner; } catch {}
+        }
       }
       // Re-renderiza quando o SSO está ligado ou as permissões chegaram.
       if (this._ssoEnabled || this._acesso) { this.render(); this.hookEvents(); }
@@ -471,6 +480,10 @@ class OfficeNav extends HTMLElement {
       if (grpA && !grpA.links.some(l => l.href === '/admin/brand')) {
         grpA.links.push({ label: '👁️ Tracking · Brand', href: '/admin/brand' });
       }
+    }
+    // Tracking do Relatório (quem viu o quê, quem baixou PPT/PDF) — só o e-mail do dono.
+    if (this._owner && grpA && !grpA.links.some(l => l.href === '/admin/relatorio')) {
+      grpA.links.push({ label: '👁️ Tracking · Relatório', href: '/admin/relatorio' });
     }
     // UTM & Links Rastreados — todo o time de Marketing.
     const MKT_ROLES = ['head', 'intelligence', 'growth', 'field', 'pipeline', 'brand', 'conteudo'];
@@ -851,7 +864,7 @@ class OfficeNav extends HTMLElement {
           font-family: 'JetBrains Mono', monospace;
           display: flex; justify-content: space-between; align-items: center;
         }
-        /* Alertas (Módulo 31): nível pela cor da borda, não lido = ponto + negrito */
+        /* Alertas (Módulo 33): nível pela cor da borda, não lido = ponto + negrito */
         .bell-panel .bp-acts { display: flex; gap: 10px; align-items: center; }
         .bell-panel .bp-acts button, .bell-panel .bp-acts a {
           background: none; border: 0; padding: 0; cursor: pointer; font: inherit;
@@ -1109,6 +1122,7 @@ class OfficeNav extends HTMLElement {
                 <div class="um-sub">${this._sso && this._sso.email ? this._sso.email + ' · 🔒 SSO' : 'EPI-USE Office · ' + OFFICE_NAV_VERSION}</div>
               </div>
               <div class="um-lang" role="group" aria-label="Idioma / Language / Idioma"><span class="ic">🌐</span>Idioma<span class="lang-select">${langFlagsHtml}</span></div>
+              ${(this._authed && this._acesso && this.podeVer('/horas')) ? `<a class="um-item" href="/horas"><span class="ic">⏰</span>Meu banco de horas${typeof this._horas === 'number' ? `<b style="margin-left:auto;font-weight:700;color:${this._horas > 0 ? 'var(--color-success-300)' : this._horas < 0 ? 'var(--color-danger-300)' : 'inherit'}">${this._horas > 0 ? '+' : ''}${String(Math.round(this._horas * 10) / 10).replace('.', ',')}h</b>` : ''}</a><a class="um-item" href="/horas#registrar"><span class="ic">➕</span>Registrar horas</a>` : ''}
               ${this._sso && this._sso.name ? '' : '<button class="um-item" id="um-rename" type="button"><span class="ic">✏️</span>Trocar nome de exibição</button>'}
               <button class="um-item" id="um-theme" type="button"><span class="ic">${themeIcon}</span>Tema: ${THEME_LABEL[theme]||'escuro'}</button>
               ${this._authed ? '<a class="um-item" href="/escolher-visao"><span class="ic">🔀</span>Trocar visualização</a>' : ''}
@@ -1297,7 +1311,7 @@ class OfficeNav extends HTMLElement {
     applyTheme(this.getTheme());
   }
 
-  // ── Alertas (Módulo 31) ──────────────────────────────────────────────────
+  // ── Alertas (Módulo 33) ──────────────────────────────────────────────────
   // Badge = crítico/importante ainda não lidos. Clicar num alerta marca como
   // lido e abre onde se resolve; ✕ silencia por 7 dias (só pra você).
   async loadAlerts() {
@@ -1937,6 +1951,7 @@ const OfficeCommandPalette = (() => {
       { group:'Rotas', icon:'📨', label:'LP Seja um Voice',     hint:'/seja-voice', action:'/seja-voice' },
       { group:'Rotas', icon:'🎒', label:'Onboarding de Marketing (novos colaboradores)', hint:'/onboarding', action:'/onboarding' },
       { group:'Rotas', icon:'📜', label:'Changelog',            hint:'/changelog',  action:'/changelog' },
+      { group:'Rotas', icon:'⏰', label:'Banco de Horas (meu saldo)', hint:'/horas', action:'/horas' },
       // Ações
       { group:'Ações', icon:'🔮',  label:'Alternar tema (Legado / Atlas / Aurora / Light / Glass)', hint:'persiste', action: () => {
           const ORDER = ['dark', 'atlas-dark', 'aurora', 'light', 'liquid-glass'];
@@ -1945,6 +1960,8 @@ const OfficeCommandPalette = (() => {
           try { localStorage.setItem('office.theme', next); } catch {}
           applyTheme(next);
         }},
+      { group:'Ações', icon:'⬆️', label:'Registrar horas a mais',  hint:'banco de horas', action:'/horas?tipo=mais#registrar' },
+      { group:'Ações', icon:'⬇️', label:'Registrar horas a menos (saí mais cedo)', hint:'banco de horas', action:'/horas?tipo=menos#registrar' },
       { group:'Ações', icon:'🐘', label:'ERP.ngo (externo)',    hint:'1% receita global pra conservação', action: () => window.open('https://erp.ngo', '_blank') },
     ];
   }
@@ -2127,6 +2144,19 @@ const OfficeCommandPalette = (() => {
 
   return { open, close };
 })();
+
+// Ctrl/⌘+K abre a paleta em qualquer página (antes só abria clicando na busca
+// da home). Exposta no window porque em várias telas o nav carrega como módulo.
+try { window.OfficeCommandPalette = OfficeCommandPalette; } catch (e) {}
+if (!window.__officeCmdkKey) {
+  window.__officeCmdkKey = true;
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && String(e.key).toLowerCase() === 'k') {
+      e.preventDefault();
+      OfficeCommandPalette.open();
+    }
+  });
+}
 
 /* ── SSO Microsoft · bootstrap do menu de usuario (add 31/mai/2026, fix selectors)
    Aditivo: le /api/auth/status e injeta item Entrar/Sair no #user-menu (Shadow DOM).

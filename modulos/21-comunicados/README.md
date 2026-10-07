@@ -3,7 +3,7 @@
 **Status:** ✅ construído (v0.86.0 · 11/ago/2026)
 **Rota:** `/admin/comunicados` (head ou editor token)
 **Código:** `routes/comunicados.js` · `public/api/comunicados.json` · `public/emails/` · `public/admin-comunicados.html`
-**Envio:** desde 0.93.0 a cadeia de remetentes, a allowlist e a leitura do erro da Resend moram em `routes/email.js` (Módulo 31), compartilhadas com todo e-mail do Office.
+**Envio:** desde 0.95.0 a cadeia de remetentes, a allowlist e a leitura do erro da Resend moram em `routes/email.js` (Módulo 33), compartilhadas com todo e-mail do Office.
 
 ## Por que existe
 Rudá pediu: *"quero automático — tudo eu peço e você manda."*

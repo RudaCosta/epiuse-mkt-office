@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Motor de alertas (Módulo 31): regras com dado semeado, estado (abre/muda/
+// Motor de alertas (Módulo 33): regras com dado semeado, estado (abre/muda/
 // resolve), visibilidade por área, lido/silenciar via HTTP, e-mail de crítico
 // (sem chave → registra "pulado" e não re-tenta) e os HTML dos relatórios.
 //
@@ -154,11 +154,21 @@ const estado = (id) => db.prepare('SELECT * FROM alertas_estado WHERE id=?').get
   ok(/crítico/.test(sem.assunto), 'assunto do semanal sinaliza crítico');
   const semBrand = alertas.montarSemanal(['brand'], 'Brand Experience');
   ok(!semBrand.html.includes('Apollo sem atualizar') && semBrand.html.includes('Pautas criadas'), 'semanal da Brand: só a área dela');
-  alertas.registrar('relatorio', (mes) => ({ success: true, mes, site: null, linkedin: { total_atual: 10640, novos: 120, novos_mom_pct: 5 }, email: null, instagram: null,
-    cases: { publicado: 3, em_edicao: 1, live: 20 }, voices: { ativos: 2, total: 2 }, alertas: [{ tipo: 'warn', msg: 'Newsletter estagnada' }] }));
+  // Mesmo formato do montar() do routes/relatorio.js (tela /relatorio)
+  alertas.registrar('relatorio', (mes) => ({ success: true, mes,
+    site: { disponivel: false, motivo: 'sem-credencial' },
+    email: { disponivel: true, base_leads: 10640, base_delta: 120, enviados_mes: 4, enviados_mes_anterior: 6 },
+    outbound: { disponivel: true, mes: { entregues: 300, respondidos: 12, reunioes: 2, taxa_resposta: 4 } },
+    voices: { posts_mes: 5, posts_mes_anterior: 3, voices_que_postaram: 2, pautas_publicadas: 4, pautas_em_andamento: 1, inscricoes_mes: 1, inscricoes_mes_anterior: 0 },
+    links: { cliques: 77, cliques_anterior: 50, pessoas: 40 },
+    cases: { disponivel: true, publicaveis: 3, total: 22 },
+    editorial: { disponivel: false, motivo: 'desligado' },
+    destaques: [{ tom: 'up', texto: '5 post(s) dos Voices publicados por 2 Voice(s) (mês anterior: 3).' }] }));
   const mens = alertas.montarMensal('2026-09');
-  ok(/setembro\/2026/.test(mens.assunto) && mens.html.includes('10.640'), 'mensal usa os números do /relatorio');
-  ok(mens.html.includes('⏳ Aguarda integração GA4'), 'sem dado de site → etiqueta ⏳ (regra 7)');
+  ok(/setembro\/2026/.test(mens.assunto) && mens.html.includes('10.640') && mens.html.includes('+120 no mês'), 'mensal usa os números do /relatorio (montar)');
+  ok(mens.html.includes('⏳ Aguarda integração GA4 (sem credencial no servidor)'), 'sem dado de site → etiqueta ⏳ com o motivo (regra 7)');
+  ok(mens.html.includes('5 post(s) dos Voices publicados'), 'destaques do relatório entram no e-mail');
+  ok(mens.html.includes('/api/relatorio/export?formato=pptx&amp;mes=2026-09'), 'link do PPT aponta pra exportação nova');
   ok(mens.html.includes('/relatorio?mes=2026-09'), 'link abre o relatório no mês');
 
   console.log('\n7) configuração');

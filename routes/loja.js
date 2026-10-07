@@ -17,7 +17,7 @@ const path = require('path');
 const fs = require('fs');
 const { db } = require('../server-context');
 const { requireAdmin } = require('./users');
-const mailer = require('./email');   // remetente com fallback + log (Módulo 31)
+const mailer = require('./email');   // remetente com fallback + log (Módulo 33)
 
 const CATALOGO_PATH = path.join(__dirname, '../public/api/loja-coins.json');
 

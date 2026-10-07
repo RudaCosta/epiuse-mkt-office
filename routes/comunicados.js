@@ -25,7 +25,7 @@ const { db, resend } = require('../server-context');
 const { requireAdmin } = require('./users');
 
 // Remetente com fallback, allowlist de destinatário e leitura do erro da Resend
-// moram em routes/email.js (Módulo 31) — as mesmas peças valem pra todo e-mail
+// moram em routes/email.js (Módulo 33) — as mesmas peças valem pra todo e-mail
 // do Office. Aqui fica só o que é da fila de comunicados.
 const {
   erroLegivel, enderecoPermitido, FROM_EMAIL, REMETENTES,

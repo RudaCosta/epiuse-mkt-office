@@ -1,6 +1,6 @@
-# Módulo 31 — Central de Alertas & Relatórios por e-mail
+# Módulo 33 — Central de Alertas & Relatórios por e-mail
 
-**Status:** ✅ v1.0 (0.93.0 · 06/out/2026)
+**Status:** ✅ v1.0 (0.95.0 · 07/out/2026)
 **Rotas:** `/alertas` (todo mundo logado) · `/admin/alertas` (super admin) · sino do `office-nav`
 **Código:** `routes/alertas.js` (motor, API, agendador) · `routes/alertas-relatorios.js` (dados + HTML dos e-mails) · `routes/email.js` (envio único do Office) · `public/alertas.html` · `public/admin-alertas.html` · `public/office-nav.js` (sino)
 **Teste:** `node scripts/tests/alertas.js`

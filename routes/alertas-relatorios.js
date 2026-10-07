@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════════════════════════════
-// routes/alertas-relatorios.js — dados e HTML dos e-mails do Módulo 31
+// routes/alertas-relatorios.js — dados e HTML dos e-mails do Módulo 33
 //
 //   • e-mail de alerta crítico (sai na hora, em horário comercial)
 //   • relatório semanal (segunda ~8h): o que precisa de você, o que andou na
@@ -365,50 +365,47 @@ function htmlMensal(opts) {
   const mes = opts.mes, mesAnt = mesAnterior(mes);
   const L = limitesMes(mes), LA = limitesMes(mesAnt);
   const A = movimento(L.ini, L.fim, opts.eventosFn), P = movimento(LA.ini, LA.fim, opts.eventosFn);
-  let snap = null;
-  try { snap = opts.snapshotFn ? opts.snapshotFn(mes) : null; } catch (e) { console.warn('[alertas] snapshot mensal:', e.message); }
-  const pend = (fonte) => `⏳ Aguarda integração ${fonte}`;
+  let d = null;
+  try { d = opts.snapshotFn ? opts.snapshotFn(mes) : null; } catch (e) { console.warn('[alertas] relatório do mês:', e.message); }
+  const MOTIVO = { 'sem-credencial': 'sem credencial no servidor', buscando: 'primeira busca em andamento', 'sem-dado': 'sem dado', desligado: 'leitura automática desligada', erro: 'integração com erro', parado: 'integração parada' };
+  const pend = (fonte, motivo) => `⏳ Aguarda integração ${fonte}${motivo ? ` (${MOTIVO[motivo] || motivo})` : ''}`;
   const pct = (v) => (v == null ? '' : `${v > 0 ? '▲' : v < 0 ? '▼' : '='} ${Math.abs(v).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}% vs mês anterior`);
-  const kpi = (rot, val, mom, fonte, sufixo) => [rot, val == null ? null : val, null, val == null ? pend(fonte) : (pct(mom) + (sufixo ? (mom != null ? ' · ' : '') + sufixo : ''))];
   let corpo = '';
 
-  // 1. KPIs do relatório (mesmos números da tela /relatorio)
-  corpo += h2('📊 KPIs do mês', 'mesmos números da tela /relatorio');
-  if (!snap) corpo += vazio('⏳ Snapshot do relatório indisponível neste servidor.');
+  // 1. Números do mês — a MESMA montagem da tela /relatorio (routes/relatorio.js)
+  corpo += h2('📊 Números do mês', 'os mesmos da tela /relatorio');
+  if (!d) corpo += vazio('⏳ Relatório do mês indisponível neste servidor.');
   else {
-    const s = snap.site || {}, li = snap.linkedin || {}, em = snap.email || {}, ig = snap.instagram || {}, cs = snap.cases || {};
+    const s = d.site || {}, e = d.email || {}, o = d.outbound || {}, v = d.voices || {}, l = d.links || {}, c = d.cases || {}, ed = d.editorial || {};
+    const om = o.mes || null;
     corpo += tabelaMetricas([
-      kpi('Site — usuários', s.usuarios, s.usuarios_mom_pct, 'GA4', s.atualizado_em ? `atualizado ${fmtData(s.atualizado_em)}` : ''),
-      kpi('Site — visualizações', s.visualizacoes, s.visualizacoes_mom_pct, 'GA4'),
-      kpi('LinkedIn — seguidores (total)', li.total_atual, null, 'LinkedIn'),
-      kpi('LinkedIn — novos seguidores', li.novos, li.novos_mom_pct, 'LinkedIn'),
-      kpi('LinkedIn — impressões', li.impressoes, li.impressoes_mom_pct, 'LinkedIn (report)'),
-      kpi('LinkedIn — engajamento', li.engajamento, li.engajamento_mom_pct, 'LinkedIn (report)'),
-      kpi('E-mail — leads', em.leads, em.leads_mom_pct, 'RD Station'),
-      kpi('Instagram — novos seguidores', ig.seguidores_novos, ig.seguidores_mom_pct, 'Instagram (report)'),
-      ['Cases publicados (hoje)', cs.publicado ?? null, null, cs.em_edicao != null ? `${fmtNum(cs.em_edicao)} em edição · ${fmtNum(cs.live)} clientes live` : pend('Cases')],
-      ['Voices ativos (hoje)', snap.voices ? snap.voices.ativos : null, null, snap.voices ? `de ${snap.voices.total} no programa` : pend('Voices')],
+      ['Site — pessoas que visitaram', s.disponivel ? s.usuarios : null, null, s.disponivel ? (pct(s.mom && s.mom.usuarios) || (s.parcial ? 'mês ainda sem fechamento no GA4' : '')) : pend('GA4', s.motivo)],
+      ['Site — páginas vistas', s.disponivel ? s.visualizacoes : null, null, s.disponivel ? pct(s.mom && s.mom.visualizacoes) : pend('GA4', s.motivo)],
+      ['E-mail — base de leads (RD)', e.disponivel ? e.base_leads : null, null, e.disponivel ? (e.base_delta != null ? `${e.base_delta >= 0 ? '+' : ''}${fmtNum(e.base_delta)} no mês` : '') : pend('RD Station', e.motivo)],
+      ['E-mails de marketing disparados (RD)', e.disponivel ? e.enviados_mes : null, e.disponivel ? e.enviados_mes_anterior : null, e.disponivel ? '' : pend('RD Station', e.motivo)],
+      ['Outbound — e-mails entregues (Apollo)', om ? om.entregues : null, null, !o.disponivel ? pend('Apollo', o.motivo) : (!om ? '⏳ histórico do Apollo ainda não cobre o mês' : (om.aviso || (om.desde ? `desde ${fmtData(om.desde)}` : '')))],
+      ['Outbound — respostas', om ? om.respondidos : null, null, om && om.taxa_resposta != null ? `${String(om.taxa_resposta).replace('.', ',')}% de resposta` : ''],
+      ['Outbound — reuniões marcadas', om ? om.reunioes : null, null, ''],
+      ['Posts dos Voices', v.posts_mes ?? null, v.posts_mes_anterior ?? null, v.voices_que_postaram != null ? `${fmtNum(v.voices_que_postaram)} Voice(s) postaram` : ''],
+      ['Pautas de Voices publicadas', v.pautas_publicadas ?? null, null, v.pautas_em_andamento != null ? `${fmtNum(v.pautas_em_andamento)} em andamento` : ''],
+      ['Inscrições no /seja-voice', v.inscricoes_mes ?? null, v.inscricoes_mes_anterior ?? null, ''],
+      ['Cliques reais nos links rastreados', l.cliques ?? null, l.cliques_anterior ?? null, l.pessoas != null ? `${fmtNum(l.pessoas)} pessoa(s)` : ''],
+      ['Cases publicáveis (hoje)', c.disponivel ? c.publicaveis : null, null, c.disponivel ? `de ${fmtNum(c.total)} clientes` : pend('Cases', c.motivo)],
+      ['Itens no calendário editorial', ed.disponivel ? ed.total : null, null, ed.disponivel ? '' : pend('calendário editorial', ed.motivo)],
     ]);
-    if ((snap.alertas || []).length) {
-      corpo += `<div style="font-size:12px;font-weight:800;color:${C.azul1};margin:12px 0 4px">SINAIS DO RELATÓRIO</div>` +
-        snap.alertas.map(a => `<div style="font-size:12.5px;color:${C.texto};padding:3px 0">⚠️ ${esc(a.msg)}</div>`).join('');
+    if ((d.destaques || []).length) {
+      corpo += `<div style="font-size:12px;font-weight:800;color:${C.azul1};margin:12px 0 4px">DESTAQUES</div>` +
+        d.destaques.map(x => `<div style="font-size:12.5px;color:${C.texto};padding:3px 0">${x.tom === 'up' ? '▲' : x.tom === 'down' ? '▼' : '•'} ${esc(x.texto)}</div>`).join('');
     }
   }
 
-  // 2. Operação do mês
-  const ap = A.apollo, pp = P.apollo;
-  corpo += h2('⚙️ Operação do mês', `comparado com ${nomeMes(mesAnt)}`);
+  // 2. O que o /relatorio não mostra: o resto da operação do Office
+  corpo += h2('⚙️ Operação do Office', `comparado com ${nomeMes(mesAnt)}`);
   corpo += tabelaMetricas([
-    ['Pautas de Voices publicadas', A.pautas_publicadas, P.pautas_publicadas],
-    ['Posts novos de Voices', A.posts_voices, P.posts_voices],
-    ['Inscrições no /seja-voice', A.inscricoes, P.inscricoes],
     ['Conteúdos publicados (pipeline)', A.conteudos_publicados, P.conteudos_publicados],
-    ['Cliques nos links rastreados', A.cliques_links, P.cliques_links],
-    ['E-mails entregues (Apollo)', ap.disponivel ? ap.entregues : null, pp.disponivel ? pp.entregues : null, ap.obs],
-    ['Respostas (Apollo)', ap.disponivel ? ap.respondidos : null, pp.disponivel ? pp.respondidos : null],
-    ['Reuniões marcadas (Apollo)', ap.disponivel ? ap.reunioes : null, pp.disponivel ? pp.reunioes : null],
     ['Calls salvas no JARVIS', A.calls_jarvis, P.calls_jarvis],
-    ['Eventos realizados', A.eventos_realizados.length, P.eventos_realizados.length],
+    ['Aprendizados de campo (JARVIS)', A.aprendizados_jarvis, P.aprendizados_jarvis],
+    ['Eventos realizados', opts.eventosFn ? A.eventos_realizados.length : null, opts.eventosFn ? P.eventos_realizados.length : null],
     ['ERP Coins distribuídos', A.coins, P.coins],
   ]);
 
@@ -428,7 +425,7 @@ function htmlMensal(opts) {
   corpo += h2('🔌 Saúde das fontes automáticas') + blocoFontes(opts.fontes);
 
   corpo += `<div style="margin-top:20px">${botao('/relatorio?mes=' + mes, 'Abrir o relatório completo')}
-    &nbsp; <a href="${esc(link('/api/relatorio/download-pptx?mes=' + mes))}" style="font-size:12.5px;font-weight:700;color:${C.azul2}">Baixar o PPT →</a></div>`;
+    &nbsp; <a href="${esc(link('/api/relatorio/export?formato=pptx&mes=' + mes))}" style="font-size:12.5px;font-weight:700;color:${C.azul2}">Baixar o PPT →</a></div>`;
   return {
     assunto: `📊 Marketing em ${nomeMes(mes)} — relatório mensal`,
     html: moldura({

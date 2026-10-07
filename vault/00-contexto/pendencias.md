@@ -12,7 +12,11 @@
 - 🟡 **Tornar o repositório GitHub privado.** O token antigo, a senha antiga dos brindes e a vault (clientes, estratégia, aniversários) seguem no histórico público do git. Railway funciona com repo privado.
 - 🟡 Depois do deploy das Permissões v2: conferir com 1 pessoa de cada área que a home e a área dela abrem (o teste automático cobriu, mas é a primeira vez com SSO real).
 
-### 🔔 Alertas e relatórios por e-mail (Módulo 31 · 06/out/2026)
+### 📊 Relatório ao vivo (Módulo 31 · 06/out/2026)
+- 🟡 **Confirmar se a tag do GA4 está no site novo (HubSpot CMS, ago/2026).** Se não estiver, os visitantes do `/relatorio` subnotificam desde ago — alternativa é ligar o HubSpot CMS Analytics (`HUBSPOT_TOKEN`).
+- 🟡 **(Opcional) Subir o template oficial `.pptx`** no `/relatorio` (rodapé do bloco Exportar, só você vê). Sem ele o PPT sai no padrão do Brand Guide 2026.
+
+### 🔔 Alertas e relatórios por e-mail (Módulo 33 · 07/out/2026)
 - 🟡 **Verificar o domínio `epiuse.com.br` na Resend** (SPF/DKIM) e setar `FROM_EMAIL` no Railway. Sem isso a Resend só entrega no e-mail dono da conta, e nenhum e-mail do Office (alertas, relatórios, inscrição, brindes, Loja) chega no time. Até lá: colocar o e-mail dono da conta em `COMUNICADOS_EMAILS_EXTRA` e na lista dos canais em `/admin/alertas`.
 - 🟡 Depois do deploy: em `/admin/alertas`, clicar em "Enviar pra mim" no semanal e no mensal e conferir se chegaram. Decidir se as donas das áreas recebem os críticos e o semanal da própria área (está desligado).
 

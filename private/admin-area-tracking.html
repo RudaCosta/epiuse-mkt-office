@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="/design-tokens.css">
 <script type="module" src="/office-nav.js"></script>
 <style>
-/* Módulos 27/28/29/30 — painel "quem viu o quê" das áreas (Intelligence, Eventos, Pipeline, Brand). Só o dono.
+/* Módulos 27/28/29/30/31 — painel "quem viu o quê" das áreas (Intelligence, Eventos, Pipeline, Brand, Relatório). Só o dono.
    Arquivo fora de public/ (private/): servido apenas por GET /admin/<area>. */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -221,6 +221,22 @@ const AREAS = {
       cases: 'Cases (sync diário)', calendario: 'Calendário editorial (Graph 6h)', marca: 'Design System (DESIGN.md)',
       ssi: 'SSI / perfil dos Voices (link)', linkedin: 'LinkedIn da empresa (link)', duda: 'Calendário da Duda (link)', relatorio: 'Report mensal (link)' },
   },
+  // Módulo 31 — Relatório de Marketing (/relatorio). Downloads PPT/PDF são gravados pelo servidor (export.<fmt>.<mes>).
+  relatorio: {
+    kind: 'relatorio', area: 'relatorio', nome: 'Relatório de Marketing', page: '/relatorio',
+    acoesSub: 'Meses abertos, downloads de PPT/PDF, números e fontes clicados',
+    secs: [
+      ['hero', '📊 Topo · mês e downloads'], ['pulso', '✨ Pulso do mês'], ['jornada', '🌊 Do alcance à conversa'],
+      ['site', '🌐 Site · GA4'], ['email', '📬 E-mail & base · RD'], ['outbound', '🚀 Outbound · Apollo'],
+      ['voices', '🎙️ Voices & links'], ['editorial', '🗓️ Calendário editorial'], ['cases', '🤝 Cases'],
+      ['fontes', '🔌 Fontes · dentro e fora'], ['exportar', '⬇️ Exportar']
+    ],
+    // node.<id> = detalhe de fonte de dentro · fora.<id> = link de fora (mesmo nome, prefixo diferente no rótulo)
+    nodes: { ga4: 'Site · GA4 (auto 12h)', rd: 'RD Station (auto diário)', apollo: 'Apollo (auto 6h)', voices: 'Voices (ao vivo)',
+      links: 'Links rastreados (ao vivo)', cases: 'Cases', editorial: 'Calendário editorial',
+      linkedin: 'LinkedIn da empresa', zoho: 'Zoho CRM', eventos: 'Eventos', sap4me: 'SAP 4 ME',
+      metas: 'Metas FY27', brand: 'Área Brand', pipeline: 'Área Pipeline' },
+  },
 };
 const A = AREAS[location.pathname.replace(/\/+$/, '').split('/').pop()] || AREAS.intelligence;
 const SECS = A.secs;
@@ -232,6 +248,13 @@ const DORT = { dor: 'dores', objecao: 'objeções', gatilho: 'gatilhos', sinal: 
 function acaoLabel(id) {
   const [k, ...r] = String(id).split('.'), v = r.join('.');
   if (k === 'node') return '🔎 Detalhes da fonte · ' + (NODE[v] || v);
+  if (k === 'export') { const [f, m] = v.split('.'); return `⬇️ Baixou ${f === 'pdf' ? 'PDF' : 'PowerPoint'}` + (m ? ' · ' + m : ''); }
+  if (k === 'kpi') return '🔢 Clicou no número · ' + v.replace(/-/g, ' ');
+  if (k === 'funil') return '🧲 Etapa do funil · ' + v.replace(/-/g, ' ');
+  if (k === 'pagina') return '🔝 Página do site · ' + v.replace(/-/g, ' ');
+  if (k === 'campanha') return '🎯 Campanha · ' + v.replace(/-/g, ' ');
+  if (k === 'formato') return '🗂️ Formato · ' + v.replace(/-/g, ' ');
+  if (k === 'dia') return '🗓️ Dia do mês · ' + v;
   if (k === 'achado') return '🩺 Abriu achado · ' + v.replace(/-/g, ' ');
   if (k === 'origem') return '🎯 Destacou origem · ' + v.replace(/-/g, ' ');
   if (k === 'tab') return '🎛️ Filtro · ' + v.replace('deals-', 'deals ').replace('all', 'todos');
@@ -282,7 +305,7 @@ function acaoLabel(id) {
   return id;
 }
 document.title = `Tracking · ${A.nome} · EPI-USE Office`;
-$('#eyebrow').textContent = `Tracking · Área ${A.nome}`;
+$('#eyebrow').textContent = A.area === 'relatorio' ? 'Tracking · Relatório' : `Tracking · Área ${A.nome}`;
 $('#pgLink').href = A.page; $('#pgLink').textContent = A.page;
 $('#acoesSub').textContent = A.acoesSub;
 

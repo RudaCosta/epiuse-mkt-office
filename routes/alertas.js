@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════════════════════════════
-// routes/alertas.js — Central de Alertas & Relatórios (Módulo 31)
+// routes/alertas.js — Central de Alertas & Relatórios (Módulo 33)
 //
 // Antes: o sino mostrava 4 frases escritas à mão no voices.json em maio (nunca
 // mudavam), o badge contava tudo e nunca zerava, e o "resumo semanal" saía com

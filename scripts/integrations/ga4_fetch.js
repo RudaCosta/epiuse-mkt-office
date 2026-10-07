@@ -125,11 +125,19 @@ async function fetchGA4(mes, { withTopPages = true } = {}) {
     },
   });
 
-  // rows[0] = range atual, rows[1] = anterior (ordem dos dateRanges)
+  // Com 2 dateRanges o GA4 devolve uma dimensão dateRange com o NOME do período
+  // ('atual' / 'anterior') e SEM ordem garantida. Antes o código caía em rows[i]
+  // e às vezes gravava o mês anterior no lugar do atual (meses repetidos no
+  // snapshot). Agora casa pelo nome; formato desconhecido = erro, nunca chute.
   const rows = res.data.rows || [];
+  const NOMES = ['atual', 'anterior'];
+  const nomeDe = r => r && r.dimensionValues && r.dimensionValues[0] ? r.dimensionValues[0].value : null;
+  if (rows.length && !rows.some(r => NOMES.includes(nomeDe(r)) || /^date_range_\d$/.test(nomeDe(r) || ''))) {
+    throw new Error('GA4: resposta sem a dimensão dateRange esperada — nada gravado');
+  }
   const grab = (rangeIdx) => {
-    const row = rows.find(r => Number(r.dimensionValues?.[0]?.value ?? r.dateRangeIndex ?? -1) === rangeIdx)
-             || rows[rangeIdx];
+    const row = rows.find(r => nomeDe(r) === NOMES[rangeIdx] || nomeDe(r) === `date_range_${rangeIdx}`);
+    // Período sem tráfego: o GA4 omite a linha → zero de verdade
     const v = (row && row.metricValues) ? row.metricValues.map(x => Number(x.value)) : [0, 0, 0, 0];
     const activeUsers = v[0];
     const userEngagementDuration = v[3];
@@ -161,6 +169,7 @@ async function fetchGA4(mes, { withTopPages = true } = {}) {
     anterior,
     top_pages,
     fonte: 'GA4 Data API',
+    fetch_v: 2,   // 2 = período casado pelo nome (corrige a troca de meses da v1)
     atualizado_em: new Date().toISOString(),
   };
 }
@@ -205,7 +214,7 @@ async function refreshFY(fy, { force = false } = {}) {
   const obtidos = [];
   const erros = [];
   for (const m of elegiveis) {
-    if (!force && snap.meses[m] && snap.meses[m].usuarios != null) {
+    if (!force && snap.meses[m] && snap.meses[m].usuarios != null && snap.meses[m].fetch_v >= 2) {
       obtidos.push(m);
       continue;
     }

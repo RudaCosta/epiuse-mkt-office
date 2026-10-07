@@ -488,7 +488,7 @@ function backupFile(p) {
 }
 
 // ── EMAIL (opcional via Resend) ───────────────────────────────────────────────
-// Todo envio passa por routes/email.js (Módulo 31): remetente com fallback,
+// Todo envio passa por routes/email.js (Módulo 33): remetente com fallback,
 // allowlist de destinatário, checagem do { error } da Resend e log em email_log.
 const emailOffice = require('./routes/email');
 const NOTIFY_EMAIL = emailOffice.NOTIFY_EMAIL;
@@ -2772,7 +2772,7 @@ function _eventISO(ev, ano) {
 }
 
 // Lista única dos eventos (events.json + enriquecimento do SQLite). Usada pela
-// API abaixo e pelo motor de alertas (Módulo 31) — um slug só, nunca duplicado.
+// API abaixo e pelo motor de alertas (Módulo 33) — um slug só, nunca duplicado.
 function _listarEventosField() {
   const events = JSON.parse(fs0.readFileSync(path.join(__dirname, 'public/api/events.json'), 'utf8'));
   const ano = events.ano || new Date().getFullYear();
@@ -3306,7 +3306,7 @@ app.get('/api/development-funds', (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// ── /api/alerts: mudou pro Módulo 31 (routes/alertas.js) — regras com dado
+// ── /api/alerts: mudou pro Módulo 33 (routes/alertas.js) — regras com dado
 // real, estado persistido, lido/silenciar por pessoa e e-mail de crítico.
 
 // ── INBOUND GENERATE: substitui window.claude.complete() do artifact host ──
@@ -3819,8 +3819,7 @@ app.get('/api/relatorio/snapshot', (req, res) => {
   res.json(_relatorioSnapshotMes(mes));
 });
 
-// Snapshot de um mês (AAAA-MM). Função à parte pra o relatório mensal por
-// e-mail (Módulo 31) usar exatamente os mesmos números da tela /relatorio.
+// Snapshot de um mês (AAAA-MM), legado da tela antiga do /relatorio.
 function _relatorioSnapshotMes(mes) {
   // overlay rotina diária → total de seguidores do mês corrente sempre fresco (fonte única)
   const linkedin = overlayLinkedinRoutine(_readJSON(LINKEDIN_HIST_PATH, { serie_mensal: [], demografia: {}, resumo: {}, eventos: [] }));
@@ -4048,50 +4047,7 @@ app.get('/api/rd/performance', (req, res) => {
   }
 });
 
-// GET /api/relatorio/download-pptx?mes=YYYY-MM — executa scripts/relatorio/gerar_pptx.py e retorna o arquivo gerado
-app.get('/api/relatorio/download-pptx', (req, res) => {
-  // Gera arquivo rodando Python: só pra quem está logado (anônimo não dispara
-  // processo no servidor).
-  if (!(req.session && req.session.user)) return res.status(401).json({ success: false, error: 'auth_required' });
-  // `mes` vai pra linha de comando do Python: só AAAA-MM passa, e o processo
-  // roda via execFile, com os argumentos separados — nunca montado como texto
-  // de shell.
-  const mes = String(req.query.mes || new Date().toISOString().slice(0, 7));
-  if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(mes)) {
-    return res.status(400).json({ success: false, error: 'mes inválido — use AAAA-MM' });
-  }
-  const { execFile } = require('child_process');
-  const os = require('os');
-  const tempFile = path.join(os.tmpdir(), `EPI-USE_Marketing_Report_${mes}_${Date.now()}.pptx`);
-  
-  const port = process.env.PORT || 3000;
-  const baseUrl = `http://localhost:${port}`;
-  
-  const PYBIN = process.env.PYTHON_BIN || (process.platform === 'win32' ? 'python' : 'python3');
-  const args = [path.join(__dirname, 'scripts/relatorio/gerar_pptx.py'),
-                '--mes', mes, '--output', tempFile, '--base-url', baseUrl];
-  console.log(`[relatorio] gerando PPTX de ${mes}`);
-
-  // O gerador lê /api/relatorio/snapshot deste mesmo servidor. Sem sessão, ele se
-  // autentica com o token de máquina — passado por ambiente, nunca pela URL.
-  const envPy = { ...process.env, OFFICE_EDITOR_TOKEN: ACTIVE_EDITOR_TOKEN };
-  execFile(PYBIN, args, { timeout: 180000, env: envPy }, (error, stdout, stderr) => {
-    if (error) {
-      // Detalhe (stderr, caminho do interpretador) fica só no log do servidor.
-      console.error(`[relatorio] erro ao gerar PPTX: ${error.message}\n${stderr || ''}${stdout || ''}`);
-      return res.status(500).json({ success: false, error: 'Erro ao gerar o PowerPoint.' });
-    }
-    
-    if (fs.existsSync(tempFile)) {
-      res.download(tempFile, `EPI-USE_Marketing_Report_${mes}.pptx`, (err) => {
-        if (err) console.error(`[relatorio] erro no download: ${err.message}`);
-        try { fs.unlinkSync(tempFile); } catch {}
-      });
-    } else {
-      res.status(500).json({ success: false, error: 'Arquivo PowerPoint não foi criado pelo script.' });
-    }
-  });
-});
+// Exportação PPTX/PDF do relatório: routes/relatorio.js (Módulo 31) — /api/relatorio/export.
 
 // POST /api/relatorio/ga4-refresh?mes=YYYY-MM — dispara fetch real do GA4 e atualiza snapshot
 // Protegido por EDITOR_TOKEN. Usado manualmente ou por cron diário.
@@ -6261,16 +6217,18 @@ app.use('/', require('./routes/loja')); // Módulo 19 — Loja de ERP Coins (/lo
 app.use('/', require('./routes/voices-pipeline')); // Módulo 20 — pipeline de validação/publicação dos Voices
 app.use('/', require('./routes/comunicados')); // Modulo 21 -- fila de comunicados por e-mail
 app.use('/', require('./routes/cafezinho')); // Módulo 22 — Cafezinho (área pessoal do time)
-app.use('/', require('./routes/horas'));      // Módulo 23 — Banco de Horas MKT
+app.use('/', require('./routes/horas'));      // Módulo 32 — Banco de Horas MKT
 app.use('/', require('./routes/editorial'));  // Módulo 25 — Calendário Editorial (planilha marketing, 3 abas)
 app.use('/', require('./routes/area-pipeline')); // Módulo 29 — Área Pipeline (Apollo auto + JARVIS)
 app.use('/', require('./routes/area-brand'));    // Módulo 30 — Área Brand (Voices · pautas · Cases · calendário)
-// Módulo 31 — Central de Alertas & Relatórios (sino, /alertas, /admin/alertas,
-// e-mail de crítico, relatório semanal e mensal). As duas fontes que moram aqui
-// no server.js são entregues pra ele não duplicar lógica.
+app.use('/', require('./routes/relatorio'));     // Módulo 31 — Relatório de Marketing ao vivo (só fontes automáticas + PPT/PDF)
+// Módulo 33 — Central de Alertas & Relatórios (sino, /alertas, /admin/alertas,
+// e-mail de crítico, relatório semanal e mensal). Recebe as fontes de fora em vez
+// de duplicar lógica: a lista de eventos daqui e o relatório do mês do Módulo 31
+// (o e-mail mensal mostra exatamente os números da tela /relatorio).
 const alertasOffice = require('./routes/alertas');
 alertasOffice.registrar('eventos', _listarEventosField);
-alertasOffice.registrar('relatorio', _relatorioSnapshotMes);
+alertasOffice.registrar('relatorio', require('./routes/relatorio').montar);
 app.use('/', alertasOffice);
 
 // Saida de pessoa do time: roda aqui, no fim do boot, porque precisa das
@@ -6319,6 +6277,6 @@ if (process.env.GA4_PROPERTY_ID || process.env.RD_REFRESH_TOKEN) {
 }
 
 // ── RESUMO SEMANAL POR E-MAIL ────────────────────────────────────────────────
-// Virou o relatório semanal do Módulo 31 (routes/alertas.js): alertas abertos,
+// Virou o relatório semanal do Módulo 33 (routes/alertas.js): alertas abertos,
 // movimento da semana × anterior, próximos 14 dias e saúde das fontes, além do
 // uso do Office que este digest mandava. Prévia e envio em /admin/alertas.

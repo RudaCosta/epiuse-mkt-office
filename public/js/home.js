@@ -652,6 +652,24 @@
     }));
     const sec = document.querySelector('[data-sec="atalhos"]');
     if (sec) sec.hidden = !items.length;
+    badgeHoras(box);
+  }
+
+  // Banco de Horas: saldo real (do próprio usuário) como selo no atalho /horas.
+  async function badgeHoras(box) {
+    const a = box.querySelector('a[href="/horas"]');
+    if (!a) return;
+    try {
+      const r = await fetch('/api/horas/saldo', { credentials: 'same-origin' });
+      if (!r.ok) return;
+      const h = (await r.json()).meu;
+      if (typeof h !== 'number') return;
+      const b = document.createElement('small');
+      b.className = 'hx-q-badge ' + (h > 0 ? 'pos' : h < 0 ? 'neg' : '');
+      b.textContent = (h > 0 ? '+' : '') + String(Math.round(h * 10) / 10).replace('.', ',') + 'h';
+      b.title = 'Seu saldo no banco de horas';
+      a.appendChild(b);
+    } catch {}
   }
 
   async function initPersonas() {
