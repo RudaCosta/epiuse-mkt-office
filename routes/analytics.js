@@ -48,7 +48,7 @@ const _insOnb = db.prepare(
 );
 const ONB_STEP = /^[a-z0-9]+(?:\.[a-z0-9\/_-]+){0,5}$/;
 
-// ── Áreas com "quem viu o quê" (Módulos 27 Intelligence · 28 Eventos · 29 Pipeline · 30 Brand · 31 Relatório · 33 Metas FY27) ──
+// ── Áreas com "quem viu o quê" (Módulos 27 Intelligence · 28 Eventos · 29 Pipeline · 30 Brand · 31 Relatório · 33 Metas FY27 · 35 Hub) ──
 // Mesmo beacon: kind=<chave da área>, path=<página> e o passo em `meta`.
 // Passos: 'sec.<id>' (seção apareceu na tela) · 'tempo.<id>.<seg>' (tempo na
 // seção, também em dur_ms) · 'scroll.<25|50|75|100>' · 'tool.<slug>' (abriu
@@ -62,6 +62,7 @@ const AREA_TRACK = {
   brand:   { path: '/area/brand',        painel: '/admin/brand' },
   relatorio:{ path: '/relatorio',        painel: '/admin/relatorio' },   // Módulo 31 (export PPT/PDF gravado pelo servidor)
   metas:   { path: '/metas-fy27',         painel: '/admin/metas' },   // Módulo 33 — placar FY27
+  hub:     { path: '/hub',                painel: '/admin/hub' },     // Módulo 35 — Marketing Hub (empresa toda)
 };
 const AREA_KINDS = Object.keys(AREA_TRACK);
 const AREA_RE = AREA_KINDS.join('|');

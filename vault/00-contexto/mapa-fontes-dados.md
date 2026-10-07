@@ -4,7 +4,22 @@
 > Este documento é a **fonte da verdade** do que tá real e o que falta integrar.
 > Atualizar TODA vez que rolar nova integração ou novo dado entrar no Office.
 
-**Última atualização:** 06/out/2026
+**Última atualização:** 07/out/2026
+
+---
+
+## 🆕 `/hub` — Marketing Hub pra empresa toda (07/out/2026 · Módulo 35)
+
+| Dado no `/hub` | Fonte | Estado | Mecanismo |
+|---|---|---|---|
+| Eventos no calendário (BR + LATAM) · eventos por vir · próximo evento | `events.json` (calendário oficial LATAM, SharePoint) | 🟡 SEMI-MANUAL | sync do calendário; data da fonte aparece na tela |
+| Artigos na base de conteúdo | `artigos.json` (`agregados.total_artigos`) | 🟡 SEMI-MANUAL | gerado pelo build de artigos; data na tela |
+| EPI-USE Voices no programa (X de Y vagas) | `voices.json` | 🟡 SEMI-MANUAL | cadastro do programa; data na tela |
+| Campanhas ativas | `campanhas-ativas.json` | 🟡 CURADO | edição manual |
+| Textos "Fale com X sobre" | `routes/hub.js` | 🤖 IA — revisar | escritos em 07/out no lugar do `foco` interno (Duda revisar) |
+| "30+ eventos/ano", "48h SLA", "20 conteúdos/mês" do Hub antigo | — | ✂️ CORTADO | número chumbado, sem fonte |
+
+Tudo passa por `/api/hub/resumo` (lista branca): nada de vendas/CRM chega na página.
 
 ---
 

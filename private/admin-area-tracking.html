@@ -249,16 +249,49 @@ const AREAS = {
     fora: { apollo: 'Apollo (app)', zoho: 'Zoho CRM', linkedin: 'LinkedIn da empresa', rd: 'RD Station', hubspot: 'HubSpot',
       site: 'Blog / Artigos', eventos: 'Área Field Marketing', df: 'SAP Development Funds', canva: 'Canva' },
   },
+  // Módulo 35 — Marketing Hub (/hub), portal da empresa toda. tool.<id> = mesmos ids dos cards da página.
+  hub: {
+    kind: 'hub', area: 'hub', nome: 'Marketing Hub', page: '/hub', eyebrow: 'Tracking · Marketing Hub',
+    acoesSub: 'Busca, filtros, agenda, campanhas, cards do time e logos baixados',
+    secs: [
+      ['hero', '🚀 Topo · busca e números'], ['ferramentas', '🧰 Ferramentas do Office'], ['agenda', '🗓️ Agenda de eventos'],
+      ['campanhas', '📣 Campanhas em jogo'], ['institucional', '📊 Institucional & materiais'], ['time', '🤝 Pra quem eu peço'],
+      ['servicos', '🎯 O que o Marketing faz'], ['canais', '📡 Amplifique']
+    ],
+    nodes: {},
+    tools: {
+      'seja-voice': '🎙️ Seja um Voice', optimizer: '🪪 LinkedIn Optimizer', brindes: '🎁 Brindes', design: '🎨 Design System',
+      brand: '🖼️ Brand Assets', 'meus-links': '🔗 Meus Links & QR', campanhas: '⚽ Campanhas em jogo', loja: '🪙 Loja de Coins',
+      ranking: '🏆 Ranking do Time', artigos: '📚 Artigos do Blog', onboarding: '🎒 Onboarding', game: '🎮 Game do Office',
+      'erp-impacto': '🐘 ERP.ngo · Impacto', 'apresentacao-2026': '📊 Apresentação 2026', 'template-ppt': '📐 Template PPT Geral',
+      logos: '📦 Logos & Assets (abriu)', 'bg-teams': '🖥️ Backgrounds Teams', 'bg-linkedin': '🔵 Background LinkedIn',
+      assinatura: '✉️ Assinatura de E-mail', icones: '🎯 Ícones', canva: '🖌️ Canva Kit', cases: '🤝 Cases de Sucesso',
+      'calendario-2026': '📅 Calendário 2026', 'agenda-completa': '🗓️ Agenda completa (SharePoint)',
+      'linkedin-epiuse': '🔵 LinkedIn EPI-USE Brasil', 'stratview-blog': '📖 Stratview Blog', 'site-epiuse': '🌐 Site EPI-USE',
+    },
+    labels: {
+      cta: v => ({ explorar: '👆 Clicou em “Explorar o Hub”', institucional: '👆 Clicou em “Apresentação institucional”',
+        orbita: '🪐 Abriu um atalho da órbita', voice: '🎙️ “Seja um Voice” no Amplifique' }[v]),
+      cat: v => '🏷️ Filtro de ferramentas · ' + ({ todas: 'todas', marca: 'Marca', linkedin: 'LinkedIn', engajamento: 'Engajamento', conteudo: 'Conteúdo', impacto: 'Impacto' }[v] || v),
+      agenda: v => ({ brasil: '🇧🇷 Agenda · Brasil', latam: '🌎 Agenda · LATAM', rolou: '↔️ Rolou a linha do tempo',
+        arrastou: '✋ Arrastou a linha do tempo', busca: '🔎 Achou um evento na busca' }[v]),
+      busca: v => ({ usou: '🔎 Usou a busca', 'sem-resultado': '🔎 Buscou e não achou nada', clique: '🔎 Abriu um resultado da busca' }[v]),
+      campanha: v => '📣 Entrou na campanha · ' + (CAMP[v] || v),
+      time: v => '🤝 Virou o card · ' + (TIME[v] || v),
+      logo: v => '⬇️ Baixou logo · ' + v.replace(/-/g, ' '),
+    },
+  },
 };
 const A = AREAS[location.pathname.replace(/\/+$/, '').split('/').pop()] || AREAS.intelligence;
 const SECS = A.secs;
 const SECL = Object.fromEntries(SECS);
 const NODE = A.nodes;
-let TOOLS = {}, EVT = {}, SEQ = {}, CALL = {}, VOI = {}, PAU = {}, MET = {}, ARN = {};
+let TOOLS = Object.assign({}, A.tools || {}), EVT = {}, SEQ = {}, CALL = {}, VOI = {}, PAU = {}, MET = {}, ARN = {}, CAMP = {}, TIME = {};
 const ETAPA = { enviada: 'Enviada', em_revisao: 'Em revisão', ajustes_pedidos: 'Ajustes pedidos', aprovada_voice: 'Aguardando OK da Duda', liberada: 'Liberada', publicada: 'Publicada' };
 const DORT = { dor: 'dores', objecao: 'objeções', gatilho: 'gatilhos', sinal: 'sinais', pergunta_vencedora: 'perguntas que abriram' };
 function acaoLabel(id) {
   const [k, ...r] = String(id).split('.'), v = r.join('.');
+  if (A.labels && A.labels[k]) { const t = A.labels[k](v); if (t) return t; }   // rótulos próprios da página (ex.: Hub)
   if (k === 'node') return '🔎 Detalhes da fonte · ' + (NODE[v] || v);
   if (k === 'export') { const [f, m] = v.split('.'); return `⬇️ Baixou ${f === 'pdf' ? 'PDF' : 'PowerPoint'}` + (m ? ' · ' + m : ''); }
   if (k === 'kpi') return '🔢 Clicou no número · ' + v.replace(/-/g, ' ');
@@ -324,7 +357,7 @@ function acaoLabel(id) {
   return id;
 }
 document.title = `Tracking · ${A.nome} · EPI-USE Office`;
-$('#eyebrow').textContent = A.area === 'relatorio' ? 'Tracking · Relatório' : A.kind === 'metas' ? 'Tracking · Metas FY27' : `Tracking · Área ${A.nome}`;
+$('#eyebrow').textContent = A.eyebrow || (A.area === 'relatorio' ? 'Tracking · Relatório' : A.kind === 'metas' ? 'Tracking · Metas FY27' : `Tracking · Área ${A.nome}`);
 $('#pgLink').href = A.page; $('#pgLink').textContent = A.page;
 $('#acoesSub').textContent = A.acoesSub;
 
@@ -434,7 +467,11 @@ const getJ = u => fetch(u, { cache: 'no-store' }).then(r => r.json()).catch(() =
 // Metas: título de cada meta (id) e nome das áreas
 Promise.all([getJ('/api/areas.json'), getJ('/api/personas.json'), A.kind === 'eventos' ? getJ('/api/events.json') : {},
   A.kind === 'pipeline' ? getJ('/api/area/pipeline') : {}, A.kind === 'brand' ? getJ('/api/area/brand') : {},
-  A.kind === 'metas' ? getJ('/api/metas/fy27/placar') : {}]).then(([a, pe, ev, pl, br, mt]) => {
+  A.kind === 'metas' ? getJ('/api/metas/fy27/placar') : {},
+  A.kind === 'hub' ? getJ('/api/campanhas-ativas.json') : {}, A.kind === 'hub' ? getJ('/api/team.json') : {}]).then(([a, pe, ev, pl, br, mt, cp, tm]) => {
+  ((cp && cp.campanhas) || []).forEach(c => { CAMP[slug(c.id)] = c.nome; });
+  (((tm && tm.areas) || [])).forEach(x => { TIME[slug(x.id)] = `${x.nome}${x.responsavel && x.responsavel.nome ? ' (' + x.responsavel.nome + ')' : ''}`; });
+  if (tm && tm.lideranca && tm.lideranca[0]) TIME.head = `Liderança (${tm.lideranca[0].nome})`;
   ((mt && mt.metas) || []).forEach(m => { MET[m.id] = m.titulo; });
   (((mt && mt.fora) || {}).grupos || []).concat((mt && mt.areas) || []).forEach(g => { ARN[g.area || g.id] = g.nome; });
   (((br && br.voices) || {}).voices || []).forEach(v => { VOI[String(v.id).slice(0, 40)] = v.nome; });
