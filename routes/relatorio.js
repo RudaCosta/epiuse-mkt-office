@@ -275,14 +275,10 @@ function outboundDoMes(mes) {
 const BOT0 = (() => { try { return db.prepare('PRAGMA table_info(utm_clicks)').all().some(c => c.name === 'bot') ? 'COALESCE(bot,0)=0' : '1=1'; } catch (_) { return '1=1'; } })();
 const dentro = (t, j) => t != null && t >= j.ini && t < j.fim;
 
-function voicesDoMes(mes) {
-  const J = janelas(mes);
-  const f = readJSON(path.join(ROOT, 'public/api/voices.json'), { voices: [] });
-  const roster = (f.voices || []).map(v => ({ id: v.id, nome: v.nome }));
-  all('SELECT data FROM voices_publicados').forEach(r => { try { const v = JSON.parse(r.data); if (v && v.id && !roster.some(x => x.id === v.id)) roster.push({ id: v.id, nome: v.nome }); } catch (_) {} });
-  const nome = (id, fb) => (roster.find(v => v.id === id) || {}).nome || fb || id;
-
-  // Um post = uma URL (pauta publicada + post registrado no tracker, sem duplicar)
+// Um post = uma URL (pauta publicada + post registrado no tracker, sem duplicar),
+// datado pela primeira vez que apareceu. Exportada: o relatório semanal por
+// e-mail (Módulo 34) conta com a mesma lista, pra os dois números baterem.
+function postsVoices() {
   const posts = new Map();
   const add = (vid, vnome, url, quando) => {
     const t = ms(quando); if (!vid || !url) return;
@@ -292,7 +288,17 @@ function voicesDoMes(mes) {
   };
   all(`SELECT voice_id, voice_nome, post_url, publicado_em, updated_at FROM voice_pautas WHERE estado='publicada' AND post_url <> ''`).forEach(r => add(r.voice_id, r.voice_nome, r.post_url, r.publicado_em || r.updated_at));
   all(`SELECT voice_id, post_url, MIN(CASE WHEN published_at <> '' THEN published_at ELSE captured_at END) q FROM posts GROUP BY voice_id, post_url`).forEach(r => add(r.voice_id, null, r.post_url, r.q));
-  const lista = [...posts.values()];
+  return [...posts.values()];
+}
+
+function voicesDoMes(mes) {
+  const J = janelas(mes);
+  const f = readJSON(path.join(ROOT, 'public/api/voices.json'), { voices: [] });
+  const roster = (f.voices || []).map(v => ({ id: v.id, nome: v.nome }));
+  all('SELECT data FROM voices_publicados').forEach(r => { try { const v = JSON.parse(r.data); if (v && v.id && !roster.some(x => x.id === v.id)) roster.push({ id: v.id, nome: v.nome }); } catch (_) {} });
+  const nome = (id, fb) => (roster.find(v => v.id === id) || {}).nome || fb || id;
+
+  const lista = postsVoices();
   const porVoice = {};
   lista.filter(p => dentro(p.t, J.cur)).forEach(p => { const k = p.vid; (porVoice[k] = porVoice[k] || { id: k, nome: nome(k, p.vnome), posts: 0 }).posts++; });
   const posts6m = ultimosMeses(6, mes).map(m => ({ mes: m, n: lista.filter(p => p.t && mesBRT(p.t) === m).length }));
@@ -568,6 +574,7 @@ if (ga4Creds()) {
 
 module.exports = router;
 module.exports.montar = montar;
+module.exports.postsVoices = postsVoices;
 // Módulo 33 (Metas FY27): o placar lê este mesmo cache do GA4 — uma busca só no servidor.
 module.exports.ga4Resumo = () => {
   const { meses, estado } = ga4Meses();

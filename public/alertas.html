@@ -97,6 +97,7 @@ h1{font-family:var(--p-head);font-size:26px;font-weight:900;letter-spacing:-.01e
   var NIV = { critico: '🔴 Crítico', importante: '🟡 Importante', info: '🔵 Para saber' };
   var estado = { dados: [], nivel: '', area: '' };
 
+  function chaveArea(a) { return (a.areas && a.areas[0]) || (a.pessoal ? 'pessoal' : ''); }
   function idade(iso) {
     if (!iso) return '';
     var t = Date.parse(String(iso).indexOf('T') > 0 ? iso : String(iso).replace(' ', 'T') + 'Z');
@@ -121,14 +122,18 @@ h1{font-family:var(--p-head);font-size:26px;font-weight:900;letter-spacing:-.01e
       el.addEventListener('click', function () { estado.nivel = estado.nivel === el.dataset.n ? '' : el.dataset.n; render(); });
     });
 
+    // Filtro pela chave da área, não pelo rótulo: o i18n traduz o texto das
+    // <option> (EN/ES) mas não o atributo value, então a seleção continua valendo.
     var areas = {};
-    d.forEach(function (a) { if (a.area_label) areas[a.area_label] = 1; });
+    d.forEach(function (a) { var k = chaveArea(a); if (k && !areas[k]) areas[k] = a.area_label || k; });
     var sel = document.getElementById('f-area'), atual = sel.value;
-    sel.innerHTML = '<option value="">Todas as áreas</option>' + Object.keys(areas).sort().map(function (x) { return '<option' + (x === atual ? ' selected' : '') + '>' + esc(x) + '</option>'; }).join('');
+    sel.innerHTML = '<option value="">Todas as áreas</option>' + Object.keys(areas)
+      .sort(function (x, y) { return areas[x].localeCompare(areas[y], 'pt-BR'); })
+      .map(function (k) { return '<option value="' + esc(k) + '"' + (k === atual ? ' selected' : '') + '>' + esc(areas[k]) + '</option>'; }).join('');
 
     var mostrarSil = document.getElementById('f-sil').checked;
     var lista = d.filter(function (a) {
-      return (mostrarSil || !a.silenciado) && (!estado.nivel || a.nivel === estado.nivel) && (!sel.value || a.area_label === sel.value);
+      return (mostrarSil || !a.silenciado) && (!estado.nivel || a.nivel === estado.nivel) && (!sel.value || chaveArea(a) === sel.value);
     });
     var el = document.getElementById('lista');
     if (!lista.length) {

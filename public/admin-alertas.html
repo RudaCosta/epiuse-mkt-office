@@ -139,6 +139,9 @@ td{padding:7px 8px;border-bottom:1px solid var(--p-line);vertical-align:top}
   var NIV = { critico: '🔴 Crítico', importante: '🟡 Importante', info: '🔵 Para saber' };
   var ST = { ok: '🟢 ok', atencao: '🟡 atenção', parado: '🔴 parado', desligado: '⚪ desligado' };
   var form = document.getElementById('form');
+  var formSujo = false;
+  form.addEventListener('input', function () { formSujo = true; });
+  form.addEventListener('change', function () { formSujo = true; });
   function fmt(s) {
     if (!s) return '—';
     var d = new Date(String(s).indexOf('T') > 0 ? s : String(s).replace(' ', 'T') + 'Z');
@@ -162,13 +165,17 @@ td{padding:7px 8px;border-bottom:1px solid var(--p-line);vertical-align:top}
       e('', 'Próximo mensal', esc(ag.mensal) + (ag.ultimo_mensal ? '<div class="hint">último: ' + esc(ag.ultimo_mensal) + '</div>' : '')) +
       e('', 'Última varredura', fmt(d.varredura && d.varredura.ultima));
 
+    // Recarregar (após varredura ou envio de teste) não apaga o que está sendo
+    // editado: o formulário só volta pro salvo quando não há edição pendente.
     var c = d.config;
-    ['critico', 'semanal', 'mensal'].forEach(function (k) {
-      form.elements[k + '.ativo'].checked = !!c[k].ativo;
-      form.elements[k + '.para'].value = (c[k].para || []).join(', ');
-    });
-    form.elements['donas.criticos'].checked = !!c.donas.criticos;
-    form.elements['donas.semanal'].checked = !!c.donas.semanal;
+    if (!formSujo) {
+      ['critico', 'semanal', 'mensal'].forEach(function (k) {
+        form.elements[k + '.ativo'].checked = !!c[k].ativo;
+        form.elements[k + '.para'].value = (c[k].para || []).join(', ');
+      });
+      form.elements['donas.criticos'].checked = !!c.donas.criticos;
+      form.elements['donas.semanal'].checked = !!c.donas.semanal;
+    }
     document.getElementById('donas').innerHTML = (d.donas || []).length
       ? 'Encontradas pelo papel em Permissões: ' + d.donas.map(function (x) { return esc(x.nome || x.email) + ' (' + esc(x.area_label) + ')'; }).join(' · ')
       : 'Nenhuma dona com e-mail liberado encontrada em Permissões.';
@@ -210,7 +217,7 @@ td{padding:7px 8px;border-bottom:1px solid var(--p-line);vertical-align:top}
     ['critico', 'semanal', 'mensal'].forEach(function (k) { body[k] = { ativo: form.elements[k + '.ativo'].checked, para: lista(form.elements[k + '.para'].value) }; });
     fetch('/api/admin/alertas/config', { method: 'PUT', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
       .then(function (r) { return r.json(); }).then(function (j) {
-        if (j.success) { msg('f-msg', true, 'Salvo.'); carregar(); } else msg('f-msg', false, (j.erros || [j.error || 'erro']).join(' · '));
+        if (j.success) { formSujo = false; msg('f-msg', true, 'Salvo.'); carregar(); } else msg('f-msg', false, (j.erros || [j.error || 'erro']).join(' · '));
       }).catch(function () { msg('f-msg', false, 'Falha de rede.'); });
   });
 
@@ -227,7 +234,8 @@ td{padding:7px 8px;border-bottom:1px solid var(--p-line);vertical-align:top}
       var t = b.dataset.env, para = document.getElementById('p-para').value.trim() || 'eu';
       b.disabled = true; msg('p-msg', true, 'Enviando…');
       fetch('/api/admin/alertas/enviar/' + t, { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ para: para, mes: document.getElementById('p-mes').value || mesPadrao }) })
+        body: JSON.stringify({ para: para, mes: document.getElementById('p-mes').value || mesPadrao,
+          area: t === 'semanal' ? document.getElementById('p-area').value : '' }) })
         .then(function (r) { return r.json(); }).then(function (j) {
           var rs = j.resultados || [];
           if (j.success) msg('p-msg', true, '✅ Enviado pra ' + rs.filter(function (x) { return x.ok; }).map(function (x) { return x.para; }).join(', ') + '.');
