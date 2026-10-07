@@ -249,6 +249,41 @@ const estado = (id) => db.prepare('SELECT * FROM alertas_estado WHERE id=?').get
   alertas._interno.salvarConfig({ semanal: { ativo: true, para: ['ruda.costa@epiuse.com.br'] } });
   ok(!/próxima varredura|hoje/.test(alertas._interno.proximos().semanal), 'semana já marcada pelo digest antigo → painel aponta a semana seguinte');
 
+  console.log('\n9) links e envio por área');
+  // FE-3: todo papel que enxerga um alerta consegue abrir o link "Resolver"
+  const acesso = require(path.join(ROOT, 'routes/acesso'));
+  const PAPEIS = ['intelligence', 'growth', 'field', 'pipeline', 'brand', 'conteudo', 'country-manager', 'voice', 'hub'];
+  const semAcesso = [];
+  db.prepare(`SELECT id, areas, href FROM alertas_estado WHERE href <> ''`).all().forEach(r => {
+    const areas = JSON.parse(r.areas || '[]');
+    PAPEIS.forEach(role => {
+      const u = { email: `t.${role}@epiuse.com.br`, role, areasExtra: [] };
+      const minhas = acesso.areasDoUsuario(u);
+      if (!areas.some(a => a !== 'admin' && minhas.includes(a))) return;   // não vê o alerta
+      if (!acesso.pode(u, 'GET', r.href.split('?')[0])) semAcesso.push(`${r.id} → ${r.href} (${role})`);
+    });
+  });
+  ok(semAcesso.length === 0, 'quem vê o alerta abre o link dele' + (semAcesso.length ? ': ' + semAcesso.join(', ') : ''));
+
+  // FE-6: "Enviar pra mim" do semanal com área manda a versão daquela área
+  const enviados = [];
+  const enviarOrig = mailer.enviar;
+  mailer.enviar = async (o) => { enviados.push(o); return { ok: true, para: [].concat(o.para) }; };
+  const app4 = express();
+  app4.use((req, res, next) => { req.session = { user: { email: 'ruda.costa@epiuse.com.br', role: 'head', areasExtra: [] } }; next(); });
+  app4.use(alertas);
+  const srv4 = app4.listen(0);
+  const b4 = `http://127.0.0.1:${srv4.address().port}`;
+  db.prepare(`UPDATE cs_clientes SET synced_at=?`).run(isoDiasAtras(3));
+  db.prepare(`INSERT OR REPLACE INTO app_blobs (key, value) VALUES ('apollo.pipeline', ?)`).run(JSON.stringify({ ultima_sync_ts: new Date(Date.now() - 30 * 36e5).toISOString(), sequencias: [] }));
+  alertas.varrer();
+  const rArea = await (await fetch(b4 + '/api/admin/alertas/enviar/semanal', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ para: 'eu', area: 'brand' }) })).json();
+  const rTudo = await (await fetch(b4 + '/api/admin/alertas/enviar/semanal', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ para: 'eu' }) })).json();
+  srv4.close();
+  mailer.enviar = enviarOrig;
+  ok(rArea.success && enviados[0] && /Brand Experience/.test(enviados[0].html) && !/Apollo sem atualizar/.test(enviados[0].html), 'semanal com área = versão da Brand (sem alertas de outras áreas)');
+  ok(rTudo.success && enviados[1] && /Apollo sem atualizar/.test(enviados[1].html), 'semanal sem área = versão completa');
+
   console.log(falhas ? `\n✗ ${falhas} falha(s)` : '\n✓ tudo certo');
   try { fs.rmSync(DATA, { recursive: true, force: true }); } catch (_) {}
   process.exit(falhas ? 1 : 0);

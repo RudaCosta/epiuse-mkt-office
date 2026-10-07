@@ -195,7 +195,8 @@ const REGRAS = [
       return [{
         nivel: recente ? 'importante' : 'critico', chave: st.status,
         titulo: st.status === 'erro' ? 'Calendário editorial não sincroniza' : `Calendário editorial sem sincronizar há ${fmtIdade(Date.now() - ms(st.ultima_ok_ts))}`,
-        detalhe: (e ? `Erro: ${e}.` : '') + dica + ' Enquanto isso, a área Brand mostra só o link da planilha.', href: '/area/brand',
+        // /editorial abre pras 3 áreas que veem o alerta (/area/brand é só Brand e Conteúdo)
+        detalhe: (e ? `Erro: ${e}.` : '') + dica + ' Enquanto isso, a área Brand mostra só o link da planilha.', href: '/editorial',
       }];
     },
   },
@@ -694,12 +695,13 @@ function montarMensal(mes) {
   });
 }
 
-async function enviarSemanal({ para } = {}) {
+async function enviarSemanal({ para, area } = {}) {
   const cfg = config();
   const res = [];
   const destinos = para ? [].concat(para) : cfg.semanal.para;
   if (destinos.length) {
-    const { assunto, html } = montarSemanal(null);
+    // area = prévia de como a dona daquela área recebe (só no envio manual)
+    const { assunto, html } = area ? montarSemanal([area], AREA_LABEL[area]) : montarSemanal(null);
     for (const em of destinos) res.push({ para: em, ...(await mailer.enviar({ tipo: 'relatorio-semanal', para: em, assunto, html })) });
   }
   // Donas: versão só da área delas (quem já recebe a completa não recebe de novo).
@@ -908,7 +910,7 @@ router.post('/api/admin/alertas/enviar/:tipo', requireAdmin, express.json({ limi
     else if (b.para !== 'configurados') para = String(b.para).toLowerCase().trim();
     if (para && !mailer.enderecoPermitido(para)) return res.status(400).json({ success: false, error: `endereço não permitido: ${para}` });
     let r;
-    if (req.params.tipo === 'semanal') r = await enviarSemanal({ para });
+    if (req.params.tipo === 'semanal') r = await enviarSemanal({ para, area: AREAS_OK.includes(b.area) ? b.area : null });
     else if (req.params.tipo === 'mensal') {
       const mes = /^\d{4}-(0[1-9]|1[0-2])$/.test(String(b.mes || '')) ? b.mes : mesFechado();
       r = await enviarMensal(mes, { para });
