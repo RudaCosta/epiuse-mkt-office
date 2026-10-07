@@ -52,7 +52,7 @@ Configurado em `/admin/alertas` (guardado em `app_blobs['alertas.config']`):
 |---|---|---|
 | `RESEND_API_KEY` | — | sem ela nada sai (vira alerta pro admin) |
 | `FROM_EMAIL` | `onboarding@resend.dev` | remetente; com fallback automático pro de teste |
-| `ALERTAS_EMAILS` | `NOTIFY_EMAIL` | destinatários padrão dos 3 canais |
+| `ALERTAS_EMAILS` | `NOTIFY_EMAIL` | destinatários padrão dos 3 canais (endereços de env passam na allowlist mesmo fora do domínio, ver D12) |
 | `ALERTAS_EMAIL_ENABLED` | `true` | `false` desliga todo envio automático |
 | `ALERTAS_EMAIL_LOCAL` | `false` | no Office local (Windows) o envio automático fica desligado, pra não duplicar com o Railway |
 | `ALERTAS_AGENDADOR` | `true` | `false` não roda varredura nem agendador (testes) |
@@ -61,6 +61,7 @@ Configurado em `/admin/alertas` (guardado em `app_blobs['alertas.config']`):
 ## Tabelas
 - `alertas_estado`: um registro por alerta (id estável `regra[:sub]`): aberto/mudou/visto/resolvido/e-mail.
 - `alertas_leitura`: lido e silenciado por pessoa.
+- `alertas_ocorrencias`: uma linha por abertura → resolução (base das contagens dos relatórios).
 - `email_log`: toda tentativa de e-mail do Office (enviado · falhou · pulado).
 
 ## Como adicionar uma regra

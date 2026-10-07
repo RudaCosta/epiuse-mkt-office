@@ -36,10 +36,16 @@ const NOTIFY_EMAIL = (process.env.NOTIFY_EMAIL || 'ruda.costa@epiuse.com.br').to
 const OFFICE_URL = String(process.env.OFFICE_URL || process.env.BASE_URL || 'https://office.epiuse.com.br').replace(/\/+$/, '');
 
 const EMAIL_RE = /^[^\s@<>"']+@[^\s@<>"']+\.[^\s@<>"']+$/;
+// Endereços que o próprio operador configurou em variável de ambiente (avisos de
+// inscrição, brindes, easter egg, alertas) valem como liberados: antes do
+// Módulo 31 eles saíam sem filtro, e barrá-los agora seria regressão.
+const ENV_CONFIAVEIS = new Set(['NOTIFY_EMAIL', 'EGG_NOTIFY_EMAIL', 'BRINDES_NOTIFY_EMAIL', 'ALERTAS_EMAILS']
+  .flatMap(k => String(process.env[k] || '').split(','))
+  .map(s => s.trim().toLowerCase()).filter(Boolean));
 function enderecoPermitido(e) {
   const em = String(e || '').toLowerCase().trim();
   if (!EMAIL_RE.test(em)) return false;
-  return DOMINIOS_OK.some(d => em.endsWith('@' + d)) || EMAILS_EXTRA.includes(em);
+  return DOMINIOS_OK.some(d => em.endsWith('@' + d)) || EMAILS_EXTRA.includes(em) || ENV_CONFIAVEIS.has(em);
 }
 function destinatariosOk(lista) {
   const arr = [...new Set((Array.isArray(lista) ? lista : [lista]).filter(Boolean).map(s => String(s).toLowerCase().trim()))];
@@ -61,12 +67,35 @@ function ehErroDeRemetente(err) {
   return /domain|from|sender|verif|not allowed|403/.test((erroLegivel(err) || '').toLowerCase());
 }
 
+// A Resend aceita ~2 requisições/s por conta. Relatório pra vários destinatários
+// (ou fallback de remetente) estourava o limite e o 3º e-mail caía com 429. Uma
+// fila única espaça as chamadas; se mesmo assim vier 429, espera e tenta de novo.
+const INTERVALO_MS = 600;
+let filaResend = Promise.resolve(), ultimaChamada = 0;
+function naFila(fn) {
+  const p = filaResend.then(async () => {
+    const espera = ultimaChamada + INTERVALO_MS - Date.now();
+    if (espera > 0) await new Promise(r => setTimeout(r, espera));
+    try { return await fn(); } finally { ultimaChamada = Date.now(); }
+  });
+  filaResend = p.catch(() => {});
+  return p;
+}
+const ehRateLimit = (err) => !!err && (err.statusCode === 429 || /rate.?limit|too many/i.test(erroLegivel(err)));
+async function chamarResend(payload) {
+  for (let t = 0; ; t++) {
+    const r = await naFila(() => resend.emails.send(payload));
+    if (!(r && r.error && ehRateLimit(r.error)) || t >= 2) return r;
+    await new Promise(ok => setTimeout(ok, 1200 * (t + 1)));
+  }
+}
+
 // Tenta cada remetente; só troca quando a recusa é de remetente/domínio.
 // Devolve { data, error, remetente }. Exige `resend` configurado.
 async function enviarComFallback(payload, prefixo = '[email]') {
   let ultimo = null;
   for (const from of REMETENTES) {
-    const r = await resend.emails.send({ from, ...payload });
+    const r = await chamarResend({ from, ...payload });
     if (!r || !r.error) return { ...r, remetente: from };
     ultimo = { ...r, remetente: from };
     if (!ehErroDeRemetente(r.error)) break;
@@ -118,7 +147,8 @@ async function enviar({ tipo = 'geral', para, cc, assunto, html, reply_to } = {}
   try {
     const payload = { to: d.lista, subject: assunto, html };
     if (ccOk.length) payload.cc = ccOk;
-    if (reply_to && EMAIL_RE.test(String(reply_to))) payload.reply_to = String(reply_to);
+    // O SDK v4 só lê `replyTo` (camelCase); `reply_to` era descartado em silêncio.
+    if (reply_to && EMAIL_RE.test(String(reply_to))) payload.replyTo = String(reply_to);
     const r = await enviarComFallback(payload, `[email:${tipo}]`);
     if (r && r.error) {
       const msg = erroLegivel(r.error);

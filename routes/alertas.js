@@ -57,6 +57,7 @@ db.exec(`
     nivel        TEXT,                 -- critico | importante | info
     areas        TEXT,                 -- JSON: áreas de acesso que enxergam
     titulo       TEXT,
+    chave        TEXT DEFAULT '',      -- assinatura estável (sem idade): muda → volta a "não lido"
     detalhe      TEXT DEFAULT '',
     href         TEXT DEFAULT '',
     aberto_em    TEXT,                 -- início da ocorrência atual
@@ -73,7 +74,19 @@ db.exec(`
     silenciado_ate TEXT,
     PRIMARY KEY (email, alerta_id)
   );
+  -- Uma linha por ocorrência (abre → resolve). alertas_estado guarda só a atual;
+  -- os relatórios contam aberturas/resoluções do período por aqui.
+  CREATE TABLE IF NOT EXISTS alertas_ocorrencias (
+    seq          INTEGER PRIMARY KEY AUTOINCREMENT,
+    alerta_id    TEXT,
+    nivel        TEXT,
+    areas        TEXT,
+    aberto_em    TEXT,
+    resolvido_em TEXT
+  );
+  CREATE INDEX IF NOT EXISTS idx_alertas_oc_id ON alertas_ocorrencias(alerta_id, resolvido_em);
 `);
+try { db.exec(`ALTER TABLE alertas_estado ADD COLUMN chave TEXT DEFAULT ''`); } catch (_e) { /* já existe */ }
 
 function lerBlob(k) { try { const r = db.prepare('SELECT value FROM app_blobs WHERE key=?').get(k); return r && r.value ? JSON.parse(r.value) : null; } catch (_) { return null; } }
 function gravarBlob(k, v) {
@@ -106,11 +119,54 @@ function saudeDiaria(fonte) {
 }
 
 function hojeBRT() { return dataBRT(Date.now()); }
+
+// Dia útil no Brasil: seg–sex e fora dos feriados nacionais (fixos + móveis
+// ligados à Páscoa). Recebe um Date já deslocado pro fuso BRT (ler com getUTC*).
+function pascoa(y) {                    // algoritmo de Meeus/Jones/Butcher
+  const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4;
+  const f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30;
+  const i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
+  const mes = Math.floor((h + l - 7 * m + 114) / 31), dia = ((h + l - 7 * m + 114) % 31) + 1;
+  return Date.UTC(y, mes - 1, dia);
+}
+const FERIADOS_FIXOS = new Set(['01-01', '04-21', '05-01', '09-07', '10-12', '11-02', '11-15', '11-20', '12-25']);
+function ehFeriado(d) {
+  const y = d.getUTCFullYear();
+  if (FERIADOS_FIXOS.has(d.toISOString().slice(5, 10))) return true;
+  const hoje = Date.UTC(y, d.getUTCMonth(), d.getUTCDate()), p = pascoa(y);
+  return [-48, -47, -2, 60].some(off => hoje === p + off * DAY);   // Carnaval (seg/ter), Sexta Santa, Corpus Christi
+}
+function ehDiaUtil(d) { const w = d.getUTCDay(); return w >= 1 && w <= 5 && !ehFeriado(d); }
 function diasAte(dataStr) { return Math.round((ms(dataStr) - ms(hojeBRT())) / DAY); }
+
+// Voices do programa (voices.json) + aprovados por inscrição (voices_publicados),
+// do mesmo jeito que a Área Brand monta a lista.
+function voicesAtivos() {
+  let vs = [];
+  try { vs = (JSON.parse(fs.readFileSync(path.join(__dirname, '../public/api/voices.json'), 'utf8')).voices || []).slice(); } catch (_) {}
+  all(`SELECT data FROM voices_publicados ORDER BY created_at ASC`).forEach(r => {
+    try { const v = JSON.parse(r.data); if (v && v.id && !vs.some(x => x.id === v.id)) vs.push(v); } catch (_) {}
+  });
+  return vs.filter(v => v && v.id && v.status !== 'inativo');
+}
+// Data do post mais recente de um Voice. A tabela posts guarda um snapshot por
+// atualização de métricas: a data de cada post é a published_at informada ou,
+// sem ela, a primeira vez que a URL foi registrada.
+function ultimoPost(voiceId) {
+  let max = 0;
+  all(`SELECT MAX(published_at) pub, MIN(captured_at) prim FROM posts WHERE voice_id=? GROUP BY post_url`, voiceId).forEach(p => {
+    const pub = /^\d{4}-\d{2}-\d{2}/.test(String(p.pub || '')) ? ms(String(p.pub).slice(0, 10)) : null;
+    const t = pub || ms(p.prim);
+    if (t && t > max) max = t;
+  });
+  return max || null;
+}
 
 // ════════════════════════════════════════════════════════════════════════════
 // REGRAS — cada uma lê dado real e devolve 0..n alertas.
-// { sub?, nivel?, areas?, titulo, detalhe, href } — o que faltar vem da regra.
+// { sub?, nivel?, areas?, titulo, detalhe, href, chave? } — o que faltar vem da regra.
+// chave = o que define "mudou" (sem idade/contagem regressiva no meio); sem ela,
+// vale o título. Mudou → o alerta volta a "não lido".
 // ════════════════════════════════════════════════════════════════════════════
 const REGRAS = [
   // ── Integrações que congelam dado quando param ────────────────────────────
@@ -120,20 +176,24 @@ const REGRAS = [
     run() {
       const st = require('./area-pipeline').apolloStatusAtual();
       if (st.status === 'erro') return [{ titulo: 'Apollo não está atualizando', detalhe: `Erro: ${st.erro}. Os números de outbound da área Pipeline estão congelados.`, href: '/area/pipeline' }];
-      if (st.status === 'parado') return [{ titulo: `Apollo sem atualizar há ${fmtIdade(Date.now() - ms(st.ultima_sync_ts))}`, detalhe: (st.erro ? `Último erro: ${st.erro}. ` : '') + 'Sequências, respostas e reuniões da área Pipeline estão congeladas.', href: '/area/pipeline' }];
+      if (st.status === 'parado') return [{ chave: 'parado', titulo: `Apollo sem atualizar há ${fmtIdade(Date.now() - ms(st.ultima_sync_ts))}`, detalhe: (st.erro ? `Último erro: ${st.erro}. ` : '') + 'Sequências, respostas e reuniões da área Pipeline estão congeladas.', href: '/area/pipeline' }];
       if (st.status === 'sem-chave' && !IS_LOCAL_DEV) return [{ sub: 'chave', nivel: 'importante', areas: ['admin'], titulo: 'Apollo sem chave no servidor', detalhe: 'Falta APOLLO_API_KEY no Railway — a área Pipeline fica sem máquina de outbound.', href: '/area/pipeline' }];
       return [];
     },
   },
   {
     id: 'fonte.calendario', areas: ['brand', 'conteudo', 'intelligence'], nivel: 'critico', nome: 'Calendário editorial parou de sincronizar',
-    quando: 'Leitura automática da planilha no OneDrive (Graph, a cada 6h) com erro ou sem sucesso há mais de 26h.',
+    quando: 'Leitura automática da planilha no OneDrive (Graph, a cada 6h) sem sucesso há mais de 26h (crítico). Uma falha com o último sync bom recente é só importante.',
     run() {
       const st = require('./editorial').autoStatus();
       if (!st.ativo || (st.status !== 'erro' && st.status !== 'parado')) return [];
       const e = String(st.erro || '');
       const dica = /403/.test(e) ? ' 403 = permissão do app no Azure.' : /404/.test(e) ? ' 404 = o link EDITORIAL_SHARE_URL mudou.' : '';
+      // Falha pontual (503, resync manual que deu erro) com dado de poucas horas
+      // não congela nada: importante. Crítico é quando o dado já está velho.
+      const recente = st.status === 'erro' && st.ultima_ok_ts && Date.now() - ms(st.ultima_ok_ts) < 26 * HOUR;
       return [{
+        nivel: recente ? 'importante' : 'critico', chave: st.status,
         titulo: st.status === 'erro' ? 'Calendário editorial não sincroniza' : `Calendário editorial sem sincronizar há ${fmtIdade(Date.now() - ms(st.ultima_ok_ts))}`,
         detalhe: (e ? `Erro: ${e}.` : '') + dica + ' Enquanto isso, a área Brand mostra só o link da planilha.', href: '/area/brand',
       }];
@@ -147,7 +207,7 @@ const REGRAS = [
       const t = ms(r.s);
       if (!r.n || !t || Date.now() - t <= 36 * HOUR) return [];
       const idade = Date.now() - t;
-      return [{ nivel: idade >= 7 * DAY ? 'critico' : 'importante', titulo: `Cases sem sincronizar há ${fmtIdade(idade)}`,
+      return [{ nivel: idade >= 7 * DAY ? 'critico' : 'importante', chave: 'parado', titulo: `Cases sem sincronizar há ${fmtIdade(idade)}`,
         detalhe: 'A tarefa EPI-USE-Office-Cases-Sync (07:00) não chegou ao servidor. Causa mais comum: EDITOR_TOKEN desatualizado no .env do PC (erro 401).', href: '/area/brand' }];
     },
   },
@@ -158,7 +218,7 @@ const REGRAS = [
       if (!process.env.GA4_PROPERTY_ID) return [];
       const s = saudeDiaria('ga4');
       if (s.status === 'erro') return [{ titulo: 'GA4 não está atualizando', detalhe: `Erro: ${s.erro}. Os números de site do relatório ficam congelados.`, href: '/relatorio' }];
-      if (s.status === 'parado') return [{ titulo: `GA4 sem atualizar há ${fmtIdade(Date.now() - ms(s.ultima_ok_ts))}`, detalhe: 'Os números de site do relatório ficam congelados.', href: '/relatorio' }];
+      if (s.status === 'parado') return [{ chave: 'parado', titulo: `GA4 sem atualizar há ${fmtIdade(Date.now() - ms(s.ultima_ok_ts))}`, detalhe: 'Os números de site do relatório ficam congelados.', href: '/relatorio' }];
       return [];
     },
   },
@@ -169,7 +229,7 @@ const REGRAS = [
       if (!process.env.RD_REFRESH_TOKEN) return [];
       const s = saudeDiaria('rd');
       if (s.status === 'erro') return [{ titulo: 'RD Station não está atualizando', detalhe: `Erro: ${s.erro}. Os números de e-mail marketing do relatório ficam congelados.`, href: '/relatorio' }];
-      if (s.status === 'parado') return [{ titulo: `RD Station sem atualizar há ${fmtIdade(Date.now() - ms(s.ultima_ok_ts))}`, detalhe: 'Os números de e-mail marketing do relatório ficam congelados.', href: '/relatorio' }];
+      if (s.status === 'parado') return [{ chave: 'parado', titulo: `RD Station sem atualizar há ${fmtIdade(Date.now() - ms(s.ultima_ok_ts))}`, detalhe: 'Os números de e-mail marketing do relatório ficam congelados.', href: '/relatorio' }];
       return [];
     },
   },
@@ -245,17 +305,15 @@ const REGRAS = [
   },
   {
     id: 'voices.sem-post', areas: ['brand'], nivel: 'importante', nome: 'Voice parou de postar',
-    quando: 'Voice ativo que já postava e está há mais de 14 dias sem post registrado (post capturado ou pauta publicada).',
+    quando: 'Voice ativo (programa + aprovados por inscrição) que já postava e está há mais de 14 dias sem post novo (data do post, não da atualização de métricas) nem pauta publicada.',
     run() {
-      let vs = [];
-      try { vs = (JSON.parse(fs.readFileSync(path.join(__dirname, '../public/api/voices.json'), 'utf8')).voices || []).filter(v => v.status !== 'inativo'); } catch (_) {}
       const out = [];
-      for (const v of vs) {
-        const a = ms(one(`SELECT MAX(captured_at) t FROM posts WHERE voice_id=?`, v.id).t);
+      for (const v of voicesAtivos()) {
+        const a = ultimoPost(v.id);
         const b = ms(one(`SELECT MAX(publicado_em) t FROM voice_pautas WHERE voice_id=? AND estado='publicada'`, v.id).t);
         const ult = Math.max(a || 0, b || 0);
         if (!ult || Date.now() - ult <= 14 * DAY) continue;   // nunca registrou = não dá pra dizer que parou
-        out.push({ sub: v.id, titulo: `${v.nome}: ${fmtIdade(Date.now() - ult)} sem post`, detalhe: 'Último post registrado no Office. Vale puxar uma pauta nova ou checar se o post só não foi registrado.', href: '/area/brand' });
+        out.push({ sub: v.id, chave: 'parado', titulo: `${v.nome}: ${fmtIdade(Date.now() - ult)} sem post`, detalhe: 'Último post registrado no Office. Vale puxar uma pauta nova ou checar se o post só não foi registrado.', href: '/area/brand' });
       }
       return out;
     },
@@ -282,7 +340,7 @@ const REGRAS = [
         .filter(e => e.regiao === 'brasil' && e.data_evento && e.data_evento >= hoje && diasAte(e.data_evento) <= 14 && !e.tem_briefing && e.status !== 'concluido')
         .map(e => {
           const n = diasAte(e.data_evento);
-          return { sub: e.event_id, titulo: `${e.nome} ${n === 0 ? 'é hoje' : `em ${plural(n, 'dia')}`} — sem briefing`,
+          return { sub: e.event_id, chave: 'sem-briefing', titulo: `${e.nome} ${n === 0 ? 'é hoje' : `em ${plural(n, 'dia')}`} — sem briefing`,
             detalhe: [e.data_evento.split('-').reverse().join('/'), e.local, e.responsavel].filter(Boolean).join(' · ') + '. Briefing, checklist e brindes ficam na área Eventos.', href: '/area/eventos' };
         });
     },
@@ -356,6 +414,7 @@ function coletar() {
           id: a.sub ? `${r.id}:${a.sub}` : r.id, regra: r.id,
           nivel: NIVEIS.includes(a.nivel) ? a.nivel : r.nivel,
           areas: a.areas || r.areas, titulo: String(a.titulo).slice(0, 200),
+          chave: String(a.chave != null ? a.chave : a.titulo).slice(0, 200),
           detalhe: String(a.detalhe || '').slice(0, 600), href: a.href || '',
         });
       }
@@ -373,27 +432,37 @@ function varrer() {
   const agora = agoraISO();
   const ids = new Set(out.map(a => a.id));
   const sel = db.prepare('SELECT * FROM alertas_estado WHERE id=?');
-  const ins = db.prepare(`INSERT INTO alertas_estado (id, regra, nivel, areas, titulo, detalhe, href, aberto_em, mudou_em, visto_em, resolvido_em)
-    VALUES (@id,@regra,@nivel,@areas,@titulo,@detalhe,@href,@agora,@agora,@agora,NULL)
+  const ins = db.prepare(`INSERT INTO alertas_estado (id, regra, nivel, areas, titulo, chave, detalhe, href, aberto_em, mudou_em, visto_em, resolvido_em)
+    VALUES (@id,@regra,@nivel,@areas,@titulo,@chave,@detalhe,@href,@agora,@agora,@agora,NULL)
     ON CONFLICT(id) DO UPDATE SET regra=excluded.regra, nivel=excluded.nivel, areas=excluded.areas, titulo=excluded.titulo,
-      detalhe=excluded.detalhe, href=excluded.href, aberto_em=excluded.aberto_em, mudou_em=excluded.mudou_em,
+      chave=excluded.chave, detalhe=excluded.detalhe, href=excluded.href, aberto_em=excluded.aberto_em, mudou_em=excluded.mudou_em,
       visto_em=excluded.visto_em, resolvido_em=NULL`);
-  const upd = db.prepare(`UPDATE alertas_estado SET nivel=@nivel, areas=@areas, titulo=@titulo, detalhe=@detalhe, href=@href,
+  const upd = db.prepare(`UPDATE alertas_estado SET nivel=@nivel, areas=@areas, titulo=@titulo, chave=@chave, detalhe=@detalhe, href=@href,
       visto_em=@agora, mudou_em=@mudou_em WHERE id=@id`);
+  const abreOc = db.prepare(`INSERT INTO alertas_ocorrencias (alerta_id, nivel, areas, aberto_em) VALUES (?,?,?,?)`);
+  const nivelOc = db.prepare(`UPDATE alertas_ocorrencias SET nivel=? WHERE alerta_id=? AND resolvido_em IS NULL
+    AND (CASE nivel WHEN 'critico' THEN 0 WHEN 'importante' THEN 1 ELSE 2 END) > (CASE ? WHEN 'critico' THEN 0 WHEN 'importante' THEN 1 ELSE 2 END)`);
+  const fechaOc = db.prepare(`UPDATE alertas_ocorrencias SET resolvido_em=? WHERE alerta_id=? AND resolvido_em IS NULL`);
+  const resolve = (id) => { db.prepare(`UPDATE alertas_estado SET resolvido_em=? WHERE id=?`).run(agora, id); fechaOc.run(agora, id); };
   db.transaction(() => {
     for (const a of out) {
       const ex = sel.get(a.id);
       const row = { ...a, areas: JSON.stringify(a.areas), agora };
-      if (!ex || ex.resolvido_em) ins.run(row);                       // novo ou reaberto
-      else upd.run({ ...row, mudou_em: (ex.titulo !== a.titulo || ex.nivel !== a.nivel) ? agora : ex.mudou_em });
+      if (!ex || ex.resolvido_em) { ins.run(row); abreOc.run(a.id, a.nivel, row.areas, agora); }   // novo ou reaberto
+      else {
+        const antes = ex.chave || ex.titulo;   // registro anterior à coluna chave
+        upd.run({ ...row, mudou_em: (antes !== a.chave || ex.nivel !== a.nivel) ? agora : ex.mudou_em });
+        nivelOc.run(a.nivel, a.id, a.nivel);   // ocorrência guarda o nível mais grave que atingiu
+      }
     }
     // Resolve o que sumiu — só de regras que rodaram bem (regra quebrada não "resolve" nada).
     for (const r of all(`SELECT id, regra FROM alertas_estado WHERE resolvido_em IS NULL`)) {
-      if (!ids.has(r.id) && ok.has(r.regra)) db.prepare(`UPDATE alertas_estado SET resolvido_em=? WHERE id=?`).run(agora, r.id);
+      if (!ids.has(r.id) && ok.has(r.regra)) resolve(r.id);
       // Regra que não existe mais no código: fecha também.
-      if (!REGRAS.some(x => x.id === r.regra)) db.prepare(`UPDATE alertas_estado SET resolvido_em=? WHERE id=?`).run(agora, r.id);
+      else if (!REGRAS.some(x => x.id === r.regra)) resolve(r.id);
     }
     db.prepare(`DELETE FROM alertas_estado WHERE resolvido_em IS NOT NULL AND resolvido_em < datetime('now','-120 days')`).run();
+    db.prepare(`DELETE FROM alertas_ocorrencias WHERE resolvido_em IS NOT NULL AND resolvido_em < datetime('now','-400 days')`).run();
     db.prepare(`DELETE FROM alertas_leitura WHERE alerta_id NOT IN (SELECT id FROM alertas_estado) AND alerta_id NOT LIKE 'p:%'`).run();
     db.prepare(`DELETE FROM alertas_leitura WHERE alerta_id LIKE 'p:%' AND COALESCE(lido_em,'') < datetime('now','-60 days')`).run();
   })();
@@ -544,8 +613,8 @@ function envioAutomaticoLiberado() {
 }
 const brtAgora = () => new Date(Date.now() + BRT_MS);   // ler com getUTC*
 function emHorarioComercial(cfg) {
-  const b = brtAgora(), w = b.getUTCDay(), h = b.getUTCHours();
-  return w >= 1 && w <= 5 && h >= cfg.horario.inicio && h < cfg.horario.fim;
+  const b = brtAgora(), h = b.getUTCHours();
+  return ehDiaUtil(b) && h >= cfg.horario.inicio && h < cfg.horario.fim;
 }
 function semanaISO(d) {
   const dt = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
@@ -573,6 +642,8 @@ async function despacharCriticos({ forcar = false } = {}) {
     cfg.critico.para.forEach(em => add(em, a));
     if (cfg.donas.criticos) donasDe(a.areas).forEach(d => add(d.email, a));
   }
+  // Ninguém pra receber: não marca nada, pra sair quando alguém for configurado.
+  if (!Object.keys(porPessoa).length) return { enviados: 0, motivo: 'sem destinatário configurado' };
   const res = [];
   for (const [em, mapa] of Object.entries(porPessoa)) {
     const lista = [...mapa.values()];
@@ -585,9 +656,16 @@ async function despacharCriticos({ forcar = false } = {}) {
   return { enviados: res.filter(r => r.ok).length, tentativas: res };
 }
 
+// Conta por ocorrência (um alerta que abriu e fechou 2x conta 2), não pelo
+// estado atual — que só guarda a ocorrência mais recente.
+function ocorrencias(areas) {
+  return all(`SELECT nivel, areas, aberto_em, resolvido_em FROM alertas_ocorrencias`).map(r => {
+    let ar = []; try { ar = JSON.parse(r.areas || '[]'); } catch (_) {}
+    return { ...r, areas: ar, ab: ms(r.aberto_em), re: ms(r.resolvido_em) };
+  }).filter(r => visivelPara(r, areas));
+}
 function resolvidosEntre(ini, fim, areas) {
-  return all(`SELECT areas, resolvido_em FROM alertas_estado WHERE resolvido_em IS NOT NULL AND nivel <> 'info'`)
-    .filter(r => { const t = ms(r.resolvido_em); let ar = []; try { ar = JSON.parse(r.areas || '[]'); } catch (_) {} return t >= ini && t < fim && visivelPara({ areas: ar }, areas); }).length;
+  return ocorrencias(areas).filter(r => r.nivel !== 'info' && r.re && r.re >= ini && r.re < fim).length;
 }
 
 function montarSemanal(areas, rotulo) {
@@ -598,20 +676,16 @@ function montarSemanal(areas, rotulo) {
     fontes: fontes(areas),
   });
 }
-function mesFechado() {
-  const b = brtAgora();
-  return new Date(Date.UTC(b.getUTCFullYear(), b.getUTCMonth() - 1, 1)).toISOString().slice(0, 7);
-}
+function mesFechadoDe(b) { return new Date(Date.UTC(b.getUTCFullYear(), b.getUTCMonth() - 1, 1)).toISOString().slice(0, 7); }
+function mesFechado() { return mesFechadoDe(brtAgora()); }
 function montarMensal(mes) {
   garantirFresco();
   const L = rel.limitesMes(mes);
-  const doMes = all(`SELECT nivel, aberto_em, resolvido_em FROM alertas_estado`);
   const porNivel = {};
   let ab = 0, res = 0;
-  doMes.forEach(r => {
-    const a = ms(r.aberto_em), z = ms(r.resolvido_em);
-    if (a >= L.ini && a < L.fim) { ab++; porNivel[r.nivel] = (porNivel[r.nivel] || 0) + 1; }
-    if (z && z >= L.ini && z < L.fim) res++;
+  ocorrencias(null).forEach(r => {
+    if (r.ab >= L.ini && r.ab < L.fim) { ab++; porNivel[r.nivel] = (porNivel[r.nivel] || 0) + 1; }
+    if (r.re && r.re >= L.ini && r.re < L.fim) res++;
   });
   return rel.htmlMensal({
     mes, snapshotFn: FONTES.relatorio, eventosFn: FONTES.eventos ? eventos : null,
@@ -647,54 +721,53 @@ async function enviarMensal(mes, { para } = {}) {
   return res;
 }
 
-// Segunda a quarta a partir das 8h (BRT), uma vez por semana ISO.
+// ── Agenda: as MESMAS condições decidem o envio e o que o painel anuncia ─────
+// Semanal: seg–qua (dia útil) a partir das 8h, 1x por semana ISO. Segunda
+// feriado → sai na terça. Mensal: 1º dia útil do mês (até o dia 7) a partir das 9h.
+const HORA_SEMANAL = 8, HORA_MENSAL = 9;
+// 'digest.lastSent' = guarda do resumo antigo (v0.76): não manda 2x na semana da troca.
+function ultimoSemanal() {
+  return lerBlob('alertas.semanal.ultimo') || one(`SELECT value FROM app_blobs WHERE key='digest.lastSent'`).value || null;
+}
+const condSemanal = (d) => { const w = d.getUTCDay(); return w >= 1 && w <= 3 && ehDiaUtil(d) && semanaISO(d) !== ultimoSemanal(); };
+const condMensal = (d) => d.getUTCDate() <= 7 && ehDiaUtil(d) && mesFechadoDe(d) !== lerBlob('alertas.mensal.ultimo');
+
 async function talvezSemanal() {
-  const cfg = config();
-  if (!cfg.semanal.ativo) return;
-  const b = brtAgora(), w = b.getUTCDay();
-  if (w < 1 || w > 3 || (w === 1 && b.getUTCHours() < 8)) return;
+  if (!config().semanal.ativo) return;
+  const b = brtAgora();
+  if (b.getUTCHours() < HORA_SEMANAL || !condSemanal(b)) return;
   const wk = semanaISO(b);
-  // 'digest.lastSent' = guarda do resumo antigo (v0.76): não manda 2x na semana da troca.
-  const ult = lerBlob('alertas.semanal.ultimo') || (() => { const r = one(`SELECT value FROM app_blobs WHERE key='digest.lastSent'`); return r.value || null; })();
-  if (ult === wk) return;
   gravarBlob('alertas.semanal.ultimo', wk);
   const r = await enviarSemanal();
   console.log(`[alertas] relatório semanal ${wk}: ${r.filter(x => x.ok).length}/${r.length} enviado(s)`);
 }
-// 1º dia útil do mês a partir das 9h (BRT); se perder, tenta até o dia 7.
 async function talvezMensal() {
-  const cfg = config();
-  if (!cfg.mensal.ativo) return;
-  const b = brtAgora(), w = b.getUTCDay();
-  if (b.getUTCDate() > 7 || w < 1 || w > 5 || b.getUTCHours() < 9) return;
-  const mes = mesFechado();
-  if (lerBlob('alertas.mensal.ultimo') === mes) return;
+  if (!config().mensal.ativo) return;
+  const b = brtAgora();
+  if (b.getUTCHours() < HORA_MENSAL || !condMensal(b)) return;
+  const mes = mesFechadoDe(b);
   gravarBlob('alertas.mensal.ultimo', mes);
   const r = await enviarMensal(mes);
   console.log(`[alertas] relatório mensal ${mes}: ${r.filter(x => x.ok).length}/${r.length} enviado(s)`);
 }
 
-// Quando sai o próximo de cada (pro painel). "na próxima varredura" = está
-// dentro da janela e ainda não saiu — o tick de até 30 min manda.
+// Próximo envio de cada (pro painel), andando dia a dia com as condições acima.
+function proximoEnvio(cond, hora) {
+  const b = brtAgora();
+  for (let i = 0; i < 70; i++) {
+    const d = new Date(Date.UTC(b.getUTCFullYear(), b.getUTCMonth(), b.getUTCDate() + i, hora));
+    if (!cond(d)) continue;
+    if (i === 0) return b.getUTCHours() >= hora ? 'na próxima varredura (até 30 min)' : `hoje às ${hora}h`;
+    return `${d.toISOString().slice(0, 10).split('-').reverse().join('/')} às ${hora}h`;
+  }
+  return '—';
+}
 function proximos() {
-  const b = brtAgora(), w = b.getUTCDay();
-  const ultS = lerBlob('alertas.semanal.ultimo'), ultM = lerBlob('alertas.mensal.ultimo');
-  const dataBR = (d) => d.toISOString().slice(0, 10).split('-').reverse().join('/');
-  let semanal;
-  const seg = new Date(Date.UTC(b.getUTCFullYear(), b.getUTCMonth(), b.getUTCDate() - ((w + 6) % 7)));
-  if (ultS !== semanaISO(b) && w >= 1 && w <= 3) semanal = (w === 1 && b.getUTCHours() < 8) ? `hoje às 8h` : 'na próxima varredura (até 30 min)';
-  else { seg.setUTCDate(seg.getUTCDate() + 7); semanal = `${dataBR(seg)} às 8h`; }
-  const primeiroUtil = (y, m) => { const d = new Date(Date.UTC(y, m, 1)); while ([0, 6].includes(d.getUTCDay())) d.setUTCDate(d.getUTCDate() + 1); return d; };
-  let mensal;
-  const pu = primeiroUtil(b.getUTCFullYear(), b.getUTCMonth());
-  if (ultM !== mesFechado() && b.getUTCDate() <= 7) {
-    mensal = b < pu || (b.getUTCDate() === pu.getUTCDate() && b.getUTCHours() < 9) ? `${dataBR(pu)} às 9h` : (w >= 1 && w <= 5 && b.getUTCHours() >= 9 ? 'na próxima varredura (até 30 min)' : 'no próximo dia útil às 9h');
-  } else mensal = `${dataBR(primeiroUtil(b.getUTCFullYear(), b.getUTCMonth() + 1))} às 9h`;
   const cfg = config();
-  if (!cfg.semanal.ativo) semanal = 'desligado';
-  if (!cfg.mensal.ativo) mensal = 'desligado';
+  let semanal = cfg.semanal.ativo ? proximoEnvio(condSemanal, HORA_SEMANAL) : 'desligado';
+  let mensal = cfg.mensal.ativo ? proximoEnvio(condMensal, HORA_MENSAL) : 'desligado';
   if (!envioAutomaticoLiberado()) { semanal = 'não sai deste ambiente'; mensal = semanal; }
-  return { semanal, mensal, ultimo_semanal: ultS, ultimo_mensal: ultM };
+  return { semanal, mensal, ultimo_semanal: ultimoSemanal(), ultimo_mensal: lerBlob('alertas.mensal.ultimo') };
 }
 
 let rodando = false;
@@ -768,7 +841,9 @@ router.get('/alertas', (req, res) => res.sendFile(path.join(__dirname, '../publi
 router.get('/admin/alertas', (req, res) => res.sendFile(path.join(__dirname, '../public/admin-alertas.html')));
 
 // ── Admin (só super admin — /api/admin/* no acesso.js) ──────────────────────
-const { requireAdmin } = require('./users');
+// Só o super admin (o editor token não basta: aqui se escolhe quem recebe e-mail
+// e se lê o log de envios). No Office local o requireSuperAdmin aceita o token.
+const { requireSuperAdmin: requireAdmin } = require('./users');
 
 router.get('/api/admin/alertas', requireAdmin, (req, res) => {
   try {
@@ -858,4 +933,4 @@ module.exports.despacharCriticos = despacharCriticos;
 module.exports.montarSemanal = montarSemanal;
 module.exports.montarMensal = montarMensal;
 module.exports.REGRAS = REGRAS;
-module.exports._interno = { config, salvarConfig, talvezSemanal, talvezMensal, semanaISO, fontes, contexto };
+module.exports._interno = { config, salvarConfig, talvezSemanal, talvezMensal, semanaISO, fontes, contexto, ehDiaUtil, proximos, ultimoPost, voicesAtivos };

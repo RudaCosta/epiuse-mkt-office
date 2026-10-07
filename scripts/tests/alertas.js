@@ -12,6 +12,7 @@ process.env.DATA_DIR = DATA;
 process.env.ALERTAS_AGENDADOR = 'false';
 delete process.env.RESEND_API_KEY;
 delete process.env.APOLLO_API_KEY;
+process.env.EGG_NOTIFY_EMAIL = 'dono.da.conta@gmail.com';   // endereço de env = confiável
 
 const ROOT = path.join(__dirname, '../..');
 const { db } = require(path.join(ROOT, 'server-context'));
@@ -30,8 +31,9 @@ db.exec(`
     status TEXT DEFAULT 'novo', utm_source TEXT, created_at TEXT DEFAULT (datetime('now')));
   CREATE TABLE IF NOT EXISTS cs_clientes (id INTEGER PRIMARY KEY AUTOINCREMENT, conta TEXT, cliente_nome TEXT, status TEXT, synced_at TEXT);
   CREATE TABLE IF NOT EXISTS content_pipeline (id INTEGER PRIMARY KEY AUTOINCREMENT, titulo TEXT, estado TEXT, agendado_para TEXT, publicado_em TEXT);
-  CREATE TABLE IF NOT EXISTS posts (id INTEGER PRIMARY KEY AUTOINCREMENT, voice_id TEXT, post_url TEXT, captured_at TEXT);
+  CREATE TABLE IF NOT EXISTS posts (id INTEGER PRIMARY KEY AUTOINCREMENT, voice_id TEXT, post_url TEXT, published_at TEXT DEFAULT '', captured_at TEXT);
   CREATE TABLE IF NOT EXISTS edt_calendario (external_id TEXT PRIMARY KEY, data TEXT, tipo TEXT, titulo TEXT, formato TEXT, status TEXT, lob TEXT, synced_at TEXT);
+  CREATE TABLE IF NOT EXISTS voices_publicados (id TEXT PRIMARY KEY, inscricao_id INTEGER, data TEXT, created_at TEXT DEFAULT (datetime('now')));
   CREATE TABLE IF NOT EXISTS erp_coins (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT, evento TEXT, ref TEXT, coins INTEGER, dia TEXT, created_at TEXT DEFAULT (datetime('now')));
 `);
 db.prepare(`INSERT INTO users (email, name, role) VALUES (?,?,?)`).run('ruda.costa@epiuse.com.br', 'Rudá Costa', 'head');
@@ -165,6 +167,77 @@ const estado = (id) => db.prepare('SELECT * FROM alertas_estado WHERE id=?').get
   const cfgOk = alertas._interno.salvarConfig({ semanal: { ativo: false, para: ['ruda.costa@epiuse.com.br'] }, donas: { semanal: true } });
   ok(cfgOk.ok && cfgOk.config.semanal.ativo === false && cfgOk.config.donas.semanal === true, 'salva canal e donas');
   ok(alertas._interno.semanaISO(new Date(Date.UTC(2026, 9, 5))) === '2026-W41', 'semana ISO (05/out/2026 = W41)');
+
+  console.log('\n8) correções da revisão');
+  // motor-1: idade no título não volta o alerta pra "não lido"
+  const app3 = express();
+  app3.use((req, res, next) => { req.session = { user: { email: 'eduarda.hirose@epiuse.com.br', role: 'brand', areasExtra: [] } }; next(); });
+  app3.use(alertas);
+  const srv3 = app3.listen(0);
+  const b3 = `http://127.0.0.1:${srv3.address().port}`;
+  db.prepare(`UPDATE cs_clientes SET synced_at=?`).run(isoDiasAtras(3));
+  alertas.varrer();
+  await fetch(b3 + '/api/alerts/lidos', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids: ['fonte.cases'] }) });
+  db.prepare(`UPDATE cs_clientes SET synced_at=?`).run(isoDiasAtras(4));   // "há 3 dias" → "há 4 dias"
+  alertas.varrer();
+  let r3 = await (await fetch(b3 + '/api/alerts?todos=1')).json();
+  const cs = r3.alertas.find(a => a.id === 'fonte.cases');
+  ok(cs && /4 dias/.test(cs.titulo) && cs.lido === true, 'idade mudou no título, alerta continua lido');
+  // acesso-1: rotas de admin não aceitam só o editor token
+  const tk = await fetch(b3 + '/api/admin/alertas', { headers: { 'x-editor-token': 'qualquer' } });
+  ok(tk.status === 403, 'rota de admin recusa quem não é super admin (mesmo com token)');
+  srv3.close();
+
+  // motor-2/3: snapshot de métricas não conta como post novo; Voice de inscrição entra
+  db.prepare(`INSERT INTO voices_publicados (id, data) VALUES (?, ?)`).run('nova-voice', JSON.stringify({ id: 'nova-voice', nome: 'Nova Voice', status: 'ativo' }));
+  db.prepare(`INSERT INTO posts (voice_id, post_url, captured_at) VALUES ('nova-voice','https://li/post/1',?)`).run(new Date(Date.now() - 30 * 864e5).toISOString());
+  db.prepare(`INSERT INTO posts (voice_id, post_url, captured_at) VALUES ('nova-voice','https://li/post/1',?)`).run(new Date().toISOString());   // só atualizou métricas
+  const lista8 = alertas.varrer().map(a => a.id);
+  ok(lista8.includes('voices.sem-post:nova-voice'), 'Voice de inscrição sem post há 30 dias alerta, mesmo com snapshot de hoje');
+  const rel = require(path.join(ROOT, 'routes/alertas-relatorios'));
+  const m8 = rel.movimento(Date.now() - 7 * 864e5, Date.now() + 1000, null);
+  ok(m8.posts_voices === 0, 'relatório não conta atualização de métricas como post novo');
+
+  // motor-4: falha pontual do calendário com sync bom recente = importante; dado velho = crítico
+  const ed = require(path.join(ROOT, 'routes/editorial'));
+  const autoOrig = ed.autoStatus;
+  ed.autoStatus = () => ({ ativo: true, status: 'erro', erro: '503', ultima_ok_ts: new Date(Date.now() - 3 * 36e5).toISOString() });
+  alertas.varrer();
+  ok(estado('fonte.calendario').nivel === 'importante', 'calendário: 1 falha com sync de 3h atrás → importante');
+  ed.autoStatus = () => ({ ativo: true, status: 'parado', erro: null, ultima_ok_ts: new Date(Date.now() - 30 * 36e5).toISOString() });
+  alertas.varrer();
+  ok(estado('fonte.calendario').nivel === 'critico', 'calendário: 30h sem sync → crítico');
+  ed.autoStatus = autoOrig;
+  alertas.varrer();
+  ok(!!estado('fonte.calendario').resolvido_em, '…e resolve quando volta');
+
+  // motor-5: sem destinatário não marca o crítico como avisado
+  alertas._interno.salvarConfig({ critico: { ativo: true, para: [] }, donas: { criticos: false } });
+  db.prepare(`UPDATE alertas_estado SET email_em=NULL WHERE nivel='critico'`).run();
+  const d5 = await alertas.despacharCriticos({ forcar: true });
+  ok(d5.motivo === 'sem destinatário configurado' && !db.prepare(`SELECT 1 FROM alertas_estado WHERE nivel='critico' AND email_em IS NOT NULL`).get(), 'sem destinatário: nada marcado como avisado');
+
+  // motor-6: reabrir conta como nova ocorrência
+  const ocAntes = db.prepare(`SELECT COUNT(*) n FROM alertas_ocorrencias WHERE alerta_id='loja.resgates'`).get().n;
+  db.prepare(`INSERT INTO coin_redemptions (email, item_id, item_nome, coins, status) VALUES ('x@epiuse.com.br','c','C',1,'pendente')`).run();
+  alertas.varrer();
+  db.prepare(`UPDATE coin_redemptions SET status='aprovado', decided_at=datetime('now')`).run();
+  alertas.varrer();
+  const oc = db.prepare(`SELECT COUNT(*) n, SUM(resolvido_em IS NOT NULL) r FROM alertas_ocorrencias WHERE alerta_id='loja.resgates'`).get();
+  ok(oc.n === ocAntes + 1 && oc.r === oc.n, 'reabertura vira nova ocorrência, e as duas fecham');
+
+  // motor-7: feriados nacionais
+  const du = (iso) => alertas._interno.ehDiaUtil(new Date(iso + 'T12:00:00Z'));
+  ok(!du('2026-11-02') && !du('2027-01-01') && !du('2027-02-08') && !du('2026-06-04') && du('2026-11-03'), 'Finados, Ano Novo, Carnaval e Corpus Christi não são dia útil');
+
+  // email-2: endereço de variável de ambiente passa na allowlist
+  ok(mailer.enderecoPermitido('dono.da.conta@gmail.com') && !mailer.enderecoPermitido('outro@gmail.com'), 'endereço configurado em env é aceito; outro externo não');
+
+  // motor-8: painel respeita a guarda antiga do digest
+  db.prepare(`INSERT OR REPLACE INTO app_blobs (key, value) VALUES ('digest.lastSent', ?)`).run(alertas._interno.semanaISO(new Date(Date.now() - 3 * 36e5)));
+  db.prepare(`DELETE FROM app_blobs WHERE key='alertas.semanal.ultimo'`).run();
+  alertas._interno.salvarConfig({ semanal: { ativo: true, para: ['ruda.costa@epiuse.com.br'] } });
+  ok(!/próxima varredura|hoje/.test(alertas._interno.proximos().semanal), 'semana já marcada pelo digest antigo → painel aponta a semana seguinte');
 
   console.log(falhas ? `\n✗ ${falhas} falha(s)` : '\n✓ tudo certo');
   try { fs.rmSync(DATA, { recursive: true, force: true }); } catch (_) {}

@@ -78,13 +78,23 @@ function contar(sql, col, ini, fim, ...extra) {
   return all(sql, desde, ...extra).filter(r => { const t = ms(r[col]); return t != null && t >= ini && t < fim; }).length;
 }
 
+// Posts novos de Voices no período. A tabela posts guarda um snapshot por
+// atualização de métricas: cada URL conta 1x, na data do post (published_at
+// informada ou, sem ela, a primeira vez que a URL foi registrada).
+function postsNovos(ini, fim) {
+  return all(`SELECT MAX(published_at) pub, MIN(captured_at) prim FROM posts GROUP BY post_url`).filter(p => {
+    const t = /^\d{4}-\d{2}-\d{2}/.test(String(p.pub || '')) ? ms(String(p.pub).slice(0, 10)) : ms(p.prim);
+    return t != null && t >= ini && t < fim;
+  }).length;
+}
+
 // ── MOVIMENTO de um período (números reais do banco) ────────────────────────
 function movimento(ini, fim, eventosFn) {
   const validas = `COALESCE(NULLIF(status,''),'novo') NOT IN ('teste','ignorado')`;
   const m = {
     pautas_criadas:     contar(`SELECT created_at FROM voice_pautas WHERE substr(created_at,1,10) >= ?`, 'created_at', ini, fim),
     pautas_publicadas:  contar(`SELECT publicado_em FROM voice_pautas WHERE estado='publicada' AND substr(publicado_em,1,10) >= ?`, 'publicado_em', ini, fim),
-    posts_voices:       contar(`SELECT captured_at FROM posts WHERE substr(captured_at,1,10) >= ?`, 'captured_at', ini, fim),
+    posts_voices:       postsNovos(ini, fim),
     inscricoes:         contar(`SELECT created_at FROM recruitment_applications WHERE substr(created_at,1,10) >= ? AND ${validas}`, 'created_at', ini, fim),
     conteudos_publicados: contar(`SELECT publicado_em FROM content_pipeline WHERE estado='publicado' AND substr(publicado_em,1,10) >= ?`, 'publicado_em', ini, fim),
     calls_jarvis:       contar(`SELECT criado_em FROM jarvis_calls WHERE substr(criado_em,1,10) >= ?`, 'criado_em', ini, fim),
@@ -273,7 +283,7 @@ function htmlSemanal(opts) {
   if (ve(areas, 'brand', 'conteudo')) blocos.push(['🎙️ Voices & Brand', [
     ['Pautas criadas', A.pautas_criadas, P.pautas_criadas],
     ['Pautas publicadas', A.pautas_publicadas, P.pautas_publicadas],
-    ['Posts de Voices registrados', A.posts_voices, P.posts_voices],
+    ['Posts novos de Voices', A.posts_voices, P.posts_voices],
     ['Inscrições no /seja-voice', A.inscricoes, P.inscricoes],
   ]]);
   if (ve(areas, 'conteudo', 'brand', 'intelligence')) blocos.push(['✍️ Conteúdo', [
@@ -390,7 +400,7 @@ function htmlMensal(opts) {
   corpo += h2('⚙️ Operação do mês', `comparado com ${nomeMes(mesAnt)}`);
   corpo += tabelaMetricas([
     ['Pautas de Voices publicadas', A.pautas_publicadas, P.pautas_publicadas],
-    ['Posts de Voices registrados', A.posts_voices, P.posts_voices],
+    ['Posts novos de Voices', A.posts_voices, P.posts_voices],
     ['Inscrições no /seja-voice', A.inscricoes, P.inscricoes],
     ['Conteúdos publicados (pipeline)', A.conteudos_publicados, P.conteudos_publicados],
     ['Cliques nos links rastreados', A.cliques_links, P.cliques_links],
