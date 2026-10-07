@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════════════════════════════
-// routes/alertas-relatorios.js — dados e HTML dos e-mails do Módulo 33
+// routes/alertas-relatorios.js — dados e HTML dos e-mails do Módulo 34
 //
 //   • e-mail de alerta crítico (sai na hora, em horário comercial)
 //   • relatório semanal (segunda ~8h): o que precisa de você, o que andou na

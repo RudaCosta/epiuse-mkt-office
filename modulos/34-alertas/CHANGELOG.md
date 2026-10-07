@@ -1,6 +1,6 @@
 # Changelog — Central de Alertas & Relatórios
 
-## v1.0 · 07/out/2026 (0.95.0)
+## v1.0 · 07/out/2026 (0.96.0)
 - Motor de alertas com 18 regras de dado real em 6 frentes: integrações (Apollo, calendário, Cases, GA4, RD, e-mail), comunicados, filas com prazo (Loja, inscrições, pautas paradas e vencidas, conteúdo agendado vencido, Voice sem postar), eventos do Brasil (sem briefing, sem pós-evento) e outbound (tarefas atrasadas, bounce alto, sequência fraca).
 - Estado persistido: o alerta abre, muda (volta a "não lido") e **resolve sozinho** quando o dado normaliza. Regra que quebra não resolve nada por engano.
 - Sino refeito: nível por cor, área, idade e ponto de "não lido". Badge só conta crítico e importante ainda não lidos. Clicar marca como lido, ✕ silencia por 7 dias e "Marcar tudo como lido". Atualiza a cada 5 min.

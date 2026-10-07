@@ -12,7 +12,7 @@ const express = require('express');
 const path = require('path');
 const router = express.Router();
 const { db, requireAuth } = require('../server-context');
-const mailer = require('./email');   // remetente com fallback + log (Módulo 33)
+const mailer = require('./email');   // remetente com fallback + log (Módulo 34)
 
 const NOTIFY_EMAIL = mailer.NOTIFY_EMAIL;
 const THRESHOLD_H  = 8;

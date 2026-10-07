@@ -71,7 +71,7 @@
 
 | Dado | Telas | Fonte futura | Status / Próximo passo |
 |---|---|---|---|
-| **Site:** usuários · views · sessão · MoM% | `/relatorio` Site KPI, `/funil` | **HubSpot CMS Analytics API** (site migrou pro HubSpot CMS em ago/2026) · GA4 como secundário | Rudá cria Private App HubSpot (`HUBSPOT_TOKEN`) → módulo 23 |
+| **Site:** usuários · views · sessão · MoM% | `/relatorio` Site KPI, `/funil`, `/metas-fy27` (tráfego, 07/out/2026: mesmo cache GA4 do Relatório, 12h; tag do GA4 está no HubSpot CMS — confirmado 07/out) | **HubSpot CMS Analytics API** (site migrou pro HubSpot CMS em ago/2026) · GA4 como secundário | Rudá cria Private App HubSpot (`HUBSPOT_TOKEN`) → módulo 23 |
 | **SEO:** queries · CTR · posição · top pages | `/relatorio`, `/seo` (novo) | **Search Console API** | Mesmo Service Account → Bloco D |
 | **Instagram:** seguidores · alcance · engagement | `/relatorio` Instagram KPI | **Instagram Graph API** | Requer Business Account + Facebook App + token long-lived (~2h setup Rudá) |
 | **E-mail:** taxa abertura · cliques · leads | `/relatorio` E-mail KPI | **RD Station API** | Personal API Token (não publisher key) — Rudá pede admin RD master |

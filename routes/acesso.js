@@ -90,7 +90,7 @@ const REGRAS = [
   ['/api/relatorio/ga4-refresh', ADM], ['/api/relatorio/ga4-refresh-fy', ADM], ['/api/relatorio/rd-refresh', ADM],
 
   // ── Colaborador logado (inclui visitante) ─────────────────────────────────
-  ['/alertas', L],                    // central de alertas (Módulo 33)
+  ['/alertas', L],                    // central de alertas (Módulo 34)
   ['/hub', L], ['/hub/brindes', L], ['/hub/solicitacao-brindes', L], ['/hub/solicitar-brindes', L],
   ['/brindes', L], ['/game', L], ['/game-hub', L], ['/escolher-visao', L], ['/brand', L],
   ['/onboarding', L], ['/design', L], ['/erp-impacto', L], ['/seja-voice', L], ['/artigos', L],
@@ -177,7 +177,7 @@ const REGRAS = [
   ['/api/linkedin/historical', T], ['/api/linkedin/followers', T],
   ['/api/metas', T], ['/api/metas/*', T], ['/api/ideias', T], ['/api/ideias/*', T],
   ['/api/sprints', T], ['/api/sprints-pm.xlsx', T], ['/api/pendencias', T],
-  // Alertas (Módulo 33): cada um vê os das áreas que abre — filtro na rota
+  // Alertas (Módulo 34): cada um vê os das áreas que abre — filtro na rota
   ['GET /api/alerts', L], ['POST /api/alerts/lidos', L], ['POST /api/alerts/silenciar', L],
   ['/api/planilhas', T], ['/api/planilhas/*', T], ['/api/workflows', T], ['/api/workflows/*', T],
   ['/api/cowork/*', T], ['GET /api/posts', T], ['/api/freshness', T],

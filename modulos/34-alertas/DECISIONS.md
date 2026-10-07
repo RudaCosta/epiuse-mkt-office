@@ -31,7 +31,7 @@ Crítico, semanal e mensal respeitam os feriados nacionais fixos e os móveis li
 `/api/admin/alertas/*` usa `requireSuperAdmin`. Ali se escolhe quem recebe e-mail e se lê o log de envios, que traz nomes de inscritos e de clientes. O editor token é credencial de máquina e não precisa disso. No Office local ele continua valendo.
 
 ## D12 · Endereço de env é confiável
-O operador que define `NOTIFY_EMAIL`, `EGG_NOTIFY_EMAIL`, `BRINDES_NOTIFY_EMAIL` ou `ALERTAS_EMAILS` no Railway já decidiu quem recebe. Esses endereços passam na allowlist mesmo fora de `epiuse.com.br`, como antes do Módulo 33. Listas editáveis na tela continuam presas à allowlist.
+O operador que define `NOTIFY_EMAIL`, `EGG_NOTIFY_EMAIL`, `BRINDES_NOTIFY_EMAIL` ou `ALERTAS_EMAILS` no Railway já decidiu quem recebe. Esses endereços passam na allowlist mesmo fora de `epiuse.com.br`, como antes do Módulo 34. Listas editáveis na tela continuam presas à allowlist.
 
 ## D13 · "Mudou" é o estado, não o relógio
 A regra pode devolver uma `chave` sem idade nem contagem regressiva. O alerta só volta a "não lido" quando a chave ou o nível mudam. "2 pautas paradas" → "3 pautas paradas" é mudança; "há 37h" → "há 38h" não é.

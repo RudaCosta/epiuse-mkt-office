@@ -488,7 +488,7 @@ function backupFile(p) {
 }
 
 // ── EMAIL (opcional via Resend) ───────────────────────────────────────────────
-// Todo envio passa por routes/email.js (Módulo 33): remetente com fallback,
+// Todo envio passa por routes/email.js (Módulo 34): remetente com fallback,
 // allowlist de destinatário, checagem do { error } da Resend e log em email_log.
 const emailOffice = require('./routes/email');
 const NOTIFY_EMAIL = emailOffice.NOTIFY_EMAIL;
@@ -2772,7 +2772,7 @@ function _eventISO(ev, ano) {
 }
 
 // Lista única dos eventos (events.json + enriquecimento do SQLite). Usada pela
-// API abaixo e pelo motor de alertas (Módulo 33) — um slug só, nunca duplicado.
+// API abaixo e pelo motor de alertas (Módulo 34) — um slug só, nunca duplicado.
 function _listarEventosField() {
   const events = JSON.parse(fs0.readFileSync(path.join(__dirname, 'public/api/events.json'), 'utf8'));
   const ano = events.ano || new Date().getFullYear();
@@ -3306,7 +3306,7 @@ app.get('/api/development-funds', (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// ── /api/alerts: mudou pro Módulo 33 (routes/alertas.js) — regras com dado
+// ── /api/alerts: mudou pro Módulo 34 (routes/alertas.js) — regras com dado
 // real, estado persistido, lido/silenciar por pessoa e e-mail de crítico.
 
 // ── INBOUND GENERATE: substitui window.claude.complete() do artifact host ──
@@ -3406,7 +3406,8 @@ app.get('/escolher-visao', (req, res) => res.sendFile(path.join(__dirname, 'publ
 app.get('/relatorio', (req, res) => res.sendFile(path.join(__dirname, 'public/relatorio.html')));
 app.get('/artigos',   (req, res) => res.sendFile(path.join(__dirname, 'public/artigos.html')));
 app.get('/jornadas',  (req, res) => res.sendFile(path.join(__dirname, 'public/jornadas.html')));
-app.get('/metas-fy26', (req, res) => res.sendFile(path.join(__dirname, 'public/metas-fy26.html')));
+// Placar FY27 (Módulo 33) substitui a página FY26; a antiga está em /_versoes-office/.
+app.get('/metas-fy26', (req, res) => res.redirect(301, '/metas-fy27'));
 app.get('/metas-fy27', (req, res) => res.sendFile(path.join(__dirname, 'public/metas-fy27.html')));
 app.get('/metas/fy26', (req, res) => res.redirect(301, '/metas-fy27'));
 app.get('/metas/fy27', (req, res) => res.redirect(301, '/metas-fy27'));
@@ -3421,7 +3422,6 @@ app.get('/pipeline',  (req, res) => res.redirect(302, '/area/pipeline'));
 const ARTIGOS_JSON_PATH = path.join(__dirname, 'public/api/artigos.json');
 const LINKEDIN_HIST_PATH = path.join(__dirname, 'public/api/linkedin-historical.json');
 const KPIS_HIST_PATH = path.join(__dirname, 'public/api/kpis-historical.json');
-const METAS_FY26_PATH = path.join(__dirname, 'public/api/metas-fy26.json');
 
 function _readJSON(filePath, fallback = null) {
   try {
@@ -4099,157 +4099,9 @@ function _gerarAlertas(linkedin, atual, anterior) {
 }
 
 
-// GET /api/metas/fy26 — Metas oficiais FY26 + realizado real cruzado
-app.get(['/api/metas/fy26', '/api/metas/fy27'], (req, res) => {
-  const data = _readJSON(METAS_FY26_PATH, null);
-  if (!data) return res.status(404).json({ success: false, error: 'metas-fy26.json não encontrado. Rode: python scripts/sync/sync_metas_fy26.py' });
-
-  const linkedin = _readJSON(LINKEDIN_HIST_PATH, { resumo: {}, serie_mensal: [] });
-  const outreach = _readJSON(path.join(__dirname, 'public/api/relatorio-outreach.json'), null);
-  let casesPorLinha = {};
-  let casesTotal = 0;
-  try {
-    const cs = db.prepare("SELECT status, linha_negocio, COUNT(*) as n FROM cs_clientes WHERE status='case-publicado' GROUP BY linha_negocio").all();
-    cs.forEach(r => { casesPorLinha[r.linha_negocio || 'outros'] = r.n; casesTotal += r.n; });
-  } catch (e) { console.warn('[metas/fy26] cases fail:', e.message); }
-
-  let eventos_proprios_ano = 0;
-  try {
-    const ev = _readJSON(path.join(__dirname, 'public/api/events.json'), { eventos_brasil: [] });
-    eventos_proprios_ano = (ev.eventos_brasil || []).filter(e => (e.tipo || '').toLowerCase().includes('proprio')).length;
-  } catch {}
-
-  // Cruzar realizado por categoria ou label (v0.52)
-  const metas_com_realizado = (data.metas || []).map(m => {
-    let realizado = null, realizado_fonte = null;
-    const lbl = (m.label || '').toLowerCase();
-    
-    // 1) Mapeamento por Categoria (antigo/fallback)
-    if (m.categoria) {
-      switch (m.categoria) {
-        case 'linkedin_seguidores_totais': {
-          const ultima = linkedin.serie_mensal?.filter(x => x.total_seguidores).slice(-1)[0];
-          realizado = ultima?.total_seguidores || null;
-          realizado_fonte = ultima ? `report ${ultima.mes}` : null;
-          break;
-        }
-        case 'cases_publicados_ano':
-          realizado = casesTotal; realizado_fonte = 'SQLite cs_clientes'; break;
-        case 'cases_sap_erp_ano':
-          realizado = Object.entries(casesPorLinha).filter(([k]) => /SAP ERP|S\/4/i.test(k)).reduce((s, [,n]) => s+n, 0);
-          realizado_fonte = 'cs_clientes onde linha_negocio matches SAP ERP'; break;
-        case 'cases_successfactors_ano':
-          realizado = Object.entries(casesPorLinha).filter(([k]) => /SuccessFactors|HCM/i.test(k)).reduce((s, [,n]) => s+n, 0);
-          realizado_fonte = 'cs_clientes onde linha_negocio matches HCM/SF'; break;
-        case 'cases_workforce_ano':
-          realizado = Object.entries(casesPorLinha).filter(([k]) => /WorkForce/i.test(k)).reduce((s, [,n]) => s+n, 0);
-          realizado_fonte = 'cs_clientes onde linha_negocio matches WorkForce'; break;
-        case 'cases_servicenow_ano':
-          realizado = Object.entries(casesPorLinha).filter(([k]) => /ServiceNow/i.test(k)).reduce((s, [,n]) => s+n, 0);
-          realizado_fonte = 'cs_clientes onde linha_negocio matches ServiceNow'; break;
-        case 'cases_process_ano':
-          realizado = Object.entries(casesPorLinha).filter(([k]) => /Process|Excelência/i.test(k)).reduce((s, [,n]) => s+n, 0);
-          realizado_fonte = 'cs_clientes onde linha_negocio matches Process'; break;
-        case 'eventos_proprios_ano':
-          realizado = eventos_proprios_ano; realizado_fonte = 'events.json tipo=proprio'; break;
-      }
-    }
-    
-    // 2) Mapeamento por Label (Metas Pessoais FY27)
-    if (realizado === null) {
-      const em = outreach && outreach.kpis ? (outreach.kpis.emails_enviados ?? null) : null;
-      const emDia = em != null ? Math.round(em / 22 * 10) / 10 : null;
-      const re = outreach && outreach.kpis ? (outreach.kpis.reunioes_realizadas ?? null) : null;
-      const tc = outreach && outreach.kpis ? (outreach.kpis.empresas_em_conversa ?? null) : null;
-      const plData = _readJSON(path.join(__dirname, 'public/api/pipeline-snapshot.json'), null);
-      
-      if (lbl.includes('toques totais / dia') && emDia != null) {
-        realizado = emDia; realizado_fonte = 'Apollo (outbound emails / 22)';
-      }
-      else if (lbl.includes('e-mails personalizados / dia') && emDia != null) {
-        realizado = emDia; realizado_fonte = 'Apollo (outbound emails / 22)';
-      }
-      else if (lbl.includes('contas perfiladas no apollo / semana') && tc != null) {
-        realizado = Math.round(tc / 4.3 * 10) / 10; realizado_fonte = 'Apollo (contas tocadas / 4.3)';
-      }
-      else if (lbl.includes('reuniões qualificadas agendadas / semana') && re != null) {
-        realizado = Math.round(re / 4.3 * 10) / 10; realizado_fonte = 'Apollo (meetings held / 4.3)';
-      }
-      else if (lbl.includes('reuniões qualificadas agendadas / mês') && re != null) {
-        realizado = re; realizado_fonte = 'Apollo (meetings held 30d)';
-      }
-      else if (lbl.includes('seguidores linkedin') && linkedin.serie_mensal?.length) {
-        const ultima = linkedin.serie_mensal.filter(x => x.novos_seguidores).slice(-1)[0];
-        realizado = ultima ? (ultima.novos_seguidores_bruto || ultima.novos_seguidores || null) : null;
-        realizado_fonte = ultima ? `LinkedIn Analytics (${ultima.mes})` : null;
-      }
-      else if (lbl.includes('artigos publicados no wordpress')) {
-        try {
-          const r = db.prepare("SELECT COUNT(*) AS n FROM content_pipeline WHERE estado = 'publicado'").get();
-          realizado = r ? r.n : 0; realizado_fonte = 'SQLite content_pipeline';
-        } catch {}
-      }
-      else if (lbl.includes('eventos executados no ano')) {
-        try {
-          const ev = _readJSON(path.join(__dirname, 'public/api/events.json'), { eventos_brasil: [] });
-          const past = (ev.eventos_brasil || []).filter(e => {
-            const mth = parseInt(e.m || '99');
-            const cm = new Date().getMonth() + 1;
-            return mth < cm;
-          }).length;
-          realizado = past; realizado_fonte = 'events.json';
-        } catch {}
-      }
-      else if (lbl.includes('ddf total disponível')) {
-        realizado = 80000; realizado_fonte = 'SAP Portal (MDF alocado)';
-      }
-      else if (lbl.includes('cases de sucesso/ano')) {
-        realizado = casesTotal; realizado_fonte = 'SQLite cs_clientes';
-      }
-      else if (lbl.includes('contatos na base') && plData && plData.contatos_total != null) {
-        realizado = plData.contatos_total; realizado_fonte = 'Apollo snapshot';
-      }
-      else if (lbl.includes('empresas mapeadas') && plData && plData.contas_total != null) {
-        realizado = plData.contas_total; realizado_fonte = 'Apollo snapshot';
-      }
-      else if (lbl.includes('sequências ativas') && plData && plData.sequencias_ativas != null) {
-        realizado = plData.sequencias_ativas; realizado_fonte = 'Apollo snapshot';
-      }
-    }
-    
-    let progresso_pct = null;
-    // Se o valor for numérico e realizado for numérico
-    const valNum = typeof m.valor === 'number' ? m.valor : parseFloat(String(m.valor).replace(/[^0-9.]/g, ''));
-    if (realizado != null && valNum) {
-      progresso_pct = Math.round(100 * realizado / valNum * 10) / 10;
-    }
-    
-    // Configura o status_fonte com base na fonte real
-    let status_fonte = m.status_fonte || 'manual';
-    if (realizado_fonte) {
-      status_fonte = realizado_fonte.toLowerCase().includes('sqlite') || realizado_fonte.toLowerCase().includes('apollo') ? 'real' : 'manual';
-    }
-    
-    return { ...m, realizado, realizado_fonte, progresso_pct, status_fonte };
-  });
-
-  // Calcular por_status_fonte dinamicamente com base nas metas mapeadas
-  const por_status_fonte = {};
-  metas_com_realizado.forEach(m => {
-    const f = m.status_fonte || 'manual';
-    por_status_fonte[f] = (por_status_fonte[f] || 0) + 1;
-  });
-
-  res.json({
-    success: true,
-    ano_fiscal: data.ano_fiscal,
-    periodo_fiscal: data.periodo_fiscal,
-    total_metas: data.total_metas,
-    por_status_fonte: por_status_fonte,
-    metas: metas_com_realizado,
-    gerado_em: data.gerado_em,
-  });
-});
+// /api/metas/fy26|fy27 saiu (Módulo 33): cruzava "realizado" de JSONs estáticos
+// (outreach, LinkedIn, events) e chumbava o DDF. O placar FY27 vive em
+// routes/metas-fy27.js (GET /api/metas/fy27/placar) só com fontes automáticas.
 
 // GET /api/pipeline — dados REAIS do Apollo. Preferência: refresh automático no
 // servidor (routes/area-pipeline.js, a cada 6h); fallback: pipeline-snapshot.json.
@@ -6222,7 +6074,8 @@ app.use('/', require('./routes/editorial'));  // Módulo 25 — Calendário Edit
 app.use('/', require('./routes/area-pipeline')); // Módulo 29 — Área Pipeline (Apollo auto + JARVIS)
 app.use('/', require('./routes/area-brand'));    // Módulo 30 — Área Brand (Voices · pautas · Cases · calendário)
 app.use('/', require('./routes/relatorio'));     // Módulo 31 — Relatório de Marketing ao vivo (só fontes automáticas + PPT/PDF)
-// Módulo 33 — Central de Alertas & Relatórios (sino, /alertas, /admin/alertas,
+app.use('/', require('./routes/metas-fy27'));    // Módulo 33 — Metas FY27 (placar ao vivo: Apollo · Office · GA4 do Relatório)
+// Módulo 34 — Central de Alertas & Relatórios (sino, /alertas, /admin/alertas,
 // e-mail de crítico, relatório semanal e mensal). Recebe as fontes de fora em vez
 // de duplicar lógica: a lista de eventos daqui e o relatório do mês do Módulo 31
 // (o e-mail mensal mostra exatamente os números da tela /relatorio).
@@ -6277,6 +6130,6 @@ if (process.env.GA4_PROPERTY_ID || process.env.RD_REFRESH_TOKEN) {
 }
 
 // ── RESUMO SEMANAL POR E-MAIL ────────────────────────────────────────────────
-// Virou o relatório semanal do Módulo 33 (routes/alertas.js): alertas abertos,
+// Virou o relatório semanal do Módulo 34 (routes/alertas.js): alertas abertos,
 // movimento da semana × anterior, próximos 14 dias e saúde das fontes, além do
 // uso do Office que este digest mandava. Prévia e envio em /admin/alertas.

@@ -485,6 +485,10 @@ class OfficeNav extends HTMLElement {
     if (this._owner && grpA && !grpA.links.some(l => l.href === '/admin/relatorio')) {
       grpA.links.push({ label: '👁️ Tracking · Relatório', href: '/admin/relatorio' });
     }
+    // Tracking das Metas FY27 — também só o e-mail do dono (Módulo 33).
+    if (this._owner && grpA && !grpA.links.some(l => l.href === '/admin/metas')) {
+      grpA.links.push({ label: '👁️ Tracking · Metas FY27', href: '/admin/metas' });
+    }
     // UTM & Links Rastreados — todo o time de Marketing.
     const MKT_ROLES = ['head', 'intelligence', 'growth', 'field', 'pipeline', 'brand', 'conteudo'];
     if (grpA && MKT_ROLES.includes(this._role) && !grpA.links.some(l => l.href === '/admin/utm')) {
@@ -864,7 +868,7 @@ class OfficeNav extends HTMLElement {
           font-family: 'JetBrains Mono', monospace;
           display: flex; justify-content: space-between; align-items: center;
         }
-        /* Alertas (Módulo 33): nível pela cor da borda, não lido = ponto + negrito */
+        /* Alertas (Módulo 34): nível pela cor da borda, não lido = ponto + negrito */
         .bell-panel .bp-acts { display: flex; gap: 10px; align-items: center; }
         .bell-panel .bp-acts button, .bell-panel .bp-acts a {
           background: none; border: 0; padding: 0; cursor: pointer; font: inherit;
@@ -1311,7 +1315,7 @@ class OfficeNav extends HTMLElement {
     applyTheme(this.getTheme());
   }
 
-  // ── Alertas (Módulo 33) ──────────────────────────────────────────────────
+  // ── Alertas (Módulo 34) ──────────────────────────────────────────────────
   // Badge = crítico/importante ainda não lidos. Clicar num alerta marca como
   // lido e abre onde se resolve; ✕ silencia por 7 dias (só pra você).
   async loadAlerts() {

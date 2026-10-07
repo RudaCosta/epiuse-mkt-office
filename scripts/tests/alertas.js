@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Motor de alertas (Módulo 33): regras com dado semeado, estado (abre/muda/
+// Motor de alertas (Módulo 34): regras com dado semeado, estado (abre/muda/
 // resolve), visibilidade por área, lido/silenciar via HTTP, e-mail de crítico
 // (sem chave → registra "pulado" e não re-tenta) e os HTML dos relatórios.
 //

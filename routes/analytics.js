@@ -48,7 +48,7 @@ const _insOnb = db.prepare(
 );
 const ONB_STEP = /^[a-z0-9]+(?:\.[a-z0-9\/_-]+){0,5}$/;
 
-// ── Áreas com "quem viu o quê" (Módulos 27 Intelligence · 28 Eventos · 29 Pipeline · 30 Brand) ──
+// ── Áreas com "quem viu o quê" (Módulos 27 Intelligence · 28 Eventos · 29 Pipeline · 30 Brand · 31 Relatório · 33 Metas FY27) ──
 // Mesmo beacon: kind=<chave da área>, path=<página> e o passo em `meta`.
 // Passos: 'sec.<id>' (seção apareceu na tela) · 'tempo.<id>.<seg>' (tempo na
 // seção, também em dur_ms) · 'scroll.<25|50|75|100>' · 'tool.<slug>' (abriu
@@ -61,11 +61,13 @@ const AREA_TRACK = {
   pipeline:{ path: '/area/pipeline',     painel: '/admin/pipeline' },
   brand:   { path: '/area/brand',        painel: '/admin/brand' },
   relatorio:{ path: '/relatorio',        painel: '/admin/relatorio' },   // Módulo 31 (export PPT/PDF gravado pelo servidor)
+  metas:   { path: '/metas-fy27',         painel: '/admin/metas' },   // Módulo 33 — placar FY27
 };
 const AREA_KINDS = Object.keys(AREA_TRACK);
 const AREA_RE = AREA_KINDS.join('|');
 const areaPaths = (k) => [AREA_TRACK[k].path, AREA_TRACK[k].path + '/']; // com e sem barra final
-const AREA_STEP = /^[a-z]+(?:\.[a-z0-9_-]{1,40}){1,3}$/;
+// Cada parte começa com letra/dígito: barra '__proto__' (poluiria os mapas do agregador).
+const AREA_STEP = /^[a-z]+(?:\.[a-z0-9][a-z0-9_-]{0,39}){1,3}$/;
 const _insArea = db.prepare(
   `INSERT INTO analytics_events (sid, email, path, kind, dur_ms, ua, ts, meta) VALUES (?,?,?,?,?,?,?,?)`
 );
@@ -167,8 +169,11 @@ function logPageView(req, res, next) {
 router.post('/api/analytics/track', express.json({ limit: '2kb' }), (req, res) => {
   try {
     const b = req.body || {};
-    if (AREA_KINDS.includes(b.kind)) { // áreas com tracking (Módulos 27/28) — aceita lote
+    if (AREA_KINDS.includes(b.kind)) { // áreas com tracking (Módulos 27–31) — aceita lote
       const kind = b.kind, pg = AREA_TRACK[kind].path;
+      // Só quem abre a página grava passos dela (senão aparece no painel quem leva 403 lá)
+      const u = req.session && req.session.user;
+      if (u && !require('./acesso').pode(u, 'GET', pg)) return res.json({ ok: false });
       const steps = (Array.isArray(b.steps) ? b.steps : [b.step]).slice(0, 40);
       const sid = shortSid(req), em = sessionEmail(req), now = Date.now();
       const ua = String(req.headers['user-agent'] || '').slice(0, 200);
@@ -402,6 +407,7 @@ const ADOCAO_FEATURES = [
   { path: '/area/pipeline',  label: '📞 Biz Dev / Pipeline' },
   { path: '/area/eventos',   label: '📍 Field Marketing & Eventos' },
   { path: '/area/brand',     label: '🎨 Brand Experience / Voices' },
+  { path: '/metas-fy27',     label: '🎯 Metas FY27' },
   { path: '/admin/utm',      label: '🔗 UTM & Links (admin)' },
   { path: '/relatorio',      label: '📈 Relatório Mensal' },
 ];
@@ -526,25 +532,25 @@ router.get(`/api/admin/analytics/:area(${AREA_RE})`, requireOwner, (req, res) =>
 
     let nomeDe = null;
     try { nomeDe = db.prepare(`SELECT name, role FROM users WHERE email=?`); } catch (e) {}
-    const who = {};
+    const who = Object.create(null);
     const info = (email) => {
       if (!who[email]) { const u = nomeDe ? nomeDe.get(email) : null; who[email] = { nome: (u && u.name) || '', role: (u && u.role) || null }; }
       return who[email];
     };
 
-    const P = {};   // por pessoa
+    const P = Object.create(null);   // por pessoa (sem protótipo: ids vêm do cliente)
     const pes = (email) => P[email] || (P[email] = {
       email, visitas: 0, sessoes: new Set(), tempo_ms: 0, primeiro: null, ultimo: null,
-      secoes: {}, ferramentas: {}, acoes: 0, scroll: 0,
+      secoes: Object.create(null), ferramentas: Object.create(null), acoes: 0, scroll: 0,
     });
     const touch = (p, ts) => { if (p.primeiro == null || ts < p.primeiro) p.primeiro = ts; if (p.ultimo == null || ts > p.ultimo) p.ultimo = ts; };
 
-    const S = {};   // por seção
+    const S = Object.create(null);   // por seção
     const sec = (id) => S[id] || (S[id] = { id, vistas: 0, pessoas: new Set(), tempo_ms: 0 });
-    const T = {};   // por ferramenta
-    const A = {};   // outras interações (node/achado/tab)
-    const scrollMax = {};
-    const porDia = {};
+    const T = Object.create(null);   // por ferramenta
+    const A = Object.create(null);   // outras interações (node/achado/tab)
+    const scrollMax = Object.create(null);
+    const porDia = Object.create(null);
     let anon = 0;
 
     for (const v of views) {

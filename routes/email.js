@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════════════════════════════
-// routes/email.js — envio de e-mail do Office, num lugar só (Módulo 33)
+// routes/email.js — envio de e-mail do Office, num lugar só (Módulo 34)
 //
 // Por que existe: cada módulo mandava e-mail do seu jeito, com
 // FROM_EMAIL='voices@resend.dev' — remetente que a Resend recusa (o resend.dev
@@ -38,7 +38,7 @@ const OFFICE_URL = String(process.env.OFFICE_URL || process.env.BASE_URL || 'htt
 const EMAIL_RE = /^[^\s@<>"']+@[^\s@<>"']+\.[^\s@<>"']+$/;
 // Endereços que o próprio operador configurou em variável de ambiente (avisos de
 // inscrição, brindes, easter egg, alertas) valem como liberados: antes do
-// Módulo 33 eles saíam sem filtro, e barrá-los agora seria regressão.
+// Módulo 34 eles saíam sem filtro, e barrá-los agora seria regressão.
 const ENV_CONFIAVEIS = new Set(['NOTIFY_EMAIL', 'EGG_NOTIFY_EMAIL', 'BRINDES_NOTIFY_EMAIL', 'ALERTAS_EMAILS']
   .flatMap(k => String(process.env[k] || '').split(','))
   .map(s => s.trim().toLowerCase()).filter(Boolean));
