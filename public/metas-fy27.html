@@ -43,7 +43,7 @@
   --s-longe: var(--color-danger-300);
   --s-aguardando: var(--color-neutral-dark-text-muted);
 }
-html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
 body{background:var(--p-bg);color:var(--p-text);font-family:var(--p-body);line-height:1.6;overflow-x:hidden}
 h1,h2,h3{font-family:var(--p-head);line-height:1.12;letter-spacing:-.015em}
 a{color:var(--p-corn)}
@@ -179,7 +179,8 @@ a.chip:hover{border-color:var(--p-corn);transform:translateY(-2px)}
 .spark rect{fill:color-mix(in srgb,var(--c) 70%,transparent);transform-box:fill-box;transform-origin:bottom;animation:gy .9s var(--ease) both;animation-delay:calc(.25s + var(--k)*18ms)}
 .spark rect.last{fill:var(--c)}
 @keyframes gy{from{transform:scaleY(0)}}
-.spark .ln{fill:none;stroke:var(--c);stroke-width:2;vector-effect:non-scaling-stroke;stroke-dasharray:1;stroke-dashoffset:1;animation:draw 1.6s var(--ease) .25s forwards}
+.spark .ln{fill:none;stroke:var(--c);stroke-width:2;vector-effect:non-scaling-stroke;clip-path:inset(0 100% 0 0);animation:rev 1.6s var(--ease) .25s forwards}
+@keyframes rev{to{clip-path:inset(0 0 0 0)}}
 .spark .ar2{fill:color-mix(in srgb,var(--c) 18%,transparent);opacity:0;animation:fade .8s ease 1s forwards}
 @keyframes draw{to{stroke-dashoffset:0}}
 @keyframes fade{to{opacity:1}}
@@ -318,6 +319,8 @@ span.mk{color:var(--p-muted)}
 .tip b{color:var(--p-text)}
 .toast{position:fixed;left:50%;bottom:24px;z-index:960;transform:translate(-50%,20px);padding:10px 16px;border-radius:var(--rounded-full);background:var(--p-surf);border:1px solid var(--p-line);font-size:13px;opacity:0;transition:.35s var(--ease);pointer-events:none}
 .toast.on{opacity:1;transform:translate(-50%,0)}
+.falha{margin-top:24px;border-color:color-mix(in srgb,var(--p-yellow) 45%,transparent);font-size:14px;color:var(--p-dim)}
+.falha b{color:var(--p-text)}
 .deny{max-width:520px;margin:12vh auto;text-align:center}
 .deny h1{font-size:28px;margin-bottom:10px}
 .deny p{color:var(--p-dim)}
@@ -330,6 +333,7 @@ span.mk{color:var(--p-muted)}
 <div class="bg" aria-hidden="true"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><canvas id="sky"></canvas></div>
 
 <main class="wrap" id="app">
+  <div class="card falha" id="falha" role="alert" hidden></div>
   <!-- TOPO: anéis por área + relógio do ano fiscal -->
   <section class="hero card rv" data-sec="hero">
     <div>
@@ -437,11 +441,12 @@ function dwellDump() {
 }
 const secObs = new IntersectionObserver(es => es.forEach(e => {
   const id = e.target.dataset.sec;
-  if (e.isIntersecting && e.intersectionRatio >= .3) {
+  const base = Math.min(e.boundingClientRect.height, innerHeight) || 1;
+  if (e.isIntersecting && e.intersectionRect.height / base >= .3) {
     if (!SEEN.has(id)) { SEEN.add(id); track('sec.' + id); }
     dwellStart(id);
   } else dwellStop(id);
-}), { threshold: [0, .3, .6] });
+}), { threshold: [0, .02, .05, .1, .15, .2, .3, .45, .6, .8, 1] });
 $$('[data-sec]').forEach(s => secObs.observe(s));
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) dwellDump();
@@ -477,8 +482,8 @@ const AREA_COR = {};
     const d = Math.min(2, devicePixelRatio || 1); W = innerWidth; H = innerHeight; c.width = W * d; c.height = H * d; x.setTransform(d, 0, 0, d, 0, 0);
     P = Array.from({ length: Math.min(80, Math.round(W * H / 18000)) }, () => novo(Math.random() * H));
   };
-  fit(); addEventListener('resize', fit);
   let t = 0;
+  fit(); addEventListener('resize', () => { fit(); if (reduce) draw(); });
   const draw = () => {
     x.clearRect(0, 0, W, H);
     P.forEach(p => {
@@ -518,14 +523,19 @@ const watch = root => [root, ...$$('.rv', root)].forEach(el => { if (!el.classLi
 /* ======================= DRAWER / TOOLTIP ======================= */
 const drawer = $('#drawer'), scrim = $('#scrim');
 let lastFocus = null;
+drawer.inert = true;
 function openDrawer(title, html, cor) {
-  lastFocus = document.activeElement;
+  if (!drawer.contains(document.activeElement)) lastFocus = document.activeElement;
+  drawer.inert = false;
   $('#drTitle').textContent = title; $('#drBody').innerHTML = html;
   drawer.style.setProperty('--c', cor || 'var(--p-corn)');
   drawer.classList.add('on'); scrim.classList.add('on'); drawer.setAttribute('aria-hidden', 'false'); $('#drClose').focus();
   animateIn($('#drBody'));
 }
-function closeDrawer() { drawer.classList.remove('on'); scrim.classList.remove('on'); drawer.setAttribute('aria-hidden', 'true'); if (lastFocus) lastFocus.focus(); }
+function closeDrawer() {
+  drawer.classList.remove('on'); scrim.classList.remove('on'); drawer.setAttribute('aria-hidden', 'true'); drawer.inert = true;
+  if (lastFocus && document.contains(lastFocus)) lastFocus.focus();
+}
 $('#drClose').addEventListener('click', closeDrawer); scrim.addEventListener('click', closeDrawer);
 addEventListener('keydown', e => { if (e.key === 'Escape' && drawer.classList.contains('on')) closeDrawer(); });
 const tip = $('#tip');
@@ -589,10 +599,10 @@ function renderTop() {
     { v: R.aguardando, l: '⏳ aguardando a fonte', c: 'var(--s-aguardando)', f: 'aguardando' },
     { v: R.fora, l: '↗ metas com link (fora do automático)', c: 'var(--p-muted)', f: 'fora' },
   ];
-  $('#kpis').innerHTML = K.map(k => `<button class="kp${k.big ? ' big' : ''}" style="--sc:${k.c}" data-f="${k.f}" data-act="status.kpi-${k.f}"><b data-count="${k.v}">0</b><span>${esc(k.l)}</span></button>`).join('');
+  $('#kpis').innerHTML = K.map(k => `<button class="kp${k.big ? ' big' : ''}" style="--sc:${k.c}" data-f="${k.f}" data-act="kpi.${k.f}"><b data-count="${k.v}">0</b><span>${esc(k.l)}</span></button>`).join('');
   $$('#kpis .kp').forEach(b => b.addEventListener('click', () => {
     if (b.dataset.f === 'fora') { $('#fora').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' }); return; }
-    setStatus(b.dataset.f); $('#placar').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
+    FA = 'todas'; setStatus(b.dataset.f); $('#placar').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });   // KPI é número geral: mostra todas as áreas
   }));
   // fontes ao vivo
   $('#live').innerHTML = '<span>Ao vivo</span>' + (D.fontes.dentro || []).map(f => { const fr = fresco(f); return `<button class="sp ${fr.cls}" data-node="${esc(f.id)}" data-act="node.${aid(f.id)}"><i></i><b>${esc(f.nome)}</b> ${esc(fr.txt)}</button>`; }).join('');
@@ -662,7 +672,7 @@ function spark(s) {
   const lo = mn - pad, hi = mx + pad;
   const pt = (p, i) => [(i / (P.length - 1)) * W, H - 2 - ((p.y - lo) / (hi - lo)) * (H - 4)];
   const d = P.map((p, i) => (i ? 'L' : 'M') + pt(p, i).map(v => v.toFixed(1)).join(',')).join(' ');
-  return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><path class="ar2" d="${d} L${W},${H} L0,${H} Z"/><path class="ln" pathLength="1" d="${d}"/></svg>`;
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><path class="ar2" d="${d} L${W},${H} L0,${H} Z"/><path class="ln" d="${d}"/></svg>`;
 }
 function vals(m) {
   return `<div class="vals"><b class="num" ${m.valor != null ? `data-count="${m.valor}"` : ''}>${m.valor != null ? '0' : '—'}</b>
@@ -671,7 +681,7 @@ function vals(m) {
 }
 function card(m, k) {
   const a = areaDe(m.area), fr = fresco(fonteDe(m.fonte));
-  return `<article class="mc ${esc(m.status)}" tabindex="0" role="button" aria-label="${esc(m.titulo)}: detalhes" data-meta="${esc(m.id)}" data-act="meta.${aid(m.id)}" style="--c:var(${a.cor});--stc:${ST[m.status].c};--k:${k}">
+  return `<article class="mc ${esc(m.status)}" tabindex="0" role="button" aria-label="${esc(`${m.titulo}: ${m.valor != null ? fmt(m.valor) : 'sem dado'}${m.alvo != null ? ' de ' + fmt(m.alvo) + ' ' + m.unidade : ''}, ${ST[m.status].t}. Ver detalhes`)}" data-meta="${esc(m.id)}" data-act="meta.${aid(m.id)}" style="--c:var(${a.cor});--stc:${ST[m.status].c};--k:${k}">
     <div class="mc-h"><span class="ar" title="${esc(a.nome)}"><i></i>${esc(a.ic)} ${esc(a.curto || a.nome)}</span><span class="jn">${esc(m.janela)}</span></div>
     <h3>${esc(m.titulo)}</h3>
     <div class="mc-b"><div class="gz-w">${gauge(m)}<div class="gz-c"><b class="num" ${m.pct != null ? `data-count="${Math.round(m.pct)}" data-suf="%"` : ''}>${m.pct != null ? '0%' : '⏳'}</b>${m.ritmo != null ? '<small>| = hoje</small>' : ''}</div></div>${vals(m)}</div>
@@ -682,13 +692,17 @@ function card(m, k) {
   </article>`;
 }
 function renderFilters() {
-  const n = id => D.metas.filter(m => id === 'todas' || m.area === id).length;
+  const foco = document.activeElement && document.activeElement.closest && document.activeElement.closest('#fArea, #fStatus') ? document.activeElement.dataset : null;
+  const okS = m => !GRUPO_ST[FS] || GRUPO_ST[FS].includes(m.status), okA = m => FA === 'todas' || m.area === FA;
+  const n = id => D.metas.filter(m => (id === 'todas' || m.area === id) && okS(m)).length;
   $('#fArea').innerHTML = [['todas', 'Todas as áreas', '--p-corn']].concat((D.areas || []).map(a => [a.id, `${a.ic} ${a.nome}`, a.cor]))
-    .map(([id, l, c]) => `<button class="fc${FA === id ? ' on' : ''}" style="--c:var(${c})" data-a="${esc(id)}" data-act="area.${aid(id)}"><i></i>${esc(l)}<small>${n(id)}</small></button>`).join('');
-  $$('#fArea .fc').forEach(b => b.addEventListener('click', () => setArea(b.dataset.a)));
-  const ns = f => D.metas.filter(m => !GRUPO_ST[f] || GRUPO_ST[f].includes(m.status)).length;
+    .map(([id, l, c]) => `<button class="fc${FA === id ? ' on' : ''}" style="--c:var(${c})" data-a="${esc(id)}" aria-pressed="${FA === id}"><i></i>${esc(l)}<small>${n(id)}</small></button>`).join('');
+  $$('#fArea .fc').forEach(b => b.addEventListener('click', () => { track('area.' + (FA === b.dataset.a ? 'todas' : aid(b.dataset.a))); setArea(b.dataset.a); }));
+  const ns = f => D.metas.filter(m => okA(m) && (!GRUPO_ST[f] || GRUPO_ST[f].includes(m.status))).length;
   $('#fStatus').innerHTML = STF.map(([f, l]) => `<button class="${FS === f ? 'on' : ''}" data-s="${f}" data-act="status.${f}" aria-pressed="${FS === f}">${esc(l)}<small>${ns(f)}</small></button>`).join('');
   $$('#fStatus button').forEach(b => b.addEventListener('click', () => setStatus(b.dataset.s)));
+  // O botão clicado é recriado: devolve o foco pra quem navega por teclado
+  if (foco) { const alvo = foco.a ? $(`#fArea [data-a="${foco.a}"]`) : foco.s ? $(`#fStatus [data-s="${foco.s}"]`) : null; if (alvo) alvo.focus(); }
 }
 function setArea(id) { FA = FA === id && id !== 'todas' ? 'todas' : id; renderFilters(); drawBoard(); }
 // Anel e legenda levam pra área inteira: zera o filtro de status pra não cair num placar vazio
@@ -744,16 +758,17 @@ const raceObs = new IntersectionObserver(es => es.forEach(e => { if (e.isInterse
 /* ---------- FORA DO AUTOMÁTICO ---------- */
 function renderFora() {
   const F = D.fora, ON = Object.fromEntries((D.fontes.fora || []).map(o => [o.id, o]));
+  const abertos = new Set($$('#acc details[open]').map(d => d.dataset.grp)), jaVisto = !!$('#acc details');
   $('#foraHint').textContent = `${F.total} meta${F.total === 1 ? '' : 's'} · ${F.grupos.length} área${F.grupos.length === 1 ? '' : 's'}`;
   const link = (id) => {
     const o = ON[id];
     if (!o) return '<span class="mk">sem sistema definido</span>';
-    if (!podeVer(o.href)) return `<span class="mk" title="${esc(o.por)}">medido em ${esc(o.nome)}</span>`;
+    if (!o.href || !podeVer(o.href)) return `<span class="mk" title="${esc(o.por)}">medido em ${esc(o.nome)}</span>`;
     return `<a class="mk" href="${esc(o.href)}" data-act="fora.${aid(id)}" title="${esc(o.por)}"${o.ext ? ' target="_blank" rel="noopener"' : ''}>↗ ${esc(o.nome)}</a>`;
   };
   $('#acc').innerHTML = F.grupos.map(g => {
     const ondes = [...new Set(g.itens.map(i => i.onde).filter(Boolean))];
-    return `<details class="grp rv" style="--c:var(${g.cor})" data-grp="${esc(g.area)}">
+    return `<details class="grp${jaVisto ? '' : ' rv'}" style="--c:var(${g.cor})" data-grp="${esc(g.area)}"${abertos.has(g.area) ? ' open' : ''}>
       <summary><span class="gi">${esc(g.ic)}</span><span class="gn"><b>${esc(g.nome)}</b><small>${esc(g.dona)}</small></span>
         <span class="ondes">${ondes.map(o => `<span>${esc((ON[o] || {}).nome || o)}</span>`).join('')}</span>
         <span><span class="cnt" style="--c:var(${g.cor})">${g.itens.length}</span> <span class="chev">›</span></span></summary>
@@ -768,25 +783,27 @@ function renderFora() {
   const box = $('#corte');
   box.hidden = false;
   box.innerHTML = `<span>✂️ Saíram desta página: <b>${fmt(c.regras)}</b> regras de processo e rituais, <b>${fmt(ven.length)}</b> prazos que já venceram, <b>${fmt(c.cabecalhos)}</b> cabeçalhos da planilha e <b>${fmt(c.cobertas)}</b> metas repetidas que já estão no placar. Continuam na planilha.</span>
-    <button class="lk" data-act="corte.regras" id="vRegras">ver regras</button><button class="lk" data-act="corte.vencidas" id="vVenc">ver prazos vencidos</button>`;
+    <button class="lk" data-act="corte.regras" id="vRegras">ver regras</button><button class="lk" data-act="corte.vencidas" id="vVenc">ver prazos vencidos</button><button class="lk" data-act="corte.repetidas" id="vRep">ver repetidas</button>`;
   $('#vRegras').addEventListener('click', () => openDrawer('✂️ Regras e rituais fora do placar', `<p class="pend" style="margin-bottom:12px">Não são metas com número: são regras de processo (cadência de e-mail por evento, regras do DDF, etapas do design, comitês). Seguem valendo, na planilha.</p>
     <ul class="ul">${(c.regras_lista || []).map(r => `<li>${esc(r.label)}<small>${esc(areaDe(r.area).nome)}</small></li>`).join('')}</ul>`));
   $('#vVenc').addEventListener('click', () => openDrawer('⌛ Prazos que já venceram', `<p class="pend" style="margin-bottom:12px">Entregas pontuais com data já passada. Saíram do placar pra não parecer pendência do FY27.</p>
     <ul class="ul">${ven.map(r => `<li>${esc(r.label)}<small>${esc(areaDe(r.area).nome)} · ${esc(r.prazo)}</small></li>`).join('') || '<li>Nenhum.</li>'}</ul>`));
+  $('#vRep').addEventListener('click', () => openDrawer('🔁 Metas repetidas', `<p class="pend" style="margin-bottom:12px">Estão na planilha com outro nome, mas já aparecem no placar com número ao vivo.</p>
+    <ul class="ul">${(c.cobertas_lista || []).map(r => `<li>${esc(r.label)}<small>${esc(areaDe(r.area).nome)}</small></li>`).join('') || '<li>Nenhuma.</li>'}</ul>`));
   watch($('#fora'));
 }
 
 /* ---------- FONTES ---------- */
 function renderFontes() {
   const F = D.fontes, uso = id => D.metas.filter(m => m.fonte === id).length;
-  const ICF = { zoho: '🗂️', apollo: '📨', linkedin: '💼', rd: '📬', hubspot: '🟠', site: '📰', eventos: '📅', df: '💶', canva: '🎨' };
+  const ICF = { zoho: '🗂️', apollo: '📨', linkedin: '💼', perfil: '🙋', rd: '📬', hubspot: '🟠', site: '📰', eventos: '📅', df: '💶', canva: '🎨' };
   $('#flow').innerHTML = `<div class="fl-in"><div class="fl-h">Dentro · atualiza sozinho</div>${F.dentro.map(f => {
       const fr = fresco(f);
       return `<button class="fn${fr.cls === 'ok' ? '' : ' off'}" data-node="${esc(f.id)}" data-act="node.${aid(f.id)}"><span class="fi">${esc(f.ic)}</span><span><b>${esc(f.nome)}</b><small>${esc(f.modo)}</small><small><span class="src ${fr.cls}"><i></i>${esc(fr.txt)}</span> · ${uso(f.id)} meta${uso(f.id) === 1 ? '' : 's'}</small></span></button>`;
     }).join('')}</div>
     <div class="hub"><small>Placar</small><b data-count="${D.metas.length}">0</b><span>metas ao vivo</span></div>
     <div class="fl-out"><div class="fl-h">Fora · só link</div>${F.fora.filter(o => (D.fora.grupos || []).some(g => g.itens.some(i => i.onde === o.id))).map(o => {
-      const ok = podeVer(o.href);
+      const ok = !!o.href && podeVer(o.href);
       const inner = `<span class="fi">${ICF[o.id] || '↗'}</span><span><b>${esc(o.nome)}</b><small>${esc(o.por)}</small></span>`;
       return ok ? `<a class="fn" href="${esc(o.href)}" data-act="fora.${aid(o.id)}"${o.ext ? ' target="_blank" rel="noopener"' : ''}>${inner}</a>` : `<div class="fn">${inner}</div>`;
     }).join('')}</div>`;
@@ -850,8 +867,9 @@ function openMeta(id) {
 /* ---------- DONO: atalho pro painel de tracking (só ele vê) ---------- */
 async function ownerBar() {
   const o = await j('/api/analytics/owner');
-  if (!o.d || !o.d.owner) return;
-  $('#ownerChip').hidden = false;
+  const chip = $('#ownerChip');
+  if (!o.d || !o.d.owner || !chip) return;
+  chip.hidden = false;
   const r = await j('/api/admin/analytics/metas?days=30');
   if (r.d && r.d.resumo) $('#ownerTxt').textContent = `👁️ ${r.d.resumo.pessoas} ${r.d.resumo.pessoas === 1 ? 'pessoa viu' : 'pessoas viram'} em 30 dias · painel`;
 }
@@ -864,25 +882,35 @@ function renderAll() {
 }
 async function load(primeira) {
   const r = await j('/api/metas/fy27/placar');
+  const falha = $('#falha');
   if (!r.d || !r.d.success) {
-    if (!primeira) return;
-    const msg = r.st === 401 || r.st === 403 ? 'O placar é do time de Marketing. Se você deveria ver esta página, peça acesso ao Rudá.' : 'Não consegui carregar o placar agora. Tente de novo em instantes.';
-    $('#app').innerHTML = `<div class="deny"><h1>${r.st === 401 || r.st === 403 ? '🔒 Sem acesso' : '⚠️ Placar indisponível'}</h1><p>${esc(msg)}</p></div>`;
-    return;
+    if (r.st === 401 || r.st === 403) {
+      $('#app').innerHTML = '<div class="deny"><h1>🔒 Sem acesso</h1><p>O placar é do time de Marketing. Se você deveria ver esta página, peça acesso ao Rudá.</p></div>';
+      return 'negado';
+    }
+    // Erro passageiro (deploy reiniciando, rede): mantém a página e tenta de novo no próximo ciclo
+    if (!D) { falha.hidden = false; falha.innerHTML = '⚠️ <b>Não consegui carregar o placar agora.</b> Tento de novo sozinho em 1 minuto.'; }
+    return 'falhou';
   }
+  falha.hidden = true;
   const sig = assinatura(r.d);
-  if (!primeira && sig === LAST) return;
+  if (!primeira && sig === LAST) return 'igual';
+  const novo = !!D;
   D = r.d; LAST = sig;
   renderAll();
-  if (!primeira) toast('🔄 Placar atualizado com dado novo');
+  if (novo) toast('🔄 Placar atualizado com dado novo');
+  return 'ok';
 }
 (async () => {
   watch($('.hero'));
   ACESSO = (await j('/api/acesso/me')).d;
-  await load(true);
+  const st = await load(true);
+  if (st === 'negado') return;
   ownerBar();
-  // Apollo muda a cada 6h, Office na hora: confere a cada 5 min e só redesenha se mudou
-  setInterval(() => { if (!document.hidden) load(false); }, 5 * 60 * 1000);
+  // Apollo muda a cada 6h, Office na hora: confere a cada 5 min (1 min enquanto a 1ª carga não veio)
+  // e só redesenha se mudou
+  const ciclo = () => setTimeout(async () => { if (!document.hidden || !D) await load(false); ciclo(); }, D ? 5 * 60 * 1000 : 60 * 1000);
+  ciclo();
 })();
 })();
 </script>

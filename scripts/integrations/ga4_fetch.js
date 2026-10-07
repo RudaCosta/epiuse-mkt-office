@@ -125,11 +125,14 @@ async function fetchGA4(mes, { withTopPages = true } = {}) {
     },
   });
 
-  // rows[0] = range atual, rows[1] = anterior (ordem dos dateRanges)
+  // Com 2 dateRanges o GA4 devolve uma linha por range, com a dimensão
+  // dateRange = nome do range ('atual'/'anterior'), ORDENADAS PELA MÉTRICA — não
+  // pela ordem dos ranges. Antes pegava rows[0] e gravava max(mês, mês anterior)
+  // (bug achado no Módulo 31, 06/out/2026). Casa pelo nome; sem a linha = 0.
   const rows = res.data.rows || [];
+  const NOMES = [['atual', 'date_range_0'], ['anterior', 'date_range_1']];
   const grab = (rangeIdx) => {
-    const row = rows.find(r => Number(r.dimensionValues?.[0]?.value ?? r.dateRangeIndex ?? -1) === rangeIdx)
-             || rows[rangeIdx];
+    const row = rows.find(r => NOMES[rangeIdx].includes(r.dimensionValues?.[0]?.value));
     const v = (row && row.metricValues) ? row.metricValues.map(x => Number(x.value)) : [0, 0, 0, 0];
     const activeUsers = v[0];
     const userEngagementDuration = v[3];
@@ -161,6 +164,7 @@ async function fetchGA4(mes, { withTopPages = true } = {}) {
     anterior,
     top_pages,
     fonte: 'GA4 Data API',
+    linhas_por_nome: true,   // buscado já com a correção do range (Módulo 31) — o placar só confia nesses
     atualizado_em: new Date().toISOString(),
   };
 }
@@ -203,22 +207,32 @@ async function refreshFY(fy, { force = false } = {}) {
   const snap = readSnapshot();
   snap.meses = snap.meses || {};
   const obtidos = [];
+  const buscados = [];
   const erros = [];
   for (const m of elegiveis) {
-    if (!force && snap.meses[m] && snap.meses[m].usuarios != null) {
+    // Mês gravado antes da correção das linhas (sem linhas_por_nome) conta como faltando.
+    if (!force && snap.meses[m] && snap.meses[m].usuarios != null && snap.meses[m].linhas_por_nome) {
       obtidos.push(m);
       continue;
     }
     try {
       const r = await fetchGA4(m);
       snap.meses[m] = r;
-      obtidos.push(m);
+      obtidos.push(m); buscados.push(m);
     } catch (e) {
       erros.push({ mes: m, erro: e.message });
     }
   }
-  snap.atualizado_em = new Date().toISOString();
-  writeSnapshot(snap);
+  // Relê antes de gravar: o refresh diário (refreshAndCache) pode ter gravado o mês
+  // corrente enquanto este loop esperava a API — mescla só o que foi buscado aqui.
+  // O carimbo global só anda quando algum mês veio de fato da API (senão escondia falha).
+  if (buscados.length) {
+    const atual = readSnapshot();
+    atual.meses = atual.meses || {};
+    buscados.forEach(m => { atual.meses[m] = snap.meses[m]; });
+    atual.atualizado_em = new Date().toISOString();
+    writeSnapshot(atual);
+  }
   // Totais agregados do FY (real data only — soma só dos meses obtidos)
   const sumKey = (k) => obtidos.reduce((a, m) => a + (snap.meses[m]?.[k] ?? 0), 0);
   const totais = {

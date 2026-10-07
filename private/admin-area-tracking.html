@@ -228,9 +228,10 @@ const AREAS = {
       ['hero', '🎯 Topo · anéis por área'], ['placar', '🏁 Placar ao vivo'], ['corrida', '🏃 Corrida das áreas'],
       ['fora', '↗ Fora do automático'], ['fontes', '🔌 Fontes · dentro e fora']
     ],
-    nodes: { apollo: 'Apollo (auto 6h)', office: 'Office (ao vivo)', ga4: 'GA4 (diário)', zoho: 'Zoho CRM (link)',
-      linkedin: 'LinkedIn da empresa (link)', rd: 'RD Station (link)', hubspot: 'HubSpot (link)', site: 'Blog / Artigos (link)',
-      eventos: 'Área Field Marketing (link)', df: 'SAP Development Funds (link)', canva: 'Canva (link)' },
+    nodes: { apollo: 'Apollo (auto 6h)', office: 'Office (ao vivo)', ga4: 'GA4 (diário)' },
+    // 'fora.<id>' = link pra onde a meta é medida (Apollo aqui é o app, não a fonte automática)
+    fora: { apollo: 'Apollo (app)', zoho: 'Zoho CRM', linkedin: 'LinkedIn da empresa', rd: 'RD Station', hubspot: 'HubSpot',
+      site: 'Blog / Artigos', eventos: 'Área Field Marketing', df: 'SAP Development Funds', canva: 'Canva' },
   },
 };
 const A = AREAS[location.pathname.replace(/\/+$/, '').split('/').pop()] || AREAS.intelligence;
@@ -274,7 +275,7 @@ function acaoLabel(id) {
   if (k === 'estagio') return '🪜 Estágio da base · ' + v.replace(/-/g, ' ');
   if (k === 'canal') return '📡 Canal · ' + v.replace(/_/g, ' ');
   if (k === 'flow') return '🚀 Etapa da máquina · ' + v;
-  if (k === 'fora') return '↗ Abriu fonte de fora · ' + (NODE[v] || v);
+  if (k === 'fora') return '↗ Abriu fonte de fora · ' + ((A.fora || NODE)[v] || v);
   if (k === 'refresh') return '🔄 Pediu atualização · ' + v;
   if (k === 'voice') return '🎙️ Abriu Voice · ' + (VOI[v] || v.replace(/-/g, ' '));
   if (k === 'vaga') return '🪑 Abriu vaga aberta #' + v;
@@ -287,11 +288,12 @@ function acaoLabel(id) {
   if (k === 'cor') return '🎨 Copiou cor · ' + v.replace(/-/g, ' ');
   if (k === 'top') return '🏆 Ranking de cliques · ' + (VOI[v] || v.replace(/-/g, ' '));
   if (k === 'meta') return '🎯 Abriu meta · ' + (MET[v] || v.replace(/-/g, ' '));
+  if (k === 'kpi') return v === 'fora' ? '📊 Clicou no KPI · pulou pra Fora do automático' : '📊 Clicou no KPI · ' + ({ todas: 'metas no placar', batida: 'batidas', ritmo: 'no ritmo', atras: 'atrás', longe: 'longe', aguardando: 'aguardando' }[v] || v);
   if (k === 'area') return '🏷️ Filtro de área · ' + (v === 'todas' ? 'todas' : (ARN[v] || v));
   if (k === 'anel') return '⭕ Clicou no anel · ' + (ARN[v] || v);
   if (k === 'grupo') return '📂 Abriu metas de fora · ' + (ARN[v] || v);
   if (k === 'areapg') return '🧭 Foi pra página da área · ' + (ARN[v] || v);
-  if (k === 'corte') return '✂️ Viu o que saiu · ' + ({ regras: 'regras de processo', vencidas: 'prazos vencidos' }[v] || v);
+  if (k === 'corte') return '✂️ Viu o que saiu · ' + ({ regras: 'regras de processo', vencidas: 'prazos vencidos', repetidas: 'metas repetidas' }[v] || v);
   if (k === 'tool') return TOOLS[v] || ('🔧 ' + v);
   if (k === 'sec') return '👀 Viu · ' + (SECL[v] || v);
   if (k === 'scroll') return '📜 Rolou até ' + v + '%';

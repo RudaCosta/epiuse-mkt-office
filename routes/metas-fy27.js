@@ -66,6 +66,7 @@ const ONDE = {
   zoho:     { nome: 'Zoho CRM', href: 'https://crm.zoho.com/crm/', ext: true, por: 'sync manual (depende de sessão do Claude)' },
   apollo:   { nome: 'Apollo', href: 'https://app.apollo.io/', ext: true, por: 'a API cobre só e-mails das sequências' },
   linkedin: { nome: 'LinkedIn da empresa', href: '/linkedin', ext: false, por: 'export manual (XLS) — LinkedIn não tem API aberta' },
+  perfil:   { nome: 'Perfil pessoal no LinkedIn', href: null, ext: false, por: 'atividade de cada pessoa (conexões, comentários, SSI) — LinkedIn não tem API' },
   rd:       { nome: 'RD Station', href: 'https://app.rdstation.com.br/', ext: true, por: 'a API atual não traz MQL, abertura nem CTR' },
   hubspot:  { nome: 'HubSpot', href: 'https://app.hubspot.com/', ext: true, por: 'sem integração no servidor' },
   site:     { nome: 'Blog / Artigos', href: '/artigos', ext: false, por: 'base de artigos importada à parte' },
@@ -88,11 +89,12 @@ function janela(hist, campo, dias) {
   const h = hist.filter(r => r[campo] != null);
   if (h.length < 2) return null;
   const last = h[h.length - 1], lastT = ms(last.dia), alvo = lastT - dias * DAY;
-  let base = h[0];
-  for (const r of h) if (ms(r.dia) <= alvo) base = r;
+  // Base = 1º registro DENTRO da janela: com buraco no histórico a janela encolhe
+  // (e a meta fica proporcional) em vez de somar dias de fora dela.
+  const base = h.find(r => ms(r.dia) >= alvo);
   const span = Math.round((lastT - ms(base.dia)) / DAY);
   if (span < 1) return null;
-  return { v: Math.max(0, last[campo] - base[campo]), dias: Math.min(span, dias), desde: base.dia };
+  return { v: Math.max(0, last[campo] - base[campo]), dias: span, desde: base.dia, ate: last.dia };
 }
 // Série diária: diferença dia a dia (acumulado) ou valor do dia (estoque)
 function serieHist(hist, campo, modo, dias = 30) {
@@ -105,13 +107,21 @@ function serieHist(hist, campo, modo, dias = 30) {
 }
 
 // ── GA4 (meses do FY completos, refresh diário do mês corrente fica no server.js) ──
+const mesAnterior = () => { const d = new Date(); d.setUTCDate(1); d.setUTCMonth(d.getUTCMonth() - 1); return d.toISOString().slice(0, 7); };
+const inicioMesSeguinte = (k) => Date.UTC(+k.slice(0, 4), +k.slice(5, 7), 1);
 function ga4Dados() {
   const s = lerJSON('ga4-snapshot.json');
-  const meses = (s && s.meses) || {};
-  const keys = Object.keys(meses).filter(k => meses[k] && meses[k].sessoes != null).sort();
+  const todos = (s && s.meses) || {};
+  // Só meses que o servidor buscou já com a correção das linhas (linhas_por_nome).
+  // O arquivo do git (recriado a cada deploy) traz meses antigos com o bug e sem frescor.
+  const meses = {};
+  Object.keys(todos).forEach(k => { const m = todos[k]; if (m && m.sessoes != null && m.linhas_por_nome) meses[k] = m; });
+  const keys = Object.keys(meses).sort();
   const atual = new Date().toISOString().slice(0, 7);
-  const fechados = keys.filter(k => k < atual);
-  const t = s && s.atualizado_em ? ms(s.atualizado_em) : null;
+  // "Fechado" = buscado pelo menos 1 dia depois que o mês acabou (dia completo + processamento do GA4)
+  const fechados = keys.filter(k => k < atual && (ms(meses[k].atualizado_em) || 0) >= inicioMesSeguinte(k) + DAY);
+  // Frescor pelo dado mais novo de fato buscado (o carimbo global não prova que a busca deu certo)
+  const t = keys.reduce((mx, k) => Math.max(mx, ms(meses[k].atualizado_em) || 0), 0) || null;
   let status = 'ok';
   if (!keys.length) status = process.env.GA4_PROPERTY_ID ? 'aguardando' : 'sem-chave';
   else if (!t || Date.now() - t > GA4_STALE_MS) status = 'parado';
@@ -121,46 +131,70 @@ const GA4 = { running: false };
 async function ga4CompletaFY() {
   if (!process.env.GA4_PROPERTY_ID || GA4.running) return;
   GA4.running = true;
+  const ga = require('../scripts/integrations/ga4_fetch.js');
   try {
-    const r = await require('../scripts/integrations/ga4_fetch.js').refreshFY(27);
-    console.log(`[metas-fy27] GA4 FY27 — ${r.meses_obtidos.length} mês(es) no cache${r.erros.length ? ` · ${r.erros.length} erro(s)` : ''}`);
-  } catch (e) { console.warn('[metas-fy27] GA4 FY27 falhou:', e.message); }
+    // FY26 também: rebusca os meses gravados com o bug das linhas (o /relatorio lê esses meses).
+    for (const fy of [26, 27]) {
+      const r = await ga.refreshFY(fy);
+      console.log(`[metas-fy27] GA4 FY${fy} — ${r.meses_obtidos.length} mês(es) ok${r.erros.length ? ` · ${r.erros.length} erro(s): ${r.erros[0].erro}` : ''}`);
+    }
+    // Mês que acabou: a última gravação dele foi no último dia, ainda incompleto.
+    // Rebusca até ter uma cópia feita 2 dias depois da virada.
+    const ant = mesAnterior(), fim = inicioMesSeguinte(ant);
+    const m = ((ga.readSnapshot() || {}).meses || {})[ant];
+    if (Date.now() >= fim + DAY && (!m || !m.linhas_por_nome || (ms(m.atualizado_em) || 0) < fim + 2 * DAY)) {
+      await ga.refreshAndCache(ant);
+      console.log(`[metas-fy27] GA4 ${ant} rebuscado (mês fechado)`);
+    }
+  } catch (e) { console.warn('[metas-fy27] GA4 falhou:', e.message); }
   finally { GA4.running = false; }
 }
 if (process.env.GA4_PROPERTY_ID) {
   // public/api é recriado a cada deploy: sem isso só o mês corrente voltava pro cache.
-  setTimeout(ga4CompletaFY, 3 * 60 * 1000).unref();
-  setInterval(ga4CompletaFY, 24 * 60 * 60 * 1000).unref();
+  // 3 min depois do boot e, a partir daí, a cada 24h — defasado do refresh diário do server.js.
+  setTimeout(() => { ga4CompletaFY(); setInterval(ga4CompletaFY, 24 * 60 * 60 * 1000).unref(); }, 3 * 60 * 1000).unref();
 }
 
 // ── EVENTOS (kanban + captura pós-evento, gravados no Office) ───────────────
-function eventosDados(ano) {
+// Meses do FY27 (jul → jun), na ordem
+const FY_MESES = Array.from({ length: 12 }, (_, i) => { const d = new Date(Date.UTC(+FY.inicio.slice(0, 4), +FY.inicio.slice(5, 7) - 1 + i, 1)); return d.toISOString().slice(0, 7); });
+// A meta é da planilha FY27: conta só eventos com data dentro de jul/26 → jun/27.
+// Data = data_evento; sem ela, o mês do slug (brasil-<mês>-…) no ano do calendário.
+// Sem data nenhuma, o evento fica de fora (não dá pra saber de que ano é).
+function eventosDados(anoCalendario) {
   const rows = all(`SELECT event_id, nome, data_evento, status, captura_json, updated_at FROM field_events WHERE event_id LIKE 'brasil-%'`);
-  const doAno = rows.filter(r => !r.data_evento || String(r.data_evento).slice(0, 4) === String(ano));
-  const mesDe = (r) => { const d = String(r.data_evento || ''); if (/^\d{4}-\d{2}/.test(d)) return Number(d.slice(5, 7)); const m = /^brasil-(\d{1,2})-/.exec(r.event_id); return m ? Number(m[1]) : null; };
-  const feitos = doAno.filter(r => r.status === 'pos-evento' || r.status === 'concluido');
-  const porMesFeitos = Array.from({ length: 12 }, () => 0), porMesLeads = Array.from({ length: 12 }, () => 0);
+  const mesDe = (r) => {
+    const d = String(r.data_evento || '');
+    if (/^\d{4}-\d{2}/.test(d)) return d.slice(0, 7);
+    const m = /^brasil-(\d{1,2})-/.exec(r.event_id);
+    return m && anoCalendario ? `${anoCalendario}-${String(m[1]).padStart(2, '0')}` : null;
+  };
+  const doFY = rows.map(r => ({ ...r, mes: mesDe(r) })).filter(r => r.mes && FY_MESES.includes(r.mes));
+  const feitos = doFY.filter(r => r.status === 'pos-evento' || r.status === 'concluido');
+  const porMesFeitos = FY_MESES.map(() => 0), porMesLeads = FY_MESES.map(() => 0);
   let leads = 0, comCaptura = 0, ultima = null;
-  doAno.forEach(r => {
-    const m = mesDe(r);
+  doFY.forEach(r => {
     let c = {}; try { c = JSON.parse(r.captura_json || '{}'); } catch (_) {}
     const l = Number(c.leads) || 0;
-    if (l > 0) { leads += l; comCaptura++; if (m) porMesLeads[m - 1] += l; }
+    if (l > 0) { leads += l; comCaptura++; porMesLeads[FY_MESES.indexOf(r.mes)] += l; }
     const t = ms(r.updated_at); if (t && (!ultima || t > ultima)) ultima = t;
   });
-  feitos.forEach(r => { const m = mesDe(r); if (m) porMesFeitos[m - 1]++; });
-  return { realizados: feitos.length, leads, com_captura: comCaptura, registrados: doAno.length, porMesFeitos, porMesLeads, ultima: ultima ? new Date(ultima).toISOString() : null };
+  feitos.forEach(r => { porMesFeitos[FY_MESES.indexOf(r.mes)]++; });
+  return { realizados: feitos.length, leads, com_captura: comCaptura, registrados: doFY.length, porMesFeitos, porMesLeads, ultima: ultima ? new Date(ultima).toISOString() : null };
 }
 
 // ── CONTEÚDO (pautas da Redatoria no Office) ────────────────────────────────
+// Importação em lote (external_id, grava a data do import) e o gerador de IA (autor 'Rax')
+// ficam de fora: inflariam "pautas no mês" sem ninguém ter escrito pauta nova.
+const PAUTA_DA_REDATORIA = `COALESCE(external_id,'') = '' AND COALESCE(autor,'') <> 'Rax'`;
 function pautasDados() {
-  const d30 = one(`SELECT COUNT(*) n FROM content_pipeline WHERE created_at >= datetime('now','-30 days')`).n;
-  const tot = one(`SELECT COUNT(*) n, MAX(created_at) ultima FROM content_pipeline`);
+  const d30 = one(`SELECT COUNT(*) n FROM content_pipeline WHERE ${PAUTA_DA_REDATORIA} AND created_at >= datetime('now','-30 days')`).n;
+  const tot = one(`SELECT COUNT(*) n, MAX(created_at) ultima FROM content_pipeline WHERE ${PAUTA_DA_REDATORIA}`);
   const sem = [];
   const seg = (t) => { const d = new Date(t); const k = (d.getUTCDay() + 6) % 7; return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() - k); };
   const s0 = seg(Date.now());
   for (let i = 11; i >= 0; i--) sem.push({ x: dia(s0 - i * 7 * DAY), y: 0 });
-  all(`SELECT created_at FROM content_pipeline WHERE created_at >= datetime('now','-90 days')`).forEach(r => {
+  all(`SELECT created_at FROM content_pipeline WHERE ${PAUTA_DA_REDATORIA} AND created_at >= datetime('now','-90 days')`).forEach(r => {
     const t = ms(r.created_at); if (t == null) return;
     const i = sem.findIndex(s => s.x === dia(seg(t))); if (i >= 0) sem[i].y++;
   });
@@ -196,14 +230,18 @@ function metasVivas(ctx) {
   const pendHist = hist0 ? `⏳ acumulando histórico desde ${hist0.split('-').reverse().join('/')}` : '⏳ o histórico começa no 1º refresh automático do Apollo';
 
   // Janela de N dias sobre o histórico do Apollo; meta proporcional enquanto o histórico não cobre a janela
+  // Apollo parado: o número é dos dias até o último refresh que deu certo — avisa no card.
+  const parado = ap.status.status === 'parado' || ap.status.status === 'erro';
+  const congelado = (w) => parado && w ? { etiqueta: `⚠️ Apollo sem atualizar — contagem até ${w.ate.split('-').reverse().join('/')}` } : {};
   const viaJanela = (campo, dias, alvo) => {
     const w = janela(ap.hist, campo, dias);
     if (!w) return { valor: null, alvo, nota: pendHist };
     if (w.dias < dias) {
-      return { valor: w.v, alvo: alvo != null ? Math.round(alvo * w.dias / dias) : null, alvo_cheio: alvo,
-        nota: `últimos ${w.dias} de ${dias} dias`, etiqueta: `⚠️ Estimativa — meta proporcional a ${w.dias} de ${dias} dias (histórico ainda curto)` };
+      // Nunca arredonda a meta proporcional pra 0 (viraria "sem meta")
+      return { valor: w.v, alvo: alvo != null ? Math.max(1, Math.round(alvo * w.dias / dias)) : null, alvo_cheio: alvo,
+        nota: `últimos ${w.dias} de ${dias} dias`, etiqueta: `⚠️ Estimativa — meta proporcional a ${w.dias} de ${dias} dias (histórico com menos dias que a janela)`, ...congelado(w) };
     }
-    return { valor: w.v, alvo, nota: `últimos ${dias} dias` };
+    return { valor: w.v, alvo, nota: `últimos ${dias} dias`, ...congelado(w) };
   };
 
   // ── Biz Dev / Pipeline (Apollo) ──
@@ -240,16 +278,17 @@ function metasVivas(ctx) {
 
   // ── Field Marketing & Eventos (Office) ──
   const MESES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
-  const mesSerie = (arr) => arr.map((y, i) => ({ x: `${rel.ano}-${String(i + 1).padStart(2, '0')}`, y, rot: MESES[i] }));
-  M.push({ id: 'eventos-realizados', area: 'eventos', titulo: 'Eventos BR realizados', unidade: 'eventos', janela: `ano ${rel.ano}`, fonte: 'office',
+  const mesSerie = (arr) => arr.map((y, i) => ({ x: FY_MESES[i], y, rot: MESES[Number(FY_MESES[i].slice(5)) - 1] }));
+  M.push({ id: 'eventos-realizados', area: 'eventos', titulo: 'Eventos BR realizados', unidade: 'eventos', janela: FY.nome, fonte: 'office',
     valor: ev.realizados, alvo: planilha(/eventos executados no ano/i) || funil('eventos', /^executados$/i), alvo_fonte: F_PLAN,
-    ritmo: rel.ano_pct, nota: `marcados como pós-evento ou concluído no kanban · ${ev.registrados} evento(s) BR com registro no Office`,
-    como: 'Eventos do Brasil que o Field Marketing moveu para "Pós-evento" ou "Concluído" no kanban do Office. Evento que aconteceu e não foi movido não conta — por isso o número pode ficar abaixo da agenda.',
+    ritmo: rel.pct, nota: `marcados como pós-evento ou concluído no kanban · ${ev.registrados} evento(s) BR do ${FY.nome} com registro no Office`,
+    como: `Eventos do Brasil com data no ${FY.nome} (jul/26 → jun/27) que o Field Marketing moveu para "Pós-evento" ou "Concluído" no kanban do Office. Evento que aconteceu e não foi movido não conta — por isso o número pode ficar abaixo da agenda.`,
     serie: { tipo: 'barras', rotulo: 'eventos realizados por mês', pontos: mesSerie(ev.porMesFeitos) } });
-  M.push({ id: 'eventos-leads', area: 'eventos', titulo: 'Leads capturados em eventos', unidade: 'leads', janela: `ano ${rel.ano}`, fonte: 'office',
-    valor: ev.leads, alvo: funil('eventos', /leads capturados/i), alvo_fonte: F_FUNIL, ritmo: rel.ano_pct,
+  M.push({ id: 'eventos-leads', area: 'eventos', titulo: 'Leads capturados em eventos', unidade: 'leads', janela: FY.nome, fonte: 'office',
+    valor: ev.leads, alvo: funil('eventos', /leads capturados/i), alvo_fonte: F_FUNIL, ritmo: rel.pct,
+    etiqueta: `⚠️ Estimativa — premissa: a meta de leads é do ${FY.nome} inteiro`,
     nota: ev.com_captura ? `soma da captura pós-evento de ${ev.com_captura} evento(s)` : 'nenhuma captura pós-evento registrada ainda',
-    como: 'Soma do campo "leads" da captura pós-evento (aba Pós-evento do evento, na área Field Marketing).',
+    como: `Soma do campo "leads" da captura pós-evento dos eventos BR com data no ${FY.nome} (aba Pós-evento do evento, na área Field Marketing).`,
     serie: { tipo: 'barras', rotulo: 'leads por mês do evento', pontos: mesSerie(ev.porMesLeads) } });
 
   // ── Brand Experience / Voices (Office) ──
@@ -274,24 +313,27 @@ function metasVivas(ctx) {
     serie: { tipo: 'barras', rotulo: 'posts por mês', alvo: true, pontos: ppm } });
 
   // ── Conteúdo / Redatoria (GA4 + Office) ──
-  const ult = ga4.fechados[ga4.fechados.length - 1];
-  const mAtual = ga4.meses[ga4.atual];
-  const anterior = (() => { const d = new Date(); d.setUTCDate(1); d.setUTCMonth(d.getUTCMonth() - 1); return d.toISOString().slice(0, 7); })();
+  // GA4 fora do ar = "aguardando" (o arquivo do git não vale como número ao vivo)
+  const ga4ok = ga4.status === 'ok';
+  const ult = ga4ok ? ga4.fechados[ga4.fechados.length - 1] : null;
+  const mAtual = ga4ok ? ga4.meses[ga4.atual] : null;
+  const anterior = mesAnterior();
   const mesTxt = (k) => `${['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'][Number(k.slice(5)) - 1]}/${k.slice(2, 4)}`;
-  const g12 = ga4.keys.slice(-12).map(k => ({ x: k, y: ga4.meses[k].sessoes }));
+  const g12 = ga4ok ? ga4.fechados.slice(-12).map(k => ({ x: k, y: ga4.meses[k].sessoes })) : [];
   M.push({ id: 'conteudo-trafego', area: 'conteudo', titulo: 'Tráfego do site', unidade: 'sessões', janela: ult ? `mês ${mesTxt(ult)}` : 'último mês', fonte: 'ga4',
     valor: ult ? ga4.meses[ult].sessoes : null, alvo: funil('conteudo', /tr[aá]fego/i), alvo_fonte: F_FUNIL,
-    etiqueta: '⚠️ Estimativa — premissa: a meta de tráfego é lida como sessões por mês (GA4)',
-    nota: !ult ? '⏳ aguardando o GA4'
+    etiqueta: '⚠️ Estimativa — premissa: a meta de tráfego é lida como sessões por mês (GA4). O site migrou pro HubSpot CMS em ago/26: o GA4 só conta tudo se a tag dele estiver lá.',
+    nota: !ga4ok ? (ga4.status === 'parado' ? `⏳ GA4 sem atualizar desde ${(ga4.ultima_sync_ts || '').slice(0, 10).split('-').reverse().join('/')}` : '⏳ aguardando o primeiro refresh do GA4')
+      : !ult ? '⏳ aguardando o GA4 fechar o primeiro mês'
       : ult === anterior ? `último mês fechado${mAtual ? ` · ${mesTxt(ga4.atual)} até agora: ${Number(mAtual.sessoes).toLocaleString('pt-BR')}` : ''}`
       : `⚠️ o cache do GA4 ainda não tem ${mesTxt(anterior)} — mostrando ${mesTxt(ult)}`,
-    como: 'Sessões do site no último mês fechado, pelo GA4 (refresh diário no servidor).',
+    como: 'Sessões do site no último mês fechado, pelo GA4 (refresh diário no servidor). Só entram meses buscados pelo servidor depois que o mês acabou.',
     serie: { tipo: 'barras', rotulo: 'sessões por mês', alvo: true, pontos: g12 } });
   M.push({ id: 'conteudo-pautas', area: 'conteudo', titulo: 'Pautas da Redatoria', unidade: 'pautas', janela: '30 dias', fonte: 'office',
     valor: pautas.d30, alvo: funil('conteudo', /^pautas$/i), alvo_fonte: F_FUNIL,
     etiqueta: '⚠️ Estimativa — premissa: a meta de pautas é lida como mensal',
     nota: pautas.total != null ? `${pautas.total} pauta(s) no pipeline do Office` : '—',
-    como: 'Pautas criadas no pipeline de conteúdo do Office (content_pipeline) nos últimos 30 dias.',
+    como: 'Pautas criadas no pipeline de conteúdo do Office (content_pipeline) nos últimos 30 dias. Ficam de fora as importadas em lote da planilha editorial (entram com a data do import) e as geradas pelo Rax (IA).',
     serie: { tipo: 'barras', rotulo: 'pautas por semana', pontos: pautas.semanas } });
 
   return M.map(m => avalia({ ritmo: null, etiqueta: null, ...m }));
@@ -330,7 +372,9 @@ function ondeMedir(area, txt, soRotulo = false) {
   if (/sqo|pipeline gerado|no-show|mql ?(→|->)? ?sql|conversao mql|zoho|inteligencia de mercado|oportunidade|vendas|duplicata/.test(s)) return 'zoho';
   if (/hubspot/.test(s)) return 'hubspot';
   if (/toques|liga[cç]|enriquec/.test(s)) return 'apollo';   // antes do LinkedIn: "toques (ligação + e-mail + LinkedIn)"
-  if (/linkedin|seguidor|coment|conex|c-level|social selling|postage|impress|alcance|engajamento|^cliques$/.test(s)) return 'linkedin';
+  // Atividade de cada pessoa no próprio perfil ≠ página da empresa
+  if (/pessoal|coment|conex|c-level|social selling/.test(s)) return 'perfil';
+  if (/linkedin|seguidor|postage|impress|alcance|engajamento|^cliques$/.test(s)) return 'linkedin';
   if (/mql|abertura|ctr|clique|inbound|landing/.test(s)) return 'rd';
   if (/artigo|wordpress|e-?book|blog/.test(s)) return 'site';
   return !soRotulo && area === 'pipeline' ? 'zoho' : null;
@@ -349,7 +393,8 @@ function metasFora(ctx) {
     if (CABECALHO.test(label) || /^(crit[eé]rio|prazo padr[aã]o)$/i.test(m.periodo || '')) { corte.cabecalhos++; return; }
     if (REGRA.some(r => r.test(label))) { corte.regras.push({ area, label }); return; }
     if (COBERTA.some(r => r.test(label))) { corte.cobertas.push({ area, label }); return; }
-    if (prazoVencido(alvoTxt) || prazoVencido(m.periodo)) { corte.vencidas.push({ area, label, prazo: alvoTxt }); return; }
+    const venceu = prazoVencido(alvoTxt) ? alvoTxt : prazoVencido(m.periodo) ? m.periodo : null;
+    if (venceu) { corte.vencidas.push({ area, label, prazo: venceu }); return; }
     // Alvo numérico ganha a unidade de tempo quando o rótulo ainda não diz ("12" → "12 / mês")
     let alvo = alvoTxt;
     if (typeof m.valor === 'number') {
@@ -361,13 +406,13 @@ function metasFora(ctx) {
   });
 
   // Funil das áreas: estágio com meta e sem fonte automática nesta página
-  const vivasTxt = new Set(['e-mails enviados', 'reunioes realizadas', 'sequencias ativas', 'base crm (contatos)', 'empresas mapeadas',
+  // "Reuniões realizadas" do funil ≠ "Reuniões marcadas" do placar (Apollo): vai pra fora (Zoho)
+  const vivasTxt = new Set(['e-mails enviados', 'sequencias ativas', 'base crm (contatos)', 'empresas mapeadas',
     'executados', 'leads capturados', 'voices recrutados', 'ativos', 'posts/mes', 'trafego (site)', 'pautas']);
   (areas.areas || []).forEach(a => {
     if (!AREAS[a.id]) return;
     (a.funil || []).forEach(f => {
       if (f.meta == null || vivasTxt.has(norm(f.estagio))) return;
-      if (a.id === 'eventos' && /planejados/i.test(f.estagio)) return; // agenda, não resultado
       add(a.id, { label: f.estagio, alvo: Number(f.meta).toLocaleString('pt-BR'), janela: f.obs || '', origem: 'funil', onde: ondeMedir(a.id, f.estagio) || (a.id === 'conteudo' ? 'site' : null) });
     });
   });
@@ -376,7 +421,7 @@ function metasFora(ctx) {
   return {
     grupos: ordem.filter(id => grupos[id]).map(id => ({ area: id, ...AREAS[id], itens: grupos[id] })),
     total: Object.values(grupos).reduce((s, g) => s + g.length, 0),
-    corte: { regras: corte.regras.length, vencidas: corte.vencidas, cabecalhos: corte.cabecalhos, cobertas: corte.cobertas.length, regras_lista: corte.regras },
+    corte: { regras: corte.regras.length, vencidas: corte.vencidas, cabecalhos: corte.cabecalhos, cobertas: corte.cobertas.length, regras_lista: corte.regras, cobertas_lista: corte.cobertas },
   };
 }
 

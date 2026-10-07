@@ -14,7 +14,8 @@
 | `private/admin-area-tracking.html` | Painel único de tracking — config `metas` (nomes das metas, áreas e fontes) |
 | `public/office-nav.js` | Link "👁️ Tracking · Metas FY27" só quando `/api/analytics/owner` diz que é o dono (e-mail, não papel) |
 | `server.js` | Registra a rota; `/metas-fy26` → 301 `/metas-fy27`; endpoint antigo `/api/metas/fy26\|fy27` removido |
-| `public/_versoes-office/metas-fy27-v1.html` · `metas-fy26-v1.html` | Páginas antigas arquivadas (só super admin) |
+| `public/_versoes-office/metas-fy27-v1.html` · `metas-fy26-v1.html` | Páginas antigas arquivadas (só super admin) — só referência visual: chamavam o endpoint removido e não carregam dados |
+| `scripts/integrations/ga4_fetch.js` | Busca do GA4: linhas casadas pelo nome do período (corrigido) e `refreshFY` que só carimba quando algo veio da API |
 
 ## Metas no placar (realizado automático)
 | Área | Meta | Alvo vem de | Realizado | Fonte |
@@ -25,20 +26,23 @@
 | Biz Dev | Sequências ativas | funil (25) | `sequencias_ativas` | Apollo 6h |
 | Intelligence | Base de contatos | funil (50.000) | `contatos_total` | Apollo 6h |
 | Intelligence | Empresas mapeadas | funil (20.000) | `contas_total` | Apollo 6h |
-| Field Marketing | Eventos BR realizados (ano) | planilha (30) | kanban `field_events` em pós-evento/concluído | Office |
-| Field Marketing | Leads capturados (ano) | funil (600) | soma `captura_json.leads` | Office |
+| Field Marketing | Eventos BR realizados (FY27) | planilha (30) | kanban `field_events` em pós-evento/concluído, data em jul/26 → jun/27 | Office |
+| Field Marketing | Leads capturados (FY27) | funil (600) · `⚠️ premissa: meta do FY` | soma `captura_json.leads` dos eventos do FY | Office |
 | Brand | Voices no programa | funil (5) | `voicesResumo()` | Office |
 | Brand | Voices ativos (30d) | funil (5) | Voice com ≥1 post em 30d | Office |
 | Brand | Posts dos Voices (30d) | funil (40/mês) | URLs publicadas (pauta + tracker) | Office |
-| Conteúdo | Tráfego do site | funil (15.000) | sessões GA4 do último mês fechado · `⚠️ premissa: sessões/mês` | GA4 diário |
-| Conteúdo | Pautas da Redatoria (30d) | funil (25) | `content_pipeline` criadas em 30d · `⚠️ premissa: mensal` | Office |
+| Conteúdo | Tráfego do site | funil (15.000) | sessões GA4 do último mês fechado · `⚠️ premissa: sessões/mês` + aviso da migração pro HubSpot CMS | GA4 diário |
+| Conteúdo | Pautas da Redatoria (30d) | funil (25) | `content_pipeline` criadas em 30d, sem importação em lote nem Rax (IA) · `⚠️ premissa: mensal` | Office |
 
-**Status** = % contra o esperado hoje: metas de janela/estoque esperam 100%; metas do ano esperam o % do ano já passado (marca branca no gauge, barra "hoje" na corrida). ≥100% da meta = batida · ≥100% do ritmo = acima do ritmo · ≥75% = no ritmo · ≥50% = atrás · resto = longe.
+**GA4 no placar:** só meses buscados pelo servidor já com a correção das linhas (`linhas_por_nome`) e, pra "mês fechado", buscados ≥1 dia depois do fim do mês. GA4 sem atualizar >30h ou sem chave = `⏳ aguardando` (o `ga4-snapshot.json` do git não vale como número ao vivo).
+**Apollo parado:** as metas de janela ganham `⚠️ Apollo sem atualizar — contagem até dd/mm`.
+
+**Status** = % contra o esperado hoje: metas de janela/estoque esperam 100%; metas do FY esperam o % do FY já passado (marca branca no gauge, barra "hoje" na corrida). ≥100% da meta = batida · ≥100% do ritmo = acima do ritmo · ≥75% = no ritmo · ≥50% = atrás · resto = longe.
 
 ## Fora do automático
-Linhas da planilha (`metas-fy26.json`, que hoje carrega o FY27) e estágios do funil das áreas com meta e sem fonte automática. Cada uma aponta onde é medida: Zoho CRM, Apollo (ligações/toques), LinkedIn, RD Station, HubSpot, Blog/Artigos, área Field Marketing, SAP Development Funds, Canva. Link interno só aparece se a pessoa pode abrir a página (mesma regra do menu).
+Linhas da planilha (`metas-fy26.json`, que hoje carrega o FY27) e estágios do funil das áreas com meta e sem fonte automática. Cada uma aponta onde é medida: Zoho CRM, Apollo (ligações/toques), LinkedIn da empresa, perfil pessoal no LinkedIn (sem link — atividade de cada pessoa), RD Station, HubSpot, Blog/Artigos, área Field Marketing, SAP Development Funds, Canva. Link interno só aparece se a pessoa pode abrir a página (mesma regra do menu).
 
-**Saem da página** (seguem na planilha): regras de processo e rituais (cadência de e-mail por evento, regras do DDF, etapas do design, comitês), prazos pontuais vencidos, cabeçalhos da planilha e metas repetidas que já estão no placar. A página mostra a contagem e a lista.
+**Saem da página** (seguem na planilha): regras de processo e rituais (cadência de e-mail por evento, regras do DDF, etapas do design, comitês), prazos pontuais vencidos, cabeçalhos da planilha e metas repetidas que já estão no placar. A página mostra a contagem e a lista de regras, prazos vencidos (com a data que venceu) e repetidas.
 
 ## Blocos da página (e o `data-sec` usado no tracking)
 | Bloco | `data-sec` | Conteúdo |
@@ -51,7 +55,8 @@ Linhas da planilha (`metas-fy26.json`, que hoje carrega o FY27) e estágios do f
 
 ## Rastreamento (quem viu o quê)
 - **Abriu a página:** `logPageView` (`kind='view'` em `/metas-fy27`). **Tempo total:** beacon do office-nav (`kind='dur'`).
-- **Passos** (`kind='metas'`, coluna `meta`, em lote por `sendBeacon`): `sec.<id>` · `tempo.<id>.<seg>` · `scroll.25|50|75|100` · `meta.<id>` · `area.<id>` · `status.<filtro>` · `anel.<area>` · `grupo.<area>` · `fora.<sistema>` · `node.<fonte>` · `areapg.<area>` · `corte.regras|vencidas`.
+- **Passos** (`kind='metas'`, coluna `meta`, em lote por `sendBeacon`): `sec.<id>` (seção cobrindo ≥30% da tela) · `tempo.<id>.<seg>` · `scroll.25|50|75|100` · `meta.<id>` · `area.<id>` (`area.todas` ao desligar) · `status.<filtro>` · `kpi.<status|fora>` · `anel.<area>` · `grupo.<area>` · `fora.<sistema>` · `node.<fonte>` · `areapg.<area>` · `corte.regras|vencidas|repetidas`.
+- Só grava passo quem pode abrir a página (`acesso.pode`); cada parte do passo começa com letra/dígito (barra `__proto__`) e o agregador usa mapas sem protótipo.
 - **Painel:** `/admin/metas` — o mesmo painel das áreas; traduz `meta.<id>` pro título e `<area>` pro nome.
 
 ## Acesso

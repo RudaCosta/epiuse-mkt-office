@@ -39,6 +39,7 @@
 
 ### ⭐ Validar o placar Metas FY27 (Módulo 31 · 06/out/2026)
 - **O quê:** depois do deploy, abrir `/metas-fy27` e conferir a barra "Ao vivo": Apollo e GA4 com "atualizado há Xh". GA4 "parado" = falta `GA4_PROPERTY_ID`/credencial no Railway.
+- **GA4 x HubSpot CMS:** o site migrou pro HubSpot em ago/26 — confirmar se a tag do GA4 foi junto (senão o tráfego sai subcontado). O bug que gravava max(mês, mês anterior) no GA4 foi corrigido: os números de site do /relatorio mudam depois do deploy (passam a ser os certos).
 - **Decidir 2 premissas:** "Tráfego (site) 15.000" = sessões/mês no GA4? "Pautas 25" = por mês? Se não, ajustar rótulo/alvo no `areas.json` (hoje marcadas `⚠️ Estimativa — premissa`).
 - **Pedir pra Gabrielle** mover os eventos já realizados no kanban (pós-evento/concluído) e registrar a captura de leads — o placar de eventos conta só o que está no kanban.
 
