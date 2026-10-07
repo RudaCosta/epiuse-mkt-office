@@ -322,7 +322,8 @@ function metasVivas(ctx) {
   const g12 = ga4ok ? ga4.fechados.slice(-12).map(k => ({ x: k, y: ga4.meses[k].sessoes })) : [];
   M.push({ id: 'conteudo-trafego', area: 'conteudo', titulo: 'Tráfego do site', unidade: 'sessões', janela: ult ? `mês ${mesTxt(ult)}` : 'último mês', fonte: 'ga4',
     valor: ult ? ga4.meses[ult].sessoes : null, alvo: funil('conteudo', /tr[aá]fego/i), alvo_fonte: F_FUNIL,
-    etiqueta: '⚠️ Estimativa — premissa: a meta de tráfego é lida como sessões por mês (GA4). O site migrou pro HubSpot CMS em ago/26: o GA4 só conta tudo se a tag dele estiver lá.',
+    // Tag do GA4 está no site novo (HubSpot CMS) — confirmado pelo Rudá em 07/out/2026
+    etiqueta: '⚠️ Estimativa — premissa: a meta de tráfego é lida como sessões por mês (GA4)',
     nota: !ga4ok ? (ga4.status === 'parado' ? `⏳ GA4 sem atualizar desde ${(ga4.ultima_sync_ts || '').slice(0, 10).split('-').reverse().join('/')}` : '⏳ aguardando o primeiro refresh do GA4')
       : !ult ? '⏳ aguardando o GA4 fechar o primeiro mês'
       : ult === anterior ? `último mês fechado${mAtual ? ` · ${mesTxt(ga4.atual)} até agora: ${Number(mAtual.sessoes).toLocaleString('pt-BR')}` : ''}`

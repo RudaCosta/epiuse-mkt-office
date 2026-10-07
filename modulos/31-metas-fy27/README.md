@@ -31,7 +31,7 @@
 | Brand | Voices no programa | funil (5) | `voicesResumo()` | Office |
 | Brand | Voices ativos (30d) | funil (5) | Voice com ≥1 post em 30d | Office |
 | Brand | Posts dos Voices (30d) | funil (40/mês) | URLs publicadas (pauta + tracker) | Office |
-| Conteúdo | Tráfego do site | funil (15.000) | sessões GA4 do último mês fechado · `⚠️ premissa: sessões/mês` + aviso da migração pro HubSpot CMS | GA4 diário |
+| Conteúdo | Tráfego do site | funil (15.000) | sessões GA4 do último mês fechado (tag do GA4 está no HubSpot CMS — confirmado 07/out) · `⚠️ premissa: sessões/mês` | GA4 diário |
 | Conteúdo | Pautas da Redatoria (30d) | funil (25) | `content_pipeline` criadas em 30d, sem importação em lote nem Rax (IA) · `⚠️ premissa: mensal` | Office |
 
 **GA4 no placar:** só meses buscados pelo servidor já com a correção das linhas (`linhas_por_nome`) e, pra "mês fechado", buscados ≥1 dia depois do fim do mês. GA4 sem atualizar >30h ou sem chave = `⏳ aguardando` (o `ga4-snapshot.json` do git não vale como número ao vivo).
