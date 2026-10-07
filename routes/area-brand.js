@@ -228,3 +228,4 @@ router.get('/api/area/brand', requireAuth, soTime, (req, res) => {
 });
 
 module.exports = router;
+module.exports.voicesResumo = voicesResumo;   // Módulo 33 (Metas FY27): Voices e posts ao vivo

@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="/design-tokens.css">
 <script type="module" src="/office-nav.js"></script>
 <style>
-/* Módulos 27/28/29/30/31 — painel "quem viu o quê" das áreas (Intelligence, Eventos, Pipeline, Brand, Relatório). Só o dono.
+/* Módulos 27–31 e 33 — painel "quem viu o quê" das áreas (Intelligence, Eventos, Pipeline, Brand), do Relatório e das Metas FY27. Só o dono.
    Arquivo fora de public/ (private/): servido apenas por GET /admin/<area>. */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -237,12 +237,24 @@ const AREAS = {
       linkedin: 'LinkedIn da empresa', zoho: 'Zoho CRM', eventos: 'Eventos', sap4me: 'SAP 4 ME',
       metas: 'Metas FY27', brand: 'Área Brand', pipeline: 'Área Pipeline' },
   },
+  metas: {
+    kind: 'metas', area: 'metas', nome: 'Metas FY27', page: '/metas-fy27',
+    acoesSub: 'Metas abertas, filtros de área e status, anéis, metas de fora e fontes',
+    secs: [
+      ['hero', '🎯 Topo · anéis por área'], ['placar', '🏁 Placar ao vivo'], ['corrida', '🏃 Corrida das áreas'],
+      ['fora', '↗ Fora do automático'], ['fontes', '🔌 Fontes · dentro e fora']
+    ],
+    nodes: { apollo: 'Apollo (auto 6h)', office: 'Office (ao vivo)', ga4: 'GA4 (auto 12h)' },
+    // 'fora.<id>' = link pra onde a meta é medida (Apollo aqui é o app, não a fonte automática)
+    fora: { apollo: 'Apollo (app)', zoho: 'Zoho CRM', linkedin: 'LinkedIn da empresa', rd: 'RD Station', hubspot: 'HubSpot',
+      site: 'Blog / Artigos', eventos: 'Área Field Marketing', df: 'SAP Development Funds', canva: 'Canva' },
+  },
 };
 const A = AREAS[location.pathname.replace(/\/+$/, '').split('/').pop()] || AREAS.intelligence;
 const SECS = A.secs;
 const SECL = Object.fromEntries(SECS);
 const NODE = A.nodes;
-let TOOLS = {}, EVT = {}, SEQ = {}, CALL = {}, VOI = {}, PAU = {};
+let TOOLS = {}, EVT = {}, SEQ = {}, CALL = {}, VOI = {}, PAU = {}, MET = {}, ARN = {};
 const ETAPA = { enviada: 'Enviada', em_revisao: 'Em revisão', ajustes_pedidos: 'Ajustes pedidos', aprovada_voice: 'Aguardando OK da Duda', liberada: 'Liberada', publicada: 'Publicada' };
 const DORT = { dor: 'dores', objecao: 'objeções', gatilho: 'gatilhos', sinal: 'sinais', pergunta_vencedora: 'perguntas que abriram' };
 function acaoLabel(id) {
@@ -286,7 +298,7 @@ function acaoLabel(id) {
   if (k === 'estagio') return '🪜 Estágio da base · ' + v.replace(/-/g, ' ');
   if (k === 'canal') return '📡 Canal · ' + v.replace(/_/g, ' ');
   if (k === 'flow') return '🚀 Etapa da máquina · ' + v;
-  if (k === 'fora') return '↗ Abriu fonte de fora · ' + (NODE[v] || v);
+  if (k === 'fora') return '↗ Abriu fonte de fora · ' + ((A.fora || NODE)[v] || v);
   if (k === 'refresh') return '🔄 Pediu atualização · ' + v;
   if (k === 'voice') return '🎙️ Abriu Voice · ' + (VOI[v] || v.replace(/-/g, ' '));
   if (k === 'vaga') return '🪑 Abriu vaga aberta #' + v;
@@ -298,6 +310,13 @@ function acaoLabel(id) {
   if (k === 'cal') return '🗓️ Calendário · ' + v;
   if (k === 'cor') return '🎨 Copiou cor · ' + v.replace(/-/g, ' ');
   if (k === 'top') return '🏆 Ranking de cliques · ' + (VOI[v] || v.replace(/-/g, ' '));
+  if (k === 'meta') return '🎯 Abriu meta · ' + (MET[v] || v.replace(/-/g, ' '));
+  if (k === 'kpi') return v === 'fora' ? '📊 Clicou no KPI · pulou pra Fora do automático' : '📊 Clicou no KPI · ' + ({ todas: 'metas no placar', batida: 'batidas', ritmo: 'no ritmo', atras: 'atrás', longe: 'longe', aguardando: 'aguardando' }[v] || v);
+  if (k === 'area') return '🏷️ Filtro de área · ' + (v === 'todas' ? 'todas' : (ARN[v] || v));
+  if (k === 'anel') return '⭕ Clicou no anel · ' + (ARN[v] || v);
+  if (k === 'grupo') return '📂 Abriu metas de fora · ' + (ARN[v] || v);
+  if (k === 'areapg') return '🧭 Foi pra página da área · ' + (ARN[v] || v);
+  if (k === 'corte') return '✂️ Viu o que saiu · ' + ({ regras: 'regras de processo', vencidas: 'prazos vencidos', repetidas: 'metas repetidas' }[v] || v);
   if (k === 'tool') return TOOLS[v] || ('🔧 ' + v);
   if (k === 'sec') return '👀 Viu · ' + (SECL[v] || v);
   if (k === 'scroll') return '📜 Rolou até ' + v + '%';
@@ -305,7 +324,7 @@ function acaoLabel(id) {
   return id;
 }
 document.title = `Tracking · ${A.nome} · EPI-USE Office`;
-$('#eyebrow').textContent = A.area === 'relatorio' ? 'Tracking · Relatório' : `Tracking · Área ${A.nome}`;
+$('#eyebrow').textContent = A.area === 'relatorio' ? 'Tracking · Relatório' : A.kind === 'metas' ? 'Tracking · Metas FY27' : `Tracking · Área ${A.nome}`;
 $('#pgLink').href = A.page; $('#pgLink').textContent = A.page;
 $('#acoesSub').textContent = A.acoesSub;
 
@@ -412,8 +431,12 @@ const getJ = u => fetch(u, { cache: 'no-store' }).then(r => r.json()).catch(() =
 // Eventos: nome legível a partir do mesmo slug que a página usa (regiao-mes-nome)
 // Pipeline: nome das sequências (id do Apollo) e empresa das calls do JARVIS
 // Brand: nome dos Voices (slug) e título das pautas (id)
+// Metas: título de cada meta (id) e nome das áreas
 Promise.all([getJ('/api/areas.json'), getJ('/api/personas.json'), A.kind === 'eventos' ? getJ('/api/events.json') : {},
-  A.kind === 'pipeline' ? getJ('/api/area/pipeline') : {}, A.kind === 'brand' ? getJ('/api/area/brand') : {}]).then(([a, pe, ev, pl, br]) => {
+  A.kind === 'pipeline' ? getJ('/api/area/pipeline') : {}, A.kind === 'brand' ? getJ('/api/area/brand') : {},
+  A.kind === 'metas' ? getJ('/api/metas/fy27/placar') : {}]).then(([a, pe, ev, pl, br, mt]) => {
+  ((mt && mt.metas) || []).forEach(m => { MET[m.id] = m.titulo; });
+  (((mt && mt.fora) || {}).grupos || []).concat((mt && mt.areas) || []).forEach(g => { ARN[g.area || g.id] = g.nome; });
   (((br && br.voices) || {}).voices || []).forEach(v => { VOI[String(v.id).slice(0, 40)] = v.nome; });
   (((br && br.pautas) || {}).abertas || []).concat(((br && br.pautas) || {}).eventos || []).forEach(p => { const id = p.id || p.pauta_id; if (id) PAU[id] = p.titulo; });
   const ad = pl && pl.apollo && pl.apollo.dados;

@@ -568,3 +568,10 @@ if (ga4Creds()) {
 
 module.exports = router;
 module.exports.montar = montar;
+// Módulo 33 (Metas FY27): o placar lê este mesmo cache do GA4 — uma busca só no servidor.
+module.exports.ga4Resumo = () => {
+  const { meses, estado } = ga4Meses();
+  const ult = estado.ultima_ok_ts || GA4.ultima_ok_ts || null;
+  const status = !ga4Creds() ? 'sem-chave' : (GA4.erro && !ult) ? 'erro' : !ult ? 'aguardando' : statusPor(horasDesde(ult), STALE.ga4);
+  return { meses, fechado: ga4Fechado, status, ultima_ok_ts: ult, erro: GA4.erro };
+};

@@ -1237,7 +1237,7 @@ function renderFontes() {
   const OUT = [
     { id: 'zoho', ic: '💼', nm: 'Zoho CRM · deals, oportunidades e R$', d: 'Sync depende de uma sessão do Claude (MCP). Sem atualização automática, saiu da página.', href: 'https://crm.zoho.com/crm/' },
     { id: 'curva', ic: '📊', nm: 'Curva ABC das contas', d: 'Cruza Zoho + Cases + SAP 4ME. Continua no módulo próprio.', href: '/curva-abc' },
-    { id: 'metas', ic: '🎯', nm: 'Metas da equipe (planilha)', d: 'Metas vêm da planilha; aqui só aparecem as que têm realizado automático.', href: '/metas' },
+    { id: 'metas', ic: '🎯', nm: 'Placar Metas FY27', d: 'Todas as metas do time: as automáticas ao vivo, as outras com link pra onde são medidas.', href: '/metas-fy27' },
     { id: 'relatorio', ic: '📈', nm: 'Relatório mensal (outreach)', d: 'Consolidado do mês, gerado à parte.', href: '/relatorio' },
   ];
   $('#srcOut').innerHTML = OUT.map(o => `<a class="sr out" href="${esc(o.href)}" data-act="fora.${o.id}"${isExt(o.href) ? ' target="_blank" rel="noopener"' : ''}><span class="ic">${o.ic}</span><span><b>${esc(o.nm)}</b><small>${esc(o.d)}</small></span><span class="go">${isExt(o.href) ? 'abrir ↗' : 'abrir →'}</span></a>`).join('');

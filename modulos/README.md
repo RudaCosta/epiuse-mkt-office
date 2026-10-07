@@ -22,6 +22,7 @@
 | `29-area-pipeline/` | Área Pipeline / Biz Dev — só fontes automáticas: Apollo com refresh no servidor (máquina de outbound animada, sequências, ritmo) + voz do campo do JARVIS; Zoho virou link · tracking "quem viu o quê" só do dono (`/area/pipeline`, `/admin/pipeline`) | ✅ v1.0 |
 | `31-relatorio-marketing/` | Relatório de Marketing (`/relatorio`) — só fontes automáticas (GA4 por mês no SQLite, RD com foto diária, Apollo, Voices, links, Cases, calendário); LinkedIn/Zoho/SAP 4 ME/eventos/metas viraram link · exporta **PPT no padrão EPI-USE e PDF** · tracking "quem viu o quê" e quem baixou, só do dono (`/admin/relatorio`) | ✅ v2.0 |
 | `32-banco-de-horas/` | Banco de Horas MKT — horas a mais/a menos com saldo acumulado, painel do time só do super admin e e-mail ao Rudá a cada +8h (`/horas`) | ✅ v2.0 |
+| `33-metas-fy27/` | Metas FY27 — placar ao vivo só com realizado automático (Apollo 6h · Office · GA4 do Relatório): anéis por área, cards com gauge e sparkline, corrida até a meta; metas sem fonte automática viram link · tracking "quem viu o quê" só do dono (`/metas-fy27`, `/admin/metas`) | ✅ v1.0 |
 
 ## Módulos sem pasta própria (documentados em `docs/MODULES.md`)
 
