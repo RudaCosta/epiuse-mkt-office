@@ -78,14 +78,13 @@ function contar(sql, col, ini, fim, ...extra) {
   return all(sql, desde, ...extra).filter(r => { const t = ms(r[col]); return t != null && t >= ini && t < fim; }).length;
 }
 
-// Posts novos de Voices no período. A tabela posts guarda um snapshot por
-// atualização de métricas: cada URL conta 1x, na data do post (published_at
-// informada ou, sem ela, a primeira vez que a URL foi registrada).
+// Posts novos de Voices no período: a MESMA lista do /relatorio (pauta publicada
+// + post do tracker, 1 por URL, na data em que apareceu). Assim o semanal e o
+// mensal contam igual. require tardio: o relatorio.js carrega depois deste.
 function postsNovos(ini, fim) {
-  return all(`SELECT MAX(published_at) pub, MIN(captured_at) prim FROM posts GROUP BY post_url`).filter(p => {
-    const t = /^\d{4}-\d{2}-\d{2}/.test(String(p.pub || '')) ? ms(String(p.pub).slice(0, 10)) : ms(p.prim);
-    return t != null && t >= ini && t < fim;
-  }).length;
+  let lista = [];
+  try { lista = require('./relatorio').postsVoices(); } catch (_) { return null; }
+  return lista.filter(p => p.t != null && p.t >= ini && p.t < fim).length;
 }
 
 // ── MOVIMENTO de um período (números reais do banco) ────────────────────────
@@ -100,7 +99,7 @@ function movimento(ini, fim, eventosFn) {
     calls_jarvis:       contar(`SELECT criado_em FROM jarvis_calls WHERE substr(criado_em,1,10) >= ?`, 'criado_em', ini, fim),
     aprendizados_jarvis: contar(`SELECT criado_em FROM jarvis_aprendizados WHERE substr(criado_em,1,10) >= ?`, 'criado_em', ini, fim),
     cliques_links:      one(`SELECT COUNT(*) n FROM utm_clicks WHERE ts >= ? AND ts < ? AND COALESCE(bot,0)=0`, ini, fim).n ?? null,
-    coins:              one(`SELECT COALESCE(SUM(coins),0) n FROM erp_coins WHERE coins > 0 AND created_at >= datetime(?/1000,'unixepoch') AND created_at < datetime(?/1000,'unixepoch')`, ini, fim).n ?? null,
+    coins:              one(`SELECT COALESCE(SUM(coins),0) n FROM erp_coins WHERE coins > 0 AND evento <> 'estorno' AND created_at >= datetime(?/1000,'unixepoch') AND created_at < datetime(?/1000,'unixepoch')`, ini, fim).n ?? null,
     apollo: apolloDelta(ini, fim),
     eventos_realizados: [],
   };
@@ -249,8 +248,16 @@ function assuntoCriticos(alertas) {
 
 // ── RELATÓRIO SEMANAL ───────────────────────────────────────────────────────
 // opts: { agora, areas (null = tudo), alertas (abertos, já filtrados), resolvidos, fontes, eventosFn }
+// Semana fechada: da segunda 00h à segunda 00h (BRT) anterior ao envio. Com
+// "agora − 7 dias" o dia do envio entrava como já acontecido e dias se repetiam
+// de uma semana pra outra (pior quando a segunda é feriado e o envio sai terça).
+function janelaSemana(agora) {
+  const b = new Date((agora || Date.now()) + BRT_MS);
+  const fim = Date.UTC(b.getUTCFullYear(), b.getUTCMonth(), b.getUTCDate() - (b.getUTCDay() + 6) % 7) - BRT_MS;
+  return { ini: fim - 7 * DAY, fim };
+}
 function dadosSemanal(opts) {
-  const fim = opts.agora || Date.now(), ini = fim - 7 * DAY;
+  const { ini, fim } = janelaSemana(opts.agora);
   return {
     ini, fim,
     atual: movimento(ini, fim, opts.eventosFn),
@@ -304,7 +311,7 @@ function htmlSemanal(opts) {
     ['ERP Coins distribuídos', A.coins, P.coins],
   ]]);
   if (blocos.length) {
-    corpo += h2('📈 O que andou na semana', 'comparado com os 7 dias anteriores');
+    corpo += h2('📈 O que andou na semana', 'segunda a domingo, comparado com a semana anterior');
     blocos.forEach(([t, linhas]) => {
       corpo += `<div style="font-size:12px;font-weight:800;color:${C.azul1};text-transform:uppercase;letter-spacing:.06em;margin:14px 0 2px">${t}</div>` + tabelaMetricas(linhas);
     });
@@ -378,10 +385,17 @@ function htmlMensal(opts) {
   else {
     const s = d.site || {}, e = d.email || {}, o = d.outbound || {}, v = d.voices || {}, l = d.links || {}, c = d.cases || {}, ed = d.editorial || {};
     const om = o.mes || null;
+    // Base do RD é estoque: diz de quando é a foto. Sem foto dentro do mês
+    // (histórico começou depois), o número de hoje não vale como do mês (regra 7).
+    const ref = e.referencia || {};
+    const rdSemHist = e.disponivel && ref.tipo === 'atual';
+    const posRd = !e.disponivel || !ref.dia ? '' : ref.tipo === 'agora' ? 'posição de hoje'
+      : ref.tipo === 'fim-do-mes' ? `posição em ${fmtData(ref.dia)}`
+      : `⏳ histórico do RD ainda não cobre ${nomeMes(mes)} — hoje (${fmtData(ref.dia)}): ${fmtNum(e.base_leads)}`;
     corpo += tabelaMetricas([
       ['Site — pessoas que visitaram', s.disponivel ? s.usuarios : null, null, s.disponivel ? (pct(s.mom && s.mom.usuarios) || (s.parcial ? 'mês ainda sem fechamento no GA4' : '')) : pend('GA4', s.motivo)],
       ['Site — páginas vistas', s.disponivel ? s.visualizacoes : null, null, s.disponivel ? pct(s.mom && s.mom.visualizacoes) : pend('GA4', s.motivo)],
-      ['E-mail — base de leads (RD)', e.disponivel ? e.base_leads : null, null, e.disponivel ? (e.base_delta != null ? `${e.base_delta >= 0 ? '+' : ''}${fmtNum(e.base_delta)} no mês` : '') : pend('RD Station', e.motivo)],
+      ['E-mail — base de leads (RD)', e.disponivel && !rdSemHist ? e.base_leads : null, null, e.disponivel ? [e.base_delta != null ? `${e.base_delta >= 0 ? '+' : ''}${fmtNum(e.base_delta)} no mês` : '', posRd].filter(Boolean).join(' · ') : pend('RD Station', e.motivo)],
       ['E-mails de marketing disparados (RD)', e.disponivel ? e.enviados_mes : null, e.disponivel ? e.enviados_mes_anterior : null, e.disponivel ? '' : pend('RD Station', e.motivo)],
       ['Outbound — e-mails entregues (Apollo)', om ? om.entregues : null, null, !o.disponivel ? pend('Apollo', o.motivo) : (!om ? '⏳ histórico do Apollo ainda não cobre o mês' : (om.aviso || (om.desde ? `desde ${fmtData(om.desde)}` : '')))],
       ['Outbound — respostas', om ? om.respondidos : null, null, om && om.taxa_resposta != null ? `${String(om.taxa_resposta).replace('.', ',')}% de resposta` : ''],
@@ -395,7 +409,10 @@ function htmlMensal(opts) {
     ]);
     if ((d.destaques || []).length) {
       corpo += `<div style="font-size:12px;font-weight:800;color:${C.azul1};margin:12px 0 4px">DESTAQUES</div>` +
-        d.destaques.map(x => `<div style="font-size:12.5px;color:${C.texto};padding:3px 0">${x.tom === 'up' ? '▲' : x.tom === 'down' ? '▼' : '•'} ${esc(x.texto)}</div>`).join('');
+        d.destaques
+          // a base do RD fora do mês já aparece com a data na tabela; aqui ficaria sem
+          .filter(x => !(rdSemHist && x.fonte === 'rd' && /base de leads/i.test(x.texto)))
+          .map(x => `<div style="font-size:12.5px;color:${C.texto};padding:3px 0">${x.tom === 'up' ? '▲' : x.tom === 'down' ? '▼' : '•'} ${esc(x.texto)}${x.fonte === 'rd' && /base de leads/i.test(x.texto) && posRd ? ` (${esc(posRd)})` : ''}</div>`).join('');
     }
   }
 
@@ -413,8 +430,10 @@ function htmlMensal(opts) {
   const am = opts.alertasMes || {};
   corpo += h2('🔔 Alertas do mês');
   corpo += tabelaMetricas([
-    ['Alertas abertos no mês', am.abertos ?? null, null, am.porNivel ? `${am.porNivel.critico || 0} crítico(s) · ${am.porNivel.importante || 0} importante(s) · ${am.porNivel.info || 0} informativo(s)` : ''],
-    ['Resolvidos no mês', am.resolvidos ?? null, null],
+    ['Alertas abertos no mês', am.semHistorico ? null : (am.abertos ?? null), null, am.semHistorico ? `⏳ rastreio de alertas começou em ${fmtData(am.desde)}`
+      : [am.porNivel ? `${am.porNivel.critico || 0} crítico(s) · ${am.porNivel.importante || 0} importante(s) · ${am.porNivel.info || 0} informativo(s)` : '',
+         am.parcialDesde ? `parcial: rastreio desde ${fmtData(am.parcialDesde)}${am.herdados ? ` · ${am.herdados} já abertos no início não entram` : ''}` : ''].filter(Boolean).join(' · ')],
+    ['Resolvidos no mês', am.semHistorico ? null : (am.resolvidos ?? null), null, am.semHistorico ? `⏳ rastreio de alertas começou em ${fmtData(am.desde)}` : ''],
   ]);
   const abertos = (opts.alertasAbertos || []).filter(a => a.nivel !== 'info');
   corpo += abertos.length
@@ -440,6 +459,7 @@ function htmlMensal(opts) {
 }
 
 module.exports = {
+  janelaSemana, postsNovos,
   htmlCriticos, assuntoCriticos, htmlSemanal, htmlMensal, dadosSemanal,
   movimento, limitesMes, mesAnterior, nomeMes, ms, fmtIdade, dataBRT, NIVEL, BRT_MS,
 };

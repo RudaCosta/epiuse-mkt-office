@@ -1,5 +1,17 @@
 # Changelog — Central de Alertas & Relatórios
 
+## v1.1 · 07/out/2026 (follow-up do #94)
+Correções da revisão final (verificação cética, cada uma com teste):
+- **Link "Resolver" sem acesso:** o crítico do calendário apontava pra `/area/brand`, que a Intelligence (que vê o alerta) não abre. Agora `/editorial`. Teste novo: todo papel que vê um alerta abre o link dele.
+- **`/alertas`:** filtro por área usa a chave (o i18n traduzia o rótulo em EN/ES).
+- **`/admin/alertas`:** edição não salva não some ao rodar varredura ou enviar teste; "Enviar pra mim" do semanal respeita a área escolhida.
+- **Semana fechada:** o semanal cobre segunda 00h → segunda 00h (BRT). Antes, o dia do envio entrava como "já aconteceu" e dias se repetiam entre semanas.
+- **Posts dos Voices:** o semanal conta com a mesma lista do `/relatorio` (pauta publicada + tracker, 1 por URL), via `postsVoices()` exportada do Módulo 31.
+- **Base do RD no mensal:** diz de quando é a foto; sem foto dentro do mês, vira ⏳ com a data.
+- **ERP Coins distribuídos:** estorno de resgate negado não conta.
+- **Alertas do mês:** meses antes do início do rastreio aparecem como ⏳ (não 0), e o que já estava aberto na 1ª varredura não conta como "aberto no mês".
+- **Crítico sem destinatário:** só fica marcado como avisado o alerta que de fato entrou em algum envio.
+
 ## v1.0 · 07/out/2026 (0.96.0)
 - Motor de alertas com 18 regras de dado real em 6 frentes: integrações (Apollo, calendário, Cases, GA4, RD, e-mail), comunicados, filas com prazo (Loja, inscrições, pautas paradas e vencidas, conteúdo agendado vencido, Voice sem postar), eventos do Brasil (sem briefing, sem pós-evento) e outbound (tarefas atrasadas, bounce alto, sequência fraca).
 - Estado persistido: o alerta abre, muda (volta a "não lido") e **resolve sozinho** quando o dado normaliza. Regra que quebra não resolve nada por engano.

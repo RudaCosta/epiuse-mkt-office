@@ -195,7 +195,8 @@ const REGRAS = [
       return [{
         nivel: recente ? 'importante' : 'critico', chave: st.status,
         titulo: st.status === 'erro' ? 'Calendário editorial não sincroniza' : `Calendário editorial sem sincronizar há ${fmtIdade(Date.now() - ms(st.ultima_ok_ts))}`,
-        detalhe: (e ? `Erro: ${e}.` : '') + dica + ' Enquanto isso, a área Brand mostra só o link da planilha.', href: '/area/brand',
+        // /editorial abre pras 3 áreas que veem o alerta (/area/brand é só Brand e Conteúdo)
+        detalhe: (e ? `Erro: ${e}.` : '') + dica + ' Enquanto isso, a área Brand mostra só o link da planilha.', href: '/editorial',
       }];
     },
   },
@@ -466,6 +467,8 @@ function varrer() {
     db.prepare(`DELETE FROM alertas_leitura WHERE alerta_id NOT IN (SELECT id FROM alertas_estado) AND alerta_id NOT LIKE 'p:%'`).run();
     db.prepare(`DELETE FROM alertas_leitura WHERE alerta_id LIKE 'p:%' AND COALESCE(lido_em,'') < datetime('now','-60 days')`).run();
   })();
+  // Início do rastreio (1x): meses anteriores não têm "0 alertas", têm "sem dado".
+  if (!lerBlob('alertas.rastreio_desde')) gravarBlob('alertas.rastreio_desde', one(`SELECT MIN(aberto_em) m FROM alertas_ocorrencias`).m || agora);
   ULTIMA = { ts: Date.now(), erros };
   return out;
 }
@@ -637,7 +640,8 @@ async function despacharCriticos({ forcar = false } = {}) {
   if (!cand.length) return { enviados: 0, motivo: 'nenhum crítico novo' };
   // Quem recebe o quê: lista configurada recebe tudo; donas (se ligado) só a área delas.
   const porPessoa = {};
-  const add = (em, a) => { (porPessoa[em] = porPessoa[em] || new Map()).set(a.id, a); };
+  const alcancados = new Set();
+  const add = (em, a) => { (porPessoa[em] = porPessoa[em] || new Map()).set(a.id, a); alcancados.add(a.id); };
   for (const a of cand) {
     cfg.critico.para.forEach(em => add(em, a));
     if (cfg.donas.criticos) donasDe(a.areas).forEach(d => add(d.email, a));
@@ -652,7 +656,9 @@ async function despacharCriticos({ forcar = false } = {}) {
   // Marca mesmo se a entrega falhou: a falha vira o alerta "email.entrega" e
   // não fica re-tentando (e enchendo o log) a cada 30 min.
   const marca = db.prepare(`UPDATE alertas_estado SET email_em=? WHERE id=?`);
-  cand.forEach(a => marca.run(agoraISO(), a.id));
+  // Só o que entrou em algum envio: crítico de área sem dona nem lista fica
+  // pendente e sai assim que alguém for configurado.
+  cand.filter(a => alcancados.has(a.id)).forEach(a => marca.run(agoraISO(), a.id));
   return { enviados: res.filter(r => r.ok).length, tentativas: res };
 }
 
@@ -672,7 +678,7 @@ function montarSemanal(areas, rotulo) {
   garantirFresco();
   return rel.htmlSemanal({
     areas, rotulo, agora: Date.now(), eventosFn: FONTES.eventos ? eventos : null,
-    alertas: abertosDe(areas), resolvidos: resolvidosEntre(Date.now() - 7 * DAY, Date.now(), areas),
+    alertas: abertosDe(areas), resolvidos: (() => { const j = rel.janelaSemana(Date.now()); return resolvidosEntre(j.ini, j.fim, areas); })(),
     fontes: fontes(areas),
   });
 }
@@ -681,25 +687,36 @@ function mesFechado() { return mesFechadoDe(brtAgora()); }
 function montarMensal(mes) {
   garantirFresco();
   const L = rel.limitesMes(mes);
-  const porNivel = {};
-  let ab = 0, res = 0;
-  ocorrencias(null).forEach(r => {
-    if (r.ab >= L.ini && r.ab < L.fim) { ab++; porNivel[r.nivel] = (porNivel[r.nivel] || 0) + 1; }
-    if (r.re && r.re >= L.ini && r.re < L.fim) res++;
-  });
+  // O que já estava aberto na 1ª varredura (desde) é herança de antes do
+  // rastreio: não conta como "aberto no mês". Mês inteiro antes dele = sem dado.
+  const desde = lerBlob('alertas.rastreio_desde');
+  const dMs = desde ? ms(desde) : null;
+  let alertasMes;
+  if (dMs == null || dMs >= L.fim) alertasMes = { semHistorico: true, desde: desde || new Date().toISOString() };
+  else {
+    const porNivel = {};
+    let ab = 0, res = 0, herdados = 0;
+    ocorrencias(null).forEach(r => {
+      const herdado = r.aberto_em === desde;
+      if (herdado && r.ab >= L.ini && r.ab < L.fim) herdados++;
+      if (!herdado && r.ab >= L.ini && r.ab < L.fim) { ab++; porNivel[r.nivel] = (porNivel[r.nivel] || 0) + 1; }
+      if (r.re && r.re >= L.ini && r.re < L.fim) res++;
+    });
+    alertasMes = { abertos: ab, resolvidos: res, porNivel, parcialDesde: dMs > L.ini ? desde : null, herdados };
+  }
   return rel.htmlMensal({
     mes, snapshotFn: FONTES.relatorio, eventosFn: FONTES.eventos ? eventos : null,
-    fontes: fontes(null), alertasAbertos: abertosDe(null),
-    alertasMes: { abertos: ab, resolvidos: res, porNivel },
+    fontes: fontes(null), alertasAbertos: abertosDe(null), alertasMes,
   });
 }
 
-async function enviarSemanal({ para } = {}) {
+async function enviarSemanal({ para, area } = {}) {
   const cfg = config();
   const res = [];
   const destinos = para ? [].concat(para) : cfg.semanal.para;
   if (destinos.length) {
-    const { assunto, html } = montarSemanal(null);
+    // area = prévia de como a dona daquela área recebe (só no envio manual)
+    const { assunto, html } = area ? montarSemanal([area], AREA_LABEL[area]) : montarSemanal(null);
     for (const em of destinos) res.push({ para: em, ...(await mailer.enviar({ tipo: 'relatorio-semanal', para: em, assunto, html })) });
   }
   // Donas: versão só da área delas (quem já recebe a completa não recebe de novo).
@@ -908,7 +925,7 @@ router.post('/api/admin/alertas/enviar/:tipo', requireAdmin, express.json({ limi
     else if (b.para !== 'configurados') para = String(b.para).toLowerCase().trim();
     if (para && !mailer.enderecoPermitido(para)) return res.status(400).json({ success: false, error: `endereço não permitido: ${para}` });
     let r;
-    if (req.params.tipo === 'semanal') r = await enviarSemanal({ para });
+    if (req.params.tipo === 'semanal') r = await enviarSemanal({ para, area: AREAS_OK.includes(b.area) ? b.area : null });
     else if (req.params.tipo === 'mensal') {
       const mes = /^\d{4}-(0[1-9]|1[0-2])$/.test(String(b.mes || '')) ? b.mes : mesFechado();
       r = await enviarMensal(mes, { para });
