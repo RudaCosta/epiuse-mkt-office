@@ -1,5 +1,5 @@
 {
-  "current": "0.95.0",
+  "current": "0.96.0",
   "atualizado_em": "07/out/2026",
   "next": [
     {
@@ -54,9 +54,27 @@
   ],
   "releases": [
     {
-      "version": "0.95.0",
+      "version": "0.96.0",
       "date": "07/out/2026",
       "status": "current",
+      "path": "/alertas",
+      "title": "🔔 Alertas que servem + relatórios por e-mail",
+      "summary": "O sino virou uma central de alertas de verdade, calculados a partir de dado real, e o Office passou a mandar sozinho o e-mail de crítico, o relatório semanal e o mensal.",
+      "highlights": [
+        "18 regras com dado real: integração parada (Apollo, calendário editorial, Cases, GA4, RD), pauta parada ou vencida, evento chegando sem briefing, evento sem pós-evento, tarefas atrasadas e bounce alto no Apollo, resgate e inscrição esperando.",
+        "Alerta resolve sozinho quando o problema some. Cada pessoa marca como lido ou silencia por 7 dias, e o número do sino só conta o que é crítico ou importante e ainda não foi lido.",
+        "Nova central /alertas, com filtros por nível e área. Cada um vê só os alertas das áreas que abre.",
+        "E-mail na hora quando algo crítico para (dia útil, 8h–19h, uma vez por ocorrência).",
+        "Relatório semanal toda segunda às 8h: o que precisa de você, o que andou na semana, os próximos 14 dias e a saúde das fontes.",
+        "Relatório mensal no 1º dia útil às 9h, com os mesmos KPIs do /relatorio, a operação do mês e os alertas do mês.",
+        "Novo painel /admin/alertas: quem recebe cada e-mail, prévias, envio de teste e o histórico de todo e-mail do Office.",
+        "E-mails de inscrição, brindes, Loja e banco de horas voltaram a funcionar: usavam um remetente que a Resend recusava sem avisar."
+      ]
+    },
+    {
+      "version": "0.95.0",
+      "date": "07/out/2026",
+      "status": "released",
       "path": "/metas-fy27",
       "title": "🎯 Metas FY27: placar ao vivo",
       "summary": "A página de metas foi refeita. Só entra número que se atualiza sozinho; meta sem fonte automática fica com o link de onde é medida.",

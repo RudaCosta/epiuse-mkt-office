@@ -264,3 +264,6 @@ module.exports = router;
 module.exports.apolloSnapshot = apolloSnapshot;
 module.exports.buildSnapshot = buildSnapshot;
 module.exports.apolloStatus = apolloStatus;   // Módulo 33 (Metas FY27) mostra o frescor do Apollo
+// Motor de alertas (Módulo 34): status da integração + sequências com detalhe.
+module.exports.apolloStatusAtual = () => apolloStatus(readBlob());
+module.exports.apolloSequencias = () => { const s = readBlob(); return (s && s.sequencias) || []; };

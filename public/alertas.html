@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Alertas · EPI-USE Office</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/design-tokens.css">
+<script type="module" src="/office-nav.js"></script>
+<style>
+/* Módulo 34 — Central de Alertas. Só tokens do DESIGN.md (regra 8). */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --p-bg: var(--color-neutral-dark-bg);
+  --p-surf: var(--color-neutral-dark-surface);
+  --p-line: var(--color-neutral-dark-border);
+  --p-text: var(--color-neutral-dark-text);
+  --p-dim: var(--color-neutral-dark-text-dim);
+  --p-muted: var(--color-neutral-dark-text-muted);
+  --p-accent: var(--color-brand-cornflower-blue);
+  --p-crit: var(--color-danger-500);
+  --p-imp: var(--color-warning-500);
+  --p-info: var(--color-info-500);
+  --p-ok: var(--color-success-500);
+  --p-head: var(--type-headline-lg-font-family);
+  --p-body: var(--type-body-md-font-family);
+}
+body{background:var(--p-bg);color:var(--p-text);font-family:var(--p-body);line-height:1.55;overflow-x:hidden}
+.wrap{max-width:900px;margin:0 auto;padding:28px 16px 80px}
+h1{font-family:var(--p-head);font-size:26px;font-weight:900;letter-spacing:-.01em}
+.sub{color:var(--p-dim);font-size:14px;margin:6px 0 20px;max-width:68ch}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.chip{border:1px solid var(--p-line);background:var(--p-surf);border-radius:var(--rounded-lg);padding:10px 14px;min-width:110px;cursor:pointer;color:inherit;font:inherit;text-align:left}
+.chip b{display:block;font-size:22px;font-family:var(--p-head);line-height:1.1}
+.chip span{font-size:12px;color:var(--p-dim)}
+.chip.c b{color:var(--p-crit)} .chip.i b{color:var(--p-imp)} .chip.n b{color:var(--p-info)}
+.chip[aria-pressed="true"]{outline:2px solid var(--p-accent);outline-offset:1px}
+.barra{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.barra select{background:var(--p-surf);color:var(--p-text);border:1px solid var(--p-line);border-radius:var(--rounded-md);padding:8px 10px;font:inherit;font-size:13px}
+.barra label{font-size:13px;color:var(--p-dim);display:flex;gap:6px;align-items:center;cursor:pointer}
+.barra .esp{flex:1}
+.btn{background:transparent;border:1px solid var(--p-line);color:var(--p-text);border-radius:var(--rounded-md);padding:7px 12px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;gap:6px;align-items:center}
+.btn:hover{border-color:var(--p-accent);color:var(--p-accent)}
+.btn.pri{background:var(--color-brand-deep-blue);border-color:var(--p-accent)}
+.card{background:var(--p-surf);border:1px solid var(--p-line);border-left:4px solid var(--p-info);border-radius:var(--rounded-md);padding:14px 16px;margin-bottom:10px}
+.card.critico{border-left-color:var(--p-crit)} .card.importante{border-left-color:var(--p-imp)}
+.card.lido{opacity:.72}
+.meta{font-size:11.5px;color:var(--p-muted);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.niv{font-weight:800;text-transform:uppercase;letter-spacing:.06em;font-size:10.5px}
+.niv.critico{color:var(--p-crit)} .niv.importante{color:var(--p-imp)} .niv.info{color:var(--p-info)}
+.novo{color:var(--p-accent);font-weight:800}
+.tit{font-family:var(--p-head);font-size:16px;font-weight:800;margin:4px 0 2px;line-height:1.3}
+.det{font-size:13.5px;color:var(--p-dim);max-width:75ch}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.vazio{border:1px dashed var(--p-line);border-radius:var(--rounded-lg);padding:34px 18px;text-align:center;color:var(--p-dim)}
+.vazio b{display:block;font-size:18px;color:var(--p-ok);margin-bottom:4px}
+.como{margin-top:30px;border-top:1px solid var(--p-line);padding-top:18px;font-size:13px;color:var(--p-dim)}
+.como h2{font-family:var(--p-head);font-size:15px;color:var(--p-text);margin-bottom:8px}
+.como li{margin:4px 0 4px 18px}
+.como a{color:var(--p-accent)}
+@media (max-width:560px){ .chip{flex:1 1 40%;min-width:0} .barra .esp{display:none} }
+</style>
+</head>
+<body>
+<office-nav></office-nav>
+<main class="wrap">
+  <h1>🔔 Central de alertas</h1>
+  <p class="sub">Só o que pede ação, calculado a partir de dado real do Office. Quando o problema é resolvido, o alerta some sozinho na próxima varredura (a cada 30 min).</p>
+
+  <div class="chips" id="chips"></div>
+
+  <div class="barra">
+    <select id="f-area" aria-label="Filtrar por área"><option value="">Todas as áreas</option></select>
+    <label><input type="checkbox" id="f-sil"> mostrar silenciados</label>
+    <span class="esp"></span>
+    <button class="btn" id="b-lertudo" type="button">Marcar tudo como lido</button>
+  </div>
+
+  <div id="lista"><div class="vazio">Carregando…</div></div>
+
+  <section class="como">
+    <h2>Como funciona</h2>
+    <ul>
+      <li><b>🔴 Crítico</b>: algo parou e congela dado ou trabalho (integração caiu, sync parado há dias). Também vai por e-mail na hora, em dia útil.</li>
+      <li><b>🟡 Importante</b>: fila com prazo estourado (pauta parada, evento sem briefing, resgate esperando). Entra no relatório de segunda.</li>
+      <li><b>🔵 Para saber</b>: não pede ação urgente. Fica só aqui e no sino.</li>
+      <li>Cada pessoa vê os alertas das áreas que abre. "Silenciar" esconde só pra você, por 7 dias.</li>
+    </ul>
+    <p id="admin-link" style="display:none;margin-top:10px"><a href="/admin/alertas">⚙️ Configurar e-mails, relatórios e destinatários →</a></p>
+  </section>
+</main>
+
+<script>
+(function () {
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+  var NIV = { critico: '🔴 Crítico', importante: '🟡 Importante', info: '🔵 Para saber' };
+  var estado = { dados: [], nivel: '', area: '' };
+
+  function idade(iso) {
+    if (!iso) return '';
+    var t = Date.parse(String(iso).indexOf('T') > 0 ? iso : String(iso).replace(' ', 'T') + 'Z');
+    if (isNaN(t)) return '';
+    var h = Math.floor((Date.now() - t) / 3600000);
+    return h < 1 ? 'aberto agora' : h < 48 ? 'aberto há ' + h + 'h' : 'aberto há ' + Math.floor(h / 24) + ' dias';
+  }
+  function post(url, body) {
+    return fetch(url, { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  }
+
+  function render() {
+    var d = estado.dados;
+    var ativos = d.filter(function (a) { return !a.silenciado; });
+    var cont = function (n) { return ativos.filter(function (a) { return a.nivel === n; }).length; };
+    var sil = d.filter(function (a) { return a.silenciado; }).length;
+    document.getElementById('chips').innerHTML =
+      chip('c', 'critico', cont('critico'), 'críticos') + chip('i', 'importante', cont('importante'), 'importantes') +
+      chip('n', 'info', cont('info'), 'para saber') +
+      (sil ? '<div class="chip" aria-disabled="true"><b>' + sil + '</b><span>silenciados</span></div>' : '');
+    document.querySelectorAll('.chip[data-n]').forEach(function (el) {
+      el.addEventListener('click', function () { estado.nivel = estado.nivel === el.dataset.n ? '' : el.dataset.n; render(); });
+    });
+
+    var areas = {};
+    d.forEach(function (a) { if (a.area_label) areas[a.area_label] = 1; });
+    var sel = document.getElementById('f-area'), atual = sel.value;
+    sel.innerHTML = '<option value="">Todas as áreas</option>' + Object.keys(areas).sort().map(function (x) { return '<option' + (x === atual ? ' selected' : '') + '>' + esc(x) + '</option>'; }).join('');
+
+    var mostrarSil = document.getElementById('f-sil').checked;
+    var lista = d.filter(function (a) {
+      return (mostrarSil || !a.silenciado) && (!estado.nivel || a.nivel === estado.nivel) && (!sel.value || a.area_label === sel.value);
+    });
+    var el = document.getElementById('lista');
+    if (!lista.length) {
+      el.innerHTML = '<div class="vazio"><b>✅ Nada pendente aqui.</b>' + (d.length ? 'Nenhum alerta com esses filtros.' : 'Quando algo precisar de você, aparece nesta lista e no sino.') + '</div>';
+      return;
+    }
+    el.innerHTML = lista.map(function (a) {
+      return '<article class="card ' + esc(a.nivel) + (a.lido ? ' lido' : '') + '">' +
+        '<div class="meta"><span class="niv ' + esc(a.nivel) + '">' + (NIV[a.nivel] || '') + '</span>' +
+          (a.area_label ? '<span>' + esc(a.area_label) + '</span>' : '') +
+          (a.desde ? '<span>' + idade(a.desde) + '</span>' : '') +
+          (a.lido ? '' : '<span class="novo">● não lido</span>') +
+          (a.silenciado ? '<span>🔕 silenciado até ' + esc(new Date(a.silenciado_ate).toLocaleDateString('pt-BR')) + '</span>' : '') +
+        '</div>' +
+        '<div class="tit">' + esc(a.titulo) + '</div>' +
+        (a.detalhe ? '<div class="det">' + esc(a.detalhe) + '</div>' : '') +
+        '<div class="acts">' +
+          (a.href ? '<a class="btn pri" href="' + esc(a.href) + '" data-ler="' + esc(a.id) + '">Resolver →</a>' : '') +
+          (a.lido ? '' : '<button class="btn" type="button" data-ler="' + esc(a.id) + '">Marcar como lido</button>') +
+          (a.silenciado
+            ? '<button class="btn" type="button" data-sil="0" data-id="' + esc(a.id) + '">Reativar</button>'
+            : '<button class="btn" type="button" data-sil="7" data-id="' + esc(a.id) + '">Silenciar 7 dias</button>') +
+        '</div></article>';
+    }).join('');
+    el.querySelectorAll('[data-ler]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var p = fetch('/api/alerts/lidos', { method: 'POST', credentials: 'same-origin', keepalive: true, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids: [b.dataset.ler] }) });
+        if (b.tagName === 'BUTTON') p.then(carregar);
+      });
+    });
+    el.querySelectorAll('[data-sil]').forEach(function (b) {
+      b.addEventListener('click', function () { b.disabled = true; post('/api/alerts/silenciar', { id: b.dataset.id, dias: +b.dataset.sil }).then(carregar); });
+    });
+  }
+  function chip(cls, n, v, lbl) {
+    return '<button type="button" class="chip ' + cls + '" data-n="' + n + '" aria-pressed="' + (estado.nivel === n) + '"><b>' + v + '</b><span>' + lbl + '</span></button>';
+  }
+
+  function carregar() {
+    return fetch('/api/alerts?todos=1', { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (j) {
+      estado.dados = j.alertas || [];
+      if (j.pode_configurar) document.getElementById('admin-link').style.display = '';
+      render();
+    }).catch(function () {
+      document.getElementById('lista').innerHTML = '<div class="vazio">Não foi possível carregar os alertas.</div>';
+    });
+  }
+  document.getElementById('f-area').addEventListener('change', render);
+  document.getElementById('f-sil').addEventListener('change', render);
+  document.getElementById('b-lertudo').addEventListener('click', function () { post('/api/alerts/lidos', { todos: true }).then(carregar); });
+  carregar();
+})();
+</script>
+</body>
+</html>

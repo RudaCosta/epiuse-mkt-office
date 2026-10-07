@@ -24,47 +24,13 @@ const fs = require('fs');
 const { db, resend } = require('../server-context');
 const { requireAdmin } = require('./users');
 
-// A Resend devolve o erro como objeto ({name, message, statusCode}); string
-// crua vira "[object Object]" e não ajuda ninguém a diagnosticar.
-function erroLegivel(err) {
-  if (!err) return 'erro desconhecido';
-  if (typeof err === 'string') return err;
-  const partes = [err.name, err.message].filter(Boolean);
-  const txt = partes.join(': ');
-  return txt || JSON.stringify(err);
-}
-
-// ── Remetente ────────────────────────────────────────────────────────────────
-// A Resend só aceita como remetente: (a) onboarding@resend.dev — o único
-// endereço de teste válido — ou (b) algo@<domínio que VOCÊ verificou>.
-// O padrão histórico do projeto era 'voices@resend.dev', que não é nenhum dos
-// dois (o resend.dev não é nosso), então todo envio era recusado na origem.
-// Aqui o remetente se resolve sozinho: tenta o configurado e, se a recusa for
-// por domínio/remetente, refaz com o de teste. Some quando o domínio for
-// verificado e o FROM_EMAIL apontar pra ele.
-const FALLBACK_FROM = 'onboarding@resend.dev';
-const FROM_EMAIL = process.env.FROM_EMAIL || FALLBACK_FROM;
-// Ordem de tentativa, sem repetir e sem insistir num @resend.dev inválido.
-const REMETENTES = [...new Set(
-  [FROM_EMAIL, FALLBACK_FROM].filter(f => f && (f === FALLBACK_FROM || !/@resend\.dev$/i.test(f)))
-)];
-// A recusa é do remetente/domínio? (só então vale a pena tentar o próximo)
-function ehErroDeRemetente(err) {
-  const t = (erroLegivel(err) || '').toLowerCase();
-  return /domain|from|sender|verif|not allowed|403/.test(t);
-}
-const DOMINIOS_OK = String(process.env.COMUNICADOS_DOMINIOS || 'epiuse.com.br')
-  .split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
-// Endereços liberados individualmente, fora dos domínios acima. Serve pro caso
-// real de hoje: enquanto o domínio não está verificado, a Resend só entrega no
-// e-mail DONO DA CONTA — que pode ser pessoal. Sem isto, não dá nem pra provar
-// que o envio funciona. Lista explícita, não um domínio inteiro aberto.
-const EMAILS_EXTRA = String(process.env.COMUNICADOS_EMAILS_EXTRA || '')
-  .split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
-function enderecoPermitido(e) {
-  const em = String(e).toLowerCase().trim();
-  return DOMINIOS_OK.some(d => em.endsWith('@' + d)) || EMAILS_EXTRA.includes(em);
-}
+// Remetente com fallback, allowlist de destinatário e leitura do erro da Resend
+// moram em routes/email.js (Módulo 34) — as mesmas peças valem pra todo e-mail
+// do Office. Aqui fica só o que é da fila de comunicados.
+const {
+  erroLegivel, enderecoPermitido, FROM_EMAIL, REMETENTES,
+  DOMINIOS_OK, EMAILS_EXTRA, enviarComFallback: _enviarComFallback,
+} = require('./email');
 const HABILITADO = String(process.env.COMUNICADOS_ENABLED || 'true') !== 'false';
 const MAX_POR_RODADA = parseInt(process.env.COMUNICADOS_MAX_RODADA, 10) || 5;
 // Cópia fixa: entra em TODO comunicado, sempre. Pedido do Rudá — ele quer ver
@@ -144,19 +110,7 @@ function estadoDe(c) {
   return { status: 'pendente' };
 }
 
-// Tenta cada remetente da lista; só troca quando a recusa é de remetente ou
-// domínio. Devolve { data, error, remetente } — 'remetente' é o que funcionou.
-async function enviarComFallback(payload) {
-  let ultimo = null;
-  for (const from of REMETENTES) {
-    const r = await resend.emails.send({ from, ...payload });
-    if (!r || !r.error) return { ...r, remetente: from };
-    ultimo = { ...r, remetente: from };
-    if (!ehErroDeRemetente(r.error)) break;   // recusa por outro motivo: insistir não adianta
-    console.warn(`[comunicados] remetente "${from}" recusado (${erroLegivel(r.error)}) — tentando o próximo`);
-  }
-  return ultimo;
-}
+const enviarComFallback = (payload) => _enviarComFallback(payload, '[comunicados]');
 
 // ── Envio ────────────────────────────────────────────────────────────────────
 async function enviarUm(c, { forcar = false, por = 'auto' } = {}) {

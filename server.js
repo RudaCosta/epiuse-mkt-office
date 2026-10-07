@@ -488,10 +488,12 @@ function backupFile(p) {
 }
 
 // ── EMAIL (opcional via Resend) ───────────────────────────────────────────────
-const NOTIFY_EMAIL = process.env.NOTIFY_EMAIL || 'ruda.costa@epiuse.com.br';
-const FROM_EMAIL   = process.env.FROM_EMAIL   || 'voices@resend.dev';
+// Todo envio passa por routes/email.js (Módulo 34): remetente com fallback,
+// allowlist de destinatário, checagem do { error } da Resend e log em email_log.
+const emailOffice = require('./routes/email');
+const NOTIFY_EMAIL = emailOffice.NOTIFY_EMAIL;
 const resend = (Resend && process.env.RESEND_API_KEY) ? new Resend(process.env.RESEND_API_KEY) : null;
-if (resend) console.log(`[boot] email pronto: from=${FROM_EMAIL} to=${NOTIFY_EMAIL}`);
+if (resend) console.log(`[boot] email pronto: from=${emailOffice.REMETENTES.join(' → ')} to=${NOTIFY_EMAIL}`);
 else        console.log(`[boot] email desabilitado (sem RESEND_API_KEY) — inscrições só em JSONL + console`);
 
 function buildEmailHTML(app) {
@@ -587,19 +589,11 @@ async function sendRecruitmentWebhook(data) {
 }
 
 async function sendRecruitmentEmail(app) {
-  if (!resend) { console.log('[EMAIL-SKIPPED] sem RESEND_API_KEY'); return; }
-  try {
-    const r = await resend.emails.send({
-      from: FROM_EMAIL,
-      to: NOTIFY_EMAIL,
-      subject: `🎙️ Nova inscrição EPI-USE Voices — ${app.nome}`,
-      html: buildEmailHTML(app),
-      reply_to: app.email
-    });
-    console.log(`[EMAIL-SENT] id=${r.data?.id || 'unknown'} to=${NOTIFY_EMAIL}`);
-  } catch (e) {
-    console.error(`[EMAIL-FAIL] ${e.message}`);
-  }
+  await emailOffice.enviar({
+    tipo: 'inscricao', para: NOTIFY_EMAIL, reply_to: app.email,
+    assunto: `🎙️ Nova inscrição EPI-USE Voices — ${app.nome}`,
+    html: buildEmailHTML(app),
+  });
 }
 
 const app = express();
@@ -858,22 +852,17 @@ app.post('/api/game/egg', express.json({ limit: '2kb' }), async (req, res) => {
   } catch (e) { console.warn('[egg]', e.message); }
   if (first) {
     console.log(`[egg] 🐘 ${u.email} achou o filhote (mundo: ${world || '?'})`);
-    if (resend) {
-      try {
-        await resend.emails.send({
-          from: FROM_EMAIL,
-          to: EGG_NOTIFY,
-          subject: `🐘 Easter egg encontrado! ${u.name || u.email} achou o filhote`,
-          html: `<div style="font-family:sans-serif;line-height:1.6;max-width:520px">
-            <h2 style="margin:0 0 8px">🐘🏆 Guardião dos Elefantes</h2>
-            <p><b>${String(u.name || u.email).replace(/[<>&]/g, '')}</b> (${String(u.email).replace(/[<>&]/g, '')}) encontrou o filhote de elefante escondido no Office game (mundo: <b>${world || '?'}</b>).</p>
-            <p>${new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}</p>
-            <p style="color:#64748b;font-size:13px">Conquista registrada no ledger de ERP Coins (evento "egg", 1x por pessoa, +100).</p>
-          </div>`,
-        });
-        console.log(`[egg-email] enviado pra ${EGG_NOTIFY}`);
-      } catch (e) { console.warn('[egg-email]', e.message); }
-    } else console.log('[egg-email] skipped (sem RESEND_API_KEY)');
+    await emailOffice.enviar({
+      tipo: 'egg',
+      para: EGG_NOTIFY,
+      assunto: `🐘 Easter egg encontrado! ${u.name || u.email} achou o filhote`,
+      html: `<div style="font-family:sans-serif;line-height:1.6;max-width:520px">
+        <h2 style="margin:0 0 8px">🐘🏆 Guardião dos Elefantes</h2>
+        <p><b>${String(u.name || u.email).replace(/[<>&]/g, '')}</b> (${String(u.email).replace(/[<>&]/g, '')}) encontrou o filhote de elefante escondido no Office game (mundo: <b>${world || '?'}</b>).</p>
+        <p>${new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}</p>
+        <p style="color:#64748b;font-size:13px">Conquista registrada no ledger de ERP Coins (evento "egg", 1x por pessoa, +100).</p>
+      </div>`,
+    });
   }
   res.json({ ok: true });
 });
@@ -1029,17 +1018,12 @@ function buildBrindesEmailHTML(rec) {
 }
 
 async function sendBrindesEmail(rec) {
-  if (!resend) { console.log('[BRINDES-EMAIL-SKIPPED] sem RESEND_API_KEY'); return; }
-  try {
-    await resend.emails.send({
-      from: FROM_EMAIL,
-      to: process.env.BRINDES_NOTIFY_EMAIL || 'bruna.yamagami@epiuse.com.br',
-      subject: `🎁 Brindes #${rec.id} — ${rec.nomeCliente} · ${rec.tier}${rec.isUrgent ? ' ⚡ URGENTE' : ''}`,
-      html: buildBrindesEmailHTML(rec),
-      reply_to: rec.email
-    });
-    console.log(`[BRINDES-EMAIL-SENT] #${rec.id}`);
-  } catch (e) { console.error(`[BRINDES-EMAIL-FAIL] ${e.message}`); }
+  await emailOffice.enviar({
+    tipo: 'brindes', reply_to: rec.email,
+    para: process.env.BRINDES_NOTIFY_EMAIL || 'bruna.yamagami@epiuse.com.br',
+    assunto: `🎁 Brindes #${rec.id} — ${rec.nomeCliente} · ${rec.tier}${rec.isUrgent ? ' ⚡ URGENTE' : ''}`,
+    html: buildBrindesEmailHTML(rec),
+  });
 }
 
 // Formulário de solicitação de brindes — página dedicada com URL própria
@@ -2787,33 +2771,40 @@ function _eventISO(ev, ano) {
   return `${ano}-${String(ev.m).padStart(2,'0')}-${String(dia).padStart(2,'0')}`;
 }
 
+// Lista única dos eventos (events.json + enriquecimento do SQLite). Usada pela
+// API abaixo e pelo motor de alertas (Módulo 34) — um slug só, nunca duplicado.
+function _listarEventosField() {
+  const events = JSON.parse(fs0.readFileSync(path.join(__dirname, 'public/api/events.json'), 'utf8'));
+  const ano = events.ano || new Date().getFullYear();
+  const enrich = {};
+  for (const r of db.prepare('SELECT * FROM field_events').all()) enrich[r.event_id] = r;
+
+  const lista = [];
+  for (const [aba, conteudo] of Object.entries(events.abas || {})) {
+    for (const ev of (conteudo.eventos || [])) {
+      const id = _slugifyEvent(aba, ev);
+      const e = enrich[id] || {};
+      let captura = {}; try { captura = JSON.parse(e.captura_json || '{}'); } catch {}
+      let briefing = {}; try { briefing = JSON.parse(e.briefing_json || '{}'); } catch {}
+      let brindes = []; try { brindes = JSON.parse(e.brindes_json || '[]'); } catch {}
+      lista.push({
+        event_id: id, regiao: aba, nome: ev.n, lob: ev.lob, who: ev.who,
+        pais: ev.country, flag: ev.flag, mes: ev.m, dia: ev.d,
+        data_evento: e.data_evento || _eventISO(ev, ano),
+        status: e.status || 'planejamento',
+        local: e.local || ev.local || '', responsavel: e.responsavel || '', porte: e.porte || '',
+        orcamento: e.orcamento || 0, captura,
+        tem_briefing: !!(e.briefing_json && e.briefing_json !== '{}'),
+        briefing, brindes, atualizado_em: e.updated_at || null,
+      });
+    }
+  }
+  return { lista, ano };
+}
+
 app.get('/api/field-marketing', (req, res) => {
   try {
-    const events = JSON.parse(fs0.readFileSync(path.join(__dirname, 'public/api/events.json'), 'utf8'));
-    const ano = events.ano || new Date().getFullYear();
-    const enrich = {};
-    for (const r of db.prepare('SELECT * FROM field_events').all()) enrich[r.event_id] = r;
-
-    const lista = [];
-    for (const [aba, conteudo] of Object.entries(events.abas || {})) {
-      for (const ev of (conteudo.eventos || [])) {
-        const id = _slugifyEvent(aba, ev);
-        const e = enrich[id] || {};
-        let captura = {}; try { captura = JSON.parse(e.captura_json || '{}'); } catch {}
-        let briefing = {}; try { briefing = JSON.parse(e.briefing_json || '{}'); } catch {}
-        let brindes = []; try { brindes = JSON.parse(e.brindes_json || '[]'); } catch {}
-        lista.push({
-          event_id: id, regiao: aba, nome: ev.n, lob: ev.lob, who: ev.who,
-          pais: ev.country, flag: ev.flag, mes: ev.m, dia: ev.d,
-          data_evento: e.data_evento || _eventISO(ev, ano),
-          status: e.status || 'planejamento',
-          local: e.local || ev.local || '', responsavel: e.responsavel || '', porte: e.porte || '',
-          orcamento: e.orcamento || 0, captura,
-          tem_briefing: !!(e.briefing_json && e.briefing_json !== '{}'),
-          briefing, brindes, atualizado_em: e.updated_at || null,
-        });
-      }
-    }
+    const { lista, ano } = _listarEventosField();
     // KPIs
     const byStatus = {};
     for (const e of lista) byStatus[e.status] = (byStatus[e.status]||0)+1;
@@ -3315,66 +3306,8 @@ app.get('/api/development-funds', (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// ── /api/alerts: feed unificado pro sino de notificação do office-nav ──
-// Fonte: voices.json#alertas + alertas operacionais derivados (ex: posts atrasados)
-app.get('/api/alerts', (req, res) => {
-  try {
-    const voicesPath = path.join(__dirname, 'public/api/voices.json');
-    const voices = JSON.parse(fs0.readFileSync(voicesPath, 'utf8'));
-    // Alertas do programa Voices (quem está sem postar etc.) são do time de MKT.
-    // Colaborador, Voice e Diretoria recebem só os pessoais (status do resgate…).
-    const acesso = require('./routes/acesso');
-    const doTime = acesso.ehSuperAdmin(req.session && req.session.user)
-      || acesso.areasDoUsuario(req.session && req.session.user).includes('time');
-    const alertas = doTime ? [...(voices.alertas || [])] : [];
-
-    // Adiciona alertas derivados de runtime
-    const now = Date.now();
-    const D14 = 14 * 24 * 3600 * 1000;
-    if (doTime) try {
-      const recentPosts = db.prepare("SELECT voice_id, MAX(captured_at) AS last_at FROM posts GROUP BY voice_id").all();
-      const voicesAtivos = (voices.voices || []).filter(v => v.status !== 'inativo');
-      for (const v of voicesAtivos) {
-        const row = recentPosts.find(p => p.voice_id === v.id);
-        if (!row || (now - new Date(row.last_at).getTime()) > D14) {
-          alertas.push({ tipo: 'warn', msg: `${v.nome}: sem post registrado nos últimos 14 dias.` });
-        }
-      }
-    } catch (e) { /* sqlite offline ou tabela vazia — segue sem o alerta derivado */ }
-
-    // 🔔 Alertas pessoais por sessão (v0.82.0) — dados reais, direto do SQLite.
-    try {
-      const su = req.session && req.session.user;
-      if (su && require('./routes/users').isSuperAdmin(req)) {
-        const pend = db.prepare(`SELECT COUNT(*) n FROM coin_redemptions WHERE status='pendente'`).get().n;
-        if (pend > 0) alertas.unshift({ tipo: 'action', msg: `🎁 ${pend} resgate(s) da Loja aguardando sua decisão`, href: '/admin/coins' });
-        const novas = db.prepare(`SELECT COUNT(*) n FROM recruitment_applications WHERE COALESCE(status,'novo')='novo'`).get().n;
-        if (novas > 0) alertas.unshift({ tipo: 'action', msg: `🎙️ ${novas} inscrição(ões) de Voice pra triar`, href: '/admin/inscricoes' });
-      }
-      if (su && su.email) {
-        const meus = db.prepare(`SELECT item_nome, status FROM coin_redemptions
-          WHERE email=? AND status IN ('aprovado','negado','entregue')
-          AND decided_at >= datetime('now','-7 days') ORDER BY decided_at DESC LIMIT 3`)
-          .all(String(su.email).toLowerCase());
-        const lbl = { aprovado: '✅ aprovado', negado: '❌ negado (coins devolvidos)', entregue: '📦 entregue' };
-        meus.forEach(r => alertas.unshift({ tipo: 'info', msg: `🛒 Seu resgate "${r.item_nome}": ${lbl[r.status] || r.status}`, href: '/loja' }));
-      }
-    } catch (e) { /* tabelas da loja podem não existir em ambiente isolado */ }
-
-    // Módulo 20 — pautas dos Voices (revisão pendente, link liberado, OK da Duda)
-    try {
-      const su2 = req.session && req.session.user;
-      if (su2 && su2.email) {
-        require('./routes/voices-pipeline').alertasDoUsuario(su2.email, su2.role)
-          .forEach(a => alertas.unshift(a));
-      }
-    } catch (e) { /* pipeline pode não estar carregado em ambiente isolado */ }
-
-    res.json({ alertas, count: alertas.length });
-  } catch (e) {
-    res.status(500).json({ alertas: [], error: e.message });
-  }
-});
+// ── /api/alerts: mudou pro Módulo 34 (routes/alertas.js) — regras com dado
+// real, estado persistido, lido/silenciar por pessoa e e-mail de crítico.
 
 // ── INBOUND GENERATE: substitui window.claude.complete() do artifact host ──
 // Aceita format='post' (Brief→Post, default) ou 'carousel' (cover + N slides + cta).
@@ -3883,6 +3816,11 @@ function _snapshotFY(req, res) {
 app.get('/api/relatorio/snapshot', (req, res) => {
   if (req.query.fy) return _snapshotFY(req, res);
   const mes = req.query.mes || new Date().toISOString().slice(0, 7);
+  res.json(_relatorioSnapshotMes(mes));
+});
+
+// Snapshot de um mês (AAAA-MM), legado da tela antiga do /relatorio.
+function _relatorioSnapshotMes(mes) {
   // overlay rotina diária → total de seguidores do mês corrente sempre fresco (fonte única)
   const linkedin = overlayLinkedinRoutine(_readJSON(LINKEDIN_HIST_PATH, { serie_mensal: [], demografia: {}, resumo: {}, eventos: [] }));
 
@@ -4016,7 +3954,7 @@ app.get('/api/relatorio/snapshot', (req, res) => {
   }
 
   // Bloco de resposta consolidado
-  res.json({
+  return {
     success: true,
     mes,
     site,
@@ -4049,8 +3987,8 @@ app.get('/api/relatorio/snapshot', (req, res) => {
     },
     eventos_proximos,
     alertas: _gerarAlertas(linkedin, atual, anterior),
-  });
-});
+  };
+}
 
 // GET /api/rd/canais — dados de canais de aquisição do RD Station
 app.get('/api/rd/canais', (req, res) => {
@@ -6137,6 +6075,14 @@ app.use('/', require('./routes/area-pipeline')); // Módulo 29 — Área Pipelin
 app.use('/', require('./routes/area-brand'));    // Módulo 30 — Área Brand (Voices · pautas · Cases · calendário)
 app.use('/', require('./routes/relatorio'));     // Módulo 31 — Relatório de Marketing ao vivo (só fontes automáticas + PPT/PDF)
 app.use('/', require('./routes/metas-fy27'));    // Módulo 33 — Metas FY27 (placar ao vivo: Apollo · Office · GA4 do Relatório)
+// Módulo 34 — Central de Alertas & Relatórios (sino, /alertas, /admin/alertas,
+// e-mail de crítico, relatório semanal e mensal). Recebe as fontes de fora em vez
+// de duplicar lógica: a lista de eventos daqui e o relatório do mês do Módulo 31
+// (o e-mail mensal mostra exatamente os números da tela /relatorio).
+const alertasOffice = require('./routes/alertas');
+alertasOffice.registrar('eventos', _listarEventosField);
+alertasOffice.registrar('relatorio', require('./routes/relatorio').montar);
+app.use('/', alertasOffice);
 
 // Saida de pessoa do time: roda aqui, no fim do boot, porque precisa das
 // tabelas de TODOS os modulos (as do Cafezinho, por exemplo, so existem
@@ -6162,7 +6108,8 @@ async function dailyDataRefresh() {
       const ga4 = require(path.join(__dirname, 'scripts/integrations/ga4_fetch.js'));
       const r = await ga4.refreshAndCache(mes);
       console.log(`[daily] GA4 ${mes} OK — usuarios=${r.usuarios}`);
-    } catch (e) { console.warn('[daily] GA4 falhou:', e.message); }
+      alertasOffice.registrarSaude('ga4', true);
+    } catch (e) { console.warn('[daily] GA4 falhou:', e.message); alertasOffice.registrarSaude('ga4', false, e.message); }
   }
   // RD Station
   if (process.env.RD_REFRESH_TOKEN) {
@@ -6170,7 +6117,8 @@ async function dailyDataRefresh() {
       const rd = require(path.join(__dirname, 'scripts/integrations/rd_fetch.js'));
       const o = await rd.fetchRD();
       console.log(`[daily] RD OK — atualizado=${o.atualizado_em}`);
-    } catch (e) { console.warn('[daily] RD falhou:', e.message); }
+      alertasOffice.registrarSaude('rd', true);
+    } catch (e) { console.warn('[daily] RD falhou:', e.message); alertasOffice.registrarSaude('rd', false, e.message); }
   }
 }
 if (process.env.GA4_PROPERTY_ID || process.env.RD_REFRESH_TOKEN) {
@@ -6181,56 +6129,7 @@ if (process.env.GA4_PROPERTY_ID || process.env.RD_REFRESH_TOKEN) {
   console.log('[daily] refresh GA4/RD inativo (sem creds — esperado em local)');
 }
 
-// ── RESUMO SEMANAL POR E-MAIL (Módulo 17 · v0.76.0) ──────────────────────────
-// Toda segunda ~8h BRT (>=11h UTC) manda um digest do Analytics + UTM pro
-// NOTIFY_EMAIL (Rudá). Sem cron lib: tick horário + guard em app_blobs
-// (chave 'digest.lastSent' = ano-semana ISO) pra não duplicar entre restarts.
-// Sem RESEND_API_KEY: loga "skipped" e marca a semana (não fica re-tentando).
-function _isoWeekKey(d) {
-  const dt = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
-  const day = dt.getUTCDay() || 7;
-  dt.setUTCDate(dt.getUTCDate() + 4 - day);
-  const y = dt.getUTCFullYear();
-  const week = Math.ceil((((dt - Date.UTC(y, 0, 1)) / 86400000) + 1) / 7);
-  return y + '-W' + String(week).padStart(2, '0');
-}
-async function sendWeeklyDigest(force) {
-  const anl = require('./routes/analytics');
-  const data = anl.buildDigestData(7);
-  const html = anl.buildDigestHTML(data);
-  if (!resend) { console.log('[digest] skipped (sem RESEND_API_KEY)'); return { sent: false, reason: 'sem_resend', html }; }
-  try {
-    await resend.emails.send({
-      from: FROM_EMAIL, to: NOTIFY_EMAIL,
-      subject: `📊 Office — resumo da semana (${data.uso.usuarios} usuários · ${data.uso.visitas} visitas · ${data.utm.cliques} cliques UTM)`,
-      html,
-    });
-    console.log(`[digest] enviado pra ${NOTIFY_EMAIL}${force ? ' (forçado)' : ''}`);
-    return { sent: true, to: NOTIFY_EMAIL };
-  } catch (e) { console.warn('[digest] falhou:', e.message); return { sent: false, reason: e.message }; }
-}
-async function weeklyDigestTick() {
-  try {
-    const now = new Date();
-    if (now.getUTCDay() !== 1 || now.getUTCHours() < 11) return; // segunda >= 8h BRT
-    const wk = _isoWeekKey(now);
-    const row = db.prepare(`SELECT value FROM app_blobs WHERE key='digest.lastSent'`).get();
-    if (row && row.value === wk) return; // já mandou esta semana
-    db.prepare(`INSERT OR REPLACE INTO app_blobs (key, value, updated_at) VALUES ('digest.lastSent', ?, datetime('now'))`).run(wk);
-    await sendWeeklyDigest(false);
-  } catch (e) { console.warn('[digest] tick:', e.message); }
-}
-setInterval(weeklyDigestTick, 60 * 60 * 1000); // checa a cada hora
-setTimeout(weeklyDigestTick, 90000);           // e uma vez ~90s após o boot
-
-// Preview/força-envio pro admin (testável sem esperar segunda-feira).
-app.get('/api/admin/digest/preview', _coinsAdmin, (req, res) => {
-  try {
-    const anl = require('./routes/analytics');
-    res.type('html').send(anl.buildDigestHTML(anl.buildDigestData(parseInt(req.query.days, 10) || 7)));
-  } catch (e) { res.status(500).json({ error: e.message }); }
-});
-app.post('/api/admin/digest/send', _coinsAdmin, async (req, res) => {
-  try { res.json(await sendWeeklyDigest(true)); }
-  catch (e) { res.status(500).json({ error: e.message }); }
-});
+// ── RESUMO SEMANAL POR E-MAIL ────────────────────────────────────────────────
+// Virou o relatório semanal do Módulo 34 (routes/alertas.js): alertas abertos,
+// movimento da semana × anterior, próximos 14 dias e saúde das fontes, além do
+// uso do Office que este digest mandava. Prévia e envio em /admin/alertas.

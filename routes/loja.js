@@ -15,11 +15,9 @@ const express = require('express');
 const router = express.Router();
 const path = require('path');
 const fs = require('fs');
-const { db, resend } = require('../server-context');
+const { db } = require('../server-context');
 const { requireAdmin } = require('./users');
-
-const FROM_EMAIL = process.env.FROM_EMAIL || 'voices@resend.dev';
-const NOTIFY_EMAIL = process.env.NOTIFY_EMAIL || 'ruda.costa@epiuse.com.br';
+const mailer = require('./email');   // remetente com fallback + log (Módulo 34)
 
 const CATALOGO_PATH = path.join(__dirname, '../public/api/loja-coins.json');
 
@@ -138,16 +136,14 @@ router.post('/api/loja/resgatar', express.json({ limit: '2kb' }), (req, res) => 
     })();
     if (out.erro) return res.status(400).json({ error: out.erro, saldo: out.saldo });
     // ✉️ Aviso pro admin (best-effort — nunca bloqueia a resposta)
-    if (resend) {
-      resend.emails.send({
-        from: FROM_EMAIL, to: NOTIFY_EMAIL,
-        subject: `🎁 Resgate na Loja de Coins — ${u.name || email} pediu "${item.nome}"`,
-        html: `<div style="font-family:system-ui,sans-serif"><h2 style="margin:0 0 8px">🎁 Novo resgate pendente</h2>
-          <p><b>${String(u.name || email)}</b> (${email}) resgatou <b>${String(item.nome)}</b> por <b>${preco} coins</b>.</p>
-          <p><a href="https://office.epiuse.com.br/admin/coins" style="color:#2563EB">→ Aprovar/negar no painel</a></p></div>`,
-      }).then(() => console.log(`[loja] email de resgate enviado (${item.id})`))
-        .catch(e => console.warn('[loja] email de resgate falhou:', e.message));
-    } else console.log('[loja] email de resgate skipped (sem RESEND_API_KEY)');
+    const esc = (x) => String(x == null ? '' : x).replace(/[<>&]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]));
+    mailer.enviar({
+      tipo: 'loja', para: mailer.NOTIFY_EMAIL,
+      assunto: `🎁 Resgate na Loja de Coins — ${u.name || email} pediu "${item.nome}"`,
+      html: `<div style="font-family:system-ui,sans-serif"><h2 style="margin:0 0 8px">🎁 Novo resgate pendente</h2>
+        <p><b>${esc(u.name || email)}</b> (${esc(email)}) resgatou <b>${esc(item.nome)}</b> por <b>${preco} coins</b>.</p>
+        <p><a href="${mailer.OFFICE_URL}/admin/coins" style="color:#2563EB">→ Aprovar/negar no painel</a></p></div>`,
+    });
     res.json({ success: true, id: out.id, saldo: out.saldo, status: 'pendente' });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });

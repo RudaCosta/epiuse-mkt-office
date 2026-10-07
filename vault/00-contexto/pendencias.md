@@ -16,6 +16,10 @@
 - 🟡 **Confirmar se a tag do GA4 está no site novo (HubSpot CMS, ago/2026).** Se não estiver, os visitantes do `/relatorio` subnotificam desde ago — alternativa é ligar o HubSpot CMS Analytics (`HUBSPOT_TOKEN`).
 - 🟡 **(Opcional) Subir o template oficial `.pptx`** no `/relatorio` (rodapé do bloco Exportar, só você vê). Sem ele o PPT sai no padrão do Brand Guide 2026.
 
+### 🔔 Alertas e relatórios por e-mail (Módulo 34 · 07/out/2026)
+- 🟡 **Verificar o domínio `epiuse.com.br` na Resend** (SPF/DKIM) e setar `FROM_EMAIL` no Railway. Sem isso a Resend só entrega no e-mail dono da conta, e nenhum e-mail do Office (alertas, relatórios, inscrição, brindes, Loja) chega no time. Até lá: colocar o e-mail dono da conta em `COMUNICADOS_EMAILS_EXTRA` e na lista dos canais em `/admin/alertas`.
+- 🟡 Depois do deploy: em `/admin/alertas`, clicar em "Enviar pra mim" no semanal e no mensal e conferir se chegaram. Decidir se as donas das áreas recebem os críticos e o semanal da própria área (está desligado).
+
 ## ✅ RESOLVIDOS 02/out/2026 (confirmação Rudá: "b2 e b3 ok")
 - **B2 · Brand Guide 2026** — confirmado como versão final. DESIGN.md v4.0 segue valendo, sem re-diff. Segue em aberto, não-bloqueante: o tema “EPI-USE · claro” fica com fundo escuro nas telas com rota (`body[data-route]` do office-nav.js vence o tema; `home.css` tem cards escuros fixos).
 - **B3 · Graph API `Files.Read.All`** — permissão liberada. **Fase 2 do Calendário Editorial desbloqueada**; falta só implementar a leitura direto da nuvem (ver `modulos/25-calendario-editorial/PENDENCIAS.md`).
