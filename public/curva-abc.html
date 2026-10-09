@@ -65,6 +65,13 @@ body { background: var(--bg); font-family: 'Inter', sans-serif; color: var(--tex
 .filter-pill { padding: 5px 11px; border-radius: 999px; font-size: 11px; font-weight: 600; border: 1px solid var(--border); color: var(--text-muted); background: transparent; cursor: pointer; transition: all .12s; }
 .filter-pill.active { background: rgba(248,113,113,.20); border-color: rgba(248,113,113,.50); color: var(--red,#fca5a5); }
 .filter-pill:hover { color: var(--text); }
+.search-box { display: flex; align-items: center; gap: 6px; margin-left: auto; background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 5px 12px; min-width: 220px; }
+.search-box .ico { font-size: 12px; color: var(--text-muted); }
+.search-box input { flex: 1; background: transparent; border: none; outline: none; color: var(--text); font-size: 12px; font-family: 'Inter', sans-serif; }
+.search-box input::placeholder { color: var(--text-muted); }
+.search-box .clear { cursor: pointer; color: var(--text-muted); font-size: 12px; display: none; }
+.search-box .clear.show { display: inline; }
+.search-box .clear:hover { color: var(--primary-light); }
 
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 14px; }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px; transition: border-color .15s, transform .15s; }
@@ -94,6 +101,25 @@ body { background: var(--bg); font-family: 'Inter', sans-serif; color: var(--tex
 .override-box textarea { resize: vertical; min-height: 44px; }
 .override-box button { width: 100%; }
 .override-hist { font-size: 10px; color: var(--text-muted); margin-top: 6px; font-style: italic; }
+
+.add-conta-box { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 22px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; }
+.add-conta-box .titulo { font-size: 12px; font-weight: 700; color: var(--text-dim); letter-spacing: .04em; margin-right: 6px; white-space: nowrap; }
+.add-conta-box input { background: var(--surface-2); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 7px 10px; font-size: 12px; font-family: 'Inter', sans-serif; }
+.add-conta-box input:focus { outline: none; border-color: rgba(248,113,113,.45); }
+.add-conta-box input.nome { flex: 1; min-width: 180px; }
+.add-conta-box input.vertical { width: 220px; }
+.add-conta-box input.dono { width: 150px; }
+.add-conta-box input.notas { flex: 1; min-width: 200px; }
+.add-conta-box .hint { font-size: 10px; color: var(--text-muted); width: 100%; margin-top: -2px; }
+.add-conta-box .msg { font-size: 11px; color: var(--text-muted); width: 100%; }
+.add-conta-box .msg.erro { color: var(--red,#f87171); }
+.add-conta-box .msg.ok { color: var(--teal,#34d399); }
+.add-resultado { width: 100%; margin-top: 4px; padding: 12px 14px; border-radius: 8px; background: var(--surface-2); border: 1px solid var(--border); font-size: 12px; color: var(--text-dim); display: none; }
+.add-resultado.show { display: block; }
+.add-resultado .res-top { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; font-weight: 700; color: var(--text); }
+.add-resultado ul { list-style: none; padding: 0; margin: 4px 0 0; font-size: 11px; }
+.add-resultado li { padding: 2px 0 2px 14px; position: relative; }
+.add-resultado li::before { content: '·'; position: absolute; left: 2px; color: var(--primary-light); }
 
 .empty { padding: 40px 20px; text-align: center; color: var(--text-muted); font-style: italic; grid-column: 1 / -1; }
 .section-sub { font-size: 14px; color: var(--text-dim); margin: 28px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
@@ -140,6 +166,24 @@ body { background: var(--bg); font-family: 'Inter', sans-serif; color: var(--tex
     <button class="filter-pill" data-tier="A">A</button>
     <button class="filter-pill" data-tier="B">B</button>
     <button class="filter-pill" data-tier="C">C</button>
+    <div class="search-box">
+      <span class="ico">🔎</span>
+      <input type="text" id="busca-conta" placeholder="Buscar conta ou vertical…" autocomplete="off">
+      <span class="clear" id="busca-clear">✕</span>
+    </div>
+  </div>
+
+  <div class="add-conta-box">
+    <span class="titulo">➕ Salvar empresa</span>
+    <input type="text" class="nome" id="add-nome" placeholder="Nome da empresa (ex: prospect do Apollo)">
+    <input type="text" class="vertical" id="add-vertical" list="verticais-conhecidas" placeholder="Vertical/LOB (sugestões do playbook)">
+    <datalist id="verticais-conhecidas"></datalist>
+    <input type="text" class="dono" id="add-dono" placeholder="Dono (AE/SDR)">
+    <input type="text" class="notas" id="add-notas" placeholder="Notas (opcional)">
+    <button class="btn primary" id="btn-add-conta">Salvar</button>
+    <span class="hint">Usar uma vertical das sugestões faz o motor de Fit/Propensão reconhecer a conta melhor. Enter salva.</span>
+    <span class="msg" id="add-msg"></span>
+    <div class="add-resultado" id="add-resultado"></div>
   </div>
 
   <div class="section-sub"><span>📋 Contas</span><span class="count" id="lista-count"></span></div>
@@ -154,10 +198,12 @@ const API = {
   contas: '/api/curva-abc/contas',
   resumo: '/api/curva-abc/resumo',
   sync: '/api/curva-abc/sync',
+  criarConta: '/api/curva-abc/contas',
+  verticais: '/api/curva-abc/verticais',
   override: (id) => `/api/curva-abc/contas/${id}/override`
 };
 
-let STATE = { contas: [], filtroTier: '' };
+let STATE = { contasRaw: [], contas: [], filtroTier: '', busca: '' };
 
 function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
@@ -177,7 +223,17 @@ async function carregarContas() {
   const qs = STATE.filtroTier ? `?classificacao=${STATE.filtroTier}` : '';
   const r = await fetch(API.contas + qs);
   const d = await r.json();
-  STATE.contas = d.contas || [];
+  STATE.contasRaw = d.contas || [];
+  aplicarBusca();
+}
+
+function aplicarBusca() {
+  const termo = STATE.busca.trim().toLowerCase();
+  STATE.contas = !termo ? STATE.contasRaw : STATE.contasRaw.filter(c =>
+    (c.nome_empresa || '').toLowerCase().includes(termo) ||
+    (c.vertical || '').toLowerCase().includes(termo) ||
+    (c.fonte || '').toLowerCase().includes(termo)
+  );
   renderMatriz();
   renderGrid();
 }
@@ -229,7 +285,8 @@ function renderGrid() {
       <div class="top">
         <div>
           <div class="name">${esc(c.nome_empresa)}</div>
-          <div class="vertical">${esc(c.vertical || 'vertical não identificada')} · fonte: ${esc(c.fonte || '—')}</div>
+          <div class="vertical">${esc(c.vertical || 'vertical não identificada')} · fonte: ${esc(c.fonte || '—')}${c.dono ? ' · dono: ' + esc(c.dono) : ''}</div>
+          ${c.notas ? `<div class="vertical" style="margin-top:4px;font-family:'Inter',sans-serif;font-style:italic">📝 ${esc(c.notas)}</div>` : ''}
         </div>
         <span class="tier-pill ${esc(c.classificacao_final)}">${esc(c.classificacao_final)}</span>
       </div>
@@ -317,7 +374,87 @@ document.querySelectorAll('.filter-pill').forEach(p => {
   });
 });
 
+async function carregarVerticais() {
+  try {
+    const r = await fetch(API.verticais);
+    const d = await r.json();
+    document.getElementById('verticais-conhecidas').innerHTML =
+      (d.verticais || []).map(v => `<option value="${esc(v)}">`).join('');
+  } catch (e) { /* autocomplete é opcional, não trava a página */ }
+}
+
+async function salvarEmpresa() {
+  const btn = document.getElementById('btn-add-conta');
+  const msg = document.getElementById('add-msg');
+  const resultado = document.getElementById('add-resultado');
+  const nomeInput = document.getElementById('add-nome');
+  const verticalInput = document.getElementById('add-vertical');
+  const nome_empresa = nomeInput.value.trim();
+  const vertical = verticalInput.value.trim();
+  const dono = document.getElementById('add-dono').value.trim();
+  const notas = document.getElementById('add-notas').value.trim();
+  msg.textContent = ''; msg.className = 'msg';
+  resultado.className = 'add-resultado'; resultado.innerHTML = '';
+  if (!nome_empresa) { msg.textContent = 'Informe o nome da empresa.'; msg.className = 'msg erro'; nomeInput.focus(); return; }
+
+  btn.disabled = true; btn.textContent = 'Salvando…';
+  try {
+    const r = await fetch(API.criarConta, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nome_empresa, vertical, dono, notas })
+    });
+    const d = await r.json();
+    if (!d.success) throw new Error(d.error || 'falha ao salvar');
+
+    const c = d.conta;
+    const tierDesc = { A: 'snipe 1:1', B: 'rally 1:few', C: 'volume' }[c.classificacao] || '';
+    const sinais = [...(c.fit_sinais || []), ...(c.propensao_sinais || [])];
+    resultado.innerHTML =
+      `<div class="res-top"><span class="tier-pill ${esc(c.classificacao)}">${esc(c.classificacao)}</span>` +
+      `<span>${esc(c.nome_empresa)} — tier ${esc(c.classificacao)} (${tierDesc}) · Fit ${c.fit_score}/4 · Propensão ${c.propensao_score}/4</span></div>` +
+      (sinais.length
+        ? `<ul>${sinais.map(s => `<li>${esc(s.texto)}</li>`).join('')}</ul>`
+        : `<ul><li>⏳ Nenhum sinal real encontrado ainda${c.sem_vertical ? ' — informar a vertical ajuda o motor a cruzar com cases, gatilhos e dores de campo' : ''}. A conta entra como C até aparecer dado (deal no Zoho, engajamento, case na vertical).</li></ul>`);
+    resultado.className = 'add-resultado show';
+    msg.textContent = '✓ Salva. Ajuste o tier manualmente no card dela se discordar do cálculo.'; msg.className = 'msg ok';
+
+    nomeInput.value = ''; verticalInput.value = '';
+    document.getElementById('add-dono').value = ''; document.getElementById('add-notas').value = '';
+    nomeInput.focus();
+    await Promise.all([carregarTudo(), carregarVerticais()]);
+  } catch (e) {
+    msg.textContent = 'Erro: ' + e.message; msg.className = 'msg erro';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Salvar';
+  }
+}
+
+document.getElementById('btn-add-conta').addEventListener('click', salvarEmpresa);
+['add-nome', 'add-vertical', 'add-dono', 'add-notas'].forEach(id => {
+  document.getElementById(id).addEventListener('keydown', ev => {
+    if (ev.key === 'Enter') { ev.preventDefault(); salvarEmpresa(); }
+  });
+});
+
+const buscaInput = document.getElementById('busca-conta');
+const buscaClear = document.getElementById('busca-clear');
+let buscaTimer = null;
+buscaInput.addEventListener('input', () => {
+  STATE.busca = buscaInput.value;
+  buscaClear.classList.toggle('show', !!STATE.busca);
+  clearTimeout(buscaTimer);
+  buscaTimer = setTimeout(aplicarBusca, 150);
+});
+buscaClear.addEventListener('click', () => {
+  buscaInput.value = '';
+  STATE.busca = '';
+  buscaClear.classList.remove('show');
+  aplicarBusca();
+  buscaInput.focus();
+});
+
 carregarTudo();
+carregarVerticais();
 </script>
 </body>
 </html>

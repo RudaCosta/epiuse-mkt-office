@@ -61,6 +61,10 @@ try {
 } catch (e) {
   console.warn('[curva-abc] falha ao preparar tabelas:', e.message);
 }
+// migration idempotente: campos do cadastro manual (dono AE/SDR + notas livres)
+for (const _col of ['dono', 'notas']) {
+  try { db.exec(`ALTER TABLE curva_abc_contas ADD COLUMN ${_col} TEXT DEFAULT ''`); } catch (_e) { /* ja existe */ }
+}
 
 function slugConta(nome) {
   return String(nome || '')
@@ -109,7 +113,7 @@ function coletarContas() {
   let cases = [];
   try { cases = db.prepare('SELECT conta, cliente_nome, lob, status, case_publicavel FROM cs_clientes').all(); }
   catch (e) { /* ok */ }
-  const lobsComCase = new Set(cases.map(c => (c.lob || '').toLowerCase()).filter(Boolean));
+  const lobsComCase = carregarLobsComCase();
   for (const cs of cases) {
     const nome = cs.cliente_nome || cs.conta;
     if (!nome) continue;
@@ -137,39 +141,53 @@ function coletarContas() {
   }
 
   // Fonte 4: dores de campo reais (jarvis_aprendizados) — casadas por LOB/vertical
-  let doresPorLob = new Set();
-  try {
-    const rows = db.prepare("SELECT DISTINCT lob FROM jarvis_aprendizados WHERE tipo = 'dor' AND lob IS NOT NULL AND lob != ''").all();
-    doresPorLob = new Set(rows.map(r => r.lob.toLowerCase()));
-  } catch (e) { /* tabela do jarvis pode não existir ainda */ }
+  const doresPorLob = carregarDoresPorLob();
 
   for (const c of contas.values()) {
-    // Fit: vertical bate com força EPI-USE
-    const verticalTexto = [...c.verticais].join(', ');
-    const bateForca = [...c.verticais].some(lobBateComForca);
-    if (bateForca) c.fitSinais.push({ chave: 'lob_core', texto: `Vertical (${verticalTexto}) alinhada com LOB forte EPI-USE` });
-
-    // Fit: já existe case publicado nessa vertical (mesmo que não seja o case da própria conta)
-    const caseParecido = [...c.verticais].some(v => lobsComCase.has(v.toLowerCase()));
-    if (caseParecido && !c.fitSinais.some(s => s.chave === 'ja_e_cliente_case')) {
-      c.fitSinais.push({ chave: 'case_parecido_vertical', texto: `Existe case de sucesso EPI-USE publicado na mesma vertical (${verticalTexto})` });
-    }
-
-    // Propensão: gatilho de urgência 2026 (aplica a toda a base quando o playbook tem gatilhos ativos e a conta tem LOB core — proxy real, sem simular por conta específica)
-    if (TEM_GATILHOS_2026 && bateForca) {
-      c.propensaoSinais.push({ chave: 'gatilho_2026', texto: 'Vertical exposta a gatilho de urgência 2026 do playbook (ex: fim do suporte ECC, Reforma Tributária)' });
-    }
-
-    // Propensão: dor de campo real já ouvida numa call pra essa vertical
-    const dorOuvida = [...c.verticais].some(v => doresPorLob.has(v.toLowerCase()));
-    if (dorOuvida) {
-      c.propensaoSinais.push({ chave: 'dor_campo_real', texto: `Dor real já ouvida em call de campo pra vertical (${verticalTexto})` });
-    }
-
+    const { fitSinais, propensaoSinais, verticalTexto } = calcularSinaisPorVertical(c.verticais, lobsComCase, doresPorLob);
+    for (const s of fitSinais) if (!c.fitSinais.some(x => x.chave === s.chave)) c.fitSinais.push(s);
+    for (const s of propensaoSinais) if (!c.propensaoSinais.some(x => x.chave === s.chave)) c.propensaoSinais.push(s);
     c.vertical = verticalTexto || null;
   }
 
   return contas;
+}
+
+// ── Sinais derivados só da(s) vertical(is) — reusado pelo sync em lote e pelo
+// cadastro manual de conta (ambos precisam do mesmo cálculo Fit/Propensão).
+function calcularSinaisPorVertical(verticaisIterable, lobsComCase, doresPorLob) {
+  const verticais = [...verticaisIterable].filter(Boolean);
+  const verticalTexto = verticais.join(', ');
+  const fitSinais = [];
+  const propensaoSinais = [];
+
+  const bateForca = verticais.some(lobBateComForca);
+  if (bateForca) fitSinais.push({ chave: 'lob_core', texto: `Vertical (${verticalTexto}) alinhada com LOB forte EPI-USE` });
+
+  const caseParecido = verticais.some(v => lobsComCase.has(v.toLowerCase()));
+  if (caseParecido) fitSinais.push({ chave: 'case_parecido_vertical', texto: `Existe case de sucesso EPI-USE publicado na mesma vertical (${verticalTexto})` });
+
+  if (TEM_GATILHOS_2026 && bateForca) {
+    propensaoSinais.push({ chave: 'gatilho_2026', texto: 'Vertical exposta a gatilho de urgência 2026 do playbook (ex: fim do suporte ECC, Reforma Tributária)' });
+  }
+
+  const dorOuvida = verticais.some(v => doresPorLob.has(v.toLowerCase()));
+  if (dorOuvida) propensaoSinais.push({ chave: 'dor_campo_real', texto: `Dor real já ouvida em call de campo pra vertical (${verticalTexto})` });
+
+  return { fitSinais, propensaoSinais, verticalTexto };
+}
+
+// ── Lookups reais usados tanto no sync em lote quanto no cadastro manual ────
+function carregarLobsComCase() {
+  try {
+    return new Set(db.prepare('SELECT DISTINCT lob FROM cs_clientes WHERE lob IS NOT NULL').all().map(r => (r.lob || '').toLowerCase()).filter(Boolean));
+  } catch (e) { return new Set(); }
+}
+function carregarDoresPorLob() {
+  try {
+    const rows = db.prepare("SELECT DISTINCT lob FROM jarvis_aprendizados WHERE tipo = 'dor' AND lob IS NOT NULL AND lob != ''").all();
+    return new Set(rows.map(r => r.lob.toLowerCase()));
+  } catch (e) { return new Set(); }
 }
 
 function classificar(fitScore, propensaoScore) {
@@ -227,6 +245,81 @@ router.post('/api/curva-abc/sync', requireAuth, (req, res) => {
     res.json({ success: true, contas_processadas: n });
   } catch (e) {
     res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+// ── API: cadastra manualmente uma conta nova (ex: prospect do Apollo ainda sem
+// deal no Zoho / sem case / sem projeto SAP 4ME). Calcula Fit/Propensão com o
+// mesmo motor do sync, usando a vertical informada. Regra 7: nenhum sinal é
+// simulado — só entra o que bate com dado real (case existente, gatilho, dor).
+router.post('/api/curva-abc/contas', requireAuth, (req, res) => {
+  try {
+    const nome = String(req.body?.nome_empresa || '').trim();
+    const vertical = String(req.body?.vertical || '').trim();
+    const dono = String(req.body?.dono || '').trim().slice(0, 100);
+    const notas = String(req.body?.notas || '').trim().slice(0, 2000);
+    if (!nome) return res.status(400).json({ success: false, error: 'nome_empresa é obrigatório' });
+
+    const contaId = slugConta(nome);
+    if (!contaId) return res.status(400).json({ success: false, error: 'nome_empresa inválido' });
+
+    const existente = db.prepare('SELECT nome_empresa, classificacao_final, fonte FROM curva_abc_contas WHERE conta_id = ?').get(contaId);
+    if (existente) {
+      return res.status(409).json({
+        success: false,
+        error: `"${existente.nome_empresa}" já está na base (tier ${existente.classificacao_final || '?'} · fonte: ${existente.fonte || '?'}). Use a busca pra encontrá-la ou "Recalcular" pra atualizar os sinais.`,
+        conta_id: contaId
+      });
+    }
+
+    const lobsComCase = carregarLobsComCase();
+    const doresPorLob = carregarDoresPorLob();
+    const verticais = vertical ? [vertical] : [];
+    const { fitSinais, propensaoSinais, verticalTexto } = calcularSinaisPorVertical(verticais, lobsComCase, doresPorLob);
+
+    const fitScore = Math.min(fitSinais.length, 4);
+    const propensaoScore = Math.min(propensaoSinais.length, 4);
+    const classificacao = classificar(fitScore, propensaoScore);
+
+    db.prepare(`
+      INSERT INTO curva_abc_contas (conta_id, nome_empresa, fonte, vertical, fit_score, fit_sinais_json, propensao_score, propensao_sinais_json, classificacao_calculada, classificacao_final, dono, notas, atualizado_em)
+      VALUES (?, ?, 'manual', ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+    `).run(contaId, nome, verticalTexto || null, fitScore, JSON.stringify(fitSinais), propensaoScore, JSON.stringify(propensaoSinais), classificacao, classificacao, dono, notas);
+
+    // devolve a classificação na hora pro front mostrar o resultado sem re-fetch
+    res.json({
+      success: true,
+      conta: {
+        conta_id: contaId,
+        nome_empresa: nome,
+        classificacao,
+        fit_score: fitScore,
+        propensao_score: propensaoScore,
+        fit_sinais: fitSinais,
+        propensao_sinais: propensaoSinais,
+        sem_vertical: !vertical
+      }
+    });
+  } catch (e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+// ── API: verticais/LOBs reais do playbook (autocomplete do cadastro manual) ──
+// Cadastro com vertical que casa com o playbook = score mais fiel; texto livre
+// continua aceito, mas o front sugere primeiro as opções que o motor reconhece.
+router.get('/api/curva-abc/verticais', requireAuth, (req, res) => {
+  try {
+    const doPlaybook = (PLAYBOOK.lobs || []).map(l => l.nome).filter(Boolean);
+    let daBase = [];
+    try {
+      daBase = db.prepare("SELECT DISTINCT vertical FROM curva_abc_contas WHERE vertical IS NOT NULL AND vertical != ''").all()
+        .flatMap(r => r.vertical.split(',').map(v => v.trim())).filter(Boolean);
+    } catch (e) { /* ok */ }
+    const unicas = [...new Set([...doPlaybook, ...daBase])];
+    res.json({ verticais: unicas });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
   }
 });
 
