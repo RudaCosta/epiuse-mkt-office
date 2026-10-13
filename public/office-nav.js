@@ -8,7 +8,7 @@
 // Fonte ÚNICA da verdade: public/api/changelog.json#current via /api/version
 // Fallback hardcoded usado SÓ se fetch falhar (offline, etc).
 // Sincronização automática — não editar manualmente, basta bumpar changelog.json.
-let OFFICE_NAV_VERSION = '0.94.0';
+let OFFICE_NAV_VERSION = '0.96.1';
 // Promise compartilhada — nav + footer reaproveitam o mesmo fetch
 window.__officeVersionPromise = window.__officeVersionPromise || fetch('/api/version')
   .then(r => r.ok ? r.json() : null)
@@ -196,6 +196,7 @@ const OFFICE_NAV_OVERFLOW = [
   { section: '🎙️ Voices & Optimizer' },
   { label: '🦝 Raccoon Studio',          href: '/raccoon' },
   { label: '📝 Blog Converter',          href: '/blog-converter' },
+  { label: '✍️ Stratview Generator',     href: '/generator-stratview' },
   { label: '🪪 Profile Optimizer',        href: '/voices/optimizer-v3' },
   { label: '📨 Seja um Voice (LP)',      href: '/seja-voice' },
 
@@ -1946,6 +1947,7 @@ const OfficeCommandPalette = (() => {
       { group:'Rotas', icon:'🎙️', label:'Voice Agents',         hint:'/voices',     action:'/voices' },
       { group:'Rotas', icon:'🦝', label:'Raccoon Studio',       hint:'/raccoon',    action:'/raccoon' },
       { group:'Rotas', icon:'📝', label:'Blog Converter',       hint:'/blog-converter', action:'/blog-converter' },
+      { group:'Rotas', icon:'✍️', label:'Stratview Generator (artigos)', hint:'/generator-stratview', action:'/generator-stratview' },
       { group:'Rotas', icon:'✎',  label:'Brief → Post',         hint:'/inbound/brief',    action:'/inbound/brief' },
       { group:'Rotas', icon:'▥',  label:'Carrossel Hub',        hint:'/inbound/carousel', action:'/inbound/carousel' },
       { group:'Rotas', icon:'▦',  label:'Calendário Editorial', hint:'/inbound/calendar', action:'/inbound/calendar' },
