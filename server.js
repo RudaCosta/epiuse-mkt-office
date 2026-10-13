@@ -1298,14 +1298,18 @@ app.post('/api/stratview/ideias', async (req, res) => {
     // Sorteia 6 ângulos candidatos da rodada (o modelo escolhe 4 conforme o que a pesquisa render)
     const angulos = [...STRATVIEW_ANGULOS].sort(() => Math.random() - 0.5).slice(0, 6);
 
+    const hoje = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+    const anoAtual = new Date().getFullYear();
     const prompt = `Você é o Diretor de Marketing de Conteúdo da Stratview (uma consultoria boutique líder em Oracle Cloud no Brasil, especializada em HCM, Inteligência Artificial e OCI).
+
+DATA DE HOJE: ${hoje}. Estamos em ${anoAtual}. TODOS os títulos, referências e contextos devem ser de ${anoAtual} — NUNCA use anos anteriores (2024, 2025) nos títulos.
 
 Gere 4 ideias de artigos para o blog corporativo.
 
 PESQUISA PROFUNDA OBRIGATÓRIA (use a busca do Google ANTES de propor qualquer ideia):
-1. Novidades Oracle dos últimos 60 dias: releases (25A/25B/26A...), anúncios de OCI, Redwood, agentes de IA, eventos (Oracle CloudWorld, etc).
-2. Notícias do mercado brasileiro: custos de nuvem, RH tech, IA nas empresas, regulação (LGPD, reforma trabalhista/tributária quando tocar TI/RH).
-3. O que executivos estão buscando agora (tendências de busca reais).
+1. Novidades Oracle dos últimos 60 dias (estamos em ${anoAtual}!): releases recentes, anúncios de OCI, Redwood, agentes de IA, eventos (Oracle CloudWorld, etc).
+2. Notícias do mercado brasileiro de ${anoAtual}: custos de nuvem, RH tech, IA nas empresas, regulação (LGPD, reforma trabalhista/tributária quando tocar TI/RH).
+3. O que executivos estão buscando agora em ${anoAtual} (tendências de busca reais).
 CADA ideia deve nascer de um ACHADO REAL dessa pesquisa — nada de tema genérico atemporal. Registre o achado no campo "trendsInfo" (fato + por que agora).
 
 ÂNGULOS SORTEADOS DESTA RODADA — escolha 4 dos 6, um por ideia (é PROIBIDO propor ideia fora destes ângulos):
