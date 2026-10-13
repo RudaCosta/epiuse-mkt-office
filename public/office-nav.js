@@ -145,8 +145,8 @@ const OFFICE_NAV_TABS = [
   // Abas da própria área: só pra quem é dela. O super admin já chega nessas áreas
   // pelas abas acima (Intelligence cobre Growth; Brand cobre Conteúdo) — não
   // aparecem pra ele, pra não poluir o menu.
-  { id: 'growth',       label: 'Growth',           icon: '🚀', href: '/area/growth',       matches: ['area-growth'],   propria: 'growth' },
-  { id: 'conteudo',     label: 'Conteúdo',         icon: '✍️', href: '/area/conteudo',     matches: ['area-conteudo'], propria: 'conteudo' },
+  { id: 'growth',       label: 'Growth',           icon: '🚀', href: '/area/growth',       matches: ['area-growth'],   propria: 'growth',   coberta: '/area/intelligence' },
+  { id: 'conteudo',     label: 'Conteúdo',         icon: '✍️', href: '/area/conteudo',     matches: ['area-conteudo'], propria: 'conteudo', coberta: '/area/brand' },
   { id: 'diretoria',    label: 'Diretoria',        icon: '🏛️', href: '/area/diretoria',    matches: ['diretoria'],     propria: 'diretoria' }
 ];
 
@@ -283,6 +283,9 @@ class OfficeNav extends HTMLElement {
     const a = this._acesso;
     // Aba da própria área: só pra quem TEM essa área (Brand acessa Conteúdo, mas
     // já chega lá pela aba Brand — não precisa de outra).
+    // Se a aba principal que já cobre essa área aparece (Intelligence cobre Growth,
+    // Brand cobre Conteúdo), a aba própria seria repetida — some.
+    if (t.coberta && this.podeVer(t.coberta)) return false;
     return !!(a && a.autenticado && !a.superAdmin && (a.areas || []).includes(t.propria));
   }
 
@@ -442,13 +445,18 @@ class OfficeNav extends HTMLElement {
       `).join('');
     };
 
-    // Administração — só o super admin (vem de /api/acesso/me).
+    // Administração (vem de /api/acesso/me): Permissões só o super admin; as
+    // ferramentas de Gestão do Office também pra quem recebeu a área 'gestao'.
     const souSuper = !!(this._acesso && this._acesso.superAdmin);
+    const temGestao = souSuper || !!(this._acesso && (this._acesso.areas || []).includes('gestao'));
     if (souSuper) {
-      const grp = col1Items.find(g => g.section === '🤖 Escritório Virtual');
-      if (grp && !grp.links.some(l => l.href === '/admin/usuarios')) {
-        grp.links.push({ label: '🔐 Permissões', href: '/admin/usuarios' });
+      const grp0 = col1Items.find(g => g.section === '🤖 Escritório Virtual');
+      if (grp0 && !grp0.links.some(l => l.href === '/admin/usuarios')) {
+        grp0.links.push({ label: '🔐 Permissões', href: '/admin/usuarios' });
       }
+    }
+    if (temGestao) {
+      const grp = col1Items.find(g => g.section === '🤖 Escritório Virtual');
       if (grp && !grp.links.some(l => l.href === '/admin/inscricoes')) {
         grp.links.push({ label: '🎙️ Inscrições Voices', href: '/admin/inscricoes' });
       }
@@ -457,6 +465,9 @@ class OfficeNav extends HTMLElement {
       }
       if (grp && !grp.links.some(l => l.href === '/admin/coins')) {
         grp.links.push({ label: '🪙 Coins & Resgates', href: '/admin/coins' });
+      }
+      if (grp && !grp.links.some(l => l.href === '/admin/alertas')) {
+        grp.links.push({ label: '🔔 Central de Alertas', href: '/admin/alertas' });
       }
     }
     const grpA = col1Items.find(g => g.section === '🤖 Escritório Virtual');

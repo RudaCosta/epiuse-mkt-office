@@ -82,7 +82,14 @@ function sess(req) { return (req.session && req.session.user) || null; }
 function sessEmail(req) { const u = sess(req); return u && u.email ? String(u.email).toLowerCase() : null; }
 function sessRole(req) { const u = sess(req); return u ? u.role : null; }
 function sessNome(req) { const u = sess(req); return (u && (u.name || u.given)) || (sessEmail(req) || '').split('@')[0]; }
-function isEditor(req) { return EDITORES.has(sessRole(req)); }
+// Editor: papel editorial OU quem recebeu a área Brand/Conteúdo do super admin.
+// O OK final (isAprovador) segue só pelo papel — aprovação de publicação externa
+// é da Duda (e do Rudá), por regra do Office, não por área concedida.
+function isEditor(req) {
+  if (EDITORES.has(sessRole(req))) return true;
+  const users = require('./users');
+  return users.isSuperAdmin(req) || users.temArea(req, 'brand') || users.temArea(req, 'conteudo');
+}
 function isAprovador(req) { return APROVADORES.has(sessRole(req)); }
 
 function requireLogin(req, res, next) {
