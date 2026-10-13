@@ -18,7 +18,9 @@
 - **Papel → áreas** (`ROLE_AREAS`): cada papel abre `logado` (Hub, Cafezinho, Loja…), `time` (ferramentas comuns do MKT) e a área do próprio time. Diretoria vê só a página dela; Voice vê só as pautas; Colaborador (`hub`) só o que é de colaborador.
 - **Caminho → áreas** (`REGRAS`): lista ordenada, a primeira que casa decide. `/x`, `/x/*`, `:param`, `METODO /x`. `/pagina.html` cai na regra de `/pagina` (antes o `.html` direto furava o guard da rota limpa).
 - **Super admin** passa em tudo. Só ele recebe o `personas.json` inteiro e vê o "Ver como".
-- **Áreas extras por pessoa** (`users.areas_extra`): concedidas na tela de Permissões. `admin` nunca é concedível. Valem no próximo clique (re-hidratação por request), sem relogar.
+- **Áreas extras por pessoa** (`users.areas_extra`): concedidas na tela de Permissões. `admin` nunca é concedível.
+- **Gestão do Office** (`gestao`, concedível): Loja/coins, comunicados, inscrições de Voices, Central de Alertas. **Admin** (só super admin): Permissões, analytics, tracking. Guards de rota usam `users.temArea(req, area)`.
+- **Concessões pedidas por chat**: lista `CONCESSOES` em `acesso.js`, aplicada uma vez no deploy. Valem no próximo clique (re-hidratação por request), sem relogar.
 - **Editor token**: credencial de máquina. Passa a camada só em `/api/*` e só pelo header `X-Editor-Token` (não pela URL); o guard da rota decide. Não gerencia usuários.
 - **Menu e home** (`office-nav.js`, `js/home.js`) leem `/api/acesso/me` e escondem o que a pessoa não abre. O servidor barra do mesmo jeito — o front só limpa a tela.
 - **Sem acesso**: API → 401/403 JSON; página → `/login` (anônimo), `/hub` (colaborador), landing do papel (na raiz) ou `private/sem-acesso.html`.

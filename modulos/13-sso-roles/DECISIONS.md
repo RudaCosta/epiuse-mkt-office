@@ -20,3 +20,12 @@
 - **Brand cobre Conteúdo** (`/area/brand` libera também quem é de conteúdo): o pipeline de conteúdo mora na página de Brand (`/content-pipeline` redireciona pra lá).
 - **Teste de cobertura versionado** (`scripts/tests/acesso-cobertura.js`) em vez de confiar na memória: toda rota e todo arquivo de `public/` tem que casar com uma regra explícita.
 
+## 13/out/2026 — Gestão do Office concedível + Bruna com tudo menos tracking/analytics
+
+- **`admin` dividido em dois.** `gestao` (concedível): Loja/coins, comunicados, inscrições de Voices, Central de Alertas, fixar post no Cafezinho, template do relatório. `admin` (só super admin): Permissões, analytics, tracking das áreas, syncs de máquina. _Rationale:_ pedido do Rudá — "todas as permissões menos de tracking e analítica pra Bruna" — exigia separar operação de vigilância de uso.
+- **Permissões (/admin/usuarios) fica fora da Gestão.** Quem mexe em permissão pode se dar qualquer coisa; seria super admin na prática. Mantém a decisão de 04/out ("nenhum outro usuário poderá ver permissões de outros"). Liberar exige pedido explícito.
+- **Painel de horas do time (/horas, visão de todos) fica fora** — é dado de pessoas, mais perto de tracking que de operação.
+- **Guards de rota passam a respeitar áreas concedidas** (`users.temArea`): `requireAdmin` = super admin ou `gestao`; `requireExec` = área `diretoria`; editor das pautas = área `brand`/`conteudo`. O **aprovador** das pautas continua por papel (Duda + super admin): aprovação de publicação externa é regra do Office, não área.
+- **Central de Alertas não aceita editor token** (decisão do autor do Módulo 34 mantida): guard próprio = super admin ou `gestao`.
+- **Concessão por chat = `CONCESSOES` em acesso.js**, aplicada uma vez no deploy (marcador `users_migrations`), somando às áreas extras. O caminho normal continua sendo a tela.
+

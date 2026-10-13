@@ -36,7 +36,8 @@ const AREAS = {
   conteudo:     { nome: 'Conteúdo / Redatoria',        desc: 'Pipeline de conteúdo, Editorial, Jornadas' },
   voices:       { nome: 'Pautas dos Voices',           desc: 'Revisão e publicação das pautas' },
   diretoria:    { nome: 'Diretoria',                   desc: 'Painel da diretoria e visão executiva' },
-  admin:        { nome: 'Administração',               desc: 'Usuários, analytics, coins, comunicados — só super admin' },
+  gestao:       { nome: 'Gestão do Office',            desc: 'Loja e coins, comunicados, inscrições de Voices, central de alertas' },
+  admin:        { nome: 'Administração',               desc: 'Permissões, analytics e tracking — só super admin' },
 };
 
 // Áreas que o super admin pode conceder a alguém além do papel (admin nunca).
@@ -65,7 +66,7 @@ const ROLE_AREAS = {
 // segmento · 'METODO /caminho' restringe o método.
 const P = 'publico', L = 'logado', T = 'time', INT = 'intelligence', GRO = 'growth',
       EVE = 'eventos', PIP = 'pipeline', BRA = 'brand', CON = 'conteudo', VOI = 'voices',
-      DIR = 'diretoria', ADM = 'admin';
+      DIR = 'diretoria', GES = 'gestao', ADM = 'admin';
 
 const REGRAS = [
   // ── Público (sem conta) ───────────────────────────────────────────────────
@@ -75,12 +76,22 @@ const REGRAS = [
   ['/assets/*', P],                   // fontes e licenças
   ['GET /api/auth/status', P], ['GET /api/version', P], ['GET /api/health', P],
 
-  // ── Administração (super admin) ───────────────────────────────────────────
+  // ── Gestão do Office (concedível) ─────────────────────────────────────────
+  // Operação: Loja/coins, comunicados, inscrições de Voices, central de alertas.
+  // Fica FORA daqui (só super admin): Permissões, analytics, tracking das áreas.
   ['/admin/utm', T], ['/api/admin/utm/*', T],           // UTM é ferramenta do time
+  ['/api/admin/coins/*', ADM],                          // backup/restore: só script com token
+  ['/admin/coins', GES], ['/api/admin/coins', GES], ['/api/admin/loja', GES], ['/api/admin/loja/*', GES],
+  ['/admin/comunicados', GES], ['/api/admin/comunicados', GES], ['/api/admin/comunicados/*', GES],
+  ['/admin/inscricoes', GES], ['/api/applications', GES], ['/api/applications/*', GES], ['/api/voices-publicados/*', GES],
+  ['/admin/alertas', GES], ['/api/admin/alertas', GES], ['/api/admin/alertas/*', GES],
+  ['/api/cafezinho/pin/*', GES],
+  ['/api/relatorio/template', GES],                     // template do PPT da diretoria
+
+  // ── Administração (super admin) ───────────────────────────────────────────
   ['/admin/*', ADM], ['/api/admin/*', ADM],
   ['/auth/rd-callback', ADM],
-  ['/cafezinho/tracking', ADM], ['/api/cafezinho/tracking', ADM], ['/api/cafezinho/pin/*', ADM],
-  ['/api/applications/*', ADM], ['/api/voices-publicados/*', ADM],
+  ['/cafezinho/tracking', ADM], ['/api/cafezinho/tracking', ADM],
   ['/api/jarvis/diag-llm', ADM], ['/api/jarvis/sync-zoho-calls', ADM], ['/api/jarvis/ingest-zoho-call', ADM],
   // syncs de máquina (scripts com editor token; o token passa por cima disto)
   ['POST /api/cases/sync', ADM], ['POST /api/cases/sync-from-onedrive', BRA],
@@ -264,8 +275,39 @@ function pode(u, metodo, caminho) {
   return exigidas.some(a => minhas.includes(a));
 }
 
+// ── Concessões pedidas por chat ──────────────────────────────────────────────
+// O caminho normal é a tela de Permissões. Quando o Rudá pede por chat, a
+// concessão entra aqui e é aplicada UMA vez no deploy (marcador em
+// users_migrations): soma às áreas extras da pessoa, sem apagar nenhuma. Se
+// depois ele tirar algo pela tela, não volta.
+const CONCESSOES = [
+  // 13/out/2026 — Rudá: "todas as permissões menos de tracking e analítica pra
+  // Bruna Yamagami". Todas as áreas concedíveis, incluindo Gestão do Office.
+  // Analytics, tracking e Permissões são 'admin' (não concedível): ficam de fora.
+  { chave: 'concessao_bruna_todas_v1', email: 'bruna.yamagami@epiuse.com.br', areas: AREAS_CONCEDIVEIS },
+];
+
+function aplicarConcessoes() {
+  const db = ctx.db;
+  try {
+    db.exec(`CREATE TABLE IF NOT EXISTS users_migrations (key TEXT PRIMARY KEY, ran_at TEXT DEFAULT (datetime('now')))`);
+    for (const c of CONCESSOES) {
+      if (db.prepare('SELECT 1 FROM users_migrations WHERE key = ?').get(c.chave)) continue;
+      const row = db.prepare('SELECT role, areas_extra FROM users WHERE lower(email) = ?').get(c.email);
+      if (!row) continue;                     // pessoa ainda não cadastrada: tenta no próximo boot
+      const doPapel = ROLE_AREAS[row.role] || [];
+      const extras = [...new Set([...parseExtras(row.areas_extra), ...c.areas])].filter(x => !doPapel.includes(x));
+      db.prepare(`UPDATE users SET areas_extra = ?, updated_at = datetime('now') WHERE lower(email) = ?`)
+        .run(JSON.stringify(extras), c.email);
+      db.prepare('INSERT OR IGNORE INTO users_migrations (key) VALUES (?)').run(c.chave);
+      console.log(`[acesso] concessão aplicada: ${c.email} → ${extras.join(', ')}`);
+    }
+  } catch (e) { console.warn('[acesso] concessões:', e.message); }
+}
+
 // ── Montagem ─────────────────────────────────────────────────────────────────
 function montar(app, express) {
+  aplicarConcessoes();
   // Cabeçalhos básicos de segurança em toda resposta.
   app.use((req, res, next) => {
     res.set('X-Content-Type-Options', 'nosniff');
