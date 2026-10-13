@@ -16,3 +16,7 @@
 - **Certificado assinado por "Rudá Costa · Head RevOps & Marketing"** (dono da área). Sem assinatura manuscrita simulada.
 - **Post no LinkedIn é sempre manual** (regra "nunca publicar automaticamente"): só pré-preenchemos o texto; a pessoa revisa e publica.
 - **v2.3 (05/out):** etapas **progressivas** (pedido Rudá com a chegada da Gabi). Trava no mapa + no server (`etapa_bloqueada`). O Kit Dia 1 fica livre porque depende de TI liberar acessos.
+- **v2.5 (13/out):** tom de voz vem dos guias oficiais (EPI-USE Brand Guide 2026 + ERP/ERPA Branding Standards). Como o guia tem pouco texto explícito de tom, usamos as regras práticas (logo, redes, propostas, imagens, co-branding).
+- **Vídeos obrigatórios só no navegador:** a trava fica no player (YouTube IFrame API, ≥ 90% ou fim do vídeo). O server não valida porque o YouTube não confirma isso. Se a API não carregar, há fallback com "✓ Já assisti" após 40s.
+- **Workshop sem coleta no server:** respostas ficam no navegador; a pessoa copia e leva para a conversa. Rascunhos WHY/HOW/WHAT aguardam validação do Rudá.
+- **Mapeamento Canvas → Golden Circle:** proposta de valor = por quê · parcerias, atividades e recursos = como · relacionamento, canais, segmentos, custos e receitas = o quê.

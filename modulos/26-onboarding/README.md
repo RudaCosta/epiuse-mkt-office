@@ -1,6 +1,6 @@
 # Módulo 26 — Onboarding de Marketing
 
-**Status:** ✅ v2.2 · 4 etapas + ERP Coins + certificado + rastreamento (03/out/2026) · **Rota:** `/onboarding` · **Arquivo:** `public/onboarding.html`
+**Status:** ✅ v2.5 · 4 etapas + ERP Coins + certificado + rastreamento + workshop + videoteca (13/out/2026) · **Rota:** `/onboarding` · **Arquivo:** `public/onboarding.html`
 **Propósito:** trilha de onboarding para novos colaboradores de Marketing/Comercial, liberada **em fases**.
 
 ## Experiência (v2)
