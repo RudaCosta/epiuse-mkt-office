@@ -588,13 +588,16 @@ async function testWpConnection() {
   btn.disabled = true;
   btn.querySelector('span') && (btn.querySelector('span').textContent = 'Testando…');
   try {
-    const auth = btoa(`${state.wpConfig.username}:${state.wpConfig.appPassword}`);
-    const r = await fetch(`${state.wpConfig.url}/wp-json/wp/v2/users/me`, { headers: { 'Authorization': `Basic ${auth}` } });
-    if (r.ok) {
-      const data = await r.json();
-      msg.innerHTML = `✓ Conectado como: ${data.name || data.slug}`;
+    const r = await fetch('/api/stratview/testar-wp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ wpUrl: state.wpConfig.url, wpUser: state.wpConfig.username, wpPass: state.wpConfig.appPassword })
+    });
+    const data = await r.json();
+    if (r.ok && data.ok) {
+      msg.innerHTML = `✓ Conectado como: ${data.name}`;
       msg.className = 'wp-test-msg ok';
-    } else throw new Error('Credenciais inválidas.');
+    } else throw new Error(data.error || 'Credenciais inválidas.');
   } catch (e) {
     msg.textContent = '✗ Falha. Verifique os dados.';
     msg.className = 'wp-test-msg fail';
@@ -1220,33 +1223,27 @@ async function publishToWordPress() {
   $('publish-error').classList.add('hidden');
 
   try {
-    const auth = btoa(`${state.wpConfig.username}:${state.wpConfig.appPassword}`);
-    const url = state.wpConfig.url.replace(/\/$/, '');
-    let featuredMediaId = null;
-
-    if (state.image) {
-      try {
-        const blob = await fetch(`data:image/png;base64,${state.image}`).then(r => r.blob());
-        const form = new FormData();
-        form.append('file', blob, `stratview-${state.article.id}.png`);
-        form.append('title', `Stratview · ${state.article.title}`);
-        const mr = await fetch(`${url}/wp-json/wp/v2/media`, { method: 'POST', headers: { 'Authorization': `Basic ${auth}` }, body: form });
-        if (mr.ok) featuredMediaId = (await mr.json()).id;
-      } catch {}
-    }
-
-    const postData = { title: state.article.title, content: state.article.content, status: 'draft', featured_media: featuredMediaId };
-    const pr = await fetch(`${url}/wp-json/wp/v2/posts`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Basic ${auth}` }, body: JSON.stringify(postData) });
-
-    if (pr.ok) {
+    const r = await fetch('/api/stratview/publicar-wp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        wpUrl: state.wpConfig.url,
+        wpUser: state.wpConfig.username,
+        wpPass: state.wpConfig.appPassword,
+        title: state.article.title,
+        content: state.article.content,
+        imageBase64: state.image || null
+      })
+    });
+    const data = await r.json();
+    if (r.ok && data.ok) {
       state.publishSuccess = true;
       btn.classList.add('success');
       $('publish-icon').innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>';
       $('publish-label').textContent = 'Rascunho Criado (WP)';
       markPublished(state.article.id);
     } else {
-      const err = await pr.json();
-      throw new Error(err.message || 'Falha ao publicar');
+      throw new Error(data.error || 'Falha ao publicar');
     }
   } catch (e) {
     $('publish-error').textContent = e.message;

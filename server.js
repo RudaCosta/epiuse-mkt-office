@@ -1608,6 +1608,71 @@ app.post('/api/stratview/historico', (req, res) => {
   } catch (e) { console.error('[ARTIGOS-HIST-POST]', e.message); res.status(500).json({ error: e.message }); }
 });
 
+// POST /api/stratview/testar-wp — testa conexão WordPress (evita CORS)
+app.post('/api/stratview/testar-wp', async (req, res) => {
+  try {
+    const { wpUrl, wpUser, wpPass } = req.body;
+    if (!wpUrl || !wpUser || !wpPass) return res.status(400).json({ error: 'wpUrl, wpUser, wpPass obrigatórios' });
+    const url = wpUrl.replace(/\/$/, '');
+    const auth = 'Basic ' + Buffer.from(`${wpUser}:${wpPass}`).toString('base64');
+    const r = await fetch(`${url}/wp-json/wp/v2/users/me`, { headers: { 'Authorization': auth } });
+    if (r.ok) {
+      const data = await r.json();
+      res.json({ ok: true, name: data.name || data.slug });
+    } else {
+      res.status(401).json({ error: 'Credenciais inválidas' });
+    }
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /api/stratview/publicar-wp — proxy server-side pro WordPress (evita CORS)
+app.post('/api/stratview/publicar-wp', async (req, res) => {
+  try {
+    const { wpUrl, wpUser, wpPass, title, content, imageBase64 } = req.body;
+    if (!wpUrl || !wpUser || !wpPass || !title || !content) return res.status(400).json({ error: 'wpUrl, wpUser, wpPass, title, content obrigatórios' });
+    const url = wpUrl.replace(/\/$/, '');
+    const auth = 'Basic ' + Buffer.from(`${wpUser}:${wpPass}`).toString('base64');
+
+    // Testa credenciais
+    const me = await fetch(`${url}/wp-json/wp/v2/users/me`, { headers: { 'Authorization': auth } });
+    if (!me.ok) { const e = await me.json().catch(() => ({})); return res.status(401).json({ error: e.message || 'Credenciais WordPress inválidas' }); }
+
+    // Upload de imagem destacada (se tiver)
+    let featuredMediaId = null;
+    if (imageBase64) {
+      try {
+        const imgBuf = Buffer.from(imageBase64, 'base64');
+        const boundary = '----WPUpload' + Date.now();
+        const filename = `stratview-${Date.now()}.png`;
+        const bodyParts = [
+          `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="${filename}"\r\nContent-Type: image/png\r\n\r\n`,
+          imgBuf,
+          `\r\n--${boundary}\r\nContent-Disposition: form-data; name="title"\r\n\r\nStratview · ${title}\r\n--${boundary}--\r\n`
+        ];
+        const bodyBuf = Buffer.concat(bodyParts.map(p => typeof p === 'string' ? Buffer.from(p) : p));
+        const mr = await fetch(`${url}/wp-json/wp/v2/media`, {
+          method: 'POST',
+          headers: { 'Authorization': auth, 'Content-Type': `multipart/form-data; boundary=${boundary}` },
+          body: bodyBuf
+        });
+        if (mr.ok) featuredMediaId = (await mr.json()).id;
+      } catch (imgErr) { console.warn('[WP-MEDIA]', imgErr.message); }
+    }
+
+    // Cria post como rascunho
+    const postData = { title, content, status: 'draft' };
+    if (featuredMediaId) postData.featured_media = featuredMediaId;
+    const pr = await fetch(`${url}/wp-json/wp/v2/posts`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': auth },
+      body: JSON.stringify(postData)
+    });
+    if (!pr.ok) { const e = await pr.json().catch(() => ({})); throw new Error(e.message || 'Falha ao criar rascunho'); }
+    const post = await pr.json();
+    res.json({ ok: true, postId: post.id, editLink: post.link?.replace(/\/$/, '') + '?preview=true' });
+  } catch (e) { console.error('[WP-PUBLISH]', e.message); res.status(500).json({ error: e.message }); }
+});
+
 // PATCH /api/stratview/historico/:id — marca como publicado
 app.patch('/api/stratview/historico/:id', (req, res) => {
   try {
