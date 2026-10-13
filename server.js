@@ -1298,14 +1298,18 @@ app.post('/api/stratview/ideias', async (req, res) => {
     // Sorteia 6 ângulos candidatos da rodada (o modelo escolhe 4 conforme o que a pesquisa render)
     const angulos = [...STRATVIEW_ANGULOS].sort(() => Math.random() - 0.5).slice(0, 6);
 
+    const hoje = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+    const anoAtual = new Date().getFullYear();
     const prompt = `Você é o Diretor de Marketing de Conteúdo da Stratview (uma consultoria boutique líder em Oracle Cloud no Brasil, especializada em HCM, Inteligência Artificial e OCI).
+
+DATA DE HOJE: ${hoje}. Estamos em ${anoAtual}. TODOS os títulos, referências e contextos devem ser de ${anoAtual} — NUNCA use anos anteriores (2024, 2025) nos títulos.
 
 Gere 4 ideias de artigos para o blog corporativo.
 
 PESQUISA PROFUNDA OBRIGATÓRIA (use a busca do Google ANTES de propor qualquer ideia):
-1. Novidades Oracle dos últimos 60 dias: releases (25A/25B/26A...), anúncios de OCI, Redwood, agentes de IA, eventos (Oracle CloudWorld, etc).
-2. Notícias do mercado brasileiro: custos de nuvem, RH tech, IA nas empresas, regulação (LGPD, reforma trabalhista/tributária quando tocar TI/RH).
-3. O que executivos estão buscando agora (tendências de busca reais).
+1. Novidades Oracle dos últimos 60 dias (estamos em ${anoAtual}!): releases recentes, anúncios de OCI, Redwood, agentes de IA, eventos (Oracle CloudWorld, etc).
+2. Notícias do mercado brasileiro de ${anoAtual}: custos de nuvem, RH tech, IA nas empresas, regulação (LGPD, reforma trabalhista/tributária quando tocar TI/RH).
+3. O que executivos estão buscando agora em ${anoAtual} (tendências de busca reais).
 CADA ideia deve nascer de um ACHADO REAL dessa pesquisa — nada de tema genérico atemporal. Registre o achado no campo "trendsInfo" (fato + por que agora).
 
 ÂNGULOS SORTEADOS DESTA RODADA — escolha 4 dos 6, um por ideia (é PROIBIDO propor ideia fora destes ângulos):
@@ -1602,6 +1606,71 @@ app.post('/api/stratview/historico', (req, res) => {
       .run(id, title, description || '', JSON.stringify(keywords || []), content || '', persona || 'Geral');
     res.json({ ok: true });
   } catch (e) { console.error('[ARTIGOS-HIST-POST]', e.message); res.status(500).json({ error: e.message }); }
+});
+
+// POST /api/stratview/testar-wp — testa conexão WordPress (evita CORS)
+app.post('/api/stratview/testar-wp', async (req, res) => {
+  try {
+    const { wpUrl, wpUser, wpPass } = req.body;
+    if (!wpUrl || !wpUser || !wpPass) return res.status(400).json({ error: 'wpUrl, wpUser, wpPass obrigatórios' });
+    const url = wpUrl.replace(/\/$/, '');
+    const auth = 'Basic ' + Buffer.from(`${wpUser}:${wpPass}`).toString('base64');
+    const r = await fetch(`${url}/wp-json/wp/v2/users/me`, { headers: { 'Authorization': auth } });
+    if (r.ok) {
+      const data = await r.json();
+      res.json({ ok: true, name: data.name || data.slug });
+    } else {
+      res.status(401).json({ error: 'Credenciais inválidas' });
+    }
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /api/stratview/publicar-wp — proxy server-side pro WordPress (evita CORS)
+app.post('/api/stratview/publicar-wp', async (req, res) => {
+  try {
+    const { wpUrl, wpUser, wpPass, title, content, imageBase64 } = req.body;
+    if (!wpUrl || !wpUser || !wpPass || !title || !content) return res.status(400).json({ error: 'wpUrl, wpUser, wpPass, title, content obrigatórios' });
+    const url = wpUrl.replace(/\/$/, '');
+    const auth = 'Basic ' + Buffer.from(`${wpUser}:${wpPass}`).toString('base64');
+
+    // Testa credenciais
+    const me = await fetch(`${url}/wp-json/wp/v2/users/me`, { headers: { 'Authorization': auth } });
+    if (!me.ok) { const e = await me.json().catch(() => ({})); return res.status(401).json({ error: e.message || 'Credenciais WordPress inválidas' }); }
+
+    // Upload de imagem destacada (se tiver)
+    let featuredMediaId = null;
+    if (imageBase64) {
+      try {
+        const imgBuf = Buffer.from(imageBase64, 'base64');
+        const boundary = '----WPUpload' + Date.now();
+        const filename = `stratview-${Date.now()}.png`;
+        const bodyParts = [
+          `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="${filename}"\r\nContent-Type: image/png\r\n\r\n`,
+          imgBuf,
+          `\r\n--${boundary}\r\nContent-Disposition: form-data; name="title"\r\n\r\nStratview · ${title}\r\n--${boundary}--\r\n`
+        ];
+        const bodyBuf = Buffer.concat(bodyParts.map(p => typeof p === 'string' ? Buffer.from(p) : p));
+        const mr = await fetch(`${url}/wp-json/wp/v2/media`, {
+          method: 'POST',
+          headers: { 'Authorization': auth, 'Content-Type': `multipart/form-data; boundary=${boundary}` },
+          body: bodyBuf
+        });
+        if (mr.ok) featuredMediaId = (await mr.json()).id;
+      } catch (imgErr) { console.warn('[WP-MEDIA]', imgErr.message); }
+    }
+
+    // Cria post como rascunho
+    const postData = { title, content, status: 'draft' };
+    if (featuredMediaId) postData.featured_media = featuredMediaId;
+    const pr = await fetch(`${url}/wp-json/wp/v2/posts`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': auth },
+      body: JSON.stringify(postData)
+    });
+    if (!pr.ok) { const e = await pr.json().catch(() => ({})); throw new Error(e.message || 'Falha ao criar rascunho'); }
+    const post = await pr.json();
+    res.json({ ok: true, postId: post.id, editLink: post.link?.replace(/\/$/, '') + '?preview=true' });
+  } catch (e) { console.error('[WP-PUBLISH]', e.message); res.status(500).json({ error: e.message }); }
 });
 
 // PATCH /api/stratview/historico/:id — marca como publicado

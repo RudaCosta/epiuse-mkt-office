@@ -588,13 +588,16 @@ async function testWpConnection() {
   btn.disabled = true;
   btn.querySelector('span') && (btn.querySelector('span').textContent = 'Testando…');
   try {
-    const auth = btoa(`${state.wpConfig.username}:${state.wpConfig.appPassword}`);
-    const r = await fetch(`${state.wpConfig.url}/wp-json/wp/v2/users/me`, { headers: { 'Authorization': `Basic ${auth}` } });
-    if (r.ok) {
-      const data = await r.json();
-      msg.innerHTML = `✓ Conectado como: ${data.name || data.slug}`;
+    const r = await fetch('/api/stratview/testar-wp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ wpUrl: state.wpConfig.url, wpUser: state.wpConfig.username, wpPass: state.wpConfig.appPassword })
+    });
+    const data = await r.json();
+    if (r.ok && data.ok) {
+      msg.innerHTML = `✓ Conectado como: ${data.name}`;
       msg.className = 'wp-test-msg ok';
-    } else throw new Error('Credenciais inválidas.');
+    } else throw new Error(data.error || 'Credenciais inválidas.');
   } catch (e) {
     msg.textContent = '✗ Falha. Verifique os dados.';
     msg.className = 'wp-test-msg fail';
@@ -1206,11 +1209,19 @@ async function copyHTML() {
 // ── PUBLISH TO WORDPRESS ──────────────────────────────────────────────────────
 async function publishToWordPress() {
   saveWpConfig();
-  if (!state.wpConfig.username || !state.wpConfig.appPassword) {
-    toggleWpPanel();
+  if (!state.wpConfig.url || !state.wpConfig.username || !state.wpConfig.appPassword) {
+    $('publish-error').textContent = 'Configure a conexão WordPress primeiro (botão ⚙️ Configurações WP no topo da página).';
+    $('publish-error').classList.remove('hidden');
     return;
   }
-  if (state.publishing || state.publishSuccess) return;
+  if (state.publishing) return;
+  if (state.publishSuccess) {
+    state.publishSuccess = false;
+    $('btn-publish').classList.remove('success');
+    $('btn-publish').disabled = false;
+    $('publish-label').textContent = 'Publicar no Blog';
+    $('publish-icon').innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"/>';
+  }
   state.publishing = true;
 
   const btn = $('btn-publish');
@@ -1220,33 +1231,27 @@ async function publishToWordPress() {
   $('publish-error').classList.add('hidden');
 
   try {
-    const auth = btoa(`${state.wpConfig.username}:${state.wpConfig.appPassword}`);
-    const url = state.wpConfig.url.replace(/\/$/, '');
-    let featuredMediaId = null;
-
-    if (state.image) {
-      try {
-        const blob = await fetch(`data:image/png;base64,${state.image}`).then(r => r.blob());
-        const form = new FormData();
-        form.append('file', blob, `stratview-${state.article.id}.png`);
-        form.append('title', `Stratview · ${state.article.title}`);
-        const mr = await fetch(`${url}/wp-json/wp/v2/media`, { method: 'POST', headers: { 'Authorization': `Basic ${auth}` }, body: form });
-        if (mr.ok) featuredMediaId = (await mr.json()).id;
-      } catch {}
-    }
-
-    const postData = { title: state.article.title, content: state.article.content, status: 'draft', featured_media: featuredMediaId };
-    const pr = await fetch(`${url}/wp-json/wp/v2/posts`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Basic ${auth}` }, body: JSON.stringify(postData) });
-
-    if (pr.ok) {
+    const r = await fetch('/api/stratview/publicar-wp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        wpUrl: state.wpConfig.url,
+        wpUser: state.wpConfig.username,
+        wpPass: state.wpConfig.appPassword,
+        title: state.article.title,
+        content: state.article.content,
+        imageBase64: state.image || null
+      })
+    });
+    const data = await r.json();
+    if (r.ok && data.ok) {
       state.publishSuccess = true;
       btn.classList.add('success');
       $('publish-icon').innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>';
       $('publish-label').textContent = 'Rascunho Criado (WP)';
       markPublished(state.article.id);
     } else {
-      const err = await pr.json();
-      throw new Error(err.message || 'Falha ao publicar');
+      throw new Error(data.error || 'Falha ao publicar');
     }
   } catch (e) {
     $('publish-error').textContent = e.message;
