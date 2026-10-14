@@ -248,7 +248,7 @@ const REGRAS = [
     },
   },
   {
-    id: 'comunicados.falha', areas: ['admin'], nivel: 'importante', nome: 'Comunicado não saiu',
+    id: 'comunicados.falha', areas: ['gestao'], nivel: 'importante', nome: 'Comunicado não saiu',
     quando: 'Comunicado da fila (Módulo 21) com envio falhado nos últimos 30 dias.',
     run() {
       const r = all(`SELECT assunto, erro FROM comunicados_envios WHERE status='falhou' AND criado_em >= datetime('now','-30 days') ORDER BY criado_em DESC`);
@@ -259,7 +259,7 @@ const REGRAS = [
 
   // ── Filas com prazo ───────────────────────────────────────────────────────
   {
-    id: 'loja.resgates', areas: ['admin'], nivel: 'info', nome: 'Resgates da Loja esperando decisão',
+    id: 'loja.resgates', areas: ['gestao'], nivel: 'info', nome: 'Resgates da Loja esperando decisão',
     quando: 'Resgate pendente na Loja de Coins; vira importante quando algum espera há mais de 48h.',
     run() {
       const r = one(`SELECT COUNT(*) n, MIN(created_at) antigo FROM coin_redemptions WHERE status='pendente'`);
@@ -270,7 +270,7 @@ const REGRAS = [
     },
   },
   {
-    id: 'voices.inscricoes', areas: ['admin'], nivel: 'info', nome: 'Inscrições de Voice pra triar',
+    id: 'voices.inscricoes', areas: ['gestao'], nivel: 'info', nome: 'Inscrições de Voice pra triar',
     quando: 'Inscrição nova em /seja-voice; vira importante quando a mais antiga passa de 3 dias.',
     run() {
       const r = one(`SELECT COUNT(*) n, MIN(created_at) antigo FROM recruitment_applications WHERE COALESCE(NULLIF(status,''),'novo')='novo'`);
@@ -854,13 +854,18 @@ router.post('/api/alerts/silenciar', express.json({ limit: '4kb' }), (req, res) 
   res.json({ success: true, silenciado_ate: ate });
 });
 
-router.get('/alertas', (req, res) => res.sendFile(path.join(__dirname, '../public/alertas.html')));
-router.get('/admin/alertas', (req, res) => res.sendFile(path.join(__dirname, '../public/admin-alertas.html')));
+// ── Admin (Gestão do Office) ─────────────────────────────────────────────────
+// Super admin ou quem recebeu a área 'gestao'. O editor token NÃO basta: aqui se
+// escolhe quem recebe e-mail e se lê o log de envios. No Office local (sem SSO)
+// o requireSuperAdmin aceita o token, como antes.
+const _users = require('./users');
+function requireAdmin(req, res, next) {
+  if (_users.isSuperAdmin(req) || _users.temArea(req, 'gestao')) return next();
+  return _users.requireSuperAdmin(req, res, next);
+}
 
-// ── Admin (só super admin — /api/admin/* no acesso.js) ──────────────────────
-// Só o super admin (o editor token não basta: aqui se escolhe quem recebe e-mail
-// e se lê o log de envios). No Office local o requireSuperAdmin aceita o token.
-const { requireSuperAdmin: requireAdmin } = require('./users');
+router.get('/alertas', (req, res) => res.sendFile(path.join(__dirname, '../public/alertas.html')));
+router.get('/admin/alertas', requireAdmin, (req, res) => res.sendFile(path.join(__dirname, '../public/admin-alertas.html')));
 
 router.get('/api/admin/alertas', requireAdmin, (req, res) => {
   try {

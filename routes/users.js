@@ -131,17 +131,25 @@ function requireRole(...roles) {
   };
 }
 
-// Admin guard: super admin (por e-mail) OU editor token válido.
+// Tem a área (pelo papel ou concedida pelo super admin)? Lazy require: acesso.js
+// também requer este módulo.
+function temArea(req, area) {
+  const u = req.session && req.session.user;
+  return !!u && require('./acesso').areasDoUsuario(u).includes(area);
+}
+
+// Gestão do Office (Loja/coins, comunicados, inscrições, alertas): super admin,
+// quem recebeu a área 'gestao', ou editor token. Permissões, analytics e
+// tracking NÃO usam este guard — são requireSuperAdmin / dono.
 function requireAdmin(req, res, next) {
-  if (isSuperAdmin(req)) return next();
+  if (isSuperAdmin(req) || temArea(req, 'gestao')) return next();
   return requireEditorToken(req, res, next);
 }
 
-// Guard da Visão Executiva: super admin, Diretoria (country-manager e diretoria)
-// OU editor token válido (uso local/programático).
+// Visão Executiva: super admin, quem tem a área Diretoria (pelo papel ou
+// concedida) OU editor token válido (uso local/programático).
 function requireExec(req, res, next) {
-  const role = req.session && req.session.user && req.session.user.role;
-  if (isSuperAdmin(req) || role === 'country-manager' || role === 'diretoria') return next();
+  if (isSuperAdmin(req) || temArea(req, 'diretoria')) return next();
   return requireEditorToken(req, res, next);
 }
 
@@ -228,6 +236,7 @@ module.exports.setUserView = setUserView;
 module.exports.requireRole = requireRole;
 module.exports.requireAdmin = requireAdmin;
 module.exports.requireExec = requireExec;
+module.exports.temArea = temArea;
 module.exports.requireSuperAdmin = requireSuperAdmin;
 module.exports.isSuperAdmin = isSuperAdmin;
 module.exports.SUPER_ADMINS = SUPER_ADMINS;

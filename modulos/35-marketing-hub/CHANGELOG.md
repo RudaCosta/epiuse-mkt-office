@@ -1,6 +1,6 @@
 # Changelog — Marketing Hub
 
-## v2.1 · 13/out/2026 (0.97.0) — revisão de segurança antes do deploy
+## v2.1 · 14/out/2026 (0.98.0) — revisão de segurança antes do deploy
 - **Crítico (já existia, fechado aqui):** caminho com ponto/barra codificados (`/img/..%2fapi%2fzoho-leads-snapshot.json`) passava pela regra pública de `/img/*` e o `express.static` servia qualquer arquivo de `public/` sem login — snapshots do Zoho/Apollo/RD, `team.json` inteiro, personas. Agora `caminhoTorto()` recusa com 400 antes de tudo.
 - `team.json` pra colaborador: o `foco` interno das áreas (Apollo, RD/HubSpot, lead scoring, MDF) virou o texto curado do Hub; o `apelido` voltou (o Cafezinho casa Duda/Gui por ele).
 - `SSO_ENFORCE=false` e editor token recebem `team.json`/`changelog.json` inteiros (antes saíam filtrados e o `/changelog` ficava sem títulos no escape).
@@ -11,7 +11,7 @@
 - Correção da documentação: o endereço do painel aparece no JS da página e no menu; o que protege é o servidor (`/admin/hub` e a API só pro e-mail do dono). O link visível continua só pro dono.
 - `scripts/tests/hub-seguranca.js` cobre tudo isso (42 verificações).
 
-## v2.0 · 07/out/2026 (0.97.0)
+## v2.0 · 07/out/2026 (0.98.0 — saiu junto com a v2.1; o 0.97.0 ficou com as Permissões do #98)
 - Pedido Rudá: "reformule toda esta área… bem visual e atrativo, com animações JS… será pra toda empresa, então precisa impactar" + tracking de quem acessou e viu o quê, painel e link só pro perfil dele; depois: "revisa bem as questões de segurança pra não vazar nenhuma info de vendas, CRM".
 - `/hub` refeito do zero (antes: abas + gate de senha desligado). Busca com ranking (atalho `/`), órbita de atalhos, números ao vivo com fonte e data, ferramentas com filtro, agenda BR/LATAM com contagem pro próximo evento, campanhas ativas, deck institucional + materiais, "Pra quem eu peço?" com o time, serviços e faixa "Amplifique" (EPI-USE Voices + ERP.ngo).
 - Logos (3 MB em base64) só carregam quando o modal abre — antes vinham em toda visita.

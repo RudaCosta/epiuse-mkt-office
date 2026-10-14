@@ -460,7 +460,9 @@ const mesDaQuery = (q) => mesValido(q) ? q : mesAnterior(mesAtual());
 
 // ── ROTAS ──────────────────────────────────────────────────────────────────
 const sessEmail = (req) => String((req.session && req.session.user && req.session.user.email) || '').toLowerCase();
-const soDono = (req, res, next) => sessEmail(req) === OWNER_EMAIL ? next() : res.status(403).json({ success: false, error: 'forbidden' });
+// Template do PPT: dono ou quem tem a área Gestão do Office.
+const soDono = (req, res, next) => (sessEmail(req) === OWNER_EMAIL || require('./users').temArea(req, 'gestao'))
+  ? next() : res.status(403).json({ success: false, error: 'forbidden' });
 
 // Sessão do time ou token de máquina no header (o gerador rodado à mão no PC)
 const sessaoOuToken = (req, res, next) => tokenConfere(req.headers['x-editor-token']) ? next() : requireAuth(req, res, next);
