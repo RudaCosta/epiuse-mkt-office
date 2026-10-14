@@ -9,7 +9,7 @@
 ### 🔒 Segurança — fechar depois do hotfix 0.91.1 e das Permissões v2 (04/out/2026)
 - ✅ `EDITOR_TOKEN` trocado no Railway (Rudá, 04/out) — o token antigo vazou no repo público e em 3 páginas.
 - 🔴 **Pôr o mesmo `EDITOR_TOKEN` novo no `.env` local** (`C:\Users\Ruds\.epiuse-optimizer\.env`). Sem isso os syncs agendados (cases, calendário, SAP 4 ME) levam 401.
-- 🟡 **Tornar o repositório GitHub privado.** O token antigo, a senha antiga dos brindes e a vault (clientes, estratégia, aniversários) seguem no histórico público do git. Railway funciona com repo privado.
+- 🔴 **Tornar o repositório GitHub privado — URGENTE.** Além do token antigo, da senha antiga dos brindes e da vault (clientes, estratégia, aniversários), o repo público tem os **snapshots de vendas/CRM** em `public/api/` (base de leads e kanban do SDR do Zoho, pipeline do Apollo, RD, metas por responsável, outreach). Qualquer pessoa na internet lê pelo GitHub — nenhum guard do Office protege isso. Railway funciona com repo privado. (Revisão do Módulo 35, 13/out/2026.)
 - 🟡 Depois do deploy das Permissões v2: conferir com 1 pessoa de cada área que a home e a área dela abrem (o teste automático cobriu, mas é a primeira vez com SSO real).
 
 ### 📊 Relatório ao vivo (Módulo 33 · 07/out/2026)
@@ -24,6 +24,7 @@
 - 🟡 **Revisar com a Duda os textos "Fale com X sobre"** do `/hub` (seção "Pra quem eu peço?") — 🤖 escritos com IA no lugar da descrição interna das áreas, que citava ferramentas de CRM. Ficam em `routes/hub.js` (`FALE_SOBRE`).
 - 🟡 Depois do deploy: abrir `/hub` com um colaborador (papel `hub`) e conferir que o chip "👁️ Quem viu o quê" **não** aparece; com você, conferir que aparece e abre `/admin/hub`.
 - ℹ️ A senha antiga do gate do Hub (`mktepiuse2026`) saiu do HTML, mas segue no histórico do git → mais um motivo pra tornar o repositório privado (item acima).
+- ✅ **Brecha fechada no deploy do Hub:** `/img/..%2fapi%2fzoho-leads-snapshot.json` (e variantes em `/go`, `/v`, `/assets`) servia qualquer arquivo de `public/` **sem login** — snapshots do Zoho/Apollo/RD, `team.json` inteiro, mapa de personas. Existia desde as Permissões v2; agora caminho com ponto/barra codificados ou `..` leva 400 (`routes/acesso.js`, teste em `scripts/tests/hub-seguranca.js`). Os números já servidos assim devem ser tratados como expostos.
 
 ## ✅ RESOLVIDOS 02/out/2026 (confirmação Rudá: "b2 e b3 ok")
 - **B2 · Brand Guide 2026** — confirmado como versão final. DESIGN.md v4.0 segue valendo, sem re-diff. Segue em aberto, não-bloqueante: o tema “EPI-USE · claro” fica com fundo escuro nas telas com rota (`body[data-route]` do office-nav.js vence o tema; `home.css` tem cards escuros fixos).

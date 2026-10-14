@@ -25,14 +25,17 @@ ok((r.campanhas || []).every(c => !c.url || /^https:\/\//.test(c.url)), 'resumo:
 const txt = JSON.stringify(r).toLowerCase();
 const PROIBIDO = ['kpis_principais', 'kpi', 'sla', 'zoho', 'apollo', 'hubspot', 'rd station', 'deal', 'pipeline', 'oportunidade',
   'receita', 'faturamento', 'forecast', 'mdf', 'leads', 'lead scoring', 'aniversario', 'voices_connect', 'decide', 'baia', 'meta '];
-const achados = PROIBIDO.filter(t => new RegExp('(^|[^a-z_])' + t.trim().replace(/ /g, '\\s') + '($|[^a-z_])').test(txt));   // palavra inteira ("ideal" ≠ "deal")
+const termos = (texto, lista = PROIBIDO) => lista.filter(t => new RegExp('(^|[^a-z_])' + t.trim().replace(/ /g, '\\s') + '($|[^a-z_])').test(texto));   // palavra inteira ("ideal" ≠ "deal")
+const achados = termos(txt);
 ok(!achados.length, 'resumo: nenhum termo de vendas/CRM/meta' + (achados.length ? ' — achou: ' + achados.join(', ') : ''));
+ok(r.time && typeof r.time.textos_revisados === 'boolean', 'resumo: avisa se o texto de IA já foi revisado (selo 🤖 na página)');
 
 // 2) A página não lê JSON cru do time e não traz o link do painel no HTML
 const html = fs.readFileSync(path.join(ROOT, 'public/hub.html'), 'utf8');
 const crus = ['/api/team.json', '/api/voices.json', '/api/artigos.json', '/api/events.json', '/api/areas.json', '/api/personas.json'].filter(u => html.includes(u));
 ok(!crus.length, 'hub.html: só /api/hub/resumo (sem JSON cru)' + (crus.length ? ' — usa: ' + crus.join(', ') : ''));
-ok(!/href="\/admin\//.test(html), 'hub.html: nenhum link de /admin no HTML (painel entra via JS só pro dono)');
+ok(!/href="\/admin\//.test(html), 'hub.html: nenhum link de /admin no HTML (o chip do painel só ganha href pro dono)');
+ok(html.includes('<span class="ri">${esc(x.ic)}</span>'), 'hub.html: ícone do resultado da busca escapado (flag do evento não vira HTML)');
 ok(!/mktepiuse|PW\s*=/.test(html), 'hub.html: sem senha do gate antigo');
 
 // 3) Permissões: colaborador abre o Hub e a API dele, nunca o painel nem a API do tracking
@@ -48,7 +51,25 @@ for (const u of [colab, sdr]) {
 for (const p of ['/api/pipeline-snapshot.json', '/api/zoho-leads-snapshot.json', '/api/rd-snapshot.json', '/api/area/pipeline', '/api/areas.json'])
   ok(!pode(colab, 'GET', p), `colaborador: ${p} fechado`);
 
-// 4) Painel único do tracking: config 'hub' e HTML fora de public/
+// 4) Brechas da revisão pré-deploy: caminho torto e JSONs do time pra colaborador
+const acesso = require(path.join(ROOT, 'routes/acesso'));
+for (const p of ['/img/..%2fapi%2fzoho-leads-snapshot.json', '/img/%2E%2E/api/team.json', '/go/..%2Fapi%2Fpipeline-snapshot.json',
+  '/img/../api/team.json', '/img/..%5capi%5cteam.json', '/api/game/..%2fteam.json', '/x/%00'])
+  ok(acesso.caminhoTorto(p), `caminho torto recusado: ${p}`);
+for (const p of ['/hub', '/img/campanhas/golplaca-fante.jpg', '/v/ana.costa', '/api/utm/link/abc%40x', '/api/admin/users/ruda.costa%40epiuse.com.br'])
+  ok(!acesso.caminhoTorto(p), `caminho legítimo passa: ${p}`);
+const teamCheio = JSON.parse(fs.readFileSync(path.join(ROOT, 'public/api/team.json'), 'utf8'));
+const teamColab = acesso.teamParaColaborador(teamCheio);
+const tTxt = JSON.stringify(teamColab).toLowerCase();
+const tAch = termos(tTxt, PROIBIDO.filter(t => t !== 'aniversario'));   // aniversário é usado pelo Cafezinho e pelo Game
+ok(!tAch.length, 'team.json pra colaborador: sem meta/SLA/termo de vendas/CRM' + (tAch.length ? ' — achou: ' + tAch.join(', ') : ''));
+ok(!/rd\s?station|lead scoring|outbound/.test(tTxt), 'team.json pra colaborador: foco interno das áreas não sai');
+const apelidos = (teamCheio.areas || []).filter(a => a.responsavel && a.responsavel.apelido).map(a => a.responsavel.apelido);
+ok(apelidos.every(ap => (teamColab.areas || []).some(a => a.responsavel.apelido === ap)), 'team.json pra colaborador: mantém o apelido (Cafezinho casa Duda/Gui)');
+const clColab = acesso.changelogParaColaborador(JSON.parse(fs.readFileSync(path.join(ROOT, 'public/api/changelog.json'), 'utf8')));
+ok(!clColab.next && (clColab.releases || []).every(x => Object.keys(x).every(k => ['version', 'date', 'status'].includes(k))), 'changelog.json pra colaborador: só versão, data e status');
+
+// 5) Painel único do tracking: config 'hub' e HTML fora de public/
 const painel = fs.readFileSync(path.join(ROOT, 'private/admin-area-tracking.html'), 'utf8');
 ok(/\bhub:\s*\{\s*\n?\s*kind: 'hub'/.test(painel), 'painel: config hub presente');
 ok(!fs.existsSync(path.join(ROOT, 'public/admin-area-tracking.html')), 'painel: HTML só em private/');

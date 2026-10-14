@@ -15,8 +15,17 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 
+const { db } = require('../server-context');
+
 const router = express.Router();
 const API_DIR = path.join(__dirname, '../public/api');
+
+// Voices aprovados por inscrição ficam no banco (voices_publicados) e entram
+// pelo mesmo overlay do GET /api/voices.json — senão o Hub contaria menos.
+function voicesPublicados() {
+  try { return db.prepare('SELECT data FROM voices_publicados').all().map(r => JSON.parse(r.data)).filter(Boolean); }
+  catch (e) { return []; }
+}
 
 // Cache por mtime: o arquivo só é relido quando muda (sync/commit).
 const _cache = {};
@@ -34,6 +43,8 @@ function ler(nome) {
 // verba de parceiro) e por isso NÃO vai pro Hub. Área nova sem texto aqui sai
 // sem descrição — nunca cai no texto interno.
 // 🤖 Texto escrito com IA em 07/out/2026 — revisar com a Duda (Módulo 35, PENDENCIAS).
+// Enquanto FALE_SOBRE_REVISADO = false, a página mostra o selo "🤖 Gerado por IA — revisar".
+const FALE_SOBRE_REVISADO = false;
 const FALE_SOBRE = {
   head: 'Estratégia de Marketing, prioridades do time e projetos novos.',
   intelligence: 'Dados e inteligência de mercado: listas, segmentação, perfil de cliente ideal e painéis de Marketing.',
@@ -75,7 +86,11 @@ function resumo() {
       atualizado_em: str(art.gerado_em, 30),
     } : null,
     voices: prog ? {
-      ativos: Array.isArray(voi.voices) ? voi.voices.length : 0,
+      ativos: (() => {
+        const base = Array.isArray(voi.voices) ? voi.voices : [];
+        const ids = new Set(base.map(v => v && v.id));
+        return base.length + voicesPublicados().filter(v => !ids.has(v.id)).length;
+      })(),
       vagas: parseInt(prog.vagas_total, 10) || null,
       atualizado_em: str(prog.atualizado_em, 30),
     } : null,
@@ -85,6 +100,7 @@ function resumo() {
       url: /^https:\/\//.test(c.url || '') ? str(c.url, 2000) : '',
     })),
     time: team ? {
+      textos_revisados: FALE_SOBRE_REVISADO,
       lideranca: lead ? { ...pick(lead, ['nome', 'cargo', 'icon']), foco: FALE_SOBRE.head } : null,
       areas: (team.areas || []).map(a => ({
         ...pick(a, ['id', 'nome', 'icon']),
@@ -102,3 +118,4 @@ router.get('/api/hub/resumo', (req, res) => {
 
 module.exports = router;
 module.exports.resumo = resumo;
+module.exports.FALE_SOBRE = FALE_SOBRE;

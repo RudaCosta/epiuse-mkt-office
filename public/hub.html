@@ -303,6 +303,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .face .who small{display:block;font-size:12px;color:var(--h-muted)}
 .face h4{font-size:15px;font-weight:900;margin-top:8px}
 .face p{font-size:12.5px;color:var(--h-dim);line-height:1.55}
+.ia-tag{display:inline-block;margin-top:10px;font-size:12px;color:var(--h-dim);padding:5px 12px;border-radius:var(--rounded-full);border:1px dashed var(--h-line)}
 .face .hint{margin-top:auto;font:700 10px var(--h-head);letter-spacing:.12em;text-transform:uppercase;color:var(--h-muted)}
 
 /* ═════════ SERVIÇOS ═════════ */
@@ -502,7 +503,8 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
     <!-- ═════════ TIME ═════════ -->
     <section class="sec" id="time" data-sec="time">
       <div class="sec-h">
-        <div class="rv"><div class="eyebrow">Pra quem eu peço?</div><h2>O time de <em>Marketing</em></h2><p>Cada área tem uma dona. Toque no card pra ver do que ela cuida.</p></div>
+        <div class="rv"><div class="eyebrow">Pra quem eu peço?</div><h2>O time de <em>Marketing</em></h2><p>Cada área tem uma dona. Toque no card pra ver do que ela cuida.</p>
+          <p class="ia-tag" id="iaTag" hidden>🤖 Gerado por IA — revisar · os textos “Fale com… sobre” ainda passam pela revisão da Duda.</p></div>
       </div>
       <div class="team" id="team"><div class="empty glass">Carregando o time…</div></div>
     </section>
@@ -794,7 +796,7 @@ const SEARCH_EXTRA = [];
     sel = 0;
     res.innerHTML = hits.length ? hits.map((x, i) => `<a role="option" href="${href(x)}"${ext(x)} class="${i === sel ? 'sel' : ''}" style="--c:var(${x.c || '--h-corn'})"
         data-act="${x.kind === 'evento' ? 'agenda.busca' : x.kind === 'campanha' ? 'campanha.' + x.id : 'tool.' + x.id} busca.clique"${x.open ? ` data-open="${x.open}"` : ''}${x.kind === 'evento' ? ' data-goto="agenda"' : ''}>
-        <span class="ri">${x.ic}</span><span><b>${esc(x.t)}</b><small>${esc(x.d || '')}</small></span><span class="g">${esc(x.g)}</span></a>`).join('')
+        <span class="ri">${esc(x.ic)}</span><span><b>${esc(x.t)}</b><small>${esc(x.d || '')}</small></span><span class="g">${esc(x.g)}</span></a>`).join('')
       : `<div class="none">Nada encontrado pra “${esc(q.value.trim())}”. Tente “logo”, “apresentação” ou “evento”.</div>`;
     res.classList.add('on'); q.setAttribute('aria-expanded', 'true');
   }
@@ -1056,6 +1058,7 @@ async function load() {
       </div></button>`).join('')
     : '<div class="empty glass">⏳ Time indisponível agora.</div>';
   $$('#team .flip').forEach(f => f.addEventListener('click', () => { const on = !f.classList.contains('on'); f.classList.toggle('on', on); f.setAttribute('aria-pressed', String(on)); }));
+  if (team && team.textos_revisados === false) $('#iaTag').hidden = false;   // regra 6: texto de IA com selo até a revisão
   watch($('#team'));
 
 }
@@ -1064,7 +1067,7 @@ async function load() {
 async function ownerChip() {
   const o = await j('/api/analytics/owner');
   if (!o || !o.owner) return;
-  // O endereço do painel só entra na página pra quem é o dono (e o painel ainda checa o e-mail no servidor).
+  // O chip só aparece pro dono. Quem protege o painel é o servidor: /admin/hub e a API checam o e-mail do dono.
   const chip = $('#ownerChip'); chip.href = '/admin/hub'; chip.hidden = false;
   const r = await j('/api/admin/analytics/hub?days=30');
   if (r && r.resumo) $('#ownerTxt').textContent = `👁️ ${r.resumo.pessoas} ${r.resumo.pessoas === 1 ? 'pessoa viu' : 'pessoas viram'} em 30 dias · quem viu o quê`;

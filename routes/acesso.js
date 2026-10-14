@@ -265,6 +265,44 @@ function pode(u, metodo, caminho) {
   return exigidas.some(a => minhas.includes(a));
 }
 
+// ── Caminho torto ────────────────────────────────────────────────────────────
+// As regras comparam o caminho cru, mas o express.static decodifica e resolve o
+// "..": /img/..%2fapi%2fzoho-leads-snapshot.json casava a regra pública de /img/*
+// e servia o snapshot do CRM sem login (achado na revisão do Módulo 35). Nenhuma
+// URL legítima do Office tem ponto, barra ou contrabarra codificados no caminho.
+const CAMINHO_TORTO = /%2e|%2f|%5c|%00|\\|\0/i;
+function caminhoTorto(p) {
+  p = String(p || '');
+  return CAMINHO_TORTO.test(p) || p.split('/').some(s => s === '.' || s === '..');
+}
+
+// ── team.json / changelog.json pra quem não é do time de Marketing ──────────
+// Lista branca: só o que Cafezinho, Game e rodapé usam. Fica de fora meta e SLA
+// de cada área (kpis_principais), voices_connect, decide, scope, baia e as notas
+// de versão (número de lead, integrações de CRM). O 'foco' interno de cada área
+// cita ferramenta de CRM/outbound/MDF: vai o texto curado do Hub no lugar.
+const so = (o, campos) => { const r = {}; for (const k of campos) if (o && o[k] !== undefined) r[k] = o[k]; return r; };
+const PESSOA = ['id', 'nome', 'apelido', 'cargo', 'icon', 'aniversario', 'mesa_itens', 'papel'];
+function teamParaColaborador(t) {
+  const { FALE_SOBRE } = require('./hub');
+  const pessoas = (l) => (Array.isArray(l) ? l : []).map(p => so(p, PESSOA));
+  return {
+    atualizado_em: t.atualizado_em,
+    lideranca: pessoas(t.lideranca),
+    areas: (t.areas || []).map(a => ({
+      ...so(a, ['id', 'nome', 'icon', 'color', 'color_bg']),
+      foco: FALE_SOBRE[a.id] || '',
+      responsavel: so(a.responsavel, ['nome', 'apelido', 'aniversario', 'mesa_itens', 'avatar_grad']),
+    })),
+    parceiros_externos: pessoas(t.parceiros_externos),
+    supervisao_executiva: pessoas(t.supervisao_executiva),
+  };
+}
+function changelogParaColaborador(c) {
+  return { current: c.current, atualizado_em: c.atualizado_em,
+    releases: (c.releases || []).map(r => so(r, ['version', 'date', 'status'])) };
+}
+
 // ── Montagem ─────────────────────────────────────────────────────────────────
 function montar(app, express) {
   // Cabeçalhos básicos de segurança em toda resposta.
@@ -273,6 +311,12 @@ function montar(app, express) {
     res.set('X-Frame-Options', 'SAMEORIGIN');           // o game abre páginas do próprio Office em iframe
     res.set('Referrer-Policy', 'strict-origin-when-cross-origin');
     if (req.secure) res.set('Strict-Transport-Security', 'max-age=15552000');
+    next();
+  });
+
+  // 0) Caminho torto (ponto/barra codificados, '..') é recusado antes de tudo.
+  app.use((req, res, next) => {
+    if (caminhoTorto(req.path)) return res.status(400).type('text/plain').send('Caminho inválido.');
     next();
   });
 
@@ -382,42 +426,31 @@ function montar(app, express) {
   // área (calls/e-mails do SDR, KPI de CRM) e notas de versão com número de lead,
   // oportunidade e integração de CRM. Quem não tem a área 'time' recebe só os
   // campos que essas telas usam. Lista branca: campo novo no arquivo não vaza.
-  const doTime = (u) => ehSuperAdmin(u) || areasDoUsuario(u).includes('time');
+  // Arquivo inteiro: time de Marketing, super admin, local sem SSO, escape
+  // SSO_ENFORCE=false e credencial de máquina (editor token no header).
+  const arquivoInteiro = (req, u) => ehSuperAdmin(u) || areasDoUsuario(u).includes('time')
+    || ((LOCAL_ABERTO || ENFORCE_OFF) && !u) || ctx.tokenConfere(req.headers['x-editor-token']);
   const lerApi = (f) => JSON.parse(require('fs').readFileSync(path.join(PUBLIC_DIR, 'api', f), 'utf8'));
-  const so = (o, campos) => { const r = {}; for (const k of campos) if (o && o[k] !== undefined) r[k] = o[k]; return r; };
-  const PESSOA = ['id', 'nome', 'cargo', 'icon', 'aniversario', 'mesa_itens', 'papel'];
   app.get('/api/team.json', (req, res, next) => {
     const u = req.session && req.session.user;
-    if (doTime(u) || (LOCAL_ABERTO && !u)) return next();   // arquivo inteiro (express.static)
+    if (arquivoInteiro(req, u)) return next();   // express.static
     try {
-      const t = lerApi('team.json');
-      const pessoas = (l) => (Array.isArray(l) ? l : []).map(p => so(p, PESSOA));
       res.set('Cache-Control', 'no-store');
-      res.json({
-        atualizado_em: t.atualizado_em,
-        lideranca: pessoas(t.lideranca),
-        areas: (t.areas || []).map(a => ({
-          ...so(a, ['id', 'nome', 'icon', 'color', 'color_bg', 'foco']),
-          responsavel: so(a.responsavel, ['nome', 'aniversario', 'mesa_itens', 'avatar_grad']),
-        })),
-        parceiros_externos: pessoas(t.parceiros_externos),
-        supervisao_executiva: pessoas(t.supervisao_executiva),
-      });
+      res.json(teamParaColaborador(lerApi('team.json')));
     } catch (e) { res.status(500).json({ error: 'team_indisponivel' }); }
   });
   app.get('/api/changelog.json', (req, res, next) => {
     const u = req.session && req.session.user;
-    if (doTime(u) || (LOCAL_ABERTO && !u)) return next();
+    if (arquivoInteiro(req, u)) return next();
     try {
-      const c = lerApi('changelog.json');
       res.set('Cache-Control', 'no-store');
-      res.json({ current: c.current, atualizado_em: c.atualizado_em,
-        releases: (c.releases || []).map(r => so(r, ['version', 'date', 'status'])) });
+      res.json(changelogParaColaborador(lerApi('changelog.json')));
     } catch (e) { res.status(500).json({ error: 'changelog_indisponivel' }); }
   });
 }
 
 module.exports = {
   montar, pode, areasDoCaminho, areasDoUsuario, ehSuperAdmin, parseExtras,
+  caminhoTorto, teamParaColaborador, changelogParaColaborador,
   AREAS, AREAS_CONCEDIVEIS, ROLE_AREAS, REGRAS, ASSET_EXT,
 };

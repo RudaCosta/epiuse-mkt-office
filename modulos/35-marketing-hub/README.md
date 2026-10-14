@@ -8,7 +8,7 @@
 |---|---|
 | `public/hub.html` | Página (vanilla, só tokens do DESIGN.md). Animações: constelação no fundo que reage ao cursor, título com palavra que gira (encolhe pra caber), órbita de atalhos, contadores, marquee de marcas, cards com luz + inclinação 3D, filtro com FLIP, linha do tempo arrastável, cards do time que viram, deck 3D, borda cônica animada, barra de progresso de leitura. `prefers-reduced-motion` desliga tudo. |
 | `routes/hub.js` | `GET /api/hub/resumo` — **lista branca**: agenda, total de artigos, Voices no programa, campanhas ativas e o time (nome, área, texto "pra que me procurar"). Lê os JSONs do servidor e devolve só esses campos. |
-| `routes/acesso.js` | Regra `GET /api/hub/resumo` (logado) + filtro de `team.json` e `changelog.json` pra quem não é do time de Marketing (passo 7). |
+| `routes/acesso.js` | Regra `GET /api/hub/resumo` (logado) · `teamParaColaborador()`/`changelogParaColaborador()` (passo 7, lista branca pra quem não é do time) · `caminhoTorto()` (passo 0: recusa `%2e`, `%2f`, `%5c`, `..`). |
 | `routes/analytics.js` | `AREA_TRACK.hub` → beacon `kind='hub'`, `GET /api/admin/analytics/hub(/user)`, `GET /admin/hub` (`requireOwner`, por e-mail). |
 | `private/admin-area-tracking.html` | Painel único de tracking — config `hub` (seções, rótulos de cada clique, nomes das ferramentas). |
 | `public/office-nav.js` | Link "👁️ Tracking · Marketing Hub" no menu só quando `/api/analytics/owner` confirma o e-mail do dono. |
@@ -28,4 +28,4 @@ Sem fonte → `—` e "⏳ fonte indisponível". Nada chumbado: o "30+ eventos/a
 
 ## Tracking "quem viu o quê" (só o dono)
 Passos: `sec.<id>` · `tempo.<id>.<s>` · `scroll.<25|50|75|100>` · `tool.<id>` (cada card, material, canal, atalho da órbita/busca) · `cat.<filtro>` · `agenda.<brasil|latam|rolou|arrastou|busca>` · `busca.<usou|sem-resultado|clique>` · `campanha.<id>` · `time.<area>` · `logo.<nome>` · `cta.<botão>`. Quem abriu e o tempo total já vêm do servidor/office-nav.
-O chip "👁️ Quem viu o quê" na página e o link do menu só aparecem pro e-mail do dono; o endereço do painel nem vai no HTML de quem não é.
+O chip "👁️ Quem viu o quê" na página e o link do menu só aparecem pro e-mail do dono. Quem protege o painel é o servidor: `/admin/hub` e `/api/admin/analytics/hub(/user)` checam o e-mail do dono (o endereço em si aparece no JS, como o de todos os painéis).

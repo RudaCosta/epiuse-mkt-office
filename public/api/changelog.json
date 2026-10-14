@@ -66,7 +66,8 @@
         "Agenda Brasil/LATAM com contagem pro próximo evento, campanhas ativas, deck institucional, logos, fundos e \"Pra quem eu peço?\" com cada dona de área.",
         "Logos só carregam quando o modal abre (eram 3 MB em toda visita) e o gate de senha antigo saiu.",
         "Tracking \"quem viu o quê\" do Hub em /admin/hub, com link no menu e na página só pro e-mail do dono.",
-        "Segurança: a página lê só /api/hub/resumo (lista branca). team.json e changelog.json chegam filtrados pra quem não é do time de Marketing — sem meta, SLA, número de lead ou integração de CRM."
+        "Segurança: a página lê só /api/hub/resumo (lista branca). team.json e changelog.json chegam filtrados pra quem não é do time de Marketing — sem meta, SLA, número de lead ou integração de CRM.",
+        "Brecha antiga fechada: um endereço com ponto/barra codificados abria qualquer arquivo do Office sem login (inclusive snapshots de CRM). Agora leva 400."
       ]
     },
     {
