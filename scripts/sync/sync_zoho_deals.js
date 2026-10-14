@@ -33,8 +33,10 @@ const FROM_FILE    = process.argv.includes('--from-file')
   ? process.argv[process.argv.indexOf('--from-file') + 1]
   : null;
 
-// Campo Zoho para Opportunity Source (Marketing Intelligence)
-// Nome API pode variar — testar com getFields se necessário
+// Origem da oportunidade no Zoho = campo "Opportunity Source" (API Origem_da_Oportunidade).
+// O nome antigo (Marketing_Intelligence__Opportunity_Source) não existe mais e a
+// consulta voltava INVALID_QUERY — conferido no Zoho em 14/out/2026. Entram só as
+// originadas pelo Marketing da EPI-USE e pelo SDR (Valcann é outra empresa do grupo).
 const COQL = `
   SELECT
     id,
@@ -45,14 +47,17 @@ const COQL = `
     Lead_Source,
     Closing_Date,
     Created_Time,
-    Marketing_Intelligence__Opportunity_Source
+    Origem_da_Oportunidade,
+    Solution_new,
+    Escopo2
   FROM Deals
-  WHERE Marketing_Intelligence__Opportunity_Source IS NOT NULL
-  LIMIT 200
+  WHERE Origem_da_Oportunidade in ('MKT (EPI-USE)', 'SDR')
+  LIMIT 2000
 `;
 
 function mapDeal(d) {
-  const src = d['Marketing_Intelligence__Opportunity_Source'] || d.Marketing_Intelligence || '';
+  const src = d.Origem_da_Oportunidade || d['Marketing_Intelligence__Opportunity_Source'] || '';
+  const lista = (v) => Array.isArray(v) ? v.join(', ') : String(v || '');
   // Só importa deals de origem MKT ou SDR
   if (!src.includes('MKT') && !src.includes('SDR') && src !== '') {
     // aceitar qualquer valor mas logar
@@ -70,8 +75,8 @@ function mapDeal(d) {
     valor:              parseFloat(d.Amount || 0) || 0,
     stage:              String(d.Stage || ''),
     campanha:           String(d.Lead_Source || ''),
-    solution:           String(d.Solution || d['Solution__s'] || ''),
-    deal_scope:         String(d.Deal_Scope || d['Deal_Scope__s'] || ''),
+    solution:           lista(d.Solution_new || d.Solution || d['Solution__s']),
+    deal_scope:         lista(d.Escopo2 || d.Deal_Scope || d['Deal_Scope__s']),
     opportunity_source: String(src),
     data_criacao:       created,
     data_fechamento:    closing,
@@ -108,48 +113,18 @@ async function main() {
     return syncFromPayload(deals);
   }
 
-  // Modo: REST API direta com OAuth2 (requer ZOHO_REFRESH_TOKEN no .env)
-  const refreshToken = process.env.ZOHO_REFRESH_TOKEN;
-  const clientId     = process.env.ZOHO_CLIENT_ID;
-  const clientSecret = process.env.ZOHO_CLIENT_SECRET;
-
-  if (!refreshToken || !clientId || !clientSecret) {
-    console.error('[zoho-sync] Credenciais OAuth2 não encontradas no .env.');
-    console.error('  Defina: ZOHO_REFRESH_TOKEN, ZOHO_CLIENT_ID, ZOHO_CLIENT_SECRET');
-    console.error('  Ou use: node sync_zoho_deals.js --from-file <payload.json>');
-    console.error('  (payload.json gerado pelo Claude via MCP executeCOQLQuery)');
+  // Modo: REST API direta com OAuth2 (ZOHO_CLIENT_ID/SECRET/REFRESH_TOKEN + ZOHO_DC).
+  // É o que o servidor roda sozinho pela Central de Fontes (Módulo 36).
+  const { zohoToken, coql } = require('../lib/zoho-api');
+  let coqlJson;
+  try { coqlJson = await coql(await zohoToken(), COQL); }
+  catch (e) {
+    console.error('[zoho-sync]', e.message);
+    console.error('  Ou use: node sync_zoho_deals.js --from-file <payload.json> (gerado pelo Claude via MCP executeCOQLQuery)');
     process.exit(1);
   }
-
-  // Refresh access token
-  const tokenRes = await fetch(
-    `https://accounts.zoho.com/oauth/v2/token?refresh_token=${refreshToken}&client_id=${clientId}&client_secret=${clientSecret}&grant_type=refresh_token`,
-    { method: 'POST' }
-  );
-  const tokenJson = await tokenRes.json();
-  if (!tokenJson.access_token) {
-    console.error('[zoho-sync] Falha ao obter access_token:', tokenJson);
-    process.exit(1);
-  }
-  const token = tokenJson.access_token;
-  console.log('[zoho-sync] Token OAuth2 obtido.');
-
-  // COQL query
-  const coqlRes = await fetch('https://www.zohoapis.com/crm/v7/coql', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Zoho-oauthtoken ${token}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ select_query: COQL.trim().replace(/\s+/g, ' ') }),
-  });
-  const coqlJson = await coqlRes.json();
-  if (!coqlRes.ok || !coqlJson.data) {
-    console.error('[zoho-sync] Erro COQL:', JSON.stringify(coqlJson).slice(0, 300));
-    process.exit(1);
-  }
-  console.log(`[zoho-sync] ${coqlJson.data.length} deals retornados do Zoho.`);
-  const deals = coqlJson.data.map(mapDeal);
+  console.log(`[zoho-sync] ${(coqlJson.data || []).length} deals retornados do Zoho.`);
+  const deals = (coqlJson.data || []).map(mapDeal);
   await syncFromPayload(deals);
 }
 

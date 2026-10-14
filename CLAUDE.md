@@ -75,6 +75,8 @@ Em qualquer sessão nova, faça **NA ORDEM**:
 
 13. **Permissões — toda rota nova precisa de regra** (04/out/2026 · Módulo 13 v2) — o Office **nega por padrão**: `routes/acesso.js` decide página, API e arquivo de `public/` antes de qualquer rota. Criou rota, página ou JSON em `public/api/`? **Adicione a linha em `REGRAS`** (qual área abre) e rode `node scripts/tests/acesso-cobertura.js` — sem regra, só o super admin (Rudá) consegue abrir, e o time vê "sem acesso". Super admin é por **e-mail** (`SUPER_ADMIN_EMAILS`), nunca por papel. Editor token é credencial de máquina: só em `/api/*`, só no header, **nunca em HTML** (o repositório é público).
 
+14. **Fontes de dados — toda fonte nova entra no registro** (14/out/2026 · Módulo 36) — planilha, API, calendário ou JSON de dados que alimenta o Office precisa estar em `FONTES` (`routes/fontes.js`) com dona, área, prazo (`sla_h` ou `revisar_dias`) e `ultima()` lendo a data do próprio dado. Rode `node scripts/tests/fontes-cobertura.js`: ele falha se aparecer script de sync ou JSON em `public/api/` sem dono. O servidor atualiza sozinho (planilha da nuvem via Graph/Google, API com a chave no Railway), `/fontes` mostra a saúde de tudo e o que atrasa vira alerta para a dona. Parser novo lê `process.env.FONTE_ARQUIVO` antes dos caminhos locais. **Dado novo de CRM/vendas não vai para o repositório** (é público): é gerado e guardado no servidor.
+
 ---
 
 ## 📋 Slash commands disponíveis

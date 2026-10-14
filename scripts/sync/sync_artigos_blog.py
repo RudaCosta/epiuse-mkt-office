@@ -18,6 +18,8 @@ from pathlib import Path
 import pandas as pd
 
 CANDIDATES = [
+    # Copia que o servidor baixou da nuvem (routes/fontes.js, Modulo 36)
+    *([os.environ["FONTE_ARQUIVO"]] if os.environ.get("FONTE_ARQUIVO") else []),
     r"C:/Users/Ruds/OneDrive - EPI USE BRASIL SERVIÇOS EM SISTEMAS LTDA/MARKETING/Projetos/EPI-USE Voices/estudo/Conteudos Blog EUBR 2026 (via manus).xlsx",
     r"G:/Meu Drive/Claude MKT EUBR/vault/00-contexto/artigos/Conteudos Blog EUBR 2026 (via manus).xlsx",
 ]

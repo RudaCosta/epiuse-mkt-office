@@ -184,6 +184,7 @@ const OFFICE_NAV_OVERFLOW = [
   { label: '📞 Biz Dev / Pipeline',  href: '/area/pipeline' },
 
   { section: '📊 Reports & Análises' },
+  { label: '🔌 Fontes de dados',         href: '/fontes' },
   { label: '🔗 LinkedIn Intelligence',   href: '/linkedin' },
   { label: '🔎 AEO / SEO / GEO (IA)',    href: '/aeo-geo' },
   { label: '📈 Relatório Mensal',        href: '/relatorio' },

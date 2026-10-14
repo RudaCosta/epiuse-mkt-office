@@ -38,7 +38,7 @@ const NIVEIS = ['critico', 'importante', 'info'];
 const AREA_LABEL = {
   admin: 'Administração', time: 'Time de Marketing', intelligence: 'Intelligence & CRM',
   growth: 'Growth & Performance', eventos: 'Field Marketing & Eventos', pipeline: 'Biz Dev / Pipeline',
-  brand: 'Brand Experience', conteudo: 'Conteúdo', voices: 'Pautas dos Voices',
+  brand: 'Brand Experience', conteudo: 'Conteúdo', voices: 'Pautas dos Voices', gestao: 'Gestão do Office',
 };
 // Papel de quem é dona de cada área (pra "donas recebem os alertas da área").
 const AREA_ROLE = { intelligence: 'intelligence', growth: 'growth', eventos: 'field', pipeline: 'pipeline', brand: 'brand', conteudo: 'conteudo' };
@@ -233,6 +233,11 @@ const REGRAS = [
       if (s.status === 'parado') return [{ chave: 'parado', titulo: `RD Station sem atualizar há ${fmtIdade(Date.now() - ms(s.ultima_ok_ts))}`, detalhe: 'Os números de e-mail marketing do relatório ficam congelados.', href: '/relatorio' }];
       return [];
     },
+  },
+  {
+    id: 'fontes.registro', areas: ['time'], nivel: 'importante', nome: 'Fonte de dados atrasada, quebrada ou sem revisão',
+    quando: 'Qualquer fonte da Central de Fontes (/fontes) sem regra própria acima: com erro na última leitura ou sem atualizar além do prazo dela (importante); curada à mão sem revisão além do prazo (para saber). Vai pra área dona da fonte.',
+    run() { return require('./fontes').paraAlertas(); },
   },
   {
     id: 'email.entrega', areas: ['admin'], nivel: 'importante', nome: 'E-mails do Office não estão chegando',
@@ -580,25 +585,9 @@ function todasDonas() { return donasDe(Object.keys(AREA_ROLE)); }
 
 // ── Saúde das fontes (pro relatório e pro admin) ────────────────────────────
 function fontes(areas) {
-  const lista = [];
-  const quando = (t) => (t ? `atualizado há ${fmtIdade(Date.now() - ms(t))}` : 'sem atualização registrada');
-  try {
-    const st = require('./area-pipeline').apolloStatusAtual();
-    lista.push({ nome: 'Apollo (outbound)', areas: ['pipeline'], status: st.status === 'ok' ? 'ok' : st.status === 'sem-chave' ? 'desligado' : st.status === 'aguardando' ? 'atencao' : 'parado',
-      detalhe: st.status === 'sem-chave' ? 'sem APOLLO_API_KEY' : quando(st.ultima_sync_ts) });
-  } catch (_) {}
-  try {
-    const st = require('./editorial').autoStatus();
-    lista.push({ nome: 'Calendário editorial (OneDrive)', areas: ['brand', 'conteudo', 'intelligence'], status: !st.ativo ? 'desligado' : st.status === 'ok' ? 'ok' : st.status === 'aguardando' ? 'atencao' : 'parado',
-      detalhe: !st.ativo ? 'leitura automática desligada' : quando(st.ultima_ok_ts) });
-  } catch (_) {}
-  const cs = one(`SELECT COUNT(*) n, MAX(synced_at) s FROM cs_clientes`);
-  lista.push({ nome: 'Cases (planilha CS)', areas: ['brand'], status: !cs.n ? 'desligado' : (Date.now() - ms(cs.s) > 36 * HOUR ? 'parado' : 'ok'), detalhe: cs.n ? quando(cs.s) : 'sem dados' });
-  for (const [k, nome, env] of [['ga4', 'GA4 (site)', 'GA4_PROPERTY_ID'], ['rd', 'RD Station (e-mail mkt)', 'RD_REFRESH_TOKEN']]) {
-    if (!process.env[env]) { lista.push({ nome, areas: ['intelligence'], status: 'desligado', detalhe: 'sem credencial neste servidor' }); continue; }
-    const s = saudeDiaria(k);
-    lista.push({ nome, areas: ['intelligence'], status: s.status === 'ok' ? 'ok' : s.status === 'aguardando' ? 'atencao' : 'parado', detalhe: s.erro ? `erro: ${s.erro}` : quando(s.ultima_ok_ts) });
-  }
+  // Todas as fontes de fora vêm do registro da Central de Fontes (Módulo 36).
+  let lista = [];
+  try { lista = require('./fontes').paraRelatorio(areas); } catch (e) { console.warn('[alertas] fontes:', e.message); }
   const em = mailer.saude();
   lista.push({ nome: 'E-mail (Resend)', areas: ['admin'], status: !em.configurado ? 'desligado' : (em.ultima_falha && (!em.ultimo_ok || ms(em.ultima_falha.ts) > ms(em.ultimo_ok))) ? 'parado' : 'ok',
     detalhe: !em.configurado ? 'sem RESEND_API_KEY' : em.ultimo_ok ? `último envio ok há ${fmtIdade(Date.now() - ms(em.ultimo_ok))}` : 'nenhum envio registrado ainda' });

@@ -10,6 +10,12 @@
 - ✅ `EDITOR_TOKEN` trocado no Railway (Rudá, 04/out) — o token antigo vazou no repo público e em 3 páginas.
 - 🔴 **Pôr o mesmo `EDITOR_TOKEN` novo no `.env` local** (`C:\Users\Ruds\.epiuse-optimizer\.env`). Sem isso os syncs agendados (cases, calendário, SAP 4 ME) levam 401.
 - 🔴 **Tornar o repositório GitHub privado — URGENTE.** Além do token antigo, da senha antiga dos brindes e da vault (clientes, estratégia, aniversários), o repo público tem os **snapshots de vendas/CRM** em `public/api/` (base de leads e kanban do SDR do Zoho, pipeline do Apollo, RD, metas por responsável, outreach). Qualquer pessoa na internet lê pelo GitHub — nenhum guard do Office protege isso. Railway funciona com repo privado. (Revisão do Módulo 35, 13/out/2026.)
+- 🟡 **Central de Fontes (`/fontes`, 14/out/2026):**
+  - Depois do deploy, abrir `/fontes`. Se Cases, Eventos, Artigos ou Calendário da Duda mostrarem "não achei a planilha no caminho de sempre", colar o link de compartilhamento no card.
+  - Subir no OneDrive e colar o link de: SAP for Me (hoje no Desktop), rotina do LinkedIn (`routines/` no PC) e Metas RevOps (Desktop).
+  - Detalhes em `modulos/36-fontes-de-dados/PENDENCIAS.md`.
+- 🟡 **Zoho pela API (sem depender do Claude):** criar um "Self Client" em api-console.zoho.com (escopos `ZohoCRM.coql.READ,ZohoCRM.modules.READ`) e pôr `ZOHO_CLIENT_ID` / `ZOHO_CLIENT_SECRET` / `ZOHO_REFRESH_TOKEN` / `ZOHO_DC` no Railway. Sem isso, os leads e as oportunidades do Office continuam parados (leads em 07/ago).
+- 🟡 **Planilha da Redatoria editável por qualquer pessoa com o link** (Google, conferido em 14/out). Pedir à Lisiane para trocar para "qualquer pessoa com o link pode ver": o Office só lê.
 - 🟡 Depois do deploy das Permissões v2: conferir com 1 pessoa de cada área que a home e a área dela abrem (o teste automático cobriu, mas é a primeira vez com SSO real).
 
 ### 📊 Relatório ao vivo (Módulo 33 · 07/out/2026)

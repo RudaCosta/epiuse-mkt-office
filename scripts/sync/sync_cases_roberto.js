@@ -25,7 +25,9 @@ const od   = `C:/Users/${user}/OneDrive - EPI USE BRASIL SERVICOS EM SISTEMAS LT
 const nome = 'Controle de Cases Cliente Referencia Empresas Transformadoras 2025.xlsx';
 const dir  = `${od}/MARKETING/Customer Reference/Empresas Transformadoras`;
 
+// FONTE_ARQUIVO = cópia que o servidor baixou da nuvem (routes/fontes.js, Módulo 36)
 const candidates = [
+  ...(process.env.FONTE_ARQUIVO ? [process.env.FONTE_ARQUIVO] : []),
   path.join(dir, nome),
   `C:/Users/rudac/OneDrive - EPI USE BRASIL SERVICOS EM SISTEMAS LTDA/MARKETING/Customer Reference/Empresas Transformadoras/${nome}`,
   `C:/Users/Ruds/OneDrive - EPI USE BRASIL SERVICOS EM SISTEMAS LTDA/MARKETING/Customer Reference/Empresas Transformadoras/${nome}`,

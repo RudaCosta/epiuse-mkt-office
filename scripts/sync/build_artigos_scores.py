@@ -88,6 +88,7 @@ def main():
         return {"0-30":sum(1 for v in vals if v<=30),"31-50":sum(1 for v in vals if 31<=v<=50),"51-65":sum(1 for v in vals if 51<=v<=65),"66-80":sum(1 for v in vals if 66<=v<=80),"81+":sum(1 for v in vals if v>80)}
     report = {"fonte":"Estimativa heuristica SEO/GEO (titulo+url+funil+LOB).","gerado_em":datetime.datetime.now().isoformat(timespec="seconds"),"total":total,"media_seo":media_seo,"media_geo":media_geo,"distribuicao_seo":dist([s["seo"] for s in scores]),"distribuicao_geo":dist([s["geo"] for s in scores]),"scores":scores,"funil_reclassificacoes":funil_changes,"total_reclassificado":len(funil_changes)}
     REPORT.parent.mkdir(parents=True, exist_ok=True)
+    REPORT.parent.mkdir(parents=True, exist_ok=True)
     open(REPORT,"w",encoding="utf-8").write(json.dumps(report, ensure_ascii=False, indent=2))
     print("Total:",total,"| SEO medio:",media_seo,"| GEO medio:",media_geo)
     print("SEO dist:",report["distribuicao_seo"])

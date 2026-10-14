@@ -15,7 +15,8 @@ import pandas as pd
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
-XLSX = os.path.join(ROOT, "routines", "Linkedin Follower Routine.xlsx")
+# FONTE_ARQUIVO = copia que o servidor baixou da nuvem (routes/fontes.js, Modulo 36)
+XLSX = os.environ.get("FONTE_ARQUIVO") or os.path.join(ROOT, "routines", "Linkedin Follower Routine.xlsx")
 OUT = os.path.join(ROOT, "public", "api", "linkedin-routine.json")
 
 def clean(v):

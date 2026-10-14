@@ -31,6 +31,10 @@ COPY . .
 # python-pptx (+ lxml/Pillow/XlsxWriter transitivos) para scripts/relatorio/gerar_pptx.py.
 RUN pip3 install --break-system-packages --no-cache-dir -r scripts/relatorio/requirements.txt
 
+# pandas + openpyxl: leitores de planilha que o servidor roda sozinho (Central de
+# Fontes, Módulo 36) — eventos, artigos, rotina do LinkedIn, metas.
+RUN pip3 install --break-system-packages --no-cache-dir -r scripts/sync/requirements.txt
+
 # server.js le PYTHON_BIN para escolher o interpretador; routes/relatorio.js acha o soffice.
 ENV PYTHON_BIN=python3 SOFFICE_BIN=/usr/bin/soffice
 

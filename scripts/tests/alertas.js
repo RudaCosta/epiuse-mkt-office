@@ -51,7 +51,9 @@ const estado = (id) => db.prepare('SELECT * FROM alertas_estado WHERE id=?').get
 
 (async () => {
   console.log('\n1) banco vazio');
-  const vazios = ids();
+  // fontes.registro (Módulo 36) olha também as datas dos JSONs do repositório
+  // (cadastro curado à mão vencido é aviso real) — coberto em scripts/tests/fontes.js.
+  const vazios = ids().filter(i => !i.startsWith('fontes.registro:'));
   ok(vazios.join() === 'email.entrega:chave,fonte.apollo:chave', 'sem dado → só os avisos de chave ausente pro admin (nada inventado)');
 
   console.log('\n2) regras com dado semeado');
@@ -81,7 +83,7 @@ const estado = (id) => db.prepare('SELECT * FROM alertas_estado WHERE id=?').get
   ok(tem('pautas.paradas') && tem('pautas.prazo'), 'pauta parada 10 dias + prazo vencido');
   ok(tem('fonte.cases') && estado('fonte.cases').nivel === 'importante', 'cases sem sync há 3 dias → importante');
   ok(tem('conteudo.agendado-vencido'), 'conteúdo agendado com data passada');
-  ok(tem('eventos.sem-briefing:brasil-10-evento-a') && !lista.some(i => i.includes('latam')), 'evento BR sem briefing (LATAM ignorado)');
+  ok(tem('eventos.sem-briefing:brasil-10-evento-a') && !lista.some(i => i.startsWith('eventos.') && i.includes('latam')), 'evento BR sem briefing (LATAM ignorado)');
   ok(tem('eventos.pos-evento') && /Evento C/.test(estado('eventos.pos-evento').detalhe) && !/Evento D/.test(estado('eventos.pos-evento').detalhe), 'pós-evento: só o que não tem leads');
   ok(tem('fonte.apollo') && estado('fonte.apollo').nivel === 'critico', 'Apollo sem atualizar há 30h → crítico');
   ok(tem('apollo.tarefas') && /^4 /.test(estado('apollo.tarefas').titulo), 'tarefas atrasadas só de sequência não arquivada');
@@ -260,7 +262,7 @@ const estado = (id) => db.prepare('SELECT * FROM alertas_estado WHERE id=?').get
       const u = { email: `t.${role}@epiuse.com.br`, role, areasExtra: [] };
       const minhas = acesso.areasDoUsuario(u);
       if (!areas.some(a => a !== 'admin' && minhas.includes(a))) return;   // não vê o alerta
-      if (!acesso.pode(u, 'GET', r.href.split('?')[0])) semAcesso.push(`${r.id} → ${r.href} (${role})`);
+      if (!acesso.pode(u, 'GET', r.href.split(/[?#]/)[0])) semAcesso.push(`${r.id} → ${r.href} (${role})`);   // #âncora não vai pro servidor
     });
   });
   ok(semAcesso.length === 0, 'quem vê o alerta abre o link dele' + (semAcesso.length ? ': ' + semAcesso.join(', ') : ''));

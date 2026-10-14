@@ -34,7 +34,9 @@ const TARGET = process.argv.includes('--target')
 // ── LOCALIZA XLSX ─────────────────────────────────────────────────────────────
 const user = os.userInfo().username;
 const nome = 'clientes epiuse sap 4 me - tem brasil e todos inputados dos outros paises.xlsx';
+// FONTE_ARQUIVO = cópia que o servidor baixou da nuvem (routes/fontes.js, Módulo 36)
 const candidates = [
+  ...(process.env.FONTE_ARQUIVO ? [process.env.FONTE_ARQUIVO] : []),
   `C:/Users/${user}/Desktop/ROADMAP MKT OFFICE JUN 2026/04 Cases/${nome}`,
   `C:/Users/Ruds/Desktop/ROADMAP MKT OFFICE JUN 2026/04 Cases/${nome}`,
   `C:/Users/rudac/Desktop/ROADMAP MKT OFFICE JUN 2026/04 Cases/${nome}`,
@@ -100,7 +102,7 @@ if (DRY_RUN) {
 
 // ── POST ──────────────────────────────────────────────────────────────────────
 const TARGETS = {
-  local:   ['http://localhost:3000/api/clientes-sap-4me/sync'],
+  local:   [(process.env.OFFICE_URL || 'http://localhost:3000') + '/api/clientes-sap-4me/sync'],
   railway: ['https://epiuse-voices-optimizer.up.railway.app/api/clientes-sap-4me/sync'],
 };
 TARGETS.all = [...TARGETS.local, ...TARGETS.railway];

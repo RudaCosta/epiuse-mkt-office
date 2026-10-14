@@ -23,6 +23,8 @@ ROOT = Path(__file__).resolve().parents[2]
 OUT  = ROOT / "public" / "api" / "events.json"
 PROD = os.environ.get("OFFICE_URL", "https://office.epiuse.com.br")
 SOURCES = [
+    # Copia que o servidor baixou da nuvem (routes/fontes.js, Modulo 36)
+    *([Path(os.environ["FONTE_ARQUIVO"])] if os.environ.get("FONTE_ARQUIVO") else []),
     ROOT / "data" / "eventos" / "EPI-USE Brasil 2026 - Eventos.xlsx",
     Path(r"C:/Users/Ruds/OneDrive - EPI USE BRASIL SERVI" + "Ç" + r"OS EM SISTEMAS LTDA/MARKETING/Planejamento/2026/EPI-USE Brasil 2026 - Eventos.xlsx"),
     Path(r"C:/Users/Ruds/OneDrive - EPI USE BRASIL SERVICOS EM SISTEMAS LTDA/MARKETING/Planejamento/2026/EPI-USE Brasil 2026 - Eventos.xlsx"),
@@ -108,13 +110,16 @@ def main():
         print(f"   m{e['m']:>2} d{e['d']:>5}  {e['n'][:42]:<44} {e['lob']:<14} {e['local']}")
 
     if apply:
-        bak = OUT.with_suffix(".json.bak-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
-        shutil.copy2(OUT, bak)
+        # No servidor (FONTE_ARQUIVO) a versao anterior ja fica no banco: sem .bak em public/api
+        bak = None
+        if not os.environ.get("FONTE_ARQUIVO"):
+            bak = OUT.with_suffix(".json.bak-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
+            shutil.copy2(OUT, bak)
         data.setdefault("abas", {}).setdefault("brasil", {"label": "\U0001F1E7\U0001F1F7 Brasil", "color": "#34d399"})
         data["abas"]["brasil"]["eventos"] = novos
         data["atualizado_em"] = datetime.date.today().isoformat()
         OUT.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
-        print(f"[eventos] backup: {bak.name}")
+        if bak: print(f"[eventos] backup: {bak.name}")
         print(f"[eventos] GRAVADO -> {OUT}  ({len(novos)} eventos brasil)")
         if "--push" in sys.argv:
             push_prod(data)

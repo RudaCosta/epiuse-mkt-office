@@ -6146,6 +6146,7 @@ app.use('/', require('./routes/area-brand'));    // Módulo 30 — Área Brand (
 app.use('/', require('./routes/relatorio'));     // Módulo 31 — Relatório de Marketing ao vivo (só fontes automáticas + PPT/PDF)
 app.use('/', require('./routes/metas-fy27'));    // Módulo 33 — Metas FY27 (placar ao vivo: Apollo · Office · GA4 do Relatório)
 app.use('/', require('./routes/hub'));           // Módulo 35 — Marketing Hub v2 (resumo em lista branca pra empresa toda)
+app.use('/', require('./routes/fontes'));        // Módulo 36 — Central de Fontes (registro + motor das planilhas/APIs de fora)
 // Módulo 34 — Central de Alertas & Relatórios (sino, /alertas, /admin/alertas,
 // e-mail de crítico, relatório semanal e mensal). Recebe as fontes de fora em vez
 // de duplicar lógica: a lista de eventos daqui e o relatório do mês do Módulo 31
@@ -6192,6 +6193,7 @@ async function dailyDataRefresh() {
     } catch (e) { console.warn('[daily] RD falhou:', e.message); alertasOffice.registrarSaude('rd', false, e.message); }
   }
 }
+require('./routes/fontes').registrarAcao('ga4-rd', dailyDataRefresh);   // "atualizar agora" do /fontes
 if (process.env.GA4_PROPERTY_ID || process.env.RD_REFRESH_TOKEN) {
   setTimeout(dailyDataRefresh, 40000);            // 40s após boot
   setInterval(dailyDataRefresh, 24 * 60 * 60 * 1000); // a cada 24h
