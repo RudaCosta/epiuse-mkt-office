@@ -121,11 +121,9 @@ router.get('/api/cafezinho/feed', (req, res) => {
       p.reacoes = porPost[p.id] || [];
     });
     res.json({
-      // owner liga o botão do painel de tracking — só existe pro dono.
-      me: { email, nome: u.name || u.given || email, admin: !!u.admin, role: u.role || '',
-            owner: email === OWNER_EMAIL },
-      // A URL do painel só sai daqui, e só pro dono — não fica no HTML/JS público.
-      painel: email === OWNER_EMAIL ? '/cafezinho/tracking' : null,
+      // O painel do Cafezinho mora no Analytics (área única de tracking, só o dono):
+      // esta resposta não leva nenhum sinal dele.
+      me: { email, nome: u.name || u.given || email, admin: !!u.admin, role: u.role || '' },
       reacoes_disponiveis: REACOES,
       tipos: TIPOS,
       perfis,

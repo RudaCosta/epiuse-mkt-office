@@ -83,8 +83,6 @@ a.chip:hover{border-color:var(--i-corn);transform:translateY(-2px)}
 .chip .av{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font:900 11px var(--i-head);background:linear-gradient(135deg,var(--i-royal),var(--i-svc));color:var(--i-text)}
 .chip b{color:var(--i-text);font-family:var(--i-head)}
 .chip .dot{width:8px;height:8px;border-radius:50%;background:var(--i-ok);animation:ping 2s infinite}
-.chip.owner{border-color:color-mix(in srgb,var(--i-yellow) 45%,transparent);color:var(--i-text)}
-.chip.owner .dot{background:var(--i-yellow);animation-name:pingY}
 @keyframes ping{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--i-ok) 70%,transparent)}100%{box-shadow:0 0 0 12px transparent}}
 @keyframes pingY{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--i-yellow) 70%,transparent)}100%{box-shadow:0 0 0 12px transparent}}
 @keyframes pingO{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--i-warn) 70%,transparent)}100%{box-shadow:0 0 0 9px transparent}}
@@ -361,7 +359,6 @@ a.chip:hover{border-color:var(--i-corn);transform:translateY(-2px)}
     <div class="who">
       <span class="chip"><span class="av" id="donaAv">BY</span><span id="donaNm">Bruna Yamagami</span></span>
       <a class="chip" id="agChip" href="/agentes/area-intelligence" data-act="agente.chip">🤖 agente da área</a>
-      <a class="chip owner" id="ownerChip" href="/admin/intelligence" hidden><span class="dot"></span><span id="ownerTxt">👁️ Quem viu esta página</span></a>
     </div>
     <div class="srcs" id="srcs"><span>Fontes</span></div>
   </section>
@@ -471,7 +468,7 @@ function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.ad
    Beacon do Office (POST /api/analytics/track, kind='intel', em lote). Quem
    abriu a página e o tempo total já são gravados pelo servidor/office-nav.
    Aqui: seções vistas, tempo em cada seção, profundidade de scroll e cliques.
-   Painel: /admin/intelligence (só o dono). */
+   Painel: Analytics (só o dono). */
 const TQ = [];
 let tqT = 0;
 function send(steps) {
@@ -1026,15 +1023,6 @@ function initTabs() {
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => requestAnimationFrame(moveInd));
 }
 
-/* ---------- DONO: atalho pro painel de tracking (só ele vê) ---------- */
-async function ownerBar() {
-  const o = await j('/api/analytics/owner');
-  if (!o || !o.owner) return;
-  $('#ownerChip').hidden = false;
-  const r = await j('/api/admin/analytics/intel?days=30');
-  if (r && r.resumo) $('#ownerTxt').textContent = `👁️ ${r.resumo.pessoas} ${r.resumo.pessoas === 1 ? 'pessoa viu' : 'pessoas viram'} em 30 dias · painel`;
-}
-
 /* ======================= INIT ======================= */
 (async () => {
   watch($('.top'));
@@ -1045,7 +1033,6 @@ async function ownerBar() {
   initTabs();
   watch(document.body);
   $$('.rv.in').forEach(animateIn);   // blocos já visíveis antes dos dados chegarem
-  ownerBar();
 })();
 })();
 </script>

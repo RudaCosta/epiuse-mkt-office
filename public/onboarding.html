@@ -1729,7 +1729,7 @@ function renderResult() {
 
 /* ======================= RASTREAMENTO DE PASSOS =======================
    Cada passo vai para o beacon existente do Office (POST /api/analytics/track,
-   kind='onb') e aparece em /admin/analytics → "Onboarding — quem fez o quê". */
+   kind='onb') e aparece no Analytics (só o dono). */
 function track(step) {
   try {
     const body = JSON.stringify({ kind: 'onb', step });

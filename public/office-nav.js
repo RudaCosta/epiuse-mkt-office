@@ -304,7 +304,7 @@ class OfficeNav extends HTMLElement {
       }
       if (this._authed) {
         try { this._acesso = await fetch('/api/acesso/me', { credentials: 'same-origin' }).then(r => r.ok ? r.json() : null); } catch {}
-        // Dono do Office (e-mail do ANALYTICS_OWNER): só ele vê o tracking do Relatório.
+        // Dono do Office (e-mail do ANALYTICS_OWNER): só ele vê o item Analytics no menu.
         // Banco de Horas: saldo no menu do usuário (só quem pode abrir /horas).
         if (this._acesso && this.podeVer('/horas')) {
           try { const h = await fetch('/api/horas/saldo', { credentials: 'same-origin' }).then(r => r.ok ? r.json() : null); if (h) this._horas = h.meu; } catch {}
@@ -471,39 +471,10 @@ class OfficeNav extends HTMLElement {
       }
     }
     const grpA = col1Items.find(g => g.section === '🤖 Escritório Virtual');
-    // Analytics de uso e tracking das áreas — só o super admin.
-    if (souSuper) {
-      if (grpA && !grpA.links.some(l => l.href === '/admin/analytics')) {
-        grpA.links.push({ label: '📊 Analytics de Uso', href: '/admin/analytics' });
-      }
-      // Tracking da área Intelligence (quem viu o quê) — também só o dono.
-      if (grpA && !grpA.links.some(l => l.href === '/admin/intelligence')) {
-        grpA.links.push({ label: '👁️ Tracking · Intelligence', href: '/admin/intelligence' });
-      }
-      // Tracking da área Eventos (quem viu o quê) — também só o dono.
-      if (grpA && !grpA.links.some(l => l.href === '/admin/eventos')) {
-        grpA.links.push({ label: '👁️ Tracking · Eventos', href: '/admin/eventos' });
-      }
-      // Tracking da área Pipeline / Biz Dev (quem viu o quê) — também só o dono.
-      if (grpA && !grpA.links.some(l => l.href === '/admin/pipeline')) {
-        grpA.links.push({ label: '👁️ Tracking · Pipeline', href: '/admin/pipeline' });
-      }
-      // Tracking da área Brand Experience / Voices (quem viu o quê) — também só o dono.
-      if (grpA && !grpA.links.some(l => l.href === '/admin/brand')) {
-        grpA.links.push({ label: '👁️ Tracking · Brand', href: '/admin/brand' });
-      }
-    }
-    // Tracking do Relatório (quem viu o quê, quem baixou PPT/PDF) — só o e-mail do dono.
-    if (this._owner && grpA && !grpA.links.some(l => l.href === '/admin/relatorio')) {
-      grpA.links.push({ label: '👁️ Tracking · Relatório', href: '/admin/relatorio' });
-    }
-    // Tracking das Metas FY27 — também só o e-mail do dono (Módulo 33).
-    if (this._owner && grpA && !grpA.links.some(l => l.href === '/admin/metas')) {
-      grpA.links.push({ label: '👁️ Tracking · Metas FY27', href: '/admin/metas' });
-    }
-    // Tracking do Marketing Hub (empresa toda) — também só o e-mail do dono (Módulo 35).
-    if (this._owner && grpA && !grpA.links.some(l => l.href === '/admin/hub')) {
-      grpA.links.push({ label: '👁️ Tracking · Marketing Hub', href: '/admin/hub' });
+    // Analytics: uso do Office + tracking de todas as áreas num item só (abas
+    // dentro da página). Só o e-mail do dono vê; o servidor também barra (requireOwner).
+    if (this._owner && grpA && !grpA.links.some(l => l.href === '/admin/analytics')) {
+      grpA.links.push({ label: '📊 Analytics', href: '/admin/analytics' });
     }
     // UTM & Links Rastreados — todo o time de Marketing.
     const MKT_ROLES = ['head', 'intelligence', 'growth', 'field', 'pipeline', 'brand', 'conteudo'];

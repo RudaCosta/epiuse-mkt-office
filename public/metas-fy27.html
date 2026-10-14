@@ -80,7 +80,6 @@ button{font:inherit;color:inherit}
 a.chip:hover{border-color:var(--p-corn);transform:translateY(-2px)}
 .chip b{color:var(--p-text);font-family:var(--p-head)}
 .chip .dot{width:8px;height:8px;border-radius:50%;background:var(--p-yellow);animation:pingY 2s infinite}
-.chip.owner{border-color:color-mix(in srgb,var(--p-yellow) 45%,transparent);color:var(--p-text)}
 @keyframes pingY{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--p-yellow) 70%,transparent)}100%{box-shadow:0 0 0 12px transparent}}
 @keyframes ping{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--s-batida) 70%,transparent)}100%{box-shadow:0 0 0 12px transparent}}
 @keyframes pingO{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--p-orange) 70%,transparent)}100%{box-shadow:0 0 0 12px transparent}}
@@ -342,7 +341,6 @@ span.mk{color:var(--p-muted)}
       <p class="sub">Só entra número que se atualiza sozinho. Meta sem fonte automática fica com o link de onde é medida, sem número inventado.</p>
       <div class="who">
         <span class="chip" id="fyChip">📅 <b>FY27</b> · jul/26 → jun/27</span>
-        <a class="chip owner" id="ownerChip" href="/admin/metas" hidden><span class="dot"></span><span id="ownerTxt">👁️ Quem viu esta página</span></a>
       </div>
       <div class="kpis" id="kpis"></div>
       <div class="live" id="live"><span>Ao vivo</span></div>
@@ -419,7 +417,7 @@ function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.ad
    Beacon do Office (POST /api/analytics/track, kind='metas', em lote). Quem
    abriu a página e o tempo total já são gravados pelo servidor/office-nav.
    Aqui: seções vistas, tempo em cada seção, scroll e cada clique (data-act).
-   Painel: /admin/metas (só o dono). */
+   Painel: Analytics (só o dono). */
 const TQ = [];
 let tqT = 0;
 function send(steps) {
@@ -864,16 +862,6 @@ function openMeta(id) {
     ${href ? `<p style="margin-top:20px"><a class="btn" href="${esc(href)}" data-act="areapg.${aid(m.area)}">Abrir a área ${esc(a.nome)} →</a></p>` : ''}`, `var(${a.cor})`);
 }
 
-/* ---------- DONO: atalho pro painel de tracking (só ele vê) ---------- */
-async function ownerBar() {
-  const o = await j('/api/analytics/owner');
-  const chip = $('#ownerChip');
-  if (!o.d || !o.d.owner || !chip) return;
-  chip.hidden = false;
-  const r = await j('/api/admin/analytics/metas?days=30');
-  if (r.d && r.d.resumo) $('#ownerTxt').textContent = `👁️ ${r.d.resumo.pessoas} ${r.d.resumo.pessoas === 1 ? 'pessoa viu' : 'pessoas viram'} em 30 dias · painel`;
-}
-
 /* ======================= INIT ======================= */
 function assinatura(d) { return JSON.stringify(d.metas.map(m => [m.id, m.valor, m.alvo, m.status])) + JSON.stringify(d.fontes.dentro.map(f => [f.id, f.status, f.ultima_ts])); }
 function renderAll() {
@@ -906,7 +894,6 @@ async function load(primeira) {
   ACESSO = (await j('/api/acesso/me')).d;
   const st = await load(true);
   if (st === 'negado') return;
-  ownerBar();
   // Apollo muda a cada 6h, Office na hora: confere a cada 5 min (1 min enquanto a 1ª carga não veio)
   // e só redesenha se mudou
   const ciclo = () => setTimeout(async () => { if (!document.hidden || !D) await load(false); ciclo(); }, D ? 5 * 60 * 1000 : 60 * 1000);

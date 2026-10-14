@@ -209,7 +209,7 @@ const REGRAS = [
   ['/img/*', P],
   // HTML que só é servido pela rota limpa. Antes, /admin-usuarios.html abria
   // direto pelo express.static e furava o guard de /admin/usuarios.
-  ['/admin-alertas', ADM], ['/admin-analytics', ADM], ['/admin-coins', ADM], ['/admin-comunicados', ADM],
+  ['/admin-alertas', ADM], ['/admin-coins', ADM], ['/admin-comunicados', ADM],
   ['/admin-inscricoes', ADM], ['/admin-usuarios', ADM], ['/admin-utm', ADM],
   ['/agente', ADM], ['/area-eventos', ADM], ['/area-intelligence', ADM], ['/artigos-generator', ADM],
   ['/area-brand', ADM], ['/area-pipeline', ADM],
@@ -313,6 +313,36 @@ function changelogParaColaborador(c) {
   return { current: c.current, atualizado_em: c.atualizado_em,
     releases: (c.releases || []).map(r => so(r, ['version', 'date', 'status'])) };
 }
+
+// ── Tracking é assunto só do dono ────────────────────────────────────────────
+// 14/out/2026 — Rudá: "os menus e menções não devem mostrar isso pra ninguém".
+// O time recebe o changelog sem nenhuma menção a tracking/analytics de pessoas:
+// release marcada `so_dono` (ou cujo título é só sobre isso) vira "Ajustes
+// internos"; título com partes "a + b" perde só a parte de tracking; frases do
+// resumo e destaques que citam tracking somem. Fora daqui: links rastreados/UTM,
+// GA4, SSI e "tracker" (são ferramentas do time, não rastreio de pessoas).
+const RX_TRACKING = /quem viu|quem acessou|(?<!UTM )\btracking\b(?!\s*0)|rastreamento de quem|registro do rastreamento|analytics de uso|analytics e tracking|\/admin\/analytics|do Analytics\b|Analytics retroativo|Analytics:|\/Analytics\/|ado[çc][ãa]o do time|painel só do Rudá/i;
+const PAGINAS_TRACKING = /^\/(admin\/(analytics|intelligence|eventos|pipeline|brand|relatorio|metas|hub)|cafezinho\/tracking)\b/;
+const citaTracking = (t) => typeof t === 'string' && RX_TRACKING.test(t);
+function changelogSemTracking(c) {
+  const interno = (r) => ({ version: r.version, date: r.date, status: r.status, path: null,
+    title: '🔧 Ajustes internos do Office', summary: '', highlights: [] });
+  const releases = (c.releases || []).map(r => {
+    if (r.so_dono) return interno(r);
+    const out = { ...r };
+    if (citaTracking(r.title)) {
+      const partes = String(r.title).split(/\s\+\s/), fica = partes.filter(x => !citaTracking(x));
+      if (!fica.length) return interno(r);
+      out.title = fica.join(' + ');
+    }
+    if (typeof r.summary === 'string') out.summary = r.summary.split(/(?<=[.!?])\s+/).filter(x => !citaTracking(x)).join(' ');
+    if (Array.isArray(r.highlights)) out.highlights = r.highlights.filter(h => !citaTracking(typeof h === 'string' ? h : JSON.stringify(h)));
+    if (typeof r.path === 'string' && PAGINAS_TRACKING.test(r.path)) out.path = null;
+    return out;
+  });
+  return { ...c, releases };
+}
+const ehDonoTracking = (u) => !!(u && u.email && String(u.email).toLowerCase() === require('./analytics').OWNER_EMAIL);
 
 // ── Concessões pedidas por chat ──────────────────────────────────────────────
 // O caminho normal é a tela de Permissões. Quando o Rudá pede por chat, a
@@ -481,18 +511,21 @@ function montar(app, express) {
       res.json(teamParaColaborador(lerApi('team.json')));
     } catch (e) { res.status(500).json({ error: 'team_indisponivel' }); }
   });
+  // Changelog: arquivo inteiro só pro dono (e máquina/local); o time recebe sem
+  // as menções a tracking; colaborador, só versão, data e status.
   app.get('/api/changelog.json', (req, res, next) => {
     const u = req.session && req.session.user;
-    if (arquivoInteiro(req, u)) return next();
+    if (ehDonoTracking(u) || ((LOCAL_ABERTO || ENFORCE_OFF) && !u) || ctx.tokenConfere(req.headers['x-editor-token'])) return next();
     try {
+      const c = lerApi('changelog.json');
       res.set('Cache-Control', 'no-store');
-      res.json(changelogParaColaborador(lerApi('changelog.json')));
+      res.json(arquivoInteiro(req, u) ? changelogSemTracking(c) : changelogParaColaborador(c));
     } catch (e) { res.status(500).json({ error: 'changelog_indisponivel' }); }
   });
 }
 
 module.exports = {
-  montar, pode, areasDoCaminho, areasDoUsuario, ehSuperAdmin, parseExtras,
+  montar, pode, areasDoCaminho, areasDoUsuario, ehSuperAdmin, parseExtras, changelogSemTracking,
   caminhoTorto, teamParaColaborador, changelogParaColaborador,
   AREAS, AREAS_CONCEDIVEIS, ROLE_AREAS, REGRAS, ASSET_EXT,
 };

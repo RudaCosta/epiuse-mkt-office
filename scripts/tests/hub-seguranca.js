@@ -34,7 +34,7 @@ ok(r.time && typeof r.time.textos_revisados === 'boolean', 'resumo: avisa se o t
 const html = fs.readFileSync(path.join(ROOT, 'public/hub.html'), 'utf8');
 const crus = ['/api/team.json', '/api/voices.json', '/api/artigos.json', '/api/events.json', '/api/areas.json', '/api/personas.json'].filter(u => html.includes(u));
 ok(!crus.length, 'hub.html: só /api/hub/resumo (sem JSON cru)' + (crus.length ? ' — usa: ' + crus.join(', ') : ''));
-ok(!/href="\/admin\//.test(html), 'hub.html: nenhum link de /admin no HTML (o chip do painel só ganha href pro dono)');
+ok(!/href="\/admin\//.test(html), 'hub.html: nenhum link de /admin no HTML (tracking só no Analytics)');
 ok(html.includes('<span class="ri">${esc(x.ic)}</span>'), 'hub.html: ícone do resultado da busca escapado (flag do evento não vira HTML)');
 ok(!/mktepiuse|PW\s*=/.test(html), 'hub.html: sem senha do gate antigo');
 

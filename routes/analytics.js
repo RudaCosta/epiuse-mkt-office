@@ -512,9 +512,15 @@ router.get('/api/admin/analytics/adocao', requireOwner, (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// Página do report
+// Página do report — a área única de tracking (abas: uso, onboarding, áreas, Cafezinho).
+// HTML e abas ficam em private/: nem o código-fonte chega a quem não é o dono.
 router.get('/admin/analytics', requireOwner, (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/admin-analytics.html'));
+  res.set('Cache-Control', 'no-store');
+  res.sendFile(path.join(__dirname, '../private/admin-analytics.html'));
+});
+router.get('/admin/analytics-tabs.js', requireOwner, (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  res.sendFile(path.join(__dirname, '../private/analytics-tabs.js'));
 });
 
 // ── ÁREAS — quem viu o quê (Módulos 27 e 28) ────────────────────────────────
