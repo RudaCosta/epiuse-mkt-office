@@ -3468,6 +3468,7 @@ app.get('/hub',       (req, res) => res.sendFile(HUB_HTML));
 // Brand Assets — página própria (paleta, tipografia, logos). Linkada por último no Hub.
 app.get('/brand',     (req, res) => res.sendFile(path.join(__dirname, 'public/brand.html')));
 app.get('/onboarding', (req, res) => res.sendFile(path.join(__dirname, 'public/onboarding.html')));
+app.get('/golden-circle', (req, res) => res.sendFile(path.join(__dirname, 'public/golden-circle.html')));   // Módulo 37 — treinamento Golden Circle
 // Campanhas em jogo — campanhas internas (Gol de Placa) + LinkedIn ativas.
 app.get('/campanhas', (req, res) => res.sendFile(path.join(__dirname, 'public/campanhas.html')));
 // Escolher visualização (Office | Game) pós-login. Requer sessão (enforcement cuida disso).

@@ -25,6 +25,7 @@
 | `33-metas-fy27/` | Metas FY27 — placar ao vivo só com realizado automático (Apollo 6h · Office · GA4 do Relatório): anéis por área, cards com gauge e sparkline, corrida até a meta; metas sem fonte automática viram link · tracking "quem viu o quê" só do dono (`/metas-fy27`, `/admin/metas`) | ✅ v1.0 |
 | `34-alertas/` | Central de Alertas & Relatórios: 18 regras com dado real, sino com lido/silenciar, `/alertas` por área, e-mail de crítico, relatório semanal (seg 8h) e mensal (1º dia útil 9h), envio único de e-mail do Office (`routes/email.js`) · `/alertas`, `/admin/alertas` | ✅ v1.0 |
 | `35-marketing-hub/` | Marketing Hub v2 — portal da empresa toda: busca, ferramentas, agenda, campanhas, institucional, time; números só de fonte real; `/api/hub/resumo` em lista branca (sem vendas/CRM) · tracking "quem viu o quê" só do dono (`/hub`, `/admin/hub`) | ✅ v2.0 |
+| `37-golden-circle/` | Treinamento Golden Circle (`/golden-circle`) — conceito do Simon Sinek, TED, cascata do porquê (Grupo → EPI-USE Brasil → Marketing → Você) e exercício que liga cada atividade a uma meta FY27 real; roteiro de sessão ao vivo | ✅ v1.0 |
 
 ## Módulos sem pasta própria (documentados em `docs/MODULES.md`)
 

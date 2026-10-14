@@ -203,6 +203,7 @@ const OFFICE_NAV_OVERFLOW = [
 
   { section: '🎒 Onboarding' },
   { label: '🎒 Onboarding de Marketing',  href: '/onboarding' },
+  { label: '🎯 Golden Circle (treinamento)', href: '/golden-circle' },
 
   { section: '🎨 Design & Sistema' },
   { label: '🎨 Design System',           href: '/design' },
@@ -1943,6 +1944,7 @@ const OfficeCommandPalette = (() => {
       { group:'Rotas', icon:'🪪', label:'Profile Optimizer',    hint:'/voices/optimizer-v3',  action:'/voices/optimizer-v3' },
       { group:'Rotas', icon:'📨', label:'LP Seja um Voice',     hint:'/seja-voice', action:'/seja-voice' },
       { group:'Rotas', icon:'🎒', label:'Onboarding de Marketing (novos colaboradores)', hint:'/onboarding', action:'/onboarding' },
+      { group:'Rotas', icon:'🎯', label:'Golden Circle — treinamento do porquê (Simon Sinek)', hint:'/golden-circle', action:'/golden-circle' },
       { group:'Rotas', icon:'📜', label:'Changelog',            hint:'/changelog',  action:'/changelog' },
       { group:'Rotas', icon:'⏰', label:'Banco de Horas (meu saldo)', hint:'/horas', action:'/horas' },
       // Ações
