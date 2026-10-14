@@ -61,8 +61,7 @@
 **Voice Agents (Módulo B) — Prioridade 3, não construído**
 - Cada Voice tem que pensar em pauta do zero
 - Não há replicador da personalidade/tom do Voice
-- A Redatoria (Lisiane — 20 artigos/mês) NÃO está integrada ao Voices
-- **Alavanca não capturada**: 20 artigos × 2 Voices ≠ 40 posts/mês — mas COULD BE.
+- A Redatoria (Lisiane) NÃO estava integrada ao Voices (contrato encerrado em out/2026)
 - **Ação**: pelo menos 1 página `/voices/anderson-costa` com prompt-base pra Claude.ai (estilo Optimizer = 0 atrito)
 
 **Attribution loop quebrado**

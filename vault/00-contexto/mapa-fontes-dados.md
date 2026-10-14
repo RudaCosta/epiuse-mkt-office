@@ -35,7 +35,7 @@
 | EPI-USE Voices no programa (X de Y vagas) | `voices.json` | 🟡 SEMI-MANUAL | cadastro do programa; data na tela |
 | Campanhas ativas | `campanhas-ativas.json` | 🟡 CURADO | edição manual |
 | Textos "Fale com X sobre" | `routes/hub.js` | 🤖 IA — revisar | escritos em 07/out no lugar do `foco` interno (Duda revisar) |
-| "30+ eventos/ano", "48h SLA", "20 conteúdos/mês" do Hub antigo | — | ✂️ CORTADO | número chumbado, sem fonte |
+| "30+ eventos/ano", "48h SLA" e volume mensal de conteúdo do Hub antigo | — | ✂️ CORTADO | número chumbado, sem fonte |
 
 Tudo passa por `/api/hub/resumo` (lista branca): nada de vendas/CRM chega na página.
 

@@ -15,6 +15,7 @@
   - Subir no OneDrive e colar o link de: SAP for Me (hoje no Desktop), rotina do LinkedIn (`routines/` no PC) e Metas RevOps (Desktop).
   - Detalhes em `modulos/36-fontes-de-dados/PENDENCIAS.md`.
 - 🟡 **Zoho pela API (sem depender do Claude):** criar um "Self Client" em api-console.zoho.com (escopos `ZohoCRM.coql.READ,ZohoCRM.modules.READ`) e pôr `ZOHO_CLIENT_ID` / `ZOHO_CLIENT_SECRET` / `ZOHO_REFRESH_TOKEN` / `ZOHO_DC` no Railway. Sem isso, os leads e as oportunidades do Office continuam parados (leads em 07/ago).
+- 🟡 **Contrato com a Redatoria encerrado (14/out/2026):** tirar também da planilha de metas (Metas RevOps v2) a meta "Artigos publicados no WordPress — 20/mês". O Office já não mostra, mas se a planilha for sincronizada ela volta.
 - 🟡 **Planilha da Redatoria editável por qualquer pessoa com o link** (Google, conferido em 14/out). Pedir à Lisiane para trocar para "qualquer pessoa com o link pode ver": o Office só lê.
 - 🟡 Depois do deploy das Permissões v2: conferir com 1 pessoa de cada área que a home e a área dela abrem (o teste automático cobriu, mas é a primeira vez com SSO real).
 
