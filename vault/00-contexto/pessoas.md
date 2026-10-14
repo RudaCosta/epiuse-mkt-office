@@ -27,7 +27,7 @@ O time de marketing está organizado em **5 áreas operacionais**, cada uma com 
 ### 📅 Gabrielle Senne — Field Marketing
 - **Foco**: 30+ eventos/ano (Brasil + LATAM), Business Plans SAP MDF, Proof of Performance, ativações presenciais
 - **Entrou**: set/2026, assumindo a área (é a terceira pessoa a ocupar a cadeira — telas e exports antigos podem citar ocupantes anteriores)
-- **Aniversário**: ⏳ a confirmar — fica `null` no `team.json` até ela informar (o game dispara confete de aniversário por esse campo; não inventar data)
+- **Aniversário**: 18/07 (confirmado em out/2026, já no `team.json` — o game e o `/cafezinho` usam esse campo pra confete, signo e linha do ano)
 - **Pendência**: e-mail @epiuse a confirmar → cadastrar no `/admin/usuarios` (role `field`, persona `field`); até lá cai como `hub`
 - **Limites**: não faz régua de e-mail de evento
 - **No programa Voices**: garante presença dos Voices nos eventos relevantes (palestras, content capture)

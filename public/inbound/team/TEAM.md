@@ -28,7 +28,7 @@ Vindo das telas do War Room / Painel da Duda atuais. Inclui pra ter o roster com
 |---|---|---|
 | **Rudá Costa** | Head RevOps &amp; Marketing | dono do projeto Office Engine, by Ruds |
 | **Bruna Yamagami** | MKT Intelligence &amp; CRM | ↑ duplicado intencional — confirma a área |
-| **Gabrielle Senne** | Field Marketing & Eventos | assumiu a área em set/2026; e-mail @epiuse e aniversário a cadastrar |
+| **Gabrielle Senne** | Field Marketing & Eventos | assumiu a área em set/2026; aniversário 18/07; e-mail @epiuse a cadastrar |
 | **Gui** | Growth &amp; IA | provavelmente é o Guilherme Marques (mesmo Growth) |
 | **Lisiane (Redatoria)** | Tom de Voz | revisão editorial, redatoria |
 | **Duda** | Brand Experience | dona do Painel — pode coincidir com Eduarda Hirose |
