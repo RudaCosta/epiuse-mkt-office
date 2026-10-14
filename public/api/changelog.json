@@ -1,5 +1,5 @@
 {
-  "current": "0.99.0",
+  "current": "0.100.0",
   "atualizado_em": "14/out/2026",
   "next": [
     {
@@ -54,9 +54,25 @@
   ],
   "releases": [
     {
-      "version": "0.99.0",
+      "version": "0.100.0",
       "date": "14/out/2026",
       "status": "current",
+      "path": "/fontes",
+      "title": "🔌 Central de Fontes: planilhas e APIs se atualizam sozinhas",
+      "summary": "Toda planilha, API e calendário de fora que alimenta o Office agora tem dona, prazo e data real numa tela só (/fontes). O servidor baixa as planilhas da nuvem e roda o mesmo leitor do PC; o que atrasa vira alerta para a dona.",
+      "highlights": [
+        "Nova tela /fontes: 31 fontes com status (em dia, atrasada, com erro, aguarda você, revisar, não integrada), data real da última atualização, quem editou a planilha e o que falta.",
+        "O servidor lê sozinho as planilhas do OneDrive/SharePoint (Graph do SSO) e do Google: Cases, Eventos, Artigos, Redatoria, Calendário da Duda, SAP for Me, Metas e rotina do LinkedIn. Não depende mais do PC ligado.",
+        "Zoho pela API (oportunidades e leads), sem sessão do Claude, assim que a chave estiver no Railway.",
+        "Planilha que não mudou não é reprocessada; dado gerado no servidor sobrevive a deploy.",
+        "Fonte curada à mão ganha prazo de revisão e botão \"marcar como revisada\"; atraso ou erro vira alerta para a área dona e entra no relatório semanal.",
+        "Correções da auditoria: a Redatoria só lia as abas de jan–jun/26 (agora entram jul e set) e a consulta de oportunidades do Zoho usava um campo que não existe mais."
+      ]
+    },
+    {
+      "version": "0.99.0",
+      "date": "14/out/2026",
+      "status": "released",
       "path": "/admin/analytics",
       "so_dono": true,
       "title": "📊 Analytics vira a área única de tracking (só o Rudá)",

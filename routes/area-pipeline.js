@@ -266,4 +266,5 @@ module.exports.buildSnapshot = buildSnapshot;
 module.exports.apolloStatus = apolloStatus;   // Módulo 33 (Metas FY27) mostra o frescor do Apollo
 // Motor de alertas (Módulo 34): status da integração + sequências com detalhe.
 module.exports.apolloStatusAtual = () => apolloStatus(readBlob());
+module.exports.runRefresh = runRefresh;   // Módulo 36 (Central de Fontes): "atualizar agora"
 module.exports.apolloSequencias = () => { const s = readBlob(); return (s && s.sequencias) || []; };

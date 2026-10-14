@@ -193,6 +193,10 @@ const REGRAS = [
   ['GET /api/alerts', L], ['POST /api/alerts/lidos', L], ['POST /api/alerts/silenciar', L],
   ['/api/planilhas', T], ['/api/planilhas/*', T], ['/api/workflows', T], ['/api/workflows/*', T],
   ['/api/cowork/*', T], ['GET /api/posts', T], ['/api/freshness', T],
+  // Central de Fontes (Módulo 36): cada um vê as fontes das áreas que abre — filtro na rota.
+  // Link da planilha (onde o servidor busca) só o super admin troca.
+  ['/fontes', T], ['GET /api/fontes', T], ['POST /api/fontes/:id/atualizar', T], ['POST /api/fontes/:id/revisado', T],
+  ['PUT /api/fontes/:id/config', ADM],
   ['/api/horas', T], ['/api/horas/*', T], ['/api/design-tokens.json', L],
 
   // ── JSONs de dados em public/api ──────────────────────────────────────────

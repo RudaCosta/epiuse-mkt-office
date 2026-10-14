@@ -237,3 +237,4 @@ function autoStatus() {
 
 module.exports = router;
 module.exports.autoStatus = autoStatus;
+module.exports.autoRoda = autoRoda;   // Módulo 36 (Central de Fontes): "atualizar agora"

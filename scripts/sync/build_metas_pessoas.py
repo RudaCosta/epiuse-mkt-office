@@ -12,7 +12,9 @@ from pathlib import Path
 import pandas as pd
 
 ROOT  = Path(__file__).resolve().parents[2]
-XLSX  = ROOT / "data" / "metas" / "Metas_Equipe_EUBR_RevOps_v2.xlsx"
+# FONTE_ARQUIVO = copia que o servidor baixou da nuvem (routes/fontes.js, Modulo 36)
+import os
+XLSX  = Path(os.environ["FONTE_ARQUIVO"]) if os.environ.get("FONTE_ARQUIVO") else ROOT / "data" / "metas" / "Metas_Equipe_EUBR_RevOps_v2.xlsx"
 OUT   = ROOT / "public" / "api" / "metas-fy26.json"
 
 def s(v):

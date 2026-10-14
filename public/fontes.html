@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Fontes de dados · EPI-USE Office</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/design-tokens.css">
+<script type="module" src="/office-nav.js"></script>
+<style>
+/* Módulo 36 — Central de Fontes. Só tokens do DESIGN.md (regra 8). */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --p-bg: var(--color-neutral-dark-bg);
+  --p-surf: var(--color-neutral-dark-surface);
+  --p-line: var(--color-neutral-dark-border);
+  --p-text: var(--color-neutral-dark-text);
+  --p-dim: var(--color-neutral-dark-text-dim);
+  --p-muted: var(--color-neutral-dark-text-muted);
+  --p-accent: var(--color-brand-cornflower-blue);
+  --p-err: var(--color-danger-500);
+  --p-warn: var(--color-warning-500);
+  --p-info: var(--color-info-500);
+  --p-ok: var(--color-success-500);
+  --p-head: var(--type-headline-lg-font-family);
+  --p-body: var(--type-body-md-font-family);
+}
+body{background:var(--p-bg);color:var(--p-text);font-family:var(--p-body);line-height:1.55;overflow-x:hidden}
+.wrap{max-width:960px;margin:0 auto;padding:28px 16px 80px}
+h1{font-family:var(--p-head);font-size:26px;font-weight:900;letter-spacing:-.01em}
+.sub{color:var(--p-dim);font-size:14px;margin:6px 0 20px;max-width:72ch}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.chip{border:1px solid var(--p-line);background:var(--p-surf);border-radius:var(--rounded-lg);padding:10px 14px;min-width:110px;cursor:pointer;color:inherit;font:inherit;text-align:left}
+.chip b{display:block;font-size:22px;font-family:var(--p-head);line-height:1.1}
+.chip span{font-size:12px;color:var(--p-dim)}
+.chip[aria-pressed="true"]{outline:2px solid var(--p-accent);outline-offset:1px}
+.s-erro b{color:var(--p-err)} .s-atrasada b{color:var(--p-warn)} .s-aguarda b{color:var(--p-accent)}
+.s-revisar b{color:var(--p-warn)} .s-em-dia b{color:var(--p-ok)} .s-pendente b{color:var(--p-muted)}
+.barra{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.barra select,.barra input{background:var(--p-surf);color:var(--p-text);border:1px solid var(--p-line);border-radius:var(--rounded-md);padding:8px 10px;font:inherit;font-size:13px}
+.barra input{flex:1;min-width:180px}
+.aviso{border:1px solid var(--p-line);border-radius:var(--rounded-md);padding:10px 14px;font-size:13px;color:var(--p-dim);margin-bottom:14px}
+.btn{background:transparent;border:1px solid var(--p-line);color:var(--p-text);border-radius:var(--rounded-md);padding:7px 12px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;gap:6px;align-items:center}
+/* polish-pro.css (injetado depois) impõe 44px + padding em todo botão; dentro do card 36px basta */
+.wrap .btn{min-height:36px;padding:6px 12px}
+.cfg input{min-height:36px}
+.btn:hover{border-color:var(--p-accent);color:var(--p-accent)}
+.btn:disabled{opacity:.55;cursor:wait}
+.btn.pri{background:var(--color-brand-deep-blue);border-color:var(--p-accent)}
+.card{background:var(--p-surf);border:1px solid var(--p-line);border-left:4px solid var(--p-muted);border-radius:var(--rounded-md);padding:14px 16px;margin-bottom:10px;scroll-margin-top:90px}
+.card.erro{border-left-color:var(--p-err)} .card.atrasada,.card.revisar{border-left-color:var(--p-warn)}
+.card.aguarda{border-left-color:var(--p-accent)} .card.em-dia{border-left-color:var(--p-ok)}
+.card.alvo{box-shadow:0 0 0 2px var(--p-accent)}
+.topo{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.tit{font-family:var(--p-head);font-size:16px;font-weight:800;line-height:1.3}
+.pill{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+.pill.erro{color:var(--p-err)} .pill.atrasada,.pill.revisar{color:var(--p-warn)} .pill.aguarda{color:var(--p-accent)}
+.pill.em-dia{color:var(--p-ok)} .pill.pendente{color:var(--p-muted)}
+.meta{font-size:12px;color:var(--p-muted);display:flex;gap:6px 12px;flex-wrap:wrap;margin-top:3px}
+.det{font-size:13.5px;color:var(--p-dim);margin-top:8px;max-width:78ch}
+.datas{font-size:12.5px;color:var(--p-dim);margin-top:6px;display:flex;gap:4px 14px;flex-wrap:wrap}
+.datas b{color:var(--p-text);font-weight:600}
+.caixa{font-size:13px;border-radius:var(--rounded-md);padding:8px 12px;margin-top:10px;border:1px solid var(--p-line)}
+.caixa.erro{border-color:var(--p-err);color:var(--p-text)} .caixa.falta{border-color:var(--p-accent);color:var(--p-text)}
+.telas{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.telas a{font-size:12px;color:var(--p-accent);border:1px solid var(--p-line);border-radius:var(--rounded-full);padding:2px 9px;text-decoration:none}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
+.cfg{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;width:100%}
+.cfg input{flex:1;min-width:220px;background:var(--p-bg);color:var(--p-text);border:1px solid var(--p-line);border-radius:var(--rounded-md);padding:7px 10px;font:inherit;font-size:12.5px}
+.msg{font-size:12.5px;color:var(--p-dim)}
+.vazio{border:1px dashed var(--p-line);border-radius:var(--rounded-lg);padding:34px 18px;text-align:center;color:var(--p-dim)}
+.como{margin-top:30px;border-top:1px solid var(--p-line);padding-top:18px;font-size:13px;color:var(--p-dim)}
+.como h2{font-family:var(--p-head);font-size:15px;color:var(--p-text);margin-bottom:8px}
+.como li{margin:4px 0 4px 18px}
+@media (max-width:560px){ .chip{flex:1 1 40%;min-width:0} .barra input{min-width:100%} }
+</style>
+</head>
+<body>
+<office-nav></office-nav>
+<main class="wrap">
+  <h1>🔌 Fontes de dados</h1>
+  <p class="sub">Toda planilha, API e calendário de fora que alimenta o Office, das áreas que você abre. A data de cada uma é lida do próprio dado, nunca digitada. O que dá, o servidor atualiza sozinho; o resto vira lembrete pra dona.</p>
+
+  <div class="chips" id="chips"></div>
+  <div class="aviso" id="aviso-motor" hidden>O motor automático está desligado neste ambiente (no PC do Rudá, quem atualiza são as tarefas agendadas do Windows). As datas abaixo continuam reais.</div>
+
+  <div class="barra">
+    <select id="f-area" aria-label="Filtrar por área"><option value="">Todas as áreas</option></select>
+    <input id="f-busca" type="search" placeholder="Buscar fonte, dona ou tela…" aria-label="Buscar">
+  </div>
+
+  <div id="lista"><div class="vazio">Carregando…</div></div>
+
+  <section class="como">
+    <h2>Como funciona</h2>
+    <ul>
+      <li><b>Automática</b>: o servidor busca sozinho, no prazo de cada uma. Uma planilha do OneDrive, SharePoint ou Google é baixada e passa pelo mesmo leitor do PC. Se ela não mudou, nada é reprocessado.</li>
+      <li><b>Curada à mão</b>: alguém atualiza à mão. Quando passa do prazo de revisão, a dona recebe um lembrete. Conferiu e está certo? É só clicar em "Marcar como revisada".</li>
+      <li><b>⏳ Aguarda você</b>: falta algo que só uma pessoa faz, como colar o link da planilha ou pôr a chave da API no servidor. O que falta aparece no card.</li>
+      <li>Atrasou ou deu erro? Vira alerta para a área dona no sino e no relatório de segunda.</li>
+      <li>Fonte nova no Office entra primeiro no registro (<code>routes/fontes.js</code>). Um teste automático barra script de sync ou arquivo de dados que fique sem dono.</li>
+    </ul>
+  </section>
+</main>
+
+<script>
+(function () {
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+  var STATUS = {
+    erro: '🔴 Com erro', atrasada: '🟠 Atrasada', aguarda: '⏳ Aguarda você', revisar: '🟡 Revisar',
+    'em-dia': '🟢 Em dia', pendente: '⚪ Não integrada'
+  };
+  var CHIP = [['erro', 'com erro'], ['atrasada', 'atrasadas'], ['aguarda', 'aguardam você'], ['revisar', 'para revisar'], ['em-dia', 'em dia'], ['pendente', 'não integradas']];
+  var AREAS = {
+    time: 'Time de Marketing', intelligence: 'Intelligence & CRM', growth: 'Growth & Performance', eventos: 'Field Marketing & Eventos',
+    pipeline: 'Biz Dev / Pipeline', brand: 'Brand Experience', conteudo: 'Conteúdo / Redatoria'
+  };
+  var estado = { dados: null, status: '', msgs: {} };
+
+  function ts(iso) { var t = Date.parse(iso); return isNaN(t) ? null : t; }
+  function ha(iso) {
+    var t = ts(iso); if (!t) return '';
+    var h = Math.round((Date.now() - t) / 3600000);
+    return h < 1 ? 'agora há pouco' : h < 48 ? 'há ' + h + 'h' : 'há ' + Math.round(h / 24) + ' dias';
+  }
+  function em(iso) {
+    var t = ts(iso); if (!t) return '';
+    var h = Math.round((t - Date.now()) / 3600000);
+    return h <= 0 ? 'na próxima verificação' : h < 48 ? 'em ' + h + 'h' : 'em ' + Math.round(h / 24) + ' dias';
+  }
+  function modo(f) {
+    if (f.modo === 'servidor') return '⚙️ Automática (servidor)';
+    if (f.modo === 'motor') return f.motor_tipo === 'api' ? '⚙️ Automática (API, a cada ' + f.cadencia_h + 'h)' : '⚙️ Automática (servidor lê a planilha a cada ' + f.cadencia_h + 'h)';
+    if (f.modo === 'pc') return '🖥️ PC do Rudá (tarefa agendada)';
+    if (f.modo === 'manual') return '✋ Curada à mão (revisar a cada ' + f.revisar_dias + ' dias)';
+    return '⏳ Ainda não integrada';
+  }
+  function prazo(f) {
+    if (f.modo === 'manual' || !f.sla_h) return '';
+    return f.sla_h >= 48 ? 'prazo ' + Math.round(f.sla_h / 24) + ' dias' : 'prazo ' + f.sla_h + 'h';
+  }
+
+  function card(f) {
+    var datas = [];
+    if (f.atualizada_ts) datas.push('Dado atualizado <b>' + ha(f.atualizada_ts) + '</b>');
+    if (f.conferida_ts && f.conferida_ts !== f.atualizada_ts) datas.push('conferido ' + ha(f.conferida_ts));
+    if (f.revisao) datas.push('revisada ' + ha(f.revisao.ts) + ' por ' + esc(f.revisao.por));
+    if (f.arquivo && f.arquivo.modificado_em) {
+      datas.push('planilha editada ' + ha(f.arquivo.modificado_em) + (f.arquivo.modificado_por ? ' por ' + esc(f.arquivo.modificado_por) : ''));
+    }
+    if (f.proxima_ts) datas.push('próxima leitura ' + em(f.proxima_ts));
+    if (!datas.length && f.modo !== 'pendente') datas.push('Sem atualização registrada ainda');
+
+    var acoes = '';
+    if (f.pode_atualizar) acoes += '<button class="btn pri" type="button" data-acao="atualizar" data-id="' + esc(f.id) + '">↻ Atualizar agora</button>';
+    if (f.pode_revisar) acoes += '<button class="btn" type="button" data-acao="revisado" data-id="' + esc(f.id) + '">✓ Marcar como revisada</button>';
+    if (f.arquivo && f.arquivo.url) acoes += '<a class="btn" href="' + esc(f.arquivo.url) + '" target="_blank" rel="noopener">Abrir planilha ↗</a>';
+    if (estado.msgs[f.id]) acoes += '<span class="msg">' + esc(estado.msgs[f.id]) + '</span>';
+
+    var cfg = '';
+    if (estado.dados.pode_configurar && f.motor_tipo === 'planilha') {
+      cfg = '<div class="cfg"><input type="url" data-link="' + esc(f.id) + '" value="' + esc(f.link || '') + '" ' +
+        'placeholder="' + esc(f.link_padrao ? 'Padrão: ' + f.link_padrao : 'Cole o link da planilha (OneDrive/SharePoint ou Google Sheets)') + '" aria-label="Link da planilha">' +
+        '<button class="btn" type="button" data-acao="config" data-id="' + esc(f.id) + '">Salvar link</button></div>';
+    }
+
+    return '<article class="card ' + esc(f.status) + '" id="' + esc(f.id) + '">' +
+      '<div class="topo"><div><div class="tit">' + esc(f.ic) + ' ' + esc(f.nome) + '</div>' +
+        '<div class="meta"><span>' + esc(f.tipo) + '</span><span>' + modo(f) + '</span>' + (prazo(f) ? '<span>' + prazo(f) + '</span>' : '') +
+        '<span>Dona: ' + esc(f.dona) + '</span></div></div>' +
+        '<span class="pill ' + esc(f.status) + '">' + (STATUS[f.status] || f.status) + '</span></div>' +
+      (f.como ? '<div class="det">' + esc(f.como) + '</div>' : '') +
+      '<div class="datas">' + datas.map(function (d) { return '<span>' + d + '</span>'; }).join('') + '</div>' +
+      (f.erro ? '<div class="caixa erro">🔴 ' + esc(f.erro) + '</div>' : '') +
+      (f.falta ? '<div class="caixa falta">⏳ ' + esc(f.falta) + '</div>' : '') +
+      (f.telas && f.telas.length ? '<div class="telas">' + f.telas.map(function (t) { return '<a href="' + esc(t) + '">' + esc(t) + '</a>'; }).join('') + '</div>' : '') +
+      (acoes ? '<div class="acts">' + acoes + '</div>' : '') + cfg +
+      '</article>';
+  }
+
+  function render() {
+    var d = estado.dados, fs = d.fontes;
+    document.getElementById('aviso-motor').hidden = !!d.motor_ligado;
+    document.getElementById('chips').innerHTML = CHIP.filter(function (c) { return d.resumo[c[0]]; }).map(function (c) {
+      return '<button type="button" class="chip s-' + c[0] + '" data-s="' + c[0] + '" aria-pressed="' + (estado.status === c[0]) + '"><b>' + d.resumo[c[0]] + '</b><span>' + c[1] + '</span></button>';
+    }).join('');
+    document.querySelectorAll('.chip[data-s]').forEach(function (el) {
+      el.addEventListener('click', function () { estado.status = estado.status === el.dataset.s ? '' : el.dataset.s; render(); });
+    });
+
+    var sel = document.getElementById('f-area'), atual = sel.value, vistas = {};
+    fs.forEach(function (f) { f.areas.forEach(function (a) { if (AREAS[a]) vistas[a] = AREAS[a]; }); });
+    sel.innerHTML = '<option value="">Todas as áreas</option>' + Object.keys(vistas).map(function (k) {
+      return '<option value="' + k + '"' + (k === atual ? ' selected' : '') + '>' + esc(vistas[k]) + '</option>';
+    }).join('');
+
+    var busca = document.getElementById('f-busca').value.trim().toLowerCase();
+    var lista = fs.filter(function (f) {
+      return (!estado.status || f.status === estado.status) && (!sel.value || f.areas.indexOf(sel.value) >= 0) &&
+        (!busca || (f.nome + ' ' + f.dona + ' ' + (f.telas || []).join(' ')).toLowerCase().indexOf(busca) >= 0);
+    });
+    var el = document.getElementById('lista');
+    el.innerHTML = lista.length ? lista.map(card).join('') : '<div class="vazio">Nenhuma fonte com esses filtros.</div>';
+    el.querySelectorAll('[data-acao]').forEach(function (b) { b.addEventListener('click', function () { agir(b); }); });
+    destacar();
+  }
+
+  function destacar() {
+    var id = decodeURIComponent(location.hash.slice(1));
+    var alvo = id && document.getElementById(id);
+    if (!alvo || !alvo.classList.contains('card')) return;
+    alvo.classList.add('alvo');
+    if (!destacar.feito) { destacar.feito = true; alvo.scrollIntoView({ block: 'start' }); }
+  }
+
+  function agir(b) {
+    var id = b.dataset.id, acao = b.dataset.acao, req;
+    b.disabled = true;
+    if (acao === 'atualizar') {
+      estado.msgs[id] = 'Atualizando… (planilha grande pode levar um minuto)';
+      b.textContent = '↻ Atualizando…';
+      req = fetch('/api/fontes/' + encodeURIComponent(id) + '/atualizar', { method: 'POST', credentials: 'same-origin' });
+    } else if (acao === 'revisado') {
+      req = fetch('/api/fontes/' + encodeURIComponent(id) + '/revisado', { method: 'POST', credentials: 'same-origin' });
+    } else {
+      var inp = document.querySelector('[data-link="' + id + '"]');
+      req = fetch('/api/fontes/' + encodeURIComponent(id) + '/config', {
+        method: 'PUT', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ link: inp ? inp.value : '' })
+      });
+    }
+    req.then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); }).then(function (x) {
+      if (!x.ok) estado.msgs[id] = x.j.error || 'Não deu certo.';
+      else if (acao === 'atualizar') estado.msgs[id] = x.j.ok ? (x.j.mudou === false ? '✓ Conferido: a planilha não mudou.' : '✓ Atualizado.') : '✗ ' + (x.j.erro || 'falhou');
+      else if (acao === 'revisado') estado.msgs[id] = '✓ Revisão registrada.';
+      else estado.msgs[id] = '✓ Link salvo. Lendo a planilha…';
+      return carregar();
+    }).catch(function () { estado.msgs[id] = 'Sem conexão com o Office.'; render(); });
+  }
+
+  function carregar() {
+    return fetch('/api/fontes', { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (j) {
+      estado.dados = j; render();
+    }).catch(function () {
+      document.getElementById('lista').innerHTML = '<div class="vazio">Não foi possível carregar as fontes.</div>';
+    });
+  }
+  document.getElementById('f-area').addEventListener('change', render);
+  document.getElementById('f-busca').addEventListener('input', render);
+  window.addEventListener('hashchange', function () { destacar.feito = false; if (estado.dados) render(); });
+  carregar();
+})();
+</script>
+</body>
+</html>

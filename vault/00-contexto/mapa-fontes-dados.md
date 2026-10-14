@@ -4,7 +4,25 @@
 > Este documento é a **fonte da verdade** do que tá real e o que falta integrar.
 > Atualizar TODA vez que rolar nova integração ou novo dado entrar no Office.
 
-**Última atualização:** 07/out/2026
+**Última atualização:** 14/out/2026
+
+> 🔌 **Desde 14/out/2026 (Módulo 36) a fonte da verdade ao vivo é a tela `/fontes`**, gerada do registro em `routes/fontes.js`. Ali está cada fonte com dona, prazo, data real da última atualização, erro e o que falta. O servidor atualiza sozinho as planilhas da nuvem (OneDrive/SharePoint/Google) e as APIs. `scripts/tests/fontes-cobertura.js` barra fonte nova sem dono. Este documento continua como histórico das decisões por tela.
+
+---
+
+## 🆕 Central de Fontes — o que mudou em 14/out/2026 (Módulo 36)
+
+| Fonte | Antes | Agora |
+|---|---|---|
+| Cases (planilha do CS) | PC 07:00 → servidor | servidor lê o OneDrive a cada 6h (PC vira reserva) |
+| Cronograma da Redatoria (Google) | cópia manual + leitor só jan–jun/26 | servidor baixa pelo link a cada 6h; abas de mês detectadas (entraram jul/set) |
+| Eventos BR (planilha) | `events.json` parado desde 18/jun | servidor lê o OneDrive a cada 6h e refaz a camada Brasil |
+| Artigos do blog (xlsx Manus) | `artigos.json` parado desde 17/jun | servidor lê 1x/dia + recalcula SEO/GEO |
+| Calendário da Duda | PC | servidor lê o OneDrive a cada 6h |
+| SAP for Me · rotina do LinkedIn · Metas RevOps | PC/Desktop | servidor, assim que o link estiver colado em `/fontes` |
+| Zoho oportunidades | sessão Claude; consulta REST quebrada (campo renomeado) | API pelo servidor a cada 12h (`Origem_da_Oportunidade`), com `ZOHO_*` no Railway |
+| Zoho leads (kanban SDR) | sessão Claude; snapshot de 07/ago no repositório público | API pelo servidor a cada 12h; snapshot fica no servidor |
+| Development Funds, Prazos SAP, Voices, Time, Campanhas, KBs, LATAM | curados à mão, sem cobrança | prazo de revisão + "marcar como revisada" + lembrete pra dona |
 
 ---
 

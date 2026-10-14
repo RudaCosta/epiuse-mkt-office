@@ -37,6 +37,8 @@ const fs   = require('fs');
 
 // ── CONFIG ─────────────────────────────────────────────────────────────────
 const XLSX_PATHS = [
+  // Cópia que o servidor baixou da nuvem (routes/fontes.js, Módulo 36)
+  ...(process.env.FONTE_ARQUIVO ? [process.env.FONTE_ARQUIVO] : []),
   // OneDrive Rudá (primário)
   "C:/Users/Ruds/OneDrive - EPI USE BRASIL SERVIÇOS EM SISTEMAS LTDA/MARKETING/Inbound/Conteúdo/CALENDÁRIO EDITORIAL EPI-USE (1).xlsx",
   // Cópia vault (fallback)

@@ -24,13 +24,16 @@ const XLSX = require(_localModules ? require('path').join(_localModules, 'xlsx')
 const path = require('path');
 const fs   = require('fs');
 
-const XLSX_PATH   = path.join(__dirname, '../../vault/00-contexto/conteudo/cronograma-redatoria-2025.xlsx');
+// FONTE_ARQUIVO = cópia que o servidor baixou da nuvem (routes/fontes.js, Módulo 36)
+const XLSX_PATH   = process.env.FONTE_ARQUIVO || path.join(__dirname, '../../vault/00-contexto/conteudo/cronograma-redatoria-2025.xlsx');
 const OFFICE_URL  = process.env.OFFICE_URL || 'http://localhost:3000';
 const EDITOR_TOKEN = require('../lib/editor-token')();
 const DRY_RUN     = process.argv.includes('--dry-run');
 
-// Abas 2026 no arquivo
-const SHEETS_2026 = ['Jan26', 'Fev26', 'Mar26', 'Abr26', 'Jun26'];
+// Abas mensais no formato "Jan26", "AGO26", "Set26"… — detectadas no arquivo. A
+// lista era fixa (jan–jun/26) e as abas novas que a Redatoria criava (Jul26,
+// AGO26, Set26) nunca entravam no Office (achado em 14/out/2026).
+const ABA_MES = /^(jan|fev|mar|abr|mai|jun|jul|ago|set|out|nov|dez)\d{2}$/i;
 
 // Excel serial → ISO date (ex: 46023 → "2026-01-01")
 function serialToDate(serial) {
@@ -113,11 +116,12 @@ async function main() {
   const wb = XLSX.readFile(XLSX_PATH);
   const allItems = [];
 
-  for (const sheetName of SHEETS_2026) {
-    if (!wb.SheetNames.includes(sheetName)) {
-      console.warn(`[redatoria-cal] Sheet "${sheetName}" não encontrada. Disponíveis: ${wb.SheetNames.join(', ')}`);
-      continue;
-    }
+  const abas = wb.SheetNames.filter(n => ABA_MES.test(n.trim()));
+  if (!abas.length) {
+    console.error(`[redatoria-cal] Nenhuma aba mensal (ex.: "Jan26") encontrada. Disponíveis: ${wb.SheetNames.join(', ')}`);
+    process.exit(1);
+  }
+  for (const sheetName of abas) {
     const items = parseSheet(wb.Sheets[sheetName], sheetName);
     console.log(`[redatoria-cal] ${sheetName}: ${items.length} itens`);
     allItems.push(...items);
