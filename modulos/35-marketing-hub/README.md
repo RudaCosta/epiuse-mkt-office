@@ -24,7 +24,7 @@
 | Artigos na base de conteúdo | `artigos.json` (`agregados.total_artigos`) |
 | EPI-USE Voices no programa (X de Y vagas) | `voices.json` |
 | Próximo evento (dias) | calculado do calendário; sem data confirmada mostra "data a confirmar" |
-Sem fonte → `—` e "⏳ fonte indisponível". Nada chumbado: o "30+ eventos/ano", "48h SLA" e "20 conteúdos/mês" do Hub antigo saíram.
+Sem fonte → `—` e "⏳ fonte indisponível". Nada chumbado: o "30+ eventos/ano", o "48h SLA" e o volume mensal de conteúdo do Hub antigo saíram (o contrato com a Redatoria acabou em out/2026).
 
 ## Tracking "quem viu o quê" (só o dono)
 Passos: `sec.<id>` · `tempo.<id>.<s>` · `scroll.<25|50|75|100>` · `tool.<id>` (cada card, material, canal, atalho da órbita/busca) · `cat.<filtro>` · `agenda.<brasil|latam|rolou|arrastou|busca>` · `busca.<usou|sem-resultado|clique>` · `campanha.<id>` · `time.<area>` · `logo.<nome>` · `cta.<botão>`. Quem abriu e o tempo total já vêm do servidor/office-nav.

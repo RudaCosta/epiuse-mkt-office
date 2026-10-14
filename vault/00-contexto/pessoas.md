@@ -57,7 +57,7 @@ O time de marketing está organizado em **5 áreas operacionais**, cada uma com 
 
 ### Lisiane de Assis — CEO da Redatoria
 - **Papel**: guardiã do tom de voz (parceira externa)
-- **Scope**: 20 artigos/mês a partir de briefings do Gui
+- **Contrato de produção encerrado em out/2026** — não há mais volume mensal de artigos contratado
 - **Decide sobre**: aprovação final de textos de alta exposição; curadoria, ajustes de tom
 - **No programa Voices**: revisa posts de alta exposição dos Voices
 

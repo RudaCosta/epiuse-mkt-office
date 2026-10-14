@@ -226,7 +226,6 @@
 
 ### Lisiane (Redatoria · tom de voz)
 - Backlog: revisar artigos antes de publicar
-- Meta 20 artigos/mês
 
 ---
 
