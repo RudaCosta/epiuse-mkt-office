@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Golden Circle · Treinamento · EPI-USE Brasil</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/design-tokens.css">
+<script type="module" src="/office-nav.js"></script>
+<script type="module" src="/office-footer.js"></script>
+<style>
+/* Treinamento Golden Circle (Módulo 37). Só tokens do DESIGN.md (regra 8); transparências via color-mix. */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g-bg: var(--color-neutral-dark-bg);
+  --g-surf: var(--color-neutral-dark-surface);
+  --g-glass: color-mix(in srgb, var(--color-neutral-dark-surface) 62%, transparent);
+  --g-line: var(--color-neutral-dark-border);
+  --g-text: var(--color-neutral-dark-text);
+  --g-dim: var(--color-neutral-dark-text-dim);
+  --g-muted: var(--color-neutral-dark-text-muted);
+  --g-corn: var(--color-brand-cornflower-blue);
+  --g-steel: var(--color-brand-steel-blue);
+  --g-royal: var(--color-brand-royal-blue);
+  --g-svc: var(--color-brand-service-line-blue);
+  --g-red: var(--color-brand-red);
+  --g-ok: var(--color-success-500);
+  --g-warn: var(--color-warning-500);
+  --g-head: var(--type-headline-lg-font-family);
+  --g-body: var(--type-body-md-font-family);
+  --ease: cubic-bezier(.22,1,.36,1);
+  --spring: cubic-bezier(.34,1.56,.64,1);
+  /* anéis: por quê = vermelho (acento do guia), como = royal, o quê = cornflower */
+  --why: var(--g-red); --how: var(--g-royal); --what: var(--g-corn);
+}
+html{scroll-behavior:smooth}
+body{background:var(--g-bg);color:var(--g-text);font-family:var(--g-body);line-height:1.6;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:
+  radial-gradient(ellipse 60% 45% at 100% 0%, color-mix(in srgb,var(--g-svc) 55%,transparent), transparent 62%),
+  radial-gradient(ellipse 50% 40% at 0% 100%, color-mix(in srgb,var(--g-royal) 28%,transparent), transparent 60%)}
+h1,h2,h3{font-family:var(--g-head);line-height:1.12;letter-spacing:-.015em}
+a{color:var(--g-corn)}
+button,input,select,textarea{font:inherit;color:inherit}
+.wrap{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:0 16px}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font:900 12px/1 var(--g-head);letter-spacing:.16em;text-transform:uppercase;color:var(--g-corn)}
+.eyebrow::before{content:'';width:22px;height:2px;border-radius:2px;background:var(--g-red)}
+.muted{color:var(--g-muted)} .dim{color:var(--g-dim)}
+.card{background:var(--g-glass);border:1px solid var(--g-line);border-radius:22px;padding:22px;backdrop-filter:blur(8px)}
+.btn{appearance:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:var(--rounded-full);border:1px solid transparent;background:var(--g-red);color:var(--g-text);font:900 14px/1.1 var(--g-head);text-decoration:none;transition:transform .25s var(--spring),box-shadow .25s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 28px -10px color-mix(in srgb,var(--g-red) 70%,transparent)}
+.btn.ghost{background:transparent;border-color:var(--g-line);color:var(--g-text)}
+.btn.ghost:hover{border-color:var(--g-corn);box-shadow:none}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:var(--rounded-full);border:1px solid var(--g-line);background:var(--g-glass);font-size:12.5px;font-weight:600;color:var(--g-dim)}
+/* etiquetas de fonte (regras 6 e 7) */
+.tag{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:var(--rounded-full);font:700 11px/1.3 var(--g-body);letter-spacing:.02em;white-space:nowrap}
+.tag.real{background:color-mix(in srgb,var(--g-ok) 16%,transparent);color:var(--color-success-300)}
+.tag.ia{background:color-mix(in srgb,var(--g-warn) 16%,transparent);color:var(--color-warning-300)}
+.tag.val{background:color-mix(in srgb,var(--g-corn) 18%,transparent);color:var(--g-corn)}
+
+/* ── navegação por capítulos ── */
+.toc{position:sticky;top:49px;z-index:20;padding:8px 16px 12px;background:linear-gradient(var(--g-bg) 78%,transparent)}
+.toc-in{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;max-width:1088px;margin:0 auto;padding:4px;border-radius:var(--rounded-full);background:var(--g-surf);border:1px solid var(--g-line)}
+.toc-in::-webkit-scrollbar{display:none}
+.toc a{flex:0 0 auto;padding:7px 13px;border-radius:var(--rounded-full);font:700 12.5px/1.2 var(--g-head);color:var(--g-muted);text-decoration:none;white-space:nowrap;transition:background .2s,color .2s}
+.toc a.on{background:var(--g-royal);color:var(--g-text)}
+.toc a .n{opacity:.6;margin-right:4px}
+section.cap{padding:72px 0 12px;scroll-margin-top:110px}
+section.cap h2{font-size:clamp(28px,4.4vw,44px);margin:12px 0 10px}
+section.cap .lead{font-size:clamp(16px,1.8vw,18.5px);color:var(--g-dim);max-width:720px}
+.rv{opacity:0;transform:translateY(22px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
+.rv.in{opacity:1;transform:none}
+
+/* ── hero ── */
+.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:28px;align-items:center;padding:56px 0 8px;min-height:min(78vh,720px)}
+.hero h1{font-size:clamp(38px,6.4vw,72px);margin:14px 0 14px}
+.hero h1 em{font-style:normal;color:var(--g-red)}
+.hero p{font-size:clamp(16px,1.9vw,19px);color:var(--g-dim);max-width:560px}
+.hero .ctas{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+.hero .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.hero-viz{position:relative;aspect-ratio:1;width:100%;max-width:500px;justify-self:center}
+.hero-viz canvas{position:absolute;inset:0;width:100%;height:100%}
+
+/* ── anéis interativos ── */
+.gc2{display:grid;grid-template-columns:minmax(260px,420px) 1fr;gap:28px;align-items:center;margin-top:30px}
+.rings{position:relative;width:100%;aspect-ratio:1;max-width:420px;margin:0 auto}
+.ring{appearance:none;cursor:pointer;position:absolute;left:50%;top:50%;border-radius:50%;border:2px solid var(--g-line);transform:translate(-50%,-50%) scale(.6);opacity:0;display:flex;justify-content:center;font:900 13px/1 var(--g-head);letter-spacing:.16em;color:var(--g-text);transition:box-shadow .35s,border-color .35s,filter .35s}
+.rings.in .ring{animation:ringIn 1s var(--spring) forwards}
+.ring.what{width:100%;height:100%;padding-top:9%;background:color-mix(in srgb,var(--what) 18%,transparent);animation-delay:.05s!important}
+.ring.how{width:66%;height:66%;padding-top:10%;background:color-mix(in srgb,var(--how) 55%,transparent);animation-delay:.25s!important}
+.ring.why{width:33%;height:33%;align-items:center;background:var(--why);animation-delay:.45s!important;box-shadow:0 0 40px -6px color-mix(in srgb,var(--why) 80%,transparent)}
+.ring.on{border-color:var(--g-text);box-shadow:0 0 0 7px color-mix(in srgb,var(--g-corn) 26%,transparent)}
+.ring.why.on{box-shadow:0 0 0 7px color-mix(in srgb,var(--g-corn) 26%,transparent),0 0 46px -4px color-mix(in srgb,var(--why) 90%,transparent)}
+@keyframes ringIn{to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+.ring-panel h3{font-size:26px;margin:6px 0 8px}
+.ring-panel .q{font:900 13px/1 var(--g-head);letter-spacing:.14em;text-transform:uppercase}
+.ring-panel ul{list-style:none;display:grid;gap:8px;margin-top:12px}
+.ring-panel li{display:flex;gap:10px;align-items:flex-start;color:var(--g-dim)}
+.ring-panel li::before{content:'';flex:0 0 7px;height:7px;margin-top:9px;border-radius:50%;background:var(--g-red)}
+.quote{margin-top:26px;padding:18px 22px;border-left:3px solid var(--g-red);border-radius:0 16px 16px 0;background:var(--g-glass);font:700 clamp(18px,2.2vw,22px)/1.35 var(--g-head)}
+.quote small{display:block;margin-top:8px;font:600 13px var(--g-body);color:var(--g-muted)}
+
+/* ── dentro pra fora ── */
+.dir-toggle{display:inline-flex;padding:4px;border-radius:var(--rounded-full);background:var(--g-glass);border:1px solid var(--g-line);gap:4px;margin:22px 0 18px}
+.dir-toggle button{appearance:none;cursor:pointer;border:0;background:transparent;padding:9px 16px;border-radius:var(--rounded-full);font:700 13px/1.2 var(--g-head);color:var(--g-muted)}
+.dir-toggle button.on{background:var(--g-royal);color:var(--g-text)}
+.pitches{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.pitch h3{font-size:18px;margin-bottom:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pitch .steps{display:grid;gap:10px}
+.pitch .st{display:grid;grid-template-columns:76px 1fr;gap:12px;align-items:start;padding:12px 14px;border-radius:14px;border:1px solid var(--g-line);background:color-mix(in srgb,var(--g-surf) 70%,transparent);opacity:0;transform:translateX(-14px)}
+.pitch.play .st{animation:stIn .6s var(--ease) forwards}
+.pitch .st b{font:900 11px/1.4 var(--g-head);letter-spacing:.12em;text-transform:uppercase;padding:4px 8px;border-radius:8px;text-align:center}
+.st.why b{background:color-mix(in srgb,var(--why) 30%,transparent)} .st.how b{background:color-mix(in srgb,var(--how) 60%,transparent)} .st.what b{background:color-mix(in srgb,var(--what) 30%,transparent)}
+.pitch .st span{color:var(--g-dim);font-size:15px}
+@keyframes stIn{to{opacity:1;transform:none}}
+.verdict{margin-top:14px;font-size:14px;color:var(--g-muted)}
+
+/* ── biologia ── */
+.bio{display:grid;grid-template-columns:minmax(240px,380px) 1fr;gap:28px;align-items:center;margin-top:26px}
+.brain{position:relative;width:100%;aspect-ratio:1;max-width:380px;margin:0 auto}
+.brain canvas{position:absolute;inset:0;width:100%;height:100%}
+.bio-rows{display:grid;gap:12px}
+.bio-row{display:grid;grid-template-columns:44px 1fr;gap:14px;align-items:start;padding:16px;border-radius:16px;border:1px solid var(--g-line);background:var(--g-glass);cursor:pointer;transition:border-color .3s,transform .3s var(--spring)}
+.bio-row:hover,.bio-row.on{border-color:var(--g-corn);transform:translateX(4px)}
+.bio-row .ic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:22px;background:color-mix(in srgb,var(--c) 30%,transparent)}
+.bio-row h3{font-size:17px;margin-bottom:4px}
+.bio-row p{font-size:14.5px;color:var(--g-dim)}
+
+/* ── vídeo ── */
+.video{margin-top:24px;display:grid;grid-template-columns:1.4fr .6fr;gap:18px;align-items:start}
+.vframe{position:relative;aspect-ratio:16/9;border-radius:18px;overflow:hidden;border:1px solid var(--g-line);background:var(--g-surf)}
+.vframe iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.vside ol{padding-left:18px;display:grid;gap:8px;color:var(--g-dim);font-size:14.5px}
+.vside h3{font-size:17px;margin-bottom:10px}
+
+/* ── cascata EPI-USE ── */
+.levels{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0 18px}
+.lv{appearance:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:var(--rounded-full);border:1px solid var(--g-line);background:var(--g-glass);font:700 14px/1.2 var(--g-head);color:var(--g-dim);transition:all .25s}
+.lv .k{font:900 11px/1 var(--g-head);opacity:.6}
+.lv.on{background:var(--g-royal);border-color:var(--g-corn);color:var(--g-text)}
+.casc{display:grid;grid-template-columns:minmax(220px,320px) 1fr;gap:24px;align-items:center}
+.nest{position:relative;width:100%;aspect-ratio:1;max-width:320px;margin:0 auto}
+.nest canvas{position:absolute;inset:0;width:100%;height:100%}
+.lvl-body{display:grid;gap:12px}
+.lvl-item{padding:16px 18px;border-radius:16px;border:1px solid var(--g-line);background:var(--g-glass);opacity:0;transform:translateY(12px)}
+.lvl-body.play .lvl-item{animation:stIn .55s var(--ease) forwards}
+.lvl-item .hd{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.lvl-item .hd b{font:900 12px/1 var(--g-head);letter-spacing:.14em;text-transform:uppercase}
+.lvl-item.why .hd b{color:var(--color-danger-300)} .lvl-item.how .hd b{color:var(--g-corn)} .lvl-item.what .hd b{color:var(--g-dim)}
+.lvl-item.go{border-style:dashed;border-color:color-mix(in srgb,var(--g-corn) 50%,transparent)}
+.lvl-item.go .hd b{color:var(--g-corn)}
+.lvl-item p{color:var(--g-text);font-size:15.5px}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+
+/* ── exercício ── */
+.ex-step{margin-top:26px}
+.ex-step h3{font-size:21px;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.ex-step h3 .num{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--g-red);font:900 14px/1 var(--g-head)}
+.areas{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.area-b{appearance:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:14px;border:1px solid var(--g-line);background:var(--g-glass);font:700 14px/1.2 var(--g-head);color:var(--g-dim);transition:all .25s}
+.area-b:hover{border-color:var(--g-corn);color:var(--g-text)}
+.area-b.on{border-color:var(--c);background:color-mix(in srgb,var(--c) 22%,transparent);color:var(--g-text)}
+.metas-box{margin-top:12px;font-size:13.5px}
+.metas-box summary{cursor:pointer;color:var(--g-corn);font-weight:600}
+.metas-box ul{margin-top:8px;padding-left:18px;color:var(--g-dim);columns:2;column-gap:28px}
+.add-row{display:flex;gap:8px;margin-top:12px}
+.inp,.sel,.ta{width:100%;padding:12px 14px;border-radius:14px;border:1px solid var(--g-line);background:color-mix(in srgb,var(--g-bg) 60%,transparent);color:var(--g-text);outline:none;transition:border-color .2s}
+.inp:focus,.sel:focus,.ta:focus{border-color:var(--g-corn)}
+.ta{min-height:76px;resize:vertical;line-height:1.5}
+.sel option{background:var(--g-surf);color:var(--g-text)}
+.acts{display:grid;gap:14px;margin-top:16px}
+.act{padding:16px;border-radius:18px;border:1px solid var(--g-line);background:var(--g-glass);animation:stIn .5s var(--ease) both}
+.act-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.act-top b{font:900 16px/1.3 var(--g-head)}
+.act-top .x{appearance:none;cursor:pointer;border:0;background:transparent;color:var(--g-muted);font-size:18px;line-height:1;padding:2px 6px;border-radius:8px}
+.act-top .x:hover{color:var(--g-text);background:color-mix(in srgb,var(--g-red) 25%,transparent)}
+.act-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.act-fields label{display:grid;gap:6px;font-size:12.5px;font-weight:600;color:var(--g-muted)}
+/* corrente: atividade → meta → por quê do Marketing → por quê da EPI-USE */
+.chain{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:14px}
+.lk{padding:6px 11px;border-radius:var(--rounded-full);font:700 12px/1.3 var(--g-body);border:1px solid var(--g-line);color:var(--g-muted);transition:all .4s var(--ease)}
+.chain .ar{color:var(--g-muted);font-size:13px;transition:color .4s}
+.chain.ok .lk{border-color:color-mix(in srgb,var(--g-ok) 55%,transparent);color:var(--g-text);background:color-mix(in srgb,var(--g-ok) 12%,transparent)}
+.chain.ok .ar{color:var(--g-ok)}
+.chain.ok .lk:nth-child(1){transition-delay:0s}.chain.ok .lk:nth-child(3){transition-delay:.12s}.chain.ok .lk:nth-child(5){transition-delay:.24s}.chain.ok .lk:nth-child(7){transition-delay:.36s}
+.chain.br .lk:first-child{border-color:color-mix(in srgb,var(--g-warn) 60%,transparent);color:var(--g-text)}
+.chain .warn{font-size:12.5px;color:var(--color-warning-300);font-weight:600}
+.score{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:18px}
+.score .big{font:900 34px/1 var(--g-head)}
+.bar{flex:1 1 220px;height:10px;border-radius:99px;background:color-mix(in srgb,var(--g-line) 70%,transparent);overflow:hidden}
+.bar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--g-royal),var(--g-ok));transition:width .8s var(--ease)}
+.one1{margin-top:12px;font-size:14px;color:var(--color-warning-300)}
+.mygc{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+.mygc label{display:grid;gap:6px;font:900 12px/1 var(--g-head);letter-spacing:.12em;text-transform:uppercase}
+.mygc label.why{color:var(--color-danger-300)} .mygc label.how{color:var(--g-corn)} .mygc label.what{color:var(--g-dim)}
+.mygc label span{font:600 12.5px/1.4 var(--g-body);letter-spacing:0;text-transform:none;color:var(--g-muted)}
+.save-note{margin-top:14px;font-size:13px;color:var(--g-muted)}
+.exp{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+
+/* ── facilitador ── */
+details.fac{margin-top:20px}
+details.fac > summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;font:900 18px/1.2 var(--g-head)}
+details.fac > summary::-webkit-details-marker{display:none}
+details.fac > summary::after{content:'＋';color:var(--g-corn)}
+details.fac[open] > summary::after{content:'－'}
+.agenda{display:grid;gap:10px;margin-top:16px}
+.ag{display:grid;grid-template-columns:96px 1fr;gap:14px;padding:12px 14px;border-radius:14px;border:1px solid var(--g-line);background:color-mix(in srgb,var(--g-surf) 60%,transparent)}
+.ag b{font:900 13px/1.4 var(--g-head);color:var(--g-corn)}
+.ag p{font-size:14.5px;color:var(--g-dim)} .ag p strong{color:var(--g-text)}
+.provoc{margin-top:16px;padding-left:18px;display:grid;gap:6px;color:var(--g-dim);font-size:14.5px}
+
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,40px);opacity:0;z-index:1200;padding:12px 18px;border-radius:14px;background:var(--g-surf);border:1px solid var(--g-line);font-weight:600;font-size:14px;transition:all .35s var(--ease);pointer-events:none}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+footer.src{margin:60px 0 30px;font-size:12.5px;color:var(--g-muted)}
+
+@media (max-width:860px){
+  .hero,.gc2,.bio,.video,.casc,.pitches{grid-template-columns:1fr}
+  .hero{min-height:0;padding-top:34px}
+  .hero-viz{max-width:340px;order:-1}
+  .act-fields,.mygc{grid-template-columns:1fr}
+  .metas-box ul{columns:1}
+  section.cap{padding-top:56px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  .rv{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+<office-nav></office-nav>
+
+<main>
+  <div class="wrap">
+    <header class="hero">
+      <div class="rv">
+        <span class="eyebrow">Treinamento · Golden Circle</span>
+        <h1>Por que você faz <em>o que faz?</em></h1>
+        <p>O Golden Circle, de Simon Sinek, explica por que algumas marcas e pessoas inspiram e outras só informam. Aqui a gente usa o conceito para entender o porquê da EPI-USE, do Marketing e de cada atividade da sua semana.</p>
+        <div class="ctas">
+          <a class="btn" href="#conceito">Começar →</a>
+          <a class="btn ghost" href="#cascata">Ir para o exercício</a>
+        </div>
+        <div class="meta">
+          <span class="chip">⏱️ ~30 min sozinho</span>
+          <span class="chip">👥 ou 75 min em sessão ao vivo</span>
+          <span class="chip">💾 respostas ficam no seu navegador</span>
+        </div>
+      </div>
+      <div class="hero-viz rv" aria-hidden="true"><canvas id="heroCv"></canvas></div>
+    </header>
+  </div>
+
+  <nav class="toc" aria-label="Capítulos"><div class="toc-in" id="toc">
+    <a href="#conceito"><span class="n">1</span>O conceito</a>
+    <a href="#direcao"><span class="n">2</span>De dentro pra fora</a>
+    <a href="#biologia"><span class="n">3</span>Por que funciona</a>
+    <a href="#ted"><span class="n">4</span>A palestra</a>
+    <a href="#epiuse"><span class="n">5</span>O porquê da EPI-USE</a>
+    <a href="#cascata"><span class="n">6</span>Minha cascata</a>
+    <a href="#facilitar"><span class="n">7</span>Para quem facilita</a>
+  </div></nav>
+
+  <div class="wrap">
+    <!-- 1. CONCEITO -->
+    <section class="cap" id="conceito">
+      <div class="rv">
+        <span class="eyebrow">1 · O conceito</span>
+        <h2>Três círculos, uma ordem</h2>
+        <p class="lead">Toda organização sabe <strong>o que</strong> faz. Algumas sabem <strong>como</strong> fazem. Poucas conseguem dizer com clareza <strong>por que</strong> fazem. Toque em cada anel.</p>
+      </div>
+      <div class="gc2">
+        <div class="rings" id="rings">
+          <button class="ring what" data-k="what">O QUÊ</button>
+          <button class="ring how" data-k="how">COMO</button>
+          <button class="ring why on" data-k="why">POR QUÊ</button>
+        </div>
+        <div class="ring-panel card rv" id="ringPanel" aria-live="polite"></div>
+      </div>
+      <blockquote class="quote rv">“As pessoas não compram o que você faz; elas compram o porquê você faz.”<small>Simon Sinek, <em>Start With Why</em> (2009) · <a href="https://simonsinek.com/golden-circle" target="_blank" rel="noopener">simonsinek.com/golden-circle</a></small></blockquote>
+      <blockquote class="quote rv">“O objetivo não é fazer negócios com todo mundo que precisa do que você tem, mas com quem acredita no que você acredita.”<small>Simon Sinek, palestra no TED (2009)</small></blockquote>
+    </section>
+
+    <!-- 2. DIREÇÃO -->
+    <section class="cap" id="direcao">
+      <div class="rv">
+        <span class="eyebrow">2 · De dentro pra fora</span>
+        <h2>A ordem muda tudo</h2>
+        <p class="lead">A maioria das empresas se comunica de fora pra dentro: começa pelo produto e quase nunca chega no porquê. Quem inspira faz o caminho inverso. Compare as duas versões.</p>
+      </div>
+      <div class="dir-toggle rv" role="tablist">
+        <button class="on" data-ex="epiuse" role="tab">EPI-USE Brasil</button>
+        <button data-ex="apple" role="tab">O exemplo clássico (Apple)</button>
+      </div>
+      <div class="pitches" id="pitches"></div>
+      <p class="verdict rv" id="verdict"></p>
+    </section>
+
+    <!-- 3. BIOLOGIA -->
+    <section class="cap" id="biologia">
+      <div class="rv">
+        <span class="eyebrow">3 · Por que funciona</span>
+        <h2>O cérebro decide pelo porquê</h2>
+        <p class="lead">Segundo Sinek, os três anéis correspondem a como o cérebro funciona. A parte racional entende fatos; a parte que decide responde a sentimento e confiança, e não tem linguagem. É o famoso “fazer sentido no feeling”.</p>
+      </div>
+      <div class="bio">
+        <div class="brain rv" aria-hidden="true"><canvas id="brainCv"></canvas></div>
+        <div class="bio-rows" id="bioRows">
+          <div class="bio-row rv" data-z="neo" style="--c:var(--what)"><div class="ic">🧠</div><div><h3>Neocórtex → O QUÊ</h3><p>Pensamento racional, análise e linguagem. Entende dados, recursos, preço e especificação. Convence, mas não move ninguém sozinho.</p></div></div>
+          <div class="bio-row rv" data-z="lim" style="--c:var(--why)"><div class="ic">❤️</div><div><h3>Sistema límbico → POR QUÊ e COMO</h3><p>Sentimentos, confiança e lealdade. É onde nascem as decisões e o comportamento, mas sem palavras. Por isso a gente “sente” que uma escolha é certa antes de saber explicar.</p></div></div>
+          <div class="bio-row rv" data-z="b2b" style="--c:var(--how)"><div class="ic">🤝</div><div><h3>E no B2B?</h3><p>Um CFO ou CHRO também decide com confiança. Ninguém troca o ERP de uma empresa só por especificação: compra de quem acredita que vai cuidar do negócio dele.</p></div></div>
+          <div class="bio-row rv" data-z="b2b" style="--c:var(--g-ok)"><div class="ic">⚖️</div><div><h3>Valor percebido = tamanho do problema + confiança na solução</h3><p>Para a EPI-USE Brasil, o problema é real e tem data: fim do suporte do ECC e Reforma Tributária em 2026. A confiança vem do como: especialistas, IPs próprias e cases. O porquê é o que faz o cliente acreditar que vamos até o fim com ele.</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. TED -->
+    <section class="cap" id="ted">
+      <div class="rv">
+        <span class="eyebrow">4 · A palestra</span>
+        <h2>Simon Sinek no TED</h2>
+        <p class="lead">“How great leaders inspire action” (TEDx Puget Sound, 2009) é a palestra onde o Golden Circle ficou famoso. São cerca de 18 minutos, com legendas em português.</p>
+      </div>
+      <div class="video">
+        <div class="vframe rv"><iframe id="tedFrame" title="Simon Sinek: How great leaders inspire action (TED)" loading="lazy" allow="autoplay; fullscreen; encrypted-media" allowfullscreen></iframe></div>
+        <div class="vside card rv">
+          <h3>Assista prestando atenção em</h3>
+          <ol>
+            <li>Como ele desenha os três anéis e em que ordem fala de cada um.</li>
+            <li>O exemplo da Apple e o dos irmãos Wright.</li>
+            <li>“I have a dream”, não “I have a plan”: o porquê mobiliza pessoas.</li>
+            <li>Uma frase dele que serve para o seu trabalho. Anote.</li>
+          </ol>
+          <p class="muted" style="margin-top:12px;font-size:13px">Não carregou? <a href="https://www.ted.com/talks/simon_sinek_how_great_leaders_inspire_action?language=pt-br" target="_blank" rel="noopener">Abrir no TED</a> · <a href="https://www.ted.com/speakers/simon_sinek" target="_blank" rel="noopener">outras palestras dele</a></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. EPI-USE -->
+    <section class="cap" id="epiuse">
+      <div class="rv">
+        <span class="eyebrow">5 · O porquê da EPI-USE</span>
+        <h2>Um círculo dentro do outro</h2>
+        <p class="lead">O porquê de cada nível nasce do nível acima. O grupo tem um propósito; a EPI-USE Brasil traduz esse propósito para o mercado brasileiro; o Marketing traduz para campanhas, eventos e conteúdo; e você traduz para a sua semana.</p>
+      </div>
+      <blockquote class="quote rv" style="margin-top:22px">— Pode me dizer que caminho eu devo tomar?<br>— Depende muito de para onde você quer ir, disse o Gato.<br>— Não sei para onde ir!<br>— Então qualquer caminho serve.<small>Lewis Carroll, <em>Alice no País das Maravilhas</em>. Sem saber pra onde a empresa vai, qualquer tarefa parece igual. Por isso a cascata começa no grupo e termina em você.</small></blockquote>
+      <div class="levels rv" id="levels"></div>
+      <div class="casc">
+        <div class="nest rv" aria-hidden="true"><canvas id="nestCv"></canvas></div>
+        <div class="lvl-body" id="lvlBody" aria-live="polite"></div>
+      </div>
+      <div class="legend rv">
+        <span class="tag real">✓ Fonte oficial (material do grupo)</span>
+        <span class="tag ia">🤖 Gerado por IA — revisar</span>
+        <span class="tag val">⏳ A validar com o Rudá</span>
+      </div>
+    </section>
+
+    <!-- 6. EXERCÍCIO -->
+    <section class="cap" id="cascata">
+      <div class="rv">
+        <span class="eyebrow">6 · Exercício</span>
+        <h2>Minha cascata</h2>
+        <p class="lead">Toda atividade deveria mover uma meta, e toda meta deveria servir ao porquê. Liste o que você fez (ou vai fazer) nesta semana e veja o que se conecta. O que não se conecta não está errado: é assunto para o seu 1:1.</p>
+        <p class="lead" style="margin-top:10px">Quem não sabe o porquê vive <strong>reagindo</strong> à agenda; quem sabe, <strong>escolhe</strong> onde colocar energia. E quando a gente trabalha alinhado ao que acredita, isso aparece no dia a dia: no cuidado com a entrega e no compromisso com o resultado.</p>
+      </div>
+
+      <div class="ex-step card rv">
+        <h3><span class="num">1</span>Qual é a sua área?</h3>
+        <p class="muted">As metas que aparecem são as metas FY27 reais da área, as mesmas do placar <a href="/metas-fy27">/metas-fy27</a>.</p>
+        <div class="areas" id="areas"></div>
+        <div class="metas-box" id="metasBox"></div>
+      </div>
+
+      <div class="ex-step card rv">
+        <h3><span class="num">2</span>O que você faz na semana?</h3>
+        <p class="muted">Até 8 atividades. Ex.: “montar a lista de convidados do evento”, “subir a sequência no Apollo”, “revisar o artigo de S/4HANA”.</p>
+        <form class="add-row" id="addForm" autocomplete="off">
+          <input class="inp" id="addInp" maxlength="120" placeholder="Escreva uma atividade e aperte Enter">
+          <button class="btn" type="submit">Adicionar</button>
+        </form>
+        <div class="acts" id="acts"></div>
+        <div class="score" id="score" hidden>
+          <span class="big" id="scoreN">0/0</span>
+          <span class="muted">atividades conectadas a uma meta e ao porquê</span>
+          <div class="bar"><i id="scoreBar"></i></div>
+        </div>
+        <div class="one1" id="one1" hidden></div>
+      </div>
+
+      <div class="ex-step card rv">
+        <h3><span class="num">3</span>O meu Golden Circle</h3>
+        <p class="muted">Uma frase em cada anel, de dentro pra fora, sobre o seu papel no time.</p>
+        <div class="mygc">
+          <label class="why">Meu porquê<span>Por que o meu trabalho importa para o cliente e para a EPI-USE?</span><textarea class="ta" data-f="why" maxlength="400"></textarea></label>
+          <label class="how">Meu como<span>O que é o meu jeito de fazer? O que eu faço diferente?</span><textarea class="ta" data-f="how" maxlength="400"></textarea></label>
+          <label class="what">Meu o quê<span>O que eu entrego, de fato, toda semana?</span><textarea class="ta" data-f="what" maxlength="400"></textarea></label>
+        </div>
+        <label style="display:grid;gap:6px;margin-top:14px;font-size:13px;font-weight:600;color:var(--g-muted)">Bônus: reescreva o pitch da EPI-USE Brasil de dentro pra fora, com as suas palavras
+          <textarea class="ta" data-f="pitch" maxlength="600" placeholder="Acreditamos que… Por isso… E é por isso que…"></textarea></label>
+        <div class="exp">
+          <button class="btn" id="btnCopy" type="button">📋 Copiar meu mapa</button>
+          <button class="btn ghost" id="btnDown" type="button">⬇️ Baixar (.txt)</button>
+          <button class="btn ghost" id="btnReset" type="button">Recomeçar</button>
+        </div>
+        <p class="save-note">💾 Tudo fica salvo só neste navegador. Para conversar com o seu gestor, copie ou baixe o mapa e leve para o 1:1.</p>
+      </div>
+    </section>
+
+    <!-- 7. FACILITADOR -->
+    <section class="cap" id="facilitar">
+      <div class="rv">
+        <span class="eyebrow">7 · Para quem facilita</span>
+        <h2>Roteiro da sessão ao vivo</h2>
+        <p class="lead">Propósito “pega” melhor em conversa do que em tela. Este roteiro usa esta página como apoio em uma sessão de 75 minutos. <span class="tag ia">🤖 Roteiro sugerido por IA — ajustar</span></p>
+      </div>
+      <details class="fac card rv">
+        <summary>Agenda (75 min)</summary>
+        <div class="agenda">
+          <div class="ag"><b>0–10 min</b><p><strong>Abertura sem aviso.</strong> Cada pessoa responde em uma frase: “por que a EPI-USE Brasil existe?” e “por que o seu trabalho existe?”. Anote as respostas sem corrigir. Alternativa: abra com o diálogo da Alice com o Gato (capítulo 5) e pergunte “a gente sabe para onde a EPI-USE Brasil está indo?”.</p></div>
+          <div class="ag"><b>10–28 min</b><p><strong>Palestra do TED</strong> (capítulo 4). Se o grupo já assistiu antes, use esse tempo para os capítulos 1 a 3.</p></div>
+          <div class="ag"><b>28–40 min</b><p><strong>De dentro pra fora</strong> (capítulo 2). Pergunta: onde o nosso Marketing ainda fala “de fora pra dentro”? Site, posts, convites de evento, e-mails de SDR.</p></div>
+          <div class="ag"><b>40–55 min</b><p><strong>O porquê da EPI-USE</strong> (capítulo 5). Quem facilita conta a história: o propósito do grupo, a ERP.ngo e para onde a EPI-USE Brasil está indo (EPI-USE 5.0).</p></div>
+          <div class="ag"><b>55–70 min</b><p><strong>Minha cascata</strong> (capítulo 6), individual. Cada pessoa compartilha uma atividade que se conectou e uma que ficou sem porquê.</p></div>
+          <div class="ag"><b>70–75 min</b><p><strong>Fechamento.</strong> Cada um lê o próprio porquê. Compare com a resposta da abertura. Combine o 1:1 da semana seguinte com o mapa em mãos.</p></div>
+        </div>
+        <h3 style="font-size:16px;margin-top:20px">Perguntas para provocar</h3>
+        <ul class="provoc">
+          <li>Se a EPI-USE Brasil sumisse amanhã, o que os clientes perderiam além do serviço?</li>
+          <li>Por que um CHRO confiaria a folha de pagamento de 10 mil pessoas a nós?</li>
+          <li>Qual atividade sua o cliente nunca vê, mas sente o efeito?</li>
+          <li>O que a ERP.ngo diz sobre o tipo de empresa que somos?</li>
+          <li>Qual tarefa da sua semana você pararia de fazer se ninguém perguntasse “por quê”?</li>
+          <li>Martin Luther King disse “eu tenho um sonho”, não “eu tenho um plano”. Qual é o sonho por trás do nosso plano do FY27?</li>
+        </ul>
+      </details>
+    </section>
+
+    <footer class="src">Conceito: Simon Sinek, <em>Start With Why</em> (2009) e a palestra “How great leaders inspire action” (TED, 2009). Materiais de apoio: e-book “Ferramentas” (Na Prática) e o texto “Círculo dourado e o poder do propósito”. Textos escritos com as nossas palavras. Dados da EPI-USE: material oficial do grupo (vault do Marketing). Metas: placar FY27 do Office.</footer>
+  </div>
+</main>
+
+<div class="toast" id="toast" role="status"></div>
+<office-footer></office-footer>
+
+<script>
+(() => {
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('on'), 2600); }
+
+/* ═════════ estado (só no navegador) ═════════ */
+const KEY = 'eubr-golden-circle-v1';
+let S = { area: null, acts: [], gc: {} };
+try { S = Object.assign(S, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+
+/* ═════════ canvas helper (DPR + loop pausado fora da tela) ═════════ */
+function canvasViz(cv, draw) {
+  const ctx = cv.getContext('2d'); let w = 0, h = 0, vis = false, raf = 0, t0 = performance.now();
+  const size = () => { const r = cv.getBoundingClientRect(), d = Math.min(2, devicePixelRatio || 1); w = r.width; h = r.height; cv.width = w * d; cv.height = h * d; ctx.setTransform(d, 0, 0, d, 0, 0); };
+  const loop = (t) => { if (!vis) return; ctx.clearRect(0, 0, w, h); draw(ctx, w, h, (t - t0) / 1000); if (!RM) raf = requestAnimationFrame(loop); };
+  new ResizeObserver(() => { size(); if (RM) { ctx.clearRect(0, 0, w, h); draw(ctx, w, h, 2); } }).observe(cv);
+  new IntersectionObserver(es => { vis = es[0].isIntersecting; cancelAnimationFrame(raf); if (vis) raf = requestAnimationFrame(loop); }).observe(cv);
+  size();
+  return { redraw: () => { if (RM && vis) { ctx.clearRect(0, 0, w, h); draw(ctx, w, h, 2); } } };
+}
+const C = () => ({ why: cssVar('--color-brand-red'), how: cssVar('--color-brand-royal-blue'), what: cssVar('--color-brand-cornflower-blue'), text: cssVar('--color-neutral-dark-text'), dim: cssVar('--color-neutral-dark-text-muted'), line: cssVar('--color-neutral-dark-border') });
+const alpha = (col, a) => `color-mix(in srgb, ${col} ${Math.round(a * 100)}%, transparent)`;
+
+/* ═════════ hero: anéis + partículas saindo do centro (de dentro pra fora) ═════════ */
+(function hero() {
+  const cv = $('#heroCv'); const P = [];
+  for (let i = 0; i < 70; i++) P.push({ a: Math.random() * Math.PI * 2, r: Math.random(), s: .12 + Math.random() * .25, z: Math.random() });
+  canvasViz(cv, (c, w, h, t) => {
+    const k = C(), cx = w / 2, cy = h / 2, R = Math.min(w, h) * .46;
+    [[1, k.what, .14], [.66, k.how, .3], [.33, k.why, .9]].forEach(([f, col, a], i) => {
+      const pulse = 1 + Math.sin(t * 1.4 - i * .7) * .012;
+      c.beginPath(); c.arc(cx, cy, R * f * pulse, 0, Math.PI * 2); c.fillStyle = alpha(col, a); c.fill();
+      c.setLineDash([4, 10]); c.lineDashOffset = -t * 18 * (i % 2 ? -1 : 1); c.strokeStyle = alpha(k.text, .28); c.lineWidth = 1.2; c.stroke(); c.setLineDash([]);
+    });
+    P.forEach(p => {   // cada partícula nasce no porquê e viaja pra fora
+      p.r += p.s * .006; if (p.r > 1) { p.r = .05; p.a = Math.random() * Math.PI * 2; }
+      const rr = R * p.r, x = cx + Math.cos(p.a + t * .05) * rr, y = cy + Math.sin(p.a + t * .05) * rr;
+      c.beginPath(); c.arc(x, y, 1.3 + p.z * 1.6, 0, Math.PI * 2); c.fillStyle = alpha(k.text, .75 * (1 - p.r)); c.fill();
+    });
+    c.fillStyle = k.text; c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.font = `900 ${Math.max(11, R * .085)}px Lato, sans-serif`; c.fillText('POR QUÊ', cx, cy);
+    c.font = `900 ${Math.max(10, R * .065)}px Lato, sans-serif`; c.fillStyle = alpha(k.text, .85);
+    c.fillText('COMO', cx, cy - R * .5); c.fillText('O QUÊ', cx, cy - R * .84);
+  });
+})();
+
+/* ═════════ 1. anéis ═════════ */
+const RINGS = {
+  why: { q: 'Por quê', cor: 'var(--why)', t: 'O propósito, a causa, a crença', l: ['Qual é a causa? Em que você acredita? Por que a organização existe?', 'Por que você sai da cama de manhã? E por que alguém deveria se importar?', 'Não é “ganhar dinheiro”: lucro é resultado, não propósito.', 'É o anel mais difícil de explicar e o que mais inspira.'] },
+  how: { q: 'Como', cor: 'var(--g-corn)', t: 'O jeito único de fazer', l: ['Os diferenciais, o método, os valores em ação.', 'É o que torna a promessa do porquê crível.', 'Responde: “o que fazemos diferente dos outros?”'] },
+  what: { q: 'O quê', cor: 'var(--g-dim)', t: 'Os produtos e serviços', l: ['O que a organização vende, de fato.', 'É fácil de explicar e de comparar, e por isso não diferencia.', 'É a prova concreta do porquê.'] },
+};
+function showRing(k) {
+  $$('.ring').forEach(b => b.classList.toggle('on', b.dataset.k === k));
+  const r = RINGS[k];
+  $('#ringPanel').innerHTML = `<span class="q" style="color:${r.cor}">${r.q}</span><h3>${r.t}</h3><ul>${r.l.map(x => `<li>${esc(x)}</li>`).join('')}</ul>`;
+}
+$$('.ring').forEach(b => b.addEventListener('click', () => showRing(b.dataset.k)));
+showRing('why');
+
+/* ═════════ 2. dentro pra fora ═════════ */
+const PITCH = {
+  epiuse: {
+    fora: [['what', 'Somos uma consultoria SAP Gold Partner com SuccessFactors, S/4HANA, BTP e ServiceNow.'], ['how', 'Temos IPs próprias, método de implementação e time especializado.'], ['why', 'Quer agendar uma reunião?']],
+    dentro: [['why', 'Acreditamos que tecnologia só vale quando transforma a empresa e melhora a vida de quem trabalha nela.'], ['how', 'Por isso juntamos especialistas de verdade, IPs próprias que reduzem prazo e risco e a força de um grupo global que reinveste 1% da receita na ERP.ngo.'], ['what', 'E é por isso que entregamos SAP, ServiceNow e Analytics que funcionam no dia a dia, do RH ao financeiro.']],
+    nota: '<span class="tag ia">🤖 Pitch de exemplo gerado por IA — revisar</span> A versão de fora pra dentro é a que mais aparece em proposta, site e e-mail frio. Repare que o “porquê” vira só um pedido de reunião.',
+  },
+  apple: {
+    fora: [['what', 'Fazemos ótimos computadores.'], ['how', 'Eles têm um design bonito, são simples de usar e fáceis de configurar.'], ['why', 'Quer comprar um?']],
+    dentro: [['why', 'Em tudo o que fazemos, acreditamos em desafiar o status quo e em pensar diferente.'], ['how', 'Nosso jeito de desafiar é criar produtos com design bonito, simples de usar e fáceis de configurar.'], ['what', 'Por acaso, fazemos ótimos computadores. Quer comprar um?']],
+    nota: 'Exemplo da palestra de Sinek, com as nossas palavras. A informação é a mesma; só a ordem mudou.',
+  },
+};
+function renderPitch(k) {
+  const p = PITCH[k];
+  const col = (titulo, tag, arr) => `<div class="pitch card"><h3>${titulo} ${tag}</h3><div class="steps">${arr.map(([z, txt], i) => `<div class="st ${z}" style="animation-delay:${i * .28}s"><b>${z === 'why' ? 'Por quê' : z === 'how' ? 'Como' : 'O quê'}</b><span>${esc(txt)}</span></div>`).join('')}</div></div>`;
+  $('#pitches').innerHTML = col('De fora pra dentro', '<span class="tag val">como a maioria fala</span>', p.fora) + col('De dentro pra fora', '<span class="tag real">como quem inspira fala</span>', p.dentro);
+  $('#verdict').innerHTML = p.nota;
+  requestAnimationFrame(() => $$('#pitches .pitch').forEach((el, i) => setTimeout(() => el.classList.add('play'), i * 380)));
+}
+$$('.dir-toggle button').forEach(b => b.addEventListener('click', () => { $$('.dir-toggle button').forEach(x => x.classList.toggle('on', x === b)); renderPitch(b.dataset.ex); }));
+let pitchFeito = false;
+
+/* ═════════ 3. cérebro (corte estilizado: neocórtex por fora, límbico no centro) ═════════ */
+let brainFoco = 'lim';
+const brain = canvasViz($('#brainCv'), (c, w, h, t) => {
+  const k = C(), cx = w / 2, cy = h / 2, R = Math.min(w, h) * .44;
+  const pulse = (z) => brainFoco === z ? 1 + Math.sin(t * 3) * .02 : 1;
+  // neocórtex: anel externo "dobrado" (giros)
+  c.beginPath();
+  for (let i = 0; i <= 240; i++) { const a = i / 240 * Math.PI * 2, rr = R * pulse('neo') * (1 + .045 * Math.sin(a * 14 + t * .6)); const x = cx + Math.cos(a) * rr, y = cy + Math.sin(a) * rr * .86; i ? c.lineTo(x, y) : c.moveTo(x, y); }
+  c.closePath(); c.fillStyle = alpha(k.what, brainFoco === 'neo' ? .42 : .2); c.fill(); c.strokeStyle = alpha(k.text, .35); c.lineWidth = 1.2; c.stroke();
+  c.beginPath(); c.ellipse(cx, cy, R * .64, R * .56, 0, 0, Math.PI * 2); c.fillStyle = k.line; c.fill();
+  // límbico: núcleo
+  c.beginPath(); c.ellipse(cx, cy, R * .4 * pulse('lim'), R * .34 * pulse('lim'), 0, 0, Math.PI * 2);
+  c.fillStyle = alpha(k.why, brainFoco === 'lim' ? .95 : .55); c.fill();
+  c.beginPath(); c.ellipse(cx, cy, R * .62, R * .54, 0, 0, Math.PI * 2); c.strokeStyle = alpha(k.how, brainFoco !== 'neo' ? .9 : .4); c.lineWidth = 3; c.stroke();
+  // sinais: do centro pra fora
+  for (let i = 0; i < 6; i++) { const ph = (t * .5 + i / 6) % 1, a = i / 6 * Math.PI * 2 + .4; const rr = R * (.2 + ph * .8); c.beginPath(); c.arc(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr * .86, 2.4, 0, Math.PI * 2); c.fillStyle = alpha(k.text, 1 - ph); c.fill(); }
+  c.fillStyle = k.text; c.textAlign = 'center'; c.textBaseline = 'middle';
+  c.font = `900 ${Math.max(10, R * .085)}px Lato, sans-serif`; c.fillText('LÍMBICO', cx, cy - R * .04); c.font = `700 ${Math.max(9, R * .06)}px Lato, sans-serif`; c.fillText('por quê · como', cx, cy + R * .1);
+  c.font = `900 ${Math.max(10, R * .075)}px Lato, sans-serif`; c.fillText('NEOCÓRTEX · o quê', cx, cy - R * .78);
+});
+$$('.bio-row').forEach(r => { const on = () => { brainFoco = r.dataset.z === 'neo' ? 'neo' : 'lim'; $$('.bio-row').forEach(x => x.classList.toggle('on', x === r)); brain.redraw(); }; r.addEventListener('mouseenter', on); r.addEventListener('click', on); });
+
+/* ═════════ 4. TED (carrega só quando o capítulo aparece) ═════════ */
+new IntersectionObserver((es, ob) => { if (es[0].isIntersecting) { $('#tedFrame').src = 'https://embed.ted.com/talks/lang/pt-br/simon_sinek_how_great_leaders_inspire_action'; ob.disconnect(); } }, { rootMargin: '300px' }).observe($('#ted'));
+
+/* ═════════ 5. cascata EPI-USE ═════════ */
+// real = material oficial do grupo (vault/00-contexto/empresa.md e empresa-grupo-elephant.md)
+// ia = redação gerada por IA a partir desse material · val = a validar com o Rudá
+const NIVEIS = [
+  { id: 'grupo', nome: 'Grupo EPI-USE', ic: '🌍', itens: [
+    ['why', 'Ir além do propósito corporativo (“Beyond Corporate Purpose”): o negócio existe também para gerar impacto real nas pessoas e na natureza.', 'ia', 'Redação nossa sobre o conceito oficial do grupo'],
+    ['how', 'Um grupo de especialistas, em grande parte dos próprios colaboradores (employee-owned), com 42+ anos de história, que destina 1% da receita líquida à ERP.ngo (Elephants, Rhinos & People).', 'real'],
+    ['what', 'Software e serviços de tecnologia para 2.000+ grandes organizações, com 4.500+ profissionais em 40+ países e 10 grupos de marcas.', 'real'],
+  ] },
+  { id: 'eubr', nome: 'EPI-USE Brasil', ic: '🇧🇷', itens: [
+    ['why', 'Acreditamos que tecnologia só vale quando transforma a empresa e melhora a vida de quem trabalha nela, do colaborador ao cliente.', 'ia'],
+    ['how', 'Especialização profunda em HCM/Payroll, IPs próprias (TalenTools, PRISM) que reduzem prazo e risco, presença local com a força do grupo global e método próprio de implementação e sustentação.', 'real'],
+    ['what', 'Licença, implementação, suporte e desenvolvimento em SAP SuccessFactors, S/4HANA (RISE e GROW), BTP, Signavio, ServiceNow e Analytics (Stratview), com EPI-USE Labs e Valcann.', 'real'],
+    ['go', 'Pra onde vamos: EPI-USE 5.0. Deixar de ser “só uma consultoria SAP” e virar consultoria de Transformação Empresarial.', 'val', 'Hoje temos só esta frase; detalhes com o Rudá'],
+  ] },
+  { id: 'mkt', nome: 'Marketing', ic: '📣', itens: [
+    ['why', 'Fazer o mercado certo conhecer, confiar e escolher a EPI-USE Brasil para a sua transformação.', 'ia'],
+    ['how', 'Dados e CRM (Intelligence), mídia e SEO (Growth), eventos (Field Marketing), prospecção C-Level (Biz Dev), marca e Voices (Brand) e conteúdo (Redatoria), tudo medido do primeiro clique à oportunidade.', 'real', 'Estrutura atual do time'],
+    ['what', 'Campanhas, eventos, artigos, cases, EPI-USE Voices, sequências de prospecção e relatórios. As metas do ano estão no placar FY27.', 'real', '<a href="/metas-fy27">Ver o placar FY27 →</a>'],
+  ] },
+  { id: 'voce', nome: 'Você', ic: '🙋', itens: [] },
+];
+const TAGS = { real: '<span class="tag real">✓ Fonte oficial</span>', ia: '<span class="tag ia">🤖 Gerado por IA — revisar</span>', val: '<span class="tag val">⏳ A validar com o Rudá</span>' };
+const ROT = { why: 'Por quê', how: 'Como', what: 'O quê', go: 'Pra onde vamos' };
+let nivel = 0;
+function renderNivel(i) {
+  nivel = i;
+  $$('.lv').forEach((b, j) => b.classList.toggle('on', j === i));
+  const n = NIVEIS[i];
+  let itens = n.itens;
+  if (n.id === 'voce') {
+    const g = S.gc || {};
+    itens = [['why', g.why, 'eu'], ['how', g.how, 'eu'], ['what', g.what, 'eu']];
+  }
+  const body = $('#lvlBody');
+  body.classList.remove('play');
+  body.innerHTML = itens.map(([z, txt, tg, nota], j) => `<div class="lvl-item ${z}" style="animation-delay:${j * .12}s"><div class="hd"><b>${ROT[z]}</b>${tg === 'eu' ? '' : TAGS[tg]}</div><p>${txt ? esc(txt) : '<span class="muted">Preencha “O meu Golden Circle” no exercício abaixo.</span>'}</p>${nota ? `<p class="muted" style="font-size:12.5px;margin-top:6px">${nota}</p>` : ''}</div>`).join('')
+    + (n.id === 'voce' ? '<a class="btn ghost" href="#cascata" style="justify-self:start">Fazer o exercício ↓</a>' : '');
+  requestAnimationFrame(() => body.classList.add('play'));
+  nest.redraw();
+}
+$('#levels').innerHTML = NIVEIS.map((n, i) => `<button class="lv" data-i="${i}"><span class="k">${i + 1}</span>${n.ic} ${n.nome}</button>`).join('');
+$$('.lv').forEach(b => b.addEventListener('click', () => renderNivel(+b.dataset.i)));
+// círculos aninhados: o nível escolhido acende, e o porquê "desce" de um nível pro outro
+const nest = canvasViz($('#nestCv'), (c, w, h, t) => {
+  const k = C(), cx = w / 2, cy = h / 2, R = Math.min(w, h) * .47;
+  const cores = [k.what, k.how, k.why, k.text];
+  NIVEIS.forEach((n, i) => {
+    const r = R * (1 - i * .23), on = i === nivel;
+    c.beginPath(); c.arc(cx, cy, r, 0, Math.PI * 2);
+    c.fillStyle = alpha(cores[i], on ? .55 : .12); c.fill();
+    c.strokeStyle = alpha(k.text, on ? .9 : .25); c.lineWidth = on ? 2 : 1; c.stroke();
+    c.fillStyle = alpha(k.text, on ? 1 : .6); c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.font = `${on ? 900 : 700} ${Math.max(9, R * .07)}px Lato, sans-serif`;
+    c.fillText(n.nome.toUpperCase(), cx, i === 3 ? cy : cy - r + R * .11);
+  });
+  const ph = (t * .35) % 1;   // ponto que viaja de fora (grupo) para dentro (você)
+  c.beginPath(); c.arc(cx + R * .02, cy - R * (1 - ph * .92) + R * .2 * ph, 3.2, 0, Math.PI * 2); c.fillStyle = alpha(k.why, 1 - ph * .4); c.fill();
+});
+renderNivel(0);
+
+/* ═════════ 6. exercício ═════════ */
+const AREAS = [
+  ['pipeline', '📞', 'Biz Dev / Pipeline', '--color-spot-aws-orange'],
+  ['intelligence', '🧠', 'Intelligence & CRM', '--color-brand-cornflower-blue'],
+  ['eventos', '📅', 'Field Marketing & Eventos', '--color-spot-canary-yellow'],
+  ['brand', '🎨', 'Brand Experience / Voices', '--color-spot-teal-green'],
+  ['conteudo', '✍️', 'Conteúdo / Redatoria', '--color-spot-servicenow-green'],
+  ['growth', '🚀', 'Growth & Performance', '--color-spot-azure-blue'],
+  ['design', '🖌️', 'Design', '--color-brand-stone-gray'],
+];
+let METAS = null;   // { area: [rótulos] } do placar FY27
+const NAO = '__nao__', OUTRA = '__outra__';
+async function carregarMetas() {
+  try {
+    const r = await fetch('/api/metas/fy27/placar', { credentials: 'same-origin' });
+    if (!r.ok) throw new Error(r.status);
+    const d = await r.json(); const m = {};
+    (d.metas || []).forEach(x => (m[x.area] = m[x.area] || []).push(x.titulo));
+    ((d.fora || {}).grupos || []).forEach(g => ((g && (g.itens || g.metas)) || []).forEach(it => { const a = g.id || g.area; (m[a] = m[a] || []).push(it.label); }));
+    Object.keys(m).forEach(a => { m[a] = [...new Set(m[a].filter(Boolean))]; });
+    METAS = m;
+  } catch (e) { METAS = {}; }
+  renderMetasBox(); renderActs();
+}
+function renderAreas() {
+  $('#areas').innerHTML = AREAS.map(([id, ic, nm, cor]) => `<button class="area-b${S.area === id ? ' on' : ''}" data-a="${id}" style="--c:var(${cor})">${ic} ${nm}</button>`).join('');
+  $$('.area-b').forEach(b => b.addEventListener('click', () => { S.area = b.dataset.a; save(); renderAreas(); renderMetasBox(); renderActs(); }));
+}
+function metasDaArea() { return (METAS && S.area && METAS[S.area]) || []; }
+function renderMetasBox() {
+  const box = $('#metasBox');
+  if (!S.area) { box.innerHTML = ''; return; }
+  if (METAS === null) { box.innerHTML = '<span class="muted">Carregando as metas da área…</span>'; return; }
+  const ms = metasDaArea();
+  box.innerHTML = ms.length
+    ? `<details open><summary>${ms.length} metas FY27 da área</summary><ul>${ms.map(x => `<li>${esc(x)}</li>`).join('')}</ul></details>`
+    : '<span class="tag val">⏳ Aguarda integração · metas desta área não carregaram</span> <span class="muted">Você ainda pode fazer o exercício escrevendo a meta com as suas palavras.</span>';
+}
+function porqueMkt() { return 'Mercado conhece, confia e escolhe a EPI-USE'; }
+function renderActs() {
+  const ms = metasDaArea();
+  $('#acts').innerHTML = S.acts.map((a, i) => {
+    const opts = ms.map(x => `<option value="${esc(x)}"${a.meta === x ? ' selected' : ''}>${esc(x)}</option>`).join('');
+    const ligada = a.meta && a.meta !== NAO && (a.meta !== OUTRA || (a.outra || '').trim());
+    const quebrada = a.meta === NAO;
+    const nomeMeta = a.meta === OUTRA ? (a.outra || 'outra meta') : a.meta;
+    return `<div class="act" data-i="${i}">
+      <div class="act-top"><b>${esc(a.t)}</b><button class="x" data-x="${i}" aria-label="Remover atividade">×</button></div>
+      <div class="act-fields">
+        <label>Qual meta FY27 isso move?
+          <select class="sel" data-k="meta">
+            <option value="">Escolha…</option>${opts}
+            <option value="${OUTRA}"${a.meta === OUTRA ? ' selected' : ''}>Outra meta (escrever)</option>
+            <option value="${NAO}"${a.meta === NAO ? ' selected' : ''}>Não sei / não move nenhuma meta</option>
+          </select>
+          ${a.meta === OUTRA ? `<input class="inp" data-k="outra" maxlength="120" placeholder="Qual meta?" value="${esc(a.outra || '')}">` : ''}
+        </label>
+        <label>Por que isso importa para o cliente ou para a EPI-USE?
+          <textarea class="ta" data-k="pq" maxlength="300" placeholder="Porque…">${esc(a.pq || '')}</textarea>
+        </label>
+      </div>
+      <div class="chain${ligada ? ' ok' : ''}${quebrada ? ' br' : ''}">
+        <span class="lk">${esc(a.t.length > 34 ? a.t.slice(0, 33) + '…' : a.t)}</span><span class="ar">→</span>
+        <span class="lk">${ligada ? '🎯 ' + esc(nomeMeta.length > 34 ? nomeMeta.slice(0, 33) + '…' : nomeMeta) : '🎯 meta?'}</span><span class="ar">→</span>
+        <span class="lk">📣 ${porqueMkt()}</span><span class="ar">→</span>
+        <span class="lk">🐘 Porquê da EPI-USE</span>
+        ${quebrada ? '<span class="warn">⚠️ Sem conexão: leve para o 1:1</span>' : ''}
+      </div></div>`;
+  }).join('');
+  $$('#acts .act').forEach(el => {
+    const i = +el.dataset.i;
+    $$('[data-k]', el).forEach(f => f.addEventListener(f.tagName === 'SELECT' ? 'change' : 'input', () => {
+      S.acts[i][f.dataset.k] = f.value; save();
+      if (f.tagName === 'SELECT' || f.dataset.k === 'outra') { const pos = f.dataset.k === 'outra' ? f.selectionStart : null; renderActs(); if (pos != null) { const n = $(`#acts .act[data-i="${i}"] [data-k="outra"]`); if (n) { n.focus(); n.setSelectionRange(pos, pos); } } }
+      else renderScore();
+    }));
+  });
+  $$('#acts [data-x]').forEach(b => b.addEventListener('click', () => { S.acts.splice(+b.dataset.x, 1); save(); renderActs(); }));
+  renderScore();
+}
+function ligada(a) { return a.meta && a.meta !== NAO && (a.meta !== OUTRA || (a.outra || '').trim()); }
+function renderScore() {
+  const tot = S.acts.length, ok = S.acts.filter(ligada).length, sem = S.acts.filter(a => a.meta === NAO);
+  $('#score').hidden = !tot;
+  $('#scoreN').textContent = `${ok}/${tot}`;
+  $('#scoreBar').style.width = tot ? (ok / tot * 100) + '%' : '0';
+  const o = $('#one1');
+  o.hidden = !sem.length;
+  o.innerHTML = sem.length ? `⚠️ Para o 1:1: ${sem.map(a => `“${esc(a.t)}”`).join(', ')}. Vale entender juntos se essa atividade move alguma meta ou se pode sair da sua semana.` : '';
+}
+$('#addForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const v = $('#addInp').value.trim();
+  if (!v) return;
+  if (S.acts.length >= 8) return toast('Máximo de 8 atividades. Escolha as mais importantes.');
+  if (!S.area) toast('Dica: escolha a sua área no passo 1 para ver as metas.');
+  S.acts.push({ t: v, meta: '', pq: '' }); save(); $('#addInp').value = ''; renderActs();
+});
+$$('.mygc .ta, .ta[data-f="pitch"]').forEach(t => {
+  t.value = (S.gc || {})[t.dataset.f] || '';
+  t.addEventListener('input', () => { S.gc = S.gc || {}; S.gc[t.dataset.f] = t.value; save(); if (NIVEIS[nivel].id === 'voce') renderNivel(nivel); });
+});
+function mapaTexto() {
+  const area = (AREAS.find(a => a[0] === S.area) || [])[2] || '(área não escolhida)';
+  const g = S.gc || {}, L = [];
+  L.push('MEU GOLDEN CIRCLE · EPI-USE Brasil', 'Área: ' + area, '');
+  L.push('Meu porquê: ' + (g.why || '—'), 'Meu como: ' + (g.how || '—'), 'Meu o quê: ' + (g.what || '—'), '');
+  L.push('MINHA CASCATA (atividade → meta FY27 → porquê)');
+  if (!S.acts.length) L.push('(nenhuma atividade)');
+  S.acts.forEach((a, i) => {
+    const meta = a.meta === NAO ? '⚠️ sem meta — conversar no 1:1' : a.meta === OUTRA ? (a.outra || '(outra meta)') : (a.meta || '(meta não escolhida)');
+    L.push(`${i + 1}. ${a.t}`, `   Meta: ${meta}`, `   Por quê: ${a.pq || '—'}`);
+  });
+  const ok = S.acts.filter(ligada).length;
+  L.push('', `Conectadas: ${ok}/${S.acts.length}`);
+  if (g.pitch) L.push('', 'Pitch da EPI-USE de dentro pra fora:', g.pitch);
+  return L.join('\n');
+}
+$('#btnCopy').addEventListener('click', async () => { try { await navigator.clipboard.writeText(mapaTexto()); toast('📋 Mapa copiado. Cole no chat ou no e-mail do 1:1.'); } catch (e) { toast('Não deu para copiar. Use o botão Baixar.'); } });
+$('#btnDown').addEventListener('click', () => { const b = new Blob([mapaTexto()], { type: 'text/plain;charset=utf-8' }); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'meu-golden-circle.txt'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1500); });
+$('#btnReset').addEventListener('click', () => { if (!confirm('Apagar as suas respostas deste navegador?')) return; S = { area: null, acts: [], gc: {} }; save(); $$('.mygc .ta, .ta[data-f="pitch"]').forEach(t => { t.value = ''; }); renderAreas(); renderMetasBox(); renderActs(); renderNivel(nivel); toast('Respostas apagadas.'); });
+
+renderAreas(); renderMetasBox(); renderActs(); carregarMetas();
+
+/* ═════════ reveal + capítulo ativo ═════════ */
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if (!e.isIntersecting) return;
+  e.target.classList.add('in'); io.unobserve(e.target);
+  if (e.target.id === 'rings') e.target.classList.add('in');
+}), { threshold: .15 });
+$$('.rv, #rings').forEach(el => io.observe(el));
+new IntersectionObserver(es => { if (es[0].isIntersecting && !pitchFeito) { pitchFeito = true; renderPitch('epiuse'); } }, { threshold: .25 }).observe($('#direcao'));
+const caps = $$('section.cap');
+const capIO = new IntersectionObserver(es => es.forEach(e => {
+  if (!e.isIntersecting) return;
+  $$('#toc a').forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + e.target.id));
+  const on = $('#toc a.on'); if (on) on.scrollIntoView({ block: 'nearest', inline: 'center', behavior: RM ? 'auto' : 'smooth' });
+}), { rootMargin: '-45% 0px -50% 0px' });
+caps.forEach(s => capIO.observe(s));
+})();
+</script>
+</body>
+</html>

@@ -175,6 +175,7 @@ const REGRAS = [
   ['GET /api/voices/:file', BRA],               // public/api/voices/*.md (perfis)
 
   // ── Time de Marketing (ferramentas comuns) ────────────────────────────────
+  ['/golden-circle', T],              // treinamento Golden Circle (Módulo 37)
   ['/', T], ['/changelog', T], ['/relatorio', T], ['/metas', T], ['/metas-fy26', T], ['/metas-fy27', T], ['/metas/*', T],
   ['/memes', T], ['/ideias', T], ['/horas', T], ['/war-room', T], ['/agentes', T], ['/agentes/*', T],
   ['/area', T], ['/planilhas', T], ['/cowork', T], ['/cockpit', T], ['/dashboard', T],
