@@ -48,7 +48,7 @@ const _insOnb = db.prepare(
 );
 const ONB_STEP = /^[a-z0-9]+(?:\.[a-z0-9\/_-]+){0,5}$/;
 
-// ── Áreas com "quem viu o quê" (Módulos 27 Intelligence · 28 Eventos · 29 Pipeline · 30 Brand · 31 Relatório · 33 Metas FY27) ──
+// ── Áreas com "quem viu o quê" (Módulos 27 Intelligence · 28 Eventos · 29 Pipeline · 30 Brand · 31 Relatório · 33 Metas FY27 · 35 Hub) ──
 // Mesmo beacon: kind=<chave da área>, path=<página> e o passo em `meta`.
 // Passos: 'sec.<id>' (seção apareceu na tela) · 'tempo.<id>.<seg>' (tempo na
 // seção, também em dur_ms) · 'scroll.<25|50|75|100>' · 'tool.<slug>' (abriu
@@ -62,6 +62,7 @@ const AREA_TRACK = {
   brand:   { path: '/area/brand',        painel: '/admin/brand' },
   relatorio:{ path: '/relatorio',        painel: '/admin/relatorio' },   // Módulo 31 (export PPT/PDF gravado pelo servidor)
   metas:   { path: '/metas-fy27',         painel: '/admin/metas' },   // Módulo 33 — placar FY27
+  hub:     { path: '/hub',                painel: '/admin/hub' },     // Módulo 35 — Marketing Hub (empresa toda)
 };
 const AREA_KINDS = Object.keys(AREA_TRACK);
 const AREA_RE = AREA_KINDS.join('|');
@@ -164,6 +165,20 @@ function logPageView(req, res, next) {
   next();
 }
 
+// Teto de passos por pessoa (janela de 10 min). O Hub abre o beacon pra empresa
+// toda; sem teto, um loop de POSTs inflava o painel do dono e o SQLite. Uma
+// visita real manda ~30 passos, então 400 só barra abuso.
+const RATE_JANELA = 10 * 60 * 1000, RATE_MAX = 400;
+const _rate = new Map();
+function passouDoTeto(chave, n) {
+  const now = Date.now();
+  let r = _rate.get(chave);
+  if (!r || now - r.t0 > RATE_JANELA) { r = { t0: now, n: 0 }; _rate.set(chave, r); }
+  r.n += n;
+  if (_rate.size > 5000) for (const [k, v] of _rate) if (now - v.t0 > RATE_JANELA) _rate.delete(k);
+  return r.n > RATE_MAX;
+}
+
 // ── Beacon do cliente: tempo na página ────────────────────────────────────────
 // Body: { path, dur_ms }. Aceita sessão anônima; email vem da sessão (não do body).
 router.post('/api/analytics/track', express.json({ limit: '2kb' }), (req, res) => {
@@ -176,6 +191,7 @@ router.post('/api/analytics/track', express.json({ limit: '2kb' }), (req, res) =
       if (u && !require('./acesso').pode(u, 'GET', pg)) return res.json({ ok: false });
       const steps = (Array.isArray(b.steps) ? b.steps : [b.step]).slice(0, 40);
       const sid = shortSid(req), em = sessionEmail(req), now = Date.now();
+      if (passouDoTeto(em !== 'anon' ? em : sid, steps.length)) return res.json({ ok: false, teto: true });
       const ua = String(req.headers['user-agent'] || '').slice(0, 200);
       let n = 0;
       for (const raw of steps) {
