@@ -1,5 +1,5 @@
 {
-  "current": "0.98.0",
+  "current": "0.99.0",
   "atualizado_em": "14/out/2026",
   "next": [
     {
@@ -54,9 +54,25 @@
   ],
   "releases": [
     {
-      "version": "0.98.0",
+      "version": "0.99.0",
       "date": "14/out/2026",
       "status": "current",
+      "path": "/admin/analytics",
+      "so_dono": true,
+      "title": "📊 Analytics vira a área única de tracking (só o Rudá)",
+      "summary": "Todos os menus e botões de tracking foram reunidos no Analytics, com abas: uso do Office, Onboarding, Intelligence, Eventos, Pipeline, Brand, Relatório, Metas FY27, Marketing Hub e Cafezinho. Só o e-mail do dono vê e abre, e nenhum menu, botão ou nota de versão mostra isso pra mais ninguém.",
+      "highlights": [
+        "Menu: os 8 itens soltos de tracking viraram um só, 📊 Analytics, que aparece só pro e-mail do dono (antes 4 deles apareciam pra qualquer super admin).",
+        "Abas no topo do Analytics e dos painéis de cada área, servidas por uma rota que só o dono abre: a lista de painéis não fica no código de nenhuma página pública.",
+        "Saíram os chips '👁️ Quem viu' das páginas de área, Relatório, Metas, Hub e Cafezinho (o link do painel não está mais no HTML de ninguém).",
+        "O HTML do Analytics mudou pra private/, como os outros painéis.",
+        "Changelog: o time recebe as notas de versão sem as menções a tracking; o arquivo inteiro fica só com o dono."
+      ]
+    },
+    {
+      "version": "0.98.0",
+      "date": "14/out/2026",
+      "status": "released",
       "path": "/hub",
       "title": "🏢 Marketing Hub novo: a vitrine do Marketing pra empresa toda",
       "summary": "O /hub foi refeito pra impressionar a EPI-USE inteira: busca, ferramentas, agenda, campanhas, institucional e o time, com animações e só número de fonte real. O tracking de quem viu o quê fica só com o Rudá, e nada de vendas ou CRM chega na página.",
@@ -452,7 +468,8 @@
         "📊 Cards de resumo: cadastrados, ativos 7d, esfriando, sumidos, nunca entraram, % do time ativo em 30d",
         "🔒 Restrito ao dono (ruda.costa@epiuse.com.br) como o resto do Analytics",
         "🎨 Memes: novo 'Cantinho da Duda' no /memes (a escova de cabelo e a coleção de ursinhos de pelúcia) — arte original, filtro próprio no menu"
-      ]
+      ],
+      "so_dono": true
     },
     {
       "version": "0.82.4",
@@ -770,7 +787,8 @@
         "Backfill dos logins SSO já registrados (users.azure_oid + datas): quem acessou antes do Módulo 17 entra no report como evento 'login' real, com primeiro/último acesso e área",
         "Sem invenção de dado: páginas visitadas e tempo desse período não existem, então ficam zerados/vazios (usuário aparece com 0 visitas + último acesso real) — regra REAL DATA ONLY",
         "Idempotente (não duplica a cada deploy). UTM não é retroativo — não havia links rastreados antes"
-      ]
+      ],
+      "so_dono": true
     },
     {
       "version": "0.75.7",
@@ -806,7 +824,8 @@
         "Clique em qualquer usuário abre o perfil completo: sessões (início/fim/duração/tempo ativo), tempo por página, linha do tempo de acessos",
         "Lista de usuários agora mostra a Área (role — MKT em verde, Head em vermelho, não cadastrado em cinza) e os ERP Coins de cada um",
         "Detalhe traz Conquistas & ERP Coins do usuário (Guardião dos Elefantes, Giro do Escritório, Gol de Placa, LinkedIn) com total acumulado"
-      ]
+      ],
+      "so_dono": true
     },
     {
       "version": "0.75.4",
@@ -818,7 +837,8 @@
         "Log de navegação server-side (quem/que página/quando) cobrindo todas as páginas + beacon de tempo ativo por página (office-nav via sendBeacon)",
         "Report em /admin/analytics: usuários únicos, sessões, tempo total, visitas por dia, ranking de páginas (com tempo médio) e atividade recente",
         "Acesso restrito a ruda.costa@epiuse.com.br (gate por email SSO); dados no SQLite do volume Railway, sem terceiros"
-      ]
+      ],
+      "so_dono": true
     },
     {
       "version": "0.75.3",

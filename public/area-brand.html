@@ -102,8 +102,6 @@ a.chip:hover{border-color:var(--p-corn);transform:translateY(-2px)}
 .chip .av{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font:900 11px var(--p-head);background:linear-gradient(135deg,var(--p-royal),var(--p-purple));color:var(--p-text)}
 .chip b{color:var(--p-text);font-family:var(--p-head)}
 .chip .dot{width:8px;height:8px;border-radius:50%;background:var(--p-ok);animation:ping 2s infinite}
-.chip.owner{border-color:color-mix(in srgb,var(--p-yellow) 45%,transparent);color:var(--p-text)}
-.chip.owner .dot{background:var(--p-yellow);animation-name:pingY}
 @keyframes ping{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--p-ok) 70%,transparent)}100%{box-shadow:0 0 0 12px transparent}}
 @keyframes pingY{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--p-yellow) 70%,transparent)}100%{box-shadow:0 0 0 12px transparent}}
 @keyframes pingO{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--p-orange) 70%,transparent)}100%{box-shadow:0 0 0 12px transparent}}
@@ -472,7 +470,6 @@ a.goal:hover{border-color:var(--p-corn);transform:translateY(-2px)}
     <div class="who">
       <span class="chip"><span class="av" id="donaAv">EH</span><span id="donaNm">Eduarda Hirose (Duda)</span></span>
       <a class="chip" id="agChip" href="/agentes/area-brand" data-act="agente.chip">🤖 agente da área</a>
-      <a class="chip owner" id="ownerChip" href="/admin/brand" hidden><span class="dot"></span><span id="ownerTxt">👁️ Quem viu esta página</span></a>
     </div>
     <div class="const" id="const">
       <div class="c-k"><i></i>Constelação dos Voices · ao vivo</div>
@@ -657,7 +654,7 @@ const aid = id => String(id || '').toLowerCase().replace(/[^a-z0-9_-]/g, '-').sl
    Beacon do Office (POST /api/analytics/track, kind='brand', em lote). Quem
    abriu a página e o tempo total já são gravados pelo servidor/office-nav.
    Aqui: seções vistas, tempo em cada seção, scroll e cada clique (data-act).
-   Painel: /admin/brand (só o dono). */
+   Painel: Analytics (só o dono). */
 const TQ = [];
 let tqT = 0;
 function send(steps) {
@@ -1301,15 +1298,6 @@ function renderFontes() {
   $$('#srcIn [data-node]').forEach(b => b.addEventListener('click', () => openNode(b.dataset.node)));
 }
 
-/* ---------- DONO: atalho pro painel de tracking (só ele vê) ---------- */
-async function ownerBar() {
-  const o = await j('/api/analytics/owner');
-  if (!o || !o.owner) return;
-  $('#ownerChip').hidden = false;
-  const r = await j('/api/admin/analytics/brand?days=30');
-  if (r && r.resumo) $('#ownerTxt').textContent = `👁️ ${r.resumo.pessoas} ${r.resumo.pessoas === 1 ? 'pessoa viu' : 'pessoas viram'} em 30 dias · painel`;
-}
-
 /* ======================= INIT ======================= */
 (async () => {
   watch($('.top'));
@@ -1324,7 +1312,6 @@ async function ownerBar() {
   renderStats(); renderGoals(); renderVoices(); renderEsteira(); renderAlcance(); renderInsc(); renderCases(); renderCal(); renderMarca(); renderFontes();
   watch(document.body);
   $$('.rv.in').forEach(animateIn);
-  ownerBar();
 })();
 })();
 </script>

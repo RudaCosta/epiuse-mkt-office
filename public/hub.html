@@ -134,9 +134,6 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .quick{display:flex;flex-wrap:wrap;gap:8px}
 .quick .chip{font-size:12px;padding:6px 12px}
 .hero-cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
-.owner{display:inline-flex;align-items:center;gap:8px;margin-top:18px;padding:7px 14px;border-radius:var(--rounded-full);font-size:12px;font-weight:700;
-  color:var(--h-text);background:color-mix(in srgb,var(--h-red) 16%,transparent);border:1px solid color-mix(in srgb,var(--h-red) 55%,transparent)}
-.owner .dot-live{width:7px;height:7px}
 
 /* números ao vivo */
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:44px}
@@ -424,7 +421,6 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
           <a class="btn btn-p mag" href="#ferramentas" data-act="cta.explorar">Explorar o Hub <span class="ar">→</span></a>
           <a class="btn btn-g mag" href="#institucional" data-act="cta.institucional">📊 Apresentação institucional</a>
         </div>
-        <a class="owner" id="ownerChip" hidden><span class="dot-live"></span><span id="ownerTxt">👁️ Quem viu o quê · só você</span></a>
       </div>
 
       <div class="orbit-w" aria-label="Atalhos em órbita">
@@ -561,7 +557,7 @@ async function j(u) { try { const r = await fetch(u, { credentials: 'same-origin
 const parseDia = s => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(s || '')); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; };
 
 /* ═════════ CONTEÚDO (fonte única: render, busca, órbita e tracking) ═════════
-   id = slug gravado no tracking (tool.<id>) — o painel /admin/hub usa os mesmos ids. */
+   id = slug gravado no tracking (tool.<id>) — o painel do Analytics usa os mesmos ids. */
 const SP = 'https://epiusebr-my.sharepoint.com/';
 const CATS = { marca: 'Marca', linkedin: 'LinkedIn', engajamento: 'Engajamento', conteudo: 'Conteúdo', impacto: 'Impacto' };
 const TOOLS = [
@@ -630,7 +626,7 @@ const href = x => x.open ? '#' : esc(x.href);
    Beacon do Office (POST /api/analytics/track, kind='hub', em lote). Quem abriu
    a página e o tempo total já são gravados pelo servidor/office-nav. Aqui:
    seções vistas, tempo em cada seção, scroll, busca e cada clique (data-act).
-   Painel: /admin/hub — só o dono (por e-mail). */
+   Painel: Analytics — só o dono (por e-mail). */
 const TQ = [];
 let tqT = 0;
 function send(steps) {
@@ -1063,16 +1059,6 @@ async function load() {
 
 }
 
-/* ═════════ DONO: atalho pro painel de tracking (só ele vê) ═════════ */
-async function ownerChip() {
-  const o = await j('/api/analytics/owner');
-  if (!o || !o.owner) return;
-  // O chip só aparece pro dono. Quem protege o painel é o servidor: /admin/hub e a API checam o e-mail do dono.
-  const chip = $('#ownerChip'); chip.href = '/admin/hub'; chip.hidden = false;
-  const r = await j('/api/admin/analytics/hub?days=30');
-  if (r && r.resumo) $('#ownerTxt').textContent = `👁️ ${r.resumo.pessoas} ${r.resumo.pessoas === 1 ? 'pessoa viu' : 'pessoas viram'} em 30 dias · quem viu o quê`;
-}
-
 /* ═════════ INIT ═════════ */
 watch(document);
 load().then(() => {
@@ -1081,7 +1067,6 @@ load().then(() => {
   const alvo = tab === 'institucional' ? 'institucional' : (location.hash || '').slice(1);
   if (alvo && document.getElementById(alvo)) setTimeout(() => document.getElementById(alvo).scrollIntoView({ behavior: RM ? 'auto' : 'smooth' }), 250);
 });
-ownerChip();
 onScroll();
 })();
 </script>

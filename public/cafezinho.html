@@ -68,9 +68,6 @@ button{font:inherit;color:inherit}
 .stat b{display:block;font:900 28px/1 var(--o-head)}
 .stat span{font-size:12px;color:var(--o-muted)}
 @media (max-width:560px){.stats{grid-template-columns:repeat(2,1fr)}}
-.own-pill{display:inline-flex;gap:8px;align-items:center;margin-top:18px;padding:8px 14px;border-radius:var(--rounded-full);background:color-mix(in srgb,var(--o-zod) 16%,transparent);border:1px solid color-mix(in srgb,var(--o-zod) 55%,transparent);font:700 13px var(--o-head);color:var(--o-text);text-decoration:none;transition:transform .3s var(--spring)}
-.own-pill:hover{transform:translateY(-2px)}
-.own-pill small{font:600 11px var(--o-body);color:var(--o-dim)}
 
 /* Xícara */
 .cup-wrap{position:relative;display:grid;place-items:center;min-height:380px}
@@ -350,7 +347,6 @@ button{font:inherit;color:inherit}
         <a class="btn ghost" href="/game">🎮 Minha baia</a>
       </div>
       <div class="stats" id="stats" hidden></div>
-      <div id="ownSlot"></div>
     </div>
     <div class="cup-wrap">
       <div class="orbit" id="orbit" aria-hidden="true"></div>
@@ -631,8 +627,6 @@ function renderHero() {
   const box = $('#stats'); box.hidden = false;
   box.innerHTML = st.map((s, i) => `<div class="stat" style="--i:${i}"><b data-n="${s[0]}">0</b><span>${s[1]}</span></div>`).join('');
   $$('b[data-n]', box).forEach(b => countUp(b, +b.dataset.n));
-  // Link do painel: a URL só vem do servidor, e só pro dono.
-  if (f.painel) $('#ownSlot').innerHTML = `<a class="own-pill" href="${esc(f.painel)}">📊 Tracking do Cafezinho <small>· só você vê</small></a>`;
   // Órbita com o folclore coletivo do seed
   const ems = ((ST.seed || {}).em_comum || []).map(c => c.emoji).slice(0, 6);
   $('#orbit').innerHTML = ems.map((e, i) => `<div class="orb-e" style="--r:${150 + (i % 2) * 34}px;--d:${22 + i * 3}s;--dl:${-i * 4.2}s"><span>${esc(e)}</span></div>`).join('');

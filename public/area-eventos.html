@@ -95,8 +95,6 @@ a.chip:hover{border-color:var(--e-corn);transform:translateY(-2px)}
 .chip .av{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font:900 11px var(--e-head);background:linear-gradient(135deg,var(--e-royal),var(--e-svc));color:var(--e-text)}
 .chip b{color:var(--e-text);font-family:var(--e-head)}
 .chip .dot{width:8px;height:8px;border-radius:50%;background:var(--e-ok);animation:ping 2s infinite}
-.chip.owner{border-color:color-mix(in srgb,var(--e-yellow) 45%,transparent);color:var(--e-text)}
-.chip.owner .dot{background:var(--e-yellow);animation-name:pingY}
 @keyframes ping{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--e-ok) 70%,transparent)}100%{box-shadow:0 0 0 12px transparent}}
 @keyframes pingY{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--e-yellow) 70%,transparent)}100%{box-shadow:0 0 0 12px transparent}}
 @keyframes pingO{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--e-warn) 70%,transparent)}100%{box-shadow:0 0 0 9px transparent}}
@@ -547,7 +545,6 @@ tbody tr:hover{background:color-mix(in srgb,var(--e-corn) 8%,transparent)}
     <div class="who">
       <span class="chip"><span class="av" id="donaAv">GS</span><span id="donaNm">Gabrielle Senne</span></span>
       <a class="chip" id="agChip" href="/agentes/area-eventos" data-act="agente.chip">🤖 agente da área</a>
-      <a class="chip owner" id="ownerChip" href="/admin/eventos" hidden><span class="dot"></span><span id="ownerTxt">👁️ Quem viu esta página</span></a>
     </div>
     <div class="next" id="next"><div class="skel" style="height:80px;grid-column:1/-1"></div></div>
     <div class="ticker" id="ticker" hidden><div class="tk-in" id="tkIn"></div></div>
@@ -701,7 +698,7 @@ const slug = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ
    Beacon do Office (POST /api/analytics/track, kind='eventos', em lote). Quem
    abriu a página e o tempo total já são gravados pelo servidor/office-nav.
    Aqui: seções vistas, tempo em cada seção, scroll, meses vistos e cliques.
-   Painel: /admin/eventos (só o dono). */
+   Painel: Analytics (só o dono). */
 const TQ = [];
 let tqT = 0;
 function send(steps) {
@@ -1658,15 +1655,6 @@ function renderRoi() {
   $$('tr[data-ev]', box).forEach(tr => tr.addEventListener('click', () => evClick(tr.dataset.ev, 'roi', 'pos')));
 }
 
-/* ---------- DONO: atalho pro painel de tracking (só ele vê) ---------- */
-async function ownerBar() {
-  const o = await j('/api/analytics/owner');
-  if (!o || !o.owner) return;
-  $('#ownerChip').hidden = false;
-  const r = await j('/api/admin/analytics/eventos?days=30');
-  if (r && r.resumo) $('#ownerTxt').textContent = `👁️ ${r.resumo.pessoas} ${r.resumo.pessoas === 1 ? 'pessoa viu' : 'pessoas viram'} em 30 dias · painel`;
-}
-
 /* ======================= INIT ======================= */
 (async () => {
   watch($('.top'));
@@ -1679,7 +1667,6 @@ async function ownerBar() {
   renderStatus(); renderMdf(); renderRoi();
   watch(document.body);
   $$('.rv.in').forEach(animateIn);   // blocos já visíveis antes dos dados chegarem
-  ownerBar();
 })();
 })();
 </script>

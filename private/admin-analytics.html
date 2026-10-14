@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Analytics de Uso · Admin</title>
+<title>Analytics · Admin</title>
 <link rel="stylesheet" href="/design-tokens.css">
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -78,7 +78,8 @@
 <body>
 <office-nav></office-nav>
 <div class="container">
-  <h1>📊 Analytics de Uso</h1>
+  <script src="/admin/analytics-tabs.js"></script>
+  <h1>📊 Uso do Office</h1>
   <div class="sub">Quem acessou a plataforma, quanto tempo ficou e quais páginas visitou.</div>
   <div class="owner" id="owner-tag">🔒 Área restrita</div>
 
@@ -123,7 +124,7 @@
   <h2>Visitas por dia</h2>
   <div class="spark" id="spark"></div>
 
-  <h2>🎓 Onboarding — quem fez o quê</h2>
+  <h2 id="onboarding" style="scroll-margin-top:90px">🎓 Onboarding — quem fez o quê</h2>
   <div class="muted" style="margin:-4px 0 8px">Cada passo da trilha <a href="/onboarding" style="color:var(--color-brand-cornflower-blue)">/onboarding</a>: telas vistas, respostas do quiz, acessos do Kit Dia 1 e certificado. Histórico completo (não usa o filtro de período). 👆 Clique numa pessoa para ver o passo a passo.</div>
   <div class="panel">
     <table><thead><tr>
