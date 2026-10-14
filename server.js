@@ -873,7 +873,8 @@ app.post('/api/game/egg', express.json({ limit: '2kb' }), async (req, res) => {
 // para o crédito não depender só do navegador. 'trilha' é bônus automático
 // quando as 5 conquistas existem. Valores só no server.
 const ONB_COINS = { kit: 50, e1: 100, e2: 100, e3: 100, e4: 100, trilha: 150 };
-const ONB_GABARITO = { e1: [1, 0, 1, 1], e2: [1, 1, 0, 1], e3: [1, 1, 1, 1], e4: [1, 0, 1, 1] };
+const ONB_GABARITO = { e1: [1, 0, 1, 1, 1, 2], e2: [1, 0, 1, 1, 2, 2], e3: [1, 1, 1, 0, 1, 0], e4: [1, 0, 1, 1, 1, 1] };   // v2.5: 6 perguntas × 4 opções
+const ONB_GABARITO_V1 = { e1: [1, 0, 1, 1], e2: [1, 1, 0, 1], e3: [1, 1, 1, 1], e4: [1, 0, 1, 1] };   // quiz antigo (4 perguntas): crédito retroativo de quem concluiu antes da v2.5
 const onbConquistas = email => db.prepare(`SELECT ref FROM erp_coins WHERE email=? AND evento='onboarding'`).all(email).map(r => r.ref);
 const onbSaldo = email => db.prepare(`SELECT COALESCE(SUM(coins),0) n FROM erp_coins WHERE email=?`).get(email).n;
 // Certificado = existe a conquista 'trilha'. Nº derivado da linha do ledger
@@ -900,9 +901,9 @@ app.post('/api/onboarding/conquista', express.json({ limit: '2kb' }), (req, res)
   // Trilha progressiva: e2..e4 exigem a conquista da etapa anterior
   const ordem = ['e1', 'e2', 'e3', 'e4'], idx = ordem.indexOf(etapa);
   if (idx > 0 && !onbConquistas(email).includes(ordem[idx - 1])) return res.status(400).json({ error: 'etapa_bloqueada' });
-  const key = ONB_GABARITO[etapa];
+  const resp = Array.isArray((req.body || {}).respostas) ? req.body.respostas : [];
+  const key = (resp.length === 4 ? ONB_GABARITO_V1 : ONB_GABARITO)[etapa];
   if (key) {
-    const resp = Array.isArray((req.body || {}).respostas) ? req.body.respostas : [];
     const acertos = key.filter((a, i) => Number(resp[i]) === a).length;
     if (acertos < Math.ceil(key.length * 0.75)) return res.status(400).json({ error: 'quiz_reprovado' });
   }

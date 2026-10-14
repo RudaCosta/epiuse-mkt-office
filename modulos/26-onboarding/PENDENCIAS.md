@@ -7,7 +7,7 @@
 ## Conteúdo a preencher
 
 - [ ] Os "4 pilares" institucionais (conteúdo oficial)
-- [ ] Tusk — o que é + link
+- [x] Tusk — time de design do grupo (13/out, via Brand Guide)
 - [x] URL Multidados (02/out) · [ ] manual de horas/despesas
 - [x] URL SuccessFactors EUBR · site Stratview (admin) · Trello · Coworking (02/out)
 - [ ] EU nas Redes / Fique bem Fique em Casa — regras
@@ -16,3 +16,8 @@
 - [ ] Grade de treinamentos internos SAP · playbook comercial oficial
 - [ ] Rituais da cultura GE além do #TBT
 - [ ] Bug compartilhado: `office-nav` gera overflow horizontal em 390px (não é desta página)
+
+## v2.5 (13/out)
+- [ ] Validar rascunhos do workshop (WHY · HOW · WHAT e os 9 blocos do Canvas) — `🤖 Gerado por IA`
+- [ ] Decidir: workshop fica individual (navegador) ou vira sessão ao vivo / coleta no server
+- [ ] Confirmar se os 10 vídeos são públicos/não listados (embed precisa estar liberado no YouTube)

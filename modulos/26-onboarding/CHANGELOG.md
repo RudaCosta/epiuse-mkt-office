@@ -20,3 +20,16 @@
 ## v2.3 · 05/out/2026 — trilha progressiva
 - Chegada da Gabi: etapas voltam a ser progressivas (cada uma abre só após a anterior; Kit Dia 1 não bloqueia).
 - Server recusa coins de etapa fora de ordem (`etapa_bloqueada`); créditos retroativos rodam em sequência.
+
+## v2.4 · 06/out/2026 — materiais por etapa
+- Etapa 1 ganha slide "Apresentação institucional" (PPT no SharePoint + vídeo "SAP e o ERP" embutido) → 11 telas.
+- Painel **📚 Materiais** (treinamentos e links para conhecer mais) por etapa: botão no topo do modo foco e na home. Lista do Rudá distribuída: E1 institucional/ERP.ngo/marca · E2 inbound/LGPD/MDF-PBC · E3 SAP + SEO/SEM/design/growth/FIAP · E4 outbound/venda SAP.
+- Cliques nos materiais entram no rastreamento (`eN.res.open`, `eN.res.linkK`, `e1.res.ppt`). Login compartilhado (Crehana) segue fora da página.
+
+## v2.5 · 13/out/2026 — marca oficial · workshop · videoteca
+- **Marca (guias oficiais):** Etapa 1 ganha "A marca irmã: Elephants, Rhinos & People" (guia ERP/ERPA), "Regras de ouro do logo" (4 elementos, mínimo 56 px, área de proteção, logo antigo aposentado) e "A marca no dia a dia" (redes, propostas, imagens, co-branding, Tusk) → 14 telas.
+- **Workshop Golden Circle × Business Model Canvas** na Etapa 2 (2 telas): anéis clicáveis com rascunho EUBR + campo de resposta; os 9 blocos do Canvas mapeados por anel; "Copiar minhas respostas". Rascunhos marcados `🤖 Gerado por IA, a validar`.
+- **Videoteca obrigatória** na Etapa 3: 10 vídeos de produto embutidos (S/4HANA, banho de loja, process mining, Solution Advisory, iLab, Valcann, CMI SAP, ServiceNow). Conta ao chegar a 90%; o "Próximo" fica travado (🔒 x/10) até assistir todos.
+- **Produto × marketing separados:** treinamentos de marketing (SEO/SEM, design, growth) migraram para a Etapa 2; a Etapa 3 fica só com produto (SAP/ERP + videoteca).
+- **Quizzes 6 × 4:** todas as etapas com 6 perguntas e 4 opções, incluindo perguntas mais técnicas (CAC, UTM, Clean Core, RISE, HRSD, BANT, fim do suporte ECC). Gabarito do server atualizado.
+- Rastreamento novo: `e2.workshop.*`, `e3.video.<id>.play|done`.

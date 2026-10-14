@@ -117,9 +117,9 @@ button{font:inherit;color:inherit}
 .toast.on{transform:translate(-50%,0);opacity:1}
 .fab{position:fixed;right:20px;bottom:20px;z-index:60;display:flex;align-items:center;gap:8px;padding:12px 18px;border-radius:var(--rounded-full);border:1px solid var(--o-line);background:var(--o-glass);backdrop-filter:blur(12px);cursor:pointer;font:700 14px var(--o-head);transition:transform .3s var(--spring)}
 .fab:hover{transform:translateY(-3px)}
-.scrim{position:fixed;inset:0;z-index:890;background:color-mix(in srgb,var(--o-bg) 60%,transparent);backdrop-filter:blur(4px);opacity:0;visibility:hidden;transition:.35s}
+.scrim{position:fixed;inset:0;z-index:1140;background:color-mix(in srgb,var(--o-bg) 60%,transparent);backdrop-filter:blur(4px);opacity:0;visibility:hidden;transition:.35s}
 .scrim.on{opacity:1;visibility:visible}
-.drawer{position:fixed;top:0;right:0;z-index:900;width:min(460px,100%);height:100%;display:flex;flex-direction:column;background:var(--o-surf);border-left:1px solid var(--o-line);transform:translateX(105%);transition:transform .5s var(--ease)}
+.drawer{position:fixed;top:0;right:0;z-index:1150;width:min(460px,100%);height:100%;display:flex;flex-direction:column;background:var(--o-surf);border-left:1px solid var(--o-line);transform:translateX(105%);transition:transform .5s var(--ease)}
 .drawer.on{transform:none}
 .dr-head{display:flex;align-items:center;justify-content:space-between;padding:20px 22px 12px}
 .dr-head h3{font-size:22px}
@@ -440,6 +440,85 @@ button{font:inherit;color:inherit}
 .cert-post .row{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
 .cert-post .row .btn{text-decoration:none}
 
+/* Materiais por etapa + slide institucional */
+.res-g{margin-bottom:18px}
+.res-g h4{font:700 12px var(--o-head);letter-spacing:.12em;text-transform:uppercase;color:var(--o-corn);margin-bottom:8px}
+.res-g .lk{margin-bottom:8px}
+.p-res{appearance:none;cursor:pointer;padding:9px 14px;border-radius:var(--rounded-full);border:1px solid var(--o-line);background:var(--o-glass);font:700 13px var(--o-head);white-space:nowrap;transition:border-color .3s}
+.p-res:hover{border-color:var(--o-corn)}
+.inst{display:grid;gap:14px}
+.yt{position:relative;aspect-ratio:16/9;border-radius:18px;overflow:hidden;border:1px solid var(--o-line);background:var(--o-bg)}
+.yt iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.ppt{display:flex;align-items:center;gap:14px;padding:16px;border-radius:18px;border:1px solid var(--o-line);background:var(--o-glass);text-decoration:none;color:var(--o-text);transition:border-color .3s,transform .3s var(--spring)}
+.ppt:hover{border-color:var(--o-corn);transform:translateY(-3px)}
+.ppt .e{font-size:34px}
+.ppt b{display:block;font:900 16px var(--o-head)}
+.ppt small{font-size:12.5px;color:var(--o-muted)}
+@media (max-width:600px){.p-res span{display:none}}
+/* ---------- v2.5: marca (guias oficiais) · workshop · videoteca ---------- */
+.logo-pap{justify-items:center}
+.logo-stage{position:relative;box-sizing:border-box;max-width:100%;min-width:0;padding:clamp(18px,5vw,30px) clamp(18px,6vw,38px);border-radius:14px;background:var(--color-brand-stone-gray)}
+.logo-stage img{display:block;width:300px;max-width:100%;height:auto;position:relative}
+.iso{position:absolute;inset:10px;border:2px dashed var(--o-red);border-radius:8px;animation:isoP 2.6s ease-in-out infinite}
+@keyframes isoP{50%{inset:2px;opacity:.4}}
+.logo-meta{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;font-size:12.5px}
+.logo-meta span{padding:5px 10px;border-radius:var(--rounded-full);background:color-mix(in srgb,var(--color-brand-text-dark-grey) 8%,transparent)}
+.dont{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dn{display:flex;gap:8px;align-items:flex-start;padding:10px 12px;border-radius:14px;border:1px solid color-mix(in srgb,var(--o-red) 45%,transparent);background:color-mix(in srgb,var(--o-red) 8%,transparent);font-size:13px;color:var(--o-dim);opacity:0;animation:fadeUp .5s var(--ease) forwards;animation-delay:calc(var(--i)*.1s + .5s)}
+.dn b{color:var(--o-red);font:900 14px var(--o-head)}
+.erpb{display:grid;gap:12px}
+.erpb-hd{display:flex;align-items:center;gap:14px;padding:16px;border-radius:18px;background:linear-gradient(135deg,var(--color-erp-blue),var(--color-erp-blue-mid))}
+.erpb-hd img{height:44px;width:auto}
+.erpb-hd b{display:block;font:900 17px var(--o-head);letter-spacing:.06em;text-transform:uppercase}
+.erpb-hd span{font-size:13px;color:var(--color-erp-blue-light)}
+.tiers{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tier{padding:16px;border-radius:16px;background:linear-gradient(160deg,color-mix(in srgb,var(--color-erp-brown-mid) 40%,transparent),color-mix(in srgb,var(--color-erp-blue) 70%,transparent));border:1px solid color-mix(in srgb,var(--color-erp-brown-light) 40%,transparent);opacity:0;animation:popIn .6s var(--spring) forwards;animation-delay:calc(var(--i)*.12s + .2s)}
+.tier .e{font-size:30px;display:block}
+.tier b{display:block;font:900 14px var(--o-head);margin-top:6px;text-transform:uppercase;letter-spacing:.06em}
+.tier small{font-size:12.5px;color:var(--o-dim)}
+.prs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pr{padding:14px;border-radius:16px;border:1px solid var(--o-line);background:var(--o-glass);opacity:0;animation:fadeUp .55s var(--ease) forwards;animation-delay:calc(var(--i)*.08s + .15s);transition:border-color .3s}
+.pr:hover{border-color:var(--o-corn)}
+.pr .e{font-size:22px}
+.pr b{display:block;font:900 14px var(--o-head);margin:4px 0}
+.pr span{font-size:12.5px;color:var(--o-dim)}
+.gc,.bmw{display:grid;gap:12px}
+.gc-rings{position:relative;width:min(300px,78%);aspect-ratio:1;margin:4px auto 0}
+.gc-r{appearance:none;cursor:pointer;position:absolute;left:50%;top:50%;border-radius:50%;display:flex;justify-content:center;font:900 12.5px var(--o-head);letter-spacing:.14em;color:var(--o-text);border:2px solid var(--o-line);opacity:0;transform:translate(-50%,-50%) scale(.6);animation:gcIn .9s var(--spring) forwards;transition:box-shadow .3s,border-color .3s}
+.gc-r.r3{width:100%;height:100%;padding-top:8%;background:color-mix(in srgb,var(--o-corn) 22%,transparent);animation-delay:.1s}
+.gc-r.r2{width:66%;height:66%;padding-top:9%;background:color-mix(in srgb,var(--o-royal) 60%,transparent);animation-delay:.3s}
+.gc-r.r1{width:33%;height:33%;align-items:center;background:var(--o-red);animation-delay:.5s}
+.gc-r.on{border-color:var(--o-text);box-shadow:0 0 0 6px color-mix(in srgb,var(--o-corn) 28%,transparent)}
+@keyframes gcIn{to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+.ws-p{padding:14px 16px;border-radius:16px;border:1px solid var(--o-line);background:var(--o-glass)}
+.ws-p h4{font:900 16px var(--o-head);margin-bottom:4px}
+.ws-p p{font-size:13.5px;color:var(--o-dim)}
+.ws-p .ai{display:inline-block;font:700 10.5px var(--o-head);letter-spacing:.06em;color:var(--color-warning-500);margin-bottom:6px}
+.ws-p textarea{width:100%;min-height:62px;margin-top:10px;padding:10px 12px;border-radius:12px;border:1px solid var(--o-line);background:var(--o-bg);color:var(--o-text);font:13.5px/1.5 var(--o-body);resize:vertical}
+.ws-p textarea:focus{outline:2px solid var(--o-corn);outline-offset:1px}
+.gc-leg{display:flex;flex-wrap:wrap;gap:6px}
+.gc-leg .vchip i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;background:var(--c)}
+.bmc{display:grid;grid-template-columns:repeat(10,1fr);grid-template-areas:"kp kp ka ka vp vp cr cr cs cs" "kp kp kr kr vp vp ch ch cs cs" "co co co co co rs rs rs rs rs";gap:6px}
+.bm{appearance:none;cursor:pointer;min-height:58px;padding:8px;border-radius:12px;border:1px solid var(--o-line);border-top:4px solid var(--c);background:var(--o-glass);font:700 11.5px/1.25 var(--o-head);text-align:left;color:var(--o-text);display:flex;flex-direction:column;gap:3px;opacity:0;animation:popIn .5s var(--spring) forwards;animation-delay:calc(var(--i)*.06s + .1s);transition:transform .25s var(--spring),background .3s}
+.bm small{font:400 10.5px/1.3 var(--o-body);color:var(--o-muted)}
+.bm.on{background:color-mix(in srgb,var(--c) 26%,transparent);transform:translateY(-2px)}
+.bm.dim{opacity:.22!important}
+.bm[data-g="why"],.vchip[data-g="why"]{--c:var(--o-red)}
+.bm[data-g="how"],.vchip[data-g="how"]{--c:var(--o-royal)}
+.bm[data-g="what"],.vchip[data-g="what"]{--c:var(--o-corn)}
+@media (max-width:600px){.bmc{grid-template-columns:1fr 1fr;grid-template-areas:"vp vp" "kp ka" "kr ch" "cr cs" "co rs"}.dont,.prs,.tiers{grid-template-columns:1fr}}
+.vt{display:grid;gap:10px}
+.vt-now{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:32px}
+.vt-now b{font:900 15px var(--o-head)}
+.vt-man{appearance:none;cursor:pointer;padding:7px 12px;border-radius:var(--rounded-full);border:1px solid var(--o-ok);background:color-mix(in srgb,var(--o-ok) 14%,transparent);font:700 12px var(--o-head);white-space:nowrap}
+.vt-prog{font-size:12.5px;color:var(--o-dim)}
+.vt-prog .bar{margin:6px 0 0}
+.vt-list{max-height:250px;overflow:auto;display:grid;gap:6px;padding-right:4px}
+.vt-g{font:700 10.5px var(--o-head);letter-spacing:.12em;text-transform:uppercase;color:var(--o-corn);margin:6px 0 0}
+.vt-it{appearance:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid var(--o-line);background:var(--o-glass);font:600 13px var(--o-body);text-align:left;color:var(--o-text);transition:border-color .3s}
+.vt-it i{flex:0 0 24px;height:24px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:11px;background:var(--o-surf);border:1px solid var(--o-line)}
+.vt-it.cur{border-color:var(--o-corn)}
+.vt-it.ok i{background:var(--o-ok);border-color:var(--o-ok);color:var(--o-bg);font-weight:900}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important}}
 </style>
 </head>
@@ -457,6 +536,7 @@ button{font:inherit;color:inherit}
       <div class="cta-row">
         <button class="btn" id="ctaMain">▶ Começar a trilha</button>
         <button class="btn ghost" id="ctaKit">🎒 Kit Dia 1</button>
+        <button class="btn ghost" id="ctaRes">📚 Materiais</button>
       </div>
       <div class="phase-pill"><i></i> Etapas liberadas em sequência</div><a class="coin-pill" id="coinPill" hidden></a>
     </div>
@@ -491,7 +571,7 @@ button{font:inherit;color:inherit}
 </aside>
 
 <div class="player" id="player" role="dialog" aria-modal="true" aria-label="Etapa da trilha">
-  <div class="p-top"><span class="p-title" id="pTitle"></span><div class="segs" id="segs"></div><button class="x" id="pClose" aria-label="Sair da etapa">✕</button></div>
+  <div class="p-top"><span class="p-title" id="pTitle"></span><div class="segs" id="segs"></div><button class="p-res" id="pRes" aria-label="Materiais da etapa">📚<span> Materiais</span></button><button class="x" id="pClose" aria-label="Sair da etapa">✕</button></div>
   <div class="stage" id="stage"></div>
   <div class="p-bot" id="pBot">
     <button class="btn ghost" id="pPrev">← Voltar</button>
@@ -578,7 +658,7 @@ const TIPS = [
   ['🧾', '<b>Despesas:</b> também no Multidados, com nota fiscal anexada.']
 ];
 const DICT = [
-  ['ABM','Marketing direcionado a contas-alvo específicas.'],['AMS','Suporte e sustentação contínua do SAP.'],
+  ['ABM','Marketing direcionado a contas-alvo específicas.'],['Beyond Corporate Purpose','Imperativo do Group Elephant: ir além do propósito corporativo, financiando e operando a ERP.ngo.'],['Business Model Canvas','Quadro de 9 blocos que descreve como a empresa cria, entrega e captura valor.'],['CAC','Custo de aquisição de cliente: investimento de marketing e vendas ÷ clientes novos.'],['Golden Circle','Modelo de Simon Sinek: comunicar de dentro para fora, por quê → como → o quê.'],['Tusk','Time de design do grupo; faz as peças completas (ex.: proposta em InDesign) e pede prazo.'],['AMS','Suporte e sustentação contínua do SAP.'],
   ['AEO / GEO','Otimização para aparecer em respostas de IA.'],['ASUG','Associação de usuários SAP: eventos e comunidade.'],
   ['BANT','Qualificação: Budget, Authority, Need, Timing.'],['Binds','Pesquisa de NPS com clientes.'],
   ['BTP','SAP Business Technology Platform: extensões, integrações, dados e IA.'],['Cadência','Sequência planejada de contatos de prospecção.'],
@@ -597,6 +677,26 @@ const DICT = [
   ['TBT','Throwback Thursday: post de memória às quintas.'],['UTM','Parâmetros no link que rastreiam a origem do tráfego.'],
   ['Voices','Programa de especialistas embaixadores no LinkedIn.']
 ];
+/* Treinamentos e links para conhecer mais, por etapa (fonte: lista do Rudá, 06/out) */
+const PPT_INST = 'https://epiusebr-my.sharepoint.com/:p:/g/personal/ti_brasil_epiuse_com_br/IQBaP8g8tmhHR4MX4nfjkdB7ARyHXh-8Ydl7_aSxJB02Ud0?e=zBMCfw';
+const RES = {
+  e1: [['🏢 Apresentação institucional', [['📊', 'Apresentação institucional EPI-USE Brasil', 'PowerPoint no SharePoint · login Microsoft', PPT_INST]]],
+       ['🐘 ERP.ngo', [['📰', 'O que nossos clientes fizeram pelo nosso ERP em 2022', 'artigo · epiuse.com.br', 'https://www.epiuse.com.br/artigo/o-que-nossos-clientes-fizeram-pelo-nosso-erp-em-2022'], ['📰', 'ERP: exemplo de Human Centered Design (HCD)', 'artigo · epiuse.com.br', 'https://www.epiuse.com.br/artigo/erp-exemplo-de-human-centered-design-hcd'], ['📰', 'O que nossos clientes fizeram pelo nosso ERP em 2020', 'artigo · epiuse.com.br', 'https://www.epiuse.com.br/artigo/o-que-nossos-clientes-fizeram-pelo-nosso-erp-em-2020'], ['🦏', 'erp.ngo', 'site oficial', 'https://www.erp.ngo'], ['📊', 'Impacto ERP.ngo', '/erp-impacto', '/erp-impacto']]],
+       ['▶️ SAP e o ERP', [['▶️', 'SAP e o ERP', 'vídeo · YouTube', 'https://www.youtube.com/watch?v=BntjvxRet4I']]],
+       ['🎨 Marca', [['🌐', 'epiuse.com.br', 'site EPI-USE Brasil', 'https://www.epiuse.com.br'], ['🐘', 'groupelephant.com', 'site da holding', 'https://www.groupelephant.com'], ['📕', 'Brand Guide 2026', 'PDF no Drive', 'https://drive.google.com/file/d/1TuOfKEr2SXG24MFpjdnXaeW3s2pYK56c/view'], ['🎨', 'Brand assets', '/brand', '/brand']]]],
+  e2: [['📧 Inbound Marketing', [['📧', 'Curso de Marketing Digital', 'RD Station · gratuito', 'https://materiais.resultadosdigitais.com.br/agradecimento-curso-de-marketing-digital-gratuito'], ['🎓', 'RD University', 'trilhas de inbound', 'https://university.rdstation.com/start'], ['⚙️', 'Cursos RD Station', 'a ferramenta', 'https://university.rdstation.com/cursos?busca=rd+station']]],
+       ['🔒 LGPD', [['🔒', 'Conheça a LGPD', 'RD Station', 'https://ajuda.rdstation.com/s/article/Conhe%C3%A7a-a-Lei-Geral-de-Prote%C3%A7%C3%A3o-de-Dados?language=pt_BR'], ['🔒', 'LGPD na prática', 'RD Station', 'https://ajuda.rdstation.com/s/article/Lei-Geral-de-Prote%C3%A7%C3%A3o-de-Dados-LGPD?language=pt_BR']]],
+       ['📅 Eventos & SAP', [['🎁', 'Partner Benefits Catalog', 'SAP PBC', 'https://partnerbenefitscatalog.sap.com'], ['📄', 'Guia MDF', 'Partner Edge', 'https://partneredge.sap.com/en/library/assets/partnership/dgl/25/92/SAP1242592.html'], ['🤝', 'Social Selling Concierge', 'PBC', 'https://partnerbenefitscatalog.sap.com/Partner-Benefits-Catalog/Marketing-Excellence/Social-Selling-Concierge/p/1000895'], ['🌱', 'NNN4Growth', 'PBC', 'https://partnerbenefitscatalog.sap.com/Partner-Benefits-Catalog/Marketing-Excellence/NNN4Growth/p/1000929'], ['📦', 'Intro to Marketing Services', 'PBC', 'https://partnerbenefitscatalog.sap.com/Partner-Benefits-Catalog/Marketing-Agency-Packages/Intro-to-Marketing-Services/p/1000612']]],
+       ['🏢 No Office', [['📊', 'Report mensal', '/relatorio', '/relatorio'], ['📅', 'Field Marketing', '/field-marketing', '/field-marketing'], ['🏭', 'Pipeline de conteúdo', '/content-pipeline', '/content-pipeline'], ['📋', 'Trello do marketing', 'Atividades de Marketing', 'https://trello.com/b/M6xLnTcT/atividades-de-marketing-mise-en-place']]],
+       ['🔎 SEO & SEM', [['🔎', 'O que é SEO', 'Rock Content', 'https://rockcontent.com/br/blog/o-que-e-seo/'], ['💲', 'O que é SEM', 'RD Station', 'https://resultadosdigitais.com.br/marketing/o-que-e-sem/'], ['⚖️', 'SEO ou SEM: qual a diferença', 'Semrush', 'https://pt.semrush.com/blog/seo-ou-sem-qual-e-a-diferenca']]],
+       ['🎨 Design', [['🎨', 'Design Gráfico', 'FIAP · Eu Capacito', 'https://www.eucapacito.com.br/cursos/design-grafico/'], ['📘', 'Livro: Design para quem não é designer', 'Google Drive', 'https://drive.google.com/drive/u/1/folders/1cDTedhRgenXv9AO8Rt2sGyB88gV63oSj']]],
+       ['🚀 Growth & cursos livres', [['🚀', 'Curso de Growth Hacking', 'Crehana · login com o Rudá', 'https://www.crehana.com/clases/v2/10260/player/36309/'], ['🎓', '20 cursos gratuitos FIAP', 'tecnologia e negócios', 'https://www.fiap.com.br/2022/06/06/fiap-disponibilza-20-cursos-gratuitos-nas-areas-de-tecnologia-e-negocios/'], ['🎓', 'Eu Capacito', 'cursos gratuitos', 'https://eucapacito.com.br/']]]],
+  e3: [['🧪 SAP & ERP', [['▶️', 'SAP e o ERP', 'vídeo', 'https://www.youtube.com/watch?v=BntjvxRet4I'], ['▶️', 'S/4HANA', 'vídeo', 'https://www.youtube.com/watch?v=HvrIzogVbLw'], ['▶️', 'ServiceNow', 'vídeo', 'https://www.youtube.com/watch?v=_3dtG69n9CQ'], ['▶️', 'Process mining (1)', 'vídeo', 'https://www.youtube.com/watch?v=tvRE2HXIQ0Y'], ['▶️', 'Process mining (2)', 'vídeo', 'https://www.youtube.com/watch?v=QT4N4V1xKWY'], ['🎓', 'SAP Learning', 'trilhas gratuitas', 'https://learning.sap.com'], ['👤', 'SAP for Me', 'exige S-user', 'https://me.sap.com']]],
+       ['🎬 Videoteca obrigatória (assista na Etapa 3)', [['▶️', 'S/4HANA', 'SAP S/4HANA · YouTube', 'https://www.youtube.com/watch?v=HvrIzogVbLw'], ['▶️', 'Banho de loja · Pré-vendas S/4HANA', 'SAP S/4HANA · YouTube', 'https://www.youtube.com/watch?v=xLdwsU8ARd4'], ['▶️', 'Process mining · parte 1', 'Process mining · YouTube', 'https://www.youtube.com/watch?v=tvRE2HXIQ0Y'], ['▶️', 'Process mining · parte 2', 'Process mining · YouTube', 'https://www.youtube.com/watch?v=QT4N4V1xKWY'], ['▶️', 'Solution Advisory · parte 1', 'Solution Advisory · YouTube', 'https://www.youtube.com/watch?v=-Uvy58aG97Y'], ['▶️', 'Solution Advisory · parte 2', 'Solution Advisory · YouTube', 'https://www.youtube.com/watch?v=KXRtCEBdLVU'], ['▶️', 'Banho de loja · iLab', 'Empresas do grupo · YouTube', 'https://www.youtube.com/watch?v=IDvOKB5juX8'], ['▶️', 'Banho de loja · Valcann', 'Empresas do grupo · YouTube', 'https://www.youtube.com/watch?v=s7FmM1LbARY'], ['▶️', 'CMI SAP · Girão 2026', 'Mercado SAP · YouTube', 'https://www.youtube.com/watch?v=4QvbWkt0T8c'], ['▶️', 'ServiceNow', 'ServiceNow · YouTube', 'https://www.youtube.com/watch?v=_3dtG69n9CQ']]]],
+  e4: [['📗 Outbound', [['📗', 'Receita Previsível', 'livro · Google Drive', 'https://drive.google.com/drive/u/1/folders/1cDTedhRgenXv9AO8Rt2sGyB88gV63oSj'], ['🎯', 'Exact Sales', 'pré-vendas', 'https://www.exactsales.com.br'], ['🎓', 'RD University', 'vendas e SDR', 'https://university.rdstation.com/start']]],
+       ['🤝 Venda SAP', [['▶️', 'S/4HANA Sales Approach', 'vídeo', 'https://www.youtube.com/watch?v=HvrIzogVbLw']]],
+       ['🏢 No Office', [['🧠', 'JARVIS', 'copiloto SDR · /jarvis', '/jarvis'], ['📞', 'Pipeline Apollo', '/pipeline', '/pipeline'], ['in', 'Sales Navigator', 'LinkedIn', 'https://www.linkedin.com/sales/']]]]
+};
 const STAGES = [
   { k: 'd1', kick: 'Comece aqui', t: 'Kit Dia 1', s: 'Acessos · time · rotina', ico: '🎒', phase: 1 },
   { k: 'e1', kick: 'Etapa 1', t: 'Marca & Grupo', s: 'EPI-USE · Group Elephant · ERP.ngo', ico: '🐘', phase: 1 },
@@ -712,17 +812,21 @@ $('#ctaKit').addEventListener('click', () => openDrawer('kit'));
 const drawer = $('#drawer'), scrim = $('#scrim');
 let drMode = 'kit', drTab = 'acessos';
 function openDrawer(mode) {
-  drMode = mode; drTab = mode === 'kit' ? (drTab === 'dict' ? 'acessos' : drTab) : 'dict';
+  drMode = mode;
+  if (mode === 'kit') drTab = ['acessos', 'time', 'rotina'].includes(drTab) ? drTab : 'acessos';
+  else if (mode === 'res') drTab = RES[arguments[1]] ? arguments[1] : (RES[drTab] ? drTab : 'e1');
+  else drTab = 'dict';
   renderDrawer(); drawer.classList.add('on'); scrim.classList.add('on'); drawer.setAttribute('aria-hidden', 'false');
-  track(mode === 'kit' ? 'kit.open' : 'dict.open');
+  track(mode === 'kit' ? 'kit.open' : mode === 'res' ? `${drTab}.res.open` : 'dict.open');
   setTimeout(() => (mode === 'dict' ? $('#dictQ') : $('#drClose'))?.focus(), 350);
 }
 function closeDrawer() { drawer.classList.remove('on'); scrim.classList.remove('on'); drawer.setAttribute('aria-hidden', 'true'); renderMap(); }
 $('#drClose').addEventListener('click', closeDrawer); scrim.addEventListener('click', closeDrawer);
 $('#fabDict').addEventListener('click', () => openDrawer('dict'));
+$('#ctaRes').addEventListener('click', () => openDrawer('res', ETAPAS.find(k => !S[k].done) || 'e1'));
 function renderDrawer() {
-  $('#drTitle').textContent = drMode === 'kit' ? '🎒 Kit Dia 1' : '📖 Dicionário';
-  const tabs = drMode === 'kit' ? [['acessos', '🔑 Acessos'], ['time', '👥 Time'], ['rotina', '🏠 Rotina']] : [];
+  $('#drTitle').textContent = drMode === 'kit' ? '🎒 Kit Dia 1' : drMode === 'res' ? '📚 Treinamentos e links' : '📖 Dicionário';
+  const tabs = drMode === 'kit' ? [['acessos', '🔑 Acessos'], ['time', '👥 Time'], ['rotina', '🏠 Rotina']] : drMode === 'res' ? [['e1', 'Etapa 1'], ['e2', 'Etapa 2'], ['e3', 'Etapa 3'], ['e4', 'Etapa 4']] : [];
   $('#drTabs').style.display = tabs.length ? '' : 'none';
   $('#drTabs').innerHTML = tabs.map(([k, l]) => `<button class="tab ${k === drTab ? 'on' : ''}" data-t="${k}">${l}</button>`).join('');
   $$('.tab').forEach(b => b.addEventListener('click', () => { drTab = b.dataset.t; renderDrawer(); }));
@@ -743,6 +847,12 @@ function renderDrawer() {
     body.innerHTML = `<p style="color:var(--o-dim);font-size:14px;margin-bottom:6px">Saber <b>quem decide o quê</b> economiza dias de retrabalho.</p>` +
       TEAM.map(([i, n, a, p], k) => `<div class="person" style="animation-delay:${k * 50}ms"><span class="av">${i}</span><div><b>${n}</b><span>${a}</span><em>Procure para: ${p}</em></div></div>`).join('') +
       `<p class="note">Organograma do time comercial: <span class="tag">⏳ a preencher</span></p>`;
+  } else if (drMode === 'res') {
+    const st = STAGES.find(x => x.k === drTab);
+    body.innerHTML = `<p style="color:var(--o-dim);font-size:14px;margin-bottom:14px">${st.ico} <b>${st.t}</b> · treinamentos e links para conhecer mais. Abrem em nova aba.</p>` +
+      RES[drTab].map(([g, L]) => `<div class="res-g"><h4>${g}</h4>${L.map(([e, t, s2, h], i) => `<a class="lk" style="--i:${i}" href="${h}" target="_blank" rel="noopener" data-res="${drTab}"><span class="e">${e}</span><span>${t}<small>${s2}</small></span></a>`).join('')}</div>`).join('') +
+      `<p class="note">🔐 Cursos com login compartilhado: peça o acesso ao Rudá (nunca fica nesta página).</p>`;
+    $$('a[data-res]', body).forEach((a, i) => a.addEventListener('click', () => track(`${drTab}.res.link${i + 1}`)));
   } else if (drTab === 'rotina') {
     body.innerHTML = TIPS.map(([e, t], k) => `<div class="tip" style="animation-delay:${k * 60}ms"><span>${e}</span><p>${t}</p></div>`).join('');
   } else {
@@ -914,16 +1024,157 @@ function vizBrand(el) {
   </div>`;
 }
 
+/* ---- Apresentação institucional + vídeo SAP e o ERP ---- */
+function vizInst(el) {
+  el.classList.add('auto');
+  el.innerHTML = `<div class="inst"><a class="ppt" href="${PPT_INST}" target="_blank" rel="noopener"><span class="e">📊</span><span><b>Apresentação institucional EPI-USE Brasil</b><small>PowerPoint · SharePoint (login Microsoft) · abre em nova aba ↗</small></span></a>
+    <div class="yt"><iframe src="https://www.youtube-nocookie.com/embed/BntjvxRet4I" title="SAP e o ERP" loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+    <p class="src">▶️ Vídeo: SAP e o ERP (YouTube)</p></div>`;
+  $('.ppt', el).addEventListener('click', () => track('e1.res.ppt'));
+}
+
 /* ---- 10. Links da etapa ---- */
 function vizLinks(el) {
-  const L = [['🌐', 'epiuse.com.br', 'site EPI-USE Brasil', 'https://www.epiuse.com.br'], ['🐘', 'groupelephant.com', 'site da holding', 'https://www.groupelephant.com'], ['🦏', 'erp.ngo', 'site oficial', 'https://www.erp.ngo'], ['📊', 'Impacto ERP.ngo', '/erp-impacto', '/erp-impacto'], ['🎨', 'Brand assets', '/brand', '/brand'], ['📕', 'Brand Guide 2026', 'PDF no Drive', 'https://drive.google.com/file/d/1TuOfKEr2SXG24MFpjdnXaeW3s2pYK56c/view'], ['🎯', 'Metas FY27', '/metas-fy27', '/metas-fy27'], ['🎙️', 'Seja um Voice', '/seja-voice', '/seja-voice']];
+  const L = [['📊', 'Apresentação institucional', 'SharePoint · login Microsoft', PPT_INST], ['▶️', 'SAP e o ERP', 'vídeo', 'https://www.youtube.com/watch?v=BntjvxRet4I'], ['🌐', 'epiuse.com.br', 'site EPI-USE Brasil', 'https://www.epiuse.com.br'], ['🐘', 'groupelephant.com', 'site da holding', 'https://www.groupelephant.com'], ['🦏', 'erp.ngo', 'site oficial', 'https://www.erp.ngo'], ['📊', 'Impacto ERP.ngo', '/erp-impacto', '/erp-impacto'], ['🎨', 'Brand assets', '/brand', '/brand'], ['📕', 'Brand Guide 2026', 'PDF no Drive', 'https://drive.google.com/file/d/1TuOfKEr2SXG24MFpjdnXaeW3s2pYK56c/view'], ['🎯', 'Metas FY27', '/metas-fy27', '/metas-fy27'], ['🎙️', 'Seja um Voice', '/seja-voice', '/seja-voice']];
   return linkGrid(L)(el);
+}
+
+/* ======================= v2.5 · MARCA (guias oficiais EPI-USE e ERP) ======================= */
+function vizLogo(el) {
+  el.classList.add('auto');
+  const DN = [['Não separe nem remova', 'nenhum dos 4 elementos (o “E”, o nome, o círculo vermelho e o ®)'], ['Não mude a cor', 'nem use cores fora do guia'], ['Não use o logo antigo', 'com sublinhado vermelho: aposentado em 01/10/2021'], ['Não tire o ®', 'nem acrescente elementos ao logo']];
+  el.innerHTML = `<div class="brand"><div class="paper logo-pap">
+      <div class="logo-stage"><span class="iso"></span><img src="/assets/logos-epi-use/epi-use-logo-rgb.svg" alt="Logo EPI-USE"></div>
+      <div class="logo-meta"><span>📏 mínimo <b>56 px</b> · 20 mm</span><span>⬚ área de proteção = tamanho do “E”</span><span>⬜ em peças, logo sobre quadrado branco</span></div></div>
+    <div class="dont">${DN.map(([t, s], i) => `<div class="dn" style="--i:${i}"><b>✗</b><span><b style="color:var(--o-text);font-size:13px">${t}</b> ${s}</span></div>`).join('')}</div></div>`;
+}
+function vizErpBrand(el) {
+  el.classList.add('auto');
+  const T = [['🌾', 'Savana africana', 'paisagens em dourados e azuis'], ['🐘', 'Elefantes', 'sempre em estado natural'], ['🦏', 'Rinocerontes', 'conservação de espécies ameaçadas'], ['🧑🏾‍🌾', 'Pessoas', 'renda e desenvolvimento das comunidades rurais']];
+  el.innerHTML = `<div class="erpb"><div class="erpb-hd"><img src="/assets/logos-erp-ngo/erp-logo-white.svg" alt="ERP.ngo"><div><b>Elephants, Rhinos &amp; People</b><span>Beyond Corporate Purpose</span></div></div>
+    <div class="tiers">${T.map(([e, t, s], i) => `<div class="tier" style="--i:${i}"><span class="e">${e}</span><b>${t}</b><small>${s}</small></div>`).join('')}</div>
+    <p class="src">Os 4 pilares de imagem do guia de marca ERP. Evite fotos com grandes áreas verdes.</p></div>`;
+}
+function vizPractice(el) {
+  el.classList.add('auto');
+  const P2 = [['📱', 'Post nas redes', 'Título com até 65 caracteres. Logo no canto superior direito, sobre quadrado branco. Margem de 120 px.'], ['📄', 'Proposta comercial', 'Nunca em PowerPoint. 3 modelos oficiais: Word simples, intermediário e completo (InDesign com a Tusk, que pede prazo).'], ['🖥️', 'Apresentação', 'Template oficial e minimalista: uma ideia por slide. Muito conteúdo? Divida em mais slides.'], ['✉️', 'E-mail', 'Assinatura oficial, uma vez só, no fim da mensagem.'], ['🤝', 'Co-branding', '“A MEMBER OF:” com os logos na mesma altura e com área de proteção.'], ['🌿', 'Imagens', 'Natureza e animais livres, em alta qualidade. Nunca animais em cativeiro.']];
+  el.innerHTML = `<div class="prs">${P2.map(([e, t, s], i) => `<div class="pr" style="--i:${i}"><span class="e">${e}</span><b>${t}</b><span>${s}</span></div>`).join('')}</div>`;
+}
+
+/* ======================= v2.5 · WORKSHOP Golden Circle × Business Model Canvas =======================
+   Rascunhos da EUBR (🤖 gerados por IA, a validar com o Rudá) + campo da pessoa, salvo só no navegador. */
+S.ws = S.ws || {};
+let wsTracked = false;
+const wsSave = (k, v) => { S.ws[k] = v; save(); if (!wsTracked) { wsTracked = true; track('e2.workshop.edit'); } };
+const esc = s => String(s || '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const GC = {
+  why: ['Por quê', 'O propósito: a razão de existir, antes de qualquer produto.', 'Acreditamos que tecnologia só vale quando melhora a vida das pessoas: colaboradores, clientes e comunidades. Por isso vamos além do propósito corporativo, e 1% da receita global do grupo financia a ERP.ngo.'],
+  how: ['Como', 'O jeito único de entregar: método, diferenciais, valores.', 'Especialização profunda (HCM/Payroll há mais de 40 anos), propriedade intelectual que reduz prazo e risco, presença local com a força de um grupo global e método próprio de implementação e sustentação.'],
+  what: ['O quê', 'O que vendemos: produtos e serviços concretos.', 'Licença, implementação, suporte e desenvolvimento em SAP (HCM/SuccessFactors, S/4HANA, BTP, Signavio), ServiceNow e Analytics.']
+};
+function wsPanel(key, title, sub, draft) {
+  return `<div class="ws-p fade"><h4>${title}</h4><p>${sub}</p><p style="margin-top:8px"><span class="ai">🤖 RASCUNHO EUBR · GERADO POR IA, A VALIDAR</span><br>${draft}</p>
+    <textarea data-ws="${key}" placeholder="Na sua visão… (fica salvo só no seu navegador)">${esc(S.ws[key])}</textarea></div>`;
+}
+function bindWs(el) { $$('textarea[data-ws]', el).forEach(t => t.addEventListener('input', () => wsSave(t.dataset.ws, t.value))); }
+function vizGolden(el) {
+  el.classList.add('auto');
+  el.innerHTML = `<div class="gc"><div class="gc-rings">
+      <button class="gc-r r3" data-k="what">O QUÊ</button><button class="gc-r r2" data-k="how">COMO</button><button class="gc-r r1" data-k="why">POR QUÊ</button></div>
+    <div id="gcPanel"></div></div>`;
+  const show = k => { $$('.gc-r', el).forEach(b => b.classList.toggle('on', b.dataset.k === k)); const g = GC[k]; $('#gcPanel', el).innerHTML = wsPanel('gc_' + k, g[0], g[1], g[2]); bindWs(el); };
+  $$('.gc-r', el).forEach(b => b.addEventListener('click', () => show(b.dataset.k)));
+  show('why');
+}
+const BMC = [
+  ['kp', 'how', 'Parcerias-chave', 'SAP (Gold Partner), ServiceNow, AWS e as empresas do Group Elephant.'],
+  ['ka', 'how', 'Atividades-chave', 'Implementar, sustentar (AMS) e desenvolver; gerar demanda com marketing e pré-vendas.'],
+  ['kr', 'how', 'Recursos-chave', 'Especialistas certificados, IPs da EPI-USE Labs, método próprio e a marca do grupo.'],
+  ['vp', 'why', 'Proposta de valor', 'Transformação com especialistas e IPs que reduzem prazo e risco, com um propósito real (ERP.ngo).'],
+  ['cr', 'what', 'Relacionamento', 'Contratos de longo prazo (AMS), Customer Success e comunidade (eventos, ASUG, Voices).'],
+  ['ch', 'what', 'Canais', 'Inbound, outbound (SDR), eventos, ASUG, SAP e parceiros, EPI-USE Voices.'],
+  ['cs', 'what', 'Segmentos', 'Médias e grandes empresas e setor público; decisores C-Level (CFO, CHRO, CIO).'],
+  ['co', 'what', 'Estrutura de custos', 'Pessoas especializadas, P&D de IPs, eventos e marketing, certificações.'],
+  ['rs', 'what', 'Fontes de receita', 'As 4 frentes: licença, implementação, suporte e desenvolvimento.']
+];
+function vizBMC(el) {
+  el.classList.add('auto');
+  el.innerHTML = `<div class="bmw"><div class="gc-leg"><button class="vchip on" data-g="all">Todos</button><button class="vchip" data-g="why"><i></i>Por quê</button><button class="vchip" data-g="how"><i></i>Como</button><button class="vchip" data-g="what"><i></i>O quê</button></div>
+    <div class="bmc">${BMC.map(([k, g, t], i) => `<button class="bm" data-k="${k}" data-g="${g}" style="--i:${i};grid-area:${k}">${t}<small>${GC[g][0]}</small></button>`).join('')}</div>
+    <div id="bmPanel"></div></div>`;
+  const show = k => { const b = BMC.find(x => x[0] === k); $$('.bm', el).forEach(x => x.classList.toggle('on', x.dataset.k === k)); $('#bmPanel', el).innerHTML = wsPanel('bmc_' + k, b[2], `Anel do Golden Circle: <b>${GC[b[1]][0]}</b>`, b[3]); bindWs(el); };
+  $$('.bm', el).forEach(x => x.addEventListener('click', () => show(x.dataset.k)));
+  $$('.gc-leg .vchip', el).forEach(c => c.addEventListener('click', () => { $$('.gc-leg .vchip', el).forEach(o => o.classList.toggle('on', o === c)); $$('.bm', el).forEach(x => x.classList.toggle('dim', c.dataset.g !== 'all' && x.dataset.g !== c.dataset.g)); }));
+  show('vp');
+}
+function copyWorkshop() {
+  const L = ['GOLDEN CIRCLE'].concat(['why', 'how', 'what'].map(k => `${GC[k][0]}: ${S.ws['gc_' + k] || '(em branco)'}`), ['', 'BUSINESS MODEL CANVAS'], BMC.map(b => `${b[2]} [${GC[b[1]][0]}]: ${S.ws['bmc_' + b[0]] || '(em branco)'}`));
+  try { navigator.clipboard.writeText(L.join('\n')); toast('📋 Respostas do workshop copiadas!'); track('e2.workshop.copy'); } catch { toast('Não consegui copiar. Tente de novo.'); }
+}
+
+/* ======================= v2.5 · VIDEOTECA OBRIGATÓRIA (produto) ======================= */
+const VIDEOS = [
+  ['s4', 'SAP S/4HANA', 'S/4HANA', 'HvrIzogVbLw'], ['s4bl', 'SAP S/4HANA', 'Banho de loja · Pré-vendas S/4HANA', 'xLdwsU8ARd4'],
+  ['pm1', 'Process mining', 'Process mining · parte 1', 'tvRE2HXIQ0Y'], ['pm2', 'Process mining', 'Process mining · parte 2', 'QT4N4V1xKWY'],
+  ['sa1', 'Solution Advisory', 'Solution Advisory · parte 1', '-Uvy58aG97Y'], ['sa2', 'Solution Advisory', 'Solution Advisory · parte 2', 'KXRtCEBdLVU'],
+  ['ilab', 'Empresas do grupo', 'Banho de loja · iLab', 'IDvOKB5juX8'], ['valc', 'Empresas do grupo', 'Banho de loja · Valcann', 's7FmM1LbARY'],
+  ['cmi', 'Mercado SAP', 'CMI SAP · Girão 2026', '4QvbWkt0T8c'], ['snow', 'ServiceNow', 'ServiceNow', '_3dtG69n9CQ']
+];
+S.videos = S.videos || {};
+const vidsDone = () => VIDEOS.filter(v => S.videos[v[0]]).length;
+let ytP = null;
+function loadYT() {
+  if (ytP) return ytP;
+  ytP = new Promise(ok => {
+    if (window.YT && window.YT.Player) return ok(true);
+    const prev = window.onYouTubeIframeAPIReady; window.onYouTubeIframeAPIReady = () => { if (prev) prev(); ok(true); };
+    const s = document.createElement('script'); s.src = 'https://www.youtube.com/iframe_api'; s.onerror = () => ok(false); document.head.appendChild(s);
+    setTimeout(() => ok(!!(window.YT && window.YT.Player)), 7000);
+  });
+  return ytP;
+}
+function vizVideos(el) {
+  el.classList.add('auto');
+  let html = '', g = '';
+  VIDEOS.forEach(([k, grp, t], i) => { if (grp !== g) { g = grp; html += `<div class="vt-g">${grp}</div>`; } html += `<button class="vt-it" data-i="${i}" data-k="${k}"><i></i>${t}</button>`; });
+  el.innerHTML = `<div class="vt"><div class="yt"><div id="vtPlayer"></div></div>
+    <div class="vt-now"><b id="vtTitle"></b><button class="vt-man" id="vtMan" hidden>✓ Já assisti</button></div>
+    <div class="vt-prog"><span id="vtCount"></span><div class="bar"><i id="vtBar"></i></div></div>
+    <div class="vt-list">${html}</div></div>`;
+  let cur = Math.max(0, VIDEOS.findIndex(v => !S.videos[v[0]])), player = null, api = false, poll = 0, manT = 0, alive = true;
+  const refresh = () => {
+    $$('.vt-it', el).forEach(b => { const ok = !!S.videos[b.dataset.k]; b.classList.toggle('ok', ok); b.classList.toggle('cur', +b.dataset.i === cur); b.querySelector('i').textContent = ok ? '✓' : '▶'; });
+    const n = vidsDone(); $('#vtCount', el).innerHTML = `<b>${n}/${VIDEOS.length}</b> vídeos assistidos${n === VIDEOS.length ? ' · ✅ quiz liberado' : ' · obrigatórios para liberar o quiz'}`;
+    $('#vtBar', el).style.width = n / VIDEOS.length * 100 + '%'; updateNext();
+  };
+  const mark = k => { if (S.videos[k]) return; S.videos[k] = true; save(); track(`e3.video.${k}.done`); refresh(); burst($(`.vt-it[data-k="${k}"]`, el)); if (vidsDone() === VIDEOS.length) toast('🎬 Videoteca completa! O quiz da etapa está liberado.'); };
+  const man = () => { clearTimeout(manT); const b = $('#vtMan', el); b.hidden = true; if (!api && !S.videos[VIDEOS[cur][0]]) manT = setTimeout(() => { if (alive) b.hidden = false; }, 40000); };
+  const play = i => {
+    cur = i; const v = VIDEOS[i]; $('#vtTitle', el).textContent = '▶️ ' + v[2]; refresh(); man();
+    if (api && player && player.loadVideoById) player.loadVideoById(v[3]);
+    else if (!api) $('.yt', el).innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${v[3]}?rel=0" title="${v[2]}" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+  };
+  $$('.vt-it', el).forEach(b => b.addEventListener('click', () => { play(+b.dataset.i); track(`e3.video.${b.dataset.k}.play`); }));
+  $('#vtMan', el).addEventListener('click', () => mark(VIDEOS[cur][0]));
+  $('#vtTitle', el).textContent = '▶️ ' + VIDEOS[cur][2]; refresh();
+  loadYT().then(ok => {
+    if (!alive) return;
+    api = ok;
+    if (ok) {
+      player = new YT.Player($('#vtPlayer', el), { videoId: VIDEOS[cur][3], host: 'https://www.youtube-nocookie.com', playerVars: { rel: 0, modestbranding: 1 },
+        events: { onStateChange: e => { if (e.data === YT.PlayerState.ENDED) mark(VIDEOS[cur][0]); } } });
+      // conta como assistido ao passar de 90% do vídeo
+      poll = setInterval(() => { try { const d = player.getDuration(), t = player.getCurrentTime(); if (d > 0 && t / d >= .9) mark(VIDEOS[cur][0]); } catch {} }, 2000);
+    } else play(cur);
+  });
+  return () => { alive = false; clearInterval(poll); clearTimeout(manT); try { if (player && player.destroy) player.destroy(); } catch {} };
 }
 
 /* ======================= ETAPA 1: SLIDES ======================= */
 const SLIDES = [
   { e: 'Etapa 1 · Marca & Grupo', t: 'Bem-vindo(a) ao Group Elephant 🐘', l: 'A EPI-USE nasceu na África do Sul e hoje é uma das 20+ marcas do Group Elephant. Antes de qualquer campanha, você precisa saber de onde viemos.',
     x: `<div class="kpis"><div class="kpi"><b data-count="4200" data-suf="+">0</b><span>pessoas</span></div><div class="kpi"><b data-count="42">0</b><span>países</span></div><div class="kpi"><b data-count="2000" data-suf="+">0</b><span>clientes corporativos</span></div><div class="kpi"><b data-count="1800" data-suf="+">0</b><span>organizações com software licenciado</span></div></div><p class="src">Fonte: template institucional oficial EPI-USE (jan/2026).</p>`, v: vizGlobe },
+  { e: 'Apresentação institucional', t: 'Comece pela nossa apresentação', l: 'A apresentação oficial da EPI-USE Brasil resume quem somos, o que vendemos e para quem. Depois, assista ao vídeo para entender o que é a SAP e o ERP.', b: ['A apresentação abre no SharePoint com seu login Microsoft EPI-USE', 'Todos os links da etapa ficam em <b>📚 Materiais</b>, no topo'], v: vizInst },
   { e: 'Nossa história', t: 'Uma história que começa em 1983', l: 'De um projeto de folha de pagamento na Universidade de Pretória a parceira global da SAP.', b: ['SAP Gold Partner', 'Mais de 40 anos de parceria com a SAP'], v: vizTimeline },
   { e: 'O grupo', t: 'Um grupo, mais de 20 marcas', l: 'O <b>Group Elephant</b> é a holding. Cada marca tem uma especialidade.', b: ['<b>Azul</b>: marcas com foco SAP', '<b>Azul-ardósia</b>: outras tecnologias', '<b>Vermelho</b>: ERP.ngo, o braço social'], v: vizOrbit },
   { e: 'No Brasil', t: 'E aqui no Brasil?', l: 'Somos a consultoria SAP especializada em <b>HCM/Payroll</b>, evoluindo para a <b>EPI-USE 5.0</b>: transformação empresarial, não só SAP.',
@@ -934,15 +1185,20 @@ const SLIDES = [
   { e: 'Propósito', t: '1% para a natureza 🦏', l: '1% da receita global do grupo vai para a <b>ERP.ngo</b>: conservação de elefantes e rinocerontes e combate à pobreza rural na África.',
     b: ['Todo conteúdo institucional menciona a ERP.ngo', 'Todo EPI-USE Voice é embaixador dela'],
     x: `<div class="mini-links"><a href="https://www.epiuse.com.br/artigo/o-que-nossos-clientes-fizeram-pelo-nosso-erp-em-2022" target="_blank" rel="noopener">📰 Clientes e o ERP em 2022</a><a href="https://www.epiuse.com.br/artigo/o-que-nossos-clientes-fizeram-pelo-nosso-erp-em-2020" target="_blank" rel="noopener">📰 Clientes e o ERP em 2020</a><a href="https://www.epiuse.com.br/artigo/erp-exemplo-de-human-centered-design-hcd" target="_blank" rel="noopener">📰 ERP e Human Centered Design</a></div>`, v: vizNgo },
+  { e: 'ERP.ngo', t: 'A marca irmã: Elephants, Rhinos & People', l: 'A ERP.ngo tem guia de marca próprio. O nome brinca com o “ERP” do software: aqui ele significa <b>Elephants, Rhinos &amp; People</b>.', b: ['Domínio sempre em minúsculas: <b>erp.ngo</b>', 'O modelo híbrido do grupo virou estudo de caso da Berkeley Haas (2016 e 2021)', 'Co-branding: logos na mesma altura, separados por uma linha azul'], v: vizErpBrand },
   { e: 'Identidade', t: 'Como a marca aparece e fala', l: '<i>Mostly blue, with an accent of red.</i> O vermelho é reservado: 1 CTA, um bullet, um ícone.',
     x: `<div class="dd"><div class="y"><b>✓ Faça</b>Hook forte na 1ª linha · parágrafos curtos · CTA claro · dado real ou placeholder explícito</div><div class="n"><b>✗ Evite</b>Política e religião · concorrente citado · cliente sem aprovação · promessa sem evidência</div></div><p class="src">Toda publicação externa passa pela aprovação da Duda.</p>`, v: vizBrand },
-  { e: 'Para guardar', t: 'Seu kit de links da Etapa 1', l: 'Salve nos favoritos. Depois, bora pro quiz: 4 perguntas rápidas.', v: vizLinks }
+  { e: 'Logo', t: 'Regras de ouro do logo', l: 'O logo tem 4 elementos que andam sempre juntos: o “E”, o nome, o círculo vermelho e o ®. Prefira a versão colorida; a branca só sobre fundo azul do guia.', b: ['A linha tracejada vermelha é a <b>área de proteção</b>: nada entra nela', 'Arquivos oficiais em <b>/brand</b>'], v: vizLogo },
+  { e: 'Na prática', t: 'A marca no dia a dia', l: 'Regras do Brand Guide que você vai usar toda semana, do post à proposta.', b: ['<b>Tusk</b> é o time de design do grupo: peças completas pedem prazo'], v: vizPractice },
+  { e: 'Para guardar', t: 'Seu kit de links da Etapa 1', l: 'Salve nos favoritos. Depois, bora pro quiz: 6 perguntas, algumas mais difíceis.', v: vizLinks }
 ];
 const QUIZ = [
-  { q: 'Como devemos chamar a empresa em comunicação no Brasil?', o: ['EPI-USE', 'EPI-USE Brasil', 'Group Elephant Brasil'], a: 1, w: 'Existem entidades EPI-USE em dezenas de países. “EPI-USE Brasil” evita confusão.' },
-  { q: 'Quais são as 4 frentes de receita?', o: ['Licença, Implementação, Suporte, Desenvolvimento', 'HCM, ERP, BTP, Signavio', 'Inbound, Outbound, Eventos, Parcerias'], a: 0, w: 'HCM, ERP, BTP… são LOBs (linhas de solução), não frentes de receita.' },
-  { q: 'Quanto da receita global do grupo vai para a ERP.ngo?', o: ['0,1%', '1%', '10%'], a: 1, w: '1% da receita global, para conservação e comunidades na África.' },
-  { q: 'Qual o papel do vermelho na identidade visual?', o: ['Cor predominante', 'Só acento: CTA, bullet, ícone', 'Fundo de tabelas e gráficos'], a: 1, w: '“Mostly blue, with an accent of red.”' }
+  { q: 'Como devemos chamar a empresa em comunicação no Brasil?', o: ['EPI-USE', 'EPI-USE Brasil', 'Group Elephant Brasil', 'EPI-USE LATAM'], a: 1, w: 'Existem entidades EPI-USE em dezenas de países. “EPI-USE Brasil” evita confusão.' },
+  { q: 'Quais são as 4 frentes de receita?', o: ['Licença, Implementação, Suporte, Desenvolvimento', 'HCM, ERP, BTP, Signavio', 'Inbound, Outbound, Eventos, Parcerias', 'Consultoria, Treinamento, Hardware, Revenda'], a: 0, w: 'HCM, ERP, BTP… são LOBs (linhas de solução), não frentes de receita.' },
+  { q: 'No nome ERP.ngo, o que significa “ERP”?', o: ['Enterprise Resource Planning', 'Elephants, Rhinos & People', 'EPI-USE Resource Program', 'Environmental Responsibility Plan'], a: 1, w: 'É o trocadilho do grupo: além do ERP de software, o ERP de Elephants, Rhinos & People.' },
+  { q: 'Qual é o tamanho mínimo do logo EPI-USE em digital?', o: ['32 px', '56 px', '120 px', 'Não existe mínimo'], a: 1, w: 'Brand Guide: nunca menor que 56 px (ou 20 mm no impresso).' },
+  { q: 'Um cliente pediu uma proposta. Qual é o caminho certo?', o: ['Montar em PowerPoint', 'Usar um dos 3 modelos oficiais; o completo é feito com a Tusk e pede prazo', 'Criar um layout novo para cada cliente', 'Reaproveitar o logo antigo com sublinhado vermelho'], a: 1, w: 'O guia recomenda não enviar propostas em PowerPoint; a apresentação vai como anexo.' },
+  { q: 'Qual destas imagens é proibida nas peças da marca?', o: ['Elefante na savana', 'Pessoas da comunidade local', 'Animais em cativeiro (zoológico, aquário)', 'Paisagem natural em tons azuis'], a: 2, w: 'Imagem da marca = natureza e animais em estado natural.' }
 ];
 
 /* ======================= COMPONENTES REUTILIZÁVEIS ======================= */
@@ -1209,6 +1465,8 @@ const TRELLO = 'https://trello.com/b/M6xLnTcT/atividades-de-marketing-mise-en-pl
 const SLIDES2 = [
   { e: 'Etapa 2 · Estratégia & Demanda', t: 'Vendemos para o C-Level', l: 'Regra de ouro: comece pela dor do negócio, nunca pelo nome do módulo SAP. Vire os cards para ver o pitch de cada persona.',
     v: vizFlip([['💵', 'CFO', 'Finanças e compliance', '“Sua infraestrutura de ERP está preparada para a Reforma Tributária ou seu time financeiro vai precisar de processos manuais?”'], ['👥', 'CHRO / COO', 'Pessoas e operação', '“Se sua empresa fosse um app, a experiência dos colaboradores seria intuitiva ou eles o desinstalariam?”'], ['🖥️', 'CIO', 'Tecnologia e dados', '“Sua empresa investe em IA, mas seus dados e processos têm governança para que as decisões não sejam baseadas em achismo?”']]) },
+  { e: 'Workshop · parte 1', t: 'Golden Circle: comece pelo porquê', l: 'Simon Sinek: as marcas que inspiram comunicam de dentro para fora: <b>por quê → como → o quê</b>. Toque em cada anel, leia o rascunho da EPI-USE Brasil e escreva a sua versão.', b: ['Os rascunhos são um ponto de partida para pensarmos juntos', 'Suas respostas ficam salvas só no seu navegador'], v: vizGolden },
+  { e: 'Workshop · parte 2', t: 'Golden Circle × Business Model Canvas', l: 'Cada bloco do Canvas responde a um anel do círculo: o <b>porquê</b> vira a proposta de valor, o <b>como</b> sustenta a operação e o <b>o quê</b> chega ao cliente e vira receita.', x: '<button class="btn ghost" onclick="copyWorkshop()" style="margin-top:4px">📋 Copiar minhas respostas</button>', v: vizBMC },
   { e: 'Urgência', t: 'Os gatilhos de 2026', l: 'Três motivos que fazem o cliente agir agora. Use nos ganchos de conteúdo e de campanha.', b: ['<b>Fim do suporte ECC</b> (EHP0 a EHP5), sem extensão', '<b>Reforma Tributária</b>: CBS e IBS em vigor', '<b>Clean Core</b>: upgrade barato só com core limpo'], v: vizRadar },
   { e: 'Geração de demanda', t: 'De onde vêm os leads', l: 'Os leads entram por vários canais, o marketing qualifica (MQL), vendas aceita (SQL) e vira oportunidade. Toque num canal.', v: vizFunnel },
   { e: 'Inbound', t: 'Da oferta ao MQL', l: 'Campanha boa tem oferta, LP, UTM e nutrição. O lead “esquenta” até ficar pronto para vendas.', b: ['Toda campanha precisa de UTM para atribuição', 'News externa (mercado) e interna (time) passam pela Duda'],
@@ -1219,14 +1477,18 @@ const SLIDES2 = [
   { e: 'Eventos & SAP', t: 'Eventos com verba da SAP', l: 'Field Marketing roda mais de 30 eventos por ano (Brasil + LATAM). Boa parte pode ser cofinanciada pela SAP via MDF.', b: ['Canais via SAP: eventos, ASUG, listas e o Partner Benefits Catalog', 'Indicadores de parceiro: REX, CIV e Gold Partner · NPS via Binds'],
     v: vizRing([['📝', 'Business Plan', 'Plano aprovado com a SAP antes da ação.'], ['🎪', 'Execução', 'O evento ou a campanha acontece.'], ['📸', 'Proof of Performance', 'Comprovação: fotos, leads, notas.'], ['💶', 'Reembolso', 'A SAP reembolsa a parte acordada.']], 'Ciclo do MDF · toque para fixar') },
   { e: 'Concorrência', t: 'De olho nos concorrentes', l: 'Observe site, LinkedIn, artes e conteúdos de cada um. Em conteúdo público, nunca citamos concorrente pelo nome.', v: vizComp },
+  { e: 'Marketing', t: 'Treinamentos de marketing', l: 'Inbound, SEO, SEM, design, LGPD e growth. Os treinamentos de produto (SAP, ServiceNow, iLab…) ficam na Etapa 3.', x: '<p class="src">🔐 Cursos com login compartilhado: peça ao Rudá.</p>',
+    v: linkGrid([['📧', 'Marketing Digital (RD)', 'curso gratuito', 'https://materiais.resultadosdigitais.com.br/agradecimento-curso-de-marketing-digital-gratuito'], ['🎓', 'RD University', 'inbound', 'https://university.rdstation.com/start'], ['⚙️', 'Cursos RD Station', 'a ferramenta', 'https://university.rdstation.com/cursos?busca=rd+station'], ['🔎', 'O que é SEO', 'Rock Content', 'https://rockcontent.com/br/blog/o-que-e-seo/'], ['💲', 'O que é SEM', 'RD', 'https://resultadosdigitais.com.br/marketing/o-que-e-sem/'], ['⚖️', 'SEO × SEM', 'Semrush', 'https://pt.semrush.com/blog/seo-ou-sem-qual-e-a-diferenca'], ['🎨', 'Design Gráfico', 'FIAP', 'https://www.eucapacito.com.br/cursos/design-grafico/'], ['📘', 'Design p/ não designers', 'livro (Drive)', 'https://drive.google.com/drive/u/1/folders/1cDTedhRgenXv9AO8Rt2sGyB88gV63oSj'], ['🔒', 'Conheça a LGPD', 'RD', 'https://ajuda.rdstation.com/s/article/Conhe%C3%A7a-a-Lei-Geral-de-Prote%C3%A7%C3%A3o-de-Dados?language=pt_BR'], ['🔒', 'LGPD na prática', 'RD', 'https://ajuda.rdstation.com/s/article/Lei-Geral-de-Prote%C3%A7%C3%A3o-de-Dados-LGPD?language=pt_BR'], ['🚀', 'Growth Hacking', 'Crehana (login c/ Rudá)', 'https://www.crehana.com/clases/v2/10260/player/36309/'], ['🎓', 'Cursos gratuitos', 'FIAP · Eu Capacito', 'https://eucapacito.com.br/']]) },
   { e: 'Para guardar', t: 'Seu kit de links da Etapa 2', l: 'Telas e ferramentas que você vai usar toda semana.',
     v: linkGrid([['📊', 'Report mensal', '/relatorio', '/relatorio'], ['📈', 'Visão executiva', '/executivo', '/executivo'], ['📅', 'Field Marketing & Eventos', '/area/eventos', '/area/eventos'], ['💶', 'Development Funds (MDF)', '/development-funds', '/development-funds'], ['🏭', 'Pipeline de conteúdo', '/content-pipeline', '/content-pipeline'], ['🗓️', 'Calendário editorial', '/editorial', '/editorial/calendario.html'], ['🔗', 'Gerador de UTM', '/admin/utm', '/admin/utm'], ['📋', 'Trello do marketing', 'Atividades de Marketing', TRELLO], ['📧', 'RD Station', 'e-mail e automação', 'https://app.rdstation.com.br'], ['🎁', 'Partner Benefits Catalog', 'SAP PBC', 'https://partnerbenefitscatalog.sap.com'], ['📄', 'Guia MDF', 'Partner Edge', 'https://partneredge.sap.com/en/library/assets/partnership/dgl/25/92/SAP1242592.html'], ['🤝', 'Social Selling Concierge', 'PBC', 'https://partnerbenefitscatalog.sap.com/Partner-Benefits-Catalog/Marketing-Excellence/Social-Selling-Concierge/p/1000895']]) }
 ];
 const QUIZ2 = [
-  { q: 'Qual a ordem correta do funil?', o: ['SQL → MQL → Lead', 'Lead → MQL → SQL → Oportunidade', 'MQL → Lead → Oportunidade'], a: 1, w: 'O marketing qualifica (MQL), vendas aceita (SQL) e aí vira oportunidade.' },
-  { q: 'Quantos conteúdos a Redatoria entrega por mês?', o: ['10', '20', '40'], a: 1, w: '20 conteúdos por mês, a partir dos briefings do Gui.' },
-  { q: 'O que é MDF?', o: ['Verba da SAP para cofinanciar marketing de parceiros', 'Uma ferramenta de e-mail', 'Uma métrica de NPS'], a: 0, w: 'Market Development Funds: Business Plan → execução → Proof of Performance → reembolso.' },
-  { q: 'Podemos citar concorrentes em conteúdo público?', o: ['Sim, se for elogio', 'Não, nunca nominalmente', 'Só no LinkedIn'], a: 1, w: 'Benchmark é uso interno. Em público, nunca pelo nome.' }
+  { q: 'Qual é a ordem correta do funil?', o: ['SQL → MQL → Lead', 'Lead → MQL → SQL → Oportunidade', 'MQL → Lead → Oportunidade', 'Oportunidade → SQL → MQL'], a: 1, w: 'O marketing qualifica (MQL), vendas aceita (SQL) e aí vira oportunidade.' },
+  { q: 'O que é MDF?', o: ['Verba da SAP para cofinanciar marketing de parceiros', 'Uma ferramenta de e-mail', 'Uma métrica de NPS', 'Um modelo de proposta'], a: 0, w: 'Market Development Funds: Business Plan → execução → Proof of Performance → reembolso.' },
+  { q: 'Qual métrica mostra quanto custa conquistar um cliente novo?', o: ['CTR', 'CAC', 'NPS', 'Taxa de rejeição'], a: 1, w: 'CAC = custo de aquisição de cliente (marketing + vendas ÷ clientes novos).' },
+  { q: 'Para saber qual campanha gerou um lead, o essencial é:', o: ['Postar mais vezes', 'Usar parâmetros UTM nos links', 'Aumentar o orçamento', 'Trocar a landing page'], a: 1, w: 'Sem UTM não há atribuição: o lead chega sem origem.' },
+  { q: 'Na stack da EPI-USE Brasil, onde ficam deals, pipeline e receita?', o: ['RD Station', 'HubSpot CMS', 'Zoho CRM', 'Trello'], a: 2, w: 'Site = HubSpot CMS · marketing = RD Station · vendas = Zoho CRM.' },
+  { q: 'No Golden Circle, por onde a comunicação deve começar?', o: ['Pelo o quê (produto)', 'Pelo como (método)', 'Pelo por quê (propósito)', 'Pelo preço'], a: 2, w: 'De dentro para fora: por quê → como → o quê.' }
 ];
 const SLIDES3 = [
   { e: 'Etapa 3 · SAP & Técnico', t: 'O que é um ERP?', l: 'É o sistema que integra os processos da empresa (finanças, compras, vendas, RH) numa base única. Você não vai configurar SAP, mas precisa entender o bastante para conversar com um CIO.', v: vizErp },
@@ -1235,16 +1497,17 @@ const SLIDES3 = [
   { e: 'Processos', t: 'Process mining e Signavio', l: 'O process mining lê os logs do ERP e mostra como o processo <b>realmente</b> acontece: desvios, retrabalho e gargalos. Compare com o ideal.', v: vizPM },
   { e: 'Nosso core', t: 'HCM: a jornada do colaborador', l: 'O SAP SuccessFactors cobre a jornada inteira do colaborador, e o ServiceNow HRSD atende quem tem dúvidas. Folha de pagamento é nosso DNA desde 1983.',
     v: vizRing([['🔎', 'Recrutar', 'Atração e seleção de talentos.'], ['📝', 'Admitir', 'Admissão e onboarding digital.'], ['💰', 'Pagar', 'Folha e ponto: nossa especialidade.'], ['🌱', 'Desenvolver', 'Desempenho, aprendizagem e sucessão.']], 'Jornada do colaborador · toque para fixar') },
+  { e: 'Videoteca obrigatória', t: '🎬 Treinamentos de produto', l: 'Assista aos 10 vídeos aqui mesmo, sem sair do onboarding. Eles são obrigatórios: o quiz da etapa só libera quando todos estiverem assistidos.', b: ['O vídeo conta como assistido ao chegar a 90%', 'Produto: SAP S/4HANA, process mining, Solution Advisory, iLab, Valcann, mercado SAP e ServiceNow'], v: vizVideos, req: () => vidsDone() === VIDEOS.length, reqMsg: () => `🎬 Assista aos vídeos obrigatórios para seguir (${vidsDone()}/${VIDEOS.length}).` },
   { e: 'Trilhas SAP', t: 'Onde estudar SAP', l: 'Trilhas gratuitas, portais de parceiro e vídeos para começar.', x: '<p class="src">Grade de treinamentos internos (HCM/ERP/BTP/Signavio): <span class="tag">⏳ a preencher</span></p>',
-    v: linkGrid([['▶️', 'SAP e o ERP', 'vídeo', 'https://www.youtube.com/watch?v=BntjvxRet4I'], ['▶️', 'S/4HANA', 'vídeo', 'https://www.youtube.com/watch?v=HvrIzogVbLw'], ['▶️', 'ServiceNow', 'vídeo', 'https://www.youtube.com/watch?v=_3dtG69n9CQ'], ['▶️', 'Process mining (1)', 'vídeo', 'https://www.youtube.com/watch?v=tvRE2HXIQ0Y'], ['▶️', 'Process mining (2)', 'vídeo', 'https://www.youtube.com/watch?v=QT4N4V1xKWY'], ['🎓', 'SAP Learning', 'trilhas gratuitas', 'https://learning.sap.com'], ['👤', 'SAP for Me', 'exige S-user', 'https://me.sap.com'], ['🏛️', 'Partner Edge', 'portal do parceiro', 'https://partneredge.sap.com'], ['🌍', 'Clientes SAP 4 ME', '/clientes-sap-4me', '/clientes-sap-4me']]) },
-  { e: 'Marketing', t: 'Treinamentos de marketing', l: 'Inbound, SEO, SEM, design, LGPD e growth: escolha por onde começar.', x: '<p class="src">🔐 Cursos com login compartilhado: peça ao Rudá.</p>',
-    v: linkGrid([['📧', 'Marketing Digital (RD)', 'curso gratuito', 'https://materiais.resultadosdigitais.com.br/agradecimento-curso-de-marketing-digital-gratuito'], ['🎓', 'RD University', 'inbound', 'https://university.rdstation.com/start'], ['⚙️', 'Cursos RD Station', 'a ferramenta', 'https://university.rdstation.com/cursos?busca=rd+station'], ['🔎', 'O que é SEO', 'Rock Content', 'https://rockcontent.com/br/blog/o-que-e-seo/'], ['💲', 'O que é SEM', 'RD', 'https://resultadosdigitais.com.br/marketing/o-que-e-sem/'], ['⚖️', 'SEO × SEM', 'Semrush', 'https://pt.semrush.com/blog/seo-ou-sem-qual-e-a-diferenca'], ['🎨', 'Design Gráfico', 'FIAP', 'https://www.eucapacito.com.br/cursos/design-grafico/'], ['📘', 'Design p/ não designers', 'livro (Drive)', 'https://drive.google.com/drive/u/1/folders/1cDTedhRgenXv9AO8Rt2sGyB88gV63oSj'], ['🔒', 'Conheça a LGPD', 'RD', 'https://ajuda.rdstation.com/s/article/Conhe%C3%A7a-a-Lei-Geral-de-Prote%C3%A7%C3%A3o-de-Dados?language=pt_BR'], ['🔒', 'LGPD na prática', 'RD', 'https://ajuda.rdstation.com/s/article/Lei-Geral-de-Prote%C3%A7%C3%A3o-de-Dados-LGPD?language=pt_BR'], ['🚀', 'Growth Hacking', 'Crehana (login c/ Rudá)', 'https://www.crehana.com/clases/v2/10260/player/36309/'], ['🎓', 'Cursos gratuitos', 'FIAP · Eu Capacito', 'https://eucapacito.com.br/']]) }
+    v: linkGrid([['▶️', 'SAP e o ERP', 'vídeo', 'https://www.youtube.com/watch?v=BntjvxRet4I'], ['▶️', 'S/4HANA', 'vídeo', 'https://www.youtube.com/watch?v=HvrIzogVbLw'], ['▶️', 'ServiceNow', 'vídeo', 'https://www.youtube.com/watch?v=_3dtG69n9CQ'], ['▶️', 'Process mining (1)', 'vídeo', 'https://www.youtube.com/watch?v=tvRE2HXIQ0Y'], ['▶️', 'Process mining (2)', 'vídeo', 'https://www.youtube.com/watch?v=QT4N4V1xKWY'], ['🎓', 'SAP Learning', 'trilhas gratuitas', 'https://learning.sap.com'], ['👤', 'SAP for Me', 'exige S-user', 'https://me.sap.com'], ['🏛️', 'Partner Edge', 'portal do parceiro', 'https://partneredge.sap.com'], ['🌍', 'Clientes SAP 4 ME', '/clientes-sap-4me', '/clientes-sap-4me']]) }
 ];
 const QUIZ3 = [
-  { q: 'O que significa Clean Core?', o: ['Apagar dados antigos do ERP', 'Manter o núcleo do ERP sem customizações, com extensões no BTP', 'Migrar para outro fornecedor'], a: 1, w: 'Core limpo = upgrades baratos; customização vai para o BTP.' },
-  { q: 'Para que serve o process mining?', o: ['Desenhar o processo ideal do zero', 'Mostrar como o processo realmente acontece, a partir dos logs', 'Minerar criptomoedas'], a: 1, w: 'Ele revela desvios, retrabalho e gargalos reais.' },
-  { q: 'Qual é o sucessor do SAP ECC?', o: ['SuccessFactors', 'S/4HANA', 'Signavio'], a: 1, w: 'O S/4HANA é o ERP atual da SAP.' },
-  { q: 'Para que serve o SAP BTP?', o: ['Folha de pagamento', 'Extensões, integrações, dados e IA', 'Gestão de eventos'], a: 1, w: 'É a plataforma que permite o Clean Core.' }
+  { q: 'O que significa Clean Core?', o: ['Apagar dados antigos do ERP', 'Manter o núcleo do ERP sem customizações, com extensões no BTP', 'Migrar para outro fornecedor', 'Fazer backup na nuvem'], a: 1, w: 'Core limpo = upgrades baratos; customização vai para o BTP.' },
+  { q: 'Para que serve o process mining?', o: ['Desenhar o processo ideal do zero', 'Mostrar como o processo realmente acontece, a partir dos logs', 'Minerar criptomoedas', 'Medir a satisfação do cliente'], a: 1, w: 'Ele revela desvios, retrabalho e gargalos reais.' },
+  { q: 'Qual é o sucessor do SAP ECC?', o: ['SuccessFactors', 'S/4HANA', 'Signavio', 'Ariba'], a: 1, w: 'O S/4HANA é o ERP atual da SAP.' },
+  { q: 'O que é o RISE with SAP?', o: ['Pacote de transformação para S/4HANA Cloud de quem já é cliente', 'Um evento anual da SAP', 'Uma ferramenta de RH', 'Uma certificação de parceiro'], a: 0, w: 'RISE é para clientes existentes; GROW é para novos clientes no Cloud Public.' },
+  { q: 'O ServiceNow HRSD resolve qual dor?', o: ['Cálculo da folha de pagamento', 'Atendimento ao colaborador (service desk de RH)', 'Contabilidade fiscal', 'Logística de armazém'], a: 1, w: 'HRSD = HR Service Delivery: portal e atendimento de RH.' },
+  { q: 'Por que o fim do suporte ao ECC é um gatilho de urgência?', o: ['Porque o suporte das versões EHP0–EHP5 acaba sem extensão', 'Porque o ECC passou a ser gratuito', 'Porque o S/4HANA só roda on-premise', 'Porque a licença do ECC dobrou de preço'], a: 0, w: 'Sem suporte, o cliente precisa migrar: oportunidade para S/4HANA e Clean Core.' }
 ];
 const SLIDES4 = [
   { e: 'Etapa 4 · Comercial', t: 'Receita Previsível', l: 'A metodologia de Aaron Ross separa o funil em funções especializadas. Cada uma é dona de uma etapa e passa o bastão com critério claro.', v: vizRP },
@@ -1258,10 +1521,12 @@ const SLIDES4 = [
     v: linkGrid([['📗', 'Receita Previsível', 'livro (Drive)', 'https://drive.google.com/drive/u/1/folders/1cDTedhRgenXv9AO8Rt2sGyB88gV63oSj'], ['🎯', 'Exact Sales', 'pré-vendas', 'https://www.exactsales.com.br'], ['🎓', 'RD University', 'vendas e SDR', 'https://university.rdstation.com/start'], ['🧠', 'JARVIS', 'copiloto SDR · /jarvis', '/jarvis'], ['📞', 'Biz Dev / Pipeline', '/area/pipeline', '/area/pipeline'], ['in', 'Sales Navigator', 'LinkedIn', 'https://www.linkedin.com/sales/'], ['▶️', 'S/4HANA Sales Approach', 'vídeo', 'https://www.youtube.com/watch?v=HvrIzogVbLw'], ['🎯', 'War Room', '/war-room', '/war-room'], ['📊', 'Curva ABC', '/curva-abc', '/curva-abc']]) }
 ];
 const QUIZ4 = [
-  { q: 'Na Receita Previsível, quem prospecta e qualifica?', o: ['Closer', 'SDR', 'CS'], a: 1, w: 'O SDR prospecta e qualifica; o Closer fecha.' },
-  { q: 'Qual é o SLA mensal do Development Sales?', o: ['40 ligações + 200 e-mails', '10 ligações + 50 e-mails', '100 ligações + 1.000 e-mails'], a: 0, w: '40 ligações + 200 e-mails por mês.' },
-  { q: 'O que significa o “A” de BANT?', o: ['Atendimento', 'Autoridade: quem decide', 'Agenda'], a: 1, w: 'Budget, Authority, Need, Timing.' },
-  { q: 'Qual é o papel do CS?', o: ['Prospectar novos leads', 'Garantir resultado, reter e expandir', 'Emitir notas fiscais'], a: 1, w: 'CS retém e abre novas frentes de receita.' }
+  { q: 'Na Receita Previsível, quem prospecta e qualifica?', o: ['Closer', 'SDR', 'CS', 'Marketing'], a: 1, w: 'O SDR prospecta e qualifica; o Closer fecha.' },
+  { q: 'Qual é o SLA mensal do Development Sales?', o: ['40 ligações + 200 e-mails', '10 ligações + 50 e-mails', '100 ligações + 1.000 e-mails', '20 ligações + 20 e-mails'], a: 0, w: '40 ligações + 200 e-mails por mês.' },
+  { q: 'O que significa o “A” de BANT?', o: ['Atendimento', 'Autoridade: quem decide', 'Agenda', 'Alcance'], a: 1, w: 'Budget, Authority, Need, Timing.' },
+  { q: 'Qual é o papel do CS?', o: ['Prospectar novos leads', 'Garantir resultado, reter e expandir', 'Emitir notas fiscais', 'Criar campanhas de mídia'], a: 1, w: 'CS retém e abre novas frentes de receita.' },
+  { q: 'Para que serve o “break-up e-mail” numa cadência?', o: ['Abrir a conversa', 'Encerrar a cadência com educação, deixando a porta aberta', 'Enviar a proposta', 'Pedir desconto ao cliente'], a: 1, w: 'É o último toque: muitas vezes é o que mais gera resposta.' },
+  { q: 'Qual é o melhor gancho para abrir uma conversa com um CFO?', o: ['Explicar o módulo FI do S/4HANA', 'Perguntar se o ERP está pronto para a Reforma Tributária sem processos manuais', 'Mostrar o organograma da EPI-USE', 'Falar do preço da licença'], a: 1, w: 'Comece pela dor do negócio, nunca pelo nome do produto.' }
 ];
 
 /* ======================= ETAPAS (dados do player) ======================= */
@@ -1365,6 +1630,7 @@ function openPlayer(k) {
 }
 function closePlayer() { stopViz(); player.classList.remove('on'); document.body.style.overflow = ''; bgStop(false); renderMap(); }
 $('#pClose').addEventListener('click', closePlayer);
+$('#pRes').addEventListener('click', () => openDrawer('res', P.k));
 function segs() {
   const n = D().slides.length, cur = P.mode === 'slides' ? P.i : n;
   $('#segs').innerHTML = Array.from({ length: n + 1 }, (_, k) => `<div class="seg ${k < cur || P.mode === 'done' ? 'done' : ''} ${k === cur ? 'cur' : ''} ${k === n ? 'quiz' : ''}"><i></i></div>`).join('');
@@ -1385,10 +1651,17 @@ function render(dir) {
   $('#pBot').style.display = '';
   $('#pPrev').disabled = P.i === 0;
   $('#pCount').textContent = `${P.i + 1} / ${SL.length}`;
-  $('#pNext').textContent = P.i === SL.length - 1 ? 'Ir para o quiz →' : 'Próximo →';
+  updateNext();
+}
+function updateNext() {
+  if (P.mode !== 'slides') return;
+  const SL = D().slides, s = SL[P.i];
+  $('#pNext').textContent = s.req && !s.req() ? `🔒 Assista aos vídeos (${vidsDone()}/${VIDEOS.length})` : (P.i === SL.length - 1 ? 'Ir para o quiz →' : 'Próximo →');
 }
 function next() {
   if (P.mode !== 'slides') return;
+  const cur = D().slides[P.i];
+  if (cur.req && !cur.req()) return toast(cur.reqMsg());
   const len = D().slides.length;
   if (P.i < len - 1) { P.i++; render('next'); }
   else { S[P.k].max = len; save(); P.mode = 'quiz'; P.qi = 0; P.score = 0; P.ans = []; renderQuiz('next'); }
@@ -1396,8 +1669,8 @@ function next() {
 function prev() { if (P.mode === 'slides' && P.i > 0) { P.i--; render('prev'); } }
 $('#pNext').addEventListener('click', next); $('#pPrev').addEventListener('click', prev);
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { if (certModal.classList.contains('on')) closeCert(); else if (player.classList.contains('on')) closePlayer(); else if (drawer.classList.contains('on')) closeDrawer(); return; }
-  if (!player.classList.contains('on') || e.target.matches('input')) return;
+  if (e.key === 'Escape') { if (certModal.classList.contains('on')) closeCert(); else if (drawer.classList.contains('on')) closeDrawer(); else if (player.classList.contains('on')) closePlayer(); return; }
+  if (!player.classList.contains('on') || drawer.classList.contains('on') || e.target.matches('input')) return;
   if (e.key === 'ArrowRight') next(); if (e.key === 'ArrowLeft') prev();
 });
 let tx = null;
@@ -1408,7 +1681,7 @@ function renderQuiz(dir) {
   stopViz(); stage.className = 'stage dir-' + dir; stage.scrollTop = 0; segs(); $('#pBot').style.display = 'none';
   const QZ = D().quiz, q = QZ[P.qi];
   stage.innerHTML = `<div class="qz"><div class="q-meta st" style="--i:0">Quiz · pergunta ${P.qi + 1} de ${QZ.length}</div><h2 class="st" style="--i:1">${q.q}</h2>
-    <div class="q-opts">${q.o.map((o, j) => `<button class="q-opt st" style="--i:${j + 2}" data-j="${j}"><b>${'ABC'[j]}</b><span>${o}</span></button>`).join('')}</div>
+    <div class="q-opts">${q.o.map((o, j) => `<button class="q-opt st" style="--i:${j + 2}" data-j="${j}"><b>${'ABCD'[j]}</b><span>${o}</span></button>`).join('')}</div>
     <div class="q-fb" aria-live="polite"></div><button class="btn q-next" hidden>${P.qi < QZ.length - 1 ? 'Próxima pergunta →' : 'Ver resultado →'}</button></div>`;
   const opts = $('.q-opts', stage);
   $$('.q-opt', stage).forEach(b => b.addEventListener('click', () => {
