@@ -7,3 +7,5 @@
 - **Acesso `time`:** o conteúdo cita metas e estratégia do Marketing; colaborador de fora (`hub`) e diretoria não abrem.
 - **TED embutido** (`embed.ted.com`, legenda pt-br) com link de fallback; carrega só quando o capítulo aparece.
 - **Sem copiar os PDFs:** conteúdo de terceiros entra parafraseado e com crédito; os arquivos não foram publicados no repositório.
+- **v1.1 (15/out): uma tela por vez.** Em sessão ao vivo o grupo acompanha o mesmo ponto; o player guarda a tela e aceita link direto.
+- **Notas na própria página, não num documento à parte:** o facilitador lê ao lado da tela que está mostrando; o `ROTEIRO.md` é gerado das mesmas notas para não haver duas versões. As notas ficam visíveis para quem abrir o botão (é material de treinamento, sem dado sensível).
